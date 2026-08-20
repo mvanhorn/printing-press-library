@@ -1,6 +1,6 @@
-// Package naverblog scrapes Naver Blog search results
-// (https://search.naver.com/search.naver?where=blog&query=...). The page is
-// server-rendered HTML and Naver gates anonymous traffic to browser-shaped UAs.
+// Package naverblog is the Stage-2 source client for blog.naver.com — the
+// long-tail Korean review-blog network. Search returns blog post URLs;
+// each post tends to be one specific venue review.
 package naverblog
 
 import (
@@ -11,138 +11,142 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/closedsignal"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/httperr"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 )
 
 const (
-	defaultBaseURL = "https://search.naver.com/search.naver"
-	// Naver returns a Korean-only error page for spider-shaped UAs, so we ship a
-	// browser-like default. Callers can still override via the constructor.
-	defaultUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 wanderlust-goat-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
-	defaultTimeout   = 10 * time.Second
-	maxResults       = 30
+	defaultBase     = "https://search.naver.com"
+	defaultUA       = "wanderlust-goat-pp-cli/0.2 (+https://github.com/joeheitzeberg/wanderlust-goat)"
+	defaultInterval = 1500 * time.Millisecond
 )
 
-// Post is a flattened blog card from a Naver search result.
-type Post struct {
-	Title   string `json:"title"`
-	URL     string `json:"url"`
-	Author  string `json:"author"`
-	Snippet string `json:"snippet"`
-	Posted  string `json:"posted"`
-}
-
-// Client is a no-auth Naver Blog scraper.
 type Client struct {
-	BaseURL    string
-	HTTPClient *http.Client
-	UserAgent  string
+	base       string
+	ua         string
+	interval   time.Duration
+	httpClient *http.Client
+	mu         sync.Mutex
+	lastCall   time.Time
 }
 
-// New constructs a Client. The default UA is browser-shaped because Naver
-// returns an error page to obvious bot UAs.
-func New(httpClient *http.Client, ua string) *Client {
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: defaultTimeout}
-	}
-	if ua == "" {
-		ua = defaultUserAgent
-	}
+func NewClient() *Client {
 	return &Client{
-		BaseURL:    defaultBaseURL,
-		HTTPClient: httpClient,
-		UserAgent:  ua,
+		base:       defaultBase,
+		ua:         defaultUA,
+		interval:   defaultInterval,
+		httpClient: &http.Client{Timeout: 12 * time.Second},
 	}
 }
 
-// Search runs a blog-only search and returns up to ~30 cards.
-func (c *Client) Search(ctx context.Context, query string) ([]Post, error) {
-	if strings.TrimSpace(query) == "" {
-		return nil, fmt.Errorf("naverblog search: empty query")
+func NewClientWithBase(base string, interval time.Duration) *Client {
+	return &Client{
+		base:       strings.TrimRight(base, "/"),
+		ua:         defaultUA,
+		interval:   interval,
+		httpClient: &http.Client{Timeout: 8 * time.Second},
 	}
-	v := url.Values{}
-	v.Set("where", "blog")
-	v.Set("query", query)
-	full := c.BaseURL + "?" + v.Encode()
+}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, full, nil)
+func (c *Client) Slug() string   { return "naverblog" }
+func (c *Client) Locale() string { return "ko" }
+func (c *Client) IsStub() bool   { return false }
+
+func (c *Client) throttle() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if since := time.Since(c.lastCall); since < c.interval {
+		time.Sleep(c.interval - since)
+	}
+	c.lastCall = time.Now()
+}
+
+// Naver Blog post URLs: blog.naver.com/<id>/<postNo>.
+var blogAnchor = regexp.MustCompile(`<a[^>]+href="(https?://blog\.naver\.com/[A-Za-z0-9_]+/[0-9]+)"[^>]*>\s*([^<\s][^<]{1,160})\s*</a>`)
+
+func (c *Client) LookupByName(ctx context.Context, name, city string, maxResults int) ([]sourcetypes.Hit, error) {
+	if maxResults <= 0 || maxResults > 20 {
+		maxResults = 5
+	}
+	q := strings.TrimSpace(name)
+	if city != "" {
+		q = q + " " + strings.TrimSpace(city)
+	}
+	if q == "" {
+		return nil, fmt.Errorf("naverblog.LookupByName: empty query")
+	}
+	u := fmt.Sprintf("%s/search.naver?where=blog&query=%s", c.base, url.QueryEscape(q))
+	body, err := c.fetch(ctx, u)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Accept", "text/html,application/xhtml+xml")
-	req.Header.Set("Accept-Language", "ko,en;q=0.8")
-
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("naverblog request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("naverblog read body: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s returned %d", full, resp.StatusCode)
-	}
-	return parseSearch(string(body)), nil
+	return extractBlogHits(body, maxResults), nil
 }
 
-// Naver's blog search HTML wraps each card in a <li class="bx" ...> with stable
-// inner classes (.title_link, .user_info, .dsc_txt, .sub_time). Class names get
-// renamed every few quarters; we match liberally on substrings to absorb churn.
-var (
-	cardRe = regexp.MustCompile(`(?is)<li[^>]+class=["'][^"']*\bbx\b[^"']*["'][^>]*>([\s\S]+?)</li>`)
-
-	// Title link: any <a class="…title_link…" href="…">…</a>.
-	titleLinkRe = regexp.MustCompile(`(?is)<a[^>]+class=["'][^"']*title_link[^"']*["'][^>]+href=["']([^"']+)["'][^>]*>([\s\S]+?)</a>`)
-
-	// Author: <a class="…name…">name</a> or <a class="user_info"...>name</a>.
-	authorRe = regexp.MustCompile(`(?is)<a[^>]+class=["'][^"']*(?:name|user_info)[^"']*["'][^>]*>([\s\S]+?)</a>`)
-
-	// Snippet/description: <a|div class="…dsc_txt…|api_txt_lines…">text</a|div>.
-	snippetRe = regexp.MustCompile(`(?is)<(?:a|div)[^>]+class=["'][^"']*(?:dsc_txt|api_txt_lines)[^"']*["'][^>]*>([\s\S]+?)</(?:a|div)>`)
-
-	// Date: <span class="…sub_time…|…sub_date…">2024.01.15.</span>.
-	dateRe = regexp.MustCompile(`(?is)<span[^>]+class=["'][^"']*(?:sub_time|sub_date)[^"']*["'][^>]*>([\s\S]+?)</span>`)
-
-	tagStripRe   = regexp.MustCompile(`<[^>]+>`)
-	whitespaceRe = regexp.MustCompile(`\s+`)
-)
-
-func parseSearch(html string) []Post {
-	out := make([]Post, 0, 16)
-	for _, m := range cardRe.FindAllStringSubmatch(html, -1) {
-		card := m[1]
-		var p Post
-
-		if tm := titleLinkRe.FindStringSubmatch(card); len(tm) == 3 {
-			p.URL = strings.TrimSpace(tm[1])
-			p.Title = stripAndCollapse(tm[2])
-		}
-		if p.Title == "" || p.URL == "" {
-			continue
-		}
-		if am := authorRe.FindStringSubmatch(card); len(am) == 2 {
-			p.Author = stripAndCollapse(am[1])
-		}
-		if sm := snippetRe.FindStringSubmatch(card); len(sm) == 2 {
-			p.Snippet = stripAndCollapse(sm[1])
-		}
-		if dm := dateRe.FindStringSubmatch(card); len(dm) == 2 {
-			p.Posted = stripAndCollapse(dm[1])
-		}
-		out = append(out, p)
+func extractBlogHits(body string, maxResults int) []sourcetypes.Hit {
+	matches := blogAnchor.FindAllStringSubmatch(body, -1)
+	seen := map[string]bool{}
+	var out []sourcetypes.Hit
+	for _, m := range matches {
 		if len(out) >= maxResults {
 			break
 		}
+		full := m[1]
+		title := strings.TrimSpace(m[2])
+		if title == "" || seen[full] {
+			continue
+		}
+		seen[full] = true
+		out = append(out, sourcetypes.Hit{
+			Source: "naverblog",
+			URL:    full,
+			Title:  title,
+			Locale: "ko",
+		})
 	}
 	return out
 }
 
-func stripAndCollapse(s string) string {
-	s = tagStripRe.ReplaceAllString(s, " ")
-	s = whitespaceRe.ReplaceAllString(s, " ")
-	return strings.TrimSpace(s)
+func (c *Client) CheckClosed(ctx context.Context, hit sourcetypes.Hit) closedsignal.Verdict {
+	if hit.URL == "" {
+		return closedsignal.Open
+	}
+	body, err := c.fetch(ctx, hit.URL)
+	if err != nil {
+		return closedsignal.Open
+	}
+	// Blogs frequently mention 폐업 about visited venues; defer to the
+	// generic Naver detector.
+	v := closedsignal.CheckNaverHTML(body)
+	if v.Closed || v.Temporary {
+		v.Source = "naverblog"
+	}
+	return v
+}
+
+func (c *Client) fetch(ctx context.Context, u string) (string, error) {
+	c.throttle()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("User-Agent", c.ua)
+	req.Header.Set("Accept-Language", "ko,en;q=0.5")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("naverblog GET %s: %w", u, err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("naverblog GET %s: read body: %w", u, err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("naverblog GET %s: HTTP %d: %s", u, resp.StatusCode, httperr.Snippet(body))
+	}
+	return string(body), nil
 }

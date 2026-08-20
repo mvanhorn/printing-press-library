@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sprocket-pp-mcp",
+  "display_name": "Sprocket Sports",
+  "version": "0.0.0",
+  "description": "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sprocket-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sprocket-pp-mcp",
+      "args": [],
+      "env": {
+        "SPROCKET_TOKEN": "${user_config.sprocket_token}"
+      }
+    }
+  },
+  "user_config": {
+    "sprocket_token": {
+      "type": "string",
+      "title": "SPROCKET_TOKEN",
+      "description": "Sets SPROCKET_TOKEN for the Sprocket Sports MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

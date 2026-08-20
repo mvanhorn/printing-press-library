@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-relations",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Hand-authored `relations` command (list/set/unset issue relations) wired into root.go.",
+  "reason": "The Plane CE REST surface exposes list + create on /work-items/{id}/relations/ but no flat UX and no DELETE; this command groups relations by type, adds a friendly `set`, and implements `unset` via a configurable Django-shell call (PLANE_RELATION_DELETE_SHELL).",
+  "files": [
+    "internal/cli/relations.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Builds against the reprinted context-aware client (Get/Post take context.Context); `relations list|set|unset` register and pass --help shape parity with the dogfooded CLI."
+}

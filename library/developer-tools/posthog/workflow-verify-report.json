@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/riteshtiwari/printing-press/.runstate/cli-printing-press-46f26f3b/runs/20260512-010008/working/posthog-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

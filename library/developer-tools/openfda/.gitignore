@@ -1,0 +1,21 @@
+# Compiled binaries
+/openfda-pp-cli
+/openfda-pp-mcp
+
+# Local data
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp

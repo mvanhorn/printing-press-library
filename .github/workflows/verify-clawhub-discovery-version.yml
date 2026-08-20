@@ -1,0 +1,133 @@
+name: Verify ClawHub discovery skill version
+
+on:
+  pull_request:
+    paths:
+      - 'skills/printing-press-library/**'
+      - '.github/workflows/verify-clawhub-discovery-version.yml'
+      - '.github/workflows/publish-clawhub-discovery-skill.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Require discovery skill semver bump
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout library
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Verify version bump
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$BASE_REF:refs/remotes/origin/$BASE_REF" --depth=1
+
+          python3 - <<'PY'
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          base_ref = "origin/" + __import__("os").environ.get("BASE_REF", "main")
+          skill_path = Path("skills/printing-press-library/SKILL.md")
+
+          changed = subprocess.check_output(
+              ["git", "diff", "--name-only", f"{base_ref}...HEAD"],
+              text=True,
+          ).splitlines()
+
+          skill_changed = any(
+              path == "skills/printing-press-library/SKILL.md"
+              or path.startswith("skills/printing-press-library/")
+              for path in changed
+          )
+          if not skill_changed:
+              print("No changes under skills/printing-press-library; version bump not required.")
+              raise SystemExit(0)
+
+          if not skill_path.is_file():
+              print(f"::error::Missing {skill_path}", file=sys.stderr)
+              raise SystemExit(1)
+
+          semver_re = re.compile(
+              r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+              r"(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+              r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+          )
+
+          def extract_version_from_text(text: str, source: str) -> str:
+              match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+              if not match:
+                  print(f"::error::{source} must start with YAML frontmatter containing version:", file=sys.stderr)
+                  raise SystemExit(1)
+              for line in match.group(1).splitlines():
+                  if re.match(r"^version\s*:", line):
+                      version = line.split(":", 1)[1].strip().strip("\"'")
+                      if not semver_re.match(version):
+                          print(f"::error::Invalid semver in {source}: {version}", file=sys.stderr)
+                          raise SystemExit(1)
+                      return version
+              print(f"::error::Missing version: in {source}", file=sys.stderr)
+              raise SystemExit(1)
+
+          def version_at(ref: str, path: str) -> str | None:
+              result = subprocess.run(
+                  ["git", "show", f"{ref}:{path}"],
+                  text=True,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.DEVNULL,
+              )
+              if result.returncode != 0:
+                  return None
+              return extract_version_from_text(result.stdout, f"{ref}:{path}")
+
+          def semver_key(version: str):
+              match = semver_re.match(version)
+              assert match
+              major, minor, patch = (int(match.group(i)) for i in range(1, 4))
+              prerelease = match.group(4)
+              # Stable releases sort after their prereleases for the same core.
+              if prerelease is None:
+                  pre_key = (1,)
+              else:
+                  parts = []
+                  for identifier in prerelease.split("."):
+                      if identifier.isdigit():
+                          parts.append((0, int(identifier)))
+                      else:
+                          parts.append((1, identifier))
+                  pre_key = (0, tuple(parts))
+              return (major, minor, patch, pre_key)
+
+          head_version = extract_version_from_text(skill_path.read_text(encoding="utf-8"), str(skill_path))
+          base_version = version_at(base_ref, str(skill_path))
+
+          if base_version is None:
+              print(f"Initial ClawHub discovery skill version: {head_version}")
+              raise SystemExit(0)
+
+          if head_version == base_version:
+              print(
+                  "::error::skills/printing-press-library changed but version did not. "
+                  f"Bump version: in {skill_path} from {base_version} before merge.",
+                  file=sys.stderr,
+              )
+              raise SystemExit(1)
+
+          if semver_key(head_version) <= semver_key(base_version):
+              print(
+                  "::error::skills/printing-press-library version must increase. "
+                  f"Base={base_version}, head={head_version}.",
+                  file=sys.stderr,
+              )
+              raise SystemExit(1)
+
+          print(f"ClawHub discovery skill version bump OK: {base_version} -> {head_version}")
+          PY

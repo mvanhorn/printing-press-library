@@ -1,0 +1,7 @@
+actor: apidojo/tweet-scraper
+title: [full_text, text]
+url: [url, permanentUrl, twitterUrl]
+body: [full_text, text]
+author: [author.userName, user.screen_name, user.username, author.name, author.handle]
+published_at: [createdAt, created_at, date]
+engagement: [favoriteCount, likeCount, favorite_count]

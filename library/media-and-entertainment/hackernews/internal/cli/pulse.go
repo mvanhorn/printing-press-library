@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/algolia"
+	"github.com/spf13/cobra"
 )
 
 // pulse aggregates Algolia hits per day to give a velocity view of a

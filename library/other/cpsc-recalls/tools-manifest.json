@@ -1,0 +1,64 @@
+{
+  "api_name": "cpsc-recalls",
+  "base_url": "https://www.saferproducts.gov/RestWebServices",
+  "description": "Turn CPSC recall records into bounded inventory candidates, change observations, hazard composition tables, and actionable source packets without overstating fuzzy matches.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cpsc-recall-retrieval-recall_list",
+      "description": "Query CPSC recall records. Optional: format (default: json), RecallID, RecallTitle (plus 4 more). Returns array of CpscRecallRetrievalRecallListItem.",
+      "method": "GET",
+      "path": "/Recall",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        },
+        {
+          "name": "RecallID",
+          "type": "int",
+          "location": "query",
+          "description": "Recall id"
+        },
+        {
+          "name": "RecallTitle",
+          "type": "string",
+          "location": "query",
+          "description": "Recall title"
+        },
+        {
+          "name": "ProductName",
+          "type": "string",
+          "location": "query",
+          "description": "Product name"
+        },
+        {
+          "name": "Manufacturer",
+          "type": "string",
+          "location": "query",
+          "description": "Manufacturer"
+        },
+        {
+          "name": "RecallDateStart",
+          "type": "string",
+          "location": "query",
+          "description": "Recall date start"
+        },
+        {
+          "name": "RecallDateEnd",
+          "type": "string",
+          "location": "query",
+          "description": "Recall date end"
+        }
+      ]
+    }
+  ]
+}

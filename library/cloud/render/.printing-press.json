@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T23:33:42.051067Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "render",
+  "display_name": "Render",
+  "cli_name": "render-pp-cli",
+  "creator": {
+    "handle": "giacaglia",
+    "name": "Giuliano Giacaglia"
+  },
+  "owner": "giuliano-giacaglia",
+  "printer_name": "Giuliano Giacaglia",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7f232ca086d64cf90d246a9dacfc880a12f6a26aa1d1d044c5dd440196f16eeb",
+  "run_id": "20260509-092314",
+  "mcp_binary": "render-pp-mcp",
+  "mcp_tool_count": 196,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "RENDER_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Env-var diff across services and env-groups",
+      "command": "env diff",
+      "description": "Compare env vars between any two services, env-groups, or a service vs an env-group, three-way diff style."
+    },
+    {
+      "name": "Env-var promotion with allow/deny lists",
+      "command": "env promote",
+      "description": "Copy env vars from a source service or env-group to a target with --only/--exclude/--dry-run."
+    },
+    {
+      "name": "Blueprint drift detection",
+      "command": "drift",
+      "description": "Compare a checked-in render.yaml against live workspace state and report added/removed/modified entities by name."
+    },
+    {
+      "name": "Cost rollup across services and datastores",
+      "command": "cost",
+      "description": "Sum monthly cost across services, postgres, key-value, redis, and disks; group by project, environment, or owner."
+    },
+    {
+      "name": "Stale preview environment cleanup",
+      "command": "preview-cleanup",
+      "description": "List preview services older than --stale-days N; delete in bulk on --confirm."
+    },
+    {
+      "name": "Orphan resource sweep",
+      "command": "orphans",
+      "description": "Find unattached disks, empty env-groups, custom-domains pointing at deleted services, registry credentials referenced by no service, and disk snapshots beyond retention."
+    },
+    {
+      "name": "Cross-resource env-var locator",
+      "command": "env where",
+      "description": "For a given env-var key, list every service and env-group that defines it with hash, length, and last-modified timestamp (never raw value)."
+    },
+    {
+      "name": "Incident timeline merge",
+      "command": "incident-timeline",
+      "description": "Merge deploys, events, and audit-logs for one service into one chronological table for a given window."
+    },
+    {
+      "name": "Audit-log forensic search",
+      "command": "audit search",
+      "description": "FTS5 search across cached audit logs by actor, target, action, and time window."
+    },
+    {
+      "name": "Deploy-to-deploy diff",
+      "command": "deploys diff",
+      "description": "Show commit range, env-var changes, image-tag changes, and plan/region/scale changes between two deploys of one service."
+    },
+    {
+      "name": "Rightsizing recommendations from metrics",
+      "command": "rightsize",
+      "description": "For each service, fetch last --since 7d of CPU and memory; compute p95 utilization; flag services breaching --high or --low thresholds against plan capacity."
+    }
+  ],
+  "category": "cloud",
+  "printer": "giacaglia",
+  "owner_name": "Giuliano Giacaglia"
+}

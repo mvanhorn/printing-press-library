@@ -1,0 +1,91 @@
+{
+  "dir": "~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli",
+  "spec_path": "~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli/spec.json",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 2,
+    "valid": 2,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 43,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 13,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 13 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 111,
+      "registered": 111
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 14,
+    "found": 14
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 14,
+    "exempted_via_store": 12
+  },
+  "source_client_check": {
+    "checked": 2,
+    "findings": [
+      {
+        "package": "oauth",
+        "file": "internal/oauth/oauth.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 85
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 85
+  },
+  "issues": [
+    "1 source client file(s) without rate-limit handling: internal/oauth/oauth.go — outbound HTTP without rate limiter or typed 429 handling"
+  ]
+}

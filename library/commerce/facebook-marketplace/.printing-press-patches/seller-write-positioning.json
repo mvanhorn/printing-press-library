@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "seller-write-positioning",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Replace read-mostly positioning with write-gated seller workflow wording.",
+  "reason": "The package supports write-gated listing creation, photo upload, and seller replies, so the prior read-mostly headline understated the publish/sell workflow.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "manifest.json",
+    "spec.yaml",
+    ".manuscripts/20260518-135804/research.json",
+    ".manuscripts/20260518-135804/research/facebook-market-augmented-spec.yaml",
+    "internal/cli/agent_context.go",
+    "internal/cli/root.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "gofmt on touched Go files, go test ./..., verify_manifest.py, and verify_publish_package.py passed."
+}

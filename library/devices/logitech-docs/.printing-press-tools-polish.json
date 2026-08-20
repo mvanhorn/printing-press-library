@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-16T07:29:15.909732Z",
+  "cli_dir": "\u003ccli-dir\u003e/logitech-docs",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Framework tenant-gating scaffold in a DO-NOT-EDIT generated file; 'List client profiles' is accurate and the sibling 'client show/add/set-default' Shorts already carry the surrounding context. Needs a generator-template fix, not a per-CLI hand-edit."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Learn-loop command in a DO-NOT-EDIT generated file; its Example block already shows the --query/--warnings/--agent filters an agent needs, so the thin Short is not the operative signal. Generator-template retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-08-16T07:19:50.636454Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

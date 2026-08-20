@@ -53,6 +53,15 @@ func newAppContext(cmd *cobra.Command) (*AppContext, error) {
 	if err != nil {
 		return nil, err
 	}
+	// PATCH (instacart-address-profiles): per-call `--profile <name>`
+	// override copies the named profile's location onto the in-memory cfg
+	// so every downstream gql call uses it. Does NOT persist — switching
+	// the active profile is `config profiles use`.
+	if profileName, _ := cmd.Flags().GetString("profile"); profileName != "" {
+		if err := cfg.ApplyProfile(profileName); err != nil {
+			return nil, coded(ExitNotFound, "%v (run `instacart config profiles list` to see available profiles)", err)
+		}
+	}
 	st, err := store.Open()
 	if err != nil {
 		return nil, err
@@ -118,10 +127,14 @@ No browser automation. No Playwright. No Composio subscription. Just a binary.`,
 	root.PersistentFlags().Bool("json", false, "Output machine-readable JSON instead of pretty text")
 	root.PersistentFlags().Bool("dry-run", false, "Show what would happen without making network calls or writes")
 	root.PersistentFlags().Bool("verbose", false, "Verbose debug output")
+	// PATCH (instacart-address-profiles): per-call address override.
+	root.PersistentFlags().String("profile", "", "Use a named address profile for this call (see `instacart config profiles list`)")
 
 	root.AddCommand(
 		newDoctorCmd(),
 		newAuthCmd(),
+		// PATCH (fix-instacart-location-config-546): config subtree.
+		newConfigCmd(),
 		newRetailersCmd(),
 		newSearchCmd(),
 		newAddCmd(),

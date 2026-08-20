@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "superhuman-pp-mcp",
+  "display_name": "Superhuman",
+  "version": "4.5.1",
+  "description": "Superhuman API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/superhuman-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/superhuman-pp-mcp",
+      "args": [],
+      "env": {
+        "SUPERHUMAN_JWT": "${user_config.superhuman_jwt}"
+      }
+    }
+  },
+  "user_config": {
+    "superhuman_jwt": {
+      "type": "string",
+      "title": "SUPERHUMAN_JWT",
+      "description": "Sets SUPERHUMAN_JWT for the Superhuman MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

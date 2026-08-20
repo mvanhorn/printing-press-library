@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "marianatek-helpful-example",
+  "applied_at": "2026-05-12T04:30:00Z",
+  "reason": "Generator emitted a generic example `marianatek-pp-cli me reservations-create --booked-by example-value` based on a server-derived field. Misleading for new users.",
+  "files": [
+    "internal/cli/me_reservations-create.go"
+  ],
+  "change": "Replaced the generic example with three real-world variants: book-with-payment, dry-run preview, and waitlist join. Imported `strings` to use `strings.Trim` per the framework's convention for multi-line examples."
+}

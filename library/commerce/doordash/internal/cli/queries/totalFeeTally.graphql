@@ -1,0 +1,61 @@
+query totalFeeTally(
+  $consumerId: ID!
+  $cartId: ID
+  $storeId: ID
+  $submarketId: ID
+  $currency: String
+  $isCardPayment: Boolean
+) {
+  totalFeeTally(
+    consumerId: $consumerId
+    cartId: $cartId
+    storeId: $storeId
+    submarketId: $submarketId
+    currency: $currency
+    isCardPayment: $isCardPayment
+  ) {
+    summary
+    lineItemGroups {
+      groupId
+      groupLabel
+      isGroupLabelVisible
+      lineItems {
+        label
+        finalMoney {
+          unitAmount
+          displayString
+          __typename
+        }
+        originalMoney {
+          unitAmount
+          displayString
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    styledSummary {
+      displayString
+      textStyle
+      textColor
+      strikethroughOverrideText {
+        displayString
+        textStyle
+        textColor
+        __typename
+      }
+      __typename
+    }
+    totalBeforeTaxes {
+      unitAmount
+      currency
+      decimalPlaces
+      displayString
+      sign
+      symbol
+      __typename
+    }
+    __typename
+  }
+}

@@ -1,0 +1,153 @@
+name: nasa-images
+display_name: "NASA Image and Video Library"
+description: "NASA Image and Video Library CLI: search, download, and extract from 140k+ public-domain NASA images, videos, and audio assets"
+version: "0.1.0"
+base_url: "https://images-api.nasa.gov"
+
+auth:
+  type: none
+
+resources:
+  media:
+    description: "Search the NASA Image and Video Library catalog by free text and filters"
+    endpoints:
+      list:
+        method: GET
+        path: "/search"
+        description: "Search the catalog by free text or filters. At least one query parameter is required."
+        params:
+          - name: q
+            type: string
+            description: "Free-text query terms matched against indexed metadata (title, description, keywords). Any one search parameter satisfies the API; omit q to filter by media_type/center/year only."
+          - name: media_type
+            type: string
+            enum: [image, video, audio]
+            description: "Filter by media type. Use comma-separated values for OR: image,video"
+          - name: year_start
+            type: string
+            description: "Earliest date_created year (YYYY format, e.g. 2020)"
+          - name: year_end
+            type: string
+            description: "Latest date_created year (YYYY format, e.g. 2026)"
+          - name: center
+            type: string
+            description: "NASA center code that published the media. One of HQ, JSC (Johnson), KSC (Kennedy), GSFC (Goddard), JPL (Jet Propulsion), MSFC (Marshall), ARC (Ames), LRC (Langley), AFRC (Armstrong), GRC (Glenn), SSC (Stennis). Comma-separated for OR."
+          - name: photographer
+            type: string
+            description: "Primary photographer's name"
+          - name: secondary_creator
+            type: string
+            description: "Secondary photographer or videographer"
+          - name: keywords
+            type: string
+            description: "Comma-separated keyword terms (matched against the indexed keyword set)"
+          - name: location
+            type: string
+            description: "Matched against the asset's Location field"
+          - name: description
+            type: string
+            description: "Matched against the asset's Description field"
+          - name: description_508
+            type: string
+            description: "Matched against the asset's Section-508 accessibility description"
+          - name: title
+            type: string
+            description: "Matched against the asset's Title field"
+          - name: nasa_id
+            type: string
+            description: "Exact match on a specific NASA ID. Returns at most one item."
+          - name: page
+            type: int
+            default: 1
+            description: "1-indexed page number for pagination"
+          - name: page_size
+            type: int
+            default: 100
+            description: "Items per page. Practical max ~200; defaults to 100."
+
+  assets:
+    description: "Retrieve the rendition manifest for an asset (every file URL: original/large/medium/small/thumb for images; mp4 variants for video; mp3/m4a for audio)"
+    endpoints:
+      get:
+        method: GET
+        path: "/asset/{nasa_id}"
+        description: "Return the list of every file URL for an asset"
+        params:
+          - name: nasa_id
+            type: string
+            required: true
+            positional: true
+            description: "Asset's NASA ID (from a search result's data.nasa_id field, e.g. PIA12348 or as11-40-5874)"
+
+  metadata:
+    description: "Retrieve the location URL of an asset's metadata.json sidecar (AVAIL editorial + ExifTool fields)"
+    endpoints:
+      get:
+        method: GET
+        path: "/metadata/{nasa_id}"
+        description: "Return the location URL of the metadata.json sidecar for an asset. Use `metadata fetch` (novel command) to follow the indirection and fetch the cleaned metadata content."
+        params:
+          - name: nasa_id
+            type: string
+            required: true
+            positional: true
+            description: "Asset's NASA ID"
+
+  captions:
+    description: "Retrieve the location URL of a video asset's captions file (.srt or .vtt)"
+    endpoints:
+      get:
+        method: GET
+        path: "/captions/{nasa_id}"
+        description: "Return the location URL of the captions file. Video assets only — 400 for images, 404 for video without captions. Use `captions fetch` (novel command) to follow the indirection and fetch the caption text."
+        params:
+          - name: nasa_id
+            type: string
+            required: true
+            positional: true
+            description: "Asset's NASA ID (video media_type only)"
+
+  albums:
+    description: "Retrieve the contents of a curated NASA album (e.g. Apollo-at-50, Mars-Perseverance)"
+    endpoints:
+      get:
+        method: GET
+        path: "/album/{album_name}"
+        description: "Return paginated asset listing for a curated album. Album names are case-sensitive (Apollo-at-50 works, apollo-at-50 returns 404)."
+        params:
+          - name: album_name
+            type: string
+            required: true
+            positional: true
+            description: "Curated album name, case-sensitive (discover names via search results' data.album field)"
+          - name: page
+            type: int
+            default: 1
+            description: "1-indexed page number; page_size is fixed by the server (~100) for albums."
+
+extra_commands:
+  - name: "download album"
+    description: "Bulk-download every asset in a curated album with byte-range resume — re-runs pick up exactly where the last failed transfer left off"
+    args: "<album_name>"
+  - name: "captions fetch"
+    description: "Fetch a video asset's caption file content (.srt or .vtt), not just its URL. With --format text, strips cue numbers and timecodes for clean transcripts"
+    args: "<nasa_id>"
+  - name: "metadata fetch"
+    description: "Fetch an asset's full metadata sidecar content, flattened (AVAIL:* and EXIF fields). Drops leak fields (SourceFile, AVAIL:Owner) from the upstream sidecar"
+    args: "<nasa_id>"
+  - name: "assets best"
+    description: "Deterministic best-variant picker. Parses an asset's rendition manifest, applies a preference order, and prints exactly one URL (the best variant under an optional byte ceiling)"
+    args: "<nasa_id>"
+  - name: "recent"
+    description: "FTS5 full-text search over the local synced mirror, sorted chronologically (date_created descending) — the upstream API doesn't expose a chronological sort"
+  - name: "center profile"
+    description: "Local aggregation per NASA center (media_type counts, year-bucket histogram, top keywords, top photographers) over the synced cache"
+    args: "<center_code>"
+  - name: "unused-in"
+    description: "List nasa_ids in a curated album that haven't been downloaded locally yet (anti-join against the downloads ledger)"
+    args: "<album_name>"
+  - name: "timeline"
+    description: "Topic timeline histogram. Local GROUP BY year-month over FTS-matched rows; shows when a topic got coverage"
+  - name: "citation"
+    description: "Generate a ready-to-paste citation string (APA, MLA, or Chicago) from cached or fetched metadata"
+    args: "<nasa_id>"

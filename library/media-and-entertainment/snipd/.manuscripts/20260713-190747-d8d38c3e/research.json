@@ -1,0 +1,181 @@
+{
+  "api_name": "snipd",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-13T19:10:00Z",
+  "novel_features": [
+    {
+      "name": "Build the local snip corpus",
+      "command": "pull",
+      "description": "Pull your Snipd snips into a local SQLite mirror you can search and query offline — the app has no export-to-query path.",
+      "rationale": "Requires the sanctioned Obsidian-export flow plus a labelled-delimiter parse into a queryable local store; no single Snipd surface offers this.",
+      "example": "snipd-pp-cli pull --agent",
+      "why_it_matters": "Run this first: it is the populate step every search, quote, filter, and aggregate reads from.",
+      "group": "Local snip corpus that compounds"
+    },
+    {
+      "name": "Pull the exact quote",
+      "command": "quote",
+      "description": "Get the verbatim pull-quote and speaker for matching snips — the distinct unit other tools concatenate into transcript prose and lose.",
+      "rationale": "Only the local mirror keeps the quote separated from note and transcript, so it can be retrieved on its own.",
+      "example": "snipd-pp-cli quote \"thinking partner\" --agent",
+      "why_it_matters": "Reach for this when you need a citable verbatim line, not a paraphrase or the whole transcript.",
+      "group": "Agent-native retrieval over your own snips"
+    },
+    {
+      "name": "Scoped synthesis feed",
+      "command": "synthesize",
+      "description": "Gather a deduped, snippet-only evidence set (title + note + quote + deep-link) scoped by query, show, or topic — sized for an agent to reason over.",
+      "rationale": "Requires a ranked local retrieval that returns KB-sized snippets, not whole nodes; the shape the app, Readwise, and an outliner substrate cannot produce.",
+      "example": "snipd-pp-cli synthesize \"AI and jobs\" --limit 20 --agent",
+      "why_it_matters": "Use this to assemble the evidence for a cross-show answer without dragging full transcripts through context.",
+      "group": "Agent-native retrieval over your own snips"
+    },
+    {
+      "name": "Structured filter",
+      "command": "filter",
+      "description": "Slice the corpus by show, favorite, tag, date, or duration and return compact rows or counts.",
+      "rationale": "Requires a local join across fields that no single upstream call exposes together.",
+      "example": "snipd-pp-cli filter --show \"Finding Our Way\" --favorite --agent",
+      "why_it_matters": "Use this for structured slices; reach for search when the criterion is a free-text concept.",
+      "group": "Local snip corpus that compounds"
+    },
+    {
+      "name": "Corpus rollups",
+      "command": "aggregate",
+      "description": "Roll up counts and distributions across your corpus — snips per show, top tags, favorites, episode density, and timeline.",
+      "rationale": "Requires GROUP BY analytics over the whole local mirror, which only exists once the corpus is pulled.",
+      "example": "snipd-pp-cli aggregate by-show --agent",
+      "why_it_matters": "Use this to understand the shape of your listening — where your snips cluster — in one call.",
+      "group": "Local snip corpus that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Build the local snip corpus",
+      "command": "pull",
+      "description": "Pull your Snipd snips into a local SQLite mirror you can search and query offline — the app has no export-to-query path.",
+      "rationale": "Requires the sanctioned Obsidian-export flow plus a labelled-delimiter parse into a queryable local store; no single Snipd surface offers this.",
+      "example": "snipd-pp-cli pull --agent",
+      "why_it_matters": "Run this first: it is the populate step every search, quote, filter, and aggregate reads from.",
+      "group": "Local snip corpus that compounds"
+    },
+    {
+      "name": "Pull the exact quote",
+      "command": "quote",
+      "description": "Get the verbatim pull-quote and speaker for matching snips — the distinct unit other tools concatenate into transcript prose and lose.",
+      "rationale": "Only the local mirror keeps the quote separated from note and transcript, so it can be retrieved on its own.",
+      "example": "snipd-pp-cli quote \"thinking partner\" --agent",
+      "why_it_matters": "Reach for this when you need a citable verbatim line, not a paraphrase or the whole transcript.",
+      "group": "Agent-native retrieval over your own snips"
+    },
+    {
+      "name": "Scoped synthesis feed",
+      "command": "synthesize",
+      "description": "Gather a deduped, snippet-only evidence set (title + note + quote + deep-link) scoped by query, show, or topic — sized for an agent to reason over.",
+      "rationale": "Requires a ranked local retrieval that returns KB-sized snippets, not whole nodes; the shape the app, Readwise, and an outliner substrate cannot produce.",
+      "example": "snipd-pp-cli synthesize \"AI and jobs\" --limit 20 --agent",
+      "why_it_matters": "Use this to assemble the evidence for a cross-show answer without dragging full transcripts through context.",
+      "group": "Agent-native retrieval over your own snips"
+    },
+    {
+      "name": "Structured filter",
+      "command": "filter",
+      "description": "Slice the corpus by show, favorite, tag, date, or duration and return compact rows or counts.",
+      "rationale": "Requires a local join across fields that no single upstream call exposes together.",
+      "example": "snipd-pp-cli filter --show \"Finding Our Way\" --favorite --agent",
+      "why_it_matters": "Use this for structured slices; reach for search when the criterion is a free-text concept.",
+      "group": "Local snip corpus that compounds"
+    },
+    {
+      "name": "Corpus rollups",
+      "command": "aggregate",
+      "description": "Roll up counts and distributions across your corpus — snips per show, top tags, favorites, episode density, and timeline.",
+      "rationale": "Requires GROUP BY analytics over the whole local mirror, which only exists once the corpus is pulled.",
+      "example": "snipd-pp-cli aggregate by-show --agent",
+      "why_it_matters": "Use this to understand the shape of your listening — where your snips cluster — in one call.",
+      "group": "Local snip corpus that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SNIPD_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Snipd",
+    "headline": "Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.",
+    "value_prop": "Your snips are trapped in a mobile app. This CLI pulls them into a local SQLite mirror with a full-text index, then lets you search, quote, filter, and aggregate them in kilobytes instead of scrolling an app. The same commands are exposed as MCP tools so an agent can reason over your own listening.",
+    "auth_narrative": "Snipd's export API uses your account Bearer token, obtained by pairing the CLI from the Snipd mobile app. Set it once as SNIPD_TOKEN (or in the config file). It is read-only and never leaves your machine.",
+    "quickstart": [
+      {
+        "command": "snipd-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the token and reachability before you pull."
+      },
+      {
+        "command": "snipd-pp-cli pull",
+        "comment": "Build (or refresh) the local corpus from your Snipd account."
+      },
+      {
+        "command": "snipd-pp-cli search \"orchestration\"",
+        "comment": "Ranked full-text search across every snip's note, quote, and transcript."
+      },
+      {
+        "command": "snipd-pp-cli synthesize \"AI and jobs\" --agent",
+        "comment": "A compact evidence feed scoped to a concept, ready for an agent to synthesize."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search/quote/filter return nothing",
+        "fix": "Run `snipd-pp-cli pull` first — retrieval reads the local mirror, which is empty until you pull."
+      },
+      {
+        "symptom": "401 / auth error on pull",
+        "fix": "Your token expired. Re-pair the CLI from the Snipd app and set the new value as SNIPD_TOKEN."
+      },
+      {
+        "symptom": "a search term returns fewer hits than expected",
+        "fix": "Use plain stemmed words, not `*` prefixes — the index is porter-stemmed, so `run` already matches `running`."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want to search, quote, or synthesize across your own Snipd snips — a concept across every transcript, the exact pull-quote for a claim, or a rolled-up view of what you have been snipping. It is ideal as an agent tool: the MCP surface returns compact ranked rows so an assistant can cite your podcast highlights without opening the app.",
+    "anti_triggers": [
+      "Do not use this to browse or discover public podcasts — it only reads your own snipped content.",
+      "Do not use this for audio playback or downloading episodes — only the exported text (notes, quotes, transcript excerpts) is reachable.",
+      "Do not use this to write or edit snips — it is strictly read-only over the export API."
+    ],
+    "recipes": [
+      {
+        "title": "Find the quote behind a claim",
+        "command": "snipd-pp-cli quote \"thought partner\" --agent",
+        "explanation": "Returns the verbatim pull-quote and speaker for snips matching the phrase."
+      },
+      {
+        "title": "Compact evidence for a cross-show answer",
+        "command": "snipd-pp-cli synthesize \"personas vs archetypes\" --limit 15 --agent --select snip_id,show,title,note,url",
+        "explanation": "A deduped, snippet-only feed narrowed to exactly the fields an agent needs, from a deeply nested store."
+      },
+      {
+        "title": "Everything from one show",
+        "command": "snipd-pp-cli filter --show \"NN/G UX Podcast\" --agent",
+        "explanation": "All snips for a show as compact rows, ordered by episode and timestamp."
+      },
+      {
+        "title": "Where do my snips cluster?",
+        "command": "snipd-pp-cli aggregate by-show",
+        "explanation": "A one-call rollup of snip counts per show."
+      }
+    ],
+    "trigger_phrases": [
+      "search my snips",
+      "what did I snip about",
+      "find the quote about",
+      "synthesize my podcast highlights",
+      "snips per show",
+      "use snipd",
+      "run snipd"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "watch-snapshot-key-migration",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260717-002908-c6f34c82",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Fall back to pre-limit watch snapshot keys when a limit-scoped snapshot does not yet exist.",
+  "reason": "Adding the record limit to snapshot identity otherwise made existing observations unreachable and silently skipped the first comparison after upgrade.",
+  "files": [
+    "internal/cli/watch_changes.go",
+    "internal/cli/watch_changes_test.go"
+  ],
+  "validated_outcome": "A legacy ACME|||30d snapshot is recovered for the new ACME|||30d|100 key without creating a false baseline."
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-30T23:17:34.778033Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "restaurant365-odata",
+  "display_name": "Restaurant365 OData Connector",
+  "cli_name": "restaurant365-odata-pp-cli",
+  "owner": "dhilip-subramanian",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_path": "restaurant365-odata.openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:23bd93f8ca545e80186617f87e1bfa1abcac821fe8886537b9e87d9fb91f982b",
+  "run_id": "20260530-231734",
+  "category": "commerce",
+  "description": "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks.",
+  "mcp_binary": "restaurant365-odata-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "basic",
+  "auth_env_vars": [
+    "RESTAURANT365_ODATA_USERNAME",
+    "RESTAURANT365_ODATA_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Redacted tenant sampler",
+      "command": "sample",
+      "description": "Samples one Restaurant365 OData view while returning only columns and row counts by default."
+    },
+    {
+      "name": "Refresh planner",
+      "command": "backfill-plan",
+      "description": "Builds Restaurant365-safe date-window and rowVersion request plans without fetching rows."
+    },
+    {
+      "name": "Delete tombstone counter",
+      "command": "deleted-records",
+      "description": "Reads EntityDeleted with optional entity and rowVersion filters, returning counts by default."
+    },
+    {
+      "name": "Metadata-first discovery",
+      "command": "list-views",
+      "description": "Reports supported views, field counts, field types, date fields, rowVersion support, and refresh pattern from $metadata."
+    },
+    {
+      "name": "Bounded export guard",
+      "command": "export",
+      "description": "Exports a view to JSONL or CSV and requires date filters for known date-window views."
+    }
+  ]
+}

@@ -1,0 +1,283 @@
+{
+  "api_name": "roam",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Roam HQ remote MCP",
+      "url": "https://api.ro.am/mcp",
+      "language": "remote",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T02:40:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-resource grep",
+      "command": "grep",
+      "description": "Search across every chat message and meeting transcript at once with --since, --from-user, --in-meeting, --in-group filters.",
+      "rationale": "FTS5 indexes over locally-synced messages and transcripts; Roam HQ search is meeting-scoped.",
+      "example": "roam-pp-cli grep \"pricing\" --since 14d --in-group eng --json --select transcript_id,line",
+      "why_it_matters": "Reach for this when an agent needs to recall what was said across many meetings without re-paging the rate-limited transcript API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Decision extractor",
+      "command": "decisions",
+      "description": "Surface decision-shaped lines (\"we decided\", \"action item\", \"agreed\", \"let's go with\") from synced transcripts.",
+      "rationale": "Pure local regex over synced transcript text — no API call, no LLM.",
+      "example": "roam-pp-cli decisions --since 7d --in-group product --agent",
+      "why_it_matters": "Use when an agent owes the team a Monday recap; deterministic and citation-bearing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Attendance drift",
+      "command": "onair-attendance-drift",
+      "description": "Compare invited guests vs actual attendance for an On-Air event; print invited-no-show and walk-in sets.",
+      "rationale": "Local SQL join of guests and attendance tables.",
+      "example": "roam-pp-cli onair attendance drift --event evt_123 --json",
+      "why_it_matters": "Use when an agent is asked who didn't show or who attended without an invite.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale on-air reaper",
+      "command": "onair-reaper",
+      "description": "Find recurring On-Air events with zero attendance over N days. --apply cancels them via the absorbed cancel endpoint.",
+      "rationale": "Local aggregation over attendance history; --dry-run is the default.",
+      "example": "roam-pp-cli onair reaper --stale-days 60 --dry-run",
+      "why_it_matters": "Use when cleaning up dead recurring events; safe by default.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Transcript prompt fan-out",
+      "command": "transcript-fanout",
+      "description": "Run a single question against every transcript in a date range; one row per transcript with answer + citation.",
+      "rationale": "Roam's per-transcript prompt is single-shot; we loop it through the rate-limited client.",
+      "example": "roam-pp-cli transcript fanout --question \"did anyone mention Q3 hiring?\" --since 30d --agent",
+      "why_it_matters": "Use when an agent must scan many meetings for a single question without re-prompting each one.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stdin chat relay",
+      "command": "relay",
+      "description": "Pipe arbitrary stdin lines into a Roam group via /chat.post with deterministic idempotency keys and 429 backoff.",
+      "rationale": "Wraps absorbed chat.post with stream-loop + dedupe key derived from line hash.",
+      "example": "tail -F deploys.log | roam-pp-cli relay --to eng-deploys --idempotent-key-prefix deploys",
+      "why_it_matters": "Use when an agent needs to forward a stream (CI, alerts, logs) into Roam without writing a custom webhook.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Webhook tail",
+      "command": "webhook-tail",
+      "description": "Tail recent webhook deliveries from the local subscription registry, --since filtered.",
+      "rationale": "Local table read populated by sync; one-shot, not a daemon.",
+      "example": "roam-pp-cli webhook tail --since 1h --json",
+      "why_it_matters": "Use when debugging a webhook integration without standing up a listener.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Token tier doctor",
+      "command": "doctor token",
+      "description": "Probe one representative GET per spec family (HQ, On-Air, Chat, SCIM, Webhooks) and print which families this key can reach.",
+      "rationale": "Roam has two key tiers (full-access org, personal access token); reachability is asymmetric.",
+      "example": "roam-pp-cli doctor token",
+      "why_it_matters": "Use when an agent needs to know which Roam commands will work with the credential it has before attempting them.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "SCIM roster diff",
+      "command": "scim-diff",
+      "description": "Diff a CSV/JSON HRIS roster against /Users SCIM list; print add/update/remove sets. --apply runs SCIM CRUD.",
+      "rationale": "CSV parse + SCIM list + set diff; uses absorbed SCIM endpoints.",
+      "example": "roam-pp-cli scim diff --roster hris.csv --apply --dry-run",
+      "why_it_matters": "Use when an agent needs to reconcile an external roster with Roam membership without clicking through admin UI.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Mention inbox",
+      "command": "mention-inbox",
+      "description": "Local FTS over messages.text for @user tokens with --since filter; tail format.",
+      "rationale": "Mentions parsed at sync time into a mention index column.",
+      "example": "roam-pp-cli mention inbox --user @me --since 7d --agent",
+      "why_it_matters": "Use when an agent must surface unread mentions across all groups without round-tripping the API per group.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-resource grep",
+      "command": "grep",
+      "description": "Search across every chat message and meeting transcript at once with --since, --from-user, --in-meeting, --in-group filters.",
+      "rationale": "FTS5 indexes over locally-synced messages and transcripts; Roam HQ search is meeting-scoped.",
+      "example": "roam-pp-cli grep \"pricing\" --since 14d --in-group eng --json --select transcript_id,line",
+      "why_it_matters": "Reach for this when an agent needs to recall what was said across many meetings without re-paging the rate-limited transcript API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Decision extractor",
+      "command": "decisions",
+      "description": "Surface decision-shaped lines (\"we decided\", \"action item\", \"agreed\", \"let's go with\") from synced transcripts.",
+      "rationale": "Pure local regex over synced transcript text — no API call, no LLM.",
+      "example": "roam-pp-cli decisions --since 7d --in-group product --agent",
+      "why_it_matters": "Use when an agent owes the team a Monday recap; deterministic and citation-bearing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Attendance drift",
+      "command": "onair-attendance-drift",
+      "description": "Compare invited guests vs actual attendance for an On-Air event; print invited-no-show and walk-in sets.",
+      "rationale": "Local SQL join of guests and attendance tables.",
+      "example": "roam-pp-cli onair attendance drift --event evt_123 --json",
+      "why_it_matters": "Use when an agent is asked who didn't show or who attended without an invite.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale on-air reaper",
+      "command": "onair-reaper",
+      "description": "Find recurring On-Air events with zero attendance over N days. --apply cancels them via the absorbed cancel endpoint.",
+      "rationale": "Local aggregation over attendance history; --dry-run is the default.",
+      "example": "roam-pp-cli onair reaper --stale-days 60 --dry-run",
+      "why_it_matters": "Use when cleaning up dead recurring events; safe by default.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Transcript prompt fan-out",
+      "command": "transcript-fanout",
+      "description": "Run a single question against every transcript in a date range; one row per transcript with answer + citation.",
+      "rationale": "Roam's per-transcript prompt is single-shot; we loop it through the rate-limited client.",
+      "example": "roam-pp-cli transcript fanout --question \"did anyone mention Q3 hiring?\" --since 30d --agent",
+      "why_it_matters": "Use when an agent must scan many meetings for a single question without re-prompting each one.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stdin chat relay",
+      "command": "relay",
+      "description": "Pipe arbitrary stdin lines into a Roam group via /chat.post with deterministic idempotency keys and 429 backoff.",
+      "rationale": "Wraps absorbed chat.post with stream-loop + dedupe key derived from line hash.",
+      "example": "tail -F deploys.log | roam-pp-cli relay --to eng-deploys --idempotent-key-prefix deploys",
+      "why_it_matters": "Use when an agent needs to forward a stream (CI, alerts, logs) into Roam without writing a custom webhook.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Webhook tail",
+      "command": "webhook-tail",
+      "description": "Tail recent webhook deliveries from the local subscription registry, --since filtered.",
+      "rationale": "Local table read populated by sync; one-shot, not a daemon.",
+      "example": "roam-pp-cli webhook tail --since 1h --json",
+      "why_it_matters": "Use when debugging a webhook integration without standing up a listener.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Token tier doctor",
+      "command": "doctor token",
+      "description": "Probe one representative GET per spec family (HQ, On-Air, Chat, SCIM, Webhooks) and print which families this key can reach.",
+      "rationale": "Roam has two key tiers (full-access org, personal access token); reachability is asymmetric.",
+      "example": "roam-pp-cli doctor token",
+      "why_it_matters": "Use when an agent needs to know which Roam commands will work with the credential it has before attempting them.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "SCIM roster diff",
+      "command": "scim-diff",
+      "description": "Diff a CSV/JSON HRIS roster against /Users SCIM list; print add/update/remove sets. --apply runs SCIM CRUD.",
+      "rationale": "CSV parse + SCIM list + set diff; uses absorbed SCIM endpoints.",
+      "example": "roam-pp-cli scim diff --roster hris.csv --apply --dry-run",
+      "why_it_matters": "Use when an agent needs to reconcile an external roster with Roam membership without clicking through admin UI.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Mention inbox",
+      "command": "mention-inbox",
+      "description": "Local FTS over messages.text for @user tokens with --since filter; tail format.",
+      "rationale": "Mentions parsed at sync time into a mention index column.",
+      "example": "roam-pp-cli mention inbox --user @me --since 7d --agent",
+      "why_it_matters": "Use when an agent must surface unread mentions across all groups without round-tripping the API per group.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Roam",
+    "headline": "Every Roam HQ surface — chat, transcripts, On-Air events, SCIM, webhooks — in one local-first CLI with offline FTS search no other tool has.",
+    "value_prop": "Roam HQ ships a remote MCP but no CLI. roam-pp-cli unifies all five Roam HQ APIs (HQ, On-Air, Chat, SCIM, Webhooks) into a single binary with a local SQLite cache and FTS5 search across messages and transcripts. Cron-friendly chat relay, decision extraction, attendance drift, and SCIM roster diff are built-in.",
+    "auth_narrative": "Bearer auth via ROAM_API_KEY. Roam supports two key tiers: full-access organization keys and personal access tokens. Some HQ v1 endpoints require full-access; Chat/Transcript v0 endpoints work with PATs. Run `roam-pp-cli doctor token` to see which families your key can reach.",
+    "quickstart": [
+      {
+        "command": "roam-pp-cli doctor token",
+        "comment": "Verify which Roam APIs your key tier can reach before anything else."
+      },
+      {
+        "command": "roam-pp-cli sync --since 7d",
+        "comment": "Pull the last week of chat + transcripts into the local store for offline search."
+      },
+      {
+        "command": "roam-pp-cli grep \"pricing\" --since 14d --json",
+        "comment": "Cross-resource FTS5 search over messages and transcripts."
+      },
+      {
+        "command": "roam-pp-cli decisions --since 7d",
+        "comment": "Extract decision-shaped lines from synced transcripts."
+      },
+      {
+        "command": "echo \"Deploy v1.2.3 succeeded\" | roam-pp-cli relay --to eng-deploys --idempotent-key-prefix deploys",
+        "comment": "Pipe CI output to a Roam group with dedupe + Retry-After backoff."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 \"This endpoint requires full access. Personal access tokens are not supported.\"",
+        "fix": "Run `roam-pp-cli doctor token` to see which spec families your token covers; use an organization-level key for HQ v1 endpoints."
+      },
+      {
+        "symptom": "429 with Retry-After",
+        "fix": "The adaptive limiter honors Retry-After automatically. Reduce concurrent batches or use --idempotent-key-prefix for safe retries."
+      },
+      {
+        "symptom": "Empty grep results after sync",
+        "fix": "Run `roam-pp-cli sync --full transcripts messages` — incremental sync may not have populated yet."
+      }
+    ],
+    "when_to_use": "Reach for roam-pp-cli when you need to script Roam HQ from a shell or agent: tail webhook deliveries, post deploy notifications, search transcripts across many meetings at once, reconcile SCIM membership against an HRIS roster, or extract decisions from last week's recordings. The remote MCP at api.ro.am/mcp is great for ad-hoc agent chat; this CLI is the choice when you want pipelines, cron, or local-first search.",
+    "recipes": [
+      {
+        "title": "Daily standup digest",
+        "command": "roam-pp-cli decisions --since 1d --in-group standup --agent --select transcript_id,line,speaker",
+        "explanation": "Pull yesterday's decisions from the standup group, formatted for agent consumption with citation."
+      },
+      {
+        "title": "Cross-meeting question scan",
+        "command": "roam-pp-cli transcript fanout --question \"did anyone mention Q3 hiring?\" --since 30d --agent",
+        "explanation": "Run one question against every transcript in the last 30 days."
+      },
+      {
+        "title": "Reconcile HRIS roster with Roam SCIM",
+        "command": "roam-pp-cli scim diff --roster hris.csv --apply --dry-run",
+        "explanation": "See add/update/remove sets before applying; drop --dry-run to execute."
+      },
+      {
+        "title": "Pipe CI alerts into Roam",
+        "command": "tail -F /var/log/ci.log | roam-pp-cli relay --to eng-alerts --idempotent-key-prefix ci",
+        "explanation": "Stream CI log lines into a Roam group with deterministic dedupe."
+      },
+      {
+        "title": "Narrow a deeply-nested transcript response",
+        "command": "roam-pp-cli transcript get --id \u003cid\u003e --json --select segments.speaker,segments.text",
+        "explanation": "Use --select with dotted paths to keep agent context small on long transcripts."
+      }
+    ],
+    "trigger_phrases": [
+      "search roam transcripts",
+      "post a message to roam",
+      "what did we decide in roam",
+      "roam attendance report",
+      "use roam-pp-cli",
+      "run roam-pp-cli"
+    ]
+  }
+}

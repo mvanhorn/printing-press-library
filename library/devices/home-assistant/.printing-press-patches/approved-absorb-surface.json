@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "approved-absorb-surface",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260718-170717-2c0fb604",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve the approved Home Assistant absorb-manifest command tree and execute registry, local self-hosted configuration, state-backed, calendar, raw REST/WebSocket, camera, diagnostic, and Supervisor operations through real transports.",
+  "reason": "The curated REST source cannot emit the stock configuration-registry, WebSocket, camera, diagnostic, and Supervisor command tree; Home Assistant documents the first four through its REST/WebSocket APIs and Supervisor operations through its separately authorized REST API.",
+  "files": ["internal/cli/manifest_surface.go", "internal/client/home_assistant_ws.go", "internal/client/home_assistant_ws_test.go", "internal/client/local_config.go", "internal/client/local_config_test.go", "internal/client/supervisor.go", "go.mod", "go.sum"],
+  "validated_outcome": "The generated binary resolves all 41 approved absorb-manifest rows. Registry and event-watch commands use the Home Assistant WebSocket protocol; find, overview, and bulk plan/status read live states; calendar mutations use documented WebSocket commands; raw commands issue authenticated REST/WebSocket requests; camera snapshot uses the camera proxy endpoint; diagnostics issue config/components reads; local file/YAML/theme operations are restricted to an explicitly mounted HASS_CONFIG_DIR with traversal, symlink, secrets, and atomic-write safeguards; and add-on, backup, and update commands issue Supervisor REST requests when a Supervisor URL and app-scoped token are configured. Unknown WebSocket commands become capability-unavailable only after an authenticated server response."
+}

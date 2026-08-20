@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "spotify-adapt-novel-commands-to-context-client-api",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Thread context.Context through carried novel/stub command client calls for the 4.27 client API (Get/Put/Post/Delete now take ctx).",
+  "reason": "The 4.5-era novel commands and deprecated-endpoint stubs predate the context-aware client. RunE closures pass cmd.Context(); plain helpers pass context.Background(), matching the pre-context behavior.",
+  "files": [
+    "internal/cli/transcendence_discover.go",
+    "internal/cli/transcendence_helpers.go",
+    "internal/cli/transcendence_play_on.go",
+    "internal/cli/transcendence_sync.go",
+    "internal/cli/transcendence_t2_dedupe.go",
+    "internal/cli/transcendence_t3_merge.go",
+    "internal/cli/transcendence_t5_releases_since.go",
+    "internal/cli/transcendence_t8_queue_from_saved.go",
+    "internal/cli/transcendence_test.go",
+    "internal/cli/artists_related-artists_get-an-artists.go",
+    "internal/cli/audio-features_get.go",
+    "internal/cli/audio-features_get-several.go",
+    "internal/cli/promoted_audio-analysis.go"
+  ],
+  "validated_outcome": "go build ./... and go test ./... pass on the re-printed tree."
+}

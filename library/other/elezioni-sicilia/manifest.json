@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "elezioni-sicilia-pp-mcp",
+  "display_name": "Elezioni Sicilia",
+  "version": "4.6.1",
+  "description": "Dati elettorali comunali siciliani da riga di comando — affluenza, candidati, liste, risultati in JSON o tabella.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/elezioni-sicilia-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/elezioni-sicilia-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

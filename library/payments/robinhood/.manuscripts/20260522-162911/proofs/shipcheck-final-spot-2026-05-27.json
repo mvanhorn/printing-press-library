@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:41:34Z",
+  "elapsed_ms": 3754,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:34Z",
+      "elapsed_ms": 1971,
+      "command": "printing-press verify --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:36Z",
+      "elapsed_ms": 12,
+      "command": "printing-press validate-narrative --strict --full-examples --research library/payments/robinhood/research.json --binary library/payments/robinhood/robinhood-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:36Z",
+      "elapsed_ms": 1162,
+      "command": "printing-press dogfood --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:37Z",
+      "elapsed_ms": 13,
+      "command": "printing-press workflow-verify --dir library/payments/robinhood"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:37Z",
+      "elapsed_ms": 389,
+      "command": "printing-press verify-skill --dir library/payments/robinhood"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:38Z",
+      "elapsed_ms": 204,
+      "command": "printing-press scorecard --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
+    }
+  ]
+}

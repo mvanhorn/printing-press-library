@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-06T19:19:28.012313Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "roadside-america",
+  "display_name": "Roadside America",
+  "cli_name": "roadside-america-pp-cli",
+  "creator": {
+    "handle": "dbryson",
+    "name": "David Bryson"
+  },
+  "owner": "dbryson",
+  "printer": "dbryson",
+  "printer_name": "David Bryson",
+  "spec_path": "roadside-america-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f1446148a28984b204c3591717a72c3719d209fe0f2ec5d46e01075fcd2965a6",
+  "run_id": "20260606-102010",
+  "category": "travel",
+  "description": "Every offbeat roadside attraction on RoadsideAmerica.com — with a local SQLite cache, offline search, and superlative categories no other tool offers.",
+  "mcp_binary": "roadside-america-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Superlative \u0026 keyword categories",
+      "command": "category",
+      "description": "Find the biggest, smallest, tallest, or weird-food attractions (and more) by classifying cached attractions locally."
+    },
+    {
+      "name": "Quirk leaderboard / rollups",
+      "command": "stats",
+      "description": "Summarize the local cache: counts by state and by category, plus totals."
+    },
+    {
+      "name": "Surprise-me",
+      "command": "random",
+      "description": "Pick a random offbeat attraction, optionally constrained by state or category."
+    },
+    {
+      "name": "Road-trip stops",
+      "command": "trip",
+      "description": "Collect quirky stops near a list of cities or coordinates in one call, deduped and labeled by stop."
+    },
+    {
+      "name": "State quirk comparison",
+      "command": "compare",
+      "description": "Compare two states by offbeat-attraction count and surface a few top picks from each."
+    }
+  ]
+}

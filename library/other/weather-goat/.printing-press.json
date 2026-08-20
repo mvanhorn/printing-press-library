@@ -3,12 +3,20 @@
   "generated_at": "2026-04-11T23:02:24.092628Z",
   "printing_press_version": "1.3.3-0.20260411222622-065697576de1+dirty",
   "api_name": "weather-goat",
+  "catalog_display_name": "Weather GOAT",
   "cli_name": "weather-goat-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260411-153728/research/weather-spec.yaml",
   "run_id": "20260411-153728",
   "mcp_binary": "weather-goat-pp-mcp",
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "auth_type": "none",
+  "description": "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive"
 }

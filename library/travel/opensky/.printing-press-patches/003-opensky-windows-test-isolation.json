@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "opensky-windows-test-isolation",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Five test home-isolation helpers now also set USERPROFILE/HOMEDRIVE/HOMEPATH to the temp home (in addition to HOME), so os.UserHomeDir() cannot resolve to the real user dir on Windows.",
+  "reason": "os.UserHomeDir() reads USERPROFILE on Windows, so the HOME-only isolation was a no-op and the suite leaked into the real user state dirs (.local/share, .local/state, .config under the real profile). Symptom: TestMCPSQLMissingStoreIsActionable and the teach-log/journal tests failed with entries from real-world CLI use (87 journal entries, 95 teach-log lines). Test-only change; zero behavior change on POSIX. Same fix as the greenhouse and lever prints.",
+  "files": [
+    "internal/cli/teach_test.go",
+    "internal/cliutil/paths_test.go",
+    "internal/learn/journal_test.go",
+    "internal/learn/teach_log_test.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "Full go test ./... suite passes (12 packages) on Windows after the fix; identical behavior on POSIX (the extra env vars are ignored there).",
+  "upstream_issue": null
+}

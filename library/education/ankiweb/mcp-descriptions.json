@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "shared_search": "Search the AnkiWeb shared-deck catalog by keyword and return matching decks with upvotes, downvotes, note count, audio count, image count, and last-modified date. Required: search (keyword string, e.g. 'spanish', 'anatomy'). Optional: has-audio (bool), has-images (bool), min-notes (int), limit (default 20). Returns array of SharedDeck. Use this before shared_info when you need to discover deck IDs by topic.",
+    "shared_info": "Fetch full detail for one shared deck by its numeric ID, including title, description, upvotes, downvotes, note count, and last-modified timestamp. Required: id (numeric shared deck ID from shared_search results). Returns SharedDeckInfo object. Use this after shared_search to get the full deck description and stats for a specific deck.",
+    "shared_download": "Return the direct .apkg download URL for a shared deck. NOTE: AnkiWeb requires a signed client-side token (op=sdd JWT); without the t= parameter the endpoint returns 400 or 503. Required: id (numeric shared deck ID). Optional: t (signed download token). Use this to get the URL — actual download requires a valid session token minted by AnkiWeb's client JavaScript."
+  }
+}

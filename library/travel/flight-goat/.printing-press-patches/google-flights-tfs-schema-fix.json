@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-tfs-schema-fix",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/booking_urls.go",
+    "internal/gflights/booking_urls_test.go"
+  ],
+  "summary": "Replace the broken hand-rolled tfs= protobuf encoding with the canonical schema from krisukox/google-flights-api url.proto (tripType=19, Location nested at 13/14, Travelers repeated enum at 8, base64.RawURLEncoding, curr+hl URL params).",
+  "reason": "The previous encoding used invented field numbers and produced URLs that landed on the Google Flights homepage instead of executing the search. Schema confirmed by fetching url.proto directly. Browser-verified two emitted URLs (SEA-LHR one-way and SEA-PNH round-trip 4-pax with PNH->KTI remap) both load the search results page.",
+  "validated_outcome": "go test ./internal/gflights/... -run TestBuildGoogleFlightsURL -count=1; live `flights SEA LHR 2026-06-15 --agent` and `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` emit Google URLs that open to the search results page."
+}

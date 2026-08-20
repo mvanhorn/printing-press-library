@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "shopping",
+  "run_id": "20260605-212010",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 76,
+  "tests_passed": 76,
+  "tests_skipped": 58,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

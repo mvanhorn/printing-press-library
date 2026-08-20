@@ -1,0 +1,91 @@
+name: printify
+description: Discovered API spec for printify (crowd-sniff)
+version: 0.1.0
+base_url: https://api.printify.com
+spec_source: community
+auth:
+    type: bearer_token
+    header: Authorization
+    format: Bearer {token}
+    env_vars:
+        - PRINTIFY_TOKEN
+    env_var_specs:
+        - name: PRINTIFY_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+config:
+    format: toml
+    path: ~/.config/printify-pp-cli/config.toml
+resources:
+    admin:
+        description: Operations on submit
+        endpoints:
+            create_shops:
+                method: POST
+                path: /admin/printify/shops
+                description: POST /admin/printify/shops
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_products:
+                method: GET
+                path: /admin/printify/products/{id}
+                description: GET /admin/printify/products/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_submit:
+                method: GET
+                path: /admin/printify/orders/{id}/submit
+                description: GET /admin/printify/orders/{id}/submit
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_products:
+                method: GET
+                path: /admin/printify/products
+                description: GET /admin/printify/products
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_shops:
+                method: GET
+                path: /admin/printify/shops
+                description: GET /admin/printify/shops
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

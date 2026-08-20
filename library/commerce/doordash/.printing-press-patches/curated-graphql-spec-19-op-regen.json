@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "curated-graphql-spec-19-op-regen",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Register all 19 curated DoorDash GraphQL operations in the generated CLI skeleton.",
+  "reason": "The active generated skeleton only exposed the 8 browser-sniffed operations even though spec.yaml and the curated manifest already contained 19 operations; Phase 2 needs the clean skeleton to match the formal spec.",
+  "files": [
+    "spec.yaml",
+    "references/doordash-graphql-spec.yaml",
+    "references/doordash-graphql-spec-manifest.json",
+    "internal/cli/graphql.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/which.go",
+    "internal/cli/graphql_create_consumerOrderCart.go",
+    "internal/cli/graphql_create_getOpenCartsCount.go",
+    "internal/cli/graphql_create_detailedCartItems.go",
+    "internal/cli/graphql_create_removeCartItemV2.go",
+    "internal/cli/graphql_create_updateCartItemV2.go",
+    "internal/cli/graphql_create_deleteCart.go",
+    "internal/cli/graphql_create_totalFeeTally.go",
+    "internal/cli/graphql_create_pollOrderPaymentStatus.go",
+    "internal/cli/graphql_create_getHasNewNotifications.go",
+    "internal/cli/graphql_create_promoStickyFooter.go",
+    "internal/cli/graphql_create_validateConsumerAddressWithAddressLinkId.go",
+    "Makefile"
+  ],
+  "validated_outcome": "PER-33 validation passed on 2026-05-13T22:59:57Z: make test and make build-all passed using /home/hermes/.local/bin/go (go1.26.3); agent-context reports entry_count=19/api_entry_count=19; graphql --help lists 19 create-* commands; spec and reference checksums match PROVENANCE.md."
+}

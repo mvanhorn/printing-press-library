@@ -1,0 +1,120 @@
+{
+  "dir": "\u003ccli-dir\u003e/vestaboard",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 56,
+    "dead": 9,
+    "items": [
+      "emitMissingPaginationCursorWarning",
+      "emitMissingPaginationSignalWarning",
+      "emitPaginatedGetMaxPagesWarning",
+      "emitTruncationWarning",
+      "extractPaginatedItems",
+      "nextClientSidePaginationCursor",
+      "paginatedGet",
+      "paginationCursorToken",
+      "rawAtPath"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found"
+  },
+  "example_check": {
+    "tested": 8,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "detail": "8/8 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 29,
+      "registered": 29
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 2,
+    "found": 2
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 2,
+    "exempted_via_store": 0,
+    "exempted_via_annotation": 1,
+    "missing_data_source_strategy": [
+      {
+        "command": "characters",
+        "file": "characters.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 21
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 21
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "9 dead helper functions found",
+    "sync uses generic Upsert only"
+  ]
+}

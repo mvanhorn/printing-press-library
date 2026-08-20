@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "claude-agent-sdk-python-docs-pp-mcp",
+  "display_name": "Claude Agent SDK Python Docs",
+  "version": "0.0.0",
+  "description": "A source-grounded CLI for exploring and verifying the Claude Agent SDK Python docs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/claude-agent-sdk-python-docs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/claude-agent-sdk-python-docs-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+name: digg
+display_name: Digg AI
+description: "Digg AI: tail the Digg AI 1000 leaderboard, ranking-change history, and live ingestion pipeline events from the terminal. Read-only."
+version: "0.1.0"
+base_url: "https://di.gg"
+cli_description: "Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/digg-pp-cli/config.toml"
+
+resources:
+  trending:
+    description: "Public ingestion-pipeline status and event stream"
+    endpoints:
+      status:
+        method: GET
+        path: "/api/trending/status"
+        description: "Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress)."
+        params: []
+        response:
+          type: object
+          item: TrendingStatus
+
+  feed:
+    description: "Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)"
+    endpoints:
+      raw:
+        method: GET
+        path: "/ai"
+        description: "Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+      story_raw:
+        method: GET
+        path: "/ai/{cluster_url_id}"
+        description: "Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly."
+        params:
+          - name: cluster_url_id
+            type: string
+            required: true
+            positional: true
+            description: "Short alphanumeric cluster URL ID (8 chars), e.g. iq7usf9e"
+        response:
+          type: object
+          item: RawHTML
+
+types:
+  TrendingStatus:
+    fields:
+      - name: computedAt
+        type: string
+      - name: nextFetchAt
+        type: string
+      - name: lastFetchCompletedAt
+        type: string
+      - name: isFetching
+        type: bool
+      - name: storiesToday
+        type: int
+      - name: clustersToday
+        type: int
+
+  RawHTML:
+    fields:
+      - name: body
+        type: string

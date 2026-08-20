@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "search-endpoint-410",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Fix live search to use /rest/api/3/search/jql; add --project flag to local FTS search.",
+  "reason": "Old /rest/api/3/search returns 410; issue table has no FTS index so SearchIssue uses json_extract LIKE.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/store/store.go"
+  ]
+}

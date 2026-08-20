@@ -1,0 +1,28 @@
+{
+  "query_family_examples": [
+    "$TEAM game tonight",
+    "$TEAM game today",
+    "Niners game tonight",
+    "when does $TEAM play next"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli teams $SPORT $LEAGUE {team.id} --agent --select team.nextEvent,team.previousEvent,events",
+      "purpose": "get team object with nextEvent + recent events"
+    },
+    {
+      "client_side": "select_event",
+      "args": {
+        "preference": "use team.nextEvent.date if it falls on the user's target window (tonight/today/etc); otherwise scan events[] for date within window"
+      },
+      "purpose": "pick the right event from the team payload"
+    },
+    {
+      "cmd": "espn-pp-cli boxscore {event.id} --agent",
+      "purpose": "live or final score + box score for the selected event",
+      "optional": true
+    }
+  ],
+  "entity_slots": ["$TEAM", "$SPORT", "$LEAGUE"],
+  "expected_tool_calls": 2
+}

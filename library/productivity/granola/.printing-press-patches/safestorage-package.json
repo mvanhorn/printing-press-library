@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "safestorage-package",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/safestorage/safestorage.go",
+    "internal/granola/safestorage/safestorage_darwin.go",
+    "internal/granola/safestorage/safestorage_other.go",
+    "internal/granola/safestorage/safestorage_test.go",
+    "internal/granola/safestorage/testdata/regenerate.sh",
+    "internal/granola/safestorage/testdata/scheme.md",
+    "internal/granola/safestorage/testdata/README.md",
+    "internal/granola/safestorage/testdata/synthetic-aes-gcm-test-dek.bin",
+    "internal/granola/safestorage/testdata/fixture-supabase.enc",
+    "internal/granola/safestorage/testdata/fixture-cache.enc"
+  ],
+  "summary": "New internal/granola/safestorage package owning the two-tier decryption of Granola desktop's encrypted local storage. Layer 1: 'v10'-prefixed AES-128-CBC over storage.dek with PBKDF2-SHA1(keychain_base64_string, 'saltysalt', 1003, 16) and a 16-byte ASCII-space IV (standard Chromium OSCrypt envelope). Plaintext is base64 of a 32-byte DEK. Layer 2: AES-256-GCM with the DEK; envelope is nonce(12)||ciphertext||tag(16) with no AAD. Exported API: Key, Decrypt, Available, Reset, ZeroBytes plus error sentinels (ErrUnsupportedPlatform/ErrKeyUnavailable/ErrDecryptFailed). macOS implementation shells out to /usr/bin/security; safestorage_other.go returns ErrUnsupportedPlatform on non-darwin builds. GRANOLA_SAFESTORAGE_KEY_OVERRIDE env var lets tests inject a known DEK without touching the OS Keychain.",
+  "reason": "Granola desktop began writing cache-v6.json.enc, supabase.json.enc, and user-preferences.json.enc around early May 2026 while keeping stale plaintext stubs. The plain-file readers Damien shipped in the generator-produced code return 0 rows on modern installs. Empirical scheme finding documented in safestorage/testdata/scheme.md; verified end-to-end against Granola 7.205.0 macOS."
+}

@@ -1,0 +1,359 @@
+{
+  "api_name": "google-search-console",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "AminForou/mcp-gsc",
+      "url": "https://github.com/AminForou/mcp-gsc",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Bin-Huang/google-search-console-cli",
+      "url": "https://github.com/Bin-Huang/google-search-console-cli",
+      "language": "Node",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ahonn/mcp-server-gsc",
+      "url": "https://github.com/ahonn/mcp-server-gsc",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "joshcarty/google-searchconsole",
+      "url": "https://github.com/joshcarty/google-searchconsole",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kasdimg/analytics-cli",
+      "url": "https://github.com/kasdimg/analytics-cli",
+      "language": "Node",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T12:50:00Z",
+  "novel_features": [
+    {
+      "name": "Quick Wins",
+      "command": "quick-wins",
+      "description": "Surface page-2 queries with high impressions and low CTR -- page-2-to-page-1 candidates ranked by upside, computed offline from your synced corpus.",
+      "rationale": "Requires the local SQLite corpus to compute upside (impressions × CTR-gap) across the full retained history, with thresholds the API doesn't accept.",
+      "example": "google-search-console-pp-cli quick-wins sc-domain:example.com --position 8-20 --min-imps 100 --json",
+      "why_it_matters": "Reach for this when an agent needs to recommend the top SEO opportunities for a property without re-fetching from the API.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Cannibalization detection",
+      "command": "cannibalization",
+      "description": "Find queries where multiple pages compete, ranked by combined impressions -- the keyword-cannibalization audit the GSC web UI doesn't offer.",
+      "rationale": "Requires GROUP BY query in the local store with HAVING COUNT(DISTINCT page) \u003e 1 -- the API returns flat rows and cannot aggregate this way in one call.",
+      "example": "google-search-console-pp-cli cannibalization sc-domain:example.com --min-imps 50 --top 25 --json",
+      "why_it_matters": "Use when an agent investigates why a query ranks worse than expected -- surfaces the competing pages on its own URL.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Period compare",
+      "command": "compare",
+      "description": "Period-over-period delta on clicks, impressions, CTR, and position for any dimension -- week-over-week, month-over-month, or arbitrary windows.",
+      "rationale": "Joins two date windows from the local store on the dimension key. The API returns one window per call; reproducing this server-side requires two requests plus client-side joining.",
+      "example": "google-search-console-pp-cli compare sc-domain:example.com --period 28d --vs prev-period --dim query --top 50 --agent --select rows.keys,rows.delta_clicks,rows.delta_position",
+      "why_it_matters": "First-line investigation when a property's traffic shifts -- the agent gets the deltas without spelunking two raw queries.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "Cliff detector",
+      "command": "cliff",
+      "description": "Find the day clicks or impressions cratered, with signature hints matching same-day sitemap regressions or indexing drops.",
+      "rationale": "Reads day-over-day deltas from snapshots and joins against sitemaps and url_inspections on the same date -- the API has no event view.",
+      "example": "google-search-console-pp-cli cliff sc-domain:example.com --metric clicks --threshold -25% --window 7d",
+      "why_it_matters": "The first command an agent should run when a human says 'traffic dropped' -- points at the day and likely cause.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "Cross-property roll-up",
+      "command": "roll-up",
+      "description": "Aggregate top queries or pages across every verified property in one command -- the API forces N round-trips.",
+      "rationale": "Single SQL aggregate across all (siteUrl, query|page, ...) partitions in the local store -- no multi-property endpoint exists.",
+      "example": "google-search-console-pp-cli roll-up --metric clicks --group-by query --top 50 --last 28d --json",
+      "why_it_matters": "Agency workflows where the agent surfaces top performers across a portfolio without writing per-site loops.",
+      "group": "Cross-property analysis"
+    },
+    {
+      "name": "Coverage drift",
+      "command": "coverage-drift",
+      "description": "URLs whose inspection state flipped (indexed → not indexed, robots changed, canonical changed) within a window.",
+      "rationale": "Diff over url_inspections snapshots -- the API only returns current state, never history.",
+      "example": "google-search-console-pp-cli coverage-drift sc-domain:example.com --field indexingState --days 30 --json",
+      "why_it_matters": "Catches indexing regressions an agent would otherwise miss because the API hides them once the state has flipped back.",
+      "group": "Indexing diagnostics"
+    },
+    {
+      "name": "Historical query (\u003e16 months)",
+      "command": "historical",
+      "description": "Search analytics for date ranges older than the API's 16-month rolling window -- answer 'is this March-2024 normal?' from cached history.",
+      "rationale": "SELECT directly from the local store on date ranges that predate the 16-month API window -- the only feature truly impossible against the live API.",
+      "example": "google-search-console-pp-cli historical sc-domain:example.com --start 2023-01-01 --end 2023-12-31 --dim query --top 100",
+      "why_it_matters": "Forecasting and seasonality questions; a one-shot agent can answer 'compared to two years ago' without breaking out a backup file.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "CTR outliers",
+      "command": "outliers",
+      "description": "Queries or pages with click-through rates that deviate from the observed CTR-by-position curve in your own corpus.",
+      "rationale": "Computes mean + stddev CTR per integer-position bucket from your corpus, then flags rows beyond N sigma -- needs the corpus to define 'normal'.",
+      "example": "google-search-console-pp-cli outliers sc-domain:example.com --metric ctr --sigma 2 --top 50 --json",
+      "why_it_matters": "Title-tag and snippet-rewrite candidates an agent can act on directly -- high impressions, low CTR for their position.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Sitemap regression watcher",
+      "command": "sitemap-watch",
+      "description": "Diff sitemap state between snapshots -- surface new errors, new warnings, content-count drops, and stale lastDownloaded times.",
+      "rationale": "Joins sitemaps snapshots across time; the API returns current state only and provides no notification mechanism.",
+      "example": "google-search-console-pp-cli sitemap-watch sc-domain:example.com --since 7d --json",
+      "why_it_matters": "Friday automation that catches sitemap regressions before the next Monday traffic dip -- runs from local data, no extra API spend.",
+      "group": "Indexing diagnostics"
+    },
+    {
+      "name": "Decaying pages",
+      "command": "decaying",
+      "description": "Pages with monotonic click decline over a rolling window, ranked by total impressions × negative slope -- the content-refresh queue.",
+      "rationale": "Linear regression slope on per-page weekly clicks over the window from local store; the API has no trend operator.",
+      "example": "google-search-console-pp-cli decaying sc-domain:example.com --window 90d --min-imps 500 --top 50 --json",
+      "why_it_matters": "Content marketers' Thursday refresh queue -- the agent picks update candidates with concrete supporting numbers.",
+      "group": "Content workflows"
+    },
+    {
+      "name": "New queries arriving",
+      "command": "new-queries",
+      "description": "Queries that started showing up with impressions in the last N days but didn't exist in the corpus before -- emerging demand.",
+      "rationale": "Local set difference -- queries with impressions in the last window NOT in any prior window. Requires retained history before the window starts.",
+      "example": "google-search-console-pp-cli new-queries sc-domain:example.com --since 28d --min-imps 50 --top 100 --json",
+      "why_it_matters": "Content-ideas surface for marketers; the agent gets emerging-search trends scoped to this site rather than generic Trends data.",
+      "group": "Content workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quick Wins",
+      "command": "quick-wins",
+      "description": "Surface page-2 queries with high impressions and low CTR -- page-2-to-page-1 candidates ranked by upside, computed offline from your synced corpus.",
+      "rationale": "Requires the local SQLite corpus to compute upside (impressions × CTR-gap) across the full retained history, with thresholds the API doesn't accept.",
+      "example": "google-search-console-pp-cli quick-wins sc-domain:example.com --position 8-20 --min-imps 100 --json",
+      "why_it_matters": "Reach for this when an agent needs to recommend the top SEO opportunities for a property without re-fetching from the API.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Cannibalization detection",
+      "command": "cannibalization",
+      "description": "Find queries where multiple pages compete, ranked by combined impressions -- the keyword-cannibalization audit the GSC web UI doesn't offer.",
+      "rationale": "Requires GROUP BY query in the local store with HAVING COUNT(DISTINCT page) \u003e 1 -- the API returns flat rows and cannot aggregate this way in one call.",
+      "example": "google-search-console-pp-cli cannibalization sc-domain:example.com --min-imps 50 --top 25 --json",
+      "why_it_matters": "Use when an agent investigates why a query ranks worse than expected -- surfaces the competing pages on its own URL.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Period compare",
+      "command": "compare",
+      "description": "Period-over-period delta on clicks, impressions, CTR, and position for any dimension -- week-over-week, month-over-month, or arbitrary windows.",
+      "rationale": "Joins two date windows from the local store on the dimension key. The API returns one window per call; reproducing this server-side requires two requests plus client-side joining.",
+      "example": "google-search-console-pp-cli compare sc-domain:example.com --period 28d --vs prev-period --dim query --top 50 --agent --select rows.keys,rows.delta_clicks,rows.delta_position",
+      "why_it_matters": "First-line investigation when a property's traffic shifts -- the agent gets the deltas without spelunking two raw queries.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "Cliff detector",
+      "command": "cliff",
+      "description": "Find the day clicks or impressions cratered, with signature hints matching same-day sitemap regressions or indexing drops.",
+      "rationale": "Reads day-over-day deltas from snapshots and joins against sitemaps and url_inspections on the same date -- the API has no event view.",
+      "example": "google-search-console-pp-cli cliff sc-domain:example.com --metric clicks --threshold -25% --window 7d",
+      "why_it_matters": "The first command an agent should run when a human says 'traffic dropped' -- points at the day and likely cause.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "Cross-property roll-up",
+      "command": "roll-up",
+      "description": "Aggregate top queries or pages across every verified property in one command -- the API forces N round-trips.",
+      "rationale": "Single SQL aggregate across all (siteUrl, query|page, ...) partitions in the local store -- no multi-property endpoint exists.",
+      "example": "google-search-console-pp-cli roll-up --metric clicks --group-by query --top 50 --last 28d --json",
+      "why_it_matters": "Agency workflows where the agent surfaces top performers across a portfolio without writing per-site loops.",
+      "group": "Cross-property analysis"
+    },
+    {
+      "name": "Coverage drift",
+      "command": "coverage-drift",
+      "description": "URLs whose inspection state flipped (indexed → not indexed, robots changed, canonical changed) within a window.",
+      "rationale": "Diff over url_inspections snapshots -- the API only returns current state, never history.",
+      "example": "google-search-console-pp-cli coverage-drift sc-domain:example.com --field indexingState --days 30 --json",
+      "why_it_matters": "Catches indexing regressions an agent would otherwise miss because the API hides them once the state has flipped back.",
+      "group": "Indexing diagnostics"
+    },
+    {
+      "name": "Historical query (\u003e16 months)",
+      "command": "historical",
+      "description": "Search analytics for date ranges older than the API's 16-month rolling window -- answer 'is this March-2024 normal?' from cached history.",
+      "rationale": "SELECT directly from the local store on date ranges that predate the 16-month API window -- the only feature truly impossible against the live API.",
+      "example": "google-search-console-pp-cli historical sc-domain:example.com --start 2023-01-01 --end 2023-12-31 --dim query --top 100",
+      "why_it_matters": "Forecasting and seasonality questions; a one-shot agent can answer 'compared to two years ago' without breaking out a backup file.",
+      "group": "Time-series analysis"
+    },
+    {
+      "name": "CTR outliers",
+      "command": "outliers",
+      "description": "Queries or pages with click-through rates that deviate from the observed CTR-by-position curve in your own corpus.",
+      "rationale": "Computes mean + stddev CTR per integer-position bucket from your corpus, then flags rows beyond N sigma -- needs the corpus to define 'normal'.",
+      "example": "google-search-console-pp-cli outliers sc-domain:example.com --metric ctr --sigma 2 --top 50 --json",
+      "why_it_matters": "Title-tag and snippet-rewrite candidates an agent can act on directly -- high impressions, low CTR for their position.",
+      "group": "SEO opportunities from local corpus"
+    },
+    {
+      "name": "Sitemap regression watcher",
+      "command": "sitemap-watch",
+      "description": "Diff sitemap state between snapshots -- surface new errors, new warnings, content-count drops, and stale lastDownloaded times.",
+      "rationale": "Joins sitemaps snapshots across time; the API returns current state only and provides no notification mechanism.",
+      "example": "google-search-console-pp-cli sitemap-watch sc-domain:example.com --since 7d --json",
+      "why_it_matters": "Friday automation that catches sitemap regressions before the next Monday traffic dip -- runs from local data, no extra API spend.",
+      "group": "Indexing diagnostics"
+    },
+    {
+      "name": "Decaying pages",
+      "command": "decaying",
+      "description": "Pages with monotonic click decline over a rolling window, ranked by total impressions × negative slope -- the content-refresh queue.",
+      "rationale": "Linear regression slope on per-page weekly clicks over the window from local store; the API has no trend operator.",
+      "example": "google-search-console-pp-cli decaying sc-domain:example.com --window 90d --min-imps 500 --top 50 --json",
+      "why_it_matters": "Content marketers' Thursday refresh queue -- the agent picks update candidates with concrete supporting numbers.",
+      "group": "Content workflows"
+    },
+    {
+      "name": "New queries arriving",
+      "command": "new-queries",
+      "description": "Queries that started showing up with impressions in the last N days but didn't exist in the corpus before -- emerging demand.",
+      "rationale": "Local set difference -- queries with impressions in the last window NOT in any prior window. Requires retained history before the window starts.",
+      "example": "google-search-console-pp-cli new-queries sc-domain:example.com --since 28d --min-imps 50 --top 100 --json",
+      "why_it_matters": "Content-ideas surface for marketers; the agent gets emerging-search trends scoped to this site rather than generic Trends data.",
+      "group": "Content workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Search Console",
+    "headline": "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers period compare, quick wins, cannibalization detection, and history older than the API's 16-month window.",
+    "value_prop": "A single binary covering search analytics, URL inspection, sitemaps, and site management -- with the agent-native JSON and CSV outputs, --dry-run, exit codes, and offline search every other GSC tool half-implements. The transcendence layer (compare, quick-wins, cannibalization, historical, decaying, outliers, cliff, roll-up, coverage-drift, sitemap-watch, new-queries) runs entirely from the local SQLite store, so the workflows the API can't answer in one call are answered in one command.",
+    "auth_narrative": "Google Search Console uses OAuth 2.0. The CLI reads a pre-fetched access token from the GSC_ACCESS_TOKEN environment variable. Generate one from the Google OAuth Playground (https://developers.google.com/oauthplayground/) using scope https://www.googleapis.com/auth/webmasters.readonly for read-only operations or https://www.googleapis.com/auth/webmasters for full read-write (sitemap submit/delete, sites add/delete). Tokens expire after one hour; refresh from the same Playground UI. There is no `auth login` flow in this CLI by design -- pre-fetched tokens keep the install path simple and match the google-ads house pattern.",
+    "quickstart": [
+      {
+        "command": "google-search-console-pp-cli doctor",
+        "comment": "Verify your token, check API reachability, and confirm scopes."
+      },
+      {
+        "command": "google-search-console-pp-cli webmasters list-sites --json",
+        "comment": "List every verified property the token has access to. The fastest sanity check before sync."
+      },
+      {
+        "command": "google-search-console-pp-cli sync --site sc-domain:example.com --last 90d",
+        "comment": "Pull 90 days of search analytics into the local SQLite cache. Idempotent and incremental on subsequent runs."
+      },
+      {
+        "command": "google-search-console-pp-cli quick-wins sc-domain:example.com --position 8-20 --min-imps 100 --json",
+        "comment": "Surface page-2 queries with the highest upside -- the highest-leverage SEO recommendation an agent can make."
+      },
+      {
+        "command": "google-search-console-pp-cli compare sc-domain:example.com --period 28d --vs prev-period --dim query --top 50",
+        "comment": "Period-over-period delta -- what changed week-over-week, month-over-month, or any window you set."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized from any command",
+        "fix": "Token is expired or missing. Generate a new one at https://developers.google.com/oauthplayground/ with scope webmasters.readonly, then `export GSC_ACCESS_TOKEN=\u003ctoken\u003e` and retry. Tokens last 1 hour."
+      },
+      {
+        "symptom": "403 PERMISSION_DENIED on sites/sitemaps write",
+        "fix": "Read-only scope was used. Re-authorize with scope https://www.googleapis.com/auth/webmasters (full) instead of webmasters.readonly to allow sitemap submit/delete and site add/delete."
+      },
+      {
+        "symptom": "Empty rows from searchanalytics for the last 1-2 days",
+        "fix": "GSC has a 2-3 day data lag. Use `--data-state all` to include preliminary data, or set --end-date to 3 days ago for stable numbers."
+      },
+      {
+        "symptom": "Search analytics request returns at most 25,000 rows",
+        "fix": "API caps a single request at 25k. Paginate manually with `--start-row 25000` (then 50000, etc.) until an empty response, or run `sync` once and query the local store with `historical` / `quick-wins` / etc., which page automatically."
+      },
+      {
+        "symptom": "URL Inspection RESOURCE_EXHAUSTED",
+        "fix": "Per-property daily quota (~2,000/day) is exhausted. Use `inspect-batch --max-per-day 2000` to throttle, or wait for the next UTC day."
+      },
+      {
+        "symptom": "Date earlier than 16 months returns nothing in `searchanalytics query`",
+        "fix": "API window is rolling 16 months. Use `historical` instead -- it reads from the local cache and works for any date you have synced data for."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to answer SEO questions for a Google Search Console property without round-tripping to the web UI. It is the right choice for: pulling top queries and pages for any window; comparing periods; finding indexing or sitemap regressions; surfacing page-2 quick wins, decaying pages, or keyword cannibalization; and answering questions about data older than the API's 16-month window once a sync history exists. It is not the right choice for one-off ad-hoc lookups when a sync hasn't run -- start with `sync` first.",
+    "recipes": [
+      {
+        "title": "Top queries with low CTR -- title-tag rewrite candidates",
+        "command": "google-search-console-pp-cli outliers sc-domain:example.com --metric ctr --sigma 2 --top 50 --agent --select rows.keys,rows.position,rows.ctr,rows.expected_ctr",
+        "explanation": "Pairs --agent (compact NDJSON) with --select to narrow the response so the agent doesn't have to wade through full ApiDataRow objects. Outputs only the dimensions and the CTR delta vs the bucket mean for the position."
+      },
+      {
+        "title": "Why did traffic drop yesterday?",
+        "command": "google-search-console-pp-cli cliff sc-domain:example.com --metric clicks --threshold -20% --window 14d --json",
+        "explanation": "Returns the days clicks dropped more than 20% versus the prior day, plus same-day signals from sitemaps (new errors) and url_inspections (indexing-state flips). Single command answers the most common SEO post-mortem question."
+      },
+      {
+        "title": "Cross-property weekly summary",
+        "command": "google-search-console-pp-cli roll-up --metric clicks --group-by query --last 7d --top 25 --csv \u003e weekly.csv",
+        "explanation": "Aggregates top 25 queries by clicks across every verified property, last 7 days. CSV pipes straight into a spreadsheet or data tool."
+      },
+      {
+        "title": "Bulk URL inspection from a file",
+        "command": "google-search-console-pp-cli url-inspection inspect-batch --file urls.txt --site sc-domain:example.com --max-per-day 2000 --json",
+        "explanation": "Streams NDJSON one inspection per line. Respects the per-property daily quota. Pipe to `jq 'select(.indexStatusResult.coverageState != \"Submitted and indexed\")'` to surface only problems."
+      },
+      {
+        "title": "Cannibalization audit before publishing a new page",
+        "command": "google-search-console-pp-cli cannibalization sc-domain:example.com --min-imps 50 --top 20 --json",
+        "explanation": "Surfaces existing queries where multiple pages on the site already compete. Run before publishing a new piece on the same topic -- pick the strongest existing page or consolidate."
+      }
+    ],
+    "trigger_phrases": [
+      "search console performance for example.com",
+      "quick wins for sc-domain:example.com",
+      "cannibalization audit on this site",
+      "compare last 28 days to prior period in GSC",
+      "why did traffic drop on this property",
+      "which pages are decaying",
+      "use google-search-console",
+      "run gsc"
+    ]
+  }
+}

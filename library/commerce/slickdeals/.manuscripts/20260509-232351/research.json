@@ -1,0 +1,46 @@
+{
+  "api_name": "slickdeals",
+  "novelty_score": 5,
+  "alternatives": [
+    {"name": "Slickdeals-Discord-Bot", "url": "https://github.com/Unwoundd/Slickdeals-Discord-Bot", "language": "Python", "stars": 7, "command_count": 3},
+    {"name": "bargainer-mcp-client", "url": "https://github.com/karthiksivaramms/bargainer-mcp-client", "language": "JavaScript", "stars": 4, "command_count": 2},
+    {"name": "SlickDealsScraper", "url": "https://github.com/carvalhe/SlickDealsScraper", "language": "Python", "stars": 4, "command_count": 3},
+    {"name": "slickdeals (MinweiShen)", "url": "https://github.com/MinweiShen/slickdeals", "language": "Python", "stars": 2, "command_count": 5},
+    {"name": "slickdeals-clean-url", "url": "https://github.com/schrauger/slickdeals-clean-url", "language": "JavaScript", "stars": 11, "command_count": 1},
+    {"name": "slickdeals-affiliate-link-remover", "url": "https://github.com/norrism/slickdeals-affiliate-link-remover", "language": "JavaScript", "stars": 4, "command_count": 1}
+  ],
+  "novel_features": [],
+  "narrative": {
+    "display_name": "Slickdeals",
+    "headline": "Slickdeals frontpage, coupons, and recommendations from your terminal — agent-native, MCP-compatible, locally cacheable.",
+    "value_prop": "Wraps Slickdeals' Nuxt frontpage JSON endpoints (featured-coupons, missed-deals, promoted-content, recommendations) in a Go CLI with agent-native --json output, local SQLite cache for offline search, and a companion MCP server. v0.1 is read-only; authenticated write features (vote/comment/submit/DM) are deferred to v0.2.",
+    "auth_narrative": "v0.1 uses no authentication — all wrapped endpoints are public Nuxt JSON feeds. Future versions will support Chrome cookie import for personalized and write features.",
+    "quickstart": [
+      {"command": "slickdeals-pp-cli doctor", "comment": "Verify the binary and HTTP transport are healthy."},
+      {"command": "slickdeals-pp-cli web-api list-missed-deals --json", "comment": "Pull the missed-deals carousel as structured JSON."},
+      {"command": "slickdeals-pp-cli frontpage list-recommendations --json", "comment": "Fetch frontpage recommendations carousel."},
+      {"command": "slickdeals-pp-cli sync", "comment": "Pull discovered endpoints into the local SQLite cache for offline search."},
+      {"command": "slickdeals-pp-cli search 'mountain' --json", "comment": "Full-text search across the locally-synced data."}
+    ],
+    "troubleshoots": [
+      {"symptom": "doctor reports HTTP transport failure", "fix": "Slickdeals occasionally throttles per-IP. Wait a minute and retry; the discovered endpoints work via plain HTTPS (no clearance cookie needed per probe-reachability)."},
+      {"symptom": "Empty results from list commands", "fix": "Run `slickdeals-pp-cli sync` first to populate the local cache, then retry."}
+    ],
+    "when_to_use": "Use this CLI when you need agent-native access to Slickdeals frontpage data — recommendations, coupons, missed deals — as JSON. The v0.1 release wraps Slickdeals' Nuxt JSON endpoints discovered via browser-sniff. For full deal-tracking with keyword alerts, watch lists, compound queries, and authenticated write actions (vote/comment/submit/DM), wait for v0.2 or contribute via the printing-press-library.",
+    "recipes": [
+      {"title": "Pull missed deals as JSON for an agent", "command": "slickdeals-pp-cli web-api list-missed-deals --json", "explanation": "Returns the structured missed-deals carousel — useful as input to a downstream filtering agent."},
+      {"title": "Sync and search locally", "command": "slickdeals-pp-cli sync && slickdeals-pp-cli search 'wireless' --json", "explanation": "Build a local cache, then run FTS5 search against it offline."},
+      {"title": "Programmatic frontpage recommendations", "command": "slickdeals-pp-cli frontpage list-recommendations --json", "explanation": "Get the recommendation-carousel entries as structured JSON."}
+    ],
+    "trigger_phrases": ["slickdeals frontpage", "slickdeals missed deals", "slickdeals coupons", "use slickdeals-pp-cli", "run slickdeals"]
+  },
+  "gaps": [
+    "RSS-driven hot/frontpage/category/search commands not yet implemented (would supplement Nuxt JSON endpoints)",
+    "Keyword alerts and watch lists not yet implemented",
+    "Compound store + thumbs + freshness queries deferred to v0.2",
+    "Authenticated write features (vote, comment, submit, DM) require re-capture with logged-in session"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T23:24:00Z"
+}

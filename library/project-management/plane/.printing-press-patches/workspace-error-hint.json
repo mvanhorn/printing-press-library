@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "workspace-error-hint",
+  "applied_at": "2026-06-12",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "When a 403 (or 404) is returned for a request issued with no workspace selected, classifyAPIError now leads with a workspace-selection hint (exit 2, usage) instead of the generic API-key 'permission denied' hint (exit 4).",
+  "reason": "Plane's API is workspace-scoped; with no --workspace / $PLANE_SLUG / default_workspace the {slug} template var falls to the 'my-workspace' sentinel and the API rejects the request, usually with a 403 on collection endpoints. The stock 403 hint misdirected the user toward their API key ('check that your API key has the required permissions') when the real cause was simply an unselected workspace — exactly the trap that wastes an agent's turns (it reads as a credentials/access failure). This is the user-facing twin of the no-default 50/50 config: a flag-less call now fails loudly AND tells you to name a workspace. Builds on novel-workspaces (the sentinel + effectiveSlug it keys off) and slug-env-align.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "patch_tags": [
+    "PATCH(workspace-error-hint) in internal/cli/helpers.go: in classifyAPIError, the HTTP 403 and HTTP 404 arms gain a leading `if noWorkspaceSelected(flags) { return workspaceHintErr(err) }` guard before the existing authErr/notFoundErr fallbacks."
+  ],
+  "novel_files": [
+    "internal/cli/workspace_hint.go",
+    "internal/cli/workspace_hint_test.go"
+  ],
+  "validated_outcome": "go build ./... + go vet + go test ./internal/cli green. Live: `plane-pp-cli members --agent` with no workspace selected now prints the 'no workspace selected … pass --workspace <slug>' hint and exits 2 (usage); `members --workspace bbm` still succeeds; a 403 WITH an explicit --workspace keeps the original API-key hint and exit 4 (genuine access problem). nil flags are never treated as no-workspace, so unrelated 403/404s are untouched.",
+  "deferred_to_upstream": []
+}

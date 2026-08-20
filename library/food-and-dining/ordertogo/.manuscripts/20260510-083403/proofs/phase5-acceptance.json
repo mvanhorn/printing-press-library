@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "ordertogo",
+  "run_id": "20260510-083403",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true
+  },
+  "notes": "Quick check level. Read-only verification across 5 read endpoints. order place excluded from the matrix: writes a real order via Braintree DropIn; verified only via PRINTING_PRESS_VERIFY=1 short-circuit per user instruction (no live submission)."
+}

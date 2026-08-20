@@ -1,0 +1,1 @@
+{"schema_version": 1, "api_name": "posthog", "run_id": "20260512-010008", "verdict": "PASS", "verify_pass_rate": 100, "verify_passed": 25, "verify_total": 25, "scorecard_total": 99, "scorecard_grade": "A"}

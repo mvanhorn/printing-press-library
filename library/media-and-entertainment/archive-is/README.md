@@ -6,23 +6,40 @@ Bypass paywalls and look up web archives via archive.today. Looks up existing sn
 
 > **About archive.today:** On February 21, 2026, Wikipedia formally blacklisted archive.today after evidence of DDoS activity and snapshot tampering. This CLI is intended for personal paywall reading. Do NOT use it for legal evidence, academic citation, or anything requiring a trustworthy archive — use the Wayback Machine for that. This CLI ships with Wayback as a built-in fallback backend for that reason.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
-The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill in one shot:
+The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install archive-is
+npx -y @mvanhorn/printing-press-library install archive-is
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install archive-is --cli-only
+npx -y @mvanhorn/printing-press-library install archive-is --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install archive-is --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install archive-is --agent claude-code
+npx -y @mvanhorn/printing-press-library install archive-is --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
@@ -37,6 +54,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install archive-is --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -49,13 +74,17 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-archive-is --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install archive-is --agent openclaw
 ```
-Install the pp-archive-is skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-archive-is. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Quick Start
 
@@ -192,7 +221,7 @@ The six hand-built commands below are the hero features. They're optimized for o
 | `sync` | Sync recent archive metadata to local SQLite for offline search. |
 | `workflow archive` | Run the full sync workflow across all resources. |
 | `workflow status` | Show local archive status and sync state. |
-| `export --format jsonl` | Export synced data to JSONL. |
+| `export <resource> --format jsonl` | Export synced data to JSONL. |
 | `import <file>` | Import JSONL back into the API. |
 | `api` | Browse all API endpoints by interface name. |
 
@@ -313,7 +342,7 @@ archive-is-pp-cli sync --full
 archive-is-pp-cli workflow status
 
 # 13. Export your local archive index for backup
-archive-is-pp-cli export --format jsonl > archive-backup.jsonl
+archive-is-pp-cli export captures --format jsonl > archive-backup.jsonl
 
 # 14. Check archive-is-pp-cli's auth and API reachability
 archive-is-pp-cli doctor --json

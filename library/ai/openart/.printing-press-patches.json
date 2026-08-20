@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-152641",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "prompts-replay-image-family-resolution-guard",
+      "summary": "prompts replay no longer panics when the target model is image-family (Resolutions == nil; PixelResolutions populated instead).",
+      "reason": "Greptile P1 on PR #554: the previous fallback `body['resolution'] = newModel.Resolutions[0]` indexed into a nil slice for nano-banana / gpt-image-2 / flux-2-pro and every other image-family model, crashing prompts replay before the API call. The membership check now consults both Resolutions and PixelResolutions; the fallback picks the first available value from whichever list is populated, and leaves the user-supplied value untouched if both lists are empty.",
+      "files": [
+        "internal/cli/prompts_novel.go"
+      ],
+      "validated_outcome": "Build + go vet + 193 tests / 12 packages green. Image-family replay no longer panics on the resolution fallback path."
+    },
+    {
+      "id": "credits-since-first-seen-at-extension",
+      "summary": "Extend the first_seen_at filter convention to the credits queries in prompts top and stats so they bucket on consume-event observation time rather than the local-resync timestamp.",
+      "reason": "Greptile P1 on PR #554: prompts_novel.go:461 (prompts top credit aggregation) and stats.go:107 (stats overall spend) both filtered credits by synced_at, which is rewritten on every full resync. A first-time historical sync collapsed every past spend into one bucket. Mirror the credits-bucket-by-first-seen-at and credits-forecast-first-seen-at patches that already corrected `credits burn` and `credits forecast`. media-side filters in stats.go and prompts_novel.go still use synced_at because media has a numeric created_at column and a careful unit migration belongs in a separate change; that gap is recorded as a known limitation in the SKILL.md follow-ups note.",
+      "files": [
+        "internal/cli/prompts_novel.go",
+        "internal/cli/stats.go"
+      ],
+      "validated_outcome": "Build + go vet + 193 tests / 12 packages green; verify-skill clean."
+    },
+    {
+      "id": "refresh-cookie-domain",
+      "summary": "Hardcode the openart.ai cookie domain in refreshStoredBrowserCookies so `auth refresh` actually reaches the extractor pipeline.",
+      "reason": "The variable was initialized to the empty string and the function immediately returned 'no cookie domain configured', leaving the rest of the function as dead code. Every user invoking `auth refresh` saw the same misleading error (greptile P1).",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Build passes. `auth refresh` now invokes the cookie extractor against openart.ai cookies."
+    },
+    {
+      "id": "dryrun-auth-header-label",
+      "summary": "Mirror the live-request header-routing logic in --dry-run output so cookie-shaped auth is labeled Cookie, not Authorization.",
+      "reason": "OpenArt's cookie-based auth sets a `Cookie:` header on the live request (via looksLikeCookieString), but the dry-run printout hardcoded `Authorization:`, so developers debugging requests saw misleading output (greptile P2).",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Dry-run output now labels the auth header to match what the request actually sends."
+    },
+    {
+      "id": "credits-first-seen-at",
+      "summary": "Add a first_seen_at column to the credits typed table and bucket/filter credits burn + forecast on it instead of synced_at.",
+      "reason": "The captured /credits/logs response shape has no per-record timestamp (validated against the manuscript's traffic-analysis credit_contract). The previous credits commands used synced_at, which is rewritten on every full resync, so credits burn --by day collapsed every historical spend into the sync-day bucket and credits forecast's 28-day window matched every record on a first sync. The new first_seen_at column captures the first observation timestamp (preserved across ON CONFLICT updates and backfilled to synced_at for legacy rows); going forward each new spend records an accurate consume-time proxy because the autorefresh path syncs on every CLI invocation (greptile P1 x2).",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/schema_version_test.go",
+        "internal/cli/credits_novel.go"
+      ],
+      "validated_outcome": "go test ./... passes. credits burn buckets by observation date, credits forecast's 28-day window only matches recently-observed spends. Migration is idempotent and backfills pre-existing rows from synced_at."
+    },
+    {
+      "id": "modelrow-surface-experimental",
+      "summary": "Add the catalog's Experimental flag to modelRow() output so models list / models show JSON exposes which models need --accept-experimental.",
+      "reason": "The Experimental field was set correctly on every catalog entry but modelRow() omitted it from the returned map, so callers parsing the JSON had no way to filter or warn before submitting. Discovered in the 2026-05-14 donkey-photo session: the agent picked nano-banana-pro from JSON output with no experimental signal, then learned about the opt-in flag only after the submit rejected it. Paired with SKILL.md / README.md / image gen --help updates that document the nano-banana family explicitly (regular vs Pro, no v2).",
+      "files": [
+        "internal/cli/models_novel.go",
+        "internal/cli/models_novel_test.go",
+        "internal/cli/image.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "go test ./... passes (193 in 12 packages, including 3 new modelRow tests). go vet clean. verify_skill.py clean. `models show nano-banana-pro --agent` returns experimental=true; `models show nano-banana --agent` returns experimental=false; `image gen --help` shows both variants in examples."
+    },
+    {
+      "id": "prompts-replay-family-aware-body",
+      "summary": "prompts replay now builds an image-shaped body for image-family models and a video-shaped body for video models, and routes to the matching Capability form.",
+      "reason": "The earlier resolution-panic fix kept replay from crashing but still constructed a video-shaped body (duration / videoCount / '720p' resolution / autoEnhancePrompt) and routed every submit to Capability(FormText2Video). For image-family models that body went to the create-image endpoint and 4xx'd silently (greptile P1 follow-up on PR #554, posted after the panic-only patch landed).",
+      "files": [
+        "internal/cli/prompts_novel.go"
+      ],
+      "validated_outcome": "go build + go vet + go test ./... pass (193/12). --bump count routes to imageCount on image models / videoCount on video; --bump duration errors on image models with a helpful message instead of silently dropping."
+    },
+    {
+      "id": "compare-family-aware-preflight-and-body",
+      "summary": "compare now branches preflight + submit body on Model.Family so image-family models stop failing with 'outside range (0-0)' and stop receiving video-shaped POST bodies.",
+      "reason": "The compare preflight loop applied video-only duration / Resolutions checks to every model, so image-family models (DurationMin/Max=0, nil Resolutions, populated PixelResolutions) always failed with the misleading 'outside range (0-0)' error before the submit ever fired. Even when preflight was bypassed, the submit body was hardcoded video-shaped (videoCount/duration/720p, FormText2Video). Same Greptile P1 follow-up that prompts replay just got, applied here too (PR #554).",
+      "files": [
+        "internal/cli/compare.go"
+      ],
+      "validated_outcome": "go build + go vet + go test ./... pass (193/12). Image-family models in --models now skip the duration check, validate resolution against PixelResolutions, and submit against Capability(FormText2Image) with an image-shaped body."
+    },
+    {
+      "id": "models-cheapest-family-aware",
+      "summary": "models cheapest now picks PixelResolutions for image-family models and skips the duration check on them.",
+      "reason": "The flag default `--resolution 720p` flowed into a `modelSupports(m.Resolutions, ...)` check that always fails for image models (Resolutions == nil; PixelResolutions populated). Result: `models cheapest --family image` returned zero rows on every invocation, even without a user-supplied --resolution. Same family-blind pattern just fixed in compare and prompts replay, applied here too (greptile P1 follow-up on PR #554).",
+      "files": [
+        "internal/cli/models_novel.go"
+      ],
+      "validated_outcome": "go build + go vet + go test ./... pass (193/12). models cheapest --family image now ranks image models against PixelResolutions with the default 720p; duration filter skipped on image models since their generations are not duration-scaled."
+    },
+    {
+      "id": "cost-estimate-family-aware",
+      "summary": "cost estimate now picks the right Capability form + body shape for image-family models and skips the duration default on them.",
+      "reason": "Preemptive fix for the same family-blind pattern in `cost estimate`. The local estimate fell back to duration=5 on image models (DurationMin/Max=0) and the --live topaz POST always sent video-shaped {duration, videoCount, 720p, FormText2Video}, so the live quote 4xx'd silently and the result fell back to the (incorrect) local estimate. Image branch now uses 0 duration, builds {imageCount, aspectRatio 1:1, resolution?} and posts against Capability(FormText2Image).",
+      "files": [
+        "internal/cli/cost.go"
+      ],
+      "validated_outcome": "go build + go vet + go test ./... pass (193/12). Local estimate for image models no longer multiplies by a fake 5s duration; --live topaz call uses the family-appropriate capability + body."
+    },
+    {
+      "id": "models-cheapest-resolution-opt-in",
+      "summary": "models cheapest only filters on --resolution when the user explicitly passed it; the default '720p' no longer excludes every image model.",
+      "reason": "The --resolution flag defaults to '720p' for video estimation but image-family PixelResolutions are pixel shapes like '1024x1024'. The filter was treating the implicit default as a hard requirement, so 'models cheapest --family image' returned an empty list on every invocation. Gating the filter on cmd.Flags().Changed('resolution') keeps the default for cost-estimate use but only filters when the user explicitly asked. Greptile P1 on PR #554.",
+      "files": [
+        "internal/cli/models_novel.go"
+      ],
+      "validated_outcome": "go build/vet/test all green; 'models cheapest --family image --agent' now returns the catalog (Nano Banana etc.) instead of an empty list; 'models cheapest --family video' control case unchanged."
+    },
+    {
+      "id": "compare-resolution-opt-in",
+      "summary": "compare preflight only enforces --resolution when the user explicitly passed it; the implicit default no longer rejects image models.",
+      "reason": "Same family-blind --resolution default-720p pattern that bit models_novel.go. compare --models nano-banana,seedance2 (or any list including an image model) failed at preflight with 'resolution \"720p\" not supported' because PixelResolutions are pixel shapes like '1024x1024'. Same Changed() gate as models_novel.go. Greptile P1 on PR #554.",
+      "files": [
+        "internal/cli/compare.go"
+      ],
+      "validated_outcome": "go build/vet/test all green; 'compare --models nano-banana,byte-plus-seedance-2 --prompt test --dry-run' now plans both models successfully instead of erroring at nano-banana preflight."
+    },
+    {
+      "id": "media-ext-for-url",
+      "summary": "downloadCompletions infers the file extension from the resource URL via mediaExtForURL instead of hardcoding .mp4.",
+      "reason": "compare and prompts replay route image-family completions through downloadCompletions, which saved every file as .mp4. The helper recognizes video and image extensions (query/fragment stripped) and defaults to .mp4 for extension-less video CDN URLs. Greptile P1 on PR #554.",
+      "files": [
+        "internal/cli/video.go",
+        "internal/cli/video_test.go"
+      ],
+      "validated_outcome": "New TestMediaExtForURL covers mp4/png/webp/jpg/webm, signed-URL query strings, fragments, and extension-less fallback."
+    },
+    {
+      "id": "media-since-windows-on-generation-time",
+      "summary": "All media --since windows (stats, prompts find, prompts top) filter on created_at (generation time from the payload) with a synced_at fallback for rows without one.",
+      "reason": "synced_at is rewritten on every resync, so after a first-time full sync every historical row landed inside any --since window. created_at is the actual generation timestamp (epoch ms). Greptile P1 on PR #554, prior rounds.",
+      "files": [
+        "internal/cli/stats.go",
+        "internal/cli/prompts_novel.go"
+      ],
+      "validated_outcome": "Against the live local store: stats --since 24h returns 0 media (last generation in May) while --since 30d returns the real counts; before the fix both returned everything synced."
+    },
+    {
+      "id": "compare-image-resolution-explicit-only",
+      "summary": "compare only forwards resolution in the image-model submit body when the user explicitly set --resolution.",
+      "reason": "The flag default (720p) is a video format string the image endpoint rejects; the resolution != \"\" guard was always true under the default. Mirrors the cost.go gating. Greptile open thread on PR #554 compare.go.",
+      "files": [
+        "internal/cli/compare.go"
+      ]
+    }
+  ]
+}

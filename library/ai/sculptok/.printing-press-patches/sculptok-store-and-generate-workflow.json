@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sculptok-store-and-generate-workflow",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260622-164426-352dd01a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-built local SQLite store (internal/store) + envelope-aware sibling client (internal/sculptok), and implemented the generate (depthmap/stl/threed/restore + --batch/--restore-first), cost, search, analytics, reconcile, and sync commands.",
+  "reason": "The generator emits no store/sync for SculptOK's list-only (no get-by-id) async-job API and scaffolds the research.json novel features as TODO stubs; these files implement the approved transcendence manifest and must survive regen.",
+  "files": ["internal/store/store.go", "internal/sculptok/client.go", "internal/cli/sculptok_shared.go", "internal/cli/generate_depthmap.go", "internal/cli/generate_stl.go", "internal/cli/generate_threed.go", "internal/cli/generate_restore.go", "internal/cli/generate.go", "internal/cli/cost.go", "internal/cli/search.go", "internal/cli/analytics.go", "internal/cli/reconcile.go", "internal/cli/sync.go", "internal/cli/root.go"],
+  "validated_outcome": "Live dogfood PASS (64/0); live depth-map generate end-to-end (upload->submit->poll->download->persist) produced a real 1280x1280 PNG for 10 credits."
+}

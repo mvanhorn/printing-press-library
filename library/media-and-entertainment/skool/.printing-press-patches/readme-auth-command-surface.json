@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "readme-auth-command-surface",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Correct README and SKILL.md to the real command surface: auth login/logout/status, sync --community, and neutral placeholder slugs.",
+  "reason": "Both docs instructed `skool-pp-cli auth set-token`, which the shipped binary has never had (the auth surface is login|logout|status). The Quick Start also showed `sync <slug>` as a positional (sync takes --community), `members at-risk` (no such command), and `sync --snapshot-now` (no such flag). Every documented entry point in the changed blocks was checked against `--help` output.",
+  "files": [
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Each command and flag in the edited blocks verified against `skool-pp-cli --help` / `auth --help` / `posts --help` output from this build. verify_skill.py passes.",
+  "findings_addressed": ["F3"]
+}

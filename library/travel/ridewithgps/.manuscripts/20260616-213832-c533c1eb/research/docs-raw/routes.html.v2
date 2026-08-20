@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html class='' lang='en'>
+<head prefix='og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# ridewithgps: http://ogp.me/ns/fb/ridewithgps#'>
+<title>Ride with GPS API Documentation</title>
+<meta content='text/html; charset=utf-8' http-equiv='Content-type'>
+<meta content='width=device-width, initial-scale=1.0' name='viewport'>
+<meta content='Complete API documentation for integrating with Ride with GPS' name='description'>
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="aDadq1uIyFC_h1hQKAOHoZBG5Ns5ttdCTkPSUzpa7rbyV07slCO90q_8RIo97ZdVwuV8rfbjbQmo4-84Bx1Lww" />
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes' hreflang='x-default' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes' hreflang='en' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=de' hreflang='de' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=es' hreflang='es' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=fr' hreflang='fr' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=it' hreflang='it' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=ja' hreflang='ja' rel='alternate'>
+<link href='https://ridewithgps.com/api/v1/doc/endpoints/routes?lang=nl' hreflang='nl' rel='alternate'>
+<link href='/apple-touch-icon.png?2000000008' rel='apple-touch-icon' sizes='180x180'>
+<link href='/favicon-32x32.png?2000000008' rel='icon' sizes='32x32' type='image/png'>
+<link href='/favicon-16x16.png?2000000008' rel='icon' sizes='16x16' type='image/png'>
+<link href='/manifest.json?2000000008' rel='manifest'>
+<link color='#000000' href='/safari-pinned-tab.svg?2000000008' rel='mask-icon'>
+<meta content='#000000' name='theme-color'>
+<meta content='253239687628' property='fb:app_id'>
+<meta content='https://ridewithgps.com/api/v1/doc/endpoints/routes' property='og:url'>
+<meta content='https://ridewithgps.com/images/revised_layout/logo-og-image.png' property='og:image'>
+<meta content='@ridewithgps' name='twitter:site'>
+<meta content='Ride with GPS API Documentation' name='twitter:title'>
+<meta content='Complete API documentation for integrating with Ride with GPS' name='twitter:description'>
+<meta content='app' name='twitter:card'>
+<meta content='Ride with GPS' name='twitter:app:name:googleplay'>
+<meta content='com.ridewithgps.mobile' name='twitter:app:id:googleplay'>
+<meta content='Ride with GPS' name='twitter:app:name:iphone'>
+<meta content='893687399' name='twitter:app:id:iphone'>
+<meta content='Ride with GPS' name='twitter:app:name:ipad'>
+<meta content='893687399' name='twitter:app:id:ipad'>
+<meta content='app-id=893687399' name='apple-itunes-app'>
+
+<meta content='9F8B57BE1BE93BFEC155A2C2BBC015E4' name='msvalidate.01'>
+<meta content='3d14ead6ec483399d322d769891c3712' name='p:domain_verify'>
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ghSXT1c6TfPz8cT9GnFhpRjFXmHMq85kA52Ca9xgcr0YdUQImJE4ceOK2CcPn3FRSmbGFwP-dC_lPb8A4SfXyA" />
+<link rel="stylesheet" href="/stylesheets/base_packaged.css?1772644836" />
+<link rel="stylesheet" href="/stylesheets/pages.api_packaged.css?1772644836" />
+<script>
+  !function(e,t,n,a,c,l,m,o,d,f,h,i){c[l]&&(d=e.createElement(t),d[n]=c[l],e[a]("head")[0].appendChild(d),e.documentElement.className+=" wf-cached"),function s(){for(d=e[a](t),f="",h=0;h<d.length;h++)i=d[h][n],i.match(m)&&(f+=i);f&&(c[l]="/**/"+f),setTimeout(s,o+=o)}()}(document,"style","innerHTML","getElementsByTagName",localStorage,"tk",/^@font|^\.tk-/,100);
+</script>
+<script type='text/javascript'>
+  (function(d) {
+    var config = {
+      kitId: 'yny6lnd',
+      scriptTimeout: 3000,
+      async: true
+    },
+    h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+  })(document)
+</script>
+
+<link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+<base href='/api/v1/doc/'>
+</head>
+<body class=' standard ' id='pageBody'>
+
+<div id='page_wrapper'>
+<div class='globalNav'>
+<div id="globalnav-ssr" data-reactroot=""><nav class="GlobalNav-946b5e43" id="globalNav"><div class="navFull-03655b2c"><div class="group-add8cfeb"><a href="/" class="brandingLink-d11eca9e"><span class="Icon-d798e3e5 hasSize-b822077f" style="font-size:40px"><svg viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g fill="currentColor" fill-rule="nonzero"><g id="cyclist-logo-small" transform="translate(29.000000, 96.000000)"><path d="M265.535248,197.777784 C264.94517,198.368229 264.94517,198.368229 264.355091,198.958675 C251.373368,214.900703 223.639687,245.603868 219.509138,250.327432 C173.483029,305.829308 146.929504,316.457327 117.425587,318.819109 C112.114883,319.409555 106.804178,319.409555 100.313316,319.409555 C49.5665796,319.409555 0,276.897479 0,222.576494 C0,172.388628 35.4046997,131.057443 83.2010444,125.743434 C86.7415144,125.152988 94.4125326,124.562543 103.263708,125.743434 C111.524804,126.924325 126.866841,133.419225 126.866841,141.685462 C126.276762,141.685462 125.686684,141.685462 125.096606,141.095017 C112.704961,138.142789 106.214099,138.733235 99.7232376,139.32368 C83.2010444,141.095017 71.9895561,146.409026 63.1383812,152.903926 C45.4360313,167.665064 32.4543081,188.921101 32.4543081,214.900703 C32.4543081,256.231887 65.4986945,289.296835 105.033943,289.296835 C125.686684,289.296835 144.569191,281.030598 158.140992,266.859906 C160.501305,264.498124 162.861619,262.726788 164.631854,260.955451 C183.51436,240.880304 223.049608,197.187338 223.049608,187.74021 C223.049608,177.112192 199.446475,152.903926 175.253264,138.733235 C140.438642,118.067643 139.258486,102.125614 139.258486,89.7262591 C139.258486,50.7568568 199.446475,30.0912646 257.274151,35.9957195 C271.436031,87.9549226 312.151436,90.9071501 319.232376,91.4975955 C340.475196,93.268932 351.096606,91.4975955 363.488251,88.5453681 C376.469974,85.5931407 376.469974,82.0504677 376.469974,82.0504677 C376.469974,82.0504677 380.600522,86.7740316 370.569191,93.268932 C360.537859,99.7638324 333.394256,109.801406 315.101828,109.801406 C276.156658,109.801406 254.913838,93.268932 234.851175,71.4224489 C190.5953,74.9651218 186.464752,87.9549226 188.825065,92.088041 C195.315927,101.535169 263.765013,148.770808 270.255875,147.589917 C277.926893,146.409026 308.610966,120.429425 355.817232,124.562543 C408.924282,125.743434 452,168.845955 452,221.986049 C452,276.307034 409.51436,320 353.456919,320 C305.070496,320 274.386423,282.211489 283.237598,268.631242 C283.827676,269.221688 284.417755,269.812133 285.007833,269.812133 C298.579634,282.211489 321.592689,295.791735 344.605744,295.791735 C388.27154,295.791735 423.67624,263.317233 423.67624,223.16694 C423.67624,183.016646 394.172324,155.856154 351.096606,151.723035 C332.214099,149.951699 321.592689,153.494372 309.791123,159.398827 C298.579634,164.712836 283.827676,178.293083 272.616188,189.511547 C272.616188,189.511547 272.616188,189.511547 272.616188,188.921101 C272.02611,189.511547 271.436031,190.101992 270.845953,190.692438 C268.48564,193.644665 266.715405,196.006447 265.535248,197.777784 Z" id="Combined-Shape"></path><path d="M315.244484,67 C329.519433,66.4040248 345.578751,53.8885463 344.983962,34.8173409 C344.389172,15.7461356 325.355907,4.42260736 308.10701,1.44273152 C273.609216,-3.92104499 238.516633,6.21053286 229,22.8978376 C229,22.8978376 232.568737,21.7058872 237.921843,19.9179617 C251.007213,16.3421107 264.687373,18.1300362 275.393585,24.6857631 C280.151901,27.6656389 281.34148,33.6253906 281.34148,34.8173409 C280.746691,57.4643973 300.969535,67 315.244484,67 Z" id="Oval-3"></path></g></g></g></svg></span></a><a href="/features" class="NavbarLink-482415fc">Features</a><a href="/upgrade" class="NavbarLink-482415fc">Upgrade</a><a href="/route_planner" class="NavbarLink-482415fc">Route Planner</a><a href="/organizations" class="NavbarLink-482415fc">Organizations</a><a href="/find" class="NavbarLink-482415fc">Find</a><div style="position:relative"><a class="NavbarLink-482415fc"><span>Stories<i class="jumpTo-3cee1c09 Icon-b8e983af alignMiddle-43f0d511" style="width:20px;height:20px"><svg viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g id="DownChevron" stroke-width="4" stroke="currentColor"><polyline id="Path-1" transform="translate(23.627140, 21.000000) rotate(90.000000) translate(-23.627140, -21.000000) " points="18 9 29.2542806 21 18 33"></polyline></g></g></svg></i></span></a></div></div><div class="group-add8cfeb"><div class="languagePickerButton-51dec8e3"><span class="Icon-d798e3e5 hasSize-b822077f" style="font-size:24px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48h-.2H255.5C140.8 48.3 48 141.3 48 256s92.8 207.7 207.5 208h.5c114.9 0 208-93.1 208-208S370.9 48 256 48zm8.3 124.5c22.1-.6 43.5-3.5 64.2-8.5 6.2 24.5 10.1 52.8 10.7 83.8h-74.9v-75.3zm0-16.7V66c22.4 6.2 45.2 36.1 59.6 82-19.2 4.6-39.1 7.2-59.6 7.8zm-16.6-90v90.1c-20.7-.6-40.8-3.3-60.1-8 14.6-46.2 37.5-76.3 60.1-82.1zm0 106.7v75.2h-75.4c.6-31 4.5-59.3 10.7-83.8 20.8 5 42.5 8 64.7 8.6zm-92.2 75.2H64.9c1.8-42.8 17.8-82 43.3-113 18.5 10.2 38.2 18.6 58.8 24.8-6.8 26.5-10.8 56.4-11.5 88.2zm0 16.6c.6 31.7 4.6 61.7 11.4 88.2-20.6 6.3-40.2 14.6-58.8 24.8-25.5-31-41.4-70.2-43.3-113h90.7zm16.8 0h75.4v75.1c-22.2.6-43.9 3.6-64.7 8.7-6.2-24.5-10.1-52.8-10.7-83.8zm75.4 91.8v90.2c-22.6-5.9-45.5-35.9-60.1-82.1 19.3-4.8 39.4-7.5 60.1-8.1zm16.6 89.9v-90c20.5.6 40.4 3.3 59.7 7.9-14.5 46-37.2 75.9-59.7 82.1zm0-106.6v-75.1h74.9c-.6 30.9-4.5 59.2-10.7 83.7-20.7-5-42.1-8-64.2-8.6zm91.6-75.1h91.2c-1.8 42.8-17.8 81.9-43.3 113-18.7-10.3-38.5-18.7-59.3-25 6.8-26.5 10.8-56.3 11.4-88zm0-16.6c-.6-31.7-4.6-61.6-11.3-88.1 20.8-6.3 40.6-14.7 59.2-24.9 25.5 31 41.5 70.2 43.3 113.1h-91.2zm36.5-125.8c-16.6 8.8-34 16.1-52.3 21.6-9.7-31.3-23.4-56.8-39.5-73.6 35.4 8.5 67 26.9 91.8 52zM210.8 70.1c-16.1 16.7-29.7 42.2-39.3 73.3-18.1-5.5-35.4-12.7-51.8-21.5 24.5-25 55.9-43.3 91.1-51.8zM119.6 390c16.4-8.8 33.8-16 51.8-21.5 9.7 31.2 23.3 56.6 39.4 73.4-35.2-8.5-66.6-26.8-91.2-51.9zm181 52.1c16.2-16.8 29.8-42.3 39.6-73.7 18.3 5.5 35.7 12.8 52.3 21.6-24.8 25.2-56.5 43.6-91.9 52.1z"></path></svg></span> <!-- -->English</div><div id="navbar-signin" style="display:inline-block"><a class="NavbarLink-482415fc">Log In</a></div><a href="/signup" class="CTA-ecdfc2c5 inlineCTA-ccad272b secondaryCTA-030b47f5 signUp-c4b60fc1" id="navbar-signup">Sign up</a></div></div><div class="navCollapsed-ebe0ca6b"><a class="iconLink-ea3780f0"><span class="Icon-d798e3e5 hasSize-b822077f" style="font-size:24px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M64 384h384v-42.666H64V384zm0-106.666h384v-42.667H64v42.667zM64 128v42.665h384V128H64z"></path></svg></span></a><a href="/" class="brandingLink-d11eca9e"><span class="Icon-d798e3e5 hasSize-b822077f" style="font-size:40px"><svg viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g fill="currentColor" fill-rule="nonzero"><g id="cyclist-logo-small" transform="translate(29.000000, 96.000000)"><path d="M265.535248,197.777784 C264.94517,198.368229 264.94517,198.368229 264.355091,198.958675 C251.373368,214.900703 223.639687,245.603868 219.509138,250.327432 C173.483029,305.829308 146.929504,316.457327 117.425587,318.819109 C112.114883,319.409555 106.804178,319.409555 100.313316,319.409555 C49.5665796,319.409555 0,276.897479 0,222.576494 C0,172.388628 35.4046997,131.057443 83.2010444,125.743434 C86.7415144,125.152988 94.4125326,124.562543 103.263708,125.743434 C111.524804,126.924325 126.866841,133.419225 126.866841,141.685462 C126.276762,141.685462 125.686684,141.685462 125.096606,141.095017 C112.704961,138.142789 106.214099,138.733235 99.7232376,139.32368 C83.2010444,141.095017 71.9895561,146.409026 63.1383812,152.903926 C45.4360313,167.665064 32.4543081,188.921101 32.4543081,214.900703 C32.4543081,256.231887 65.4986945,289.296835 105.033943,289.296835 C125.686684,289.296835 144.569191,281.030598 158.140992,266.859906 C160.501305,264.498124 162.861619,262.726788 164.631854,260.955451 C183.51436,240.880304 223.049608,197.187338 223.049608,187.74021 C223.049608,177.112192 199.446475,152.903926 175.253264,138.733235 C140.438642,118.067643 139.258486,102.125614 139.258486,89.7262591 C139.258486,50.7568568 199.446475,30.0912646 257.274151,35.9957195 C271.436031,87.9549226 312.151436,90.9071501 319.232376,91.4975955 C340.475196,93.268932 351.096606,91.4975955 363.488251,88.5453681 C376.469974,85.5931407 376.469974,82.0504677 376.469974,82.0504677 C376.469974,82.0504677 380.600522,86.7740316 370.569191,93.268932 C360.537859,99.7638324 333.394256,109.801406 315.101828,109.801406 C276.156658,109.801406 254.913838,93.268932 234.851175,71.4224489 C190.5953,74.9651218 186.464752,87.9549226 188.825065,92.088041 C195.315927,101.535169 263.765013,148.770808 270.255875,147.589917 C277.926893,146.409026 308.610966,120.429425 355.817232,124.562543 C408.924282,125.743434 452,168.845955 452,221.986049 C452,276.307034 409.51436,320 353.456919,320 C305.070496,320 274.386423,282.211489 283.237598,268.631242 C283.827676,269.221688 284.417755,269.812133 285.007833,269.812133 C298.579634,282.211489 321.592689,295.791735 344.605744,295.791735 C388.27154,295.791735 423.67624,263.317233 423.67624,223.16694 C423.67624,183.016646 394.172324,155.856154 351.096606,151.723035 C332.214099,149.951699 321.592689,153.494372 309.791123,159.398827 C298.579634,164.712836 283.827676,178.293083 272.616188,189.511547 C272.616188,189.511547 272.616188,189.511547 272.616188,188.921101 C272.02611,189.511547 271.436031,190.101992 270.845953,190.692438 C268.48564,193.644665 266.715405,196.006447 265.535248,197.777784 Z" id="Combined-Shape"></path><path d="M315.244484,67 C329.519433,66.4040248 345.578751,53.8885463 344.983962,34.8173409 C344.389172,15.7461356 325.355907,4.42260736 308.10701,1.44273152 C273.609216,-3.92104499 238.516633,6.21053286 229,22.8978376 C229,22.8978376 232.568737,21.7058872 237.921843,19.9179617 C251.007213,16.3421107 264.687373,18.1300362 275.393585,24.6857631 C280.151901,27.6656389 281.34148,33.6253906 281.34148,34.8173409 C280.746691,57.4643973 300.969535,67 315.244484,67 Z" id="Oval-3"></path></g></g></g></svg></span></a><a href="/signup" class="signupCollapsed-60652cb0">Sign up</a></div></nav></div>
+</div>
+<div id='page-content'>
+
+<div class='api-docs-container'>
+<div class='api-sidebar'>
+<div class='sidebar-content'>
+<div class='nav-section'>
+<h4>Getting Started</h4>
+<ul class='nav-list'>
+<li>
+<a class='' href='/api/v1/doc'>
+Overview
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/authentication'>
+Authentication
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/webhooks'>
+Webhooks
+</a>
+</li>
+<li>
+<a class='' href='/api/api_clients'>
+<img alt="Download" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" src="/figma-icons/Person.svg" />
+Your API Clients
+</a>
+</li>
+<li>
+<a download='openapi.yaml' href='/api/v1/openapi.yaml'>
+<img alt="Download" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" src="/figma-icons/Import.svg" />
+OpenAPI Spec
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/change_log'>
+<img alt="Changelog" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;" src="/figma-icons/Calendar.svg" />
+API Change Log
+</a>
+</li>
+</ul>
+</div>
+<div class='nav-section'>
+<h4>Endpoints</h4>
+<ul class='nav-list'>
+<li>
+<a class='' href='/api/v1/doc/endpoints/authentication_tokens'>
+Authentication Tokens
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/collections'>
+Collections
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/events'>
+Events
+</a>
+</li>
+<li>
+<a class='active' href='/api/v1/doc/endpoints/routes'>
+Routes
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/sync'>
+Sync
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/trips'>
+Trips
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/users'>
+Users
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/club_members'>
+Club Members
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/endpoints/points_of_interest'>
+Points Of Interest
+</a>
+</li>
+</ul>
+</div>
+<div class='nav-section'>
+<h4>Reference</h4>
+<ul class='nav-list'>
+<li>
+<a class='' href='/api/v1/doc/reference/activity_types'>
+Activity Types
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/logos_and_assets'>
+Logos And Assets
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/points_of_interest'>
+Points Of Interest
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/routes_and_trips'>
+Routes And Trips
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/time_zones'>
+Time Zones
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/track_points'>
+Track Points
+</a>
+</li>
+<li>
+<a class='' href='/api/v1/doc/reference/visibilities'>
+Visibilities
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class='api-content'>
+<div class='api-content-inner'>
+<link href='https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css' rel='stylesheet'>
+<script src='https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js'></script>
+<h1>Routes Endpoints</h1>
+<div class='swagger-ui-container' id='swagger-ui'></div>
+<script>
+  const CustomParametersPlugin = () => ({
+    wrapComponents: {
+      parameters: (Original, { React }) => (props) => {
+        const { parameters } = props;
+        if (!parameters || parameters.size === 0) return null;
+  
+        const h = React.createElement;
+        return h('div', { className: 'opblock-section' },
+          h('div', { className: 'opblock-section-header' },
+            h('h4', { className: 'opblock-title parameter__name' }, 'Parameters')
+          ),
+          h('div', { className: 'table-container' },
+            h('table', { className: 'parameters' },
+              h('thead', null,
+                h('tr', null,
+                  h('th', { className: 'col_header parameters-col_name' }, 'Name'),
+                  h('th', { className: 'col_header parameters-col_in' }, 'Location'),
+                  h('th', { className: 'col_header parameters-col_type' }, 'Type'),
+                  h('th', { className: 'col_header parameters-col_description' }, 'Description')
+                )
+              ),
+              h('tbody', null,
+                parameters.map((param, i) => {
+                  const name = param.get('name');
+                  const description = param.get('description') || '';
+                  const schema = param.get('schema');
+                  const type = schema ? schema.get('type') : param.get('type') || '';
+                  const required = param.get('required');
+                  const location = param.get('in');
+  
+                  return h('tr', { key: i },
+                    h('td', { className: 'parameters-col_name' },
+                      h('span', { className: required ? 'parameter__name required' : 'parameter__name' }, name)
+                    ),
+                    h('td', { className: 'parameters-col_in' }, location),
+                    h('td', { className: 'parameters-col_type' }, type),
+                    h('td', { className: 'parameters-col_description' }, description)
+                  );
+                }).toArray()
+              )
+            )
+          )
+        );
+      }
+    }
+  });
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const specUrl = 'https://ridewithgps.com/api/v1/openapi/openapi_routes.yaml';
+  
+    window.ui = SwaggerUIBundle({
+      url: specUrl,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      defaultModelsExpandDepth: 99,
+      defaultModelExpandDepth: 99,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        // SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        CustomParametersPlugin
+      ],
+      layout: "BaseLayout",
+      deepLinking: false,
+      supportedSubmitMethods: [],
+      displayRequestDuration: true,
+      docExpansion: "list",
+      showExtensions: true,
+      showCommonExtensions: true,
+      tryItOutEnabled: true,
+      filter: false,
+      syntaxHighlight: {
+        activate: false,
+        theme: "nord"
+      },
+      displayOperationId: false,
+      showMutatedRequest: true,
+      persistAuthorization: false,
+      withCredentials: false,
+      onComplete: function() {
+        console.log('Swagger UI loaded successfully');
+      },
+      onFailure: function(error) {
+        console.error('Swagger UI error:', error);
+        document.getElementById('swagger-ui').innerHTML = `
+          <div style="padding: 2rem; text-align: center;">
+            <h3>Failed to Load Documentation</h3>
+            <p>Error: ${error.message || 'Unknown error'}</p>
+            <p>Spec URL: ${specUrl}</p>
+          </div>
+        `;
+      }
+    });
+  });
+</script>
+
+</div>
+</div>
+</div>
+
+<div id='revised-footer'>
+<div class='logo-motto'>
+<a href='/'>
+<img src='/images/revised_layout/logo.png'>
+</a>
+<div class='slogan'>
+Get Inspired, Not Lost.  © 2026 Ride with GPS.
+<a href='/terms'>Terms of Service</a>
+<a href='/privacy'>Privacy Policy</a>
+</div>
+</div>
+<div class='footer-nav'>
+<ul>
+<li>
+<a href='https://changelog.ridewithgps.com/'>Product Updates</a>
+</li>
+<li>
+<a href='/integrations'>Integrations</a>
+</li>
+<li>
+<a href='/api/v1/doc'>Developers</a>
+</li>
+<li>
+<a href='/app'>Mobile App</a>
+</li>
+<li>
+<a href='/regions'>Best of Routes</a>
+</li>
+<li>
+<a href='/global_ambassadors'>Global Ambassadors</a>
+</li>
+</ul>
+<ul>
+<li>
+<a href='/organizations'>For Businesses</a>
+</li>
+<li>
+<a href='/cycling-clubs'>Cycling Clubs</a>
+</li>
+<li>
+<a href='/cycling-events'>Event Organizers</a>
+</li>
+<li>
+<a href='/tours'>Tour Operators</a>
+</li>
+<li>
+<a href='/experiences'>Digital Itineraries</a>
+</li>
+</ul>
+<ul>
+<li>
+<a href='/about'>About Us</a>
+</li>
+<li>
+<a href='/careers'>Careers</a>
+</li>
+<li>
+<a href='https://support.ridewithgps.com/'>Help Center</a>
+</li>
+<li>
+<a href='/contact'>Contact Us</a>
+</li>
+</ul>
+<div class='app-column'>
+<h4>Try the App for Free</h4>
+<div class='app-store-buttons'>
+<a href='https://itunes.apple.com/us/app/ride-with-gps/id893687399?mt=8'>
+<img alt='Download on the App Store' loading='lazy' src='/images/apple-app-store-badge.png'>
+</a>
+<a href='https://play.google.com/store/apps/details?id=com.ridewithgps.mobile'>
+<img alt='Get it on Google Play' loading='lazy' src='/images/google-play-badge.png'>
+</a>
+</div>
+<div class='social-icons'>
+<a aria-label='Facebook' href='https://www.facebook.com/ridewithgps'>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 512 512"><path fill="currentColor" fill-rule="evenodd" d="M480 256a224 224 0 1 0-259 221.3V320.8h-56.9V256H221v-49.3c0-56.2 33.4-87.2 84.6-87.2 24.5 0 50.2 4.4 50.2 4.4V179h-28.3c-27.8 0-36.5 17.3-36.5 35v42H353l-10 64.8H291v156.5A224 224 0 0 0 480 256" clip-rule="evenodd"/></svg>
+</a>
+<a aria-label='X' href='https://www.x.com/ridewithgps'>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 512 512"><path fill="currentColor" d="M294.3 224.1 445.8 48h-36L278.4 201l-105-153H52l159 231.3L52 464h36l138.9-161.5 111 161.5H459zM245 281.3l-16.1-23L100.9 75H156l103.4 148 16.1 23 134.4 192.2h-55.2z"/></svg>
+</a>
+<a aria-label='Instagram' href='https://www.instagram.com/ridewithgps'>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 512 512"><path fill="currentColor" d="M163.2 33.6c-23.8 1-40 4.9-54.3 10.5A110 110 0 0 0 69.3 70c-12.5 12.5-20.1 25-25.8 39.7A165 165 0 0 0 33.2 164c-1 23.8-1.3 31.5-1.2 92.3.1 60.9.4 68.5 1.6 92.4 1.1 23.8 4.9 40 10.5 54.3A110 110 0 0 0 70 442.7c12.5 12.5 25 20 39.7 25.8 14.3 5.5 30.6 9.3 54.4 10.3 23.9 1 31.5 1.3 92.3 1.2 60.9-.1 68.5-.4 92.4-1.5s40-5 54.3-10.6a110 110 0 0 0 39.6-25.9c12.5-12.4 20.1-25 25.8-39.7 5.5-14.2 9.3-30.5 10.3-54.4s1.3-31.5 1.2-92.3c-.1-60.9-.4-68.5-1.6-92.4-1-23.9-4.9-40-10.5-54.3A110 110 0 0 0 442 69.3c-12.4-12.5-25-20.1-39.7-25.8A164 164 0 0 0 348 33.2c-23.8-1-31.5-1.3-92.3-1.2-60.9.1-68.5.4-92.4 1.6m2.6 405c-21.8-1-33.7-4.7-41.6-7.7-10.4-4-17.9-9-25.8-16.7a69 69 0 0 1-16.8-25.7 124 124 0 0 1-7.7-41.6c-1.1-23.6-1.4-30.7-1.5-90.5s0-67 1.1-90.5a124 124 0 0 1 7.6-41.6c4-10.5 9-18 16.7-25.8a69 69 0 0 1 25.8-16.8 124 124 0 0 1 41.5-7.8c23.7-1.1 30.7-1.3 90.5-1.5s67 .1 90.6 1.2c21.8 1 33.7 4.5 41.5 7.6 10.5 4 18 8.9 25.8 16.7a69 69 0 0 1 16.9 25.7c3 7.9 6.7 19.7 7.7 41.6 1.2 23.6 1.4 30.7 1.5 90.5s0 66.9-1.1 90.5c-1 21.8-4.6 33.7-7.6 41.6-4 10.4-9 18-16.7 25.8a69 69 0 0 1-25.8 16.8 124 124 0 0 1-41.5 7.8 1584 1584 0 0 1-90.6 1.4c-59.8.2-66.8 0-90.5-1m182.7-302.3a26.9 26.9 0 1 0 53.7-.1 26.9 26.9 0 0 0-53.7 0M141 256.3a115 115 0 1 0 230-.5 115 115 0 0 0-230 .4m40.3-.2a74.7 74.7 0 1 1 149.4-.3 74.7 74.7 0 0 1-149.4.3"/></svg>
+</a>
+<a aria-label='YouTube' href='https://www.youtube.com/ridewithgps'>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 701 512"><path fill="currentColor" d="M662.7 128.7s-6.3-44-25.4-63.2C613 40 585.9 40 573.5 38.5 484.4 32 350.6 32 350.6 32h-.2s-133.8 0-222.8 6.5C115 40 88 40 63.7 65.5c-19.1 19.2-25.2 63.2-25.2 63.2S32 180.3 32 231.8v48.3c0 51.5 6.3 103.1 6.3 103.1s6.3 44 25.3 63.2c24.3 25.4 56.1 24.5 70.3 27.3 51 4.8 216.6 6.3 216.6 6.3s133.9-.2 223-6.6c12.4-1.5 39.5-1.6 63.8-27 19.1-19.3 25.4-63.2 25.4-63.2s6.3-51.5 6.3-103.1v-48.3c0-51.5-6.3-103.1-6.3-103.1m-378 210v-179l172 89.8z"/></svg>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class='modal fade' id='signup_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-header'>
+<button class='close' data-dismiss='modal' type='button'>&times;</button>
+<p class='pull-right' style='margin-right: 20px;'>
+<a class='signin' href='javascript:;'>Sign In</a>
+</p>
+<h4 class='modal-title'>Sign Up</h4>
+</div>
+<div class='modal-body'>
+<p>Tell us a little about yourself</p>
+<form class="signup_form form-horizontal" id="new_user" autocomplete="off" action="https://ridewithgps.com/users" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="xJXNR2-tV1LsWo65EDpXZVA3RIksQUClxcdl637ljH5qL_qhp6RJk5fvXaITrEgdT4cuzhZ8y2dO1QuWqxsAow" autocomplete="off" /><input name='redirect' type='hidden'>
+<div class='form-group'>
+<label class='control-label col-sm-3'>Name</label>
+<div class='col-sm-4'>
+<input class="form-control" type="text" name="user[display_name]" id="user_display_name" />
+</div>
+</div>
+<div class='form-group'>
+<label class='control-label col-sm-3'>Email address</label>
+<div class='col-sm-4'>
+<input class="form-control" type="text" value="" name="user[email]" id="user_email" />
+</div>
+</div>
+<div class='form-group'>
+<label class='control-label col-sm-3'>Email address confirmation</label>
+<div class='col-sm-4'>
+<input class="form-control" type="text" name="user[email_confirmation]" id="user_email_confirmation" />
+</div>
+</div>
+<div class='form-group'>
+<label class='control-label col-sm-3'>Password</label>
+<div class='col-sm-4'>
+<input class="form-control" type="password" name="user[password]" id="user_password" />
+</div>
+</div>
+<div class='form-group'>
+<div class='col-sm-12'>
+<div class='checkbox'>
+<label>
+<input name="user[email_marketing_updates_and_announcements]" type="hidden" value="0" autocomplete="off" /><input type="checkbox" value="1" name="user[email_marketing_updates_and_announcements]" id="user_email_marketing_updates_and_announcements" />
+Can we send you email notifications about major site updates and improvements?
+</label>
+</div>
+</div>
+</div>
+<p>
+<button class='btn btn-default' id='signup-submit-button' type='submit'>Sign up</button>
+<small>
+&nbsp;&nbsp;
+By signing up, you are agreeing to our <a href='/terms' target='_blank'>Terms of Service</a>.
+</small>
+</p>
+</form>
+</div>
+<div class='modal-footer'></div>
+</div>
+</div>
+</div>
+<div class='modal fade' id='share_link_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-header'>
+<button class='close' data-dismiss='modal' type='button'>&times;</button>
+<h4 class='modal-title'>Share link</h4>
+</div>
+<div class='modal-body'>
+<label>Copy the link here:</label>
+<input class='form-control share_link' type='text'>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-primary' data-dismiss='modal' href='#'>Close</a>
+</div>
+</div>
+</div>
+</div>
+<div class='modal fade' id='share_email_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<form action="/share" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="195BTcc4MM2E2CgXne85IhK19W8rwZNwp5D064iyOqAoJChrLrpYVtCGwbl3ER-5t57DaJv-p3_ToJ-8a6iiBg" autocomplete="off" /><div class='modal-header'>
+<button class='close' data-dismiss='modal' type='button'>&times;</button>
+<h4 class='modal-title'>Share via email</h4>
+</div>
+<div class='modal-body'>
+<input class='share_email_asset_type' name='share[model]' type='hidden'>
+<input class='share_email_asset_id' name='share[id]' type='hidden'>
+<input class='share_email_asset_url' name='share[url]' type='hidden'>
+<label class='control-label'>Email address to share with</label>
+<input class='form-control share_email' name='share[email]' type='text'>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-link' data-dismiss='modal' href='#'>Cancel</a>
+<button class='btn btn-primary' type='submit'>Send</button>
+</div>
+</form></div>
+</div>
+</div>
+<div class='modal fade' id='share_widget_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-header'>
+<button class='close' data-dismiss='modal' type='button'>&times;</button>
+<h4 class='modal-title'>Embedded widget</h4>
+</div>
+<div class='modal-body'>
+<label>Copy the HTML code here</label>
+<textarea class='share_widget' rows='3' style='width: 100%' type='text'></textarea>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-primary' data-dismiss='modal' href='#'>Close</a>
+</div>
+</div>
+</div>
+</div>
+<div class='modal fade' id='alert_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-body'>
+<p class='lead'></p>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-primary' data-dismiss='modal' href='#'>Close</a>
+</div>
+</div>
+</div>
+</div>
+<div class='modal fade' data-backdrop='static' id='confirm_modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-body'>
+<p class='lead'></p>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-link cancel' data-dismiss='modal' href='#'>Cancel</a>
+<a class='btn btn-primary ok' data-dismiss='modal' href='#'>OK</a>
+</div>
+</div>
+</div>
+</div>
+<div class='modal' id='android-app-install-modal'>
+<div class='modal-dialog'>
+<div class='modal-content'>
+<div class='modal-body'>
+<h3 class='center'>Get the Ride with GPS mobile app!</h3>
+<p class='lead center'>
+Rock solid GPS logging, helpful navigation, live logging and more are all available when you install our app.
+</p>
+<div class='spacer'></div>
+<p class='center'>
+<a class='android-app-install-link' href='https://play.google.com/store/apps/details?id=com.ridewithgps.mobile&amp;utm_campaign=android_app&amp;utm_source=site&amp;utm_medium=android_page' target='_blank'>
+<img alt='Get it on Google Play' src='/images/play-badge.png'>
+</a>
+</p>
+</div>
+<div class='modal-footer'>
+<a class='btn btn-link never-again' data-dismiss='modal' href='#'>Don't Ask Again</a>
+<a class='btn btn-primary remind-later' data-dismiss='modal' href='#'>Remind Me Later</a>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+  window.translationsToLoad = {"add_photos":"Add photos","something_went_wrong":"Something went wrong, please try again. Contact us if the problem persists.","forgot_password_prompt":"Don't worry, it happens to the best of us.  What's your email address?","delete_confirmation":"Are you sure you want to delete this?","remembered_success":"Successfully pinned this item!","success":"Success"};
+  window.activeRWNamespace = 'api::V1::Documentation.show';
+</script>
+<script>
+window.rwgpsNSData = [];
+window.rwgpsNSData.push(['api::V1::Documentation.show', {"userDateFormat":"mdy"}]);
+window.rwgpsNSData.push(['config', {"features_withheld_on_restricted":{},"privileges":{},"currentUser":{"preferences":{"metric_units":true}},"analyticsUserProperties":{"experiments":["trsp_redesign","hide_offline_mode_toggle","web_onboarding_questions","game_sm_icons","cancellation_survey","offline_maps_ios","offline_maps_android","ios_storekit2","game_mission_free_play","event_collection_notifications","trending_routes_event_badges","show_trial_for_existing_users"],"experiment_ids":[15,195,227,236,237,239,240,242,248,254,260,266]},"labs":{"fit_export":true,"rsp_redesign":true,"homepage_redesign":false,"quicksearch":false,"way_off_course_rerouting":false,"pinned_in_searchbar":true,"smart_export":true,"mobile_home_redesign":true,"can_see_homepage_opt_in":true,"send_js_errors_to_sentry":false,"profile_redesign":false,"live_logs":false,"strava_sync":true,"relive_sync":true,"trsp_redesign":true,"localization":false,"varia":true,"route_planner":true,"routing":false,"heatmap":false,"app_home_v3":true,"always_graph_hopper":false,"prevent_sticky_gmaps":true,"surface_types":true,"mobile_explore":false,"personal_heatmaps":false,"toi":false,"hex_hunter":false,"activity_types":false,"new_logging_service":true,"new_search_results":true,"new_search_results_debug":false,"kaboom":true,"show_explore_prompt":false,"zd_chat":true,"personal_explore_web":true,"mobile_explore_filters":true,"varia_watch_notifications":false,"inspect_promo":true,"watch_auto_pause":true,"remove_find_filters":true,"fast_auto_pause":true,"personal_explore_mobile":false,"personal_explore_mobile_map":true,"remove_avg_watts":false,"recording_improvements":false,"mobile_choice":true,"mobile_terrain":false,"radar_car_count":false,"personal_routes_explore_web":true,"club_routes_explore_web":false,"inspect_in_planner":true,"pew_photos":true,"recommendations_in_comments":false,"reviews_in_comments":true,"personal_explore_mobile_location":true,"reviews_menu_item":true,"Personal Explore Mobile Inspect":true,"fb_migration":true,"fb_migration_save":true,"fb_removal_mobile":true,"fb_removal_web":true,"Heatmap Upsell":true,"mapv2_vectors":false,"rp_beta_raster_map":false,"tap_to_route":false,"web_hide_basic":true,"Personal Explore Mobile Promo":true,"premium_default_ios":false,"rwgps_cycle_takeover":true,"api_clients_management":false,"ampli_debug":false,"mapbox_planner":true,"web_explore":true,"accel_capture":false,"push_on_ride_sync":true,"mobile_zd_chat":true,"ios_premium_push":true,"upload_page_redesign":true,"global_search_ng":true,"gift_promotion_force_active":false,"org_upload_redesign":true,"wayfinders":false,"explore_fast_est_time":false,"apps_disable_auto_record":true,"expose_reviews_to_all":false,"streetview_on_space":true,"set_home_location_modal":true,"map_layers":true,"routing_feedback":false,"trsp_point_menu":false,"wahoo_webhooks":false,"explore_hover_name_only":true,"unify_offcourse_for_quicknav_and_routenav":false,"accel_capture_2":false,"create_waypoints":true,"display_waypoints":false,"trsp_track_not_visible_tracker":false,"explore_club_suggestion":true,"trsp_explore_more":true,"explore_autochoose":true,"new_mobile_onboarding_experience":true,"oauth_preauth_demo":false,"s2d_hammerhead":true,"settings_privacy_tab":true,"custom_layers":false,"region_content_portal":true,"change_start_release":true,"map_layers_sticky":true,"s2d_use_hammerhead_production":true,"new_routing_options":false,"unpaved_surfaces_layer":true,"wind_map_layers_on_trsp":false,"mobile_onboarding_trial_upsell":true,"surface_type_improvement":false,"club_content_portal":false,"coros":false,"map_layers_outside_us":false,"new_routing_options_lab":false,"explore_force_no_results":false,"private_contributions_card":false,"signup_modal_trial_prompt":true,"surface_type_testing":false,"new_signup_and_trial_modal":true,"samsung_battery_warning":true,"customize_test":false,"new_login_modal":true,"aqi_airnow":false,"new_routing_options_toggle":true,"planner_spa":false,"new_homepage":true,"share_modal_v2":true,"mobile_experimental_map_layers":false,"existing_user_trial":false,"alt_homepage":true,"apple_watch_vertical_layout":false,"mtb_trails_layer":false,"mobile_gps_companion_mode":false,"save_test":false,"new_routing_options_4button":true,"magic_layout_planner":false,"start_trial":false,"updated_mrp_experience_trays":true,"web_collaborations":true,"collection_membership_demo":false,"community_poi_layer":true,"planner_org_heatmaps":true,"2024_planner_icons":true,"trsp_save_menu":true,"device_collections":false,"save_to_device":false,"require_account_for_planner":true,"gift_banner_ios":false,"gift_banner_android":false,"updated_mrp_experience_trays_ios":true,"Premium Only  - POI Layer":false,"hide_control_points_zoom":false,"vite_production":true,"mtb_trails_layer_web":false,"gift_deal_active":false,"dynamic_es_relevance":false,"web_collaborations_collections":true,"offline_regions_android":false,"web_collections_in_library":true,"ios_native_home_screen":false,"android_native_home_screen":true,"mobile_waypoints":false,"mobile_cPOI":false,"mobile_cpoi_layer":false,"fake_bucket_list":false,"fake_bucket_list_enrolled":false,"route_update_notification":true,"fake_bucket_list_created":false,"trsp_redesign_option":false,"hide_offline_mode_toggle":true,"event_trsp":true,"explore_highlights":true,"planner_debug":false,"export_requires_account":true,"save_route_collection_ids":false,"see_event_details_link":true,"new_create_event_modal":true,"cutty_cap_game":true,"new_ios_native_home_screen":true,"highlights_trsp":false,"permanent_game":false,"new_event_show_page":true,"s2d_modal_presentation":false,"esp_interactive_sg":false,"plans versus pricing page experiment":false,"event_interested":true,"new_event_edit_page":true,"challenge_map_experiment":false,"wahoo_archived_as_deleted":false,"events_markdown_desc":true,"upcoming_event_notifications":false,"ui_color_scheme":false,"new_collection_show_page":true,"home_screen_on_route_cards":false,"asset_ranker_admin_control":false,"mobile-ride-trimming":false,"mobile-list-view-map-chip":false,"trsp_icon_experiment":false,"search_improvements":true,"show_onboarding_surveys":false,"search_improvements_score_tab":false,"web_onboarding_questions":true,"explore_admin_filters":false,"derp derp":false,"derp_derp":false,"test":false,"testt":false,"rider_insights":false,"continue_in_app_banner":false,"web_trsp_cta_copy_test":false,"game_sm_icons":true,"cancellation_survey":true,"offline_map_ios":false,"offline_maps_ios":true,"offline_maps_android":true,"community_photos":true,"ios_storekit2":true,"GH11 Routing Profiles":false,"GH11_routing":false,"distance_away_test":true,"keyword_basescore_only":true,"game_all_icons":false,"game_mission_free_play":true,"asset_filters_in_explore":false,"tracklibjs_wasm":false,"new_gallery":true,"collection_icon_experiment":true,"new_trsp_action_button_placement":false,"event_collection_notifications":true,"trsp_timed_auth_wall_15s":false,"trsp_timed_auth_wall_30s":false,"photo_cluster_test":false,"trsp_timed_wall_hard":false,"trsp_timed_wall_soft":false,"trending_routes_event_badges":true,"Accessbility Labs":false,"accessibility_labs":false,"GH11_multithread":false,"cadence":false,"feature_shimmer":false,"show_trial_for_existing_users":true,"tracklibjs_pure":false,"trsp_sidebar_tabs":false},"authenticityToken":"U5CkaP-gmHzHYM-ykSVpV3-L2o_BoUU7Ym8Kr4t9d5PJ8XcvMAvt_tcb02iEy3mjLShC-Q70_3CEzzfEtjrS5g","sessionKeyName":"_rwgps_3_session","sessionKeyValue":"","facebookAppId":253239687628,"gmapsApiKey":"client=gme-ridewithgps","language":"en","locale":"en","availableLocales":["de","en","es","fr","it","ja","nl"],"showGcrc":true}]);
+window.rwgpsNSData.push(['LabelMaker', {"metric":true}]);
+</script>
+<script>
+//<![CDATA[
+window.webpackManifest = {"1":"trips-log-with-gc-5486e377037e0a1556ac-bundle.js","2":"trips-garmin_sync-ccb89a8fa57d11e03ad8-bundle.js","3":"small_pages-bd0f3b7b873c277f081f-bundle.js","4":"routes-show-1507a41bc98c50689799-bundle.js","5":"activities-index-21688e5b123f779fd9a7-bundle.js","6":"clubs-show-a1327a34ce9cad92a64d-bundle.js","7":"admin_pages-2446c1af243d5d7f13b0-bundle.js","8":"pages_with_map_and_graph-9128eb9cc9b376d683cd-bundle.js","9":"pages-admin-73ee0594a9322bfd89ed-bundle.js","10":"pages_with_jquery_ui-24826dc9b11777b401aa-bundle.js","11":"events-manageParticipants-2f48a2ec6fcdf54e1197-bundle.js","12":"ambassadors-map-6c0ab3d96c0f4c2ac900-bundle.js","13":"routes-threedee-16f0f28c69f65ec22d71-bundle.js","14":"regions-admin-07259765d227f9c7a7ed-bundle.js","15":"groups-show-643ce355891d52363510-bundle.js","16":"routes-user_index-8d809ff9136051334a48-bundle.js","17":"pages-api-e7cf7899f5a80b5f87ca-bundle.js","18":"trips-log-64ee9f5c1379ff3d419c-bundle.js","19":"trips-edit-117728c3db35396f8766-bundle.js","20":"clubs-admin-985683abe366a789afcd-bundle.js","21":"ambassadors-index-032ed2948e43f00d85e8-bundle.js","22":"activities-user_index-ccc683da777562824e6b-bundle.js","23":"users-feature_flags-699dee513de6c5f0b283-bundle.js","24":"segments-show-83693681cba45c66c98d-bundle.js","25":"routes-printmap-7b1f77d5ae9265bdc43a-bundle.js","26":"routes-embed-2eb56b4d318c0f8333a7-bundle.js","27":"livelogs-current-1121f74f76685254922b-bundle.js","28":"ambassadors-show-d8cdc24c7481852c7e13-bundle.js","29":"ambassador_routes-show-7531f53fabc229354c39-bundle.js","30":"ambassador_routes-embed-7d8a4fbe9a8f59bd0258-bundle.js","31":"photos-admin-9ed4c707f96e56a1f43c-bundle.js","32":"minimal-af91ff211950e752788b-bundle.js","33":"embeds-index-9ce577fa5c609d4147e7-bundle.js","34":"core-reqs-6cfc06ba61078aee93e2-bundle.js"}
+//]]>
+</script>
+<script src="/javascripts/polyfill.min.js?2"></script>
+<script src="/dist/common-4a09383256caeeb9c6b0-bundle.js?2"></script>
+<script src="/dist/minimal-af91ff211950e752788b-bundle.js?2"></script>
+<script>
+//<![CDATA[
+window.RWGPS_UI_VERSION_STRING = "5b3aa234b";
+//]]>
+</script><script src="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/polyfills-DCoyE0Ow.js" crossorigin="anonymous" type="module"></script>
+
+<script src="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/recumbent-Cj2v2wL-.js" crossorigin="anonymous" type="module"></script>
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/modulepreload-polyfill-Ollv6ZsA.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/GlobalNav-Bz9kKIZA.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/RadioGroup-BAvCBHAX.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ModalLayer-BcyixLbz.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CN7JtMrb.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SignupModal-BFpVuIog.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Gallery-l73fI2zA.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/PaymentFormOnLoad-CeaWJXND.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/es6-promise-pool-D5ZW-uqf.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/VirtualizableFeatureContext-PyYFT6mn.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/maplibre-BMV1Id32.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DS2HlihH.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SelectCreatable-Cu0GlzPR.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/urlHelpers-CibqKQjE.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/react-textarea-autosize.browser.esm-BCX8IcH_.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Marker-BGY1wCno.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/MapV2-P_i_4FX4.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/PoiIconImg-4sMeFhnb.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ExportFormats-CAy9QOGk.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/HoverCard-D5KUpbOy.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-BM-sZO04.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DJ3l08RN.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Pips-Dd37WOwt.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/apple-pay-logo-DaOYmJ3V.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-BN3QGc1K.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/features-CCQhqBXL.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DkF6ZsTq.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/TopoHeaderModal-B2FC8IbL.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/nonReactUtils-CeqDFV_x.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/VisibilitySelect-BUu0WQ89.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/MountOnHoverCard-KIwpaXew.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ConfirmationDialog-CC3N51e5.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/commonmark-DrfzU0yE.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/railsGeocode-DHeRx1tp.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/globalSearchTracking-DAhgNThk.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CjNwizsb.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/IconLink-Cq_zQImD.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ProfileButton-Deco7NR9.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/constants-CKNLDAYB.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/useHotnessDisplayHidden-CqiyfqaR.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/useDispatch-B-Xy1VHw.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/LocationAutocomplete-CY6xvLUD.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/IconLocation-1BceOv1J.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SearchHistory-w9GARG5Q.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ga4Events-TBUCCHgk.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CAjo0-Nr.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/trackEvent-Dr1BBOfG.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-2Sik__dJ.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Chip-YGJH6EBL.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/CircleButton-GfmHAwMr.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/IconLocationOutline-BjTf4GCD.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Select-Qpd6tWbT.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/use-isomorphic-layout-effect.browser.esm-08xgb05K.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/useKeyboardShortcut-t4EpGwV0.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/makeHoverAndSelectionContext-Dr3AunAb.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/usePrevious-DtkTSjpp.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/FormFeedback-C0HT5GnL.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/RangeInput-Bx_NFTax.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/AccordionChevron-Coa77hNa.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/exportFormats-DBXq2OIv.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/preloadImg-CpliBQ-3.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-dPTGvJVa.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CHsi4Byh.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/messages-DRNciPVw.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-tGTlDs46.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/clubsQuery-CGcVCdOX.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/DistanceSelector-D7j3pJ9r.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/IconFilters-BZMOlwVv.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/IconSearch-CRWbrDkZ.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/useOnUnmount-Cm5LCdaH.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-uXjIGTWH.js" as="script" crossorigin="true">
+<link rel="modulepreload" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/messages-DFFUZnQl.js" as="script" crossorigin="true">
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/recumbent-BAk05vVL.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/modulepreload-polyfill-Bbo6IG-H.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/GlobalNav-C8sESeL_.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/RadioGroup-DVN1LYom.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ModalLayer-3F2c2My2.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DQiPH5I1.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SignupModal-MSqiZOXH.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/maplibre-DeW7UwyM.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DoL4vjg7.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SelectCreatable-CEC3FHqm.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/urlHelpers-BQdj90fI.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/MapV2-Ds7DReam.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/PoiIconImg-Aby8lEbr.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ExportFormats-C3OEvdv8.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Pips-D2CwfUOz.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/apple-pay-logo-D1dek-dI.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-A6fa6Yu6.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-Ds13zjBh.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/TopoHeaderModal-CADUoSvU.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/nonReactUtils-CLX6nGx4.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/MountOnHoverCard-OJfYoytU.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/railsGeocode-DmrtMvWK.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/globalSearchTracking-B_VpOAPo.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-B9-3b0bl.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/ProfileButton-CE5cNt5r.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/LocationAutocomplete-DpBcknob.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/SearchHistory-BRblHPMY.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Chip-D7qMQVWC.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/CircleButton-CN1Xxu2c.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/Select-BLZnVc0n.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/FormFeedback-I4BcNFAU.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/RangeInput-CqkFvlIp.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/AccordionChevron-B470v9CP.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CcCYO7Np.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-CaqlkASD.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-DE79brLr.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/DistanceSelector-DtG8ndb7.css" />
+<link rel="stylesheet" href="https://d20w1ewfu2hd2w.cloudfront.net/prod/assets/index-BJmUslhQ.css" />
+<script>
+  Application.init();
+  rwgps.site = 'rwgps';
+  rwgps.environment = "production";
+  
+  $(function() { if(false) $("a#signin-link").click(); });
+</script>
+
+<script>
+  maybeShowAppInstallPrompt();
+</script>
+<script type="text/javascript">
+!function(){"use strict";!function(e,t){var r=e.amplitude||{_q:[],_iq:[]};if(r.invoked)e.console&&console.error&&console.error("Amplitude snippet has been loaded.");else{var n=function(e,t){e.prototype[t]=function(){return this._q.push({name:t,args:Array.prototype.slice.call(arguments,0)}),this}},s=function(e,t,r){return function(n){e._q.push({name:t,args:Array.prototype.slice.call(r,0),resolve:n})}},o=function(e,t,r){e[t]=function(){if(r)return{promise:new Promise(s(e,t,Array.prototype.slice.call(arguments)))}}},i=function(e){for(var t=0;t<g.length;t++)o(e,g[t],!1);for(var r=0;r<m.length;r++)o(e,m[r],!0)};r.invoked=!0;var u=t.createElement("script");u.type="text/javascript",u.integrity="sha384-GHWzi7MsT/TD3t0f+KUaVeuvPUsuVgdUKegrAWlzO4I83+klmUJna8WTuUunlsg6",u.crossOrigin="anonymous",u.async=!0,u.src="https://cdn.amplitude.com/libs/analytics-browser-1.6.6-min.js.gz",u.onload=function(){e.amplitude.runQueuedFunctions||console.log("[Amplitude] Error: could not load SDK")};var a=t.getElementsByTagName("script")[0];a.parentNode.insertBefore(u,a);for(var c=function(){return this._q=[],this},l=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove","getUserProperties"],p=0;p<l.length;p++)n(c,l[p]);r.Identify=c;for(var d=function(){return this._q=[],this},v=["getEventProperties","setProductId","setQuantity","setPrice","setRevenue","setRevenueType","setEventProperties"],f=0;f<v.length;f++)n(d,v[f]);r.Revenue=d;var g=["getDeviceId","setDeviceId","getSessionId","setSessionId","getUserId","setUserId","setOptOut","setTransport","reset"],m=["init","add","remove","track","logEvent","identify","groupIdentify","setGroup","revenue","flush"];i(r),r.createInstance=function(){var e=r._iq.push({_q:[]})-1;return i(r._iq[e]),r._iq[e]},e.amplitude=r}}(window,document)}();
+amplitude.init("e92e6aa6dae91fcbcd7df7f5c91af71b");
+</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YLEX65R10"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  gtag('consent', 'default', {
+    'ad_storage': 'granted',
+    'ad_user_data': 'granted',
+    'ad_personalization': 'granted',
+    'analytics_storage': 'granted'
+  });
+
+  gtag('js', new Date());
+  gtag('config', 'G-6YLEX65R10');
+  </script>
+
+</body>
+</html>

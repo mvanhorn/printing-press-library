@@ -22,22 +22,20 @@ metadata:
 
 This skill drives the `customer-io-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install customer-io --cli-only
+   npx -y @mvanhorn/printing-press-library install customer-io --cli-only
    ```
 2. Verify: `customer-io-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/customer-io/cmd/customer-io-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/marketing/customer-io/cmd/customer-io-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The official customerio/cli exposes the API as raw passthrough. This CLI gives you typed commands for every meaningful workflow, plus eight commands no other tool has — journey funnels cross-cut by segment, multi-segment overlap, customer 360 timelines, broadcast pre-flight, suppression audit trails, Reverse-ETL health, bulk suppress with provenance, and incident-ready delivery triage bundles. It is also the only Customer.io tool that ships an MCP server.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

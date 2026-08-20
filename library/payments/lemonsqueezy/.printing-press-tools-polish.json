@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-29T07:48:57.367047Z",
+  "cli_dir": "\u003ccli-dir\u003e/lemonsqueezy-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 342,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ]
+}

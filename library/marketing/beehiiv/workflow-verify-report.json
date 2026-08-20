@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/kevinmagnan/printing-press/.runstate/cli-printing-press-e4fb5925/runs/20260510-144732/working/beehiiv-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

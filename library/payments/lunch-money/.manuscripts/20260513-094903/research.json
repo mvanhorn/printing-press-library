@@ -1,0 +1,337 @@
+{
+  "api_name": "lunch-money",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "lunchable",
+      "url": "https://github.com/juftin/lunchable",
+      "language": "Python",
+      "install_method": "",
+      "stars": 52,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lunchtui",
+      "url": "https://github.com/Rshep3087/lunchtui",
+      "language": "Go",
+      "install_method": "",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lunchmoney (icco)",
+      "url": "https://github.com/icco/lunchmoney",
+      "language": "Go",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lunchmoney-mcp-v2",
+      "url": "https://github.com/leafeye/lunchmoney-mcp-v2",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lunchmoney-mcp",
+      "url": "https://github.com/robshox/lunchmoney-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Lunch Money JS v2",
+      "url": "https://github.com/lunch-money/lunch-money-js-v2",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "akutishevsky lunchmoney-mcp",
+      "url": "https://github.com/akutishevsky/lunchmoney-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "awesome-lunchmoney",
+      "url": "https://github.com/lunch-money/awesome-lunchmoney",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 71,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T16:58:27Z",
+  "novel_features": [
+    {
+      "name": "Subscription Detective",
+      "command": "transactions subscriptions",
+      "description": "Find regular-cadence merchant charges that are not yet linked to a recurring item, so you can promote them before subscription creep sneaks past you.",
+      "rationale": "Requires a local self-join across transactions detecting monthly cadence (3+ occurrences, ±3 day jitter, amount ±10%) — no Lunch Money endpoint exposes this view.",
+      "example": "lunch-money-pp-cli transactions subscriptions --suspected-only --json --select 'payee,suggested_cadence,avg_amount,occurrences'",
+      "why_it_matters": "When a user asks 'what subscriptions are draining my account?', this surfaces unlabeled recurring charges in one local SQL pass.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Recurring Miss Audit",
+      "command": "recurring missing",
+      "description": "List recurring items whose next expected date falls in the requested month but have no matching transaction yet, so you can catch missed bills.",
+      "rationale": "Left-joins local recurring_items against transactions on payee + amount band — Lunch Money's API returns each list separately and never the gap.",
+      "example": "lunch-money-pp-cli recurring missing --month 2026-05 --json",
+      "why_it_matters": "Answers 'which subscriptions haven't hit my account yet?' which is a top-three Maya question with no API equivalent.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Duplicate Charge Finder",
+      "command": "transactions duplicates",
+      "description": "Detect near-duplicate transactions in a window (same merchant, amount within tolerance, date within range) so you can group or delete them in bulk.",
+      "rationale": "Self-join on the local transactions table — no Lunch Money endpoint surfaces dup candidates.",
+      "example": "lunch-money-pp-cli transactions duplicates --window 3 --tolerance 1.00 --json --select 'cluster_id,payee,amount,date,id'",
+      "why_it_matters": "Use after a trip or when reviewing imports to catch the same Uber ride processed twice.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Stale Balance Audit",
+      "command": "accounts stale",
+      "description": "Surface manual accounts and manual crypto whose balance has not been updated in N days, so net worth stays honest.",
+      "rationale": "UNIONs manual_accounts.last_updated, crypto_manual.last_updated, and the tail of balance_history per account — three local tables, one query, no API call.",
+      "example": "lunch-money-pp-cli accounts stale --over 30d --json --select 'account_type,account_name,last_updated,days_stale'",
+      "why_it_matters": "Answers 'what manual balances do I owe an update?' before quarterly NAV updates or Sunday reconciliation.",
+      "group": "Net-worth tools"
+    },
+    {
+      "name": "Net Worth At Date",
+      "command": "net-worth on",
+      "description": "Reconstruct net worth at any historical date by walking balance_history across every account type, with last-known-balance carry-forward where needed.",
+      "rationale": "Picks the latest balance_history row at-or-before the date per account; sums per account-type — local SQL only, no API equivalent.",
+      "example": "lunch-money-pp-cli net-worth on 2026-03-31 --json --select 'as_of_date,total,by_account_type'",
+      "why_it_matters": "Use for quarterly snapshots, retirement-plan inputs, or 'what was my net worth before I bought the car?' questions.",
+      "group": "Net-worth tools"
+    },
+    {
+      "name": "Bulk Smart Retag",
+      "command": "transactions retag",
+      "description": "Match transactions by regex on payee/notes via local FTS, preview the affected set, then bulk-apply tag/category changes via the API.",
+      "rationale": "Local FTS5 finds the candidate set, --dry-run shows count + samples, then a single bulk PUT /transactions applies the change — the web UI breaks past ~20 rows.",
+      "example": "lunch-money-pp-cli transactions retag --match '^AMZN' --category-id 73 --dry-run --json",
+      "why_it_matters": "Answers 'fix every Amazon transaction since January' in one command instead of pagination clicks.",
+      "group": "Bulk transaction tools"
+    },
+    {
+      "name": "Uncategorized Triage Inbox",
+      "command": "triage",
+      "description": "Pull all unreviewed transactions, compute a suggested category from prior categorizations of the same merchant, and optionally mass-apply the suggestion.",
+      "rationale": "Joins local unreviewed transactions against the historical categorization frequency per payee — no API can suggest categories from your own past patterns.",
+      "example": "lunch-money-pp-cli triage --limit 20 --json --select 'id,payee,amount,suggested_category,confidence'",
+      "why_it_matters": "Sunday-morning ritual for power-user budgeters; agent-friendly suggested categories let an LLM bulk-approve high-confidence rows.",
+      "group": "Bulk transaction tools"
+    },
+    {
+      "name": "Budget Burn-Down",
+      "command": "budgets burn",
+      "description": "For the current budget period, project end-of-month spend per category at the current linear rate and flag categories projected to overshoot.",
+      "rationale": "Joins budgets.settings × categories × transactions locally, computes days_remaining and projected_end_spend — Lunch Money's web UI shows a chart but no CLI pipes it.",
+      "example": "lunch-money-pp-cli budgets burn --period 2026-05 --json --select 'category_name,target,spent,projected_end_spend,over_under'",
+      "why_it_matters": "Mid-month answer to 'am I on track?' that flows into agent workflows and dashboards.",
+      "group": "Budget intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Subscription Detective",
+      "command": "transactions subscriptions",
+      "description": "Find regular-cadence merchant charges that are not yet linked to a recurring item, so you can promote them before subscription creep sneaks past you.",
+      "rationale": "Requires a local self-join across transactions detecting monthly cadence (3+ occurrences, ±3 day jitter, amount ±10%) — no Lunch Money endpoint exposes this view.",
+      "example": "lunch-money-pp-cli transactions subscriptions --suspected-only --json --select 'payee,suggested_cadence,avg_amount,occurrences'",
+      "why_it_matters": "When a user asks 'what subscriptions are draining my account?', this surfaces unlabeled recurring charges in one local SQL pass.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Recurring Miss Audit",
+      "command": "recurring missing",
+      "description": "List recurring items whose next expected date falls in the requested month but have no matching transaction yet, so you can catch missed bills.",
+      "rationale": "Left-joins local recurring_items against transactions on payee + amount band — Lunch Money's API returns each list separately and never the gap.",
+      "example": "lunch-money-pp-cli recurring missing --month 2026-05 --json",
+      "why_it_matters": "Answers 'which subscriptions haven't hit my account yet?' which is a top-three Maya question with no API equivalent.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Duplicate Charge Finder",
+      "command": "transactions duplicates",
+      "description": "Detect near-duplicate transactions in a window (same merchant, amount within tolerance, date within range) so you can group or delete them in bulk.",
+      "rationale": "Self-join on the local transactions table — no Lunch Money endpoint surfaces dup candidates.",
+      "example": "lunch-money-pp-cli transactions duplicates --window 3 --tolerance 1.00 --json --select 'cluster_id,payee,amount,date,id'",
+      "why_it_matters": "Use after a trip or when reviewing imports to catch the same Uber ride processed twice.",
+      "group": "Local-join transcendence"
+    },
+    {
+      "name": "Stale Balance Audit",
+      "command": "accounts stale",
+      "description": "Surface manual accounts and manual crypto whose balance has not been updated in N days, so net worth stays honest.",
+      "rationale": "UNIONs manual_accounts.last_updated, crypto_manual.last_updated, and the tail of balance_history per account — three local tables, one query, no API call.",
+      "example": "lunch-money-pp-cli accounts stale --over 30d --json --select 'account_type,account_name,last_updated,days_stale'",
+      "why_it_matters": "Answers 'what manual balances do I owe an update?' before quarterly NAV updates or Sunday reconciliation.",
+      "group": "Net-worth tools"
+    },
+    {
+      "name": "Net Worth At Date",
+      "command": "net-worth on",
+      "description": "Reconstruct net worth at any historical date by walking balance_history across every account type, with last-known-balance carry-forward where needed.",
+      "rationale": "Picks the latest balance_history row at-or-before the date per account; sums per account-type — local SQL only, no API equivalent.",
+      "example": "lunch-money-pp-cli net-worth on 2026-03-31 --json --select 'as_of_date,total,by_account_type'",
+      "why_it_matters": "Use for quarterly snapshots, retirement-plan inputs, or 'what was my net worth before I bought the car?' questions.",
+      "group": "Net-worth tools"
+    },
+    {
+      "name": "Bulk Smart Retag",
+      "command": "transactions retag",
+      "description": "Match transactions by regex on payee/notes via local FTS, preview the affected set, then bulk-apply tag/category changes via the API.",
+      "rationale": "Local FTS5 finds the candidate set, --dry-run shows count + samples, then a single bulk PUT /transactions applies the change — the web UI breaks past ~20 rows.",
+      "example": "lunch-money-pp-cli transactions retag --match '^AMZN' --category-id 73 --dry-run --json",
+      "why_it_matters": "Answers 'fix every Amazon transaction since January' in one command instead of pagination clicks.",
+      "group": "Bulk transaction tools"
+    },
+    {
+      "name": "Uncategorized Triage Inbox",
+      "command": "triage",
+      "description": "Pull all unreviewed transactions, compute a suggested category from prior categorizations of the same merchant, and optionally mass-apply the suggestion.",
+      "rationale": "Joins local unreviewed transactions against the historical categorization frequency per payee — no API can suggest categories from your own past patterns.",
+      "example": "lunch-money-pp-cli triage --limit 20 --json --select 'id,payee,amount,suggested_category,confidence'",
+      "why_it_matters": "Sunday-morning ritual for power-user budgeters; agent-friendly suggested categories let an LLM bulk-approve high-confidence rows.",
+      "group": "Bulk transaction tools"
+    },
+    {
+      "name": "Budget Burn-Down",
+      "command": "budgets burn",
+      "description": "For the current budget period, project end-of-month spend per category at the current linear rate and flag categories projected to overshoot.",
+      "rationale": "Joins budgets.settings × categories × transactions locally, computes days_remaining and projected_end_spend — Lunch Money's web UI shows a chart but no CLI pipes it.",
+      "example": "lunch-money-pp-cli budgets burn --period 2026-05 --json --select 'category_name,target,spent,projected_end_spend,over_under'",
+      "why_it_matters": "Mid-month answer to 'am I on track?' that flows into agent workflows and dashboards.",
+      "group": "Budget intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Lunch Money",
+    "headline": "A Go CLI for Lunch Money's official v2 OpenAPI — offline SQLite store, subscription detection, and bulk smart retag the web UI cannot do.",
+    "value_prop": "Built on Lunch Money's published v2 alpha spec for forward compatibility — every endpoint exposed as a Cobra subcommand with --json, --select dotted-paths, --csv, --dry-run, and typed exit codes. Local SQLite store powers offline search, history queries, and joins (net worth at any date, stale balance audit, duplicate detection, subscription detective) that single API calls can't answer. A companion `lunch-money-pp-mcp` binary ships alongside for Claude Desktop / Claude Code MCP integration.",
+    "auth_narrative": "Authenticate with a bearer token from https://my.lunchmoney.app/developers. The CLI accepts the token via five env-var aliases — LUNCHMONEY_ACCESS_TOKEN (canonical, used by the official docs and the Python lunchable client), plus LUNCHMONEY_API_KEY, LUNCHMONEY_TOKEN, LUNCHMONEY_API_TOKEN (lunchtui), and LUNCH_MONEY_API_KEY (robshox MCP) — to match whichever spelling your ecosystem already uses. The same token works against the live API at api.lunchmoney.dev/v2 and the mock server at mock.lunchmoney.dev/v2.",
+    "quickstart": [
+      {
+        "command": "lunch-money-pp-cli auth set-token YOUR_TOKEN_HERE",
+        "comment": "Paste your token from my.lunchmoney.app/developers; the CLI writes it to config and points doctor at the live API."
+      },
+      {
+        "command": "lunch-money-pp-cli doctor",
+        "comment": "Confirm the token is valid, the API is reachable, and the local store is initialized — before any sync."
+      },
+      {
+        "command": "lunch-money-pp-cli sync",
+        "comment": "Full pull of categories, tags, accounts, recurring items, and transactions into the local SQLite store with rate-limit-aware backoff."
+      },
+      {
+        "command": "lunch-money-pp-cli triage --limit 20",
+        "comment": "See unreviewed transactions with suggested categories computed from your own historical categorizations."
+      },
+      {
+        "command": "lunch-money-pp-cli transactions retag --match '^AMZN' --category-id 73 --dry-run",
+        "comment": "Preview a bulk retag before letting the bulk PUT /transactions endpoint apply it."
+      },
+      {
+        "command": "lunch-money-pp-cli budgets burn --period 2026-05 --json",
+        "comment": "Mid-month per-category burn-down with end-of-period projection — pipe into an agent or dashboard."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Run `lunch-money-pp-cli auth status` to see which env var is in scope; if none, paste your token via `lunch-money-pp-cli auth set-token` or export LUNCHMONEY_ACCESS_TOKEN."
+      },
+      {
+        "symptom": "Rate limit 429 with retry-after",
+        "fix": "Built-in backoff respects x-ratelimit-remaining and x-ratelimit-reset; if you hit a hard ceiling, reduce --limit on transactions list or stagger sync calls."
+      },
+      {
+        "symptom": "Stale data in local store",
+        "fix": "Run `lunch-money-pp-cli sync` to pull only changes since last cursor (uses updated_since on transactions); pass --full to rebuild from scratch."
+      },
+      {
+        "symptom": "Plaid balance out of date",
+        "fix": "Run `lunch-money-pp-cli plaid-accounts trigger-fetch` to trigger the Lunch Money backend Plaid fetch; rerun sync after a minute to pull new transactions."
+      },
+      {
+        "symptom": "Multiple LUNCHMONEY_* env vars set",
+        "fix": "The CLI picks LUNCHMONEY_ACCESS_TOKEN first, then the four aliases in fallback order; `auth status` prints which was used."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to bulk-fix transactions, audit subscriptions or recurring items, reconcile net worth across Plaid + manual + crypto accounts, or expose Lunch Money to agent workflows. Especially valuable for Sunday-morning budgeting rituals (triage, retag, budget burn-down), end-of-month asset snapshots (manual account updates, balance history upserts), and expense-report assembly (transactions list --tag, attachment exports). Avoid it for one-off web-UI exploration — that's what lunchmoney.app is for.",
+    "recipes": [
+      {
+        "title": "Sunday triage with agent-applied suggestions",
+        "command": "lunch-money-pp-cli triage --limit 50 --json --select 'id,payee,amount,suggested_category,confidence' | jq '[.[] | select(.confidence \u003e 0.9) | .id] | join(\",\")'",
+        "explanation": "Pipe the high-confidence triage rows to jq for an ID list, then apply them via `transactions retag --ids \"$IDS\" --category-id \u003cid\u003e` (which calls the bulk PUT /transactions endpoint under the hood)."
+      },
+      {
+        "title": "Find the asset driving this month's drift",
+        "command": "lunch-money-pp-cli net-worth on 2026-04-30 --json --select 'by_account_type.account_name,by_account_type.balance' \u0026\u0026 lunch-money-pp-cli net-worth on 2026-05-12 --json --select 'by_account_type.account_name,by_account_type.balance'",
+        "explanation": "Run net-worth at two dates and diff the per-account balances — answers Devon's Sunday 'what moved?' question without exporting CSV."
+      },
+      {
+        "title": "Promote a stealth subscription to a recurring item",
+        "command": "lunch-money-pp-cli transactions subscriptions --suspected-only --json --select 'payee,avg_amount,suggested_cadence' | jq '.[] | select(.avg_amount \u003e 5)'",
+        "explanation": "Surfaces local-detected subscription patterns (≥3 occurrences, monthly cadence) not yet flagged. Filter with jq for subscriptions over a threshold; the v2 API does not yet expose a recurring_items create endpoint, so promote each one in the web UI at https://my.lunchmoney.app/recurring."
+      },
+      {
+        "title": "Drill into a budget category with deeply nested occurrences",
+        "command": "lunch-money-pp-cli summary --start-date 2026-01-01 --end-date 2026-05-31 --include-occurrences --json --select 'categories.name,categories.occurrences.amount_spent,categories.occurrences.budget_amount'",
+        "explanation": "The summary endpoint returns category objects with nested occurrences arrays. Dotted --select narrows the payload to the three fields needed for a per-month spend-vs-budget table without parsing the rest."
+      },
+      {
+        "title": "Bulk retag every Amazon transaction since January",
+        "command": "lunch-money-pp-cli transactions retag --match '^AMZN' --start-date 2026-01-01 --category-id 73 --add-tag amazon --dry-run --json",
+        "explanation": "Dry-run shows count + sample rows from the local FTS5 search. Drop --dry-run to apply via the bulk PUT /transactions endpoint."
+      }
+    ],
+    "trigger_phrases": [
+      "categorize my transactions",
+      "find duplicate charges",
+      "subscription audit",
+      "what's my budget burn",
+      "net worth at a date",
+      "use lunch-money-pp",
+      "run lunch-money"
+    ]
+  }
+}

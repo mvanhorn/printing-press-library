@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "printify-pp-mcp",
+  "display_name": "Printify",
+  "version": "4.14.0",
+  "description": "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/printify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/printify-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTIFY_BEARER_AUTH": "${user_config.printify_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "printify_bearer_auth": {
+      "type": "string",
+      "title": "PRINTIFY_BEARER_AUTH",
+      "description": "Sets PRINTIFY_BEARER_AUTH for the Printify MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

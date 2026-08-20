@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "pipedrive-pp-mcp",
+  "display_name": "Pipedrive",
+  "version": "0.0.0",
+  "description": "CRM for sales teams - deals, contacts, pipelines, activities, and organizations",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pipedrive-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pipedrive-pp-mcp",
+      "args": [],
+      "env": {
+        "PIPEDRIVE_API_KEY": "${user_config.pipedrive_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "pipedrive_api_key": {
+      "type": "string",
+      "title": "PIPEDRIVE_API_KEY",
+      "description": "Sets PIPEDRIVE_API_KEY for the Pipedrive MCP server. Get a credential from https://app.pipedrive.com/settings/personal/api.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

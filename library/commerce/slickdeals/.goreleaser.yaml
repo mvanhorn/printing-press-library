@@ -1,0 +1,51 @@
+version: 2
+project_name: slickdeals-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: slickdeals-pp-cli
+    main: ./cmd/slickdeals-pp-cli
+    binary: slickdeals-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/slickdeals/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: slickdeals-pp-mcp
+    main: ./cmd/slickdeals-pp-mcp
+    binary: slickdeals-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: slickdeals-pp-cli
+    repository:
+      owner: david
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Slickdeals frontpage, coupons, and recommendations from your terminal — agent-native, MCP-compatible, locally..."
+    install: |
+      bin.install "slickdeals-pp-cli"
+      bin.install "slickdeals-pp-mcp"

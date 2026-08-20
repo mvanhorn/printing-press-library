@@ -1,0 +1,6 @@
+/midjourney-pp-cli
+build/
+.DS_Store
+.env
+*.log
+*.tmp

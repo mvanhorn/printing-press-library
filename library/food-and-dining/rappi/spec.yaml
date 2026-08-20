@@ -1,0 +1,212 @@
+name: rappi
+description: Rappi Mexico CLI - browse public restaurants, stores, and product catalog from rappi.com.mx
+version: 0.1.0
+base_url: https://www.rappi.com.mx
+spec_source: sniffed
+http_transport: standard
+cli_description: "Read-only Rappi Mexico catalog: restaurants by city/category, supermarkets and pharmacies by type, store details, plus offline SQLite search across the full crawled catalog."
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: ~/.config/rappi-pp-cli/config.toml
+
+resources:
+  restaurants:
+    description: Restaurant catalog browsing via SSR list and detail pages
+
+    endpoints:
+      list_city:
+        method: GET
+        path: /{city}/restaurantes
+        description: List restaurants in a Mexican city (e.g. ciudad-de-mexico, guadalajara, monterrey)
+        no_auth: true
+        params:
+          - name: city
+            in: path
+            type: string
+            required: true
+            description: City slug. Common values - ciudad-de-mexico, guadalajara, monterrey, naucalpan, leon, queretaro, puebla.
+            example: ciudad-de-mexico
+        body: []
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /restaurantes/
+          limit: 100
+        response:
+          type: array
+          item: restaurant_link
+        pagination: null
+
+      list_category:
+        method: GET
+        path: /{city}/restaurantes/category/{category}
+        description: List restaurants in a city filtered by cuisine category (hamburguesas, pizza, sushi, tacos, etc.)
+        no_auth: true
+        params:
+          - name: city
+            in: path
+            type: string
+            required: true
+            description: City slug (e.g. ciudad-de-mexico, guadalajara, monterrey).
+            example: ciudad-de-mexico
+          - name: category
+            in: path
+            type: string
+            required: true
+            description: Cuisine slug. Known values - hamburguesas, pizza, sushi, tacos, pollo, mexicana, saludables, postres, cafe, pasteleria.
+            example: hamburguesas
+        body: []
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /restaurantes/
+          limit: 100
+        response:
+          type: array
+          item: restaurant_link
+        pagination: null
+
+      get:
+        method: GET
+        path: /restaurantes/{restaurant_id_slug}
+        description: Fetch the restaurant detail page (name, cuisine, address, hours, geo, rating)
+        no_auth: true
+        params:
+          - name: restaurant_id_slug
+            in: path
+            type: string
+            required: true
+            description: Restaurant identifier in "<numeric-id>-<slug>" form (e.g. 10000295-el-farolito). Get IDs from `restaurants list-city` output.
+            example: 10000295-el-farolito
+        body: []
+        response_format: html
+        html_extract:
+          mode: page
+          link_prefixes:
+            - /restaurantes/
+          limit: 50
+        response:
+          type: object
+          item: restaurant_detail
+        pagination: null
+
+  stores:
+    description: Supermarket, pharmacy, liquor, and convenience store catalog
+
+    endpoints:
+      list_by_type:
+        method: GET
+        path: /tiendas/tipo/{store_type}
+        description: List stores by type (market for supermarkets, farmatodo for pharmacy, liquor, express, rappimall-parent)
+        no_auth: true
+        params:
+          - name: store_type
+            in: path
+            type: string
+            required: true
+            description: Store type slug. Known values - market (supermarkets), farmatodo (pharmacy), liquor, express, rappimall-parent.
+            example: market
+        body: []
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /tiendas/
+          limit: 200
+        response:
+          type: array
+          item: store_link
+        pagination: null
+
+      get:
+        method: GET
+        path: /tiendas/{store_id_slug}
+        description: Fetch a store detail page (name, type, address, branding)
+        no_auth: true
+        params:
+          - name: store_id_slug
+            in: path
+            type: string
+            required: true
+            description: Store identifier in "<numeric-id>-<slug>" form (e.g. 1930163835-la-comer).
+            example: 1930163835-la-comer
+        body: []
+        response_format: html
+        html_extract:
+          mode: page
+          link_prefixes:
+            - /tiendas/
+          limit: 50
+        response:
+          type: object
+          item: store_detail
+        pagination: null
+
+  catalog:
+    description: Alphabetized product catalog index
+
+    endpoints:
+      browse_letter:
+        method: GET
+        path: /catalogo/products/{letter}-{page}
+        description: Browse the product catalog indexed by initial letter and page number
+        no_auth: true
+        params:
+          - name: letter
+            in: path
+            type: string
+            required: true
+            description: Starting letter (a through z). Lower-case.
+            example: a
+          - name: page
+            in: path
+            type: integer
+            required: true
+            description: Page number, starting at 1.
+            example: 1
+        body: []
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /p/
+          limit: 100
+        response:
+          type: array
+          item: product_link
+        pagination: null
+
+  promotions:
+    description: Public promotions and active campaigns
+
+    endpoints:
+      list:
+        method: GET
+        path: /promociones
+        description: Public promotions landing page
+        no_auth: true
+        params: []
+        body: []
+        response_format: html
+        html_extract:
+          mode: page
+          link_prefixes:
+            - /promociones
+            - /restaurantes/
+            - /tiendas/
+          limit: 50
+        response:
+          type: object
+          item: promotions_page
+        pagination: null
+
+types: {}

@@ -1,0 +1,46 @@
+name: stackadapt
+description: "Read-only agent-native CLI for the StackAdapt programmatic advertising GraphQL API: advertisers, campaigns, ads, audiences, delivery/insight reporting, plus pacing, drift, reconcile, and bottleneck analysis from a local store."
+version: "0.1.0"
+base_url: "https://api.stackadapt.com"
+category: marketing
+health_check_path: "/graphql"
+
+# StackAdapt GraphQL API. Single POST /graphql endpoint; real commands are
+# hand-authored in internal/cli/*.go against the hand-written GraphQL client
+# (internal/sagraphql). Auth is a GraphQL bearer token (separate from the
+# legacy REST key, which is deprecated).
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - STACKADAPT_API_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/stackadapt/config.toml"
+
+resources:
+  graphql:
+    description: "Raw GraphQL query passthrough (advanced; prefer the typed commands)"
+    endpoints:
+      query:
+        method: POST
+        path: "/graphql"
+        description: "Execute a raw GraphQL query against the StackAdapt API"
+        body:
+          - name: query
+            type: string
+            required: true
+            description: "GraphQL query document"
+        response:
+          type: object
+          item: GraphQLResponse
+
+types:
+  GraphQLResponse:
+    fields:
+      - name: data
+        type: string
+      - name: errors
+        type: string

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T16:13:32.324286Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "apple-docs",
+  "display_name": "Apple Developer Documentation",
+  "cli_name": "apple-docs-pp-cli",
+  "owner": "joseph-alvin-castillo",
+  "printer": "jcastillo725",
+  "printer_name": "Joseph Alvin Castillo",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e4fa3ed8d6ab034daeac6ab9f135420db50ae9f68935765946f04fcaba51f23a",
+  "run_id": "20260528-170611",
+  "category": "developer-tools",
+  "description": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+  "mcp_binary": "apple-docs-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Token-lean doc projection",
+      "command": "doc get",
+      "description": "Project a 50KB+ DocC JSON page down to just the fields an agent actually needs — abstract, signature, platforms, or all three — saving context tokens on every lookup."
+    },
+    {
+      "name": "Cross-platform replacement finder",
+      "command": "port-to",
+      "description": "For a symbol unavailable on a target platform, walk the See-Also / Replacement-Of graph until landing on an alternative that IS available there and is not itself deprecated."
+    },
+    {
+      "name": "Framework snapshot diff",
+      "command": "snapshot diff",
+      "description": "Diff two stored framework index snapshots and classify each delta as added, removed, deprecated, or likely-renamed (path-stem similarity)."
+    },
+    {
+      "name": "Deprecation cliff report",
+      "command": "deprecation-cliff",
+      "description": "List every Apple API deprecated in a given platform version, grouped by framework and symbol kind, with the replacement-hint column joined from references."
+    },
+    {
+      "name": "Conformance graph",
+      "command": "conformance",
+      "description": "Walk a framework's `relationshipsSections` to enumerate concrete conformers of a protocol and the protocol's ancestors."
+    },
+    {
+      "name": "Cross-framework symbol grep",
+      "command": "grep",
+      "description": "Regex over every synced framework's symbols with filters on kind, target platform, and deprecation status."
+    },
+    {
+      "name": "WWDC reverse index",
+      "command": "wwdc symbols",
+      "description": "For a WWDC session ID, list every symbol whose doc page cites that session."
+    },
+    {
+      "name": "Agent-shape doc bundle",
+      "command": "bundle",
+      "description": "Bundle a symbol's Markdown plus its depth-1 See-Also pages into a single token-budgeted blob, ready to paste into an agent prompt."
+    }
+  ]
+}

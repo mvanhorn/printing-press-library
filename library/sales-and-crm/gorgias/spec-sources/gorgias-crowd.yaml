@@ -1,0 +1,4183 @@
+name: gorgias
+description: Discovered API spec for gorgias (crowd-sniff)
+version: 0.1.0
+base_url: https://app.gorgias.com/api
+spec_source: community
+auth:
+  type: api_key
+  header: Authorization
+  format: Basic {username}:{password}
+  env_vars:
+  - GORGIAS_USERNAME
+  - GORGIAS_API_KEY
+  env_var_specs:
+  - name: GORGIAS_USERNAME
+    kind: per_call
+    required: true
+    sensitive: false
+  - name: GORGIAS_API_KEY
+    kind: per_call
+    required: true
+    sensitive: true
+  in: header
+  key_url: https://docs.gorgias.com/en-US/rest-api-208286
+  instructions: Settings → REST API → API key (use your email as username)
+  verify_path: /account
+config:
+  format: toml
+  path: ~/.config/gorgias-pp-cli/config.toml
+mcp:
+  transport:
+  - stdio
+  - http
+  orchestration: code
+  endpoint_tools: hidden
+  addr: :7777
+resources:
+  account:
+    description: Account-level settings and tenant metadata
+    endpoints:
+      settings-create:
+        method: POST
+        path: /account/settings
+        description: |-
+          Create a new account-level settings record for the current Gorgias tenant. Use when bootstrapping a fresh tenant or when an integration needs to seed default settings flags (locale, business hours, branding) that don't exist yet.
+        params: []
+        body:
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'example: business-hours'
+          fields: []
+        - name: data
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'example: {''timezone'': ''UTC'', ''business_hours'': {''days'':
+            ''1,2,3,4,5'', ''from_time'': ''09:...'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-account-setting
+          doc_url: https://developers.gorgias.com/reference/create-account-setting
+      get:
+        method: GET
+        path: /account
+        description: |-
+          Retrieve the current Gorgias account's metadata: subdomain, plan, billing state, and account-level flags. Use this to confirm credentials are wired up, detect the tenant/subdomain in a multi-tenant agent, or branch logic on plan tier.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      settings-list:
+        method: GET
+        path: /account/settings
+        description: |-
+          List the global settings on the current Gorgias account (business hours, language, default channels, notification preferences, etc.). Reach for this when an agent needs to honor tenant-wide configuration before composing a reply or routing a ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      settings-update:
+        method: PUT
+        path: /account/settings/{id}
+        description: |-
+          Update an account settings record by `id`. Use this to flip a tenant-wide flag, change business hours, or adjust a default channel — but only when the agent has authority to mutate account-level config (admin-grade operation).
+        params: []
+        body:
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'example: business-hours'
+          fields: []
+        - name: data
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'example: {''timezone'': ''UTC'', ''business_hours'': {''days'':
+            ''1,2,3,4,5'', ''from_time'': ''09:...'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-account-setting
+          doc_url: https://developers.gorgias.com/reference/update-account-setting
+  custom-fields:
+    description: Define and manage custom fields on tickets and customers
+    endpoints:
+      create:
+        method: POST
+        path: /custom-fields
+        description: |-
+          Define a new custom field on tickets or customers (the only supported `object_type` values). Required body: `object_type`, `label`, `definition` (the type-specific settings, e.g. boolean/number/text and any picklist values live inside `definition`). Optional: `description`, `priority`, `required`, `external_id`. Use to extend the schema, not to set a value on an existing record.
+        params: []
+        body:
+        - name: object_type
+          type: object<ObjectType>
+          required: true
+          positional: false
+          default: null
+          description: 'Type of entity on which to use this custom field. (example:
+            Ticket)'
+          fields: []
+        - name: label
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'The name of the custom field. (example: Test field)'
+          fields: []
+        - name: definition
+          type: oneOf
+          required: true
+          positional: false
+          default: null
+          description: 'The settings for this custom field, dependent on the data
+            type. (example: {''input_settings'': {''placeholder'': ''Enter this here...''}})'
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the custom field in a foreign system (ex: Zendesk).
+            (example: custom-field-84203241)'
+          fields: []
+        - name: description
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The description of the custom field. (example: An amazing
+            field description.)'
+          fields: []
+        - name: priority
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order in which custom fields are displayed. (example: 1)'
+          fields: []
+        - name: required
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: 'Whether this custom field is required. (example: True)'
+          fields: []
+        - name: managed_type
+          type: ManagedTicketFieldType|ManagedCustomerFieldType
+          required: false
+          positional: false
+          default: null
+          description: 'The type of the managed field. (example: contact_reason)'
+          fields: []
+        - name: deactivated_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'When the custom field was deactivated. (example: 2021-01-02T03:04:05.123456)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-custom-field
+          doc_url: https://developers.gorgias.com/reference/create-custom-field
+      get:
+        method: GET
+        path: /custom-fields/{id}
+        description: |-
+          Fetch a single custom field definition by `id`, returning its data type, label, target object, and option list. Use to introspect schema before writing a value, especially to discover the legal enum options for picklist fields.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /custom-fields
+        description: |-
+          List custom field definitions for a single `object_type` (`Ticket` or `Customer` — REQUIRED query param). Optional: `search`, `archived`, `order_by`, `cursor`, `limit`. Call once per object type to discover what extensible schema exists before reading or writing values.
+        params:
+        - name: object_type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Filter to a single resource type: Ticket or Customer. REQUIRED
+            by Gorgias — calls without it return 400.'
+          fields: []
+        - name: search
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Substring search across custom-field names.
+          fields: []
+        - name: archived
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Include archived fields when true.
+          fields: []
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Page size (Gorgias hard cap: 100).'
+          fields: []
+        - name: cursor
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Pagination cursor from a prior response's meta.next_cursor.
+          fields: []
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Sort expression, e.g. 'created_datetime:desc'.
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /custom-fields/{id}
+        description: |-
+          Update one custom field definition by `id` — relabel it, change its options, or toggle visibility. Note: this mutates the schema for every record that carries the field, so use sparingly and prefer per-record updates for one-off changes.
+        params: []
+        body:
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the custom field in a foreign system (ex: Zendesk).
+            (example: custom-field-84203241)'
+          fields: []
+        - name: object_type
+          type: object<ObjectType>
+          required: false
+          positional: false
+          default: null
+          description: 'Type of entity on which to use this custom field. (example:
+            Ticket)'
+          fields: []
+        - name: label
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The name of the custom field. (example: Test field)'
+          fields: []
+        - name: description
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The description of the custom field. (example: An amazing
+            field description.)'
+          fields: []
+        - name: priority
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order in which custom fields are displayed. (example: 1)'
+          fields: []
+        - name: required
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: 'Whether this custom field is required. (example: True)'
+          fields: []
+        - name: managed_type
+          type: ManagedTicketFieldType|ManagedCustomerFieldType
+          required: false
+          positional: false
+          default: null
+          description: 'The type of the managed field. (example: contact_reason)'
+          fields: []
+        - name: definition
+          type: oneOf
+          required: false
+          positional: false
+          default: null
+          description: 'The settings for this custom field, dependent on the data
+            type. (example: {''input_settings'': {''placeholder'': ''Enter this here...''}})'
+          fields: []
+        - name: deactivated_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'When the custom field was deactivated. (example: 2021-01-02T03:04:05.123456)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-custom-field
+          doc_url: https://developers.gorgias.com/reference/update-custom-field
+      update-all:
+        method: PUT
+        path: /custom-fields
+        description: |-
+          Bulk-update multiple custom field definitions in one call (no path id). Useful when reordering picklist options or applying the same label change across several fields; avoid unless the agent really needs a batched schema edit.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: array<UpdateCustomFieldItem>
+          operation_id: update-custom-fields
+          doc_url: https://developers.gorgias.com/reference/update-custom-fields
+  customers:
+    description: Read and write Gorgias customer records (CRM core)
+    endpoints:
+      create:
+        method: POST
+        path: /customers
+        description: |-
+          Create a new customer record. Pass `name`, `email`, optional `channels` (email/phone/social handles), and `data` for arbitrary key-value attributes. Use when an inbound message references a person who doesn't yet exist in Gorgias.
+        params: []
+        body:
+        - name: channels
+          type: array<object>
+          required: true
+          positional: false
+          default: null
+          description: The [customer's contact channels](#the-customerchannel-object).
+          fields: []
+        - name: email
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Primary email address of the customer. (example: example-email-value)'
+          fields: []
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the customer in a foreign system (Stripe, Aircall, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            customer-84203241)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The customer''s preferred language (format: ISO_639-1). (enum:
+            aa, ab, af, ak, sq, am, ar, an) (example: fr)'
+          fields: []
+        - name: name
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Full name of the customer. (example: John Smith)'
+          fields: []
+        - name: timezone
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The customer's preferred timezone (format: IANA timezone name). (enum: Africa/Abidjan, Africa/Accra, Africa/Addis_Ababa, Africa/Algiers, Africa/Asmara, Africa/Asmera, Africa/Bamako, Africa/Bangui) (example: UTC)
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-customer
+          doc_url: https://developers.gorgias.com/reference/create-customer
+      custom-fields-unset:
+        method: DELETE
+        path: /customers/{customer_id}/custom-fields/{id}
+        description: |-
+          Clear a custom field value on a customer: first `{id}` is the customer ID, second `{id}` is the custom field ID. Use to unset (not delete) a per-customer attribute — the field definition itself remains.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      delete:
+        method: DELETE
+        path: /customers/{id}
+        description: |-
+          Delete one customer by `id`. Hard-deletes the record and may cascade to associated tickets/messages depending on account settings — reach for this only when handling GDPR-style erasure requests or scrubbing test data.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      delete-all:
+        method: DELETE
+        path: /customers
+        description: |-
+          Bulk-delete customers. Required body: `ids` (array of customer IDs to delete). Does NOT accept query-style filters — you must enumerate the IDs explicitly. Reserve for cleanup jobs or compliance erasure; destructive and irreversible.
+        params: []
+        body:
+        - name: ids
+          type: array<integer>
+          required: true
+          positional: false
+          default: null
+          description: A list of customer IDs to delete.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: delete-customers
+          doc_url: https://developers.gorgias.com/reference/delete-customers
+      custom-fields-list:
+        method: GET
+        path: /customers/{id}/custom-fields
+        description: |-
+          List every custom field value attached to a single customer (`id`). Use to read CRM-style attributes (lifetime value, segment, loyalty tier) before deciding how to respond to or route a customer's ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /customers/{id}
+        description: |-
+          Fetch a single customer by `id`, including their channels (email, phone, social handles), `data` blob, and account-level attributes. Use after identifying a customer (e.g. via search) to load full profile context.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /customers
+        description: |-
+          List customers with pagination and optional filter params (`email`, `external_id`, `name`, `language`, `channel_type`, `channel_address`, `view_id`). All params are optional. The agent's primary way to look up a customer by email or external system ID before reading tickets or sending a reply.
+        params:
+        - name: email
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      custom-fields-set:
+        method: PUT
+        path: /customers/{customer_id}/custom-fields/{id}
+        description: 'Set a single custom field value on a customer: first `{id}`
+          is the customer, second `{id}` is the custom field. Use for one-off mutations
+          like flagging a VIP or recording a churn-risk score.'
+        params:
+        - name: id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: value
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: oneOf(string|integer|boolean)
+          operation_id: update-customer-custom-field-value
+          doc_url: https://developers.gorgias.com/reference/update-customer-custom-field-value
+      custom-fields-set-all:
+        method: PUT
+        path: /customers/{id}/custom-fields
+        description: |-
+          Bulk-set custom field values on a single customer (`id`) — pass an array of field/value pairs. Preferred over the singular form when an agent needs to write several attributes at once after enriching a profile.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: array<CustomerCustomFieldValue>
+          operation_id: update-customer-custom-field-values
+          doc_url: https://developers.gorgias.com/reference/update-customer-custom-field-values
+      update:
+        method: PUT
+        path: /customers/{id}
+        description: Update a customer (`id`) — change name, add/remove channels,
+          edit external IDs, or overwrite top-level fields. Use after merging records,
+          fixing a typo, or syncing data from an external CRM.
+        params: []
+        body:
+        - name: channels
+          type: array<object>
+          required: false
+          positional: false
+          default: null
+          description: The [customer's contact channels](#the-customerchannel-object).
+          fields: []
+        - name: email
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Primary email address of the customer. (example: example-email-value)'
+          fields: []
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the customer in a foreign system (Stripe, Aircall, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            customer-84203241)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The customer''s preferred language (format: ISO_639-1). (enum:
+            aa, ab, af, ak, sq, am, ar, an) (example: fr)'
+          fields: []
+        - name: name
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Full name of the customer. (example: John Smith)'
+          fields: []
+        - name: timezone
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The customer's preferred timezone (format: IANA timezone name). (enum: Africa/Abidjan, Africa/Accra, Africa/Addis_Ababa, Africa/Algiers, Africa/Asmara, Africa/Asmera, Africa/Bamako, Africa/Bangui) (example: UTC)
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-customer
+          doc_url: https://developers.gorgias.com/reference/update-customer
+      data-update:
+        method: PUT
+        path: /customers/{id}/data
+        description: |-
+          Set a customer's `data` blob (`id` in path). Body: `data` (required) plus optional `version` for last-write-wins (requests with an older version are ignored). Use when an integration pushes CRM context that should be displayed alongside the customer.
+        params: []
+        body:
+        - name: data
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: 'The customer data. (example: {''key'': ''value''})'
+          fields: []
+        - name: version
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The date of the customer data. If we already have a more recent
+            version, the request will be ignored. (example: 2022-05-13T12:34:21.918927)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-customer-data
+          doc_url: https://developers.gorgias.com/reference/update-customer-data
+      merge:
+        method: PUT
+        path: /customers/merge
+        description: |-
+          Merge one customer into another. Required query params: `source_id` (the duplicate, will be merged in and deleted) and `target_id` (the surviving customer). Body fields (channels, email, name, language, timezone, external_id) overwrite the target. Use when a duplicate is detected by email/phone; merges happen one pair at a time.
+        params:
+        - name: source_id
+          type: integer
+          required: true
+          positional: false
+          default: null
+          description: The ID of the customer to merge (which will be merged into
+            the targeted customer).
+          fields: []
+        - name: target_id
+          type: integer
+          required: true
+          positional: false
+          default: null
+          description: The ID of the targeted customer (which will still be here after
+            the merge).
+          fields: []
+        body:
+        - name: channels
+          type: array<object>
+          required: false
+          positional: false
+          default: null
+          description: The [customer's contact channels](#the-customerchannel-object).
+          fields: []
+        - name: email
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Primary email address of the customer. (example: example-email-value)'
+          fields: []
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the customer in a foreign system (Stripe, Aircall, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            customer-84203241)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The customer''s preferred language (format: ISO_639-1). (enum:
+            aa, ab, af, ak, sq, am, ar, an) (example: fr)'
+          fields: []
+        - name: name
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Full name of the customer. (example: John Smith)'
+          fields: []
+        - name: timezone
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The customer's preferred timezone (format: IANA timezone name). (enum: Africa/Abidjan, Africa/Accra, Africa/Addis_Ababa, Africa/Algiers, Africa/Asmara, Africa/Asmera, Africa/Bamako, Africa/Bangui) (example: UTC)
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: merge-customers
+          doc_url: https://developers.gorgias.com/reference/merge-customers
+  events:
+    description: Audit log of who-changed-what across tickets, customers, settings
+    endpoints:
+      get:
+        method: GET
+        path: /events/{id}
+        description: |-
+          Retrieve a single audit event by `id` — captures who/what/when on ticket, customer, or settings mutations. Use to audit a specific change an agent or rule made, or to diagnose why a record looks the way it does.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /events
+        description: |-
+          List audit events. Documented filters: `object_type` (e.g. Ticket/Customer/User), `object_id`, `user_ids` (actor), `types` (event-type allowlist), `created_datetime` (with comparators), plus `cursor`/`limit`/`order_by`. Use to reconstruct a ticket's history or detect rule-driven changes.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+  integrations:
+    description: Install and configure third-party integrations (Shopify, SMS, social)
+    endpoints:
+      create:
+        method: POST
+        path: /integrations
+        description: |-
+          Install a new third-party integration on the Gorgias account (Shopify, Instagram, SMS provider, etc.). Pass `type` and provider-specific credentials. Use when an agent is asked to connect a new channel or external system, not to send data to one.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Name of the integration. Usually the email address, Facebook
+            page name, etc. (example: My HTTP integration)'
+          fields: []
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Type of integration. (enum: http) (example: http)'
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: When the integration was deactivated.
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: Description about the integration.
+          fields: []
+        - name: http
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'Only available for HTTP integrations, defines the configuration
+            of the integration. (example: {''id'': 987, ''url'': ''https://company.com/api/customers?email={{ticket.customer...)'
+          fields: []
+        - name: managed
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether integration is managed by Gorgias.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-integration
+          doc_url: https://developers.gorgias.com/reference/create-integration
+      delete:
+        method: DELETE
+        path: /integrations/{id}
+        description: Uninstall an integration by `id`. Destructive — disconnects the
+          channel and may stop syncing orders/messages from that source. Use only
+          when the user explicitly wants to remove the connection.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /integrations/{id}
+        description: |-
+          Fetch a single integration (`id`) including its type, status, last-sync time, and provider-specific config. Use to verify an integration is healthy before relying on its data (e.g. orders, social DMs).
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /integrations
+        description: List all installed integrations on the account — Shopify, Magento,
+          Facebook, voice, etc. Use to discover what external systems an agent can
+          pull context from before composing a reply.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /integrations/{id}
+        description: Update an integration's config (`id`) — refresh credentials,
+          toggle sync features, or rename. Reach for this when an integration is failing
+          auth or needs a feature flag flipped.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Name of the integration. Usually the email address, Facebook
+            page name, etc. (example: My HTTP integration)'
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: When the integration was deactivated.
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: Description about the integration.
+          fields: []
+        - name: http
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'Only available for HTTP integrations, defines the configuration
+            of the integration. (example: {''id'': 987, ''url'': ''https://company.com/api/customers?email={{ticket.customer...)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-integration
+          doc_url: https://developers.gorgias.com/reference/update-integration
+  gorgias-jobs:
+    description: Schedule and track async Gorgias jobs (bulk exports, macro applies)
+    endpoints:
+      create:
+        method: POST
+        path: /jobs
+        description: |-
+          Kick off an asynchronous Gorgias job. Required body: `type` (enum: applyMacro, deleteTicket, exportTicket, importMacro, exportMacro, updateTicket, exportTicketDrilldown, exportConvertCampaignSalesDrilldown) and `params` (job-specific). Optional: `scheduled_datetime` (max 60 min in the future), `meta`. Poll with `gorgias-jobs_get` until the status leaves pending/running.
+        params: []
+        body:
+        - name: params
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: 'The parameters of the job. (example: {''ticket_ids'': [1,
+            2, 3], ''updates'': {''status'': ''open''}})'
+          fields: []
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: |-
+            The type of the job. Options: applyMacro, deleteTicket, exportTicket, importMacro, exportMacro, updateTicket, exportTicketDrilldown, exportConvertCampaignSalesDrilldown (enum: applyMacro, deleteTicket, exportTicket, importMacro, exportMacro, updateTicket, exportTicketDrilldown, exportConvertCampaignSalesDrilldown) (example: updateTicket)
+          fields: []
+        - name: meta
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Metadata associated with the job. You can use this parameter to store structured information (key-value data) about the job. This field is not used by Gorgias. (example: {'description': 'This job closes all tickets created in 2018'})
+          fields: []
+        - name: scheduled_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            When the job was scheduled to be started. A job cannot be scheduled more than 60 minutes in the future. If unspecified, the job is queued for execution immediately after creation. (example: 2019-11-23T16:30:00.966927)
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-job
+          doc_url: https://developers.gorgias.com/reference/create-job
+      delete:
+        method: DELETE
+        path: /jobs/{id}
+        description: Delete a job record by `id`. Useful for cleaning up completed
+          or failed entries from listings; does not cancel an in-flight job's side
+          effects (the work it triggered may already be done).
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /jobs/{id}
+        description: |-
+          Fetch a single async job (`id`) with its status, progress, params, and result/error fields. The polling endpoint after `gorgias-jobs_create` — loop on this until the job is no longer in `pending`/`running`. Required: id.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /jobs
+        description: List async jobs with filters by type, status, and datetime. Use
+          to find a recent export job by an agent or to surface stuck/failed jobs
+          for retry.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /jobs/{id}
+        description: Update an async job (`id`) — typically to cancel it or adjust
+          metadata. Reach for this only when you need to abort a long-running import/export
+          rather than wait for it to complete.
+        params: []
+        body:
+        - name: meta
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Metadata associated with the job. You can use this parameter to store structured information (key-value data) about the job. This field is not used by Gorgias. (example: {'description': 'This job closes all tickets created in 2018'})
+          fields: []
+        - name: params
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'The parameters of the job. (example: {''ticket_ids'': [1,
+            2, 3], ''updates'': {''status'': ''open''}})'
+          fields: []
+        - name: scheduled_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            When the job was scheduled to be started. A job cannot be scheduled more than 60 minutes in the future. If unspecified, the job is queued for execution immediately after creation. (example: 2019-11-23T16:30:00.966927)
+          fields: []
+        - name: status
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The status of the job. Options: cancel_requested, canceled, done, errored, fatal_errored, pending, running, scheduled (enum: cancel_requested, canceled, done, errored, fatal_errored, pending, running, scheduled) (example: canceled)
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-job
+          doc_url: https://developers.gorgias.com/reference/update-job
+  macros:
+    description: Reusable canned-reply templates with variables and actions
+    endpoints:
+      create:
+        method: POST
+        path: /macros
+        description: |-
+          Create a new macro: a reusable reply/action template. Required body: `name`. Optional: `intent`, `language`, `external_id`, and `actions` (array of action objects — this is where reply text, tag adds, status changes, etc. live, including any `{{variable}}` placeholders). Use to codify a common response so humans (and other agents) can apply it later.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'The name of the Macro. Tips: choose a name that can be easily
+            searched. (example: Order status inquiry)'
+          fields: []
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'External ID of the macro in a foreign system. This field is
+            not used by Gorgias, feel free to set it to your own value. (example:
+            CUS-324512)'
+          fields: []
+        - name: intent
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The intention of the macro should be used for. (enum: discount/request,
+            exchange/request, exchange/status, feedback, order/damaged, order/cancel,
+            order/change, order/wrong) (example: discount/request)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The language of the macro in ISO 639-1 format. (example: en)'
+          fields: []
+        - name: actions
+          type: array<MacroAction>
+          required: false
+          positional: false
+          default: null
+          description: 'A list of [actions](#the-macroaction-object) to be applied
+            on tickets. (example: [{''arguments'': {''tags'': ''question, order-status''},
+            ''name'': ''addTags'', ''title''...)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-macro
+          doc_url: https://developers.gorgias.com/reference/create-macro
+      delete:
+        method: DELETE
+        path: /macros/{id}
+        description: 'Delete a macro by `id`. Hard-deletes it from the macro library.
+          Prefer `macros_archive` for soft removal so historical references remain
+          meaningful. Required: id. Destructive.'
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /macros/{id}
+        description: Fetch a single macro by `id`, returning its body, actions, and
+          variable definitions. Use before applying a macro so the agent can preview
+          the rendered text and required variable values.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /macros
+        description: List all macros, with optional filters (archived, name). The
+          agent's discovery endpoint for available canned replies and bulk actions
+          — useful before composing a reply from scratch.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      archive:
+        method: PUT
+        path: /macros/archive
+        description: Archive one or more macros (soft delete) — pass macro IDs in
+          the body. Use this rather than `macros_delete` to preserve history and make
+          the macro reversible via `macros_unarchive`.
+        params: []
+        body:
+        - name: ids
+          type: array<integer>
+          required: true
+          positional: false
+          default: null
+          description: List of macro ids to be archived
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: bulk-archive-macros
+          doc_url: https://developers.gorgias.com/reference/bulk-archive-macros
+      update:
+        method: PUT
+        path: /macros/{id}
+        description: Update a macro (`id`) — edit its body, variables, tags-to-add,
+          or action list. Use when an agent is refining a canned reply or adjusting
+          the side-effects it triggers.
+        params: []
+        body:
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'External ID of the macro in a foreign system. This field is
+            not used by Gorgias, feel free to set it to your own value. (example:
+            CUS-324512)'
+          fields: []
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The name of the Macro. Tips: choose a name that can be easily
+            searched. (example: Order status inquiry)'
+          fields: []
+        - name: intent
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The intention of the macro should be used for. (enum: discount/request,
+            exchange/request, exchange/status, feedback, order/damaged, order/cancel,
+            order/change, order/wrong) (example: discount/request)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The language of the macro in ISO 639-1 format. (example: en)'
+          fields: []
+        - name: actions
+          type: array<MacroAction>
+          required: false
+          positional: false
+          default: null
+          description: 'A list of [actions](#the-macroaction-object) to be applied
+            on tickets. (example: [{''arguments'': {''tags'': ''question, order-status''},
+            ''name'': ''addTags'', ''title''...)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-macro
+          doc_url: https://developers.gorgias.com/reference/update-macro
+      unarchive:
+        method: PUT
+        path: /macros/unarchive
+        description: Unarchive one or more macros, restoring them to the active library.
+          Pass macro IDs in the body. The companion to `macros_archive`.
+        params: []
+        body:
+        - name: ids
+          type: array<integer>
+          required: true
+          positional: false
+          default: null
+          description: List of macro ids to be unarchived
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: bulk-unarchive-macros
+          doc_url: https://developers.gorgias.com/reference/bulk-unarchive-macros
+  messages:
+    description: Read messages across tickets (account-wide listing)
+    endpoints:
+      list:
+        method: GET
+        path: /messages
+        description: |-
+          List messages account-wide, paginated. Supported filters are `ticket_id` only (plus `cursor`, `limit`, `order_by`); no channel/sender/datetime filtering at this endpoint. Prefer `tickets_messages-list` when you already know the ticket id.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+  phone:
+    description: Voice calls, call events, and recorded audio
+    endpoints:
+      call-recordings-delete:
+        method: DELETE
+        path: /phone/voice-call-recordings/{id}
+        description: Delete a stored voice-call recording by `id`. Use to honor a
+          customer privacy/erasure request or to scrub a test recording; the call
+          metadata typically remains, only the audio blob is removed.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      call-events-get:
+        method: GET
+        path: /phone/voice-call-events/{id}
+        description: Fetch a single voice-call event by `id` — events capture call
+          lifecycle (ringing, answered, hung-up, transferred). Use to drill into why
+          a specific call ended a certain way.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      call-recordings-get:
+        method: GET
+        path: /phone/voice-call-recordings/{id}
+        description: Fetch metadata for a single call recording (`id`) — duration,
+          URL, related call/ticket. Pair with `download_get_download` to retrieve
+          the actual audio bytes.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      calls-get:
+        method: GET
+        path: /phone/voice-calls/{id}
+        description: Fetch a single voice call (`id`) with direction, status, duration,
+          participants, and the linked ticket. Use when an agent needs context on
+          a specific phone interaction.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      call-events-list:
+        method: GET
+        path: /phone/voice-call-events
+        description: List voice-call lifecycle events. Documented filter is `call_id`
+          only (plus `cursor`, `limit`). Use to inspect the event timeline for a specific
+          call when debugging routing or hand-off behavior.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      call-recordings-list:
+        method: GET
+        path: /phone/voice-call-recordings
+        description: List voice-call recordings. Documented filter is `call_id` only
+          (plus `cursor`, `limit`). Use to find the recording(s) attached to a specific
+          call before reviewing or transcribing.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      calls-list:
+        method: GET
+        path: /phone/voice-calls
+        description: |-
+          List voice calls, paginated. Documented filter is `ticket_id` only (plus `cursor`, `limit`, `order_by`). Use to surface calls linked to a specific ticket; richer filtering (direction/status/agent) is not exposed here.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+  pickups:
+    description: Delete pickup logistics records (single destructive endpoint)
+    endpoints:
+      delete:
+        method: DELETE
+        path: /pickups/{id}
+        description: Delete a pickup record by `id`. Counterpart to `pickups_create_pickups`;
+          use to cancel or remove a stale logistics pickup entry.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+  reporting:
+    description: Run a Gorgias analytics query (POST /reporting/stats)
+    endpoints:
+      stats:
+        method: POST
+        path: /reporting/stats
+        description: |-
+          Run a Gorgias analytics query: POST a JSON body with `metric`, `dimensions`, `filters`, and a `period`. The single endpoint for dashboards and report-style questions like 'tickets resolved by team last week' or 'first-response time by channel'.
+        params:
+        - name: cursor
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Value indicating your position in the list of all analytics
+            results. If omitted, the first analytics results of the list will be returned.
+          fields: []
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: Maximum number of analytics results to return.
+          fields: []
+        body:
+        - name: query
+          type: oneOf
+          required: true
+          positional: false
+          default: null
+          description: The statistics query, dependent on the requested metric.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+  rules:
+    description: Automation rules: route, tag, auto-reply, escalate on incoming tickets
+    endpoints:
+      set-priorities:
+        method: POST
+        path: /rules/priorities
+        description: |-
+          Set the execution priorities of automation rules. Required body: `priorities` — an array of objects mapping rule ids to their new priority value. Use after adding/reordering rules so they short-circuit in the intended order.
+        params:
+        - name: priorities
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body:
+        - name: priorities
+          type: array<object>
+          required: true
+          positional: false
+          default: null
+          description: A list of rule IDs with their new priorities.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-rules-priorities
+          doc_url: https://developers.gorgias.com/reference/update-rules-priorities
+      create:
+        method: POST
+        path: /rules
+        description: |-
+          Create a new automation rule. Required body: `name` and `code` (the rule logic written as JavaScript). Optional: `event_types` (e.g. ticket-created, ticket-updated), `priority`, `description`, `code_ast` (ESTree AST). Use to codify a workflow that the helpdesk evaluates on events; the conditions and actions are both expressed inside the JavaScript `code` string, not as a structured tree.
+        params: []
+        body:
+        - name: code
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: "The logic of the rule (as JavaScript code). (example: \nif\
+            \ (eq(ticket.from_agent, false) && eq(ticket.status, 'open')) {\n    if\
+            \ (con...)"
+          fields: []
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'The name of the rule. (example: Auto-close all tickets from
+            Amazon)'
+          fields: []
+        - name: code_ast
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The logic of the rule (as an ESTree [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree) representation). Generated from the code if not specified. (example: {'loc': {'start': {'line': 2, 'column': 0}, 'end': {'line': 10, 'column': 1}}...)
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the rule was deactivated. (example: 2019-11-28T15:59:41.966927)'
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The description of the rule. (example: Automatically close
+            all tickets from Amazon because there is nothing to do fo...)'
+          fields: []
+        - name: event_types
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: |-
+            A list of comma separated events that this rule will be executed on. (enum: ticket-created, ticket-updated, ticket-message-created, ticket-assigned, ticket-self-unsnoozed, satisfaction-survey-responded) (example: ticket-created,ticket-updated)
+          fields: []
+        - name: priority
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order of execution of the rule. Rules with higher priorities
+            are executed first. (example: 100)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-rule
+          doc_url: https://developers.gorgias.com/reference/create-rule
+      delete:
+        method: DELETE
+        path: /rules/{id}
+        description: Delete an automation rule by `id`. Stops the rule from firing
+          on future tickets but does not undo past actions. Use when retiring obsolete
+          workflow logic.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /rules/{id}
+        description: Fetch a single automation rule (`id`) with its full conditions/actions
+          tree and enabled state. Use to inspect why a ticket was auto-modified or
+          before tweaking rule logic.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /rules
+        description: |-
+          List all automation rules with their order, enabled state, and summary. The agent's map of what automations are currently shaping tickets, useful before adding new logic or diagnosing unexpected behavior.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /rules/{id}
+        description: Update an automation rule (`id`) — edit conditions, actions,
+          or enabled flag. Use to tune an existing workflow rather than deleting and
+          recreating it.
+        params: []
+        body:
+        - name: code
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: "The logic of the rule (as JavaScript code). (example: \nif\
+            \ (eq(ticket.from_agent, false) && eq(ticket.status, 'open')) {\n    if\
+            \ (con...)"
+          fields: []
+        - name: code_ast
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The logic of the rule (as an ESTree [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree) representation). Generated from the code if not specified. (example: {'loc': {'start': {'line': 2, 'column': 0}, 'end': {'line': 10, 'column': 1}}...)
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the rule was deactivated. (example: 2019-11-28T15:59:41.966927)'
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The description of the rule. (example: Automatically close
+            all tickets from Amazon because there is nothing to do fo...)'
+          fields: []
+        - name: event_types
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: |-
+            A list of comma separated events that this rule will be executed on. (enum: ticket-created, ticket-updated, ticket-message-created, ticket-assigned, ticket-self-unsnoozed, satisfaction-survey-responded) (example: ticket-created,ticket-updated)
+          fields: []
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The name of the rule. (example: Auto-close all tickets from
+            Amazon)'
+          fields: []
+        - name: priority
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order of execution of the rule. Rules with higher priorities
+            are executed first. (example: 100)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-rule
+          doc_url: https://developers.gorgias.com/reference/update-rule
+  satisfaction-surveys:
+    description: CSAT survey definitions and customer ratings/comments
+    endpoints:
+      create:
+        method: POST
+        path: /satisfaction-surveys
+        description: |-
+          Create a satisfaction-survey instance attached to one ticket and customer. Required body: `customer_id`, `ticket_id`. Optional: `score` (1–5), `body_text` (customer comment), `should_send_datetime` (set to `null` to skip sending). Use to manually attach or backfill a CSAT result on a ticket — NOT to define a reusable survey template (Gorgias's CSAT templates are managed via integrations/settings, not this endpoint).
+        params: []
+        body:
+        - name: customer_id
+          type: integer
+          required: true
+          positional: false
+          default: null
+          description: 'The ID of the customer who filled the survey. (example: 120)'
+          fields: []
+        - name: ticket_id
+          type: integer
+          required: true
+          positional: false
+          default: null
+          description: 'The ID of the ticket the survey is associated with. (example:
+            12)'
+          fields: []
+        - name: body_text
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The comment sent by the customer. (example: Such speed, much
+            pertinent.)'
+          fields: []
+        - name: created_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was created. (example: 2019-11-16T15:59:41.966927)'
+          fields: []
+        - name: meta
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Data associated with the satisfaction survey. You can use this parameter to store structured information (key-value data) about the satisfaction survey. This field is not used by Gorgias. (example: {'externalData': {'id': 1234}})
+          fields: []
+        - name: score
+          type: integer|null
+          required: false
+          positional: false
+          default: null
+          description: 'The level of satisfaction. Scores range from 1 to 5. (example:
+            2)'
+          fields: []
+        - name: scored_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was filled by the customer. (example: 2019-11-25T15:59:41.966927)'
+          fields: []
+        - name: sent_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was sent. If is not set it means that it was
+            not sent yet. (example: 2019-11-23T15:59:41.966927)'
+          fields: []
+        - name: should_send_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey should be sent. If not set then the survey
+            will not be sent by Gorgias. (example: 2019-11-23T15:59:41.966927)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-satisfaction-survey
+          doc_url: https://developers.gorgias.com/reference/create-satisfaction-survey
+      get:
+        method: GET
+        path: /satisfaction-surveys/{id}
+        description: 'Fetch a single satisfaction-survey instance by `id` — the linked
+          ticket/customer, score, customer comment, and send/score timestamps. Use
+          to read the CSAT result for a specific ticket. Required: id.'
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /satisfaction-surveys
+        description: |-
+          List satisfaction-survey instances (each one tied to a single ticket). Filter with `ticket_id` to fetch the survey for one ticket, or paginate via `cursor`/`limit`. Use for CSAT reporting and to surface scores per ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /satisfaction-surveys/{id}
+        description: |-
+          Update a satisfaction-survey instance (`id`) — typically to record/correct the customer's `score` (1–5), `body_text`, or to schedule/cancel its send via `should_send_datetime`. There is no template wording or trigger logic at this endpoint. Required: id.
+        params: []
+        body:
+        - name: body_text
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The comment sent by the customer. (example: Such speed, much
+            pertinent.)'
+          fields: []
+        - name: created_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was created. (example: 2019-11-16T15:59:41.966927)'
+          fields: []
+        - name: customer_id
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'The ID of the customer who filled the survey. (example: 120)'
+          fields: []
+        - name: meta
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Data associated with the satisfaction survey. You can use this parameter to store structured information (key-value data) about the satisfaction survey. This field is not used by Gorgias. (example: {'externalData': {'id': 1234}})
+          fields: []
+        - name: score
+          type: integer|null
+          required: false
+          positional: false
+          default: null
+          description: 'The level of satisfaction. Scores range from 1 to 5. (example:
+            2)'
+          fields: []
+        - name: scored_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was filled by the customer. (example: 2019-11-25T15:59:41.966927)'
+          fields: []
+        - name: sent_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey was sent. If is not set it means that it was
+            not sent yet. (example: 2019-11-23T15:59:41.966927)'
+          fields: []
+        - name: should_send_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the survey should be sent. If not set then the survey
+            will not be sent by Gorgias. (example: 2019-11-23T15:59:41.966927)'
+          fields: []
+        - name: ticket_id
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'The ID of the ticket the survey is associated with. (example:
+            12)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-satisfaction-survey
+          doc_url: https://developers.gorgias.com/reference/update-satisfaction-survey
+  ticket-search:
+    description: Search across tickets, customers, messages, etc.
+    endpoints:
+      query:
+        method: POST
+        path: /search
+        description: |-
+          Full-text search across Gorgias tickets, customers, and messages. POST a JSON body with `query`, `resource_type`, and optional `filters`. The agent-friendly path to find a prior conversation by topic or customer email when you only have natural-language search terms.
+        params: []
+        body:
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'The type of search. Supported types: (enum: agent, customer,
+            customer_profile, customer_channel, customer_channel_email, customer_channel_phone,
+            customers_by_phone, integration) (example: agent)'
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Text query used to search for resources. (example: customer-lookup-placeholder)'
+          fields: []
+        - name: size
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Maximum number of results returned. (example: 10)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: search
+          doc_url: https://developers.gorgias.com/reference/search
+  tags:
+    description: Ticket tags — the labels that drive routing rules and reporting
+    endpoints:
+      create:
+        method: POST
+        path: /tags
+        description: |-
+          Create a new tag in the account's tag library. Body: `name` (required, max 256 chars, case-sensitive), `description` (optional, max 1024), `decoration` (optional, styling object). Use when the agent needs a new label that doesn't exist yet — prefer reusing an existing tag where possible.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Name of the tag. Tags'' names are case sensitive. (example:
+            urgent)'
+          fields: []
+        - name: decoration
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: Information related to the style of the tag.
+          fields: []
+        - name: description
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Short description of the tag. (example: Mark a ticket as urgent)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-tag
+          doc_url: https://developers.gorgias.com/reference/create-tag
+      delete:
+        method: DELETE
+        path: /tags/{id}
+        description: Delete a tag by `id`. Removes it from the library and unassociates
+          it from every ticket/customer that carries it. Destructive — prefer merging
+          into another tag if you want to preserve history.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      delete-all:
+        method: DELETE
+        path: /tags
+        description: |-
+          Bulk-delete tags. Required body: `ids` (array of tag IDs, min 1). Tags currently referenced by macros or rules cannot be deleted, and views using them will be deactivated. Reserve for housekeeping; destructive.
+        params: []
+        body:
+        - name: ids
+          type: array<integer>
+          required: true
+          positional: false
+          default: null
+          description: 'IDs of the tags to delete (example: [123, 456, 789])'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: delete-tags
+          doc_url: https://developers.gorgias.com/reference/delete-tags
+      get:
+        method: GET
+        path: /tags/{id}
+        description: Fetch a single tag (`id`) with its name, decoration, and metadata.
+          Use to verify a tag exists before applying it, or to read its display style.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /tags
+        description: List all tags in the account, optionally filtered by name. The
+          agent's lookup endpoint for finding the right existing tag (and avoiding
+          duplicates) before tagging a ticket or customer.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      merge:
+        method: PUT
+        path: /tags/{id}/merge
+        description: |-
+          Merge other tags INTO this tag — path `{id}` is the destination (surviving) tag, and the body field `source_tags_ids` (array of integer IDs) lists the source tags to be merged and deleted. Use to consolidate duplicate or near-duplicate labels. Required: id.
+        params: []
+        body:
+        - name: source_tags_ids
+          type: array<integer>
+          required: true
+          positional: false
+          default: null
+          description: 'IDs of the tags that will be merged into the destination tag.
+            (example: [123, 456, 789])'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: merge-tags
+          doc_url: https://developers.gorgias.com/reference/merge-tags
+      update:
+        method: PUT
+        path: /tags/{id}
+        description: Update a tag (`id`) — rename it or change its color/decoration.
+          Affects every record currently carrying the tag, so use carefully on widely-applied
+          labels.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Name of the tag. Tags'' names are case sensitive. (example:
+            urgent)'
+          fields: []
+        - name: description
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Short description of the tag. (example: Mark a ticket as urgent)'
+          fields: []
+        - name: decoration
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: Information related to the style of the tag.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-tag
+          doc_url: https://developers.gorgias.com/reference/update-tag
+  teams:
+    description: Agent teams: how tickets are grouped and routed for assignment
+    endpoints:
+      create:
+        method: POST
+        path: /teams
+        description: Create a new team (group of agents) in the account. Pass `name`
+          and optionally members. Use when organizing routing or stats by squad —
+          e.g. 'Tier-1 Support', 'Billing'.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Name of the team. (example: Warehouse team)'
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: Longer description of the team.
+          fields: []
+        - name: decoration
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: Object describing how the team appears on the webpage. Currently
+            only supports `emoji` field that shows before the team's name.
+          fields: []
+        - name: members
+          type: array<object>
+          required: false
+          positional: false
+          default: null
+          description: The list of users within the team.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-team
+          doc_url: https://developers.gorgias.com/reference/create-team
+      delete:
+        method: DELETE
+        path: /teams/{id}
+        description: Delete a team by `id`. Removes it from routing rules and views;
+          members remain but lose the team grouping. Use when retiring a squad structure.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /teams/{id}
+        description: Fetch a single team (`id`) with its members and metadata. Use
+          when an agent needs to know who's on a team before assigning or escalating
+          a ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /teams
+        description: List all teams in the account. The agent's lookup for valid team
+          IDs/names when assigning a ticket, routing via a rule, or filtering reports.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /teams/{id}
+        description: Update a team (`id`) — rename it or change its membership. Use
+          to reorganize agents or correct a misconfigured team.
+        params: []
+        body:
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Name of the team. (example: Warehouse team)'
+          fields: []
+        - name: description
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: Longer description of the team.
+          fields: []
+        - name: decoration
+          type: object|null
+          required: false
+          positional: false
+          default: null
+          description: Object describing how the team appears on the webpage. Currently
+            only supports `emoji` field that shows before the team's name.
+          fields: []
+        - name: members
+          type: array<object>
+          required: false
+          positional: false
+          default: null
+          description: The list of users within the team.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-team
+          doc_url: https://developers.gorgias.com/reference/update-team
+  tickets:
+    description: Read and write Gorgias tickets, messages, and tag assignments
+    endpoints:
+      messages-create:
+        method: POST
+        path: /tickets/{id}/messages
+        description: |-
+          Post a new message on ticket (`id`) — used to reply to the customer or write an internal note. The body distinguishes public ('outgoing' to channel) from internal ('internal-note') via fields like `sender`, `channel`, `via`, and `body_html`/`body_text`. Reach for this when the agent decides to respond.
+        params:
+        - name: action
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Policy applied on external actions associated with the message
+            if they failed.
+          fields: []
+        body:
+        - name: channel
+          type: LegacyChannelSlug|string
+          required: true
+          positional: false
+          default: null
+          description: Channel used to send the message
+          fields: []
+        - name: from_agent
+          type: boolean
+          required: true
+          positional: false
+          default: null
+          description: Whether the message was sent by your company
+          fields: []
+        - name: actions
+          type: array
+          required: false
+          positional: false
+          default: null
+          description: Actions associated with the message
+          fields: []
+        - name: attachments
+          type: array<CreateMessageAttachment>
+          required: false
+          positional: false
+          default: null
+          description: Attachments associated with the message
+          fields: []
+        - name: body_html
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: HTML version of the body of the message
+          fields: []
+        - name: body_text
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Text version of the body of the message
+          fields: []
+        - name: created_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the message was created
+          fields: []
+        - name: deleted_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the message was deleted
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ID of the message in a foreign system (Aircall, Zendesk, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish.
+          fields: []
+        - name: failed_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the message failed to be sent. Messages that couldn't
+            be sent can be resent.
+          fields: []
+        - name: headers
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: Headers of the message
+          fields: []
+        - name: integration_id
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ID of the Integration used to send the message
+          fields: []
+        - name: last_sending_error
+          type: object<CreateMessageLastSendingError>
+          required: false
+          positional: false
+          default: null
+          description: Details of the last error encountered when Gorgias attempted
+            to send the message
+          fields: []
+        - name: macros
+          type: array<CreateMessageMacro>
+          required: false
+          positional: false
+          default: null
+          description: Macros used to compose the message
+          fields: []
+        - name: message_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ID of the message on the service that sent the message. It
+            can be the ID of an email, a Messenger message, a Facebook comment, etc...
+          fields: []
+        - name: meta
+          type: object<CreateMessageMeta>
+          required: false
+          positional: false
+          default: null
+          description: Metadata associated with the ticket message. You can use this
+            field to store structured information (key-value data) about the ticket
+            message.
+          fields: []
+        - name: opened_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the message was seen by its recipient
+          fields: []
+        - name: public
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the message is public. Only internal notes are private.
+          fields: []
+        - name: sent_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the message was sent. If omitted, the message will be
+            sent by Gorgias.
+          fields: []
+        - name: source
+          type: object<CreateMessageSource>
+          required: false
+          positional: false
+          default: null
+          description: Information used to route the message. It contains the names
+            and the addresses of the sender and receivers.
+          fields: []
+        - name: stripped_html
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: HTML version of the body of the message without email signatures
+            and previous replies.
+          fields: []
+        - name: stripped_signature
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Signature stripped from the body of the message
+          fields: []
+        - name: stripped_text
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Text version of the body of the message without email signatures
+            and previous replies.
+          fields: []
+        - name: subject
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Subject of the message
+          fields: []
+        - name: via
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'How the message has been received or sent from Gorgias (enum:
+            aircall, api, chat, contact_form, email, facebook, facebook-mention, facebook-messenger)'
+          fields: []
+        - name: imported
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the message was created by a historical import.
+          fields: []
+        - name: mention_ids
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: List of User IDs to mention along with the internal note.
+          fields: []
+        - name: receiver
+          type: object<CreateMessageCustomerOrUser>
+          required: false
+          positional: false
+          default: null
+          description: Primary receiver of the message. It can be a user or a customer.
+            Optional when the source type is "internal-note".
+          fields: []
+        - name: sender
+          type: object<CreateMessageCustomerOrUser>
+          required: false
+          positional: false
+          default: null
+          description: Person who sent the message. It can be a user or a customer.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-ticket-message
+          doc_url: https://developers.gorgias.com/reference/create-ticket-message
+      tags-add:
+        method: POST
+        path: /tickets/{id}/tags
+        description: |-
+          Add one or more tags to ticket (`id`). The body shape (tag IDs vs names; whether unknown names auto-create) is not confirmed against the dev docs — verify before relying on auto-create behavior. Use to categorize a ticket once the agent identifies its topic. Required: id.
+        params: []
+        body:
+        - name: names
+          type: array<string>
+          required: false
+          positional: false
+          default: null
+          description: 'The names of the tags. (example: [''refund'', ''billing''])'
+          fields: []
+        - name: ids
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'The IDs of the tags. (example: [12, 34])'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-ticket-tags
+          doc_url: https://developers.gorgias.com/reference/create-ticket-tags
+      create:
+        method: POST
+        path: /tickets
+        description: |-
+          Create a new ticket. Body specifies `channel`, `via`, `subject`, an initial `messages` array, the customer, and optional assignee/tags/status. Use when the agent is opening a fresh conversation rather than replying to an existing one.
+        params: []
+        body:
+        - name: messages
+          type: array<CreateTicketMessage>
+          required: true
+          positional: false
+          default: null
+          description: Messages of the ticket
+          fields: []
+        - name: assignee_team
+          type: object<CreateTicketAssignee>
+          required: false
+          positional: false
+          default: null
+          description: 'Team assigned to the ticket (example: {})'
+          fields: []
+        - name: assignee_user
+          type: object<CreateTicketAssignee>
+          required: false
+          positional: false
+          default: null
+          description: 'User assigned to this ticket (example: {})'
+          fields: []
+        - name: channel
+          type: LegacyChannelSlug|string
+          required: false
+          positional: false
+          default: null
+          description: 'Channel used to initiate the conversation with the customer
+            (example: email)'
+          fields: []
+        - name: closed_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was closed
+          fields: []
+        - name: created_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was created
+          fields: []
+        - name: custom_fields
+          type: array<CreateTicketCustomField>
+          required: false
+          positional: false
+          default: null
+          description: Custom fields associated with the ticket
+          fields: []
+        - name: customer
+          type: object<CreateTicketCustomer>
+          required: false
+          positional: false
+          default: null
+          description: Customer associated with the ticket
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ID of the ticket in a foreign system. This field is not used
+            by Gorgias, feel free to set it as you wish.
+          fields: []
+        - name: from_agent
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the first message of the ticket was sent by your company
+            to a customer, or the opposite
+          fields: []
+        - name: language
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Language primarily used in the ticket. The language is automatically detected on the first messages by Gorgias if not set explicitly. Once the language has been set, it won't be updated according to future messages.
+          fields: []
+        - name: last_message_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the last message was sent
+          fields: []
+        - name: last_received_message_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the last customer's message was received
+          fields: []
+        - name: meta
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: Metadata associated with the ticket. You can use this field to
+            store structured information (key-value data) about the ticket
+          fields: []
+        - name: opened_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was opened for the first time by a User
+          fields: []
+        - name: priority
+          type: object<TicketPriority>
+          required: false
+          positional: false
+          default: null
+          description: Priority of the ticket
+          fields: []
+        - name: snooze_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket will be re-opened automatically
+          fields: []
+        - name: spam
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the ticket is considered as spam
+          fields: []
+        - name: split_from
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ID of the ticket that this ticket was split from.
+          fields: []
+        - name: status
+          type: object<TicketStatus>
+          required: false
+          positional: false
+          default: null
+          description: The status of the ticket
+          fields: []
+        - name: subject
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Subject of the ticket
+          fields: []
+        - name: tags
+          type: array<CreateTicketTag>
+          required: false
+          positional: false
+          default: null
+          description: The tags associated with the ticket
+          fields: []
+        - name: trashed_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was moved to the trash
+          fields: []
+        - name: updated_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was lastly updated
+          fields: []
+        - name: via
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'How the first message of the ticket has been received or sent
+            from Gorgias (enum: aircall, api, chat, contact_form, email, facebook,
+            facebook-mention, facebook-messenger)'
+          fields: []
+        - name: imported
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the ticket was created by a historical import. When
+            set to true, the ticket and all its messages are flagged as imported.
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-ticket
+          doc_url: https://developers.gorgias.com/reference/create-ticket
+      custom-fields-unset:
+        method: DELETE
+        path: /tickets/{ticket_id}/custom-fields/{id}
+        description: 'Clear a custom field value on a ticket: first `{id}` is the
+          ticket, second `{id}` is the custom field. Unsets (does not delete the schema)
+          — use to revert an incorrectly auto-populated value.'
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      messages-delete:
+        method: DELETE
+        path: /tickets/{ticket_id}/messages/{id}
+        description: 'Delete a message from a ticket: first `{id}` is the ticket,
+          second `{id}` is the message. Use sparingly — typically only to scrub a
+          message containing sensitive data or an accidental send.'
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      tags-remove:
+        method: DELETE
+        path: /tickets/{id}/tags
+        description: Remove tags from ticket (`id`). Pass the tag IDs/names to detach.
+          Use when re-categorizing a ticket or undoing an over-eager auto-tag.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      delete:
+        method: DELETE
+        path: /tickets/{id}
+        description: Delete a ticket by `id`. Hard-deletes the conversation and its
+          messages — reserve for GDPR erasure, spam, or accidental tickets. Most workflows
+          prefer setting status to `closed` instead.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      custom-fields-list:
+        method: GET
+        path: /tickets/{id}/custom-fields
+        description: List every custom field value on ticket (`id`). Use to read structured
+          metadata an agent or integration attached (e.g. RMA number, refund reason)
+          before composing context-aware replies.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      messages-list:
+        method: GET
+        path: /tickets/{id}/messages
+        description: |-
+          List all messages on ticket (`id`) in chronological order — both customer-sent and agent-sent, public and internal notes. The agent's primary read endpoint for understanding the full conversation context.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      messages-get:
+        method: GET
+        path: /tickets/{ticket_id}/messages/{id}
+        description: 'Fetch a single message: first `{id}` is the ticket, second `{id}`
+          is the message. Use to load full body and attachment details for a specific
+          entry without pulling the whole thread.'
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      tags-list:
+        method: GET
+        path: /tickets/{id}/tags
+        description: List the tags currently attached to ticket (`id`). Use to read
+          the ticket's categorization before deciding what additional tags to add
+          or what rule branch to take.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /tickets/{id}
+        description: |-
+          Fetch a single ticket by `id` with status, channel, assignee, customer, tags, and summary fields. Use after identifying a ticket (via search/list) to load core context before reading messages or replying.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /tickets
+        description: |-
+          List tickets with filters (status, assignee, customer, channel, datetime, tag). The agent's primary endpoint for queue scans like 'open tickets assigned to me' or 'all tickets for customer X'; prefer search for natural-language queries.
+        params:
+        - name: customer_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      custom-fields-set:
+        method: PUT
+        path: /tickets/{ticket_id}/custom-fields/{id}
+        description: |-
+          Set a single custom field value on a ticket: first `{id}` is the ticket, second `{id}` is the custom field. Use to write a structured attribute (e.g. refund amount, order number) onto a specific ticket.
+        params:
+        - name: id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: value
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: oneOf(string|integer|boolean)
+          operation_id: update-ticket-custom-field
+          doc_url: https://developers.gorgias.com/reference/update-ticket-custom-field
+      custom-fields-set-all:
+        method: PUT
+        path: /tickets/{id}/custom-fields
+        description: Bulk-set custom field values on ticket (`id`) — pass an array
+          of field/value pairs. Preferred when an agent needs to write several structured
+          attributes at once after triaging a ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: array<UpdateTicketCustomFieldValue>
+          operation_id: update-ticket-custom-fields
+          doc_url: https://developers.gorgias.com/reference/update-ticket-custom-fields
+      messages-update:
+        method: PUT
+        path: /tickets/{ticket_id}/messages/{id}
+        description: |-
+          Update a message: first `{id}` is the ticket, second `{id}` is the message. Typically used to edit an internal note's body or correct a draft; channel-delivered messages may be immutable depending on channel.
+        params:
+        - name: action
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Policy applied on external actions associated with the message
+            if they failed.
+          fields: []
+        body:
+        - name: channel
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'The channel used to send the message. (enum: aircall, api,
+            chat, contact_form, email, facebook, facebook-mention, facebook-messenger)
+            (example: email)'
+          fields: []
+        - name: from_agent
+          type: boolean
+          required: true
+          positional: false
+          default: null
+          description: 'Whether the message was sent by your company to a customer,
+            or the opposite. (example: True)'
+          fields: []
+        - name: attachments
+          type: array<object>
+          required: false
+          positional: false
+          default: null
+          description: 'A list of files attached to the message. (example: [])'
+          fields: []
+        - name: body_html
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The full HTML version of the body of the message, if any. (example: Hello,<br><br>
+
+                    I can't place an order on your site, it says: I don't...)
+          fields: []
+        - name: body_text
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            The full text version of the body of the message, if any. (example: Hello,
+
+                    I can't place an order on your site, it says: I don't have en...)
+          fields: []
+        - name: external_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the message in a foreign system (Aircall, Zendesk, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            MSG-78545)'
+          fields: []
+        - name: failed_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: When the message failed to be sent. Messages that couldn't
+            be sent can be resend.
+          fields: []
+        - name: message_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the message on the service that send the message.It
+            can be the ID of an email, a Messenger message, a Facebook comment, etc...
+            (example: <123345676453.2445.234@web>)'
+          fields: []
+        - name: receiver
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'The primary receiver of the message. It can be a user or a
+            customer. Optional when the source type is "internal-note". (example:
+            {''id'': 8})'
+          fields: []
+        - name: sender
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'The person who sent the message. It can be a user or a customer.
+            (example: {''id'': 93})'
+          fields: []
+        - name: sent_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: When the message was sent. If ommited, the message will be
+            sent by Gorgias.
+          fields: []
+        - name: source
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'Information used to route the message. It contains the names
+            and the addresses of the sender and receivers. (example: {''type'': ''email'',
+            ''from'': {''id'': 7, ''name'': ''Sender Doe'', ''address'': ''sender@...)'
+          fields: []
+        - name: subject
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The subject of the message. (example: Re:Refund request)'
+          fields: []
+        - name: via
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'How the message has been received, or sent from Gorgias. (enum:
+            aircall, api, chat, contact_form, email, facebook, facebook-mention, facebook-messenger)
+            (example: api)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-ticket-message
+          doc_url: https://developers.gorgias.com/reference/update-ticket-message
+      tags-replace:
+        method: PUT
+        path: /tickets/{id}/tags
+        description: Replace ticket (`id`)'s entire tag set with the supplied list.
+          Use for full re-tagging; for additive/subtractive changes prefer the `create_tags`
+          / `delete_tags` ticket endpoints.
+        params: []
+        body:
+        - name: names
+          type: array<string>
+          required: false
+          positional: false
+          default: null
+          description: 'The names of the tags. (example: [''refund'', ''billing''])'
+          fields: []
+        - name: ids
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'The IDs of the tags. (example: [12, 34])'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-ticket-tags
+          doc_url: https://developers.gorgias.com/reference/update-ticket-tags
+      update:
+        method: PUT
+        path: /tickets/{id}
+        description: |-
+          Update a ticket (`id`) — change status (`open`/`closed`/`resolved`), assignee, priority, subject, or `via`. The workhorse for state transitions: closing after resolution, reassigning to a team, escalating priority.
+        params: []
+        body:
+        - name: assignee_team
+          type: object<UpdateTicketAssigneeTeam>
+          required: false
+          positional: false
+          default: null
+          description: The team to assign to the ticket
+          fields: []
+        - name: assignee_user
+          type: object<UpdateTicketAssigneeUser>
+          required: false
+          positional: false
+          default: null
+          description: The user to assign to the ticket
+          fields: []
+        - name: channel
+          type: LegacyChannelSlug|string
+          required: false
+          positional: false
+          default: null
+          description: Channel used to initiate the conversation with the customer
+          fields: []
+        - name: closed_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was closed
+          fields: []
+        - name: custom_fields
+          type: array<UpdateTicketCustomField>
+          required: false
+          positional: false
+          default: null
+          description: Custom fields associated with the ticket
+          fields: []
+        - name: customer
+          type: object<UpdateTicketCustomer>
+          required: false
+          positional: false
+          default: null
+          description: Customer associated with the ticket
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ID of the ticket in a foreign system. This field is not used
+            by Gorgias, feel free to set it as you wish.
+          fields: []
+        - name: from_agent
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the first message of the ticket was sent by your company
+            to a customer, or the opposite
+          fields: []
+        - name: is_unread
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Mark the ticket as read/unread
+          fields: []
+        - name: language
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Language primarily used in the ticket
+          fields: []
+        - name: last_message_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the last message was sent
+          fields: []
+        - name: last_received_message_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the last customer's message was received
+          fields: []
+        - name: meta
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: Metadata associated with the ticket. You can use this field to
+            store structured information (key-value data) about the ticket
+          fields: []
+        - name: opened_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Priority of the ticket
+          fields: []
+        - name: priority
+          type: object<TicketPriority>
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: snooze_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket will be re-opened automatically
+          fields: []
+        - name: spam
+          type: boolean
+          required: false
+          positional: false
+          default: null
+          description: Whether the ticket is considered as spam
+          fields: []
+        - name: status
+          type: object<TicketStatus>
+          required: false
+          positional: false
+          default: null
+          description: Status of the ticket
+          fields: []
+        - name: subject
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Subject of the ticket
+          fields: []
+        - name: tags
+          type: array<UpdateTicketTag>
+          required: false
+          positional: false
+          default: null
+          description: Tags of the ticket
+          fields: []
+        - name: trashed_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: A datetime will move the ticket to the trash, `null` will move
+            the ticket out of the trash
+          fields: []
+        - name: updated_datetime
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: When the ticket was lastly updated
+          fields: []
+        - name: via
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'How the first message of the ticket has been received or sent
+            from Gorgias (enum: aircall, api, chat, contact_form, email, facebook,
+            facebook-mention, facebook-messenger)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-ticket
+          doc_url: https://developers.gorgias.com/reference/update-ticket
+  users:
+    description: Agents and admin users on the Gorgias account
+    endpoints:
+      create:
+        method: POST
+        path: /users
+        description: Create a new user (Gorgias agent/operator). Pass name, email,
+          role, and optionally team memberships. Use when provisioning a new support
+          agent — typically an admin-only operation.
+        params: []
+        body:
+        - name: email
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Email address of the user. `password_confirmation` field must
+            be provided to change the email. (example: staff-email-placeholder)'
+          fields: []
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Full name of the user. (example: Steve Frazelli)'
+          fields: []
+        - name: role
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: 'The role of the user. (example: {''name'': ''admin''})'
+          fields: []
+        - name: bio
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Short biography of the user. (example: Full stack developer
+            at Gorgias)'
+          fields: []
+        - name: country
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Country of the user (example: FR)'
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the user in a foreign system (Stripe, Aircall, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            user-84203241)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: ' (enum: fr, en)'
+          fields: []
+        - name: meta
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Data associated with the user. You can use this field to store structured information (key-value data) about the user. (example: {'avatar_url': 'https://avatars.example.com/steve-profile.jpeg', 'position': ...)
+          fields: []
+        - name: timezone
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ' (enum: Africa/Abidjan, Africa/Accra, Africa/Addis_Ababa,
+            Africa/Algiers, Africa/Asmara, Africa/Asmera, Africa/Bamako, Africa/Bangui)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-user
+          doc_url: https://developers.gorgias.com/reference/create-user
+      delete:
+        method: DELETE
+        path: /users/{id}
+        description: Delete a user (`id`) — deactivates the agent account and removes
+          them from routing. Their historical ticket activity remains. Reach for this
+          when an agent leaves the org.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /users/{id}
+        description: Fetch a single user (`id`) — agent name, email, role, teams,
+          status. Use to look up who an assignee is or to verify a user's role before
+          assigning sensitive tickets.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /users
+        description: List users (Gorgias agents/operators) on the account, with filters
+          for role, status, and team. The agent's lookup endpoint for valid assignee
+          IDs before reassigning or routing a ticket.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /users/{id}
+        description: Update a user (`id`) — change role, name, team membership, or
+          active state. Use for admin operations like promoting an agent to lead or
+          moving someone between teams.
+        params: []
+        body:
+        - name: bio
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Short biography of the user. (example: Full stack developer
+            at Gorgias)'
+          fields: []
+        - name: country
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Country of the user (example: FR)'
+          fields: []
+        - name: email
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Email address of the user. `password_confirmation` field must
+            be provided to change the email. (example: staff-email-placeholder)'
+          fields: []
+        - name: external_id
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'ID of the user in a foreign system (Stripe, Aircall, etc...).
+            This field is not used by Gorgias, feel free to set it as you wish. (example:
+            user-84203241)'
+          fields: []
+        - name: language
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'Language of the user. (enum: fr, en) (example: fr)'
+          fields: []
+        - name: meta
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: |-
+            Data associated with the user. You can use this field to store structured information (key-value data) about the user. (example: {'avatar_url': 'https://avatars.example.com/steve-profile.jpeg', 'position': ...)
+          fields: []
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Full name of the user. (example: Steve Frazelli)'
+          fields: []
+        - name: new_password
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'New password of the user. `old_password` field must be provided
+            when changing the password. (example: NewPassword6502!)'
+          fields: []
+        - name: old_password
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Current password of the user. (example: OldPassword5031!)'
+          fields: []
+        - name: password_confirmation
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Current password of the user. (example: OldPassword5031!)'
+          fields: []
+        - name: role
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'The role of the user. (example: {''name'': ''admin''})'
+          fields: []
+        - name: timezone
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Timezone of the user. (enum: Africa/Abidjan, Africa/Accra,
+            Africa/Addis_Ababa, Africa/Algiers, Africa/Asmara, Africa/Asmera, Africa/Bamako,
+            Africa/Bangui) (example: US/Pacific)'
+          fields: []
+        - name: two_fa_code
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-user
+          doc_url: https://developers.gorgias.com/reference/update-user
+  views:
+    description: Saved Gorgias inbox views (named filters used by agents)
+    endpoints:
+      create:
+        method: POST
+        path: /views
+        description: |-
+          Create a saved view — a filtered ticket list (e.g. 'My open tickets', 'Urgent + unassigned') defined by status/tag/assignee/channel criteria. Use when an agent is asked to materialize a recurring query as a reusable filter.
+        params: []
+        body:
+        - name: slug
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'DEPRECATED - URL-compatible name of the view. (example: my-tickets)'
+          fields: []
+        - name: decoration
+          type: object<ViewDecoration>
+          required: false
+          positional: false
+          default: null
+          description: 'Object describing how the view appears in our applications.
+            Currently only supports `emoji` field that shows before the view''s name.
+            (example: {''emoji'': ''🙏''})'
+          fields: []
+        - name: fields
+          type: array<ViewField>
+          required: false
+          positional: false
+          default: null
+          description: 'List of object''s attributes to be displayed in the UI of
+            our applications. (example: [''id'', ''details'', ''tags''])'
+          fields: []
+        - name: filters
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The logic used to filter the items to be displayed in the
+            view (as JavaScript code). (example: eq(ticket.assignee_user.id, ''{{current_user.id}}'')
+            && eq(ticket.status, ''open''))'
+          fields: []
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The name of the view. (example: My view)'
+          fields: []
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Name of the object''s attribute used to sort the items of
+            the view. (example: updated_datetime)'
+          fields: []
+        - name: order_dir
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Sort direction of the items displayed in the view. Options:
+            `asc` or `desc`. (enum: asc, desc) (example: desc)'
+          fields: []
+        - name: shared_with_teams
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'IDs of teams this view is shared with. (example: [1, 2])'
+          fields: []
+        - name: shared_with_users
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'IDs of users this view is shared with. (example: [1, 2])'
+          fields: []
+        - name: type
+          type: object<ViewType>
+          required: false
+          positional: false
+          default: null
+          description: 'Type of objects the view is applied on. (enum: ticket-list)
+            (example: ticket-list)'
+          fields: []
+        - name: visibility
+          type: object<ViewVisibility>
+          required: false
+          positional: false
+          default: null
+          description: 'Visibility of the view. (example: public)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-view
+          doc_url: https://developers.gorgias.com/reference/create-view
+      delete:
+        method: DELETE
+        path: /views/{id}
+        description: Delete a saved view by `id`. Removes it from the sidebar for
+          everyone who saw it. Use when retiring stale filters.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      items-list:
+        method: GET
+        path: /views/{id}/items
+        description: |-
+          Return the ticket items currently matching saved view (`id`). Required: `id` (path). Optional: `cursor`, `direction` (prev/next), `limit` (1-100, default 30), `order_by`, `ignored_item`. Use to read 'what's in this view right now' rather than re-deriving the filter manually.
+        params:
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /views/{id}
+        description: Fetch a single saved view (`id`) with its filter definition and
+          metadata. Use to introspect what conditions a view encodes before relying
+          on its results or editing it.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /views
+        description: List all saved views on the account, including ownership and
+          visibility. The agent's catalogue of pre-built ticket filters available
+          for navigation or reporting.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      items-update:
+        method: PUT
+        path: /views/{id}/items
+        description: Update the materialized items of a view (`id`) — used to reorder,
+          bulk-mutate, or refresh the cached set depending on view type. Niche; most
+          agents read items rather than mutating them.
+        params:
+        - name: cursor
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Value indicating your position in the list of all the view's
+            items. If omitted, the first items of the list will be returned.
+          fields: []
+        - name: direction
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: '- `prev` returns items before the cursor.'
+          fields: []
+        - name: ignored_item
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ID of an item to ignore in the list of returned items.
+          fields: []
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: Maximum number of items to return.
+          fields: []
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Attribute used to order views.
+          fields: []
+        body:
+        - name: view
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'example: {''id'': 123, ''category'': ''user'', ''created_datetime'':
+            ''2019-11-23T15:59:41.9669...'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-view-items
+          doc_url: https://developers.gorgias.com/reference/update-view-items
+      update:
+        method: PUT
+        path: /views/{id}
+        description: Update a saved view (`id`) — change its filter criteria, name,
+          or sharing. Use to evolve a view's definition as triage workflows change.
+        params: []
+        body:
+        - name: decoration
+          type: object<ViewDecoration>
+          required: false
+          positional: false
+          default: null
+          description: 'Object describing how the view appears in our applications.
+            Currently only supports `emoji` field that shows before the view''s name.
+            (example: {''emoji'': ''🙏''})'
+          fields: []
+        - name: fields
+          type: array<ViewField>
+          required: false
+          positional: false
+          default: null
+          description: 'List of object''s attributes to be displayed in the UI of
+            our applications. (example: [''id'', ''details'', ''tags''])'
+          fields: []
+        - name: filters
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The logic used to filter the items to be displayed in the
+            view (as JavaScript code). (example: eq(ticket.assignee_user.id, ''{{current_user.id}}'')
+            && eq(ticket.status, ''open''))'
+          fields: []
+        - name: name
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The name of the view. (example: My view)'
+          fields: []
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Name of the object''s attribute used to sort the items of
+            the view. (example: updated_datetime)'
+          fields: []
+        - name: order_dir
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Sort direction of the items displayed in the view. Options:
+            `asc` or `desc`. (enum: asc, desc) (example: desc)'
+          fields: []
+        - name: shared_with_teams
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'IDs of teams this view is shared with. (example: [1, 2])'
+          fields: []
+        - name: shared_with_users
+          type: array<integer>
+          required: false
+          positional: false
+          default: null
+          description: 'IDs of users this view is shared with. (example: [1, 2])'
+          fields: []
+        - name: slug
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'DEPRECATED - URL-compatible name of the view. (example: my-tickets)'
+          fields: []
+        - name: type
+          type: object<ViewType>
+          required: false
+          positional: false
+          default: null
+          description: 'Type of objects the view is applied on. (enum: ticket-list)
+            (example: ticket-list)'
+          fields: []
+        - name: visibility
+          type: object<ViewVisibility>
+          required: false
+          positional: false
+          default: null
+          description: 'Visibility of the view. (example: public)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-view
+          doc_url: https://developers.gorgias.com/reference/update-view
+  widgets:
+    description: Configure on-site chat/contact widget instances
+    endpoints:
+      create:
+        method: POST
+        path: /widgets
+        description: |-
+          Create a new agent-facing sidebar widget shown inside the Gorgias helpdesk (on ticket, customer, or user views — set by `context`). Required: `template` (defines the data source, e.g. Shopify, Stripe, HTTP). Optional: `order`, `integration_id` (required for HTTP), `app_id`, `deactivated_datetime`. This is NOT a customer-facing chat widget — those are managed via the Gorgias Chat integration.
+        params: []
+        body:
+        - name: template
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: 'Template to render the data of the widget. (example: {''type'':
+            ''wrapper'', ''widgets'': [{''path'': ''account_info'', ''type'': ''card'',
+            ''tit...)'
+          fields: []
+        - name: type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: 'Type of data the widget is attached to. (enum: bigcommerce,
+            custom, customer_external_data, http, magento2, recharge, shopify, smile)
+            (example: http)'
+          fields: []
+        - name: context
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The context to display this widget in. (enum: ticket, customer,
+            user) (example: ticket)'
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the widget was deactivated. (example: 2020-12-03T13:00:00.123456)'
+          fields: []
+        - name: integration_id
+          type: integer|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            ID of the integration that the widget's data is attached to. Only used for widgets attached to HTTP integrations. Widgets are the same for all Shopify integrations, but each HTTP integration needs a specific widget.
+          fields: []
+        - name: app_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The ID of the 3rd party app that  the widget''s data is attached
+            to. Used for customer external data widgets. (example: 60b9f144096cf92533e0a14d)'
+          fields: []
+        - name: order
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order of precedence of the widget. Widgets with lower order
+            are shown first. (example: 3)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: create-widget
+          doc_url: https://developers.gorgias.com/reference/create-widget
+      delete:
+        method: DELETE
+        path: /widgets/{id}
+        description: |-
+          Delete a sidebar widget config by `id`. After deletion the widget stops rendering in the helpdesk UI on the configured `context` (ticket/customer/user). Coordinate with the team relying on the data surface. Required: id. Destructive.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      get:
+        method: GET
+        path: /widgets/{id}
+        description: |-
+          Fetch a single sidebar widget (`id`) with its `context` (ticket/customer/user), `template` (data source), order, and integration linkage. Use to introspect a helpdesk sidebar widget before editing it. Required: id.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      list:
+        method: GET
+        path: /widgets
+        description: |-
+          List all agent-facing sidebar widgets on the account, optionally filtered by `integration_id` or `app_id`. Use to discover which Shopify/Stripe/HTTP-backed sidebar surfaces exist on ticket/customer/user views before editing one. NOT a chat-widget listing.
+        params: []
+        body: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+      update:
+        method: PUT
+        path: /widgets/{id}
+        description: |-
+          Update a sidebar widget (`id`) — typically to change its `template` (data source), `order` (display position), `context`, or to deactivate it via `deactivated_datetime`. Affects what agents see in the helpdesk sidebar. NOT a customer-facing chat widget. Required: id.
+        params: []
+        body:
+        - name: context
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'The context to display this widget in. (enum: ticket, customer,
+            user) (example: ticket)'
+          fields: []
+        - name: deactivated_datetime
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'When the widget was deactivated. (example: 2020-12-03T13:00:00.123456)'
+          fields: []
+        - name: integration_id
+          type: integer|null
+          required: false
+          positional: false
+          default: null
+          description: |-
+            ID of the integration that the widget's data is attached to. Only used for widgets attached to HTTP integrations. Widgets are the same for all Shopify integrations, but each HTTP integration needs a specific widget.
+          fields: []
+        - name: app_id
+          type: string|null
+          required: false
+          positional: false
+          default: null
+          description: 'The ID of the 3rd party app that  the widget''s data is attached
+            to. Used for customer external data widgets. (example: 60b9f144096cf92533e0a14d)'
+          fields: []
+        - name: order
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: 'Order of precedence of the widget. Widgets with lower order
+            are shown first. (example: 3)'
+          fields: []
+        - name: template
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: 'Template to render the data of the widget. (example: {''type'':
+            ''wrapper'', ''widgets'': [{''path'': ''account_info'', ''type'': ''card'',
+            ''tit...)'
+          fields: []
+        - name: type
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: 'Type of data the widget is attached to. (enum: bigcommerce,
+            custom, customer_external_data, http, magento2, recharge, shopify, smile)
+            (example: http)'
+          fields: []
+        response:
+          type: ''
+          item: ''
+        pagination: null
+        meta:
+          source_count: '1'
+          source_tier: community-sdk
+          schema_source: openapi-1.5.1
+          body_shape: object
+          operation_id: update-widget
+          doc_url: https://developers.gorgias.com/reference/update-widget
+types: {}

@@ -1,0 +1,587 @@
+name: jobber
+description: "Jobber read-only CLI (AR + pipeline focus, GraphQL via post-emit transport rewrite)"
+version: "0.1.0"
+
+# Fake REST base; transport layer will be rewritten post-generation to compose
+# GraphQL POSTs against https://api.getjobber.com/api/graphql with the
+# X-JOBBER-GRAPHQL-VERSION header from JOBBER_GRAPHQL_VERSION. The fake-REST
+# paths below (/v1/<resource>[/{id}]) preserve the shape the generator needs
+# (list+get separation, positional id, cursor pagination metadata) so the
+# rewrite is mechanical rather than structural.
+base_url: "https://api.getjobber.com/v1"
+health_check_path: "/account"
+
+required_headers:
+  - name: X-JOBBER-GRAPHQL-VERSION
+    value: "2025-04-16"
+
+auth:
+  type: oauth2
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - JOBBER_CLIENT_ID
+    - JOBBER_CLIENT_SECRET
+    - JOBBER_CALLBACK_URL
+    - JOBBER_ACCESS_TOKEN
+    - JOBBER_REFRESH_TOKEN
+    - JOBBER_GRAPHQL_VERSION
+
+config:
+  format: toml
+  path: "~/.config/jobber/config.toml"
+
+resources:
+
+  clients:
+    description: "Clients (Jobber `clients` Relay connection)"
+    endpoints:
+      list:
+        method: GET
+        path: "/clients"
+        description: "List clients with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page (Relay cursor `first`)"
+          - name: after
+            type: string
+            description: "Relay cursor `after` for pagination"
+          - name: isCompany
+            flag_name: is-company
+            type: bool
+            description: "Filter: company clients only"
+          - name: isLead
+            flag_name: is-lead
+            type: bool
+            description: "Filter: lead clients only"
+          - name: isArchived
+            flag_name: is-archived
+            type: bool
+            description: "Filter: archived clients only"
+          - name: updatedAt
+            flag_name: updated-since
+            type: string
+            description: "Filter: updatedAt >= this ISO8601 timestamp"
+          - name: createdAt
+            flag_name: created-since
+            type: string
+            description: "Filter: createdAt >= this ISO8601 timestamp"
+          - name: tags
+            type: string
+            description: "Filter: comma-separated tag labels"
+        response:
+          type: array
+          item: Client
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+      get:
+        method: GET
+        path: "/clients/{id}"
+        description: "Get a client by EncodedId"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Client EncodedId"
+        response:
+          type: object
+          item: Client
+
+  properties:
+    description: "Properties (Jobber `properties` Relay connection)"
+    endpoints:
+      list:
+        method: GET
+        path: "/properties"
+        description: "List properties with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: clientId
+            flag_name: client-id
+            type: string
+            description: "Filter: properties belonging to this client EncodedId"
+          - name: primary
+            type: bool
+            description: "Filter: primary properties only"
+        response:
+          type: array
+          item: Property
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+
+  quotes:
+    description: "Quotes (Jobber `quotes` Relay connection)"
+    endpoints:
+      list:
+        method: GET
+        path: "/quotes"
+        description: "List quotes with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: clientId
+            flag_name: client-id
+            type: string
+            description: "Filter: quotes for this client"
+          - name: quoteNumber
+            flag_name: quote-number
+            type: string
+            description: "Filter: exact quote number"
+          - name: status
+            type: string
+            description: "Filter: QuoteStatusTypeEnum value"
+          - name: sentAt
+            flag_name: sent-since
+            type: string
+            description: "Filter: sentAt >= this ISO8601 timestamp"
+          - name: updatedAt
+            flag_name: updated-since
+            type: string
+            description: "Filter: updatedAt >= this ISO8601 timestamp"
+          - name: createdAt
+            flag_name: created-since
+            type: string
+            description: "Filter: createdAt >= this ISO8601 timestamp"
+          - name: salespersonId
+            flag_name: salesperson-id
+            type: string
+            description: "Filter: salesperson user EncodedId"
+        response:
+          type: array
+          item: Quote
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+
+  jobber_jobs:
+    description: "Jobs (Jobber `jobs` Relay connection). Resource key is `jobber_jobs` to avoid press v4.9.0 reserved-cobra collision; post-rewrite renames Cobra Use back to `jobs` and removes the unused built-in jobs ledger."
+    endpoints:
+      list:
+        method: GET
+        path: "/jobs"
+        description: "List jobs with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: jobType
+            flag_name: job-type
+            type: string
+            description: "Filter: JobTypeTypeEnum value (RECURRING|ONE_OFF)"
+          - name: status
+            type: string
+            description: "Filter: JobStatusTypeEnum value"
+          - name: createdAt
+            flag_name: created-since
+            type: string
+            description: "Filter: createdAt >= this ISO8601 timestamp"
+          - name: startAt
+            flag_name: start-since
+            type: string
+            description: "Filter: startAt >= this ISO8601 timestamp"
+          - name: endAt
+            flag_name: end-before
+            type: string
+            description: "Filter: endAt <= this ISO8601 timestamp"
+          - name: completedAt
+            flag_name: completed-since
+            type: string
+            description: "Filter: completedAt >= this ISO8601 timestamp"
+          - name: includeUnscheduled
+            flag_name: include-unscheduled
+            type: bool
+            description: "Filter: include jobs without scheduled visits"
+          - name: onlyInvoiceable
+            flag_name: only-invoiceable
+            type: bool
+            description: "Filter: jobs ready to invoice"
+        response:
+          type: array
+          item: Job
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+      get:
+        method: GET
+        path: "/jobs/{id}"
+        description: "Get a job by EncodedId"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Job EncodedId"
+        response:
+          type: object
+          item: Job
+
+  visits:
+    description: "Visits (Jobber `visits` Relay connection)"
+    endpoints:
+      list:
+        method: GET
+        path: "/visits"
+        description: "List visits with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: status
+            type: string
+            description: "Filter: VisitStatusTypeEnum value"
+          - name: createdAt
+            flag_name: created-since
+            type: string
+            description: "Filter: createdAt >= this ISO8601 timestamp"
+          - name: startAt
+            flag_name: start-since
+            type: string
+            description: "Filter: startAt >= this ISO8601 timestamp"
+          - name: endAt
+            flag_name: end-before
+            type: string
+            description: "Filter: endAt <= this ISO8601 timestamp"
+          - name: completedAt
+            flag_name: completed-since
+            type: string
+            description: "Filter: completedAt >= this ISO8601 timestamp"
+          - name: invoiceStatus
+            flag_name: invoice-status
+            type: string
+            description: "Filter: visit invoice status"
+          - name: assignedTo
+            flag_name: assigned-to
+            type: string
+            description: "Filter: assigned user EncodedId"
+        response:
+          type: array
+          item: Visit
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+
+  invoices:
+    description: "Invoices (Jobber `invoices` Relay connection)"
+    endpoints:
+      list:
+        method: GET
+        path: "/invoices"
+        description: "List invoices with optional filters"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: clientId
+            flag_name: client-id
+            type: string
+            description: "Filter: invoices for this client (singular `clientId`)"
+          - name: invoiceNumber
+            flag_name: invoice-number
+            type: string
+            description: "Filter: exact invoice number"
+          - name: status
+            type: string
+            description: "Filter: InvoiceStatusTypeEnum value"
+          - name: issuedDate
+            flag_name: issued-since
+            type: string
+            description: "Filter: issuedDate >= this ISO8601 timestamp"
+          - name: dueDate
+            flag_name: due-before
+            type: string
+            description: "Filter: dueDate <= this ISO8601 timestamp"
+          - name: updatedAt
+            flag_name: updated-since
+            type: string
+            description: "Filter: updatedAt >= this ISO8601 timestamp"
+          - name: createdAt
+            flag_name: created-since
+            type: string
+            description: "Filter: createdAt >= this ISO8601 timestamp"
+          - name: excludeOrigin
+            flag_name: exclude-origin
+            type: string
+            description: "Filter: excludeOrigin enum value"
+        response:
+          type: array
+          item: Invoice
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+
+  payment-records:
+    description: "Payment records (Jobber `paymentRecords` Relay connection, PaymentRecordInterface)"
+    endpoints:
+      list:
+        method: GET
+        path: "/payment-records"
+        description: "List payment records with optional filters (entryDate is exclusive both ends - pad +/-1 day)"
+        params:
+          - name: first
+            type: int
+            default: 100
+            description: "Max results per page"
+          - name: after
+            type: string
+            description: "Relay cursor `after`"
+          - name: clientId
+            flag_name: client-id
+            type: string
+            description: "Filter: payment records for this client"
+          - name: entryDate
+            flag_name: entry-since
+            type: string
+            description: "Filter: entryDate (EXCLUSIVE both ends; pad +/-1 day)"
+          - name: adjustmentType
+            flag_name: adjustment-type
+            type: string
+            description: "Filter: IncomeAdjustmentType value"
+          - name: paymentType
+            flag_name: payment-type
+            type: string
+            description: "Filter: payment type value"
+          - name: refundable
+            type: bool
+            description: "Filter: refundable payments only"
+        response:
+          type: array
+          item: PaymentRecord
+        pagination:
+          type: cursor
+          cursor_field: pageInfo.endCursor
+          has_more_field: pageInfo.hasNextPage
+
+types:
+
+  Client:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: companyName
+        type: string
+      - name: isCompany
+        type: bool
+      - name: isLead
+        type: bool
+      - name: isArchived
+        type: bool
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: balance
+        type: float
+      - name: jobberWebUri
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+
+  Property:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: street
+        type: string
+      - name: street1
+        type: string
+      - name: street2
+        type: string
+      - name: city
+        type: string
+      - name: province
+        type: string
+      - name: postalCode
+        type: string
+      - name: country
+        type: string
+      - name: isBillingAddress
+        type: bool
+      - name: jobberWebUri
+        type: string
+
+  Quote:
+    fields:
+      - name: id
+        type: string
+      - name: quoteNumber
+        type: string
+      - name: title
+        type: string
+      - name: quoteStatus
+        type: string
+      - name: cost
+        type: float
+      - name: depositAmountUnallocated
+        type: float
+      - name: depositCollected
+        type: bool
+      - name: sentAt
+        type: string
+      - name: transitionedAt
+        type: string
+      - name: clientHubUri
+        type: string
+      - name: jobberWebUri
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+
+  Job:
+    fields:
+      - name: id
+        type: string
+      - name: jobNumber
+        type: int
+      - name: title
+        type: string
+      - name: jobStatus
+        type: string
+      - name: jobType
+        type: string
+      - name: total
+        type: float
+      - name: invoicedTotal
+        type: float
+      - name: uninvoicedTotal
+        type: float
+      - name: completedAndUninvoicedVisitsCount
+        type: int
+      - name: completedAndUninvoicedVisitsTotal
+        type: float
+      - name: startAt
+        type: string
+      - name: endAt
+        type: string
+      - name: completedAt
+        type: string
+      - name: jobberWebUri
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+
+  Visit:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: visitStatus
+        type: string
+      - name: isComplete
+        type: bool
+      - name: allDay
+        type: bool
+      - name: duration
+        type: int
+      - name: startAt
+        type: string
+      - name: endAt
+        type: string
+      - name: completedAt
+        type: string
+      - name: createdAt
+        type: string
+
+  Invoice:
+    fields:
+      - name: id
+        type: string
+      - name: invoiceNumber
+        type: string
+      - name: subject
+        type: string
+      - name: invoiceStatus
+        type: string
+      - name: total
+        type: float
+      - name: subtotal
+        type: float
+      - name: taxAmount
+        type: float
+      - name: discountAmount
+        type: float
+      - name: paymentsTotal
+        type: float
+      - name: depositAmount
+        type: float
+      - name: issuedDate
+        type: string
+      - name: dueDate
+        type: string
+      - name: receivedDate
+        type: string
+      - name: clientHubUri
+        type: string
+      - name: jobberWebUri
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+
+  PaymentRecord:
+    fields:
+      - name: id
+        type: string
+      - name: amount
+        type: float
+      - name: tipAmount
+        type: float
+      - name: entryDate
+        type: string
+      - name: adjustmentType
+        type: string
+      - name: jobberPaymentLast4
+        type: string
+      - name: jobberPaymentPaymentMethod
+        type: string
+      - name: jobberPaymentTransactionStatus
+        type: string

@@ -4,8 +4,15 @@
   "printing_press_version": "3.6.0",
   "api_name": "recipe-goat",
   "display_name": "Recipe GOAT",
+  "description": "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
   "cli_name": "recipe-goat-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/food-and-dining/recipe-goat/spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:6cc89de634abce15d2612148b24c64f157fe6700532a7e18cfa1edc19b3def73",
@@ -23,7 +30,7 @@
     {
       "name": "Best-version ranker",
       "command": "goat",
-      "description": "Query any dish across 37 recipe sites and rank results by normalized rating \u00d7 review count \u00d7 author trust \u00d7 site trust \u00d7 recency."
+      "description": "Query any dish across 37 recipe sites and rank results by normalized rating × review count × author trust × site trust × recency."
     },
     {
       "name": "Substitution lookup",
@@ -33,7 +40,7 @@
     {
       "name": "Pantry match",
       "command": "cookbook match",
-      "description": "Find recipes in the local cookbook that you can make right now with listed ingredients, or with \u2264N missing ingredients."
+      "description": "Find recipes in the local cookbook that you can make right now with listed ingredients, or with ≤N missing ingredients."
     },
     {
       "name": "Tonight picker",
@@ -58,17 +65,18 @@
     {
       "name": "Unit-reconciling shopping list",
       "command": "meal-plan shopping-list",
-      "description": "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk \u2192 3 cup), group by grocery aisle."
+      "description": "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk → 3 cup), group by grocery aisle."
     },
     {
       "name": "Inline seasonal flag",
       "command": "recipe get",
-      "description": "Flag out-of-season ingredients inline (\"\u26a0 asparagus is out of season in November \u2014 peak April\u2013June\") and suggest in-season swaps."
+      "description": "Flag out-of-season ingredients inline (\"⚠ asparagus is out of season in November — peak April–June\") and suggest in-season swaps."
     },
     {
       "name": "Honest cost estimate",
       "command": "recipe cost",
-      "description": "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an honesty band (\u00b130%)."
+      "description": "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an honesty band (±30%)."
     }
-  ]
+  ],
+  "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties."
 }

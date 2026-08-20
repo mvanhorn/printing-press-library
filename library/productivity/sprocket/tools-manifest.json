@@ -1,0 +1,216 @@
+{
+  "api_name": "sprocket",
+  "base_url": "https://jfcsoccer.sprocketsports.com",
+  "description": "Your youth-soccer club's schedule, teams, and dues from the terminal — with merged multi-kid agendas, conflict detection, and iCal export no dashboard gives you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {SPROCKET_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "SPROCKET_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SPROCKET_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_clubs",
+      "description": "List clubs this account belongs to. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/api/account/multiple-clubs",
+      "params": []
+    },
+    {
+      "name": "account_me",
+      "description": "Get your club-user account profile. Returns the Account.",
+      "method": "GET",
+      "path": "/api/club-users/me",
+      "params": []
+    },
+    {
+      "name": "account_roles",
+      "description": "List your account roles. Returns array of GenericObject.",
+      "method": "GET",
+      "path": "/api/account/roles",
+      "params": []
+    },
+    {
+      "name": "club_get",
+      "description": "Get club metadata. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/meta-api/public/club",
+      "params": []
+    },
+    {
+      "name": "club_settings",
+      "description": "Get public club settings. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/public/clubs/settings",
+      "params": []
+    },
+    {
+      "name": "family_get",
+      "description": "Get your family (parents/guardians and players). Optional: include-parents-without-login (default: true). Returns the Family.",
+      "method": "GET",
+      "path": "/api/club-users/family",
+      "params": [
+        {
+          "name": "include-parents-without-login",
+          "wire_name": "includeParentsWithoutLogin",
+          "type": "bool",
+          "location": "query",
+          "description": "Include parents/guardians who have no login"
+        }
+      ]
+    },
+    {
+      "name": "payments_failed",
+      "description": "List failed payments. Optional: include-donations (default: false). Returns array of Payment.",
+      "method": "GET",
+      "path": "/api/club-users/failed-payments",
+      "params": [
+        {
+          "name": "include-donations",
+          "wire_name": "includeDonations",
+          "type": "bool",
+          "location": "query",
+          "description": "Include failed donation payments"
+        }
+      ]
+    },
+    {
+      "name": "payments_overdue-invoices",
+      "description": "List overdue invoice payments (dues owed). Returns array of Payment.",
+      "method": "GET",
+      "path": "/api/club-users/overdue-invoice-payments",
+      "params": []
+    },
+    {
+      "name": "payments_overdue-tickets",
+      "description": "List overdue ticket payments. Returns array of Payment.",
+      "method": "GET",
+      "path": "/api/club-users/overdue-ticket-payments",
+      "params": []
+    },
+    {
+      "name": "players_list",
+      "description": "List your players (children) on this account. Optional: include-inactives (default: false). Returns array of Player.",
+      "method": "GET",
+      "path": "/api/players",
+      "params": [
+        {
+          "name": "include-inactives",
+          "wire_name": "includeInactives",
+          "type": "bool",
+          "location": "query",
+          "description": "Include inactive players"
+        }
+      ]
+    },
+    {
+      "name": "programs_list",
+      "description": "List all club programs/seasons. Returns array of Program.",
+      "method": "GET",
+      "path": "/api/public/programs/all",
+      "params": []
+    },
+    {
+      "name": "programs_open",
+      "description": "List programs currently open for registration. Optional: include-credits (default: true). Returns array of OpenProgram.",
+      "method": "GET",
+      "path": "/api/players/open-programs",
+      "params": [
+        {
+          "name": "include-credits",
+          "wire_name": "includeCredits",
+          "type": "bool",
+          "location": "query",
+          "description": "Include available registration credits"
+        }
+      ]
+    },
+    {
+      "name": "registrations_completed",
+      "description": "List completed program registrations (with balances). Returns array of Registration.",
+      "method": "GET",
+      "path": "/api/club-users/completed-registrations",
+      "params": []
+    },
+    {
+      "name": "registrations_team",
+      "description": "List completed team registrations. Returns array of Registration.",
+      "method": "GET",
+      "path": "/api/club-users/completed-team-registrations",
+      "params": []
+    },
+    {
+      "name": "schedule_event-types",
+      "description": "List calendar event types (game, practice, etc.). Optional: include-facility-rentals (default: false). Returns array of EventType.",
+      "method": "GET",
+      "path": "/api/public/calendar/calendar-event-types",
+      "params": [
+        {
+          "name": "include-facility-rentals",
+          "wire_name": "includeFacilityRentals",
+          "type": "bool",
+          "location": "query",
+          "description": "Include facility-rental event types"
+        }
+      ]
+    },
+    {
+      "name": "schedule_list",
+      "description": "List calendar events in a date window (max ~31 days). Dates are YYYY-MM-DD. Required: start, end. Returns array of CalendarEvent.",
+      "method": "POST",
+      "path": "/api/public/calendar",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "Window start date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "Window end date (YYYY-MM-DD); must be within ~31 days of start",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schedule_settings",
+      "description": "Calendar display settings for the club. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/api/public/calendar/settings",
+      "params": []
+    },
+    {
+      "name": "teams_list",
+      "description": "List every team in the club. Returns array of Team.",
+      "method": "GET",
+      "path": "/api/public/teams/all",
+      "params": []
+    },
+    {
+      "name": "teams_mine",
+      "description": "List the teams your players are assigned to. Returns array of PlayerTeam.",
+      "method": "GET",
+      "path": "/api/club-users/player-teams",
+      "params": []
+    }
+  ]
+}

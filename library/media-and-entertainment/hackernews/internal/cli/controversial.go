@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // controversial ranks current top stories by a comment-to-point

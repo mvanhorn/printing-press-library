@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "local-cleanups",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Remove dead import guards, an unused accumulator, a duplicated lookup key, and recomputed values across novel paths.",
+  "reason": "Targeted cleanup pass: behavior-preserving, no flag/output changes. Removes the `var _ = strings.ReplaceAll` and `var _ = time.Now` compile guards (their packages are already used), drops `totalClicks` from KeywordCannibalization (collected and discarded), dedupes the `ad_group` lookup key in keyword snapshot ingestion, computes `splitCSV(keywords)` once in share-of-voice output, and reuses `sentCount` in applyAutomationMutation instead of recomputing it from `body any`.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/data_source.go",
+    "internal/adsanalytics/search_terms.go",
+    "internal/store/keyword_snapshots.go",
+    "internal/cli/share_of_voice.go",
+    "internal/cli/automation.go"
+  ],
+  "validated_outcome": "go test ./..., go vet ./..., go build ./cmd/amazon-ads-pp-cli ./cmd/amazon-ads-pp-mcp, and verify-skill (35 recipes, 0 findings) all pass."
+}

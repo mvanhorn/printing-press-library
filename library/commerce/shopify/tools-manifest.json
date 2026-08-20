@@ -1,0 +1,274 @@
+{
+  "api_name": "shopify",
+  "base_url": "https://{shop}",
+  "description": "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Shopify-Access-Token",
+    "in": "header",
+    "env_vars": [
+      "SHOPIFY_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SHOPIFY_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "abandoned-checkouts_get",
+      "description": "Get one Shopify abandoned checkout by GraphQL ID. Required: id. Returns the ShopifyAbandonedCheckout.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL abandoned checkout ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "abandoned-checkouts_list",
+      "description": "List abandoned checkouts from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyAbandonedCheckout.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get one Shopify customer by GraphQL ID. Required: id. Returns the ShopifyCustomer.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL customer ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "List customers from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyCustomer.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    },
+    {
+      "name": "fulfillment-orders_get",
+      "description": "Get one Shopify fulfillment order by GraphQL ID. Required: id. Returns the ShopifyFulfillmentOrder.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL fulfillment order ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fulfillment-orders_list",
+      "description": "List fulfillment orders from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyFulfillmentOrder.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    },
+    {
+      "name": "inventory-items_get",
+      "description": "Get one Shopify inventory item by GraphQL ID. Required: id. Returns the ShopifyInventoryItem.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL inventory item ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventory-items_list",
+      "description": "List inventory items from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyInventoryItem.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    },
+    {
+      "name": "orders_get",
+      "description": "Get one Shopify order by GraphQL ID. Required: id. Returns the ShopifyOrder.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL order ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_list",
+      "description": "List orders from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyOrder.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Get one Shopify product by GraphQL ID. Required: id. Returns the ShopifyProduct.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify GraphQL product ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "List products from the Shopify Admin GraphQL API. Optional: first (default: 100), after, query. Returns array of ShopifyProduct.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "first",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size for Shopify cursor pagination."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for the next page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Shopify search-syntax filter (e."
+        }
+      ]
+    }
+  ]
+}

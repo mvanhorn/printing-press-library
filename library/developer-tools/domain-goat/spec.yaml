@@ -1,0 +1,54 @@
+name: domain-goat
+kind: synthetic
+description: "Domain-name discovery & availability CLI — RDAP-native, WHOIS-fallback, Porkbun-priced, with offline shortlist + scoring + drop watch."
+cli_description: "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal."
+version: "0.1.0"
+base_url: "https://api.porkbun.com/api/json/v3"
+health_check_path: "/ping"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/domain-goat-pp-cli/config.toml"
+
+resources:
+  pricing:
+    description: "Domain pricing snapshots from Porkbun (no auth required — public endpoint, ~600 TLDs)."
+    endpoints:
+      get:
+        method: GET
+        path: "/pricing/get"
+        description: "Fetch the full TLD pricing table (registration, renewal, transfer) from Porkbun."
+        response:
+          type: object
+          item: PricingResponse
+
+  rdap_bootstrap:
+    description: "IANA RDAP bootstrap registry — maps each TLD to its authoritative RDAP server."
+    base_url: "https://data.iana.org/rdap"
+    endpoints:
+      get:
+        method: GET
+        path: "/dns.json"
+        description: "Fetch the IANA RDAP DNS bootstrap (TLD → RDAP base URL)."
+        response:
+          type: object
+          item: RDAPBootstrap
+
+types:
+  PricingResponse:
+    fields:
+      - name: status
+        type: string
+      - name: pricing
+        type: string
+  RDAPBootstrap:
+    fields:
+      - name: version
+        type: string
+      - name: publication
+        type: string
+      - name: description
+        type: string

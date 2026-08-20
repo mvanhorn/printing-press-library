@@ -1,0 +1,174 @@
+{
+  "dir": "\u003ccli-dir\u003e/stackadapt-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 1,
+    "items": [
+      "allowPartialFailure"
+    ]
+  },
+  "dead_functions": {
+    "total": 56,
+    "dead": 11,
+    "items": [
+      "detectPartialFailure",
+      "emitMissingPaginationCursorWarning",
+      "emitMissingPaginationSignalWarning",
+      "emitPaginatedGetMaxPagesWarning",
+      "emitTruncationWarning",
+      "extractPaginatedItems",
+      "nextClientSidePaginationCursor",
+      "paginatedGet",
+      "paginationCursorToken",
+      "partialFailureErr",
+      "rawAtPath"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 34,
+      "registered": 34
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 4,
+    "found": 4
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 4,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "pacing",
+        "file": "pacing.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "delivery-drift",
+        "file": "delivery_drift.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "bottleneck",
+        "file": "bottleneck.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "stale-campaigns",
+        "file": "stale_campaigns.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ],
+    "missing_data_source_strategy": [
+      {
+        "command": "pacing",
+        "file": "pacing.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "delivery-drift",
+        "file": "delivery_drift.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "bottleneck",
+        "file": "bottleneck.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "stale-campaigns",
+        "file": "stale_campaigns.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 1,
+    "findings": [
+      {
+        "package": "sagraphql",
+        "file": "internal/sagraphql/client.go",
+        "reason": "outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent)"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 22
+  },
+  "test_presence": {
+    "checked": 1,
+    "missing_tests": [
+      "sagraphql"
+    ]
+  },
+  "naming_check": {
+    "checked": 22
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "11 dead helper functions found",
+    "sync uses generic Upsert only",
+    "4/4 novel features look reimplemented: pacing (pacing.go) — hand-rolled response: no API client call, no store access; delivery-drift (delivery_drift.go) — hand-rolled response: no API client call, no store access; bottleneck (bottleneck.go) — hand-rolled response: no API client call, no store access; stale-campaigns (stale_campaigns.go) — hand-rolled response: no API client call, no store access",
+    "1 source client file(s) without rate-limit handling: internal/sagraphql/client.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent)",
+    "pure-logic packages with no tests: sagraphql"
+  ]
+}

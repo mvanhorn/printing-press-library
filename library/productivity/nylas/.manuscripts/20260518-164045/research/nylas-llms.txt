@@ -1,0 +1,830 @@
+# Home | Nylas Docs
+
+> Nylas connects your application to every email inbox and calendar in the world. Get started here.
+
+## Docs
+- [Nylas Python SDK v6.14.2 | Nylas Docs](https://developer.nylas.com/changelogs/2026-01-16-nylas-python-v6-14-2/): 
+- [Nylas Ruby SDK v6.7.1 | Nylas Docs](https://developer.nylas.com/changelogs/2026-02-23-nylas-ruby-v6-7-1/): 
+- [Nylas Auth Service | Nylas Docs](https://developer.nylas.com/changelogs/2026-02-27-auth/): 
+- [Nylas React SDK v3.2.0 | Nylas Docs](https://developer.nylas.com/changelogs/2026-03-10-javascript-nylas-react-v3-2-0/): 
+- [Nylas Node.js SDK v8.0.5 | Nylas Docs](https://developer.nylas.com/changelogs/2026-03-23-nylas-nodejs-v8-0-5/): 
+- [Nylas Dashboard | Nylas Docs](https://developer.nylas.com/changelogs/2026-03-26-dashboard/): 
+- [Nylas Java SDK v2.15.1 | Nylas Docs](https://developer.nylas.com/changelogs/2026-03-30-nylas-java-v2-15-1/): 
+- [Nylas CLI v3.1.1 | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-04-cli-v3-1-1/): 
+- [API Reference: Nullable field corrections | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-09-api-nullable-fields/): 
+- [Email Signatures API | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-09-email-signatures/): 
+- [Nylas React SDK v3.2.1 and Web Elements v2.5.1 | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-09-javascript-nylas-react-v3-2-1/): 
+- [Nylas React SDK v3.2.3 and Web Elements v2.5.3 | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-13-javascript-nylas-react-v3-2-3/): 
+- [Nylas Agent Accounts (Beta) | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-16-agent-accounts-beta/): 
+- [Outbound restrictions for Agent Accounts | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-17-outbound-rules/): 
+- [Send large attachments up to 150MB (Beta) | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-22-large-attachments-beta/): 
+- [Nylas Python SDK v6.15.0 | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-24-nylas-python-v6-15-0/): 
+- [Webhook delivery and notification updates | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-16-webhook-notifications/): 
+- [Nylas Web Elements v2.5.5 | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-27-javascript-nylas-web-elements-v2-5-5/): 
+- [Idempotent send requests | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-28-idempotent-send/): 
+- [New: Notetaker transcription language hints | Nylas Docs](https://developer.nylas.com/changelogs/2026-04-30-notetaker-language-hints/): 
+- [Security notice screen for Sandbox auth | Nylas Docs](https://developer.nylas.com/changelogs/2026-05-01-sandbox-auth-security-screen/): 
+- [Nylas Node.js SDK v8.1.0 | Nylas Docs](https://developer.nylas.com/changelogs/2026-05-05-nylas-nodejs-v8-1-0/): 
+- [Nylas React SDK v3.2.5 and Web Elements v2.5.6 | Nylas Docs](https://developer.nylas.com/changelogs/2026-05-05-javascript-nylas-react-v3-2-5/): 
+- [Nylas Java SDK v2.16.0 | Nylas Docs](https://developer.nylas.com/changelogs/2026-05-07-nylas-java-v2-16-0/): 
+- [All changelogs | Nylas Docs](https://developer.nylas.com/changelogs/all/): Complete changelog history across all Nylas products and SDKs.
+- [Changelogs | Nylas Docs](https://developer.nylas.com/changelogs/): What's new across Nylas products, SDKs, and platform.
+- [Cookbook | Nylas Docs](https://developer.nylas.com/cookbook/): Recipes, provider-specific guides, and end-to-end tutorials that string together the Nylas Email, Calendar, Contacts, Scheduler, and Notetaker APIs into real workflows.
+- [Using the Nylas Dashboard | Nylas Docs](https://developer.nylas.com/dev-guide/dashboard/): Use the Nylas Dashboard to manage your application settings, including authentication configuration and connectors, grants, and other details.
+- [Developing with Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/develop-with-nylas/): Get started developing a project with Nylas.
+- [Nylas glossary | Nylas Docs](https://developer.nylas.com/dev-guide/glossary/): A handy list of definitions for terms used when working with Nylas.
+- [About Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/): Get up and running with Nylas APIs, SDKs, the Nylas CLI, MCP server, AI agent tools, and developer resources.
+- [Nylas MCP server | Nylas Docs](https://developer.nylas.com/dev-guide/mcp/): Give AI agents access to email, calendar, and contacts through the Model Context Protocol. Connect Claude Code, Cursor, Claude Desktop, and other MCP clients in under 2 minutes.
+- [Using metadata in Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/metadata/): Use metadata to attach key-value data to objects.
+- [Using granular scopes to request user data | Nylas Docs](https://developer.nylas.com/dev-guide/scopes/): Use granular scopes to control the level of access your project has to your users' data.
+- [Customize branding in Nylas Hosted Authentication flow | Nylas Docs](https://developer.nylas.com/dev-guide/whitelabeling/): Use your own branding in the Nylas Hosted Authentication flow. You can replace the Nylas logo on the login page and set up a custom domain name (CNAME).
+- [Using app passwords in Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/app-passwords/): Learn about app passwords and how to set them up.
+- [What's new in Nylas | Nylas Docs](https://developer.nylas.com/new/): Find out about new releases and read changelogs.
+- [Authenticating Exchange on-premises accounts with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/exchange-on-prem/): Connect Exchange on-prem accounts to Nylas, and troubleshoot connection issues.
+- [Authenticating iCloud accounts with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/icloud/): Use the Nylas iCloud connector to connect to iCloud accounts.
+- [Authenticating Yahoo accounts with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/yahoo-authentication/): Connect Yahoo accounts to Nylas using Yahoo OAuth or Nylas' Hosted IMAP authentication.
+- [Integrating providers with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/): Connect your Nylas application to email and calendar providers.
+- [GDPR overview and inquiries | Nylas Docs](https://developer.nylas.com/support/general-data-protection-regulation/): How Nylas complies with the E.U.'s General Data Protection Regulation (GDPR).
+- [Nylas usage calculation and billing | Nylas Docs](https://developer.nylas.com/support/billing/): Usage calculation and billing, including when accounts are charged and when Nylas sends bills.
+- [Product lifecycle | Nylas Docs](https://developer.nylas.com/support/product-lifecycle/): Nylas' product version conventions.
+- [How to get support | Nylas Docs](https://developer.nylas.com/support/): Where to go for support and what information to include in your requests.
+- [Set up the Nylas package in Salesforce | Nylas Docs](https://developer.nylas.com/unlisted/nylas-package-in-salesforce/): Set up the NylasV3 package in Salesforce to sync email messages and events to your Salesforce instance.
+- [Redirecting v2 Scheduling Pages | Nylas Docs](https://developer.nylas.com/unlisted/redirect-v2-scheduling-pages/): Redirect Scheduling Pages from Nylas v2 to v3.
+- [Troubleshoot authentication errors | Nylas Docs](https://developer.nylas.com/v3/troubleshooting/): Diagnose and fix the most common Nylas authentication errors, including 401, 403, grant.not_found, Google double-redirect, Microsoft scope issues, and IMAP app password failures.
+- [Internal utilities | Nylas Docs](https://developer.nylas.com/utils/): 
+- [Testing our plan notes | Nylas Docs](https://developer.nylas.com/utils/plan-notes/): 
+- [Nylas error responses: 200-299 | Nylas Docs](https://developer.nylas.com/api/errors/200-response/): Nylas `200` error response codes.
+- [Nylas error responses: 500-599 | Nylas Docs](https://developer.nylas.com/api/errors/500-response/): Nylas `500` error response codes.
+- [Client error responses: 400–499 | Nylas Docs](https://developer.nylas.com/api/errors/400-response/): Nylas `400` (client error) response codes.
+- [Nylas error responses: 700-799 | Nylas Docs](https://developer.nylas.com/api/errors/700-response/): Nylas `700` error response codes.
+- [Error types in Nylas | Nylas Docs](https://developer.nylas.com/api/errors/event-codes/): Troubleshoot the types of errors that you might encounter while using Nylas.
+- [Nylas Administration API docs | Nylas Docs](https://developer.nylas.com/api/v3/admin/): API documentation for Nylas Administration endpoints.
+- [Nylas Email, Calendar, Contacts, and Notetaker API docs | Nylas Docs](https://developer.nylas.com/api/v3/ecc/): API documentation for Nylas Email, Calendar, Contacts, and Notetaker endpoints.
+- [Nylas API Migration tool APIs | Nylas Docs](https://developer.nylas.com/api/v3/migration/): API tools for migrating Nylas v2 applications to v3.
+- [Nylas errors and HTTP status codes | Nylas Docs](https://developer.nylas.com/api/errors/): Nylas errors and HTTP status codes you might encounter.
+- [Nylas v1 Notetaker API docs | Nylas Docs](https://developer.nylas.com/api/v3/notetaker/): Nylas reference documentation for the v1 Notetaker API.
+- [How to extract an OTP or 2FA code from an agent's inbox | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/extract-otp-code/): Pull one-time passcodes and 2FA codes out of an agent's own inbox and hand them back to whatever orchestrates the login — regex-first parsing with an LLM fallback for messy templates.
+- [Nylas Scheduler API docs | Nylas Docs](https://developer.nylas.com/api/v3/scheduler/): Nylas reference documentation for the Scheduler API.
+- [How to handle email replies in an agent loop | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/handle-replies/): Detect when someone replies to your agent's email, fetch the full thread context, route to the right handler, and reply in-thread — all driven by the message.created webhook.
+- [How to import email signatures via an Agent Account | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/import-email-signatures/): Set up an Agent Account as a signature import inbox — users forward any email, your app extracts the sender's signature from the HTML body, and saves it to the Nylas Signatures API.
+- [How to migrate from transactional email to bidirectional agent email | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/migrate-from-transactional-email/): Move from outbound-only transactional email (SendGrid, Resend, Postmark) to a full send-and-receive Agent Account on Nylas, with threading, webhooks, and reply handling built in.
+- [How to build a multi-turn email conversation | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/multi-turn-conversations/): Run an agent that carries on email conversations over hours or days — send, receive replies, restore context, generate the next turn, and repeat, all on webhooks and the Threads API.
+- [How to prevent duplicate and conflicting agent replies | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/prevent-duplicate-replies/): Stop an agent from sending duplicate or conflicting replies — webhook deduplication, per-thread locking, inbox isolation, and outbound rate limiting under real load.
+- [How to send Supabase auth emails with a Nylas Agent Account | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/send-supabase-emails/): Use a Nylas Agent Account as the custom SMTP provider for Supabase Auth so confirmations, magic links, password resets, and invite emails send from a real mailbox that can also receive replies.
+- [How to sign an agent up for a third-party service | Nylas Docs](https://developer.nylas.com/cookbook/agent-accounts/sign-up-for-a-service/): Provision a Nylas Agent Account, point a third-party signup flow at it, and let the agent pick up the verification email and complete onboarding — no human in the loop.
+- [Map communication patterns between organizations | Nylas Docs](https://developer.nylas.com/cookbook/agents/communication-patterns/): Score every external contact 0–100 using frequency, recency, reciprocity, and shared meetings. Roll up to org-level scores, surface single-threaded accounts at risk, and find warm-intro paths across your team's mailboxes.
+- [Build an email support agent | Nylas Docs](https://developer.nylas.com/cookbook/agents/email-support-agent/): Poll a support inbox, match incoming questions against a knowledge base, draft tier-appropriate replies, and route to a human reviewer before anything goes out. Risk tiering, confidence gates, the whole pattern.
+- [Build an AI email triage agent | Nylas Docs](https://developer.nylas.com/cookbook/agents/email-triage-agent/): Run a 15-minute cron that classifies unread mail into URGENT / ACTION / FYI / NOISE, drafts replies for the top two, and archives the noise. Cheap, deterministic, and works with any LLM.
+- [Parse email signatures for contact enrichment | Nylas Docs](https://developer.nylas.com/cookbook/agents/signature-enrichment/): Pull titles, phone numbers, LinkedIn URLs, and company affiliation out of inbound mail signatures using regex (faster, cheaper, deterministic). Cross-reference 3+ messages to lift accuracy from 67% to 91%.
+- [Reach inbox zero with an AI agent | Nylas Docs](https://developer.nylas.com/cookbook/agents/inbox-zero/): An interactive triage flow — pull 50 unread, sort into four buckets, draft replies for the action items, archive the noise. You approve everything; the agent never sends. 5-minute loop, daily.
+- [Extract OTP and 2FA codes from email | Nylas Docs](https://developer.nylas.com/cookbook/cli/extract-otp-codes/): Pull one-time passwords out of inbound mail without opening an inbox. Single-shot capture, polling watch mode, and a CI-friendly --raw output for shell scripts.
+- [Connect voice agents to email & calendar | Nylas Docs](https://developer.nylas.com/cookbook/cli/connect-voice-agents/): Bridge LiveKit, Vapi, Retell, Bland.ai, or OpenAI Realtime to a real mailbox and calendar via the Nylas CLI. Subprocess tool patterns, voice UX rules, and the 30-second timeout you'll forget if you don't set it.
+- [CLI mail merge with send-time optimization | Nylas Docs](https://developer.nylas.com/cookbook/cli/mail-merge/): Variable substitution from a CSV, per-recipient timezone scheduling, throttling that respects provider reputation rules, and a dry-run mode by default — a personalized batch send from your terminal.
+- [Build an LLM agent with email & calendar tools | Nylas Docs](https://developer.nylas.com/cookbook/cli/llm-agent-with-tools/): Wrap the Nylas CLI as subprocess tools an LLM can call. Skip ~300 lines of OAuth boilerplate, get list/send/calendar tools the agent can drive across Gmail, Microsoft 365, Exchange, Yahoo, iCloud, and IMAP.
+- [Build a Manus skill for Nylas email & calendar | Nylas Docs](https://developer.nylas.com/cookbook/cli/manus-skill/): Package the Nylas CLI as a Manus Skill so any sandbox can install it on demand. SKILL.md frontmatter, install script that detects architecture, plus the safety rules every skill should enforce.
+- [Record Zoom, Google Meet, and Teams from the CLI | Nylas Docs](https://developer.nylas.com/cookbook/cli/record-meetings/): Send a Notetaker bot to any meeting URL, schedule recordings in advance, and pull transcripts and recordings — Zoom, Google Meet, and Microsoft Teams from a single command.
+- [Reducing payload size with compression | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/compression/): Use gzip compression and field selection to cut bandwidth, speed up responses, and avoid firewall and SNS size limits across the Nylas APIs, webhooks, and notification channels.
+- [Dealing with spam in Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/dealing-with-spam/): When spam occurs, and what to do if an account using your Nylas application is blocked.
+- [Handling expired grants | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/grant-lifecycle/): Best practices for detecting and recovering expired grants in your Nylas integration without losing data.
+- [Monitoring for and handling errors in Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/error-handling/): Best practices for handling errors in your Nylas integration.
+- [Use cases | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/): End-to-end tutorials showing how to combine the Nylas Email, Calendar, Contacts, Scheduler, and Notetaker APIs into real-world workflows.
+- [Improving email deliverability with Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/improving-email-delivery/): Optimize delivery of messages with Nylas.
+- [Managing grants | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/manage-grants/): Update, re-authenticate, and delete grants.
+- [Avoiding rate limits in Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/rate-limits/): Best practices to avoid hitting rate limits while using Nylas.
+- [Security best practices | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/): Best practices for securing your Nylas integration.
+- [Searching with Nylas | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/search/): Search your users' data using query parameters and metadata filtering.
+- [Reducing response sizes with field selection | Nylas Docs](https://developer.nylas.com/dev-guide/platform/field-selection/): Use field selection to control the fields Nylas returns in API responses and webhook notifications.
+- [Supported attachment media types | Nylas Docs](https://developer.nylas.com/dev-guide/platform/file-attachment-media-types/): The file types you can attach to messages using the Nylas Email API.
+- [The Nylas platform | Nylas Docs](https://developer.nylas.com/dev-guide/platform/): Nylas' platform architecture, processes, rate limits, and data retention policies.
+- [Nylas domain certificates | Nylas Docs](https://developer.nylas.com/dev-guide/platform/nylas-domain-certificates/): Let's Encrypt certificates and Nylas domains.
+- [Restricting data access with privacy mode | Nylas Docs](https://developer.nylas.com/dev-guide/platform/privacy-mode/): Use privacy mode to restrict users' access to events created with the Nylas APIs.
+- [Nylas API and provider rate limits | Nylas Docs](https://developer.nylas.com/dev-guide/platform/rate-limits/): Provider- and Nylas-specific rate limits.
+- [Best practices for webhooks | Nylas Docs](https://developer.nylas.com/dev-guide/best-practices/webhook-best-practices/): Tips and considerations when implementing webhooks with your Nylas applications.
+- [Reporting abuse of the Nylas platform | Nylas Docs](https://developer.nylas.com/dev-guide/platform/report-abuse/): Report abuse, misuse, and spam that might originate from Nylas systems.
+- [Nylas data residency | Nylas Docs](https://developer.nylas.com/dev-guide/platform/data-residency/): Nylas' data residency options and information about how they allow you to comply with regulations relating to personally identifiable information (PII).
+- [Nylas static IP addresses | Nylas Docs](https://developer.nylas.com/dev-guide/platform/static-ips/): A list of Nylas static IPs, suitable for allowlisting.
+- [What is nyl.as? | Nylas Docs](https://developer.nylas.com/dev-guide/platform/what-is-nyl/): Learn about the `https://nyl.as/` links you might come across.
+- [[date] Nylas Kotlin/Java SDK v | Nylas Docs](https://developer.nylas.com/new/_templates/date-java-sdk-v/): 
+- [[date] Nylas Node.js SDK v | Nylas Docs](https://developer.nylas.com/new/_templates/date-node-sdk-v/): 
+- [[date] Nylas Ruby SDK v | Nylas Docs](https://developer.nylas.com/new/_templates/date-ruby-sdk-v/): 
+- [[date] Nylas Python SDK v | Nylas Docs](https://developer.nylas.com/new/_templates/date-python-sdk-v/): 
+- [[yyyy-mm-dd] New in Nylas - [Month Year] | Nylas Docs](https://developer.nylas.com/new/_templates/yyyy-mm-dd-new-in-nylas/): 
+- [All changelogs | Nylas Docs](https://developer.nylas.com/new/changelogs/all/): An exhaustive list of Nylas changelogs.
+- [SDK and tool changelogs | Nylas Docs](https://developer.nylas.com/new/changelogs/): Changelogs for Nylas' SDKs and developer tools.
+- [Changes to authentication in Nylas v3 | Nylas Docs](https://developer.nylas.com/new/in-v3/auth-changes/): Changes to authentication between Nylas v2.7 and v3.
+- [Changes to Calendar and Events APIs in Nylas v3 | Nylas Docs](https://developer.nylas.com/new/in-v3/calendar-changes/): Changes to the Calendar and Events APIs between Nylas v2.7 and v3.
+- [Changes to Email APIs in Nylas v3 | Nylas Docs](https://developer.nylas.com/new/in-v3/email-changes/): Changes to the Email APIs (including the Messages, Drafts, and Threads APIs) between Nylas v2.7 and v3.
+- [What's new in Nylas v3? | Nylas Docs](https://developer.nylas.com/new/in-v3/): Learn about changes to Nylas between v2.7 and v3.
+- [Nylas v3 diff view | Nylas Docs](https://developer.nylas.com/new/in-v3/tldr-diff/): A terse, high-level overview of the changes between Nylas v2.7 and v3.
+- [Changes to the Contacts API in Nylas v3 | Nylas Docs](https://developer.nylas.com/new/in-v3/contacts-changes/): Changes to the Contacts API between Nylas v2.7 and v3.
+- [Changes to webhooks in Nylas v3 | Nylas Docs](https://developer.nylas.com/new/in-v3/webhooks-changes/): Changes to webhooks between Nylas v2.7 and v3.
+- [All product release notes | Nylas Docs](https://developer.nylas.com/new/release-notes/all/): An exhaustive list of Nylas Release Notes
+- [Release notes | Nylas Docs](https://developer.nylas.com/new/release-notes/): Find out about new releases and read changelogs.
+- [Setting up Google Pub/Sub | Nylas Docs](https://developer.nylas.com/provider-guides/google/connect-google-pub-sub/): Set up Google Pub/Sub and connect it to your Nylas application for faster syncing of messages.
+- [Creating a Google auth app | Nylas Docs](https://developer.nylas.com/provider-guides/google/create-google-app/): Create and configure a Google Cloud Platform (GCP) application to use with Nylas.
+- [Google verification and security assessment guide | Nylas Docs](https://developer.nylas.com/provider-guides/google/google-verification-security-assessment-guide/): Complete Google's verification and security assessment processes for your Google Cloud Platform (GCP) application.
+- [Setting up Google service accounts | Nylas Docs](https://developer.nylas.com/provider-guides/google/google-workspace-service-accounts/): Set up service accounts for your Google application.
+- [Using Google accounts and data with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/google/): Build and maintain a Google auth app and connector for your Nylas application.
+- [Working with delegated mailboxes and Google Groups | Nylas Docs](https://developer.nylas.com/provider-guides/google/shared-accounts/): How to work with delegated mailboxes and Google Groups in Nylas.
+- [Using the Nylas Shared GCP App | Nylas Docs](https://developer.nylas.com/provider-guides/google/shared-gcp-app/): Use the Nylas Shared Google Cloud Platform (GCP) project to skip Google's OAuth verification and security assessment process and get to production faster.
+- [Using IMAP accounts and data with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/imap/): Work with IMAP accounts and data in Nylas.
+- [Troubleshooting IMAP configuration | Nylas Docs](https://developer.nylas.com/provider-guides/imap/troubleshooting/): Troubleshoot issues that you might encounter when working with IMAP accounts in Nylas.
+- [Configuring Microsoft admin approval | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/admin-approval/): Adjust your user settings or API permissions to control how users authenticate against your application.
+- [Authenticating Microsoft accounts with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/authentication/): Authenticate Microsoft accounts with Nylas using Hosted and Bring Your Own Authentication.
+- [Creating an Azure auth app | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/create-azure-app/): Create and configure a Microsoft Azure auth app.
+- [Using Microsoft accounts and data with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/): Build and maintain a Microsoft provider auth app and connector for your Nylas application, and work with Exchange, Outlook.com, and Microsoft 365 accounts.
+- [Suggested Microsoft 365 settings | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/microsoft-365-settings/): Recommended Microsoft 365 settings to ensure the best compatibility with Nylas.
+- [Shared Outlook folders | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/shared-folders/): How to share Microsoft Outlook folders and import folders shared from other people.
+- [Troubleshooting Microsoft configuration | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/troubleshooting/): Troubleshoot common issues that you might encounter when using Microsoft accounts with Nylas.
+- [Microsoft publisher verification guide | Nylas Docs](https://developer.nylas.com/provider-guides/microsoft/verification-guide/): Complete Microsoft's publisher verification process.
+- [Troubleshooting Zoom Meetings | Nylas Docs](https://developer.nylas.com/provider-guides/zoom-meetings/troubleshoot-zoom/): Identify common issues with Zoom Meetings and troubleshoot them.
+- [Authenticating Zoom Meetings accounts with Nylas | Nylas Docs](https://developer.nylas.com/provider-guides/zoom-meetings/): Connect Zoom accounts to Nylas, and automatically create conferencing details for meetings.
+- [Notification reference | Nylas Docs](https://developer.nylas.com/reference/notifications/): Schema reference for all Nylas webhook notification payloads. Browse triggers by category to see data.object field definitions and example payloads.
+- [User changed email account password | Nylas Docs](https://developer.nylas.com/support/troubleshooting/changed-password/): Learn what to do when a user changes their email account password.
+- [API reference | Nylas Docs](https://developer.nylas.com/reference/api/): Complete API reference for the Nylas v3 platform. Browse endpoints for email, calendar, contacts, scheduling, authentication, and administration.
+- [Message was sent successfully but not received | Nylas Docs](https://developer.nylas.com/support/troubleshooting/email-not-received/): Sometimes, you might receive a `200` response from the Nylas APIs after sending a message, but the recipient never receives it. Learn what to do when this happens.
+- [Get header content from messages | Nylas Docs](https://developer.nylas.com/support/troubleshooting/get-header-contents/): Find and download detailed message header information on Google and Microsoft.
+- [Immediate webhook notifications for read messages | Nylas Docs](https://developer.nylas.com/support/troubleshooting/immediate-webhook-notification/): Sometimes, you might immediately receive a `message.opened` webhook notification immediately after you send a tracked message. Learn what to do when this happens.
+- [Missing notifications for read messages | Nylas Docs](https://developer.nylas.com/support/troubleshooting/missing-webhook-notifications/): Sometimes, you might not receive webhook notifications when a recipient reads a tracked message. Learn what to do when this happens.
+- [Link in tracked message directs to spam | Nylas Docs](https://developer.nylas.com/support/troubleshooting/nylas-spam-link/): Learn what to do when a Nylas-generated link in a tracked message directs to spam or an otherwise malicious website.
+- [How Agent Account calendars work | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/calendars/): How an Agent Account's calendar hosts events, receives invitations, and RSVPs to meetings from people using Google Calendar, Microsoft 365, or Apple Calendar.
+- [Checking for quarantined EAS devices | Nylas Docs](https://developer.nylas.com/unlisted/microsoft/quarantined-eas-devices/): Check for quarantined EAS devices.
+- [Email threading for agents | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/email-threading/): How email threading works under the hood, how Nylas preserves thread headers on every send path, and how to use the Threads API to give an agent conversation context across replies.
+- [Nylas Agent Accounts | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/): Nylas Agent Accounts are fully functional, Nylas-hosted email and calendar mailboxes that you create and control entirely through the API.
+- [Connect mail clients to an Agent Account | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/mail-clients/): Give an Agent Account protocol-level access so end users can connect Outlook, Apple Mail, Thunderbird, and other mail clients over IMAP and SMTP submission alongside the API.
+- [How Agent Account mailboxes work | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/mailboxes/): How an Agent Account's mailbox sends and receives email -- the lifecycle of an inbound message, how outbound sending works, deliverability signals, folders, drafts, and threading.
+- [Policies, Rules, and Lists | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/policies-rules-lists/): Configure limits, spam detection, and inbound and outbound mail filtering for Nylas Agent Accounts with Policies, Rules, and Lists.
+- [Provisioning Agent Accounts | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/provisioning/): Register a domain for Nylas Agent Accounts and create accounts programmatically or from the Dashboard.
+- [[2023-08-16] Nylas Node.js SDK v7.0.0-beta.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-08-16-node-sdk-v7-0-0-beta-1/): 
+- [[2023-08-16] Nylas Kotlin/Java SDK v2.0.0-beta.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-08-16-java-sdk-v2-0-0-beta-1/): 
+- [[2023-08-21] Nylas Node.js SDK v7.0.0-beta.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-08-21-node-sdk-v7-0-0-beta-2/): 
+- [[2023-09-08] Nylas Python SDK v6.0.0-beta.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-09-08-python-sdk-v6-0-0-beta-1/): 
+- [Supported endpoints for Agent Accounts | Nylas Docs](https://developer.nylas.com/v3/agent-accounts/supported-endpoints/): A full reference of the Nylas v3 endpoints and webhooks that work with Agent Account grants — Messages, Threads, Folders, Drafts, Attachments, Calendars, Events, Contacts, plus the Agent-Account-only admin resources.
+- [[2023-08-16] Nylas Ruby SDK v6.0.0-beta.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-08-16-ruby-sdk-v6-0-0-beta-1/): 
+- [[2023-09-26] Nylas Python SDK v6.0.0-beta.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-09-26-python-sdk-v6-0-0-beta-2/): 
+- [[2023-09-28] Nylas Python SDK v6.0.0-beta.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-09-28-python-sdk-v6-0-0-beta-3/): 
+- [[2023-10-18] Nylas Python SDK v6.0.0-beta.4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-10-18-python-sdk-v6-0-0-beta-4/): 
+- [[2023-10-23] Nylas Node.js SDK v7.0.0-beta.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-10-23-node-sdk-v7-0-0-beta-3/): 
+- [[2023-10-27] Nylas Python SDK v6.0.0-beta.5 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-10-27-python-sdk-v6-0-0-beta-5/): 
+- [[2023-10-31] Nylas Python SDK v6.0.0-beta.6 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-10-31-python-sdk-v6-0-0-beta-6/): 
+- [[2023-11-21] Nylas Kotlin/Java SDK v2.0.0-beta.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-11-21-java-sdk-v2-0-0-beta-2/): 
+- [[2023-11-21] Nylas Python SDK v6.0.0-beta.7 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-11-21-python-sdk-v6-0-0-beta-7/): 
+- [[2023-11-21] Nylas Ruby SDK v6.0.0-beta.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-11-21-ruby-sdk-v6-0-0-beta-2/): 
+- [[2023-12-18] Nylas Kotlin/Java SDK v2.0.0-beta.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2023-12-18-java-sdk-v2-0-0-beta-3/): 
+- [[2024-01-04] Nylas Python SDK v6.0.0-beta.8 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-01-04-python-sdk-v6-0-0-beta-8/): 
+- [[2024-01-04] Nylas Ruby SDK v6.0.0-beta.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-01-04-ruby-sdk-v6-0-0-beta-3/): 
+- [[2024-01-09] Nylas Kotlin/Java SDK v2.0.0-beta.4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-01-09-java-sdk-v2-0-0-beta-4/): 
+- [[2024-01-12] Nylas Node.js SDK v7.0.0-beta.4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-01-12-node-sdk-v7-0-0-beta-4/): 
+- [[2024-02-05] Nylas Kotlin/Java SDK v2.0.0-beta.5 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-05-java-sdk-v2-0-0-beta-5/): 
+- [[2024-02-05] Nylas Node.js SDK v7.0.0 beta 5 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-05-node-sdk-v7-0-0-beta-5/): 
+- [[2024-02-05] Nylas Ruby SDK v6.0.0 beta 4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-05-ruby-sdk-v6-0-0-beta-4/): 
+- [[2024-02-09] Nylas Kotlin/Java SDK v2.0.0 - GA | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-09-java-sdk-v2-0-0/): 
+- [[2024-02-09] GA - Nylas Node.js SDK v7.0.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-09-node-sdk-v7-0-0/): 
+- [[2024-02-05] Nylas Python SDK v6.0.0 beta 9 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-05-python-sdk-v6-0-0-beta-9/): 
+- [[2024-02-09] Nylas Python SDK v6.0.0 - GA | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-09-python-sdk-v6-0-0/): 
+- [[2024-02-09] Nylas Python SDK v6.0.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-09-python-sdk-v6-0-1/): 
+- [[2024-02-09] Nylas Ruby SDK v6.0.0 - GA | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-09-ruby-sdk-v6-0-0/): 
+- [[2024-02-12] Nylas Kotlin/Java SDK v2.1.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-12-java-sdk-v2-1-0/): 
+- [[2024-02-09] Nylas Node.js SDK v6.11.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-12-node-sdk-v6-11-1/): 
+- [[2024-02-12] Nylas Node.js SDK v7.1.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-12-node-sdk-v7-1-0/): 
+- [[2024-02-12] Nylas Ruby SDK v6.0.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-12-ruby-sdk-v6-0-1/): 
+- [[2024-02-27] Nylas Kotlin/Java SDK v2.2.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-27-java-sdk-v2-2-0/): 
+- [[2024-02-27] Nylas Node.js SDK v7.2.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-27-node-sdk-v7-2-0/): 
+- [[2024-02-27] Nylas Python SDK v6.1.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-27-python-sdk-v6-1-0/): 
+- [[2024-02-27] Nylas Ruby SDK v6.0.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-02-27-ruby-sdk-v6-0-2/): 
+- [[2024-03-05] Nylas Kotlin/Java SDK v2.2.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-03-05-java-sdk-v2-2-1/): 
+- [[2024-03-05] Nylas Node.js SDK v7.2.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-03-05-node-sdk-v7-2-1/): 
+- [[2024-03-05] Nylas Python SDK v6.1.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-03-05-python-sdk-v6-1-1/): 
+- [[2024-03-05] Nylas Ruby SDK v6.0.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-03-05-ruby-sdk-v6-0-3/): 
+- [[2024-04-15] Nylas Node.js SDK v7.3.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-04-15-node-sdk-v7-3-0/): 
+- [[2024-04-30] Nylas Kotlin/Java SDK v2.3.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-04-30-java-sdk-v2-3-0/): 
+- [[2024-05-01] Nylas Node.js SDK v7.4.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-05-01-node-sdk-v7-4-0/): 
+- [[2024-05-17] Nylas Node.js SDK v7.5.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-05-17-node-sdk-v7-5-0/): 
+- [[2024-05-17] Nylas Python SDK v6.2.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-05-17-python-sdk-v6-2-0/): 
+- [[2024-05-21] Nylas Scheduler v3 Beta 1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-05-21-scheduler-v3-beta1/): 
+- [[2024-06-05] Nylas Python SDK v6.3.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-05-python-sdk-v6-3-0/): 
+- [[2024-06-11] Nylas Kotlin/Java SDK v2.3.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-11-java-sdk-v2-3-1/): 
+- [[2024-06-13] Nylas Scheduler v3 Beta 2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-13-scheduler-v3-beta2/): 
+- [[2024-06-25] Nylas Scheduler v3 Beta 3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-25-scheduler-v3-beta3/): 
+- [[2024-06-26] Nylas Kotlin/Java SDK v2.3.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-26-java-sdk-v2-3-2/): 
+- [[2024-06-28] Nylas Kotlin/Java SDK v2.4.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-06-28-java-sdk-v2-4-0/): 
+- [[2024-07-12] Nylas Node.js SDK v7.5.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-07-12-node-sdk-v7-5-2/): 
+- [[2024-07-12] Nylas Scheduler v3 Beta 4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-07-12-scheduler-v3-beta4/): 
+- [[2024-07-09] Nylas Node.js SDK v7.5.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-07-09-node-sdk-v7-5-1/): 
+- [[2024-07-25] Nylas Ruby SDK v6.1.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-07-25-ruby-sdk-v6-1-0/): 
+- [[2024-07-26] Nylas Kotlin/Java SDK v2.4.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-07-26-java-sdk-v2-4-1/): 
+- [[2024-08-20] Nylas Ruby SDK v6.1.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-08-20-ruby-sdk-v6-1-1/): 
+- [[2024-09-04] Nylas Python SDK v6.3.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-09-04-python-sdk-v6-3-1/): 
+- [[2024-09-24] Nylas Python SDK v6.4.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-09-24-python-sdk-v6-4-0/): 
+- [[2024-09-25] Nylas Kotlin/Java SDK v2.5.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-09-25-java-sdk-v2-5-0/): 
+- [[2024-10-30] Nylas Node.js SDK v7.6.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-10-30-node-sdk-v7-6-1/): 
+- [[2024-09-24] Nylas Ruby SDK v6.2.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-09-24-ruby-sdk-v6-2-0/): 
+- [[2024-10-18] Nylas Node.js SDK v7.6.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-10-18-node-sdk-v7-6-0/): 
+- [[2024-10-31] Nylas Node.js SDK v7.6.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-10-31-node-sdk-v7-6-2/): 
+- [[2024-11-12] Nylas Kotlin/Java SDK v2.5.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-11-12-java-sdk-v2-5-1/): 
+- [[2024-11-12] Nylas Ruby SDK v6.2.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-11-12-ruby-sdk-v6-2-1/): 
+- [[2024-11-14] Nylas Node.js SDK v7.7.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-11-14-node-sdk-v7-7-0/): 
+- [[2024-11-26] Nylas Node.js SDK v7.7.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-11-25-node-sdk-v7-7-1/): 
+- [[2024-12-20] Nylas Python SDK v6.5.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-12-20-python-sdk-v6-5-0/): 
+- [[2024-12-02] Nylas Kotlin/Java SDK v2.5.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-12-02-java-sdk-v2-5-2/): 
+- [[2025-01-23] Nylas Node.js SDK v7.7.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-01-23-node-sdk-v7-7-3/): 
+- [[2025-01-23] Nylas Node.js SDK v7.7.4 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-01-23-node-sdk-v7-7-4/): 
+- [[2024-12-02] Nylas Node.js SDK v7.7.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-12-02-node-sdk-v7-7-2/): 
+- [[2024-12-02] Nylas Ruby SDK v6.2.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2024-12-02-ruby-sdk-v6-2-2/): 
+- [[2025-01-23] Nylas Ruby SDK v6.2.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-01-23-ruby-sdk-v6-2-3/): 
+- [[2025-01-24] Nylas Kotlin/Java SDK v2.6.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-01-24-java-sdk-v2-6-0/): 
+- [[2025-03-03] Nylas Kotlin/Java SDK v2.7.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-03-03-java-sdk-v2-7-0/): 
+- [[2025-01-28] Nylas Python SDK v6.6.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-01-28-python-sdk-v6-6-0/): 
+- [[2025-03-03] Nylas Node.js SDK v7.8.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-03-03-node-sdk-v7-8-0/): 
+- [[2025-03-03] Nylas Python SDK v6.8.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-03-03-python-sdk-v6-8-0/): 
+- [[2025-02-19] Nylas Python SDK v6.7.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-02-19-python-sdk-v6-7-0/): 
+- [[2025-03-03] Nylas Ruby SDK v6.3.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-03-03-ruby-sdk-v6-3-0/): 
+- [[2025-04-09] Nylas Notetaker private preview update | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-09-notetaker/): 
+- [[2025-04-02] Nylas Notetaker private preview update | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-02-notetaker/): 
+- [[2025-04-16] Nylas Notetaker private preview update | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-16-notetaker/): 
+- [[2025-04-30] Nylas Kotlin/Java SDK v2.8.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-30-java-sdk-v2-8-0/): 
+- [[2025-04-30] Nylas Node.js SDK v7.9.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-30-node-sdk-v7-9-0/): 
+- [[2025-04-30] Nylas Python SDK v6.9.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-30-python-sdk-v6-9-0/): 
+- [[2025-04-30] Nylas Ruby SDK v6.4.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-04-30-ruby-sdk-v6-4-0/): 
+- [[2025-05-27] Nylas Node.js SDK v7.10.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-05-27-node-sdk-v7-10-0/): 
+- [[2025-05-12] Scheduler group events & UI components | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-05-12-scheduler-group-events/): 
+- [[2025-06-12] Nylas Kotlin/Java SDK v2.10.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-06-12-java-sdk-v2-10-0/): 
+- [[2025-05-27] Nylas Kotlin/Java SDK v2.9.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-05-27-java-sdk-v2-9-0/): 
+- [[2025-06-13] Nylas Ruby SDK v6.5.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-06-13-ruby-sdk-v6-5-0/): 
+- [[2025-06-23] Nylas Node.js SDK v7.11.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-06-23-node-sdk-v7-11-0/): 
+- [[2025-06-25] Nylas Kotlin/Java SDK v2.11.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-06-25-java-sdk-v2-11-0/): 
+- [[2025-07-14] Nylas Kotlin/Java SDK v2.11.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-07-14-java-sdk-v2-11-1/): 
+- [[2025-07-18] Nylas Ruby SDK v6.6.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-07-18-ruby-sdk-v6-6-0/): 
+- [[2025-08-01] Nylas Kotlin/Java SDK v2.12.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-01-java-sdk-v2-12-0/): 
+- [[2025-08-05] Nylas Python SDK v6.10.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-05-python-sdk-v6-10-0/): 
+- [[2025-08-05] Nylas Python SDK v6.11.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-05-python-sdk-v6-11-0/): 
+- [[2025-08-01] Nylas Node.js SDK v7.12.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-01-node-sdk-v7-12-0/): 
+- [[2025-08-14] Nylas Kotlin/Java SDK v2.13.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-14-java-sdk-v-2-13-1/): 
+- [[2025-08-12] Nylas Kotlin/Java SDK v2.13.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-12-java-sdk-v2-13-0/): 
+- [[2025-08-18] Nylas Python SDK v6.11.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-08-18-python-sdk-v6-11-1/): 
+- [[2025-09-02] Nylas Kotlin/Java SDK v2.14.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-09-02-java-sdk-v2-14-0/): 
+- [[2025-09-02] Nylas Node.js SDK v7.13.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-09-02-node-sdk-v7-13-0/): 
+- [[2025-09-26] Nylas Python SDK v6.13.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-09-25-python-sdk-v6-13-0/): 
+- [[2025-10-03] Nylas Ruby SDK v6.7.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-10-03-ruby-sdk-v6-7-0/): 
+- [[2025-10-03] Nylas Node.js SDK v7.13.2 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-10-03-node-sdk-v7-13-2/): 
+- [[2025-09-02] Nylas Python SDK v6.12.0 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-09-02-python-sdk-v6-12-0/): 
+- [[2025-09-23] Nylas Node.js SDK v7.13.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-09-23-node-sdk-v7-13-1/): 
+- [[2025-10-08] Nylas Python SDK v6.13.1 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-10-08-python-sdk-v6-13-1/): 
+- [[2025-10-10] Nylas Node.js SDK v7.13.3 | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2025-10-10-node-sdk-v7-13-3/): 
+- [[2026-01-16] Upcoming changes to grant schema & Connectors | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/2026-01-16-upcoming-grant-connector-schema-changes/): 
+- [All changelogs | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/all/): An exhaustive list of Nylas changelogs.
+- [SDK and tool changelogs | Nylas Docs](https://developer.nylas.com/new/v3-changelogs/): The latest changes to Nylas SDKs and developer tools.
+- [Administration API docs | Nylas Docs](https://developer.nylas.com/v3/api-references/admin/): 
+- [Email, Calendar, Contacts, and Notetaker API docs | Nylas Docs](https://developer.nylas.com/v3/api-references/ecc/): 
+- [Nylas API reference documentation | Nylas Docs](https://developer.nylas.com/v3/api-references/): Browse the Nylas API reference documentation.
+- [Nylas Postman collection | Nylas Docs](https://developer.nylas.com/v3/api-references/postman/): Use the Nylas Postman collection to test the Nylas APIs.
+- [Scheduler API docs | Nylas Docs](https://developer.nylas.com/v3/api-references/scheduler/): 
+- [nylas-additional-participants | Nylas Docs](https://developer.nylas.com/reference/ui/additional-participants/): The `nylas-additional-participants` component is a form input for adding additional participants to an event.
+- [nylas-availability-picker | Nylas Docs](https://developer.nylas.com/reference/ui/availability-picker/): The `nylas-availability-picker` component is a form input for selecting availability (open hours).
+- [nylas-booked-event-card | Nylas Docs](https://developer.nylas.com/reference/ui/booked-event-card/): The `nylas-booked-event-card` component is a UI component that displays the booked event card.
+- [nylas-booking-calendar-picker | Nylas Docs](https://developer.nylas.com/reference/ui/booking-calendar-picker/): The `nylas-booking-calendar-picker` component is a UI component that displays the booking calendar picker.
+- [nylas-booking-confirmation-redirect | Nylas Docs](https://developer.nylas.com/reference/ui/booking-confirmation-redirect/): The `nylas-booking-confirmation-redirect` component is a UI component that allows the user to choose a custom redirect URL after a booking is confirmed.
+- [nylas-booking-confirmation-type | Nylas Docs](https://developer.nylas.com/reference/ui/booking-confirmation-type/): The `nylas-booking-confirmation-type` component is a UI component that allows the user to choose a custom redirect URL after a booking is confirmed.
+- [nylas-booking-form-config | Nylas Docs](https://developer.nylas.com/reference/ui/booking-form-config/): The `nylas-booking-form-config` component is a form input for adding additional fields to the booking form.
+- [nylas-booking-form | Nylas Docs](https://developer.nylas.com/reference/ui/booking-form/): The `nylas-booking-form` component is a UI component that allows users to book an event.
+- [nylas-buffer-time | Nylas Docs](https://developer.nylas.com/reference/ui/buffer-time/): The `nylas-buffer-time` component is a UI component that allows users to set buffer time before and after an event.
+- [nylas-calendar-picker | Nylas Docs](https://developer.nylas.com/reference/ui/calendar-picker/): The `nylas-calendar-picker` component is a form input for selecting calendars to check availability.
+- [nylas-cancel-booking-form | Nylas Docs](https://developer.nylas.com/reference/ui/cancel-booking-form/): The `nylas-cancel-booking-form` component is a UI component that allows users to cancel a booking (DELETE request).
+- [nylas-cancellation-policy | Nylas Docs](https://developer.nylas.com/reference/ui/cancellation-policy/): The `nylas-cancellation-policy` component is a form input for the cancellation policy message of an event.
+- [nylas-cancelled-event-card | Nylas Docs](https://developer.nylas.com/reference/ui/cancelled-event-card/): The `nylas-cancelled-event-card` component is a UI component that displays the cancelled event card.
+- [nylas-confirmation-email | Nylas Docs](https://developer.nylas.com/reference/ui/confirmation-email/): The `nylas-confirmation-email` component is a UI component that allows users to set buffer time before and after an event.
+- [nylas-confirmed-event-card | Nylas Docs](https://developer.nylas.com/reference/ui/confirmed-event-card/): The `nylas-confirmed-event-card` component is a UI component that displays the confirmed event card.
+- [nylas-connected-calendars | Nylas Docs](https://developer.nylas.com/reference/ui/connected-calendars/): The `nylas-connected-calendars` component is a form input for selecting calendars to check availability for participants.
+- [nylas-custom-booking-flow | Nylas Docs](https://developer.nylas.com/reference/ui/custom-booking-flow/): The `nylas-custom-booking-flow` component is an input form for booking type (automatically or manually accept bookings) and confirmation redirect URL (default o
+- [nylas-customize-booking-settings | Nylas Docs](https://developer.nylas.com/reference/ui/customize-booking-settings/): The `nylas-customize-booking-settings` component is a UI component that displays the booking calendar picker.
+- [nylas-custom-event-slug | Nylas Docs](https://developer.nylas.com/reference/ui/custom-event-slug/): The `nylas-custom-event-slug` component is a UI component that allows users to add a custom URL slug for their event link.
+- [nylas-date-component | Nylas Docs](https://developer.nylas.com/reference/ui/date-component/): The `nylas-date-component` component is a UI component that allows users to input text, email, or phone number values.
+- [nylas-date-picker | Nylas Docs](https://developer.nylas.com/reference/ui/date-picker/): The `nylas-date-picker` component is a UI component that allows users to select a date.
+- [nylas-disable-emails | Nylas Docs](https://developer.nylas.com/reference/ui/disable-emails/): The `nylas-disable-emails` component is a UI component that allows users to select the event type for the scheduler configuration.
+- [nylas-editor-tabs-group | Nylas Docs](https://developer.nylas.com/reference/ui/editor-tabs-group/): The nylas-editor-tabs-group component provides the user interface for managing editor tabs within the scheduler editor.
+- [nylas-editor-tabs | Nylas Docs](https://developer.nylas.com/reference/ui/editor-tabs/): The nylas-editor-tabs component provides the user interface for managing editor tabs within the scheduler editor.
+- [nylas-event-calendar | Nylas Docs](https://developer.nylas.com/reference/ui/event-calendar/): Reference documentation for the nylas-event-calendar web component.
+- [nylas-event-capacity | Nylas Docs](https://developer.nylas.com/reference/ui/event-capacity/): The `nylas-event-capacity` component is a UI component that allows users to set the event capacity for the scheduler configuration.
+- [nylas-event-description | Nylas Docs](https://developer.nylas.com/reference/ui/event-description/): The `nylas-event-description` component is a form input for the description of an event.
+- [nylas-event-duration | Nylas Docs](https://developer.nylas.com/reference/ui/event-duration/): The `nylas-event-duration` component is a form input for the duration of an event.
+- [nylas-event-info | Nylas Docs](https://developer.nylas.com/reference/ui/event-info/): The `nylas-event-info` component is an input form for event information such as title, description, duration, location.
+- [nylas-event-location | Nylas Docs](https://developer.nylas.com/reference/ui/event-location/): The `nylas-event-location` component is a form input for the location of an event.
+- [nylas-event-limits | Nylas Docs](https://developer.nylas.com/reference/ui/event-limits/): The `nylas-event-limits` component is an input form for event limits, such as the number of available days in the future and
+- [nylas-event-timeslot | Nylas Docs](https://developer.nylas.com/reference/ui/event-timeslot/): The `nylas-event-timeslot` component is a UI component that allows users to select the event type for the scheduler configuration.
+- [nylas-event-title | Nylas Docs](https://developer.nylas.com/reference/ui/event-title/): The `nylas-event-title` component is a form input for the title of an event.
+- [nylas-feedback-form | Nylas Docs](https://developer.nylas.com/reference/ui/feedback-form/): The `nylas-feedback-form` component is a UI component that displays the booked event card.
+- [nylas-form-card | Nylas Docs](https://developer.nylas.com/reference/ui/form-card/): The `nylas-form-card` component is a card that can be used to display a form. It is a simple wrapper around a card with a header and content area.
+- [nylas-limit-future-bookings | Nylas Docs](https://developer.nylas.com/reference/ui/limit-future-bookings/): The `nylas-limit-future-bookings` component is a form input for the number of days in the future a guest is allowed to book an event.
+- [nylas-list-configurations | Nylas Docs](https://developer.nylas.com/reference/ui/list-configurations/): The `nylas-list-configurations` component displays a list of scheduling pages.
+- [Component reference | Nylas Docs](https://developer.nylas.com/reference/ui/): Reference documentation for Nylas web components from @nylas/web-elements. Browse props, events, methods, slots, and CSS parts for all nylas-* components.
+- [nylas-locale-switch | Nylas Docs](https://developer.nylas.com/reference/ui/locale-switch/): The `nylas-locale-switch` component is a UI component that allows users to select a timezone and language.
+- [nylas-logo | Nylas Docs](https://developer.nylas.com/reference/ui/logo/): Reference documentation for the nylas-logo web component.
+- [nylas-min-cancellation-notice | Nylas Docs](https://developer.nylas.com/reference/ui/min-cancellation-notice/): The `nylas-min-cancellation-notice` component is a form input for the minimum period of notice (minutes) that a guest must
+- [nylas-min-booking-notice | Nylas Docs](https://developer.nylas.com/reference/ui/min-booking-notice/): The `nylas-min-booking-notice` component is a form input for the minimum period of notice (minutes) that a guest must
+- [nylas-notetaker-config | Nylas Docs](https://developer.nylas.com/reference/ui/notetaker-config/): The `nylas-notetaker-config` component is a UI component that allows users to configure Notetaker settings for scheduler configurations.
+- [nylas-notification | Nylas Docs](https://developer.nylas.com/reference/ui/notification/): The `nylas-notification` component is a UI component that displays notifications.
+- [nylas-organizer-confirmation-card | Nylas Docs](https://developer.nylas.com/reference/ui/organizer-confirmation-card/): The `nylas-organizer-confirmation-card` component is a UI component that displays the booked event card.
+- [nylas-page-name | Nylas Docs](https://developer.nylas.com/reference/ui/page-name/): The `nylas-page-name` component is a UI component that allows users to add a custom page name which will appear in the top left corner of the date picker.
+- [nylas-only-specific-time-availability | Nylas Docs](https://developer.nylas.com/reference/ui/only-specific-time-availability/): The `nylas-only-specific-time-availability` component is a UI component that allows users to enable/disable specific time availability.
+- [nylas-participant-booking-calendars | Nylas Docs](https://developer.nylas.com/reference/ui/participant-booking-calendars/): The `nylas-participant-booking-calendars` component is a form input for selecting calendars to check availability for participants.
+- [nylas-page-styling | Nylas Docs](https://developer.nylas.com/reference/ui/page-styling/): The `nylas-page-styling` component is a UI component that allows users to customize the styling of the scheduling page.
+- [nylas-reminder-emails | Nylas Docs](https://developer.nylas.com/reference/ui/reminder-emails/): The `nylas-reminder-emails` component is a UI component that allows users to set buffer time before and after an event.
+- [nylas-participants-custom-availability | Nylas Docs](https://developer.nylas.com/reference/ui/participants-custom-availability/): The `nylas-participants-custom-availability` component is a form input for setting custom availability for participants.
+- [nylas-reminder-time | Nylas Docs](https://developer.nylas.com/reference/ui/reminder-time/): The `nylas-reminder-time` component is a form input for the reminder time before an event.
+- [nylas-scheduler-editor | Nylas Docs](https://developer.nylas.com/reference/ui/scheduler-editor/): The `nylas-scheduler-editor` component is a form that allows users to configure the settings for the Nylas Scheduler.
+- [nylas-scheduling-method | Nylas Docs](https://developer.nylas.com/reference/ui/scheduling-method/): The `nylas-scheduling-method` component is a UI component that displays the booking calendar picker.
+- [nylas-select-event-type | Nylas Docs](https://developer.nylas.com/reference/ui/select-event-type/): The `nylas-select-event-type` component is a UI component that allows users to select the event type for the scheduler configuration.
+- [nylas-selected-event-card | Nylas Docs](https://developer.nylas.com/reference/ui/selected-event-card/): The `nylas-selected-event-card` component is a UI component that displays the selected event card.
+- [nylas-specific-time-availability-picker | Nylas Docs](https://developer.nylas.com/reference/ui/specific-time-availability-picker/): The `nylas-specific-time-availability-picker` component allows selecting specific date/time availability slots.
+- [nylas-time-window-picker | Nylas Docs](https://developer.nylas.com/reference/ui/time-window-picker/): The `nylas-time-window-picker` component is a time picker that can be used to select a time.
+- [nylas-scheduling | Nylas Docs](https://developer.nylas.com/reference/ui/scheduling/): The `nylas-scheduling` component is used to display the Nylas Scheduling UI.
+- [nylas-timeslot-interval | Nylas Docs](https://developer.nylas.com/reference/ui/timeslot-interval/): The `nylas-timeslot-interval` component allows users to set their time slot interval preferences.
+- [nylas-timeslot-picker | Nylas Docs](https://developer.nylas.com/reference/ui/timeslot-picker/): The `nylas-timeslot-picker` component is a UI component that allows users to select a timeslot from a list of available timeslots.
+- [Creating grants with Bring Your Own Authentication | Nylas Docs](https://developer.nylas.com/v3/auth/bring-your-own-authentication/): Create grants using Bring Your Own (BYO) Authentication.
+- [Bulk authentication grants | Nylas Docs](https://developer.nylas.com/v3/auth/bulk-auth-grants/): Authenticate users in bulk with Google service accounts or Microsoft admin consent using the Nylas API.
+- [Configuring the Hosted Authentication login prompt | Nylas Docs](https://developer.nylas.com/v3/auth/customize-login-prompt/): Configure the OAuth login prompt for Nylas' Hosted OAuth flow.
+- [Creating grants with Hosted Authentication and an access token | Nylas Docs](https://developer.nylas.com/v3/auth/hosted-oauth-accesstoken/): Create grants using Hosted Authentication and an access token, and optional PKCE for extra security.
+- [Creating grants with Hosted Authentication and an API key | Nylas Docs](https://developer.nylas.com/v3/auth/hosted-oauth-apikey/): Create grants using Hosted Authentication and an API key.
+- [Authenticating with Nylas | Nylas Docs](https://developer.nylas.com/v3/auth/): Understand how Nylas authentication works, choose the right method for your project, and get your first grant created.
+- [Creating grants with IMAP authentication | Nylas Docs](https://developer.nylas.com/v3/auth/imap/): Create grants using IMAP authentication in Nylas.
+- [Using multiple provider applications | Nylas Docs](https://developer.nylas.com/v3/auth/using-multiple-provider-applications/): Use multiple provider auth applications with a single Connector.
+- [Adding conferencing to events | Nylas Docs](https://developer.nylas.com/v3/calendar/add-conferencing/): Add conferencing details to, or read them from, events in Nylas using the `conferencing` object.
+- [Authenticating with a Nylas Service Account | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-service-account/): Use a Nylas Service Account to authenticate requests to the Manage Domains API.
+- [Checking calendar availability | Nylas Docs](https://developer.nylas.com/v3/calendar/calendar-availability/): Manage calendar availability.
+- [Checking free/busy information | Nylas Docs](https://developer.nylas.com/v3/calendar/check-free-busy/): Check free/busy information.
+- [Group availability and booking | Nylas Docs](https://developer.nylas.com/v3/calendar/group-booking/): Book group meetings, from start to finish.
+- [Using the Calendar API | Nylas Docs](https://developer.nylas.com/v3/calendar/): Use the Nylas Calendar API to access and work with calendar and event data.
+- [Using the Events API | Nylas Docs](https://developer.nylas.com/v3/calendar/using-the-events-api/): Use the Nylas Events API to access and work with calendar and event data.
+- [Using virtual calendars | Nylas Docs](https://developer.nylas.com/v3/calendar/virtual-calendars/): Use virtual calendars to schedule events for users and resources that don't have calendars on other providers.
+- [Build Faster with Ready-to-Use Components. | Nylas Docs](https://developer.nylas.com/v3/components/): Mix, match, and stack your way to a beautiful app — our components do the heavy lifting so you don’t have to.
+- [Recurring events and RRULE reference | Nylas Docs](https://developer.nylas.com/v3/calendar/recurring-events/): Create, edit, and delete recurring calendar events with RRULE. Includes RRULE syntax reference, EXDATE handling, code examples, and provider-specific behavior for Google and Microsoft calendars.
+- [Using Nylas ExtractAI | Nylas Docs](https://developer.nylas.com/v3/extract-ai/): Use Nylas ExtractAI to extract online order, shipment, and return information from messages.
+- [Merchants and vendors | Nylas Docs](https://developer.nylas.com/v3/extract-ai/merchants-vendors/): Major merchants and vendors Nylas supports for ExtractAI and the Order Consolidation API.
+- [Using the Order Consolidation API | Nylas Docs](https://developer.nylas.com/v3/extract-ai/order-consolidation-api/): Use the Nylas Order Consolidation API to extract e-commerce order, shipment, and return information from messages.
+- [Using the Attachments API | Nylas Docs](https://developer.nylas.com/v3/email/attachments/): Add attachments to your messages and drafts, or update attachments on un-sent drafts.
+- [Using the Contacts API | Nylas Docs](https://developer.nylas.com/v3/email/contacts/): Use the Nylas Contacts API to access and work with contact data.
+- [Managing domains | Nylas Docs](https://developer.nylas.com/v3/email/domains/): Register and verify custom email domains for use with Transactional Send and Nylas Agent Accounts.
+- [Using the Folders API | Nylas Docs](https://developer.nylas.com/v3/email/folders/): Use the Nylas Folders API to organize your inbox with folders and labels.
+- [Using email headers and MIME data | Nylas Docs](https://developer.nylas.com/v3/email/headers-mime-data/): Work with email headers, MIME data, and the message ID header using the Nylas Email API. Get message headers, retrieve raw MIME content, and send messages with MIME data.
+- [Idempotent send requests | Nylas Docs](https://developer.nylas.com/v3/email/idempotent-send/): Use the Idempotency-Key header to safely retry Nylas send requests without sending duplicate emails. Covers retry behavior, error responses, scoping, and TTL.
+- [Email API | Nylas Docs](https://developer.nylas.com/v3/email/): The Nylas Email API lets you read, send, search, and manage email messages, threads, folders, and attachments across Gmail, Microsoft 365, and IMAP providers through a single unified interface.
+- [Tracking messages | Nylas Docs](https://developer.nylas.com/v3/email/message-tracking/): Track messages using the Nylas Messages API.
+- [Using the Nylas Messages API | Nylas Docs](https://developer.nylas.com/v3/email/messages/): Read, search, and manage email messages across Gmail, Outlook, and IMAP with the Nylas Messages API. Includes code examples in cURL, Python, Node.js, Ruby, Java, and Kotlin.
+- [How to Warm Up Your Email Domain | Nylas Docs](https://developer.nylas.com/v3/email/domain-warming/): A guide on how to warm up your email domain
+- [Parsing messages in Nylas | Nylas Docs](https://developer.nylas.com/v3/email/parse-messages/): Use the Clean Messages endpoint to remove extra information from messages.
+- [Scheduling messages to send in the future | Nylas Docs](https://developer.nylas.com/v3/email/scheduled-send/): Use the Nylas Messages API to schedule messages to be sent in the future.
+- [Sending messages with Nylas | Nylas Docs](https://developer.nylas.com/v3/email/send-email/): Send email messages and drafts using the Nylas Email API. Create and send messages directly, or create drafts and send them later. Covers both approaches with code samples.
+- [Send large attachments | Nylas Docs](https://developer.nylas.com/v3/email/send-large-attachments/): Upload and send email attachments up to 150 MB using the Nylas attachment-uploads API. Covers Microsoft Exchange Online prerequisites, the 4-step upload flow, inline attachments, status lifecycle, and error handling.
+- [Sending errors | Nylas Docs](https://developer.nylas.com/v3/email/sending-errors/): Errors you might encounter when sending messages with Nylas.
+- [Using email signatures | Nylas Docs](https://developer.nylas.com/v3/email/signatures/): Create and manage HTML email signatures stored on Nylas. Signatures are separate from provider settings and must be explicitly attached when sending via the API.
+- [Using templates and workflows in Nylas | Nylas Docs](https://developer.nylas.com/v3/email/templates-workflows/): Use templates and workflows to create custom message flows triggered by specific events.
+- [Using the Smart Compose endpoints | Nylas Docs](https://developer.nylas.com/v3/email/smart-compose/): Use the Smart Compose endpoints to write and respond to messages.
+- [Using the Threads API | Nylas Docs](https://developer.nylas.com/v3/email/threads/): Use the Threads API to work with threaded messages.
+- [How to Remove Nylas Banner From Transactional Send Emails | Nylas Docs](https://developer.nylas.com/v3/email/transactional-send-banner/): 
+- [Using calendar sync with Nylas Notetaker | Nylas Docs](https://developer.nylas.com/v3/notetaker/calendar-sync/): Use the calendar sync feature to let Notetaker join meetings automatically.
+- [Using Nylas Notetaker | Nylas Docs](https://developer.nylas.com/v3/notetaker/): Use Nylas Notetaker to record meetings and automatically extract information from the recordings.
+- [Handling Notetaker media files | Nylas Docs](https://developer.nylas.com/v3/notetaker/media-handling/): Learn how Nylas delivers Notetaker media files using temporary pre-authenticated URLs, how to regenerate expired URLs, and the security model that protects your recordings and transcripts.
+- [Scheduler & Notetaker Integration | Nylas Docs](https://developer.nylas.com/v3/notetaker/scheduler-integration/): Automatically add Notetaker bots to Scheduler bookings to record, transcribe, and generate meeting summaries.
+- [Using webhooks with Nylas | Nylas Docs](https://developer.nylas.com/v3/notifications/): How to use webhook notifications with Nylas.
+- [Using a Pub/Sub notification channel | Nylas Docs](https://developer.nylas.com/v3/notifications/pubsub-channel/): Get notifications about changes and user activity on the provider using a Google Pub/Sub queue.
+- [Receive webhooks with the CLI | Nylas Docs](https://developer.nylas.com/v3/notifications/receive-webhooks-cli/): Use the Nylas CLI to receive and test webhook notifications locally during development.
+- [Using an Amazon SNS notification channel | Nylas Docs](https://developer.nylas.com/v3/notifications/sns-channel/): Get notifications about changes and user activity using Amazon SNS.
+- [Quickstart: Agent Accounts (Beta) | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-accounts/): Create a Nylas Agent Account — a fully functional, Nylas-hosted email and calendar mailbox — in under 5 minutes. Send, receive, and RSVP through the same API you already use for connected grants.
+- [Share your calendar with your agent | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-calendar/): Let your AI agent manage events, check availability, and schedule meetings on your connected Google, Outlook, Exchange, or iCloud calendar using the Nylas CLI.
+- [Give your agent contacts access | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-contacts/): Let your AI agent search, list, and create contacts across Gmail, Outlook, and Exchange using the Nylas CLI.
+- [Share your email with your agent | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-email/): Let your AI agent read, send, and search email from your connected Gmail, Outlook, or IMAP account using the Nylas CLI. Keep replies going to your inbox — the agent acts on your behalf.
+- [Give your agent call recordings | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-notetaker/): Let your AI agent record meetings, get transcripts, and extract action items from Zoom, Teams, and Meet calls using the Nylas Notetaker API.
+- [Give your agent its own calendar | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-own-calendar/): Give your AI agent its own dedicated calendar with a Nylas Agent Account. The agent hosts events, RSVPs to invitations, and manages scheduling independently from any human calendar.
+- [Give your agent its own email | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-own-email/): Spin up a dedicated agent@yourdomain.com mailbox for your AI agent with a Nylas Agent Account. The agent sends from its own address, receives its own replies, and lives separately from any human inbox.
+- [Security for AI agents | Nylas Docs](https://developer.nylas.com/v3/getting-started/agent-security/): Best practices for securing AI agents that access email, calendar, and contacts through Nylas. Covers data isolation, permissions, prompt injection, and audit trails.
+- [AI prompts for building with Nylas | Nylas Docs](https://developer.nylas.com/v3/getting-started/ai-prompts/): System prompts and context files for building Nylas integrations with Claude Code, Cursor, Copilot, Windsurf, and other AI coding tools.
+- [Quickstart: Calendar and Events APIs | Nylas Docs](https://developer.nylas.com/v3/getting-started/calendar/): Schedule meetings, check availability, and RSVP to events with the Nylas Calendar API. Make your first API call in under 5 minutes.
+- [Quickstart: Autonomous AI agents | Nylas Docs](https://developer.nylas.com/v3/getting-started/cli-for-agents/): Install the Nylas CLI, connect an email account, and start reading and sending email -- all from the terminal. Written for autonomous AI agents.
+- [Get started with the Nylas CLI | Nylas Docs](https://developer.nylas.com/v3/getting-started/cli/): Set up your Nylas application from the terminal using the Nylas CLI. Install, run nylas init, and make your first API call in under a minute.
+- [Quickstart: AI coding agents (Claude Code, Cursor, Codex) | Nylas Docs](https://developer.nylas.com/v3/getting-started/coding-agents/): A quickstart for AI coding agents building SaaS applications with the Nylas email, calendar, and contacts APIs. Covers provisioning, SDK setup, and a complete working example.
+- [Get started with the Dashboard | Nylas Docs](https://developer.nylas.com/v3/getting-started/dashboard/): Set up your Nylas application using the Dashboard web UI. Create an app, generate an API key, connect an account, and make your first API call.
+- [Quickstart: Contacts API | Nylas Docs](https://developer.nylas.com/v3/getting-started/contacts/): List, search, and create contacts across Gmail, Outlook, and Exchange with the Nylas Contacts API. Make your first API call in under 5 minutes.
+- [Quickstart: Email API | Nylas Docs](https://developer.nylas.com/v3/getting-started/email/): Send and read email with the Nylas Email API. Make your first API call in under 5 minutes using the CLI, curl, or an SDK.
+- [Quickstart: Notetaker API | Nylas Docs](https://developer.nylas.com/v3/getting-started/notetaker/): Record meetings, get transcripts, and automate note-taking with the Nylas Notetaker API. Send a bot to any Zoom, Teams, or Meet call in under 5 minutes.
+- [What is Nylas | Nylas Docs](https://developer.nylas.com/v3/getting-started/): Nylas is a unified API for email, calendar, and contacts across Gmail, Microsoft, and IMAP. Learn the core concepts and set up your first application.
+- [Quickstart: Scheduler | Nylas Docs](https://developer.nylas.com/v3/getting-started/scheduler/): Add embeddable scheduling pages to your app with Nylas Scheduler. Set up the Scheduler Editor and Scheduling components in under 10 minutes.
+- [Nylas Connect overview | Nylas Docs](https://developer.nylas.com/v3/getting-started/nylas-connect/): Add email, calendar, and contacts to your app in 5 minutes. No OAuth complexity, no token management. Just a few lines of code.
+- [Quickstart: Transactional Send (Beta) | Nylas Docs](https://developer.nylas.com/v3/getting-started/transactional-send/): Send transactional emails from a verified domain without user authentication. Perfect for notifications, password resets, and automated emails.
+- [Adding conferencing to bookings | Nylas Docs](https://developer.nylas.com/v3/scheduler/add-conferencing/): Automatically add Google Meet, Microsoft Teams, and Zoom conferencing to new events in Scheduler.
+- [Customizing Scheduler booking flows | Nylas Docs](https://developer.nylas.com/v3/scheduler/customize-booking-flows/): Customize your Scheduler booking flow by redirecting guests to a custom booking confirmation page, or setting up pre-bookings.
+- [Customizing your Scheduler implementation | Nylas Docs](https://developer.nylas.com/v3/scheduler/customize-scheduler/): Customize your Scheduler implementation to meet your needs.
+- [Nylas-hosted Scheduling Pages | Nylas Docs](https://developer.nylas.com/v3/scheduler/hosted-scheduling-pages/): Create Nylas-hosted Scheduling Pages under the `book.nylas.com` subdomain.
+- [Using Nylas Scheduler | Nylas Docs](https://developer.nylas.com/v3/scheduler/): Integrate Nylas Scheduler with your project to let your users customize their scheduling experience.
+- [Localizing your Scheduler implementation | Nylas Docs](https://developer.nylas.com/v3/scheduler/localization/): Nylas offers Scheduler in a number of languages for users around the world.
+- [Meeting types in Nylas Scheduler | Nylas Docs](https://developer.nylas.com/v3/scheduler/meeting-types/): Configuring one-on-one, collective, round-robin, and group meetings in Scheduler.
+- [Retrieving booking IDs | Nylas Docs](https://developer.nylas.com/v3/scheduler/retrieve-booking-ids/): Retrieve the booking ID for a specific event.
+- [Managing availability in Nylas Scheduler | Nylas Docs](https://developer.nylas.com/v3/scheduler/managing-availability/): Configure open hours, buffer times, and specific time availability for your Scheduler configurations.
+- [Scheduler & Notetaker Integration | Nylas Docs](https://developer.nylas.com/v3/scheduler/scheduler-notetaker-integration/): Automatically add Notetaker bots to Scheduler bookings to record, transcribe, and generate meeting summaries.
+- [Using the Scheduler Editor component | Nylas Docs](https://developer.nylas.com/v3/scheduler/using-scheduler-editor-component/): Use the Scheduler Editor component to add the Nylas Scheduler Editor to your project.
+- [Using the Scheduling component | Nylas Docs](https://developer.nylas.com/v3/scheduler/using-scheduling-component/): Use the Nylas Scheduling component to integrate a custom scheduling experience in your project.
+- [Code with the Nylas SDKs | Nylas Docs](https://developer.nylas.com/v3/sdks/): Use the Nylas SDKs to integrate with the language of your choice.
+- [How to use Nylas MCP with Claude Code | Nylas Docs](https://developer.nylas.com/cookbook/ai/mcp/claude-code/): Connect Claude Code to the Nylas MCP server for email, calendar, and contacts. Set up Bearer token auth, configure .mcp.json, and manage messages and events from the CLI.
+- [How to install the OpenClaw Nylas plugin | Nylas Docs](https://developer.nylas.com/cookbook/ai/openclaw/install-plugin/): Install and configure the @nylas/openclaw-nylas-plugin to give OpenClaw agents access to email, calendar, and contacts through the Nylas API. Covers setup, multi-account configuration, and available tools.
+- [How to create Exchange calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/create-events-ews/): Create calendar events on Exchange on-premises servers using the Nylas Calendar API. Covers EWS vs Microsoft Graph, write scopes, recurring event restrictions, and on-prem networking.
+- [How to use Nylas MCP with Codex CLI | Nylas Docs](https://developer.nylas.com/cookbook/ai/mcp/codex-cli/): Connect OpenAI Codex CLI to the Nylas MCP server for email, calendar, and contacts. Configure config.toml with Bearer token auth and start managing messages and events from the terminal.
+- [How to create Google calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/create-events-google/): Create calendar events on Google Calendar and Workspace accounts using the Nylas Calendar API. Covers restricted scopes, Google Meet auto-create, participant notifications, and recurring events.
+- [How to create iCloud calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/create-events-icloud/): Create calendar events on iCloud Calendar accounts using the Nylas Calendar API. Covers app-specific passwords, CalDAV limitations, participant notifications, and the simpler feature set.
+- [How to create Microsoft calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/create-events-microsoft/): Create calendar events on Microsoft 365 and Outlook accounts using the Nylas Calendar API. Covers write scopes, Teams conferencing, participant notifications, recurring events, and room resources.
+- [How to list Exchange calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/list-events-ews/): Retrieve calendar events from Exchange on-premises servers using the Nylas Calendar API. Covers EWS vs Microsoft Graph, autodiscovery, on-prem networking, and recurring event restrictions.
+- [How to list Google calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/list-events-google/): Retrieve calendar events from Google Calendar and Google Workspace accounts using the Nylas Calendar API. Covers event types, Google Meet conferencing, OAuth scopes, and rate limits.
+- [How to list iCloud calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/list-events-icloud/): Retrieve calendar events from iCloud Calendar accounts using the Nylas Calendar API. Covers app-specific passwords, CalDAV limitations, the one-year range cap, and restricted filter support.
+- [How to list Exchange email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-ews/): Retrieve email messages from Exchange on-premises servers using the Nylas Email API. Covers EWS vs. Microsoft Graph, autodiscovery, message ID behavior, AQS search, and on-prem networking.
+- [How to list Google email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-google/): Retrieve email messages from Gmail and Google Workspace accounts using the Nylas Email API. Covers labels vs. folders, Gmail search operators, OAuth verification, and rate limits.
+- [How to list Microsoft calendar events | Nylas Docs](https://developer.nylas.com/cookbook/calendar/events/list-events-microsoft/): Retrieve calendar events from Microsoft 365 and Outlook accounts using the Nylas Calendar API. Covers timezone normalization, Teams conferencing, admin consent, recurring events, and filtering.
+- [How to list iCloud email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-icloud/): Retrieve email messages from iCloud Mail accounts using the Nylas Email API. Covers app-specific passwords, the 90-day message cache, query_imap for older messages, and iCloud-specific behavior.
+- [How to list IMAP email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-imap/): Retrieve email messages from any IMAP provider using the Nylas Email API. Covers generic IMAP setup, the 90-day message cache, query_imap, folder handling, and IMAP-specific behaviors.
+- [How to list Microsoft email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-microsoft/): Retrieve email messages from Microsoft 365 and Outlook accounts using the Nylas Email API. Covers Microsoft-specific folder names, message ID formats, admin consent, sync timing, and filtering.
+- [How to list Yahoo email messages | Nylas Docs](https://developer.nylas.com/cookbook/email/messages/list-messages-yahoo/): Retrieve email messages from Yahoo Mail accounts using the Nylas Email API. Covers Yahoo OAuth setup, the 90-day message cache, query_imap for older messages, and IMAP-specific behavior.
+- [Get Exchange email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-ews/): Retrieve email threads from Exchange on-premises servers using the Nylas Threads API. Covers ConversationId mapping, EWS vs. Graph, message ID changes, AQS search, and on-prem networking.
+- [Get Gmail email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-google/): Retrieve email threads from Gmail and Google Workspace accounts using the Nylas Threads API. Covers native thread_id mapping, label behavior on threads, Gmail search operators, and OAuth scopes.
+- [Get iCloud email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-icloud/): Retrieve email threads from iCloud Mail accounts using the Nylas Threads API. Covers header-based thread grouping, the 90-day cache, app-specific passwords, and iCloud-specific behavior.
+- [Get IMAP email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-imap/): Retrieve email threads from any IMAP provider using the Nylas Threads API. Covers header-based thread grouping, the 90-day cache, UIDVALIDITY, and IMAP-specific threading behavior.
+- [Get Outlook email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-microsoft/): Retrieve email threads from Microsoft 365 and Outlook accounts using the Nylas Threads API. Covers ConversationId mapping, thread grouping, folder behavior, and filtering.
+- [Get Yahoo Mail email threads with Nylas | Nylas Docs](https://developer.nylas.com/cookbook/email/threads/list-threads-yahoo/): Retrieve email threads from Yahoo Mail accounts using the Nylas Threads API. Covers header-based thread grouping, the 90-day cache, query_imap for older threads, and IMAP-specific behavior.
+- [Automate meeting follow-up emails | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/act/automate-meeting-follow-ups/): Send a personalized recap with summary and action items after every meeting. Nylas Notetaker records and transcribes, your handler emails the attendees -- nobody writes notes by hand.
+- [Schedule reminders from calendar events | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/act/schedule-event-reminders/): Send branded email reminders to event attendees -- patients, students, prospects -- before their meetings start. Cron-driven, webhook-aware, and works across Google, Microsoft, and Exchange.
+- [Build a scheduling agent with a dedicated identity | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/act/scheduling-agent-with-dedicated-identity/): Stand up a scheduling agent on its own agent@yourdomain.com Agent Account. It receives meeting requests, proposes times, creates events, and handles RSVPs without touching a human's mailbox.
+- [Build a support agent for multi-day email threads | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/act/support-agent-multi-day-threads/): Run an AI support agent on its own support@yourdomain.com Agent Account. It classifies inbound tickets, replies in-thread, tracks state across days, and escalates when it's stuck.
+- [Automate customer onboarding | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/automate/automate-customer-onboarding/): Welcome new customers, get them on a kickoff call, and nudge them when engagement drops. Email + Scheduler + tracking webhooks running as a state machine -- no manual ops.
+- [Automate a sales pipeline | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/automate/automate-sales-pipeline/): Stop asking sales reps to log activity. Webhooks push email threads and meetings into your CRM in real time, and a nightly job syncs fresh contact details. Works across Google, Microsoft, IMAP.
+- [E2E email testing with Playwright | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/build/e2e-email-testing/): Stop fighting Gmail catch-alls and shared test inboxes. Spin up a per-test address on `*.nylas.email`, poll for the verification mail, extract the link, and let Playwright drive the rest. Deterministic, parallel-safe.
+- [Add a scheduling page with automatic notetaking | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/build/scheduling-with-notetaking/): Wire Scheduler to Notetaker so every meeting booked through your page records itself. Automatic conferencing, no manual setup per meeting, no forgotten recordings.
+- [Nylas for CRM platforms | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/crm/): Tutorials for integrating the Nylas Email, Calendar, and Notetaker APIs into CRM platforms — sync events, log meeting notes, automate sales activity, and run AI agents on top of the inbox.
+- [Nylas for customer support | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/customer-support/): Tutorials for monitoring support inboxes, routing tickets, scheduling appointment reminders, and running AI agents that triage, draft replies, and reach inbox zero.
+- [Build an interview scheduling pipeline | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/build/interview-scheduling-pipeline/): Round-robin interview assignment, candidate self-scheduling, automatic conferencing, and Notetaker on every call. Recruiters stop touching calendars; debriefs stop being from-memory.
+- [Nylas for e-commerce | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/ecommerce/): Tutorials for processing order emails, sending transactional messages, monitoring customer inboxes, and running AI agents that classify and route incoming requests.
+- [Nylas for recruiting and ATS | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/recruiting/): Tutorials for interview scheduling, candidate self-booking, automatic transcription, and AI agents that drive hiring workflows end-to-end.
+- [Nylas for sales engagement | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/sales-engagement/): Tutorials for outbound sales workflows — pipeline automation, meeting follow-ups, mail merge, AI-driven prospect scoring, and agents that handle outreach end-to-end.
+- [Nylas for scheduling and booking | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/industries/scheduling/): Tutorials for embeddable booking pages, calendar integrations, event reminders, and AI agents that schedule, reschedule, and manage calendars autonomously.
+- [Monitor an inbox for support tickets | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/ingest/monitor-inbox-support-tickets/): Replace the human triage step in your support inbox with a webhook handler that classifies, prioritizes, and routes inbound email to the right team in real time. Provider-agnostic.
+- [Parse receipts and orders from email | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/ingest/parse-receipts-orders/): Use Nylas ExtractAI to pull structured order, shipment, and return data out of e-commerce email -- without writing or maintaining merchant-specific templates. 30,000+ merchants supported.
+- [Export email data to HubSpot | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/export-to-hubspot/): Map email senders to HubSpot Contacts and lean on HubSpot's auto-company creation from email domains. Batch endpoints accept 100 records, rate limits depend on your plan tier.
+- [Export email data to Pipedrive | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/export-to-pipedrive/): Map email senders onto Pipedrive's deal-centric model: Organization → Person → Deal → Activity. Auto-create deals once a sender's engagement passes a threshold; log every email as a done Activity.
+- [Export email data to Salesforce | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/export-to-salesforce/): Map email senders and threads onto Salesforce's Contact / Account / Task model. Composite API for small batches, Bulk API 2.0 for the bulk loads. Keeps Tasks queryable in standard SOQL — unlike Einstein Activity Capture.
+- [How to auto-log meeting notes to your CRM | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/auto-log-meeting-notes-crm/): Build an automated pipeline using Nylas Notetaker and webhooks to push meeting transcripts, summaries, and action items into your CRM after every call.
+- [How to sync calendar events to a CRM | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/sync-calendar-events-crm/): Build a real-time calendar sync pipeline using Nylas Calendar API and webhooks to mirror events into your CRM as they are created, updated, or deleted.
+- [Sync email contacts to a CRM | Nylas Docs](https://developer.nylas.com/cookbook/use-cases/sync/sync-email-crm/): Automate the boring half of CRM hygiene — pull new senders from your email, enrich them with signatures, dedupe, and push them into Salesforce / HubSpot / Pipedrive on a schedule. Replaces ~$200/month in Zapier credits.
+- [Calendar notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/calendar/): Schema reference for calendar notification triggers: calendar.created, calendar.updated, calendar.deleted.
+- [Events notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/events/): Schema reference for events notification triggers: event.created, event.updated, event.deleted.
+- [Contacts notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/contacts/): Schema reference for contacts notification triggers: contact.updated, contact.deleted.
+- [ExtractAI notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/extractai/): Schema reference for extractai notification triggers: message.intelligence.order, message.intelligence.tracking, message.intelligence.return, message.intelligence.travel.
+- [Folders and Labels notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/folders/): Schema reference for folders and labels notification triggers: folder.created, folder.updated, folder.deleted.
+- [Message Metadata notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/message-metadata/): Schema reference for message metadata notification triggers: message.created.metadata, message.updated.metadata.
+- [Message Tracking notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/): Schema reference for message tracking notification triggers: message.opened, message.link_clicked, thread.replied, message.opened.legacy, message.link_clicked.legacy, thread.replied.legacy.
+- [Grants notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/): Schema reference for grants notification triggers: grant.created, grant.updated, grant.deleted, grant.expired, grant.imap_sync_completed.
+- [Messages notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/): Schema reference for messages notification triggers: message.created, message.created.cleaned, message.updated, message.deleted, message.send_success, message.send_failed, message.bounce_detected.
+- [Scheduler notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/): Schema reference for scheduler notification triggers: booking.created, booking.pending, booking.rescheduled, booking.cancelled, booking.reminder.
+- [Notetaker notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/): Schema reference for notetaker notification triggers: notetaker.created, notetaker.updated, notetaker.deleted, notetaker.meeting_state, notetaker.media.
+- [Transactional Email notifications | Nylas Docs](https://developer.nylas.com/reference/notifications/transactional-email/): Schema reference for transactional email notification triggers: message.transactional.bounced, message.transactional.complaint, message.transactional.delivered, message.transactional.rejected.
+- [Create an Amazon SNS channel | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/create-sns-channel/): POST /v3/channels/sns — Create an Amazon SNS channel
+- [Delete a specific Amazon SNS channel | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/delete-sns-by-id/): DELETE /v3/channels/sns/{id} — Delete a specific Amazon SNS channel
+- [Get a specific Amazon SNS channel | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/get-sns-by-id/): GET /v3/channels/sns/{id} — Get a specific Amazon SNS channel
+- [Get Amazon SNS channels for an application | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/get-sns-channels/): GET /v3/channels/sns — Get Amazon SNS channels for an application
+- [Amazon SNS Notifications | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/): API reference for Amazon SNS Notifications endpoints. 5 endpoints available.
+- [Update an Amazon SNS channel | Nylas Docs](https://developer.nylas.com/reference/api/amazon-sns-notifications/put-sns-by-id/): PUT /v3/channels/sns/{id} — Update an Amazon SNS channel
+- [Create a template | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/create-app-level-template/): POST /v3/templates — Create a template
+- [Delete a template | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/delete-app-level-template/): DELETE /v3/templates/{template_id} — Delete a template
+- [Return a template | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/get-app-level-template/): GET /v3/templates/{template_id} — Return a template
+- [Application-level templates | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/): API reference for Application-level templates endpoints. 7 endpoints available.
+- [Return all templates | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/list-app-level-templates/): GET /v3/templates — Return all templates
+- [Render a template | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/render-app-level-template/): POST /v3/templates/{template_id}/render — Render a template
+- [Render template as HTML | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/render-template-html/): POST /v3/templates/render — Render template as HTML
+- [Update a template | Nylas Docs](https://developer.nylas.com/reference/api/application-level-templates/update-app-level-template/): PUT /v3/templates/{template_id} — Update a template
+- [Create a workflow | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/create-workflow/): POST /v3/workflows — Create a workflow
+- [Delete a workflow | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/delete-workflow/): DELETE /v3/workflows/{workflow_id} — Delete a workflow
+- [Return a workflow | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/get-workflow/): GET /v3/workflows/{workflow_id} — Return a workflow
+- [Application-level workflows | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/): API reference for Application-level workflows endpoints. 5 endpoints available.
+- [Return all workflows | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/list-workflows/): GET /v3/workflows — Return all workflows
+- [Update a workflow | Nylas Docs](https://developer.nylas.com/reference/api/application-level-workflows/update-workflow/): PUT /v3/workflows/{workflow_id} — Update a workflow
+- [Add callback URI to application | Nylas Docs](https://developer.nylas.com/reference/api/applications/add_callback_uri/): POST /v3/applications/redirect-uris — Add callback URI to application
+- [Get an application's callback URIs | Nylas Docs](https://developer.nylas.com/reference/api/applications/get_all_callback_uris/): GET /v3/applications/redirect-uris — Get an application's callback URIs
+- [Delete a callback URI | Nylas Docs](https://developer.nylas.com/reference/api/applications/delete_callback_uri/): DELETE /v3/applications/redirect-uris/{id} — Delete a callback URI
+- [Get application | Nylas Docs](https://developer.nylas.com/reference/api/applications/get_application/): GET /v3/applications — Get application
+- [Return a callback URI | Nylas Docs](https://developer.nylas.com/reference/api/applications/get_application_callback_uri/): GET /v3/applications/redirect-uris/{id} — Return a callback URI
+- [Applications | Nylas Docs](https://developer.nylas.com/reference/api/applications/): API reference for Applications endpoints. 7 endpoints available.
+- [Update an application | Nylas Docs](https://developer.nylas.com/reference/api/applications/update_application/): PATCH /v3/applications — Update an application
+- [Update a callback URI | Nylas Docs](https://developer.nylas.com/reference/api/applications/update_callback_uri/): PATCH /v3/applications/redirect-uris/{id} — Update a callback URI
+- [Complete an attachment upload session | Nylas Docs](https://developer.nylas.com/reference/api/attachments/complete-attachment-upload-session/): POST /v3/grants/{grant_id}/attachment-uploads/{attachment_id}/complete — Complete an attachment upload session
+- [Create an attachment upload session | Nylas Docs](https://developer.nylas.com/reference/api/attachments/create-attachment-upload-session/): POST /v3/grants/{grant_id}/attachment-uploads — Create an attachment upload session
+- [Download an Attachment | Nylas Docs](https://developer.nylas.com/reference/api/attachments/get-attachments-id-download/): GET /v3/grants/{grant_id}/attachments/{attachment_id}/download — Download an Attachment
+- [Return Attachment metadata | Nylas Docs](https://developer.nylas.com/reference/api/attachments/get-attachments-id/): GET /v3/grants/{grant_id}/attachments/{attachment_id} — Return Attachment metadata
+- [Attachments | Nylas Docs](https://developer.nylas.com/reference/api/attachments/): API reference for Attachments endpoints. 4 endpoints available.
+- [Get availability | Nylas Docs](https://developer.nylas.com/reference/api/availability/get-availability/): GET /v3/scheduling/availability — Get availability
+- [Availability | Nylas Docs](https://developer.nylas.com/reference/api/availability/): API reference for Availability endpoints. 1 endpoints available.
+- [Hosted OAuth - Token exchange | Nylas Docs](https://developer.nylas.com/reference/api/authentication-apis/exchange_oauth2_token/): POST /v3/connect/token — Hosted OAuth - Token exchange
+- [Hosted OAuth - Authorization Request | Nylas Docs](https://developer.nylas.com/reference/api/authentication-apis/get_oauth2_flow/): GET /v3/connect/auth — Hosted OAuth - Authorization Request
+- [Authentication APIs | Nylas Docs](https://developer.nylas.com/reference/api/authentication-apis/): API reference for Authentication APIs endpoints. 4 endpoints available.
+- [OAuth Token Info | Nylas Docs](https://developer.nylas.com/reference/api/authentication-apis/info_oauth2_token/): GET /v3/connect/tokeninfo — OAuth Token Info
+- [Hosted OAuth - Revoke OAuth token | Nylas Docs](https://developer.nylas.com/reference/api/authentication-apis/revoke_oauth2_token_and_grant/): POST /v3/connect/revoke — Hosted OAuth - Revoke OAuth token
+- [Create a calendar | Nylas Docs](https://developer.nylas.com/reference/api/calendar/create-calendar/): POST /v3/grants/{grant_id}/calendars — Create a calendar
+- [Delete a calendar | Nylas Docs](https://developer.nylas.com/reference/api/calendar/delete-calendars-id/): DELETE /v3/grants/{grant_id}/calendars/{calendar_id} — Delete a calendar
+- [Return all calendars | Nylas Docs](https://developer.nylas.com/reference/api/calendar/get-all-calendars/): GET /v3/grants/{grant_id}/calendars — Return all calendars
+- [Return a calendar | Nylas Docs](https://developer.nylas.com/reference/api/calendar/get-calendars-id/): GET /v3/grants/{grant_id}/calendars/{calendar_id} — Return a calendar
+- [Calendar | Nylas Docs](https://developer.nylas.com/reference/api/calendar/): API reference for Calendar endpoints. 7 endpoints available.
+- [Get availability | Nylas Docs](https://developer.nylas.com/reference/api/calendar/post-availability/): POST /v3/calendars/availability — Get availability
+- [Get free/busy schedule | Nylas Docs](https://developer.nylas.com/reference/api/calendar/post-calendars-free-busy/): POST /v3/grants/{grant_id}/calendars/free-busy — Get free/busy schedule
+- [Update a calendar | Nylas Docs](https://developer.nylas.com/reference/api/calendar/put-calendars-id/): PUT /v3/grants/{grant_id}/calendars/{calendar_id} — Update a calendar
+- [Delete a booking | Nylas Docs](https://developer.nylas.com/reference/api/bookings/delete-bookings-id/): DELETE /v3/scheduling/bookings/{booking_id} — Delete a booking
+- [Return a booking | Nylas Docs](https://developer.nylas.com/reference/api/bookings/get-bookings-id/): GET /v3/scheduling/bookings/{booking_id} — Return a booking
+- [Bookings | Nylas Docs](https://developer.nylas.com/reference/api/bookings/): API reference for Bookings endpoints. 5 endpoints available.
+- [Reschedule a booking | Nylas Docs](https://developer.nylas.com/reference/api/bookings/patch-bookings-id/): PATCH /v3/scheduling/bookings/{booking_id} — Reschedule a booking
+- [Book an event | Nylas Docs](https://developer.nylas.com/reference/api/bookings/post-bookings/): POST /v3/scheduling/bookings — Book an event
+- [Confirm a booking | Nylas Docs](https://developer.nylas.com/reference/api/bookings/put-bookings-id/): PUT /v3/scheduling/bookings/{booking_id} — Confirm a booking
+- [Delete a Configuration | Nylas Docs](https://developer.nylas.com/reference/api/configurations/delete-configurations-id/): DELETE /v3/grants/{grant_id}/scheduling/configurations/{configuration_id} — Delete a Configuration
+- [Return a Configuration | Nylas Docs](https://developer.nylas.com/reference/api/configurations/get-configurations-id/): GET /v3/grants/{grant_id}/scheduling/configurations/{configuration_id} — Return a Configuration
+- [Return all Configuration objects | Nylas Docs](https://developer.nylas.com/reference/api/configurations/get-configurations/): GET /v3/grants/{grant_id}/scheduling/configurations — Return all Configuration objects
+- [Configurations | Nylas Docs](https://developer.nylas.com/reference/api/configurations/): API reference for Configurations endpoints. 5 endpoints available.
+- [Create Configuration | Nylas Docs](https://developer.nylas.com/reference/api/configurations/post-configurations/): POST /v3/grants/{grant_id}/scheduling/configurations — Create Configuration
+- [Update Configuration | Nylas Docs](https://developer.nylas.com/reference/api/configurations/put-configurations-id/): PUT /v3/grants/{grant_id}/scheduling/configurations/{configuration_id} — Update Configuration
+- [Create a credential | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/create_credential/): POST /v3/connectors/{provider}/creds — Create a credential
+- [Delete credential | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/delete_credential_by_id/): DELETE /v3/connectors/{provider}/creds/{id} — Delete credential
+- [List credentials | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/get_credential_all/): GET /v3/connectors/{provider}/creds — List credentials
+- [Get credential | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/get_credential_by_id/): GET /v3/connectors/{provider}/creds/{id} — Get credential
+- [Connector credentials | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/): API reference for Connector credentials endpoints. 5 endpoints available.
+- [Update a connector credential | Nylas Docs](https://developer.nylas.com/reference/api/connector-credentials/patch_credential_by_id/): PATCH /v3/connectors/{provider}/creds/{id} — Update a connector credential
+- [Create a connector | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/create_connector/): POST /v3/connectors — Create a connector
+- [Delete a connector | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/delete_connector_by_provider/): DELETE /v3/connectors/{provider} — Delete a connector
+- [Detect provider | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/detect_provider_by_email/): POST /v3/providers/detect — Detect provider
+- [List connectors | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/get_connector_all/): GET /v3/connectors — List connectors
+- [Get connector | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/get_connector_by_provider/): GET /v3/connectors/{provider} — Get connector
+- [Connectors (Integrations) | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/): API reference for Connectors (Integrations) endpoints. 6 endpoints available.
+- [Update a connector | Nylas Docs](https://developer.nylas.com/reference/api/connectors-integrations/update_connector_by_provider/): PATCH /v3/connectors/{provider} — Update a connector
+- [Delete a contact | Nylas Docs](https://developer.nylas.com/reference/api/contacts/delete-contact/): DELETE /v3/grants/{grant_id}/contacts/{contact_id} — Delete a contact
+- [Contacts | Nylas Docs](https://developer.nylas.com/reference/api/contacts/): API reference for Contacts endpoints. 6 endpoints available.
+- [Return all Contact Groups | Nylas Docs](https://developer.nylas.com/reference/api/contacts/list-contact-groups/): GET /v3/grants/{grant_id}/contacts/groups — Return all Contact Groups
+- [Return a contact | Nylas Docs](https://developer.nylas.com/reference/api/contacts/get-contact/): GET /v3/grants/{grant_id}/contacts/{contact_id} — Return a contact
+- [Return all contacts | Nylas Docs](https://developer.nylas.com/reference/api/contacts/list-contact/): GET /v3/grants/{grant_id}/contacts — Return all contacts
+- [Create contact | Nylas Docs](https://developer.nylas.com/reference/api/contacts/post-contact/): POST /v3/grants/{grant_id}/contacts — Create contact
+- [Update a contact | Nylas Docs](https://developer.nylas.com/reference/api/contacts/put-contact/): PUT /v3/grants/{grant_id}/contacts/{contact_id} — Update a contact
+- [Create an event | Nylas Docs](https://developer.nylas.com/reference/api/events/create-event/): POST /v3/grants/{grant_id}/events — Create an event
+- [Delete an event | Nylas Docs](https://developer.nylas.com/reference/api/events/delete-events-id/): DELETE /v3/grants/{grant_id}/events/{event_id} — Delete an event
+- [Return all events | Nylas Docs](https://developer.nylas.com/reference/api/events/get-all-events/): GET /v3/grants/{grant_id}/events — Return all events
+- [Return an event | Nylas Docs](https://developer.nylas.com/reference/api/events/get-events-id/): GET /v3/grants/{grant_id}/events/{event_id} — Return an event
+- [Import events | Nylas Docs](https://developer.nylas.com/reference/api/events/import-events/): GET /v3/grants/{grant_id}/events/import — Import events
+- [Events | Nylas Docs](https://developer.nylas.com/reference/api/events/): API reference for Events endpoints. 7 endpoints available.
+- [Update an event | Nylas Docs](https://developer.nylas.com/reference/api/events/put-events-id/): PUT /v3/grants/{grant_id}/events/{event_id} — Update an event
+- [Send RSVP | Nylas Docs](https://developer.nylas.com/reference/api/events/send-rsvp/): POST /v3/grants/{grant_id}/events/{event_id}/send-rsvp — Send RSVP
+- [Get all e-commerce orders | Nylas Docs](https://developer.nylas.com/reference/api/extractai/get-consolidated-order/): GET /v3/grants/{grant_id}/consolidated-order — Get all e-commerce orders
+- [Get all e-commerce returns | Nylas Docs](https://developer.nylas.com/reference/api/extractai/get-consolidated-return/): GET /v3/grants/{grant_id}/consolidated-return — Get all e-commerce returns
+- [Get all e-commerce shipments | Nylas Docs](https://developer.nylas.com/reference/api/extractai/get-consolidated-shipment/): GET /v3/grants/{grant_id}/consolidated-shipment — Get all e-commerce shipments
+- [ExtractAI | Nylas Docs](https://developer.nylas.com/reference/api/extractai/): API reference for ExtractAI endpoints. 3 endpoints available.
+- [Delete a Folder | Nylas Docs](https://developer.nylas.com/reference/api/folders/delete-folders-id/): DELETE /v3/grants/{grant_id}/folders/{folder_id} — Delete a Folder
+- [Return all folders | Nylas Docs](https://developer.nylas.com/reference/api/folders/get-folder/): GET /v3/grants/{grant_id}/folders — Return all folders
+- [Return a Folder | Nylas Docs](https://developer.nylas.com/reference/api/folders/get-folders-id/): GET /v3/grants/{grant_id}/folders/{folder_id} — Return a Folder
+- [Folders | Nylas Docs](https://developer.nylas.com/reference/api/folders/): API reference for Folders endpoints. 5 endpoints available.
+- [Create a Folder | Nylas Docs](https://developer.nylas.com/reference/api/folders/post-folder/): POST /v3/grants/{grant_id}/folders — Create a Folder
+- [Update a folder | Nylas Docs](https://developer.nylas.com/reference/api/folders/put-folders-id/): PUT /v3/grants/{grant_id}/folders/{folder_id} — Update a folder
+- [Create a template | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/create-grant-level-template/): POST /v3/grants/{grant_id}/templates — Create a template
+- [Delete a template | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/delete-grant-level-template/): DELETE /v3/grants/{grant_id}/templates/{template_id} — Delete a template
+- [Return a template | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/get-grant-level-template/): GET /v3/grants/{grant_id}/templates/{template_id} — Return a template
+- [Return all templates | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/get-grant-level-templates/): GET /v3/grants/{grant_id}/templates — Return all templates
+- [Grant-level templates | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/): API reference for Grant-level templates endpoints. 7 endpoints available.
+- [Render a template | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/render-grant-level-template/): POST /v3/grants/{grant_id}/templates/{template_id}/render — Render a template
+- [Render template as HTML | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/render-grant-level-template-html/): POST /v3/grants/{grant_id}/templates/render — Render template as HTML
+- [Update a template | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-templates/update-grant-level-template/): PUT /v3/grants/{grant_id}/templates/{template_id} — Update a template
+- [Create a workflow | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/create-grant-workflow/): POST /v3/grants/{grant_id}/workflows — Create a workflow
+- [Delete a workflow | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/delete-grant-workflow/): DELETE /v3/grants/{grant_id}/workflows/{workflow_id} — Delete a workflow
+- [Get a workflow | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/get-grant-workflow/): GET /v3/grants/{grant_id}/workflows/{workflow_id} — Get a workflow
+- [Return all workflows | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/list-grant-workflows/): GET /v3/grants/{grant_id}/workflows — Return all workflows
+- [Grant-level workflows | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/): API reference for Grant-level workflows endpoints. 5 endpoints available.
+- [Update a workflow | Nylas Docs](https://developer.nylas.com/reference/api/grant-level-workflows/update-grant-workflow/): PUT /v3/grants/{grant_id}/workflows/{workflow_id} — Update a workflow
+- [Delete a Draft | Nylas Docs](https://developer.nylas.com/reference/api/drafts/delete-drafts-id/): DELETE /v3/grants/{grant_id}/drafts/{draft_id} — Delete a Draft
+- [Return a Draft | Nylas Docs](https://developer.nylas.com/reference/api/drafts/get-draft-id/): GET /v3/grants/{grant_id}/drafts/{draft_id} — Return a Draft
+- [Return all Drafts | Nylas Docs](https://developer.nylas.com/reference/api/drafts/get-drafts/): GET /v3/grants/{grant_id}/drafts — Return all Drafts
+- [Drafts | Nylas Docs](https://developer.nylas.com/reference/api/drafts/): API reference for Drafts endpoints. 6 endpoints available.
+- [Create a Draft | Nylas Docs](https://developer.nylas.com/reference/api/drafts/post-draft/): POST /v3/grants/{grant_id}/drafts — Create a Draft
+- [Update a draft | Nylas Docs](https://developer.nylas.com/reference/api/drafts/put-drafts-id/): PUT /v3/grants/{grant_id}/drafts/{draft_id} — Update a draft
+- [Send a Draft | Nylas Docs](https://developer.nylas.com/reference/api/drafts/send-draft-id/): POST /v3/grants/{grant_id}/drafts/{draft_id} — Send a Draft
+- [Create group event | Nylas Docs](https://developer.nylas.com/reference/api/group-events/create-group-event/): POST /v3/grants/{grant_id}/scheduling/configurations/{configuration_id}/group-events — Create group event
+- [Delete a group event | Nylas Docs](https://developer.nylas.com/reference/api/group-events/delete-group-event/): DELETE /v3/grants/{grant_id}/scheduling/configurations/{configuration_id}/group-events/{event_id} — Delete a group event
+- [Get all group events | Nylas Docs](https://developer.nylas.com/reference/api/group-events/get-group-events/): GET /v3/grants/{grant_id}/scheduling/configurations/{configuration_id}/group-events — Get all group events
+- [Import group events | Nylas Docs](https://developer.nylas.com/reference/api/group-events/import-group-events/): POST /v3/scheduling/configurations/{configuration_id}/import-group-events — Import group events
+- [Group Events | Nylas Docs](https://developer.nylas.com/reference/api/group-events/): API reference for Group Events endpoints. 6 endpoints available.
+- [Update a group event | Nylas Docs](https://developer.nylas.com/reference/api/group-events/put-group-event/): PUT /v3/grants/{grant_id}/scheduling/configurations/{configuration_id}/group-events/{event_id} — Update a group event
+- [Create API key | Nylas Docs](https://developer.nylas.com/reference/api/manage-api-keys/create-api-key/): POST /v3/admin/applications/{application_id}/api-keys — Create API key
+- [Validate time slot | Nylas Docs](https://developer.nylas.com/reference/api/group-events/validate-time-slot/): POST /v3/scheduling/configurations/{configuration_id}/group-events/validate-timeslot — Validate time slot
+- [Delete API key | Nylas Docs](https://developer.nylas.com/reference/api/manage-api-keys/delete-api-key/): DELETE /v3/admin/applications/{application_id}/api-keys/{api_key_id} — Delete API key
+- [Get API key | Nylas Docs](https://developer.nylas.com/reference/api/manage-api-keys/get-api-key/): GET /v3/admin/applications/{application_id}/api-keys/{api_key_id} — Get API key
+- [Get all API keys | Nylas Docs](https://developer.nylas.com/reference/api/manage-api-keys/get-api-keys/): GET /v3/admin/applications/{application_id}/api-keys — Get all API keys
+- [Manage API keys | Nylas Docs](https://developer.nylas.com/reference/api/manage-api-keys/): API reference for Manage API keys endpoints. 4 endpoints available.
+- [Add items to a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/add-list-items/): POST /v3/lists/{list_id}/items — Add items to a list
+- [Create a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/create-list/): POST /v3/lists — Create a list
+- [Delete a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/delete-list/): DELETE /v3/lists/{list_id} — Delete a list
+- [Get a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/get-list/): GET /v3/lists/{list_id} — Get a list
+- [List items in a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/list-list-items/): GET /v3/lists/{list_id}/items — List items in a list
+- [Lists | Nylas Docs](https://developer.nylas.com/reference/api/lists/): API reference for Lists endpoints. 8 endpoints available.
+- [List lists | Nylas Docs](https://developer.nylas.com/reference/api/lists/list-lists/): GET /v3/lists — List lists
+- [Remove items from a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/remove-list-items/): DELETE /v3/lists/{list_id}/items — Remove items from a list
+- [Update a list | Nylas Docs](https://developer.nylas.com/reference/api/lists/update-list/): PUT /v3/lists/{list_id} — Update a list
+- [Create domain | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/create-domain/): POST /v3/admin/domains — Create domain
+- [Delete domain | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/delete-domain/): DELETE /v3/admin/domains/{domain_id} — Delete domain
+- [Get domain info | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/get-domain-info/): POST /v3/admin/domains/{domain_id}/info — Get domain info
+- [Get domain | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/get-domain/): GET /v3/admin/domains/{domain_id} — Get domain
+- [Manage Domains | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/): API reference for Manage Domains endpoints. 7 endpoints available.
+- [List domains | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/list-domains/): GET /v3/admin/domains — List domains
+- [Update domain | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/update-domain/): PUT /v3/admin/domains/{domain_id} — Update domain
+- [Verify domain | Nylas Docs](https://developer.nylas.com/reference/api/manage-domains/verify-domain/): POST /v3/admin/domains/{domain_id}/verify — Verify domain
+- [Bring Your Own Authentication | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/byo_auth/): POST /v3/connect/custom — Bring Your Own Authentication
+- [Delete a grant | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/delete_grant_by_id/): DELETE /v3/grants/{grantId} — Delete a grant
+- [Return all grants | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/get-all-grants/): GET /v3/grants — Return all grants
+- [Get current grant | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/get_grant_by_access_token/): GET /v3/grants/me — Get current grant
+- [Get a grant | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/get_grant_by_id/): GET /v3/grants/{grantId} — Get a grant
+- [Manage Grants | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/): API reference for Manage Grants endpoints. 6 endpoints available.
+- [Update a grant | Nylas Docs](https://developer.nylas.com/reference/api/manage-grants/patch_grant_by_id/): PATCH /v3/grants/{grantId} — Update a grant
+- [Create a policy | Nylas Docs](https://developer.nylas.com/reference/api/policies/create-policy/): POST /v3/policies — Create a policy
+- [Delete a policy | Nylas Docs](https://developer.nylas.com/reference/api/policies/delete-policy/): DELETE /v3/policies/{policy_id} — Delete a policy
+- [Get a policy | Nylas Docs](https://developer.nylas.com/reference/api/policies/get-policy/): GET /v3/policies/{policy_id} — Get a policy
+- [Policies | Nylas Docs](https://developer.nylas.com/reference/api/policies/): API reference for Policies endpoints. 5 endpoints available.
+- [List policies | Nylas Docs](https://developer.nylas.com/reference/api/policies/list-policies/): GET /v3/policies — List policies
+- [Update a policy | Nylas Docs](https://developer.nylas.com/reference/api/policies/update-policy/): PUT /v3/policies/{policy_id} — Update a policy
+- [Cancel scheduled Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/cancel-notetaker/): DELETE /v3/grants/{grant_id}/notetakers/{notetaker_id}/cancel — Cancel scheduled Notetaker
+- [Delete a Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/delete-notetaker/): DELETE /v3/grants/{grant_id}/notetakers/{notetaker_id} — Delete a Notetaker
+- [Return all Notetakers | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/get-all-notetakers/): GET /v3/grants/{grant_id}/notetakers — Return all Notetakers
+- [Return Notetaker history | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/get-notetaker-history/): GET /v3/grants/{grant_id}/notetakers/{notetaker_id}/history — Return Notetaker history
+- [Return Notetaker media links | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/get-notetaker-media/): GET /v3/grants/{grant_id}/notetakers/{notetaker_id}/media — Return Notetaker media links
+- [Return a Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/get-notetaker/): GET /v3/grants/{grant_id}/notetakers/{notetaker_id} — Return a Notetaker
+- [Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/): API reference for Notetaker endpoints. 9 endpoints available.
+- [Invite Notetaker to meeting | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/invite-notetaker/): POST /v3/grants/{grant_id}/notetakers — Invite Notetaker to meeting
+- [Remove Notetaker from meeting | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/post-notetaker-leave/): POST /v3/grants/{grant_id}/notetakers/{notetaker_id}/leave — Remove Notetaker from meeting
+- [Clean messages | Nylas Docs](https://developer.nylas.com/reference/api/messages/clean-messages/): PUT /v3/grants/{grant_id}/messages/clean — Clean messages
+- [Update scheduled Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/notetaker/update-notetaker/): PATCH /v3/grants/{grant_id}/notetakers/{notetaker_id} — Update scheduled Notetaker
+- [Cancel a scheduled message | Nylas Docs](https://developer.nylas.com/reference/api/messages/delete-a-scheduled-message/): DELETE /v3/grants/{grant_id}/messages/schedules/{scheduleId} — Cancel a scheduled message
+- [Delete a message | Nylas Docs](https://developer.nylas.com/reference/api/messages/delete-message/): DELETE /v3/grants/{grant_id}/messages/{message_id} — Delete a message
+- [Return a Message | Nylas Docs](https://developer.nylas.com/reference/api/messages/get-messages-id/): GET /v3/grants/{grant_id}/messages/{message_id} — Return a Message
+- [Return all Messages | Nylas Docs](https://developer.nylas.com/reference/api/messages/get-messages/): GET /v3/grants/{grant_id}/messages — Return all Messages
+- [Return a scheduled message | Nylas Docs](https://developer.nylas.com/reference/api/messages/get-schedule-by-id/): GET /v3/grants/{grant_id}/messages/schedules/{scheduleId} — Return a scheduled message
+- [Return scheduled messages | Nylas Docs](https://developer.nylas.com/reference/api/messages/get-schedules/): GET /v3/grants/{grant_id}/messages/schedules — Return scheduled messages
+- [Messages | Nylas Docs](https://developer.nylas.com/reference/api/messages/): API reference for Messages endpoints. 9 endpoints available.
+- [Update message attributes | Nylas Docs](https://developer.nylas.com/reference/api/messages/put-messages-id/): PUT /v3/grants/{grant_id}/messages/{message_id} — Update message attributes
+- [Send a Message | Nylas Docs](https://developer.nylas.com/reference/api/messages/send-message/): POST /v3/grants/{grant_id}/messages/send — Send a Message
+- [Create a Pub/Sub channel | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/create-pubsub-channel/): POST /v3/channels/pubsub — Create a Pub/Sub channel
+- [Delete a specific Pub/Sub channel | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/delete-pubsub-by-id/): DELETE /v3/channels/pubsub/{id} — Delete a specific Pub/Sub channel
+- [Get a specific Pub/Sub channel | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/get-pubsub-by-id/): GET /v3/channels/pubsub/{id} — Get a specific Pub/Sub channel
+- [Get Pub/Sub channels for an application | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/get-pubsub-channels/): GET /v3/channels/pubsub — Get Pub/Sub channels for an application
+- [Pub/Sub Notifications | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/): API reference for Pub/Sub Notifications endpoints. 5 endpoints available.
+- [Update a Pub/Sub channel | Nylas Docs](https://developer.nylas.com/reference/api/pubsub-notifications/put-pubsub-by-id/): PUT /v3/channels/pubsub/{id} — Update a Pub/Sub channel
+- [Room resources | Nylas Docs](https://developer.nylas.com/reference/api/room-resources/): API reference for Room resources endpoints. 1 endpoints available.
+- [Return room resource information | Nylas Docs](https://developer.nylas.com/reference/api/room-resources/list-room-resources/): GET /v3/grants/{grant_id}/resources — Return room resource information
+- [Create a rule | Nylas Docs](https://developer.nylas.com/reference/api/rules/create-rule/): POST /v3/rules — Create a rule
+- [Delete a rule | Nylas Docs](https://developer.nylas.com/reference/api/rules/delete-rule/): DELETE /v3/rules/{rule_id} — Delete a rule
+- [Get a rule | Nylas Docs](https://developer.nylas.com/reference/api/rules/get-rule/): GET /v3/rules/{rule_id} — Get a rule
+- [Rules | Nylas Docs](https://developer.nylas.com/reference/api/rules/): API reference for Rules endpoints. 6 endpoints available.
+- [List rule evaluations | Nylas Docs](https://developer.nylas.com/reference/api/rules/list-rule-evaluations/): GET /v3/grants/{grant_id}/rule-evaluations — List rule evaluations
+- [List rules | Nylas Docs](https://developer.nylas.com/reference/api/rules/list-rules/): GET /v3/rules — List rules
+- [Update a rule | Nylas Docs](https://developer.nylas.com/reference/api/rules/update-rule/): PUT /v3/rules/{rule_id} — Update a rule
+- [Delete a session | Nylas Docs](https://developer.nylas.com/reference/api/sessions/delete-session/): DELETE /v3/scheduling/sessions/{session_id} — Delete a session
+- [Sessions | Nylas Docs](https://developer.nylas.com/reference/api/sessions/): API reference for Sessions endpoints. 2 endpoints available.
+- [Create a session | Nylas Docs](https://developer.nylas.com/reference/api/sessions/post-sessions/): POST /v3/scheduling/sessions — Create a session
+- [Delete a signature | Nylas Docs](https://developer.nylas.com/reference/api/signatures/delete-signature/): DELETE /v3/grants/{grant_id}/signatures/{signature_id} — Delete a signature
+- [Return a signature | Nylas Docs](https://developer.nylas.com/reference/api/signatures/get-signature/): GET /v3/grants/{grant_id}/signatures/{signature_id} — Return a signature
+- [Signatures | Nylas Docs](https://developer.nylas.com/reference/api/signatures/): API reference for Signatures endpoints. 5 endpoints available.
+- [Return all signatures | Nylas Docs](https://developer.nylas.com/reference/api/signatures/list-signatures/): GET /v3/grants/{grant_id}/signatures — Return all signatures
+- [Create a signature | Nylas Docs](https://developer.nylas.com/reference/api/signatures/post-signature/): POST /v3/grants/{grant_id}/signatures — Create a signature
+- [Smart compose | Nylas Docs](https://developer.nylas.com/reference/api/smart-compose/): API reference for Smart compose endpoints. 2 endpoints available.
+- [Compose a reply | Nylas Docs](https://developer.nylas.com/reference/api/smart-compose/post-smart-compose-reply/): POST /v3/grants/{grant_id}/messages/{message_id}/smart-compose — Compose a reply
+- [Update a signature | Nylas Docs](https://developer.nylas.com/reference/api/signatures/put-signature/): PUT /v3/grants/{grant_id}/signatures/{signature_id} — Update a signature
+- [Compose a message | Nylas Docs](https://developer.nylas.com/reference/api/smart-compose/post-smart-compose/): POST /v3/grants/{grant_id}/messages/smart-compose — Compose a message
+- [Cancel standalone Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/cancel-standalone-notetaker/): DELETE /v3/notetakers/{notetaker_id}/cancel — Cancel standalone Notetaker
+- [Delete a standalone Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/delete-standalone-notetaker/): DELETE /v3/notetakers/{notetaker_id} — Delete a standalone Notetaker
+- [Return all standalone Notetakers | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/get-all-standalone-notetakers/): GET /v3/notetakers — Return all standalone Notetakers
+- [Return standalone Notetaker history | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/get-standalone-notetaker-history/): GET /v3/notetakers/{notetaker_id}/history — Return standalone Notetaker history
+- [Return standalone Notetaker media links | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/get-standalone-notetaker-media/): GET /v3/notetakers/{notetaker_id}/media — Return standalone Notetaker media links
+- [Return a standalone Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/get-standalone-notetaker/): GET /v3/notetakers/{notetaker_id} — Return a standalone Notetaker
+- [Standalone Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/): API reference for Standalone Notetaker endpoints. 9 endpoints available.
+- [Invite standalone Notetaker to meeting | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/invite-standalone-notetaker/): POST /v3/notetakers — Invite standalone Notetaker to meeting
+- [Remove standalone Notetaker from meeting | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/post-standalone-notetaker-leave/): POST /v3/notetakers/{notetaker_id}/leave — Remove standalone Notetaker from meeting
+- [Update standalone Notetaker | Nylas Docs](https://developer.nylas.com/reference/api/standalone-notetaker/update-standalone-notetaker/): PATCH /v3/notetakers/{notetaker_id} — Update standalone Notetaker
+- [Transactional send | Nylas Docs](https://developer.nylas.com/reference/api/transactional-send/): API reference for Transactional send endpoints. 1 endpoints available.
+- [Send a transactional email | Nylas Docs](https://developer.nylas.com/reference/api/transactional-send/send-transactional-email/): POST /v3/domains/{domain_name}/messages/send — Send a transactional email
+- [Delete a thread | Nylas Docs](https://developer.nylas.com/reference/api/threads/delete-threads-id/): DELETE /v3/grants/{grant_id}/threads/{thread_id} — Delete a thread
+- [Return a thread | Nylas Docs](https://developer.nylas.com/reference/api/threads/get-threads-id/): GET /v3/grants/{grant_id}/threads/{thread_id} — Return a thread
+- [Threads | Nylas Docs](https://developer.nylas.com/reference/api/threads/): API reference for Threads endpoints. 4 endpoints available.
+- [Return all threads | Nylas Docs](https://developer.nylas.com/reference/api/threads/get-threads/): GET /v3/grants/{grant_id}/threads — Return all threads
+- [Update a thread | Nylas Docs](https://developer.nylas.com/reference/api/threads/put-threads-id/): PUT /v3/grants/{grant_id}/threads/{thread_id} — Update a thread
+- [Delete a webhook destination | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/delete-webhook-by-id/): DELETE /v3/webhooks/{id} — Delete a webhook destination
+- [Get the destinations for an application by webhook ID | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/get-webhook-by-id/): GET /v3/webhooks/{id} — Get the destinations for an application by webhook ID
+- [Get destinations for an application | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/get-webhook-destinations-application/): GET /v3/webhooks — Get destinations for an application
+- [Get mock notification payload | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/get_mock_webhook_payload/): POST /v3/webhooks/mock-payload — Get mock notification payload
+- [Webhook Notifications | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/): API reference for Webhook Notifications endpoints. 8 endpoints available.
+- [Rotate a webhook secret | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/post-new-secret/): POST /v3/webhooks/rotate-secret/{id} — Rotate a webhook secret
+- [Create a webhook destination | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/post-webhook-destinations/): POST /v3/webhooks — Create a webhook destination
+- [Update a webhook destination | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/put-webhook-by-id/): PUT /v3/webhooks/{id} — Update a webhook destination
+- [Send test event | Nylas Docs](https://developer.nylas.com/reference/api/webhook-notifications/send_test_event/): POST /v3/webhooks/send-test-event — Send test event
+- [Create a workspace | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/create-workspace/): POST /v3/workspaces — Create a workspace
+- [Delete a workspace | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/delete-workspace/): DELETE /v3/workspaces/{workspace_id} — Delete a workspace
+- [Automatically group grants into workspace | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/autogroup-workspace/): POST /v3/workspaces/auto-group — Automatically group grants into workspace
+- [Return all workspaces | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/get-all-workspaces/): GET /v3/workspaces — Return all workspaces
+- [Return a workspace | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/get-workspace/): GET /v3/workspaces/{workspace_id} — Return a workspace
+- [Workspaces | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/): API reference for Workspaces endpoints. 7 endpoints available.
+- [Update workplace assignments | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/manually-assign-workspace/): POST /v3/workspaces/{workspace_id}/manual-assign — Update workplace assignments
+- [Update a workspace | Nylas Docs](https://developer.nylas.com/reference/api/workspaces/update-workspace/): PATCH /v3/workspaces/{workspace_id} — Update a workspace
+- [Nylas Connect library overview | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/): Use Nylas Connect to add a simple authentication mechanism to your project.
+- [NylasConnectButton component | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/nylasconnectbutton/): Prebuilt button component to start Nylas Connect authentication.
+- [useNylasConnect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/usenylasconnect/): The useNylasConnect hook of the Nylas Connect React library.
+- [Nylas Connect React library overview | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/): Use the Nylas Connect React library to add a simple authentication mechanism to your project.
+- [calendarSyncStore | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-api/calendarsync-store/): Use the CalendarSync component to sync your calendar with Nylas Notetaker.
+- [sendNotetakerStore | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-api/sendnotetaker-store/): Use the SendNotetaker component to send a Notetaker bot to a meeting.
+- [CalendarSync component | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-components/calendarsync-component/): Use the CalendarSync component to sync your calendar with Nylas Notetaker.
+- [SendNotetaker component | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-components/sendnotetaker-component/): Use the SendNotetaker component to send a Notetaker bot to a meeting.
+- [Transcript | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-components/transcript-component/): Use the Transcript component to display the transcript of a recorded meeting.
+- [VideoPlayer | Nylas Docs](https://developer.nylas.com/v3/components/notetaker-components/videoplayer-component/): Use the VideoPlayer component to display recorded meetings.
+- [Using the Node.js SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/node/): Install the Nylas Node.js SDK and use it to build integrations.
+- [Manage contacts with Node.js | Nylas Docs](https://developer.nylas.com/v3/sdks/node/manage-contacts/): Manage contacts with the Nylas Node.js SDK.
+- [Manage events with Node.js | Nylas Docs](https://developer.nylas.com/v3/sdks/node/manage-events/): Manage events with the Nylas Node.js SDK.
+- [Manage folders and labels with Node.js | Nylas Docs](https://developer.nylas.com/v3/sdks/node/manage-folders-labels/): Manage folders and labels with the Nylas Node.js SDK.
+- [Read messages and threads with Node.js | Nylas Docs](https://developer.nylas.com/v3/sdks/node/read-messages-threads/): Read messages and threads with the Nylas Node.js SDK.
+- [Send messages with Node.js | Nylas Docs](https://developer.nylas.com/v3/sdks/node/send-email/): Send messages with the Nylas Node.js SDK.
+- [Test webhooks locally with the Node.js SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/node/webhook-testing/): Test webhooks locally with the Nylas Node.js SDK.
+- [Using the Kotlin/Java SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/kotlin-java/): Install the Nylas Kotlin/Java SDK and use it to build integrations.
+- [Manage folders and labels with Kotlin/Java | Nylas Docs](https://developer.nylas.com/v3/sdks/kotlin-java/manage-folders-labels/): Create folders and labels, and use them to organize email inboxes with the Nylas Kotlin/Java SDK.
+- [Manage contacts with Kotlin/Java | Nylas Docs](https://developer.nylas.com/v3/sdks/kotlin-java/manage-contacts/): Manage contacts with the Nylas Kotlin/Java SDK.
+- [Read messages and threads with Kotlin/Java | Nylas Docs](https://developer.nylas.com/v3/sdks/kotlin-java/read-messages-threads/): Read messages and threads from your users' inboxes with the Nylas Kotlin/Java SDK.
+- [Send messages with Kotlin/Java | Nylas Docs](https://developer.nylas.com/v3/sdks/kotlin-java/send-email/): Send messages with the Nylas Kotlin/Java SDK.
+- [Using the Python SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/python/): Install the Nylas Python SDK and use it to build integrations.
+- [Manage contacts with Python | Nylas Docs](https://developer.nylas.com/v3/sdks/python/manage-contacts/): Manage contacts with the Nylas Python SDK.
+- [Manage events with Python | Nylas Docs](https://developer.nylas.com/v3/sdks/python/manage-events/): Manage events with the Nylas Python SDK.
+- [Manage folders and labels with Python | Nylas Docs](https://developer.nylas.com/v3/sdks/python/manage-folders-labels/): Manage folders and labels with the Nylas Python SDK.
+- [Read messages and threads with Python | Nylas Docs](https://developer.nylas.com/v3/sdks/python/read-messages-threads/): Read messages and threads with the Nylas Python SDK.
+- [Using the Ruby SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/): Install the Nylas Ruby SDK and use it to build integrations.
+- [Send messages with Python | Nylas Docs](https://developer.nylas.com/v3/sdks/python/send-email/): Send messages with the Nylas Python SDK.
+- [Test webhooks locally with the Python SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/python/webhook-testing/): Test webhooks locally with the Nylas Python SDK.
+- [Manage contacts with Ruby | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/manage-contacts/): Manage contacts with the Nylas Ruby SDK.
+- [Read messages and threads with Ruby | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/read-messages-threads/): Read messages and threads with the Nylas Ruby SDK.
+- [Send messages with Ruby | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/send-email/): Send messages with the Nylas Ruby SDK.
+- [Test webhooks locally with the Ruby SDK | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/webhook-testing/): Test webhooks locally with the Nylas Ruby SDK.
+- [Manage events with Ruby | Nylas Docs](https://developer.nylas.com/v3/sdks/ruby/manage-events/): Manage events with the Nylas Ruby SDK.
+- [calendar.created | Nylas Docs](https://developer.nylas.com/reference/notifications/calendar/calendar-created/): Sent when a user creates a calendar.
+- [event.created | Nylas Docs](https://developer.nylas.com/reference/notifications/events/event-created/): Sent when an event is created on a user's calendar.
+- [calendar.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/calendar/calendar-deleted/): Sent when a user deletes a calendar.
+- [calendar.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/calendar/calendar-updated/): Sent when the name, description, location, or timezone of a calendar changes.
+- [event.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/events/event-deleted/): Sent when an event is deleted from a user's calendar.
+- [contact.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/contacts/contact-deleted/): Sent when a user deletes a contact.
+- [event.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/events/event-updated/): Sent when an event is modified or updated.
+- [contact.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/contacts/contact-updated/): Sent when a user creates or updates a contact.
+- [message.intelligence.order | Nylas Docs](https://developer.nylas.com/reference/notifications/extractai/message-intelligence-order/): Sent when a user receives a message with e-commerce order information.
+- [message.intelligence.tracking | Nylas Docs](https://developer.nylas.com/reference/notifications/extractai/message-intelligence-tracking/): Sent when a user receives a message with tracking information for an e-commerce order.
+- [message.intelligence.return | Nylas Docs](https://developer.nylas.com/reference/notifications/extractai/message-intelligence-return/): Sent when a user receives a message with return information for an e-commerce order.
+- [folder.created | Nylas Docs](https://developer.nylas.com/reference/notifications/folders/folder-created/): Sent when a user creates a folder.
+- [message.intelligence.travel | Nylas Docs](https://developer.nylas.com/reference/notifications/extractai/message-intelligence-travel/): Sent when a user receives a message with travel booking information such as flights, hotels, or car rentals.
+- [folder.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/folders/folder-deleted/): Sent when a user deletes a folder.
+- [folder.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/folders/folder-updated/): Sent when a user updates a folder.
+- [message.created.metadata | Nylas Docs](https://developer.nylas.com/reference/notifications/message-metadata/message-created-metadata/): Sent for Google grants using the `/gmail.
+- [message.link_clicked.legacy | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/message-link_clicked-legacy/): Legacy format for link clicked tracking notifications.
+- [message.updated.metadata | Nylas Docs](https://developer.nylas.com/reference/notifications/message-metadata/message-updated-metadata/): Sent for Google grants using the `/gmail.
+- [message.link_clicked | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/message-link_clicked/): Sent when a participant clicks a link in a tracked message.
+- [message.opened | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/message-opened/): Sent when a participant opens a tracked message.
+- [message.opened.legacy | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/message-opened-legacy/): Legacy format for message opened tracking notifications.
+- [thread.replied.legacy | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/thread-replied-legacy/): Legacy format for thread replied tracking notifications.
+- [thread.replied | Nylas Docs](https://developer.nylas.com/reference/notifications/message-tracking/thread-replied/): Sent when a participant replies to a tracked email thread.
+- [grant.created | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/grant-created/): Sent when a user successfully authenticates with your Nylas application for the first time.
+- [grant.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/grant-deleted/): Sent when a grant is deleted because of a Delete Grant request.
+- [grant.expired | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/grant-expired/): Sent when a grant's credentials expire, typically due to a change in the user's password on the provider, OAuth token expiration without successful refresh, the provider revoking access, or an admin revoking app permissions.
+- [grant.imap_sync_completed | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/grant-imap_sync_completed/): Sent when a grant is created for an IMAP account and the initial historic sync completes.
+- [message.created | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-created/): Sent when a new message arrives or is synced for a user.
+- [grant.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/grants/grant-updated/): Sent when a grant is modified, updated, or re-authenticated.
+- [message.bounce_detected | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-bounce_detected/): Sent when a message bounces or isn't delivered.
+- [message.created.cleaned | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-created-cleaned/): Sent when a new message is synced and the [Clean Conversations](/docs/v3/email/parse-messages/) feature is enabled for the application.
+- [message.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-deleted/): Sent when a message is deleted.
+- [message.send_failed | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-send_failed/): Sent when a scheduled message fails to deliver.
+- [message.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-updated/): Sent when a user modifies or updates a message.
+- [message.send_success | Nylas Docs](https://developer.nylas.com/reference/notifications/messages/message-send_success/): Sent when a scheduled message is sent and delivered successfully.
+- [booking.cancelled | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/booking-cancelled/): Sent when a guest cancels a booking.
+- [booking.created | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/booking-created/): Sent when a guest creates a booking.
+- [booking.pending | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/booking-pending/): Sent when a guest schedules a pending booking that requires confirmation.
+- [booking.reminder | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/booking-reminder/): Sent at the scheduled reminder time before a booking.
+- [booking.rescheduled | Nylas Docs](https://developer.nylas.com/reference/notifications/scheduler/booking-rescheduled/): Sent when a guest reschedules a booking.
+- [notetaker.created | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/notetaker-created/): Sent when you create or schedule a Notetaker bot.
+- [notetaker.media | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/notetaker-media/): Sent when a recording or transcription is processing, available, or deleted.
+- [notetaker.deleted | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/notetaker-deleted/): Sent when a Notetaker bot is deleted, its associated event is cancelled, or its settings are set to null.
+- [notetaker.meeting_state | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/notetaker-meeting_state/): Sent when the Notetaker bot transitions between meeting lifecycle states.
+- [notetaker.updated | Nylas Docs](https://developer.nylas.com/reference/notifications/notetaker/notetaker-updated/): Sent when you update a scheduled Notetaker bot's settings or join time.
+- [message.transactional.bounced | Nylas Docs](https://developer.nylas.com/reference/notifications/transactional-email/message-transactional-bounced/): Sent when a transactional email was not delivered due to a hard bounce.
+- [message.transactional.complaint | Nylas Docs](https://developer.nylas.com/reference/notifications/transactional-email/message-transactional-complaint/): Sent when a transactional email was delivered but the recipient marked it as spam.
+- [message.transactional.delivered | Nylas Docs](https://developer.nylas.com/reference/notifications/transactional-email/message-transactional-delivered/): Sent when a transactional email was successfully delivered to the recipient's mail server.
+- [message.transactional.rejected | Nylas Docs](https://developer.nylas.com/reference/notifications/transactional-email/message-transactional-rejected/): Sent when a transactional email was rejected because one or more attachments contained a virus.
+- [NylasConnect class overview | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/): The NylasConnect class of the Nylas Connect library.
+- [Integrate Auth0 with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/auth0/): Step-by-step guide to integrating Auth0 with Nylas Connect. Authenticate users with Auth0 and connect their email accounts through the Nylas Email API.
+- [Integrate Clerk with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/clerk/): Step-by-step guide to integrating Clerk with Nylas Connect. Authenticate users with Clerk and connect their email accounts through the Nylas Email API.
+- [Integrate Google Identity with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/google/): Step-by-step guide to integrating Google Identity Services with Nylas Connect. Authenticate users with Google Sign-In and connect their email accounts through the Nylas Email API.
+- [Integrate a custom identity provider with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/custom/): Integrate any identity provider that supports JWKS with Nylas Connect. Use Keycloak, Ory, Firebase Auth, or your own JWT server to authenticate users and connect their email accounts.
+- [Using external identity providers with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/): Integrate external identity providers like Auth0, Clerk, Google, and WorkOS with Nylas Connect to authenticate users and make API calls with your existing identity system.
+- [Integrate WorkOS with Nylas Connect | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/use-external-idp/workos/): Step-by-step guide to integrating WorkOS with Nylas Connect. Authenticate users with WorkOS AuthKit and connect their email accounts through the Nylas Email API.
+- [Integrate Auth0 with Nylas Connect React | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/use-external-idp/auth0/): Step-by-step guide to integrating Auth0 with the Nylas Connect React library. Use Auth0Provider and useNylasConnect to authenticate users and connect their email accounts.
+- [Integrate Clerk with Nylas Connect React | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/use-external-idp/clerk/): Step-by-step guide to integrating Clerk with the Nylas Connect React library. Use ClerkProvider and useNylasConnect to authenticate users and connect their email accounts.
+- [Integrate Google Identity with Nylas Connect React | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/use-external-idp/google/): Step-by-step guide to integrating Google Identity Services with the Nylas Connect React library. Use GoogleOAuthProvider and useNylasConnect to authenticate users and connect their email.
+- [Using external identity providers with Nylas Connect React | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/use-external-idp/): Integrate external identity providers like Auth0, Clerk, Google, and WorkOS with the Nylas Connect React library using the useNylasConnect hook.
+- [Integrate WorkOS with Nylas Connect React | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect-react/use-external-idp/workos/): Step-by-step guide to integrating WorkOS with the Nylas Connect React library. Use AuthKitProvider and useNylasConnect to authenticate users and connect their email accounts.
+- [NylasConnect.connect() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/authentication-methods/nylasconnect-connect/): The connect() method of the NylasConnect library.
+- [NylasConnect.getAuthUrl() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/authentication-methods/nylasconnect-getauthurl/): The getAuthUrl method of the Nylas Connect library.
+- [NylasConnect.onConnectStateChange() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/authentication-methods/nylasconnect-onconnectstatechange/): The onConnectStateChange method of the Nylas Connect library.
+- [NylasConnect.getConnectionStatus() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/grant-management-methods/nylasconnect-getconnectionstatus/): The getConnectionStatus method of the Nylas Connect library.
+- [NylasConnect.getSession() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/grant-management-methods/nylasconnect-getsession/): The getSession method of the Nylas Connect library.
+- [NylasConnect.logout() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/grant-management-methods/nylasconnect-logout/): The logout method of the Nylas Connect library.
+- [NylasConnect.callback() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/callback-methods/nylasconnect-callback/): The callback method of the Nylas Connect library.
+- [NylasConnect.handleRedirectCallback() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/callback-methods/nylasconnect-handleredirectcallback/): The handleRedirectCallback method of the Nylas Connect library.
+- [NylasConnect.setLogLevel() | Nylas Docs](https://developer.nylas.com/v3/auth/nylas-connect/nylasconnect-class/utility-methods/nylasconnect-setloglevel/): The setLogLevel method of the Nylas Connect library.

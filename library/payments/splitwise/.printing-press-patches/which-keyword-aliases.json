@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "which-keyword-aliases",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add a Keywords field to whichEntry and keyword scoring so advertised SKILL trigger phrases resolve in `which`.",
+  "reason": "`which \"who owes me money\"` returned no match (exit 2) even though that phrase is an advertised SKILL.md trigger. The curated whichIndex matched only on command/description/group text. Added whichEntry.Keywords plus keyword scoring (+3 full-query phrase match, +1 per query token found in a keyword) and populated keywords for the curated entries; backward compatible since nil-keyword entries score nothing extra.",
+  "files": [
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "gisis",
+  "run_id": "20260527-211808",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 47,
+  "tests_passed": 47,
+  "tests_skipped": 38,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

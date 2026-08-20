@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-19T02:11:41.947613422Z",
+  "cli_dir": "\u003ccli-dir\u003e/shodhganga-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/teach.go, learn-loop surface); needs generator-template fix"
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "university_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List universities/communities in Shodhganga.",
+      "status": "accepted",
+      "note": "Richer override written to mcp-descriptions.json but mcp-sync refused with reprint-required (false-positive client-compat probe on a fresh v4.29.0 client that already has Client.Config/Client.NoCache); override applies on next successful sync/regen",
+      "spec_source_material": "spec.yaml resource university.endpoints.list: GET /community-list, description 'List universities/communities in Shodhganga', no parameters, response_format html with html_extract mode=links link_prefixes=[/handle/10603]. Returns the DSpace community list; each entry is a university/collection with a 10603/NNN handle.",
+      "target_description": "List every university and institutional collection (DSpace community) indexed in Shodhganga. Takes no parameters. Returns each community's display name and its handle id (the NNN in 10603/NNN). Use university_get with a handle to open a specific institution's page, or thesis_search / browse_list to find theses once you know the university you want.",
+      "gap_analysis": "target_description is already written to mcp-descriptions.json; the generator could compose this same text from the spec endpoint description + response html_extract shape at generation time (name + handle return clause) instead of emitting the bare summary. The blocker to applying the override is not the spec but mcp-sync's client-compatibility probe falsely reporting missing Client.Config/Client.NoCache on a client that has both as public fields; both are generator/binary retro candidates."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-07-19T02:07:48.81117484Z"
+  }
+}

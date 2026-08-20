@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/vehicle-safety-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260717-002908-0483fc8d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

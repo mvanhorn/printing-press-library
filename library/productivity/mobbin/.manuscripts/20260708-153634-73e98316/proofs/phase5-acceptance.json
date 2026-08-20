@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "mobbin",
+  "run_id": "20260708-153634-73e98316",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 141,
+  "tests_passed": 141,
+  "tests_skipped": 93,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

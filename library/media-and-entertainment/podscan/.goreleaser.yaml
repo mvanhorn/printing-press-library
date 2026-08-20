@@ -1,0 +1,51 @@
+version: 2
+project_name: podscan-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: podscan-pp-cli
+    main: ./cmd/podscan-pp-cli
+    binary: podscan-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podscan/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: podscan-pp-mcp
+    main: ./cmd/podscan-pp-mcp
+    binary: podscan-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: podscan-pp-cli
+    repository:
+      owner: gregvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts. Full transcripts, AI-extracted entities,..."
+    install: |
+      bin.install "podscan-pp-cli"
+      bin.install "podscan-pp-mcp"

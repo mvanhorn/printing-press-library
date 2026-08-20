@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-4-syncdiff-since-honored",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "SyncDiff actually executes the per-resource since-aware queries instead of replacing them with a hardcoded RowsSince=0 query.",
+  "reason": "The function built the right SQL map (with `... WHERE created_at >= ?` subqueries) and then discarded it via `_ = q` and `_ = since`, running `SELECT '' AS project_id, COUNT(*), 0 FROM <table>` instead. Every caller of `sync diff --since X` got RowsSince=0 regardless of X, making the freshness signal meaningless.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

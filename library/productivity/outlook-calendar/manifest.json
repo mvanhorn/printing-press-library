@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "outlook-calendar-pp-mcp",
+  "display_name": "Outlook Calendar",
+  "version": "4.2.2",
+  "description": "Drive your personal Microsoft 365 calendar from agentic workflows: read, write, sync, and run offline analytics like conflicts, freetime, and recurring-drift that no Graph endpoint exposes.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/outlook-calendar-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/outlook-calendar-pp-mcp",
+      "args": [],
+      "env": {
+        "OUTLOOK_CALENDAR_TOKEN": "${user_config.outlook_calendar_token}"
+      }
+    }
+  },
+  "user_config": {
+    "outlook_calendar_token": {
+      "type": "string",
+      "title": "OUTLOOK_CALENDAR_TOKEN",
+      "description": "Sets OUTLOOK_CALENDAR_TOKEN for the Outlook Calendar MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

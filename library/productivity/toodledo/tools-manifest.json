@@ -1,0 +1,627 @@
+{
+  "api_name": "toodledo",
+  "base_url": "https://api.toodledo.com/3",
+  "description": "Every Toodledo feature from the terminal, plus an offline SQLite mirror, GTD reviews, and rate-budget-aware sync that no other Toodledo tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "format": "Bearer {TOODLEDO_CLIENT_ID}",
+    "env_vars": [
+      "TOODLEDO_CLIENT_ID",
+      "TOODLEDO_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TOODLEDO_CLIENT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "TOODLEDO_CLIENT_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "toodledo-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Get account info, including per-resource lastedit/lastdelete sync cursors and Pro status. Returns the Account.",
+      "method": "GET",
+      "path": "/account/get.php",
+      "params": []
+    },
+    {
+      "name": "contexts_add",
+      "description": "Create a context. Required: name. Returns array of Context.",
+      "method": "POST",
+      "path": "/contexts/add.php",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Context name (max 64 chars)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contexts_delete",
+      "description": "Delete a context (its tasks become unassigned). Required: id.",
+      "method": "POST",
+      "path": "/contexts/delete.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Context id to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contexts_edit",
+      "description": "Rename a context. Required: id, name. Returns array of Context.",
+      "method": "POST",
+      "path": "/contexts/edit.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Context id to edit",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New context name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contexts_list",
+      "description": "List all contexts in the account (GTD-style location/situation labels such as @home or @computer). Takes no parameters. Returns an array of contexts, each with id, name, and a private flag. Call this to resolve a context name to its id before filtering tasks by context.",
+      "method": "GET",
+      "path": "/contexts/get.php",
+      "params": []
+    },
+    {
+      "name": "folders_add",
+      "description": "Create a folder. Required: name. Optional: private. Returns array of Folder.",
+      "method": "POST",
+      "path": "/folders/add.php",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Folder name (max 64 chars)",
+          "required": true
+        },
+        {
+          "name": "private",
+          "type": "int",
+          "location": "body",
+          "description": "1 = private, 0 = shared"
+        }
+      ]
+    },
+    {
+      "name": "folders_delete",
+      "description": "Delete a folder (its tasks become unassigned). Required: id.",
+      "method": "POST",
+      "path": "/folders/delete.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Folder id to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_edit",
+      "description": "Edit/rename/archive a folder. Required: id. Optional: name, archived, private. Returns array of Folder.",
+      "method": "POST",
+      "path": "/folders/edit.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Folder id to edit",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New folder name"
+        },
+        {
+          "name": "archived",
+          "type": "int",
+          "location": "body",
+          "description": "1 = archived, 0 = active"
+        },
+        {
+          "name": "private",
+          "type": "int",
+          "location": "body",
+          "description": "1 = private, 0 = shared"
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List all folders in the account (the top-level containers tasks are grouped into). Takes no parameters. Returns an array of folders, each with id, name, ord (sort order), and archived/private flags. Use this to map a folder name to its id before creating or filtering tasks.",
+      "method": "GET",
+      "path": "/folders/get.php",
+      "params": []
+    },
+    {
+      "name": "goals_add",
+      "description": "Create a goal. Required: name. Optional: level, contributes. Returns array of Goal.",
+      "method": "POST",
+      "path": "/goals/add.php",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Goal name (max 250 chars)",
+          "required": true
+        },
+        {
+          "name": "level",
+          "type": "int",
+          "location": "body",
+          "description": "0 = lifetime, 1 = long-term, 2 = short-term (default)"
+        },
+        {
+          "name": "contributes",
+          "type": "int",
+          "location": "body",
+          "description": "Id of a higher-level goal this contributes to"
+        }
+      ]
+    },
+    {
+      "name": "goals_delete",
+      "description": "Permanently delete a goal by id. Required: id (the goal's numeric id, resolvable via goals_list). Returns the deleted goal's id on success. Irreversible; deleting a goal does not delete tasks that referenced it.",
+      "method": "POST",
+      "path": "/goals/delete.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Goal id to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "goals_edit",
+      "description": "Edit a goal. Required: id. Optional: name, level, contributes (plus 1 more). Returns array of Goal.",
+      "method": "POST",
+      "path": "/goals/edit.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Goal id to edit",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New goal name"
+        },
+        {
+          "name": "level",
+          "type": "int",
+          "location": "body",
+          "description": "0 = lifetime, 1 = long-term, 2 = short-term"
+        },
+        {
+          "name": "contributes",
+          "type": "int",
+          "location": "body",
+          "description": "Id of a higher-level goal this contributes to"
+        },
+        {
+          "name": "archived",
+          "type": "int",
+          "location": "body",
+          "description": "1 = archived, 0 = active"
+        }
+      ]
+    },
+    {
+      "name": "goals_list",
+      "description": "List all goals in the account (long/medium/short-term objectives tasks can contribute to). Takes no parameters. Returns an array of goals, each with id, name, level, contributes (parent goal id), note, and an archived flag. Use this to resolve a goal name to its id when assigning tasks to a goal.",
+      "method": "GET",
+      "path": "/goals/get.php",
+      "params": []
+    },
+    {
+      "name": "lists_add",
+      "description": "Create custom list(s). Pass a JSON array of list objects. Required: lists. Returns array of CustomList.",
+      "method": "POST",
+      "path": "/lists/add.php",
+      "params": [
+        {
+          "name": "lists",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of list objects",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_delete",
+      "description": "Delete custom list(s). Pass a JSON array of list ids. Required: lists.",
+      "method": "POST",
+      "path": "/lists/delete.php",
+      "params": [
+        {
+          "name": "lists",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of list ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_deleted",
+      "description": "List custom-list ids deleted after a timestamp. Optional: after. Returns array of DeletedRef.",
+      "method": "GET",
+      "path": "/lists/deleted.php",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only deletions after this GMT unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "lists_edit",
+      "description": "Edit custom list(s). Pass a JSON array of list objects including id. Required: lists. Returns array of CustomList.",
+      "method": "POST",
+      "path": "/lists/edit.php",
+      "params": [
+        {
+          "name": "lists",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of list objects with id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_list",
+      "description": "List custom lists. Feeds the local mirror via sync. Returns array of CustomList.",
+      "method": "GET",
+      "path": "/lists/get.php",
+      "params": []
+    },
+    {
+      "name": "locations_add",
+      "description": "Create a location. Required: name. Optional: description, lat, lon. Returns array of Location.",
+      "method": "POST",
+      "path": "/locations/add.php",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Location name (max 64 chars)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description (max 255 chars)"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        }
+      ]
+    },
+    {
+      "name": "locations_delete",
+      "description": "Permanently delete a saved location by id. Required: id (the location's numeric id, resolvable via locations_list). Returns the deleted location's id on success. Irreversible; tasks that referenced the location keep their stored reference.",
+      "method": "POST",
+      "path": "/locations/delete.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Location id to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_edit",
+      "description": "Edit a location. Required: id. Optional: name, description, lat (plus 1 more). Returns array of Location.",
+      "method": "POST",
+      "path": "/locations/edit.php",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Location id to edit",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New location name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List all saved locations in the account (named geo-points for location-based reminders). Takes no parameters. Returns an array of locations, each with id, name, description, lat, and lon. Use this to resolve a location name to its id before attaching it to a task.",
+      "method": "GET",
+      "path": "/locations/get.php",
+      "params": []
+    },
+    {
+      "name": "notes_add",
+      "description": "Create note(s). Pass a JSON array of note objects. Required: notes. Returns array of Note.",
+      "method": "POST",
+      "path": "/notes/add.php",
+      "params": [
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of note objects, e.g. [{'title':'Idea','text':'...','folder':0}]",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_delete",
+      "description": "Delete note(s). Pass a JSON array of note ids. Required: notes.",
+      "method": "POST",
+      "path": "/notes/delete.php",
+      "params": [
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of note ids, e.g. [123,456]",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_deleted",
+      "description": "List note ids deleted after a timestamp. Optional: after. Returns array of DeletedRef.",
+      "method": "GET",
+      "path": "/notes/deleted.php",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only deletions after this GMT unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "notes_edit",
+      "description": "Edit note(s). Pass a JSON array of note objects including id. Required: notes. Returns array of Note.",
+      "method": "POST",
+      "path": "/notes/edit.php",
+      "params": [
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of note objects with id, e.g. [{'id':123,'text':'...'}]",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_list",
+      "description": "List notes. Feeds the local mirror via sync. Optional: after. Returns array of Note.",
+      "method": "GET",
+      "path": "/notes/get.php",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only notes modified after this GMT unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "outlines_add",
+      "description": "Create outline(s). Pass a JSON array of outline objects. Required: outlines. Returns array of Outline.",
+      "method": "POST",
+      "path": "/outlines/add.php",
+      "params": [
+        {
+          "name": "outlines",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of outline objects",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "outlines_delete",
+      "description": "Delete outline(s). Pass a JSON array of outline ids. Required: outlines.",
+      "method": "POST",
+      "path": "/outlines/delete.php",
+      "params": [
+        {
+          "name": "outlines",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of outline ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "outlines_deleted",
+      "description": "List outline ids deleted after a timestamp. Optional: after. Returns array of DeletedRef.",
+      "method": "GET",
+      "path": "/outlines/deleted.php",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only deletions after this GMT unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "outlines_edit",
+      "description": "Edit outline(s). Pass a JSON array of outline objects including id. Required: outlines. Returns array of Outline.",
+      "method": "POST",
+      "path": "/outlines/edit.php",
+      "params": [
+        {
+          "name": "outlines",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of outline objects with id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "outlines_list",
+      "description": "List outlines. Feeds the local mirror via sync. Returns array of Outline.",
+      "method": "GET",
+      "path": "/outlines/get.php",
+      "params": []
+    },
+    {
+      "name": "tasks_deleted",
+      "description": "List task ids deleted after a timestamp (for mirror reconciliation). Optional: after. Returns array of DeletedRef.",
+      "method": "GET",
+      "path": "/tasks/deleted.php",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only deletions after this GMT unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List tasks (incomplete by default). Feeds the local mirror via sync. Optional: comp, after, before (plus 3 more). Returns array of Task.",
+      "method": "GET",
+      "path": "/tasks/get.php",
+      "params": [
+        {
+          "name": "comp",
+          "type": "int",
+          "location": "query",
+          "description": "Completion filter: 0=incomplete (default), 1=completed, -1=both"
+        },
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Only tasks modified after this GMT unix timestamp (incremental sync cursor)"
+        },
+        {
+          "name": "before",
+          "type": "int",
+          "location": "query",
+          "description": "Only tasks modified before this GMT unix timestamp"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset (skip this many results)"
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Max tasks to return (API max 1000)"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated optional task fields to include"
+        }
+      ]
+    }
+  ]
+}

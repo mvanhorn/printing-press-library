@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "jobber-novel-sql-readonly",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Add read-only ad-hoc SQL command (sql) against the local synced DB with defense-in-depth write-token rejection and cell truncation.",
+  "reason": "A19 sql is part of the locked 16-command surface. The press scaffolder does not emit it because it's not derivable from the API spec. Local novel command that must survive regeneration.",
+  "files": [
+    "internal/cli/sql.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., staged binary rebuild, sql help/root help, sql table smoke, sql --explain smoke, and DROP rejection pass with a workspace smoke DB; default DB smoke reports sync hint because the local synced DB is absent."
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-30T09:29:46.238873Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "stackadapt",
+  "display_name": "StackAdapt",
+  "cli_name": "stackadapt-pp-cli",
+  "owner": "dhilip-subramanian",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_path": "(hand-authored GraphQL internal spec)",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:484839fd05b475cdd05fdfa53495bcaf47932d20792ef651fccbadb0af9f77e3",
+  "run_id": "20260530-185509",
+  "category": "marketing",
+  "description": "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call.",
+  "mcp_binary": "stackadapt-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "STACKADAPT_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Pacing observatory",
+      "command": "pacing",
+      "description": "See which campaigns are under- or over-pacing against their budget, not just current spend."
+    },
+    {
+      "name": "Delivery drift",
+      "command": "delivery-drift",
+      "description": "Track CTR, CPM, and spend drift week-over-week for a campaign and flag when performance degrades."
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Rank the highest-spend campaigns by worst ROAS or CPA, with a reason column."
+    },
+    {
+      "name": "Stale campaigns",
+      "command": "stale-campaigns",
+      "description": "Find active campaigns with zero delivery in the last N days."
+    }
+  ]
+}

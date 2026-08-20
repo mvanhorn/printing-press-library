@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-17T15:55:22.880713Z",
+  "cli_dir": "/tmp/printing-press/publish/dreo-75hXkN/package/library/devices/dreo",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "internal/dreoauth/login_test.go",
+      "line": 47,
+      "column": 53,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside TestLogin: `Login(context.Background(), srv.URL, \"user@example.com\", \"plaintext\")` — call to test the login helper against a stub httptest server. Uses the IANA-reserved example.com domain (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "internal/dreoauth/login_test.go",
+      "line": 65,
+      "column": 50,
+      "matched_span": "bad@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside TestLogin_BadCredentials: `Login(context.Background(), srv.URL, \"bad@example.com\", \"wrong\")` — bad-credentials path test against a stub server. Uses the IANA-reserved example.com domain (RFC 2606)."
+    }
+  ],
+  "findings_count_before": 2
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "surgegraph-facade-pp-mcp",
+  "display_name": "Surgegraph Facade",
+  "version": "4.5.0",
+  "description": "Surgegraph Facade API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/surgegraph-facade-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/surgegraph-facade-pp-mcp",
+      "args": [],
+      "env": {
+        "SURGEGRAPH_TOKEN": "${user_config.surgegraph_token}"
+      }
+    }
+  },
+  "user_config": {
+    "surgegraph_token": {
+      "type": "string",
+      "title": "SURGEGRAPH_TOKEN",
+      "description": "Sets SURGEGRAPH_TOKEN for the Surgegraph Facade MCP server. Run `surgegraph-pp-cli auth login` once to obtain a token (OAuth 2.1 + PKCE + Dynamic Client Registration against https://mcp.surgegraph.io/token), then paste the access token here.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

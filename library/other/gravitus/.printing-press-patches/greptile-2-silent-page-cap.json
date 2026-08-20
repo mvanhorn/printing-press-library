@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-2-silent-page-cap",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260517-231116",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/cli/gravitus_sync_impl.go"
+  ],
+  "summary": "Print a warning when the --max-pages cap is hit during sync.",
+  "reason": "The sync loop silently stopped at 50 pages with no message; users with large histories received an incomplete sync without realizing it."
+}

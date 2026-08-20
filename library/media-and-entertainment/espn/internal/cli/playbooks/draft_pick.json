@@ -1,0 +1,20 @@
+{
+  "query_family_examples": [
+    "who has the #1 draft pick in the upcoming draft",
+    "draft pick upcoming",
+    "next NBA draft lottery winner",
+    "MLB draft pick 1"
+  ],
+  "steps": [
+    {
+      "client_side": "web_fetch",
+      "args": {
+        "url_template": "https://www.espn.com/$SPORT_PATH/draft/rounds",
+        "fallback_url_template": "https://www.espn.com/$SPORT_PATH/draft/order"
+      },
+      "purpose": "Skip the ESPN CLI entirely; draft order is not exposed by the news/search endpoints. Use WebFetch on espn.com's draft page."
+    }
+  ],
+  "entity_slots": ["$SPORT_PATH"],
+  "expected_tool_calls": 1
+}

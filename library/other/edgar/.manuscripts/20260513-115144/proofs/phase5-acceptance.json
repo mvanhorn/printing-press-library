@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "edgar",
+  "run_id": "20260513-115144",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 64,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "notes": "User-Agent identification (not API key) is the SEC auth model. COMPANY_PP_CONTACT_EMAIL set; doctor reachability passes. 9 representative test tickers across small-cap defense, critical-minerals, energy, and quantum sectors exercised across companies/submissions, eightk-items, governance-flags, ownership-crosses, insider-summary, sections, xbrl-pivot, primary-sources, since. AAPL regression PASSED: the CEO flagged senior, 500K code-S shares ($5.74M) separated from 254K code-F (RSU tax) → net_discretionary_shares -500000. Five in-line fixes applied during Phase 5: (1) auth header placeholder {email} not mapped to env var → patched config.go; (2) Accept-Encoding: gzip header disabled Go auto-decompress → removed; (3) Form 4 primaryDocument URLs pointing at HTML wrapper → added index.json fallback to find sibling XML, 100% parse rate; (4) sections parser scanning raw HTML instead of stripped text → added stripHTMLTags pre-pass; (5) sections multi-candidate disambiguation v1.1 heuristic — prefer LATER candidate when >3x larger than max earlier (TOC vs body shape), unlocking 2 additional 10-K parses (GOOGL 1A, META 7). Sections boundary safety contract holds across all 9 tickers — 4/18 attempts return real extracted text (AAPL 1A, MSFT 7, GOOGL 1A, META 7); remaining 14 return clean boundary_unverifiable with candidate offsets. No silent wrong-section answers. v2 candidate: heading-style detection for further disambiguation."
+}

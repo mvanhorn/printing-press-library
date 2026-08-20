@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "kom-gap-starred-schema",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-164944",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Handle both flat and nested segment schemas in segments_kom_gap query.",
+  "reason": "Synced 'segments' rows store flat {name, distance} while 'starred' rows store a nested {segment: {name, distance}} object. Querying both types with flat field access silently produced unnamed 0-km segments for all starred rows.",
+  "files": [
+    "internal/cli/segments_kom_gap.go"
+  ]
+}

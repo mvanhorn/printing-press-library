@@ -1,0 +1,40 @@
+{
+  "api_name": "erank",
+  "base_url": "https://members.erank.com",
+  "description": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h2",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "composed",
+    "header": "X-XSRF-TOKEN",
+    "format": "{XSRF-TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "ERANK_XSRF_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ERANK_XSRF_TOKEN",
+        "kind": "harvested",
+        "required": true,
+        "sensitive": true,
+        "description": "XSRF token captured from a logged-in eRank browser session."
+      }
+    ],
+    "cookie_domain": "members.erank.com",
+    "cookies": [
+      "er_sess_x",
+      "sid_er",
+      "XSRF-TOKEN"
+    ],
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/api/keyword-tool/stats?keyword=dad+mug\u0026country=USA\u0026marketplace=etsy",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [],
+  "tools": []
+}

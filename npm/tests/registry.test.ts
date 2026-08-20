@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readdir, readFile } from "node:fs/promises";
+import { join, relative } from "node:path";
 import {
   cliBinaryName,
   cliSkillName,
@@ -19,13 +21,46 @@ test("parseRegistry validates and returns registry entries", () => {
         category: "sports",
         api: "ESPN",
         description: "Sports scores",
+        search_terms: ["NBA scores", "sports standings"],
         path: "library/sports/espn",
+        release: {
+          cli_name: "espn-pp-cli",
+          version: "2026.6.1",
+          released_at: "2026-06-01T00:00:00Z",
+          source_commit: "0123456789abcdef0123456789abcdef01234567",
+        },
       },
     ],
   });
 
   assert.equal(registry.entries.length, 1);
   assert.equal(registry.entries[0]?.name, "espn");
+  assert.deepEqual(registry.entries[0]?.search_terms, ["NBA scores", "sports standings"]);
+  assert.deepEqual(registry.entries[0]?.release, {
+    cli_name: "espn-pp-cli",
+    version: "2026.6.1",
+    released_at: "2026-06-01T00:00:00Z",
+    source_commit: "0123456789abcdef0123456789abcdef01234567",
+  });
+});
+
+test("parseRegistry treats null optional search_terms as absent", () => {
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        search_terms: null,
+        path: "library/sports/espn",
+      },
+    ],
+  });
+
+  assert.equal(registry.entries.length, 1);
+  assert.equal(registry.entries[0]?.search_terms, undefined);
 });
 
 test("lookupByName matches normalized CLI and API names", () => {
@@ -43,6 +78,7 @@ test("lookupByName matches normalized CLI and API names", () => {
   });
 
   assert.equal(lookupByName(registry, "yahoo-finance")?.path, "library/finance/yahoo-finance");
+  assert.equal(lookupByName(registry, "yahoo-finance-pp-cli")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "pp-yahoo-finance")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "Yahoo Finance")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "missing"), null);
@@ -96,7 +132,7 @@ test("parseRegistry parses transports as a non-empty string array", () => {
   assert.deepEqual(registry.entries[0]?.mcp?.transports, ["stdio", "http"]);
 });
 
-test("parseRegistry rejects entries with empty or missing transports", () => {
+test("parseRegistry skips entries with empty or missing transports and warns", () => {
   const baseEntry = {
     name: "demo",
     category: "demo",
@@ -111,22 +147,111 @@ test("parseRegistry rejects entries with empty or missing transports", () => {
     env_vars: [],
   };
 
-  assert.throws(
-    () =>
-      parseRegistry({
-        schema_version: 2,
-        entries: [{ ...baseEntry, mcp: { ...baseMcp, transports: [] } }],
-      }),
-    /transports/,
+  const warningsEmpty: string[] = [];
+  const r1 = parseRegistry(
+    {
+      schema_version: 2,
+      entries: [{ ...baseEntry, mcp: { ...baseMcp, transports: [] } }],
+    },
+    (m) => warningsEmpty.push(m),
   );
-  assert.throws(
-    () =>
-      parseRegistry({
-        schema_version: 2,
-        entries: [{ ...baseEntry, mcp: { ...baseMcp, transports: ["stdio", 7] } }],
-      }),
-    /transports/,
+  assert.equal(r1.entries.length, 0, "malformed entry must be skipped, not silently included");
+  assert.ok(
+    warningsEmpty.some((w) => w.includes("demo") && w.includes("transports")),
+    `expected a per-entry skip warning naming the entry and field; got: ${JSON.stringify(warningsEmpty)}`,
   );
+  assert.ok(
+    warningsEmpty.some((w) => w.includes("skipped 1 malformed registry entry")),
+    "expected a final summary warning",
+  );
+
+  const warningsNonString: string[] = [];
+  const r2 = parseRegistry(
+    {
+      schema_version: 2,
+      entries: [{ ...baseEntry, mcp: { ...baseMcp, transports: ["stdio", 7] } }],
+    },
+    (m) => warningsNonString.push(m),
+  );
+  assert.equal(r2.entries.length, 0);
+  assert.ok(warningsNonString.some((w) => w.includes("transports")));
+});
+
+test("parseRegistry keeps valid entries when one is malformed (lawhub-shape regression)", () => {
+  const warnings: string[] = [];
+  const registry = parseRegistry(
+    {
+      schema_version: 2,
+      entries: [
+        {
+          name: "ok",
+          category: "cat",
+          api: "OK",
+          description: "Has a description.",
+          path: "library/cat/ok",
+        },
+        // The lawhub case: description is empty. Old behavior threw; new
+        // behavior must skip this entry and keep the valid ones loadable.
+        {
+          name: "lawhub",
+          category: "education",
+          api: "LawHub",
+          description: "",
+          path: "library/education/lawhub",
+        },
+        {
+          name: "ok2",
+          category: "cat",
+          api: "OK2",
+          description: "Also fine.",
+          path: "library/cat/ok2",
+        },
+      ],
+    },
+    (m) => warnings.push(m),
+  );
+
+  assert.equal(registry.entries.length, 2, "valid entries must survive a malformed sibling");
+  assert.deepEqual(
+    registry.entries.map((e) => e.name).sort(),
+    ["ok", "ok2"],
+  );
+  assert.ok(
+    warnings.some((w) => w.includes("lawhub") && w.includes("description")),
+    "expected per-entry warning naming the offending slug and field",
+  );
+});
+
+test("parseRegistry uses fallback identifier when malformed entry has no name", () => {
+  const warnings: string[] = [];
+  const registry = parseRegistry(
+    {
+      schema_version: 2,
+      entries: [
+        {
+          // No name field at all — fallback to (unnamed at index N).
+          category: "cat",
+          api: "X",
+          description: "Has desc.",
+          path: "library/cat/x",
+        },
+      ],
+    },
+    (m) => warnings.push(m),
+  );
+
+  assert.equal(registry.entries.length, 0);
+  assert.ok(
+    warnings.some((w) => w.includes("(unnamed at index 0)")),
+    `expected unnamed-at-index fallback; got: ${JSON.stringify(warnings)}`,
+  );
+});
+
+test("parseRegistry preserves registry-level errors as throws (not per-entry)", () => {
+  // Wrong shape at the registry level is not recoverable per-entry.
+  assert.throws(() => parseRegistry({ schema_version: 1, entries: [] }), /unsupported registry/);
+  assert.throws(() => parseRegistry({ schema_version: 2, entries: "not-an-array" }), /must be an array/);
+  assert.throws(() => parseRegistry("not-an-object"), /must be an object/);
 });
 
 test("fetchRegistry sends GitHub token when available", async () => {
@@ -202,6 +327,34 @@ test("fetchGoModulePath reads go.mod next to a registry entry", async () => {
   );
 });
 
+test("library modules avoid invalid explicit Go v0/v1 suffixes", async () => {
+  const libraryRoot = join(process.cwd(), "..", "library");
+  const offenders: string[] = [];
+
+  for (const goModPath of await collectGoModPaths(libraryRoot)) {
+    const modulePath = parseGoModulePath(await readFile(goModPath, "utf8"));
+    if (modulePath && /\/v[01]$/.test(modulePath)) {
+      offenders.push(`${relative(process.cwd(), goModPath)}: ${modulePath}`);
+    }
+  }
+
+  assert.deepEqual(offenders, []);
+});
+
 test("parseGoModulePath returns null when no module declaration exists", () => {
   assert.equal(parseGoModulePath("go 1.23\n"), null);
 });
+
+async function collectGoModPaths(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const paths: string[] = [];
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      paths.push(...(await collectGoModPaths(fullPath)));
+    } else if (entry.isFile() && entry.name === "go.mod") {
+      paths.push(fullPath);
+    }
+  }
+  return paths;
+}

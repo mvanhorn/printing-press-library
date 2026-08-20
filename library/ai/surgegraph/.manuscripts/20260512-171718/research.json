@@ -1,0 +1,356 @@
+{
+  "api_name": "surgegraph",
+  "novelty_score": 14,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T09:22:00Z",
+  "novel_features": [
+    {
+      "name": "Visibility weekly delta",
+      "command": "visibility delta",
+      "description": "See exactly what moved in AI Visibility week over week — overview, trend, sentiment, or traffic — without screenshotting two dashboard tabs and diffing them by hand.",
+      "rationale": "The SurgeGraph UI shows point-in-time snapshots, not deltas. Requires two snapshots in local SQLite and a row-wise diff that no single API call returns.",
+      "example": "surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --metric overview,trend --agent",
+      "why_it_matters": "Use this when the user asks what changed in AI Visibility or wants a movers report; it answers without burning a follow-up API roundtrip.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prompts that lost AI mentions",
+      "command": "visibility prompts losers",
+      "description": "Surface tracked prompts whose citation count or first-position rank dropped vs the prior window — the report a CMO asks for every Monday and the dashboard can't produce.",
+      "rationale": "Joins ai_visibility_prompts with date-bucketed daily runs in the local store; the API exposes the snapshots but not the comparison.",
+      "example": "surgegraph-pp-cli visibility prompts losers --project proj_abc123 --since 720h --agent --select prompt_id,prompt,citation_delta,position_delta",
+      "why_it_matters": "Pick this when the user is hunting for visibility regressions; gives the agent a ranked, actionable list instead of two raw snapshots to compare.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Citation-domain rank shift",
+      "command": "visibility citation-domains rank-shift",
+      "description": "Watch which domains gained or lost citation share for your project's AI-tracked prompts over a 30-day window — useful when a competitor starts crowding the answer set.",
+      "rationale": "Diffs two snapshots of ai_visibility_citations grouped by domain in the local store. No API equivalent.",
+      "example": "surgegraph-pp-cli visibility citation-domains rank-shift --project proj_abc123 --window 720h --agent",
+      "why_it_matters": "Use when monitoring competitive share-of-voice in AI answers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Knowledge-library impact",
+      "command": "knowledge impact",
+      "description": "Rank a project's knowledge libraries by how often their grounded URLs actually appear in tracked AI citations — answers \"is this library worth maintaining?\".",
+      "rationale": "Joins knowledge_library_documents.url against ai_visibility_citations.url. Crosses two product surfaces the API exposes separately.",
+      "example": "surgegraph-pp-cli knowledge impact --project proj_abc123 --agent",
+      "why_it_matters": "Pick this when the user audits knowledge libraries or asks which library is paying off.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Topic-coverage drift",
+      "command": "research drift",
+      "description": "Diff a topic_research's hierarchical map against the writer_documents you've already shipped — covered vs gap, ranked for action.",
+      "rationale": "Joins topic_research nodes against writer_documents.title via FTS. The topic_research API returns the tree; the docs API returns titles; no endpoint joins them.",
+      "example": "surgegraph-pp-cli research drift --research-id res_xyz789 --project proj_abc123 --agent --select topic,parent,covered",
+      "why_it_matters": "Use when planning a content sprint from a topic research; tells the agent exactly which subtopics still need articles.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Gap to publish pipeline",
+      "command": "research gaps publish",
+      "description": "Take topic-gap output, bulk-create documents in 50-doc batches, and queue them into a WordPress integration — one idempotent command for the content-ops ritual.",
+      "rationale": "Compounds get_topic_map, create_bulk_documents, and publish_document_to_cms with retry-safe idempotency. Today this is three tabs and a spreadsheet.",
+      "example": "surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run --agent",
+      "why_it_matters": "Pick this when the user wants to ship articles for every gap from a topic research; collapses a multi-tab manual workflow into one call.",
+      "group": "Compound workflows that span products"
+    },
+    {
+      "name": "Stale-doc projection",
+      "command": "docs stale",
+      "description": "List writer and optimized docs not updated in the last N days, ranked by recent AI-source traffic — the refresh queue in one query.",
+      "rationale": "Local query over writer_documents.updated_at joined with ai_visibility_traffic_pages. Ranks by impact, not just age.",
+      "example": "surgegraph-pp-cli docs stale --project proj_abc123 --older-than 90 --agent --select document_id,title,last_updated,ai_traffic_30d",
+      "why_it_matters": "Use when prioritizing a content refresh queue.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Competitor topic diff",
+      "command": "research domain diff",
+      "description": "Set-diff a competitor's domain_research topic tree against your own topic_research — instant view of what they cover and you don't.",
+      "rationale": "Joins two locally cached research trees. The web app forces a mental side-by-side; the join is local-only.",
+      "example": "surgegraph-pp-cli research domain diff --project proj_abc123 --mine res_xyz789 --theirs dom_res_aaa --agent",
+      "why_it_matters": "Pick this when comparing topical coverage against a named competitor.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Cross-project visibility roll-up",
+      "command": "visibility portfolio",
+      "description": "Roll up AI Visibility deltas across every project in the organization — the agency-portfolio view the single-project UI doesn't produce.",
+      "rationale": "Fans the delta engine across every project in the local store. There is no cross-project API endpoint.",
+      "example": "surgegraph-pp-cli visibility portfolio --window 168h --agent",
+      "why_it_matters": "Use when the user manages multiple projects (agency, multi-brand) and asks for an executive summary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota burn-down forecast",
+      "command": "account burn",
+      "description": "Project credit exhaustion from your last 30 days of usage snapshots — a pre-flight check before queueing a large bulk-publish run.",
+      "rationale": "Linear projection over locally cached get_usage snapshots; the live endpoint shows current balance, not trajectory.",
+      "example": "surgegraph-pp-cli account burn --window 720h --agent",
+      "why_it_matters": "Pick this before kicking off a bulk operation to confirm you have credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Traffic-page to citation join",
+      "command": "visibility traffic-citations",
+      "description": "For each top-traffic page, list the tracked prompts whose AI citations resolved to it — answers \"why is this page getting AI traffic?\".",
+      "rationale": "Joins ai_visibility_traffic_pages.url against ai_visibility_citations.url; the API exposes both lists but never their join.",
+      "example": "surgegraph-pp-cli visibility traffic-citations --project proj_abc123 --agent --select page_url,ai_visits,citations",
+      "why_it_matters": "Use when explaining traffic patterns or planning new content based on what's already pulling AI clicks.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context bundle",
+      "description": "Emit a JSON blob shaped for an agent's context window covering prompts, citations, docs, and topic-maps for one project — the handoff payload an agent's loop needs.",
+      "rationale": "Reads ≤5 entity tables from local SQLite, emits one structured JSON. Reproducible without re-fetching the API for every agent run.",
+      "example": "surgegraph-pp-cli context bundle --project proj_abc123 --include prompts,citations,docs,topics",
+      "why_it_matters": "Use to seed another agent's working memory with everything you know about a SurgeGraph project, in one round-trip.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local search",
+      "command": "search",
+      "description": "Full-text search across local cache: AI Visibility prompts, citations, writer documents, optimized documents, and topic-map nodes — one query, multi-entity hits.",
+      "rationale": "SQLite FTS5 index across multiple tables. The API has no unified search; the web UI has none across these entities.",
+      "example": "surgegraph-pp-cli search \"AI search optimization\" --kind prompts,citations,docs,topics --agent --select kind,id,title,snippet",
+      "why_it_matters": "Pick this when an agent needs to locate any signal — a prompt, a citation, a draft — across the whole local cache.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Sync diff",
+      "command": "sync diff",
+      "description": "Emit per-resource sync cursors and total row counts from the local store — the inspection primitive for agent loops that need to know whether a re-sync is due.",
+      "rationale": "Reads per-resource `last_synced_at` cursors recorded by `sync` and emits a structured snapshot of what is cached. The `--since` flag is reserved for a future incremental-diff implementation.",
+      "example": "surgegraph-pp-cli sync diff --agent",
+      "why_it_matters": "Run after `sync` to inspect cursor freshness, or in an agent loop to decide whether the local store needs to be re-synced before reading.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Visibility weekly delta",
+      "command": "visibility delta",
+      "description": "See exactly what moved in AI Visibility week over week — overview, trend, sentiment, or traffic — without screenshotting two dashboard tabs and diffing them by hand.",
+      "rationale": "The SurgeGraph UI shows point-in-time snapshots, not deltas. Requires two snapshots in local SQLite and a row-wise diff that no single API call returns.",
+      "example": "surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --metric overview,trend --agent",
+      "why_it_matters": "Use this when the user asks what changed in AI Visibility or wants a movers report; it answers without burning a follow-up API roundtrip.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prompts that lost AI mentions",
+      "command": "visibility prompts losers",
+      "description": "Surface tracked prompts whose citation count or first-position rank dropped vs the prior window — the report a CMO asks for every Monday and the dashboard can't produce.",
+      "rationale": "Joins ai_visibility_prompts with date-bucketed daily runs in the local store; the API exposes the snapshots but not the comparison.",
+      "example": "surgegraph-pp-cli visibility prompts losers --project proj_abc123 --since 720h --agent --select prompt_id,prompt,citation_delta,position_delta",
+      "why_it_matters": "Pick this when the user is hunting for visibility regressions; gives the agent a ranked, actionable list instead of two raw snapshots to compare.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Citation-domain rank shift",
+      "command": "visibility citation-domains rank-shift",
+      "description": "Watch which domains gained or lost citation share for your project's AI-tracked prompts over a 30-day window — useful when a competitor starts crowding the answer set.",
+      "rationale": "Diffs two snapshots of ai_visibility_citations grouped by domain in the local store. No API equivalent.",
+      "example": "surgegraph-pp-cli visibility citation-domains rank-shift --project proj_abc123 --window 720h --agent",
+      "why_it_matters": "Use when monitoring competitive share-of-voice in AI answers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Knowledge-library impact",
+      "command": "knowledge impact",
+      "description": "Rank a project's knowledge libraries by how often their grounded URLs actually appear in tracked AI citations — answers \"is this library worth maintaining?\".",
+      "rationale": "Joins knowledge_library_documents.url against ai_visibility_citations.url. Crosses two product surfaces the API exposes separately.",
+      "example": "surgegraph-pp-cli knowledge impact --project proj_abc123 --agent",
+      "why_it_matters": "Pick this when the user audits knowledge libraries or asks which library is paying off.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Topic-coverage drift",
+      "command": "research drift",
+      "description": "Diff a topic_research's hierarchical map against the writer_documents you've already shipped — covered vs gap, ranked for action.",
+      "rationale": "Joins topic_research nodes against writer_documents.title via FTS. The topic_research API returns the tree; the docs API returns titles; no endpoint joins them.",
+      "example": "surgegraph-pp-cli research drift --research-id res_xyz789 --project proj_abc123 --agent --select topic,parent,covered",
+      "why_it_matters": "Use when planning a content sprint from a topic research; tells the agent exactly which subtopics still need articles.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Gap to publish pipeline",
+      "command": "research gaps publish",
+      "description": "Take topic-gap output, bulk-create documents in 50-doc batches, and queue them into a WordPress integration — one idempotent command for the content-ops ritual.",
+      "rationale": "Compounds get_topic_map, create_bulk_documents, and publish_document_to_cms with retry-safe idempotency. Today this is three tabs and a spreadsheet.",
+      "example": "surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run --agent",
+      "why_it_matters": "Pick this when the user wants to ship articles for every gap from a topic research; collapses a multi-tab manual workflow into one call.",
+      "group": "Compound workflows that span products"
+    },
+    {
+      "name": "Stale-doc projection",
+      "command": "docs stale",
+      "description": "List writer and optimized docs not updated in the last N days, ranked by recent AI-source traffic — the refresh queue in one query.",
+      "rationale": "Local query over writer_documents.updated_at joined with ai_visibility_traffic_pages. Ranks by impact, not just age.",
+      "example": "surgegraph-pp-cli docs stale --project proj_abc123 --older-than 90 --agent --select document_id,title,last_updated,ai_traffic_30d",
+      "why_it_matters": "Use when prioritizing a content refresh queue.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Competitor topic diff",
+      "command": "research domain diff",
+      "description": "Set-diff a competitor's domain_research topic tree against your own topic_research — instant view of what they cover and you don't.",
+      "rationale": "Joins two locally cached research trees. The web app forces a mental side-by-side; the join is local-only.",
+      "example": "surgegraph-pp-cli research domain diff --project proj_abc123 --mine res_xyz789 --theirs dom_res_aaa --agent",
+      "why_it_matters": "Pick this when comparing topical coverage against a named competitor.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Cross-project visibility roll-up",
+      "command": "visibility portfolio",
+      "description": "Roll up AI Visibility deltas across every project in the organization — the agency-portfolio view the single-project UI doesn't produce.",
+      "rationale": "Fans the delta engine across every project in the local store. There is no cross-project API endpoint.",
+      "example": "surgegraph-pp-cli visibility portfolio --window 168h --agent",
+      "why_it_matters": "Use when the user manages multiple projects (agency, multi-brand) and asks for an executive summary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota burn-down forecast",
+      "command": "account burn",
+      "description": "Project credit exhaustion from your last 30 days of usage snapshots — a pre-flight check before queueing a large bulk-publish run.",
+      "rationale": "Linear projection over locally cached get_usage snapshots; the live endpoint shows current balance, not trajectory.",
+      "example": "surgegraph-pp-cli account burn --window 720h --agent",
+      "why_it_matters": "Pick this before kicking off a bulk operation to confirm you have credits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Traffic-page to citation join",
+      "command": "visibility traffic-citations",
+      "description": "For each top-traffic page, list the tracked prompts whose AI citations resolved to it — answers \"why is this page getting AI traffic?\".",
+      "rationale": "Joins ai_visibility_traffic_pages.url against ai_visibility_citations.url; the API exposes both lists but never their join.",
+      "example": "surgegraph-pp-cli visibility traffic-citations --project proj_abc123 --agent --select page_url,ai_visits,citations",
+      "why_it_matters": "Use when explaining traffic patterns or planning new content based on what's already pulling AI clicks.",
+      "group": "Cross-entity joins no single API call returns"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context bundle",
+      "description": "Emit a JSON blob shaped for an agent's context window covering prompts, citations, docs, and topic-maps for one project — the handoff payload an agent's loop needs.",
+      "rationale": "Reads ≤5 entity tables from local SQLite, emits one structured JSON. Reproducible without re-fetching the API for every agent run.",
+      "example": "surgegraph-pp-cli context bundle --project proj_abc123 --include prompts,citations,docs,topics",
+      "why_it_matters": "Use to seed another agent's working memory with everything you know about a SurgeGraph project, in one round-trip.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local search",
+      "command": "search",
+      "description": "Full-text search across local cache: AI Visibility prompts, citations, writer documents, optimized documents, and topic-map nodes — one query, multi-entity hits.",
+      "rationale": "SQLite FTS5 index across multiple tables. The API has no unified search; the web UI has none across these entities.",
+      "example": "surgegraph-pp-cli search \"AI search optimization\" --kind prompts,citations,docs,topics --agent --select kind,id,title,snippet",
+      "why_it_matters": "Pick this when an agent needs to locate any signal — a prompt, a citation, a draft — across the whole local cache.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Sync diff",
+      "command": "sync diff",
+      "description": "Emit per-resource sync cursors and total row counts from the local store — the inspection primitive for agent loops that need to know whether a re-sync is due.",
+      "rationale": "Reads per-resource `last_synced_at` cursors recorded by `sync` and emits a structured snapshot of what is cached. The `--since` flag is reserved for a future incremental-diff implementation.",
+      "example": "surgegraph-pp-cli sync diff --agent",
+      "why_it_matters": "Run after `sync` to inspect cursor freshness, or in an agent loop to decide whether the local store needs to be re-synced before reading.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "SurgeGraph",
+    "headline": "Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local SQLite that compounds week-over-week deltas the web app can't produce.",
+    "value_prop": "SurgeGraph is an AI-search content operations cockpit. The web app shows point-in-time snapshots; this CLI keeps a local cache so you can run `visibility delta`, `prompts losers`, and `citation-domains rank-shift` over time. It compounds three split workflows — topic research, bulk writing, WordPress publishing — into a single `research gaps publish` pipeline, and ships every command as both CLI and MCP so the same agent that drafts an article can monitor the citations it generates.",
+    "auth_narrative": "SurgeGraph uses OAuth 2.1 against https://mcp.surgegraph.io with Authorization Code + PKCE + Dynamic Client Registration. Run `surgegraph-pp-cli auth login` once; the CLI registers a client, walks you through the browser flow, and stores the bearer plus refresh token for subsequent calls. `auth status` shows the current TTL and `auth logout` clears it.",
+    "quickstart": [
+      {
+        "command": "surgegraph-pp-cli auth login",
+        "comment": "OAuth 2.1 + PKCE handshake against mcp.surgegraph.io; tokens cached locally."
+      },
+      {
+        "command": "surgegraph-pp-cli doctor",
+        "comment": "Confirm bearer, quota, and tool reachability before doing anything else."
+      },
+      {
+        "command": "surgegraph-pp-cli get-projects --agent",
+        "comment": "Pick a project_id; every visibility/docs/knowledge command needs one."
+      },
+      {
+        "command": "surgegraph-pp-cli sync --project proj_abc123",
+        "comment": "Populate the local store so deltas and search work."
+      },
+      {
+        "command": "surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --agent",
+        "comment": "Week-over-week AI Visibility movers — the canonical Monday ritual."
+      },
+      {
+        "command": "surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run",
+        "comment": "Preview the gap-to-WordPress pipeline before letting it actually post."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Run `surgegraph-pp-cli auth login`. If you were authed, the refresh token expired — `auth status` shows the TTL."
+      },
+      {
+        "symptom": "Empty `visibility delta` output",
+        "fix": "Run `surgegraph-pp-cli sync --project \u003cid\u003e` at least twice on different days; deltas need two snapshots."
+      },
+      {
+        "symptom": "`visibility prompts losers` lists no prompts",
+        "fix": "Verify with `visibility prompts list --project \u003cid\u003e` that the project tracks any prompts at all. Empty losers list with non-empty prompts means nothing dropped — that's the answer."
+      },
+      {
+        "symptom": "`research gaps publish` errors out partway through",
+        "fix": "It's idempotent on the bulk-create step. Re-run with `--dry-run` first; matching documents are skipped by external_id."
+      },
+      {
+        "symptom": "Rate-limit errors during bulk operations",
+        "fix": "The CLI uses cliutil.AdaptiveLimiter and backs off automatically. If errors persist after retry, run `account burn --window 168h` — you may be near the quota ceiling."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to operate against SurgeGraph for any AI-search content task: monitoring AI Visibility deltas, drafting and publishing articles in bulk, auditing knowledge-library impact, or seeding another agent with a project's current state. Every visible web-app feature is also a CLI command, and every transcendence command is an MCP tool — the agent that opened the loop can close it without leaving the terminal.",
+    "recipes": [
+      {
+        "title": "Monday AI Visibility review",
+        "command": "surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --agent --select brand,metric,delta_pct",
+        "explanation": "Pull week-over-week movers and pipe straight into the Monday CMO update."
+      },
+      {
+        "title": "Trim a deeply-nested citations response",
+        "command": "surgegraph-pp-cli get-ai-visibility-citations --project-id proj_abc123 --agent --select data.domains.domain,data.domains.citationCount",
+        "explanation": "Citation responses are deeply nested; dotted-path `--select` keeps the payload under an agent's context budget."
+      },
+      {
+        "title": "Find every signal about a topic across the local cache",
+        "command": "surgegraph-pp-cli search \"AI search optimization\" --kind prompt,citation,doc,topic --agent --select kind,id,title,snippet",
+        "explanation": "FTS5 across all four entities in one round-trip; results are unified and rankable. Run `sync` first to populate the index."
+      },
+      {
+        "title": "Publish every gap topic to WordPress",
+        "command": "surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run",
+        "explanation": "Compounds get_topic_map → create_bulk_documents → publish_document_to_cms; idempotent on retries."
+      },
+      {
+        "title": "Filter results to one citation kind from the local cache",
+        "command": "surgegraph-pp-cli search \"answer engine\" --kind citation --agent",
+        "explanation": "Limit FTS hits to one entity kind via `--kind`; combine with `--limit` to keep output bounded."
+      }
+    ],
+    "trigger_phrases": [
+      "what changed in SurgeGraph this week",
+      "AI Visibility for my project",
+      "which prompts lost AI citations",
+      "publish gap articles from a topic research",
+      "what knowledge libraries actually show up in citations",
+      "use surgegraph",
+      "run surgegraph"
+    ]
+  }
+}

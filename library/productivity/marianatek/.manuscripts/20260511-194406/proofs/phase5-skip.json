@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "marianatek",
+  "run_id": "20260511-194406",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "oauth2",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

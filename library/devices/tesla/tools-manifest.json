@@ -1,0 +1,1710 @@
+{
+  "api_name": "tesla",
+  "base_url": "https://owner-api.teslamotors.com",
+  "description": "Tesla mobile API: vehicle data, climate, locks, remote start, charging queue, diagnostics, products, and service appointments",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TESLA_AUTH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TESLA_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Tesla iOS-app OAuth bearer token (8-hour TTL). Mint via tesla auth login."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "charging_get_queue",
+      "description": "Current Supercharger queue position (which stall, ETA). Optional: vin. Returns the queue.",
+      "method": "GET",
+      "path": "/api/1/charging/queue",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "diagnostics_get_diagnostics",
+      "description": "Fetch the authenticated account's vehicle diagnostic feature flags via GET /api/1/diagnostics. No parameters; reads bearer token from the configured auth. Returns the diagnostics object: per-feature config flags Tesla uses to gate diagnostic instrumentation on the user's vehicles. Prefer this when you need to know what diagnostic surfaces the account has enabled; use vehicles_get_data_vehicle_data for per-vehicle live telemetry instead.",
+      "method": "GET",
+      "path": "/api/1/diagnostics",
+      "params": []
+    },
+    {
+      "name": "energy_sites_create_set_backup_reserve",
+      "description": "Set Powerwall backup reserve percent. Required: site_id, backup_reserve_percent. Returns the new create_set_backup_reserve.",
+      "method": "POST",
+      "path": "/api/1/energy_sites/{site_id}/backup",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "backup_reserve_percent",
+          "type": "integer",
+          "location": "body",
+          "description": "Percent 0-100",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_create_set_operation",
+      "description": "Set Powerwall operation mode. Required: site_id, default_real_mode. Returns the new create_set_operation.",
+      "method": "POST",
+      "path": "/api/1/energy_sites/{site_id}/operation",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "default_real_mode",
+          "type": "string",
+          "location": "body",
+          "description": "self_consumption | backup | autonomous",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_get_calendar_history",
+      "description": "Historical energy data per day/month. Required: site_id, kind, period. Returns the get_calendar_history.",
+      "method": "GET",
+      "path": "/api/1/energy_sites/{site_id}/calendar_history",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "energy | power | self_consumption | savings",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "body",
+          "description": "day | month | year",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_get_live_status",
+      "description": "Real-time Powerwall solar/grid/battery power. Required: site_id. Returns the get_live_status.",
+      "method": "GET",
+      "path": "/api/1/energy_sites/{site_id}/live_status",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_get_rate_tariffs",
+      "description": "Utility rate plans for Powerwall scheduling. Optional: language. Returns the rate_tariffs.",
+      "method": "GET",
+      "path": "/api/1/energy_sites/rate_tariffs",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_get_site_info",
+      "description": "Energy site config (capacity, type, address). Required: site_id. Returns the get_site_info.",
+      "method": "GET",
+      "path": "/api/1/energy_sites/{site_id}/site_info",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "energy_sites_get_site_status",
+      "description": "Backup-reserve and operation mode. Required: site_id. Returns the get_site_status.",
+      "method": "GET",
+      "path": "/api/1/energy_sites/{site_id}/site_status",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Energy site id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "logs_create_logs",
+      "description": "Forward client-side log events (mostly internal use). Required: details. Returns the new logs.",
+      "method": "POST",
+      "path": "/api/1/logs",
+      "params": [
+        {
+          "name": "details",
+          "type": "object",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notification_preferences_create_notification_preferences",
+      "description": "Update push notification preferences. Required: app_version, device_token, device_type, locale, notification_preferences, platform. Returns the new notification_preferences.",
+      "method": "POST",
+      "path": "/api/1/notification_preferences",
+      "params": [
+        {
+          "name": "app_version",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "device_token",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "device_type",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "notification_preferences",
+          "type": "object",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_get_products",
+      "description": "List vehicles, Powerwalls, and solar products owned. Optional: orders. Returns the products.",
+      "method": "GET",
+      "path": "/api/1/products",
+      "params": [
+        {
+          "name": "orders",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "users_create_keys",
+      "description": "Add a virtual phone key or BLE key. Required: battery_level, bluetooth_authorization, bluetooth_enabled, device_token, device_type, kind, locale, location_permissions, low_power_mode, model, name, public_key, tag. Returns the new keys.",
+      "method": "POST",
+      "path": "/api/1/users/keys",
+      "params": [
+        {
+          "name": "battery_level",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "bluetooth_authorization",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "bluetooth_enabled",
+          "type": "boolean",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "device_token",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "device_type",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "location_permissions",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "low_power_mode",
+          "type": "boolean",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "public_key",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get_app_config",
+      "description": "Mobile app feature flags and runtime config. Optional: country, page. Returns the app_config.",
+      "method": "GET",
+      "path": "/api/1/users/app_config",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "users_get_feature_config",
+      "description": "Fetch account-level feature gating via GET /api/1/users/feature_config. No parameters; reads bearer token from the configured auth. Returns the feature_config object: the flag bundle Tesla's mobile app uses to decide which UI surfaces and capabilities are available to this account. Useful for detecting whether features like Supercharger Voucher, Premium Connectivity, or new owner workflows are enabled. Distinct from vehicle-level diagnostics (diagnostics_get_diagnostics).",
+      "method": "GET",
+      "path": "/api/1/users/feature_config",
+      "params": []
+    },
+    {
+      "name": "users_get_orders",
+      "description": "Tesla orders (new vehicle deliveries, accessory purchases). Optional: device_country, device_language, ttp_locale. Returns the orders.",
+      "method": "GET",
+      "path": "/api/1/users/orders",
+      "params": [
+        {
+          "name": "device_country",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "device_language",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "ttp_locale",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_actuate_trunk",
+      "description": "Open/close trunk or frunk; which_trunk = front | rear. Required: vehicle_id, which_trunk. Returns the new create_actuate_trunk.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/actuate_trunk",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "which_trunk",
+          "type": "string",
+          "location": "body",
+          "description": "front or rear",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_add_charge_schedule",
+      "description": "Add a charging schedule (location + time window). Required: vehicle_id, lat, lon. Optional: start_enabled, end_enabled, start_time (plus 3 more). Returns the new create_add_charge_schedule.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/add_charge_schedule",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "body",
+          "description": "Schedule location latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "body",
+          "description": "Schedule location longitude",
+          "required": true
+        },
+        {
+          "name": "start_enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Enable start time"
+        },
+        {
+          "name": "end_enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Enable end time"
+        },
+        {
+          "name": "start_time",
+          "type": "integer",
+          "location": "body",
+          "description": "Minutes from midnight"
+        },
+        {
+          "name": "end_time",
+          "type": "integer",
+          "location": "body",
+          "description": "Minutes from midnight"
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Schedule active"
+        },
+        {
+          "name": "one_time",
+          "type": "boolean",
+          "location": "body",
+          "description": "One-time vs recurring"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_add_precondition_schedule",
+      "description": "Add a preconditioning schedule. Required: vehicle_id, lat, lon, precondition_time. Optional: days_of_week, enabled. Returns the new create_add_precondition_schedule.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/add_precondition_schedule",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "body",
+          "description": "Schedule location latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "body",
+          "description": "Schedule location longitude",
+          "required": true
+        },
+        {
+          "name": "precondition_time",
+          "type": "integer",
+          "location": "body",
+          "description": "Minutes from midnight to be ready",
+          "required": true
+        },
+        {
+          "name": "days_of_week",
+          "type": "string",
+          "location": "body",
+          "description": "Days mask e.g. 'Weekdays' or 'All'"
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Schedule active"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_adjust_volume",
+      "description": "Set volume to specific level. Required: vehicle_id, volume. Returns the new create_adjust_volume.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/adjust_volume",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "volume",
+          "type": "number",
+          "location": "body",
+          "description": "Target volume level",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_auto_conditioning_start",
+      "description": "POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_start. Required: vehicle_id. Returns the new auto_conditioning_start.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/auto_conditioning_start",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_auto_conditioning_stop",
+      "description": "POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop. Required: vehicle_id. Returns the new auto_conditioning_stop.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_bioweapon_mode",
+      "description": "Toggle bioweapon defense mode (HEPA recirculation). Required: vehicle_id, on. Optional: manual_override. Returns the new create_bioweapon_mode.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_bioweapon_mode",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "on",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable",
+          "required": true
+        },
+        {
+          "name": "manual_override",
+          "type": "boolean",
+          "location": "body",
+          "description": "force toggle"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_cancel_software_update",
+      "description": "Cancel pending software update. Required: vehicle_id. Returns the new create_cancel_software_update.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/cancel_software_update",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_max_range",
+      "description": "Set charge limit to Max Range (100%). Required: vehicle_id. Returns the new create_charge_max_range.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_max_range",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_port_door_close",
+      "description": "Close the charge port. Required: vehicle_id. Returns the new create_charge_port_door_close.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_port_door_close",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_port_door_open",
+      "description": "Open the charge port. Required: vehicle_id. Returns the new create_charge_port_door_open.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_port_door_open",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_standard",
+      "description": "Set charge limit to Standard (~90%). Required: vehicle_id. Returns the new create_charge_standard.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_standard",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_start",
+      "description": "Start charging. Required: vehicle_id. Returns the new create_charge_start.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_start",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_charge_stop",
+      "description": "Stop charging. Required: vehicle_id. Returns the new create_charge_stop.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/charge_stop",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_climate_keeper_mode",
+      "description": "Climate keeper mode: 0=off, 1=on, 2=dog, 3=camp. Required: vehicle_id, climate_keeper_mode. Returns the new create_climate_keeper_mode.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_climate_keeper_mode",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "climate_keeper_mode",
+          "type": "integer",
+          "location": "body",
+          "description": "0=off 1=on 2=dog 3=camp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_door_lock",
+      "description": "POST /api/1/vehicles/{vehicle_id}/command/door_lock. Required: vehicle_id. Returns the new door_lock.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/door_lock",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_door_unlock",
+      "description": "POST /api/1/vehicles/{vehicle_id}/command/door_unlock. Required: vehicle_id. Returns the new door_unlock.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/door_unlock",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_erase_user_data",
+      "description": "Erase guest-session user data. Required: vehicle_id. Returns the new create_erase_user_data.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/erase_user_data",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_flash_lights",
+      "description": "Flash headlights. Required: vehicle_id. Returns the new create_flash_lights.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/flash_lights",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_guest_mode",
+      "description": "Enable/disable Guest mode. Required: vehicle_id, enable. Returns the new create_guest_mode.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/guest_mode",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "enable",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_hermes",
+      "description": "POST /api/1/vehicles/{vehicle_id}/jwt/hermes. Required: vehicle_id, uuid. Returns the new hermes.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/jwt/hermes",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        },
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_honk_horn",
+      "description": "Honk the horn. Required: vehicle_id. Returns the new create_honk_horn.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/honk_horn",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_max_defrost",
+      "description": "Toggle max defrost. Required: vehicle_id, on. Returns the new create_max_defrost.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_preconditioning_max",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "on",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable max defrost",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_next_favorite",
+      "description": "Next favorite station. Required: vehicle_id. Returns the new create_media_next_favorite.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_next_favorite",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_next_track",
+      "description": "Next track. Required: vehicle_id. Returns the new create_media_next_track.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_next_track",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_prev_favorite",
+      "description": "Previous favorite station. Required: vehicle_id. Returns the new create_media_prev_favorite.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_prev_favorite",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_prev_track",
+      "description": "Previous track. Required: vehicle_id. Returns the new create_media_prev_track.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_prev_track",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_toggle_playback",
+      "description": "Toggle play/pause. Required: vehicle_id. Returns the new create_media_toggle_playback.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_toggle_playback",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_volume_down",
+      "description": "Volume down. Required: vehicle_id. Returns the new create_media_volume_down.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_volume_down",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_media_volume_up",
+      "description": "Volume up. Required: vehicle_id. Returns the new create_media_volume_up.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/media_volume_up",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_navigation_gps_request",
+      "description": "Send lat/lng directly to navigation. Required: vehicle_id, lat, lon. Optional: order. Returns the new create_navigation_gps_request.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/navigation_gps_request",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "body",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "body",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "order",
+          "type": "integer",
+          "location": "body",
+          "description": "Waypoint order"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_remote_start_drive",
+      "description": "POST /api/1/vehicles/{vehicle_id}/command/remote_start_drive. Required: vehicle_id. Returns the new remote_start_drive.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/remote_start_drive",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_remove_charge_schedule",
+      "description": "Remove charging schedule by id. Required: vehicle_id, id. Returns the new create_remove_charge_schedule.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/remove_charge_schedule",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "body",
+          "description": "Schedule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_remove_precondition_schedule",
+      "description": "Remove preconditioning schedule by id. Required: vehicle_id, id. Returns the new create_remove_precondition_schedule.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/remove_precondition_schedule",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "body",
+          "description": "Schedule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_reset_valet_pin",
+      "description": "Reset Valet PIN. Required: vehicle_id. Returns the new create_reset_valet_pin.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/reset_valet_pin",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_schedule_software_update",
+      "description": "Schedule the pending software update. Required: vehicle_id, offset_sec. Returns the new create_schedule_software_update.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/schedule_software_update",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "offset_sec",
+          "type": "integer",
+          "location": "body",
+          "description": "Seconds from now",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_seat_heater_request",
+      "description": "Set seat heater level (0-3) at a seat position (0=driver, 1=passenger, 2-5=rear). Required: vehicle_id, heater, level. Returns the new create_seat_heater_request.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/remote_seat_heater_request",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "heater",
+          "type": "integer",
+          "location": "body",
+          "description": "0-5 seat position",
+          "required": true
+        },
+        {
+          "name": "level",
+          "type": "integer",
+          "location": "body",
+          "description": "0-3 heat level",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_set_charge_limit",
+      "description": "Set charge limit percent (50-100). Required: vehicle_id, percent. Returns the new create_set_charge_limit.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_charge_limit",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "percent",
+          "type": "integer",
+          "location": "body",
+          "description": "Target SOC percent 50-100",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_set_charging_amps",
+      "description": "Set charging amps draw. Required: vehicle_id, charging_amps. Returns the new create_set_charging_amps.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_charging_amps",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "charging_amps",
+          "type": "integer",
+          "location": "body",
+          "description": "Amperes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_set_sentry_mode",
+      "description": "Enable/disable Sentry mode. Required: vehicle_id, on. Returns the new create_set_sentry_mode.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_sentry_mode",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "on",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_set_temps",
+      "description": "Set driver and passenger climate temps (Celsius). Required: vehicle_id, driver_temp, passenger_temp. Returns the new create_set_temps.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_temps",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "driver_temp",
+          "type": "number",
+          "location": "body",
+          "description": "Driver-side temp in Celsius",
+          "required": true
+        },
+        {
+          "name": "passenger_temp",
+          "type": "number",
+          "location": "body",
+          "description": "Passenger-side temp in Celsius",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_set_valet_mode",
+      "description": "Enable/disable Valet mode with optional PIN. Required: vehicle_id, on. Optional: password. Returns the new create_set_valet_mode.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/set_valet_mode",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "on",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "4-digit PIN"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_share",
+      "description": "Send navigation destination to the car (address or coordinates). Required: vehicle_id, value. Optional: type, locale, timestamp_ms. Returns the new create_share.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/share",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "share_ext_content_raw default"
+        },
+        {
+          "name": "value",
+          "type": "object",
+          "location": "body",
+          "description": "Object containing destination text or coords",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "en-US default"
+        },
+        {
+          "name": "timestamp_ms",
+          "type": "integer",
+          "location": "body",
+          "description": "Unix ms; defaults to now"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_speed_limit_activate",
+      "description": "Activate Speed Limit mode. Required: vehicle_id, pin. Returns the new create_speed_limit_activate.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_activate",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "pin",
+          "type": "string",
+          "location": "body",
+          "description": "4-digit PIN",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_speed_limit_clear_pin",
+      "description": "Clear Speed Limit PIN. Required: vehicle_id, pin. Returns the new create_speed_limit_clear_pin.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_clear_pin",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "pin",
+          "type": "string",
+          "location": "body",
+          "description": "Current 4-digit PIN",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_speed_limit_deactivate",
+      "description": "Deactivate Speed Limit mode. Required: vehicle_id, pin. Returns the new create_speed_limit_deactivate.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_deactivate",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "pin",
+          "type": "string",
+          "location": "body",
+          "description": "4-digit PIN",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_speed_limit_set_limit",
+      "description": "Set Speed Limit value (mph). Required: vehicle_id, limit_mph. Returns the new create_speed_limit_set_limit.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_set_limit",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "limit_mph",
+          "type": "integer",
+          "location": "body",
+          "description": "Speed limit in MPH",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_steering_wheel_heater_request",
+      "description": "Toggle steering wheel heater. Required: vehicle_id, on. Returns the new create_steering_wheel_heater_request.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/remote_steering_wheel_heater_request",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "on",
+          "type": "boolean",
+          "location": "body",
+          "description": "true to enable",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_sun_roof_control",
+      "description": "Sun roof: state = vent | close. Required: vehicle_id, state. Returns the new create_sun_roof_control.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/sun_roof_control",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "vent or close",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_trigger_homelink",
+      "description": "Trigger HomeLink garage door. Required: vehicle_id, lat, lon. Returns the new create_trigger_homelink.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/trigger_homelink",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "body",
+          "description": "Current latitude (HomeLink uses geofence)",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "body",
+          "description": "Current longitude",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_wake_up",
+      "description": "Wake the vehicle from sleep. Required: vehicle_id. Returns the new create_wake_up.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/wake_up",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_create_window_control",
+      "description": "Vent or close all windows; command = vent | close. Required: vehicle_id, command. Optional: lat, lon. Returns the new create_window_control.",
+      "method": "POST",
+      "path": "/api/1/vehicles/{vehicle_id}/command/window_control",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "vent or close",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "body",
+          "description": "Required for vent (geofence)"
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "body",
+          "description": "Required for vent (geofence)"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_compose_image",
+      "description": "Compose a rendered image of the configured vehicle. Required: vehicle_id. Optional: view, options, size. Returns the get_compose_image.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/composite_image",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        },
+        {
+          "name": "view",
+          "type": "string",
+          "location": "body",
+          "description": "STUD_3QTR | STUD_REAR | STUD_SIDE | STUD_REAR_QUARTER"
+        },
+        {
+          "name": "options",
+          "type": "string",
+          "location": "body",
+          "description": "Option codes (optional override)"
+        },
+        {
+          "name": "size",
+          "type": "integer",
+          "location": "body",
+          "description": "Image size in pixels"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_charge_state",
+      "description": "Charge state subset (faster than full vehicle_data). Required: vehicle_id. Returns the get_data_charge_state.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/charge_state",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_climate_state",
+      "description": "Climate state subset. Required: vehicle_id. Returns the get_data_climate_state.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/climate_state",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_drive_state",
+      "description": "Drive state (location, speed, shift) subset. Required: vehicle_id. Returns the get_data_drive_state.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/drive_state",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_gui_settings",
+      "description": "GUI settings (units, time format). Required: vehicle_id. Returns the get_data_gui_settings.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/gui_settings",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_vehicle_config",
+      "description": "Vehicle config (model, options, trim). Required: vehicle_id. Returns the get_data_vehicle_config.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/vehicle_config",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_data_vehicle_state",
+      "description": "Vehicle state (locks, software, sentry) subset. Required: vehicle_id. Returns the get_data_vehicle_state.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/data_request/vehicle_state",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_mobile_enabled",
+      "description": "Is mobile control enabled in the car. Required: vehicle_id. Returns the get_mobile_enabled.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/mobile_enabled",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_nearby_chargers",
+      "description": "Nearby Supercharger sites with stall availability subfield. Required: vehicle_id. Returns the get_nearby_chargers.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/nearby_charging_sites",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_release_notes",
+      "description": "Release notes for the current/queued software update. Required: vehicle_id. Returns the get_release_notes.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/release_notes",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_service_data",
+      "description": "Open service appointments and recent service history for this vehicle. Required: vehicle_id. Optional: version. Returns the service_data.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/service_data",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_get_vehicle_data",
+      "description": "Full vehicle state snapshot: charge, climate, drive, GUI, vehicle config, and software. Required: vehicle_id. Optional: endpoints. Returns the vehicle_data.",
+      "method": "GET",
+      "path": "/api/1/vehicles/{vehicle_id}/vehicle_data",
+      "params": [
+        {
+          "name": "vehicle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+          "required": true
+        },
+        {
+          "name": "endpoints",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: erank-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: erank-pp-cli
+    main: ./cmd/erank-pp-cli
+    binary: erank-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/erank/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: erank-pp-mcp
+    main: ./cmd/erank-pp-mcp
+    binary: erank-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: erank-pp-cli
+    repository:
+      owner: horknfbr
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers."
+    install: |
+      bin.install "erank-pp-cli"
+      bin.install "erank-pp-mcp"

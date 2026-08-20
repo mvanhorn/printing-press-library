@@ -1,0 +1,255 @@
+{
+  "api_name": "withings",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "withings-sync",
+      "url": "https://github.com/jaroslawhartman/withings-sync",
+      "language": "Python",
+      "install_method": "",
+      "stars": 670,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python_withings_api",
+      "url": "https://github.com/vangorra/python_withings_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 110,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aiowithings",
+      "url": "https://github.com/joostlek/python-withings",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "withings-go",
+      "url": "https://github.com/zono-dev/withings-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "withings-mcp",
+      "url": "https://github.com/akutishevsky/withings-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T23:45:00Z",
+  "novel_features": [
+    {
+      "name": "Body-recomposition tracker",
+      "command": "recomp",
+      "description": "See whether you're actually recomposing — fat mass down while lean mass holds — on a de-noised rolling-average weight, not scale-weight whiplash.",
+      "rationale": "Requires a local join across weight, fat-mass and lean-mass measures over a window; no single getmeas call produces the fat-down/muscle-held divergence.",
+      "example": "withings-pp-cli recomp --since 90d --agent",
+      "why_it_matters": "Reach for this instead of raw measures when the question is 'is my cut/bulk working', not 'what did I weigh on Tuesday'.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Training load vs recovery",
+      "command": "recovery",
+      "description": "Weigh recent workout HR-zone load against your recovery markers (resting HR, HRV, sleep score) to catch overtraining before it catches you.",
+      "rationale": "Joins workouts, measures and sleep summaries in the local store — three tables no Withings endpoint spans.",
+      "example": "withings-pp-cli recovery --since 14d --agent",
+      "why_it_matters": "Use when deciding whether to push or back off; it correlates how hard you trained with how recovered you are.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Clinician BP/AFib report",
+      "command": "bp-report",
+      "description": "A dated blood-pressure + AFib table with your own annotations (medication changes, symptoms) — the clean history to hand a cardiologist.",
+      "rationale": "Joins BP measures with ECG/AFib heart records plus a local annotations table; the app offers graphs, not an annotatable dated export.",
+      "example": "withings-pp-cli bp-report --since 90d --agent",
+      "why_it_matters": "Use for a doctor-ready BP/AFib history; prefer it over raw 'heart list' when you need the annotated report.",
+      "group": "Clinician + agent reports"
+    },
+    {
+      "name": "Sleep-debt rolling window",
+      "command": "sleep debt",
+      "description": "Cumulative sleep deficit against your target over a rolling window — the number the per-night summary never adds up for you.",
+      "rationale": "Aggregates per-night sleep summaries across a window in the local store; getsummary only returns a single night.",
+      "example": "withings-pp-cli sleep debt --window 14d --agent",
+      "why_it_matters": "Use for sleep-deficit accounting over time; for one night use 'sleep summary'.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Since-time health digest",
+      "command": "digest",
+      "description": "One structured 'what changed since \u003ctime\u003e across all my metrics' snapshot — built for piping into an agent.",
+      "rationale": "Reads every entity in the local mirror since a timestamp into one envelope; replaces a bespoke multi-call ETL.",
+      "example": "withings-pp-cli digest --since 24h --agent",
+      "why_it_matters": "The go-to for LLM health Q\u0026A: one cursor-driven structured pull instead of N endpoint calls.",
+      "group": "Clinician + agent reports"
+    },
+    {
+      "name": "Multi-metric correlation",
+      "command": "correlate",
+      "description": "Pearson + best-lag correlation between any two daily metrics (weight vs sleep score, steps vs resting HR).",
+      "rationale": "Pulls two arbitrary daily series from the local mirror and correlates them; no endpoint offers cross-metric analysis.",
+      "example": "withings-pp-cli correlate weight sleep_score --since 90d --agent",
+      "why_it_matters": "The flexible fallback when no curated readout fits the metric pair you care about.",
+      "group": "Local-join analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Body-recomposition tracker",
+      "command": "recomp",
+      "description": "See whether you're actually recomposing — fat mass down while lean mass holds — on a de-noised rolling-average weight, not scale-weight whiplash.",
+      "rationale": "Requires a local join across weight, fat-mass and lean-mass measures over a window; no single getmeas call produces the fat-down/muscle-held divergence.",
+      "example": "withings-pp-cli recomp --since 90d --agent",
+      "why_it_matters": "Reach for this instead of raw measures when the question is 'is my cut/bulk working', not 'what did I weigh on Tuesday'.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Training load vs recovery",
+      "command": "recovery",
+      "description": "Weigh recent workout HR-zone load against your recovery markers (resting HR, HRV, sleep score) to catch overtraining before it catches you.",
+      "rationale": "Joins workouts, measures and sleep summaries in the local store — three tables no Withings endpoint spans.",
+      "example": "withings-pp-cli recovery --since 14d --agent",
+      "why_it_matters": "Use when deciding whether to push or back off; it correlates how hard you trained with how recovered you are.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Clinician BP/AFib report",
+      "command": "bp-report",
+      "description": "A dated blood-pressure + AFib table with your own annotations (medication changes, symptoms) — the clean history to hand a cardiologist.",
+      "rationale": "Joins BP measures with ECG/AFib heart records plus a local annotations table; the app offers graphs, not an annotatable dated export.",
+      "example": "withings-pp-cli bp-report --since 90d --agent",
+      "why_it_matters": "Use for a doctor-ready BP/AFib history; prefer it over raw 'heart list' when you need the annotated report.",
+      "group": "Clinician + agent reports"
+    },
+    {
+      "name": "Sleep-debt rolling window",
+      "command": "sleep debt",
+      "description": "Cumulative sleep deficit against your target over a rolling window — the number the per-night summary never adds up for you.",
+      "rationale": "Aggregates per-night sleep summaries across a window in the local store; getsummary only returns a single night.",
+      "example": "withings-pp-cli sleep debt --window 14d --agent",
+      "why_it_matters": "Use for sleep-deficit accounting over time; for one night use 'sleep summary'.",
+      "group": "Local-join analytics"
+    },
+    {
+      "name": "Since-time health digest",
+      "command": "digest",
+      "description": "One structured 'what changed since \u003ctime\u003e across all my metrics' snapshot — built for piping into an agent.",
+      "rationale": "Reads every entity in the local mirror since a timestamp into one envelope; replaces a bespoke multi-call ETL.",
+      "example": "withings-pp-cli digest --since 24h --agent",
+      "why_it_matters": "The go-to for LLM health Q\u0026A: one cursor-driven structured pull instead of N endpoint calls.",
+      "group": "Clinician + agent reports"
+    },
+    {
+      "name": "Multi-metric correlation",
+      "command": "correlate",
+      "description": "Pearson + best-lag correlation between any two daily metrics (weight vs sleep score, steps vs resting HR).",
+      "rationale": "Pulls two arbitrary daily series from the local mirror and correlates them; no endpoint offers cross-metric analysis.",
+      "example": "withings-pp-cli correlate weight sleep_score --since 90d --agent",
+      "why_it_matters": "The flexible fallback when no curated readout fits the metric pair you care about.",
+      "group": "Local-join analytics"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "WITHINGS_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Withings",
+    "headline": "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has.",
+    "value_prop": "Pulls your weight/body-composition, activity, sleep, heart/ECG and workouts from the official Withings API into a local SQLite store you can search, query with SQL, and export as JSON or CSV. On top of that it adds local-join analytics — `recomp`, `recovery`, `bp-report`, `sleep debt`, `digest`, `correlate` — that no single API call can produce.",
+    "auth_narrative": "Withings uses OAuth2. Register a free app at the Withings developer portal, run `withings-pp-cli auth login` once to authorize in your browser, and the CLI stores and auto-rotates your refresh token (Withings refresh tokens are single-use, so the CLI persists each new one for you).",
+    "quickstart": [
+      {
+        "command": "withings-pp-cli doctor --dry-run",
+        "comment": "Check config and reachability before anything else (works without auth)."
+      },
+      {
+        "command": "withings-pp-cli sync --resources measure,activity,sleep --since 90d",
+        "comment": "Mirror the last 90 days into local SQLite."
+      },
+      {
+        "command": "withings-pp-cli recomp --since 90d",
+        "comment": "See your real fat-vs-lean recomposition trend."
+      },
+      {
+        "command": "withings-pp-cli digest --since 24h --json",
+        "comment": "Structured 'what changed' snapshot for an agent."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / token expired",
+        "fix": "Run `withings-pp-cli auth refresh` (or `auth login` to re-authorize); access tokens last 3h and the CLI rotates the single-use refresh token automatically."
+      },
+      {
+        "symptom": "status 601 in responses",
+        "fix": "Rate limit (120 req/min). Slow down or rely on local sync + offline queries instead of repeated live calls."
+      },
+      {
+        "symptom": "empty results after sync",
+        "fix": "Confirm the resource was synced: `withings-pp-cli sync --resources measure` then `withings-pp-cli measure get --limit 5`."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want programmatic, offline-queryable access to your own Withings health data and analytics across metrics over time — body recomposition, training recovery, sleep debt, BP/AFib reports for a clinician, or a structured health digest to feed an LLM. It is ideal for agents answering 'how is my health trending' and for scripted exports.",
+    "anti_triggers": [
+      "Do not use this CLI to push data to Garmin/TrainerRoad/Strava — use withings-sync for one-way fitness-platform sync.",
+      "Do not use it for medical diagnosis; it reports your recorded measurements and is not a clinical device.",
+      "Do not use it to access another person's Withings data — it operates only on the authorized account."
+    ],
+    "recipes": [
+      {
+        "title": "Mirror everything, then ask offline",
+        "command": "withings-pp-cli sync --resources measure,activity,sleep,workouts,heart --since 180d",
+        "explanation": "One incremental sync populates the local store for fast offline analytics."
+      },
+      {
+        "title": "Agent-native health digest",
+        "command": "withings-pp-cli digest --since 24h --agent --select weight,sleep_score,resting_hr,new_afib",
+        "explanation": "Narrowed structured output an agent can consume without parsing the full envelope."
+      },
+      {
+        "title": "Doctor-ready BP/AFib history",
+        "command": "withings-pp-cli bp-report --since 90d --note 2026-06-03=started-amlodipine --csv",
+        "explanation": "A dated BP + AFib table with your medication-change annotation, exported as CSV."
+      },
+      {
+        "title": "Is my cut working?",
+        "command": "withings-pp-cli recomp --since 90d",
+        "explanation": "De-noised weight trend plus fat-down/muscle-held verdict over the window."
+      }
+    ],
+    "trigger_phrases": [
+      "check my withings",
+      "how is my weight trending",
+      "am I recovering or overtraining",
+      "sleep debt this week",
+      "BP report for my doctor",
+      "use withings",
+      "run withings"
+    ]
+  }
+}

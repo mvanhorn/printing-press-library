@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ticketdata-no-error-path-probe",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-072414",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added pp:no-error-path-probe to generated performers/venues get commands.",
+  "reason": "TicketData returns HTTP 200 {found:false} for unknown slugs (not 404), so dogfood's error_path probe cannot elicit a non-zero exit for these lookup endpoints.",
+  "files": ["internal/cli/performers_get.go", "internal/cli/venues_get.go"],
+  "validated_outcome": "Live dogfood error_path for performers/venues get now skipped; full matrix 101/101."
+}

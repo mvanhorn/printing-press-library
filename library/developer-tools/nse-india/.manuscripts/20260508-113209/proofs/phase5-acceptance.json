@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "nse-india",
+  "run_id": "20260508-113209",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 12,
+  "tests_passed": 12,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

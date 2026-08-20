@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-05-13T12:29:18.256055509Z",
+  "cli_dir": "/tmp/printing-press/publish/freshservice-TkZcUq/package/library/productivity/freshservice",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "mcp-descriptions.json",
+      "line": 6,
+      "column": 126,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "agents_list MCP tool override example shows the Freshservice query DSL syntax: \"query (Freshservice query DSL, e.g. \\\"email:'user@example.com'\\\")\" — RFC 2606 reserved domain used to demonstrate the email-attribute query format."
+    },
+    {
+      "kind": "email",
+      "file": "mcp-descriptions.json",
+      "line": 38,
+      "column": 157,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "requesters_list MCP tool override example shows the Freshservice query DSL syntax: \"query (Freshservice DSL, e.g. \\\"primary_email:'user@example.com'\\\")\" — RFC 2606 reserved domain used to demonstrate the email-attribute query format."
+    }
+  ],
+  "findings_count_before": 3
+}

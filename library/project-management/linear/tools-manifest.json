@@ -38,7 +38,7 @@
     },
     {
       "name": "audit-entry-types_get",
-      "description": "Fetch the catalog of audit log entry types Linear supports (e.g. user authentication, permission change, data export, setting modification). Returns each type's `type` slug and human-readable `description`. Use to enumerate the kinds of audited actions before filtering an `AuditEntry` query, not to fetch the audit entries themselves.",
+      "description": "Get a single auditentrytype. Returns the AuditEntryType.",
       "method": "GET",
       "path": "/graphql",
       "params": []
@@ -129,14 +129,14 @@
     },
     {
       "name": "integrations_create",
-      "description": "Create a Linear integration via the issueCreate-style mutation pipeline. Required: a `service` slug identifying the integration provider (e.g. `slack`, `github`) plus the OAuth/API config payload that service expects. Returns the new Integration's id, service, and connection state. Most users wire integrations through Linear's web UI; reach for this only when scripting workspace setup or migrating across orgs.",
+      "description": "Create a integration. Returns the new Integration.",
       "method": "POST",
       "path": "/graphql",
       "params": []
     },
     {
       "name": "integrations_delete",
-      "description": "Delete an existing Linear integration by id. Required: `id`. Optional: pass a flag to skip uninstalling the connection on the external service side (leave the third-party app installed even after Linear forgets it). Returns the removed Integration. Destructive — disables any automation or webhooks the integration was driving.",
+      "description": "Delete a integration. Returns the Integration. Destructive.",
       "method": "DELETE",
       "path": "/graphql",
       "params": []
@@ -150,7 +150,7 @@
     },
     {
       "name": "organizations_get",
-      "description": "Fetch the authenticated workspace (Linear `Organization`). No id needed — Linear scopes this to the workspace the API key belongs to. Returns workspace-level metadata: `id`, `name`, `urlKey`, plan/feature flags, member count, and policy settings. Use to detect plan tier, urlKey, or feature availability before calling features that are plan-gated.",
+      "description": "Get a single organization. Returns the Organization.",
       "method": "GET",
       "path": "/graphql",
       "params": []
@@ -241,7 +241,7 @@
     },
     {
       "name": "release-pipelines_get",
-      "description": "Fetch a single release pipeline by id. Required: `id` (the pipeline's UUID). Returns the pipeline's name, slug, color, owning team, and `approximateReleaseCount`. Use after `release-pipelines_list` (or a search) to load pipeline details before listing the releases inside it.",
+      "description": "Get a single releasepipeline. Returns the ReleasePipeline.",
       "method": "GET",
       "path": "/graphql",
       "params": []
@@ -304,28 +304,28 @@
     },
     {
       "name": "teams_get",
-      "description": "Fetch a single team by id. Required: `id` (team UUID — the team `key` like `ENG` does not work here; resolve key→UUID via `teams_list` or the local store first). Returns the Team object with id, key, name, color, owning organization, and references to the active cycle, default state, and feature flags. Use when you already have a UUID; for lookups by key or name, prefer `teams_list` with a filter.",
+      "description": "Get a single team. Returns the Team.",
       "method": "GET",
       "path": "/graphql",
       "params": []
     },
     {
       "name": "templates_get",
-      "description": "Fetch a single issue or document template by id. Required: `id`. Returns the template's name, type (issue / document / project), team scope, color, and the body / template data agents can apply when creating new entities. Use to render a template before substituting into an `issueCreate` or `documentCreate` mutation.",
+      "description": "Get a single template. Returns the Template.",
       "method": "GET",
       "path": "/graphql",
       "params": []
     },
     {
       "name": "user-settingses_get",
-      "description": "Fetch a UserSettings record by id (one settings row per user; UserSettings.id != User.id). Returns the user's notification preferences, calendar prefs, and `autoAssignToSelf` default. Use this when an agent needs to read a teammate's preferences before honoring them; for the authenticated user's own settings, the `viewer` query is the simpler path.",
+      "description": "Get a single usersettings. Returns the UserSettings.",
       "method": "GET",
       "path": "/graphql",
       "params": []
     },
     {
       "name": "users_get",
-      "description": "Fetch a single Linear workspace user by id. Required: `id` (user UUID — `me` is NOT accepted here; use the `viewer` query for the authenticated user). Returns the User object with name, displayName, email, active flag, admin flag, avatarUrl, and team memberships. Use after resolving an email or display name through `users_list`.",
+      "description": "Get a single user. Returns the User.",
       "method": "GET",
       "path": "/graphql",
       "params": []

@@ -1,0 +1,5215 @@
+{
+  "api_name": "steam-web",
+  "base_url": "https://api.steampowered.com",
+  "description": "Official Steam Web API. Get your API key at https://steamcommunity.com/dev/apikey",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "key",
+    "in": "query",
+    "env_vars": [
+      "STEAM_WEB_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "STEAM_WEB_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "iauthentication-service_begin-auth-session-via-credentials",
+      "description": "BeginAuthSessionViaCredentials operation of IAuthenticationService. Required: account_name, device_details, device_friendly_name, encrypted_password, encryption_timestamp, guard_data, language, platform_type, remember_login. Optional: persistence, qos_level, website_id. Returns the new IauthenticationServiceBeginAuthSessionViaCredentialsResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/BeginAuthSessionViaCredentials/v1",
+      "params": [
+        {
+          "name": "account_name",
+          "type": "string",
+          "location": "body",
+          "description": "Account name",
+          "required": true
+        },
+        {
+          "name": "device_details",
+          "type": "string",
+          "location": "body",
+          "description": "User-supplied details about the device attempting to sign in",
+          "required": true
+        },
+        {
+          "name": "device_friendly_name",
+          "type": "string",
+          "location": "body",
+          "description": "Device friendly name",
+          "required": true
+        },
+        {
+          "name": "encrypted_password",
+          "type": "string",
+          "location": "body",
+          "description": "password, RSA encrypted client side",
+          "required": true
+        },
+        {
+          "name": "encryption_timestamp",
+          "type": "int",
+          "location": "body",
+          "description": "timestamp to map to a key - STime",
+          "required": true
+        },
+        {
+          "name": "guard_data",
+          "type": "string",
+          "location": "body",
+          "description": "steam guard data for client login",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "body",
+          "description": "Language",
+          "required": true
+        },
+        {
+          "name": "persistence",
+          "type": "string",
+          "location": "body",
+          "description": "whether we are requesting a persistent or an ephemeral session"
+        },
+        {
+          "name": "platform_type",
+          "type": "string",
+          "location": "body",
+          "description": "Platform type",
+          "required": true
+        },
+        {
+          "name": "qos_level",
+          "type": "int",
+          "location": "body",
+          "description": "[ENetQOSLevel] client-specified priority for this auth attempt"
+        },
+        {
+          "name": "remember_login",
+          "type": "bool",
+          "location": "body",
+          "description": "deprecated",
+          "required": true
+        },
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "body",
+          "description": "(EMachineAuthWebDomain) identifier of client requesting auth"
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_begin-auth-session-via-qr",
+      "description": "BeginAuthSessionViaQR operation of IAuthenticationService. Required: device_details, device_friendly_name, platform_type. Optional: website_id. Returns the new IauthenticationServiceBeginAuthSessionViaQrResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/BeginAuthSessionViaQR/v1",
+      "params": [
+        {
+          "name": "device_details",
+          "type": "string",
+          "location": "body",
+          "description": "User-supplied details about the device attempting to sign in",
+          "required": true
+        },
+        {
+          "name": "device_friendly_name",
+          "type": "string",
+          "location": "body",
+          "description": "Device friendly name",
+          "required": true
+        },
+        {
+          "name": "platform_type",
+          "type": "string",
+          "location": "body",
+          "description": "Platform type",
+          "required": true
+        },
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "body",
+          "description": "(EMachineAuthWebDomain) identifier of client requesting auth"
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_get-auth-session-info",
+      "description": "GetAuthSessionInfo operation of IAuthenticationService. Required: client_id. Returns the new IauthenticationServiceGetAuthSessionInfoResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/GetAuthSessionInfo/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "client ID from scanned QR Code, used for routing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_get-auth-session-risk-info",
+      "description": "GetAuthSessionRiskInfo operation of IAuthenticationService. Required: client_id, language. Returns the new IauthenticationServiceGetAuthSessionRiskInfoResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/GetAuthSessionRiskInfo/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "client ID from scanned QR Code, used for routing",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "body",
+          "description": "language for optimistic localization of geoloc data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_get-password-rsapublic-key",
+      "description": "GetPasswordRSAPublicKey operation of IAuthenticationService. Required: account_name. Returns the IauthenticationServiceGetPasswordRsapublicKeyResponse.",
+      "method": "GET",
+      "path": "/IAuthenticationService/GetPasswordRSAPublicKey/v1",
+      "params": [
+        {
+          "name": "account_name",
+          "type": "string",
+          "location": "query",
+          "description": "user-provided account name to get an RSA key for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_notify-risk-quiz-results",
+      "description": "NotifyRiskQuizResults operation of IAuthenticationService. Required: client_id, did_confirm_login, results, selected_action. Returns the new IauthenticationServiceNotifyRiskQuizResultsResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/NotifyRiskQuizResults/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "client ID for the auth session, used for routing",
+          "required": true
+        },
+        {
+          "name": "did_confirm_login",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the user went on to confirm the login or not in the case of a passed quiz",
+          "required": true
+        },
+        {
+          "name": "results",
+          "type": "string",
+          "location": "body",
+          "description": "Whether or not the user correctly answered each risk quiz question",
+          "required": true
+        },
+        {
+          "name": "selected_action",
+          "type": "string",
+          "location": "body",
+          "description": "The action being taken selected by the user during the quiz",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_poll-auth-session-status",
+      "description": "PollAuthSessionStatus operation of IAuthenticationService. Required: client_id, request_id, token_to_revoke. Returns the new IauthenticationServicePollAuthSessionStatusResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/PollAuthSessionStatus/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "body",
+          "description": "Request id",
+          "required": true
+        },
+        {
+          "name": "token_to_revoke",
+          "type": "int",
+          "location": "body",
+          "description": "If this is set to a token owned by this user, that token will be retired",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_update-auth-session-with-mobile-confirmation",
+      "description": "UpdateAuthSessionWithMobileConfirmation operation of IAuthenticationService. Required: client_id, signature, steamid, version. Optional: confirm, persistence. Returns the new IauthenticationServiceUpdateAuthSessionWithMobileConfirmationResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/UpdateAuthSessionWithMobileConfirmation/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "pending client ID, from scanned QR Code",
+          "required": true
+        },
+        {
+          "name": "confirm",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to confirm the login (true) or deny the login (false)"
+        },
+        {
+          "name": "persistence",
+          "type": "string",
+          "location": "body",
+          "description": "whether we are requesting a persistent or an ephemeral session"
+        },
+        {
+          "name": "signature",
+          "type": "string",
+          "location": "body",
+          "description": "HMAC digest over {version,client_id,steamid} via user's private key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "user who wants to login",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "version field",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iauthentication-service_update-auth-session-with-steam-guard-code",
+      "description": "UpdateAuthSessionWithSteamGuardCode operation of IAuthenticationService. Required: client_id, code, code_type, steamid. Returns the new IauthenticationServiceUpdateAuthSessionWithSteamGuardCodeResponse.",
+      "method": "POST",
+      "path": "/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "pending client ID, from initialized session",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "confirmation code",
+          "required": true
+        },
+        {
+          "name": "code_type",
+          "type": "string",
+          "location": "body",
+          "description": "type of confirmation code",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "user who wants to login",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ibroadcast-service_post-game-data-frame-rtmp",
+      "description": "PostGameDataFrameRTMP operation of IBroadcastService. Required: appid, frame_data, rtmp_token, steamid. Returns the new IbroadcastServicePostGameDataFrameRtmpResponse.",
+      "method": "POST",
+      "path": "/IBroadcastService/PostGameDataFrameRTMP/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "AppID of the game being broadcasted",
+          "required": true
+        },
+        {
+          "name": "frame_data",
+          "type": "string",
+          "location": "body",
+          "description": "game data frame expressing current state of game (string, zipped, whatever)",
+          "required": true
+        },
+        {
+          "name": "rtmp_token",
+          "type": "string",
+          "location": "body",
+          "description": "Valid RTMP token for the Broadcaster",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "Broadcasters SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icheat-reporting-service_report-cheat-data",
+      "description": "ReportCheatData operation of ICheatReportingService. Required: appid, cheat_data_dump, cheat_param_1, cheat_param_2, cheat_process_id, cheatname, game_process_id, key, pathandfilename, steamid, time_now, time_started, time_stopped, webcheaturl. Returns the new IcheatReportingServiceReportCheatDataResponse.",
+      "method": "POST",
+      "path": "/ICheatReportingService/ReportCheatData/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "The appid.",
+          "required": true
+        },
+        {
+          "name": "cheat_data_dump",
+          "type": "string",
+          "location": "body",
+          "description": "data collection in json format",
+          "required": true
+        },
+        {
+          "name": "cheat_param_1",
+          "type": "int",
+          "location": "body",
+          "description": "cheat param 1",
+          "required": true
+        },
+        {
+          "name": "cheat_param_2",
+          "type": "int",
+          "location": "body",
+          "description": "cheat param 2",
+          "required": true
+        },
+        {
+          "name": "cheat_process_id",
+          "type": "int",
+          "location": "body",
+          "description": "process ID of the cheat process that ran",
+          "required": true
+        },
+        {
+          "name": "cheatname",
+          "type": "string",
+          "location": "body",
+          "description": "descriptive name for the cheat.",
+          "required": true
+        },
+        {
+          "name": "game_process_id",
+          "type": "int",
+          "location": "body",
+          "description": "process ID of the running game.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "pathandfilename",
+          "type": "string",
+          "location": "body",
+          "description": "path and file name of the cheat executable.",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "steamid of the user running and reporting the cheat.",
+          "required": true
+        },
+        {
+          "name": "time_now",
+          "type": "int",
+          "location": "body",
+          "description": "local system time now.",
+          "required": true
+        },
+        {
+          "name": "time_started",
+          "type": "int",
+          "location": "body",
+          "description": "local system time when cheat process started. ( 0 if not yet run )",
+          "required": true
+        },
+        {
+          "name": "time_stopped",
+          "type": "int",
+          "location": "body",
+          "description": "local system time when cheat process stopped. ( 0 if still running )",
+          "required": true
+        },
+        {
+          "name": "webcheaturl",
+          "type": "string",
+          "location": "body",
+          "description": "web url where the cheat was found and downloaded.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iclient-stats-1046930_report-event",
+      "description": "ReportEvent operation of IClientStats_1046930. Returns the new IclientStats1046930ReportEventResponse.",
+      "method": "POST",
+      "path": "/IClientStats_1046930/ReportEvent/v1",
+      "params": []
+    },
+    {
+      "name": "icontent-server-config-service_get-steam-cache-node-params",
+      "description": "GetSteamCacheNodeParams operation of IContentServerConfigService. Required: key, cache_id, cache_key. Returns the IcontentServerConfigServiceGetSteamCacheNodeParamsResponse.",
+      "method": "GET",
+      "path": "/IContentServerConfigService/GetSteamCacheNodeParams/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "cache_id",
+          "type": "int",
+          "location": "query",
+          "description": "Unique ID number",
+          "required": true
+        },
+        {
+          "name": "cache_key",
+          "type": "string",
+          "location": "query",
+          "description": "Valid current cache API key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-config-service_set-steam-cache-client-filters",
+      "description": "SetSteamCacheClientFilters operation of IContentServerConfigService. Required: allowed_ip_blocks, cache_id, cache_key, change_notes, key. Returns the new IcontentServerConfigServiceSetSteamCacheClientFiltersResponse.",
+      "method": "POST",
+      "path": "/IContentServerConfigService/SetSteamCacheClientFilters/v1",
+      "params": [
+        {
+          "name": "allowed_ip_blocks",
+          "type": "string",
+          "location": "body",
+          "description": "comma-separated list of allowed IP address blocks in CIDR format - blank to clear unfilter",
+          "required": true
+        },
+        {
+          "name": "cache_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique ID number",
+          "required": true
+        },
+        {
+          "name": "cache_key",
+          "type": "string",
+          "location": "body",
+          "description": "Valid current cache API key",
+          "required": true
+        },
+        {
+          "name": "change_notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-config-service_set-steam-cache-performance-stats",
+      "description": "SetSteamCachePerformanceStats operation of IContentServerConfigService. Required: cache_hit_percent, cache_id, cache_key, cpu_percent, key, mbps_recv, mbps_sent, num_connected_ips, upstream_egress_utilization, upstream_peering_utilization, upstream_transit_utilization. Returns the new IcontentServerConfigServiceSetSteamCachePerformanceStatsResponse.",
+      "method": "POST",
+      "path": "/IContentServerConfigService/SetSteamCachePerformanceStats/v1",
+      "params": [
+        {
+          "name": "cache_hit_percent",
+          "type": "int",
+          "location": "body",
+          "description": "Percent cache hits",
+          "required": true
+        },
+        {
+          "name": "cache_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique ID number",
+          "required": true
+        },
+        {
+          "name": "cache_key",
+          "type": "string",
+          "location": "body",
+          "description": "Valid current cache API key",
+          "required": true
+        },
+        {
+          "name": "cpu_percent",
+          "type": "int",
+          "location": "body",
+          "description": "Percent CPU load",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "mbps_recv",
+          "type": "int",
+          "location": "body",
+          "description": "Incoming network traffic in Mbps",
+          "required": true
+        },
+        {
+          "name": "mbps_sent",
+          "type": "int",
+          "location": "body",
+          "description": "Outgoing network traffic in Mbps",
+          "required": true
+        },
+        {
+          "name": "num_connected_ips",
+          "type": "int",
+          "location": "body",
+          "description": "Number of unique connected IP addresses",
+          "required": true
+        },
+        {
+          "name": "upstream_egress_utilization",
+          "type": "int",
+          "location": "body",
+          "description": "(deprecated) What is the percent utilization of the busiest datacenter egress link?",
+          "required": true
+        },
+        {
+          "name": "upstream_peering_utilization",
+          "type": "int",
+          "location": "body",
+          "description": "What is the percent utilization of the busiest peering link?",
+          "required": true
+        },
+        {
+          "name": "upstream_transit_utilization",
+          "type": "int",
+          "location": "body",
+          "description": "What is the percent utilization of the busiest transit link?",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-directory-service_get-cdnfor-video",
+      "description": "GetCDNForVideo operation of IContentServerDirectoryService. Required: property_type, client_ip, client_region. Returns the IcontentServerDirectoryServiceGetCdnforVideoResponse.",
+      "method": "GET",
+      "path": "/IContentServerDirectoryService/GetCDNForVideo/v1",
+      "params": [
+        {
+          "name": "property_type",
+          "type": "int",
+          "location": "query",
+          "description": "ECDNPropertyType",
+          "required": true
+        },
+        {
+          "name": "client_ip",
+          "type": "string",
+          "location": "query",
+          "description": "client IP address",
+          "required": true
+        },
+        {
+          "name": "client_region",
+          "type": "string",
+          "location": "query",
+          "description": "client region",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-directory-service_get-client-update-hosts",
+      "description": "GetClientUpdateHosts operation of IContentServerDirectoryService. Required: cached_signature. Returns the IcontentServerDirectoryServiceGetClientUpdateHostsResponse.",
+      "method": "GET",
+      "path": "/IContentServerDirectoryService/GetClientUpdateHosts/v1",
+      "params": [
+        {
+          "name": "cached_signature",
+          "type": "string",
+          "location": "query",
+          "description": "Cached signature",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-directory-service_get-depot-patch-info",
+      "description": "GetDepotPatchInfo operation of IContentServerDirectoryService. Required: appid, depotid, source_manifestid, target_manifestid. Returns the IcontentServerDirectoryServiceGetDepotPatchInfoResponse.",
+      "method": "GET",
+      "path": "/IContentServerDirectoryService/GetDepotPatchInfo/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "Appid",
+          "required": true
+        },
+        {
+          "name": "depotid",
+          "type": "int",
+          "location": "query",
+          "description": "Depotid",
+          "required": true
+        },
+        {
+          "name": "source_manifestid",
+          "type": "int",
+          "location": "query",
+          "description": "Source manifestid",
+          "required": true
+        },
+        {
+          "name": "target_manifestid",
+          "type": "int",
+          "location": "query",
+          "description": "Target manifestid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-directory-service_get-servers-for-steam-pipe",
+      "description": "GetServersForSteamPipe operation of IContentServerDirectoryService. Required: cell_id, current_connections. Optional: max_servers, ip_override, launcher_type (plus 1 more). Returns the IcontentServerDirectoryServiceGetServersForSteamPipeResponse.",
+      "method": "GET",
+      "path": "/IContentServerDirectoryService/GetServersForSteamPipe/v1",
+      "params": [
+        {
+          "name": "cell_id",
+          "type": "int",
+          "location": "query",
+          "description": "client Cell ID",
+          "required": true
+        },
+        {
+          "name": "max_servers",
+          "type": "int",
+          "location": "query",
+          "description": "max servers in response list"
+        },
+        {
+          "name": "ip_override",
+          "type": "string",
+          "location": "query",
+          "description": "client IP address"
+        },
+        {
+          "name": "launcher_type",
+          "type": "int",
+          "location": "query",
+          "description": "launcher type"
+        },
+        {
+          "name": "ipv6_public",
+          "type": "string",
+          "location": "query",
+          "description": "client public ipv6 address if it knows it"
+        },
+        {
+          "name": "current_connections",
+          "type": "string",
+          "location": "query",
+          "description": "what sources is the client currently using",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icontent-server-directory-service_pick-single-content-server",
+      "description": "PickSingleContentServer operation of IContentServerDirectoryService. Required: property_type, cell_id, client_ip. Returns the IcontentServerDirectoryServicePickSingleContentServerResponse.",
+      "method": "GET",
+      "path": "/IContentServerDirectoryService/PickSingleContentServer/v1",
+      "params": [
+        {
+          "name": "property_type",
+          "type": "int",
+          "location": "query",
+          "description": "ECDNPropertyType",
+          "required": true
+        },
+        {
+          "name": "cell_id",
+          "type": "int",
+          "location": "query",
+          "description": "client Cell ID",
+          "required": true
+        },
+        {
+          "name": "client_ip",
+          "type": "string",
+          "location": "query",
+          "description": "client IP address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgoplayers-730_get-next-match-sharing-code",
+      "description": "GetNextMatchSharingCode operation of ICSGOPlayers_730. Required: steamid, steamidkey, knowncode. Returns the Icsgoplayers730GetNextMatchSharingCodeResponse.",
+      "method": "GET",
+      "path": "/ICSGOPlayers_730/GetNextMatchSharingCode/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The SteamID of the user",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        },
+        {
+          "name": "knowncode",
+          "type": "string",
+          "location": "query",
+          "description": "Previously known match sharing code obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgoservers-730_get-game-maps-playtime",
+      "description": "GetGameMapsPlaytime operation of ICSGOServers_730. Required: interval, gamemode, mapgroup. Returns the Icsgoservers730GetGameMapsPlaytimeResponse.",
+      "method": "GET",
+      "path": "/ICSGOServers_730/GetGameMapsPlaytime/v1",
+      "params": [
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "What recent interval is requested, possible values: day, week, month",
+          "required": true
+        },
+        {
+          "name": "gamemode",
+          "type": "string",
+          "location": "query",
+          "description": "What game mode is requested, possible values: competitive, casual",
+          "required": true
+        },
+        {
+          "name": "mapgroup",
+          "type": "string",
+          "location": "query",
+          "description": "What maps are requested, possible values: operation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgoservers-730_get-game-servers-status",
+      "description": "GetGameServersStatus operation of ICSGOServers_730. Returns the Icsgoservers730GetGameServersStatusResponse.",
+      "method": "GET",
+      "path": "/ICSGOServers_730/GetGameServersStatus/v1",
+      "params": []
+    },
+    {
+      "name": "icsgotournaments-730_get-tournament-fantasy-lineup",
+      "description": "GetTournamentFantasyLineup operation of ICSGOTournaments_730. Required: event, steamid, steamidkey. Returns the Icsgotournaments730GetTournamentFantasyLineupResponse.",
+      "method": "GET",
+      "path": "/ICSGOTournaments_730/GetTournamentFantasyLineup/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "query",
+          "description": "The event ID",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The SteamID of the user inventory",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgotournaments-730_get-tournament-items",
+      "description": "GetTournamentItems operation of ICSGOTournaments_730. Required: event, steamid, steamidkey. Returns the Icsgotournaments730GetTournamentItemsResponse.",
+      "method": "GET",
+      "path": "/ICSGOTournaments_730/GetTournamentItems/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "query",
+          "description": "The event ID",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The SteamID of the user inventory",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgotournaments-730_get-tournament-layout",
+      "description": "GetTournamentLayout operation of ICSGOTournaments_730. Required: event. Returns the Icsgotournaments730GetTournamentLayoutResponse.",
+      "method": "GET",
+      "path": "/ICSGOTournaments_730/GetTournamentLayout/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "query",
+          "description": "The event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgotournaments-730_get-tournament-predictions",
+      "description": "GetTournamentPredictions operation of ICSGOTournaments_730. Required: event, steamid, steamidkey. Returns the Icsgotournaments730GetTournamentPredictionsResponse.",
+      "method": "GET",
+      "path": "/ICSGOTournaments_730/GetTournamentPredictions/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "query",
+          "description": "The event ID",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The SteamID of the user inventory",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "query",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgotournaments-730_upload-tournament-fantasy-lineup",
+      "description": "UploadTournamentFantasyLineup operation of ICSGOTournaments_730. Required: event, itemid0, itemid1, itemid2, itemid3, itemid4, pickid0, pickid1, pickid2, pickid3, pickid4, sectionid, steamid, steamidkey. Returns the new Icsgotournaments730UploadTournamentFantasyLineupResponse.",
+      "method": "POST",
+      "path": "/ICSGOTournaments_730/UploadTournamentFantasyLineup/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "body",
+          "description": "The event ID",
+          "required": true
+        },
+        {
+          "name": "itemid0",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "itemid1",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "itemid2",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "itemid3",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "itemid4",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "pickid0",
+          "type": "int",
+          "location": "body",
+          "description": "PickID to select for the slot",
+          "required": true
+        },
+        {
+          "name": "pickid1",
+          "type": "int",
+          "location": "body",
+          "description": "PickID to select for the slot",
+          "required": true
+        },
+        {
+          "name": "pickid2",
+          "type": "int",
+          "location": "body",
+          "description": "PickID to select for the slot",
+          "required": true
+        },
+        {
+          "name": "pickid3",
+          "type": "int",
+          "location": "body",
+          "description": "PickID to select for the slot",
+          "required": true
+        },
+        {
+          "name": "pickid4",
+          "type": "int",
+          "location": "body",
+          "description": "PickID to select for the slot",
+          "required": true
+        },
+        {
+          "name": "sectionid",
+          "type": "int",
+          "location": "body",
+          "description": "Event section id",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The SteamID of the user inventory",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "icsgotournaments-730_upload-tournament-predictions",
+      "description": "UploadTournamentPredictions operation of ICSGOTournaments_730. Required: event, groupid, index, itemid, pickid, sectionid, steamid, steamidkey. Returns the new Icsgotournaments730UploadTournamentPredictionsResponse.",
+      "method": "POST",
+      "path": "/ICSGOTournaments_730/UploadTournamentPredictions/v1",
+      "params": [
+        {
+          "name": "event",
+          "type": "int",
+          "location": "body",
+          "description": "The event ID",
+          "required": true
+        },
+        {
+          "name": "groupid",
+          "type": "int",
+          "location": "body",
+          "description": "Event group id",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "body",
+          "description": "Index in group",
+          "required": true
+        },
+        {
+          "name": "itemid",
+          "type": "int",
+          "location": "body",
+          "description": "ItemID to lock in for the pick",
+          "required": true
+        },
+        {
+          "name": "pickid",
+          "type": "int",
+          "location": "body",
+          "description": "Pick ID to select",
+          "required": true
+        },
+        {
+          "name": "sectionid",
+          "type": "int",
+          "location": "body",
+          "description": "Event section id",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The SteamID of the user inventory",
+          "required": true
+        },
+        {
+          "name": "steamidkey",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication obtained from the SteamID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-live-league-games",
+      "description": "GetLiveLeagueGames operation of IDOTA2Match_570. Optional: league_id, match_id, dpc. Returns the Idota2Match570GetLiveLeagueGamesResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetLiveLeagueGames/v1",
+      "params": [
+        {
+          "name": "league_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only show matches of the specified league id"
+        },
+        {
+          "name": "match_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only show matches of the specified match id"
+        },
+        {
+          "name": "dpc",
+          "type": "bool",
+          "location": "query",
+          "description": "Only show matches that are part of the DPC"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-match-details",
+      "description": "GetMatchDetails operation of IDOTA2Match_570. Required: match_id. Optional: include_persona_names. Returns the Idota2Match570GetMatchDetailsResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetMatchDetails/v1",
+      "params": [
+        {
+          "name": "match_id",
+          "type": "int",
+          "location": "query",
+          "description": "Match id",
+          "required": true
+        },
+        {
+          "name": "include_persona_names",
+          "type": "bool",
+          "location": "query",
+          "description": "Include persona names as part of the response"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-match-history",
+      "description": "GetMatchHistory operation of IDOTA2Match_570. Optional: hero_id, game_mode, skill (plus 5 more). Returns the Idota2Match570GetMatchHistoryResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetMatchHistory/v1",
+      "params": [
+        {
+          "name": "hero_id",
+          "type": "int",
+          "location": "query",
+          "description": "The ID of the hero that must be in the matches being queried"
+        },
+        {
+          "name": "game_mode",
+          "type": "int",
+          "location": "query",
+          "description": "Which game mode to return matches for"
+        },
+        {
+          "name": "skill",
+          "type": "int",
+          "location": "query",
+          "description": "The average skill range of the match, these can be [1-3] with lower numbers being lower skill. Ignored if an account ID is specified"
+        },
+        {
+          "name": "min_players",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum number of human players that must be in a match for it to be returned"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "An account ID to get matches from. This will fail if the user has their match history hidden"
+        },
+        {
+          "name": "league_id",
+          "type": "string",
+          "location": "query",
+          "description": "The league ID to return games from"
+        },
+        {
+          "name": "start_at_match_id",
+          "type": "int",
+          "location": "query",
+          "description": "The minimum match ID to start from"
+        },
+        {
+          "name": "matches_requested",
+          "type": "string",
+          "location": "query",
+          "description": "The number of requested matches to return (maximum 100)"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-match-history-by-sequence-num",
+      "description": "GetMatchHistoryBySequenceNum operation of IDOTA2Match_570. Optional: start_at_match_seq_num, matches_requested. Returns the Idota2Match570GetMatchHistoryBySequenceNumResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetMatchHistoryBySequenceNum/v1",
+      "params": [
+        {
+          "name": "start_at_match_seq_num",
+          "type": "int",
+          "location": "query",
+          "description": "Start at match seq num"
+        },
+        {
+          "name": "matches_requested",
+          "type": "int",
+          "location": "query",
+          "description": "Matches requested"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-team-info-by-team-id",
+      "description": "GetTeamInfoByTeamID operation of IDOTA2Match_570. Optional: start_at_team_id, teams_requested. Returns the Idota2Match570GetTeamInfoByTeamIdResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTeamInfoByTeamID/v1",
+      "params": [
+        {
+          "name": "start_at_team_id",
+          "type": "int",
+          "location": "query",
+          "description": "Start at team id"
+        },
+        {
+          "name": "teams_requested",
+          "type": "int",
+          "location": "query",
+          "description": "Teams requested"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-top-live-event-game",
+      "description": "GetTopLiveEventGame operation of IDOTA2Match_570. Required: partner. Returns the Idota2Match570GetTopLiveEventGameResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTopLiveEventGame/v1",
+      "params": [
+        {
+          "name": "partner",
+          "type": "int",
+          "location": "query",
+          "description": "Which partner's games to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-top-live-game",
+      "description": "GetTopLiveGame operation of IDOTA2Match_570. Required: partner. Returns the Idota2Match570GetTopLiveGameResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTopLiveGame/v1",
+      "params": [
+        {
+          "name": "partner",
+          "type": "int",
+          "location": "query",
+          "description": "Which partner's games to use.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-top-weekend-tourney-games",
+      "description": "GetTopWeekendTourneyGames operation of IDOTA2Match_570. Required: partner. Optional: home_division. Returns the Idota2Match570GetTopWeekendTourneyGamesResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTopWeekendTourneyGames/v1",
+      "params": [
+        {
+          "name": "partner",
+          "type": "int",
+          "location": "query",
+          "description": "Which partner's games to use.",
+          "required": true
+        },
+        {
+          "name": "home_division",
+          "type": "int",
+          "location": "query",
+          "description": "Prefer matches from this division."
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-tournament-player-stats",
+      "description": "GetTournamentPlayerStats operation of IDOTA2Match_570. Required: account_id. Optional: league_id, hero_id, time_frame (plus 1 more). Returns the Idota2Match570GetTournamentPlayerStatsResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTournamentPlayerStats/v1",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "league_id",
+          "type": "string",
+          "location": "query",
+          "description": "League id"
+        },
+        {
+          "name": "hero_id",
+          "type": "string",
+          "location": "query",
+          "description": "Hero id"
+        },
+        {
+          "name": "time_frame",
+          "type": "string",
+          "location": "query",
+          "description": "Time frame"
+        },
+        {
+          "name": "match_id",
+          "type": "int",
+          "location": "query",
+          "description": "Match id"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-570_get-tournament-player-stats-idota2match570",
+      "description": "GetTournamentPlayerStats operation of IDOTA2Match_570. Required: account_id. Optional: league_id, hero_id, time_frame (plus 2 more). Returns the Idota2Match570GetTournamentPlayerStatsIdota2match570Response.",
+      "method": "GET",
+      "path": "/IDOTA2Match_570/GetTournamentPlayerStats/v2",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "league_id",
+          "type": "string",
+          "location": "query",
+          "description": "League id"
+        },
+        {
+          "name": "hero_id",
+          "type": "string",
+          "location": "query",
+          "description": "Hero id"
+        },
+        {
+          "name": "time_frame",
+          "type": "string",
+          "location": "query",
+          "description": "Time frame"
+        },
+        {
+          "name": "match_id",
+          "type": "int",
+          "location": "query",
+          "description": "Match id"
+        },
+        {
+          "name": "phase_id",
+          "type": "int",
+          "location": "query",
+          "description": "Phase id"
+        }
+      ]
+    },
+    {
+      "name": "idota2-match-stats-570_get-realtime-stats",
+      "description": "GetRealtimeStats operation of IDOTA2MatchStats_570. Required: server_steam_id. Returns the Idota2MatchStats570GetRealtimeStatsResponse.",
+      "method": "GET",
+      "path": "/IDOTA2MatchStats_570/GetRealtimeStats/v1",
+      "params": [
+        {
+          "name": "server_steam_id",
+          "type": "int",
+          "location": "query",
+          "description": "Server steam id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-stream-system-570_get-broadcaster-info",
+      "description": "GetBroadcasterInfo operation of IDOTA2StreamSystem_570. Required: broadcaster_steam_id. Optional: league_id. Returns the Idota2StreamSystem570GetBroadcasterInfoResponse.",
+      "method": "GET",
+      "path": "/IDOTA2StreamSystem_570/GetBroadcasterInfo/v1",
+      "params": [
+        {
+          "name": "broadcaster_steam_id",
+          "type": "int",
+          "location": "query",
+          "description": "64-bit Steam ID of the broadcaster",
+          "required": true
+        },
+        {
+          "name": "league_id",
+          "type": "int",
+          "location": "query",
+          "description": "LeagueID to use if we aren't in a lobby"
+        }
+      ]
+    },
+    {
+      "name": "idota2-ticket-570_get-steam-idfor-badge-id",
+      "description": "GetSteamIDForBadgeID operation of IDOTA2Ticket_570. Required: BadgeID. Returns the Idota2Ticket570GetSteamIdforBadgeIdResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Ticket_570/GetSteamIDForBadgeID/v1",
+      "params": [
+        {
+          "name": "BadgeID",
+          "type": "string",
+          "location": "query",
+          "description": "The badge ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-ticket-570_set-steam-account-purchased",
+      "description": "SetSteamAccountPurchased operation of IDOTA2Ticket_570. Required: BadgeType, steamid. Returns the new Idota2Ticket570SetSteamAccountPurchasedResponse.",
+      "method": "POST",
+      "path": "/IDOTA2Ticket_570/SetSteamAccountPurchased/v1",
+      "params": [
+        {
+          "name": "BadgeType",
+          "type": "int",
+          "location": "body",
+          "description": "Badge Type",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The 64-bit Steam ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idota2-ticket-570_steam-account-valid-for-badge-type",
+      "description": "SteamAccountValidForBadgeType operation of IDOTA2Ticket_570. Required: steamid, ValidBadgeType1, ValidBadgeType2, ValidBadgeType3. Optional: ValidBadgeType4. Returns the Idota2Ticket570SteamAccountValidForBadgeTypeResponse.",
+      "method": "GET",
+      "path": "/IDOTA2Ticket_570/SteamAccountValidForBadgeType/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The 64-bit Steam ID",
+          "required": true
+        },
+        {
+          "name": "ValidBadgeType1",
+          "type": "int",
+          "location": "query",
+          "description": "Valid Badge Type 1",
+          "required": true
+        },
+        {
+          "name": "ValidBadgeType2",
+          "type": "int",
+          "location": "query",
+          "description": "Valid Badge Type 2",
+          "required": true
+        },
+        {
+          "name": "ValidBadgeType3",
+          "type": "int",
+          "location": "query",
+          "description": "Valid Badge Type 3",
+          "required": true
+        },
+        {
+          "name": "ValidBadgeType4",
+          "type": "int",
+          "location": "query",
+          "description": "Valid Badge Type 4"
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-event-stats-for-account",
+      "description": "GetEventStatsForAccount operation of IEconDOTA2_570. Required: eventid, accountid. Optional: language. Returns the IeconDota2570GetEventStatsForAccountResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetEventStatsForAccount/v1",
+      "params": [
+        {
+          "name": "eventid",
+          "type": "int",
+          "location": "query",
+          "description": "The Event ID of the event you're looking for.",
+          "required": true
+        },
+        {
+          "name": "accountid",
+          "type": "int",
+          "location": "query",
+          "description": "The account ID to look up.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to provide hero names in."
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-heroes",
+      "description": "GetHeroes operation of IEconDOTA2_570. Optional: language, itemizedonly. Returns the IeconDota2570GetHeroesResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetHeroes/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to provide hero names in."
+        },
+        {
+          "name": "itemizedonly",
+          "type": "bool",
+          "location": "query",
+          "description": "Return a list of itemized heroes only."
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-item-creators",
+      "description": "GetItemCreators operation of IEconDOTA2_570. Required: itemdef. Returns the IeconDota2570GetItemCreatorsResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetItemCreators/v1",
+      "params": [
+        {
+          "name": "itemdef",
+          "type": "int",
+          "location": "query",
+          "description": "The item definition to get creator information for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-item-workshop-published-file-ids",
+      "description": "GetItemWorkshopPublishedFileIDs operation of IEconDOTA2_570. Required: itemdef. Returns the IeconDota2570GetItemWorkshopPublishedFileIdsResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetItemWorkshopPublishedFileIDs/v1",
+      "params": [
+        {
+          "name": "itemdef",
+          "type": "int",
+          "location": "query",
+          "description": "The item definition to get published file ids for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-rarities",
+      "description": "GetRarities operation of IEconDOTA2_570. Optional: language. Returns the IeconDota2570GetRaritiesResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetRarities/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to provide rarity names in."
+        }
+      ]
+    },
+    {
+      "name": "iecon-dota2-570_get-tournament-prize-pool",
+      "description": "GetTournamentPrizePool operation of IEconDOTA2_570. Optional: leagueid. Returns the IeconDota2570GetTournamentPrizePoolResponse.",
+      "method": "GET",
+      "path": "/IEconDOTA2_570/GetTournamentPrizePool/v1",
+      "params": [
+        {
+          "name": "leagueid",
+          "type": "int",
+          "location": "query",
+          "description": "The ID of the league to get the prize pool of"
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-1046930_get-player-items",
+      "description": "GetPlayerItems operation of IEconItems_1046930. Required: steamid. Returns the IeconItems1046930GetPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_1046930/GetPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-1269260_get-equipped-player-items",
+      "description": "GetEquippedPlayerItems operation of IEconItems_1269260. Required: steamid, class_id. Returns the IeconItems1269260GetEquippedPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_1269260/GetEquippedPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "location": "query",
+          "description": "Return items equipped for this class id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-player-items",
+      "description": "GetPlayerItems operation of IEconItems_440. Required: steamid. Returns the IeconItems440GetPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-schema",
+      "description": "GetSchema operation of IEconItems_440. Optional: language. Returns the IeconItems440GetSchemaResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetSchema/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to return the names in. Defaults to returning string keys."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-schema-items",
+      "description": "GetSchemaItems operation of IEconItems_440. Optional: language, start. Returns the IeconItems440GetSchemaItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetSchemaItems/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to return the names in. Defaults to returning string keys."
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "The first item id to return. Defaults to 0. Response will indicate next value to query if applicable."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-schema-overview",
+      "description": "GetSchemaOverview operation of IEconItems_440. Optional: language. Returns the IeconItems440GetSchemaOverviewResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetSchemaOverview/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to return the names in. Defaults to returning string keys."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-schema-url",
+      "description": "GetSchemaURL operation of IEconItems_440. Returns the IeconItems440GetSchemaUrlResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetSchemaURL/v1",
+      "params": []
+    },
+    {
+      "name": "iecon-items-440_get-store-meta-data",
+      "description": "GetStoreMetaData operation of IEconItems_440. Optional: language. Returns the IeconItems440GetStoreMetaDataResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetStoreMetaData/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to results in."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-440_get-store-status",
+      "description": "GetStoreStatus operation of IEconItems_440. Returns the IeconItems440GetStoreStatusResponse.",
+      "method": "GET",
+      "path": "/IEconItems_440/GetStoreStatus/v1",
+      "params": []
+    },
+    {
+      "name": "iecon-items-570_get-player-items",
+      "description": "GetPlayerItems operation of IEconItems_570. Required: steamid. Returns the IeconItems570GetPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_570/GetPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-570_get-store-meta-data",
+      "description": "GetStoreMetaData operation of IEconItems_570. Optional: language. Returns the IeconItems570GetStoreMetaDataResponse.",
+      "method": "GET",
+      "path": "/IEconItems_570/GetStoreMetaData/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to results in."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-583950_get-equipped-player-items",
+      "description": "GetEquippedPlayerItems operation of IEconItems_583950. Required: steamid, class_id. Returns the IeconItems583950GetEquippedPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_583950/GetEquippedPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "location": "query",
+          "description": "Return items equipped for this class id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-620_get-player-items",
+      "description": "GetPlayerItems operation of IEconItems_620. Required: steamid. Returns the IeconItems620GetPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_620/GetPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-620_get-schema",
+      "description": "GetSchema operation of IEconItems_620. Optional: language. Returns the IeconItems620GetSchemaResponse.",
+      "method": "GET",
+      "path": "/IEconItems_620/GetSchema/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to return the names in. Defaults to returning string keys."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-730_get-player-items",
+      "description": "GetPlayerItems operation of IEconItems_730. Required: steamid. Returns the IeconItems730GetPlayerItemsResponse.",
+      "method": "GET",
+      "path": "/IEconItems_730/GetPlayerItems/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-730_get-schema",
+      "description": "GetSchema operation of IEconItems_730. Optional: language. Returns the IeconItems730GetSchemaResponse.",
+      "method": "GET",
+      "path": "/IEconItems_730/GetSchema/v2",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to return the names in. Defaults to returning string keys."
+        }
+      ]
+    },
+    {
+      "name": "iecon-items-730_get-schema-url",
+      "description": "GetSchemaURL operation of IEconItems_730. Returns the IeconItems730GetSchemaUrlResponse.",
+      "method": "GET",
+      "path": "/IEconItems_730/GetSchemaURL/v2",
+      "params": []
+    },
+    {
+      "name": "iecon-items-730_get-store-meta-data",
+      "description": "GetStoreMetaData operation of IEconItems_730. Optional: language. Returns the IeconItems730GetStoreMetaDataResponse.",
+      "method": "GET",
+      "path": "/IEconItems_730/GetStoreMetaData/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to results in."
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-history",
+      "description": "GetTradeHistory operation of IEconService. Required: key, max_trades, start_after_time, start_after_tradeid, navigating_back, get_descriptions, language, include_failed, include_total. Returns the IeconServiceGetTradeHistoryResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeHistory/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "max_trades",
+          "type": "int",
+          "location": "query",
+          "description": "The number of trades to return information for",
+          "required": true
+        },
+        {
+          "name": "start_after_time",
+          "type": "int",
+          "location": "query",
+          "description": "The time of the last trade shown on the previous page of results, or the time of the first trade if navigating back",
+          "required": true
+        },
+        {
+          "name": "start_after_tradeid",
+          "type": "int",
+          "location": "query",
+          "description": "The tradeid shown on the previous page of results, or the ID of the first trade if navigating back",
+          "required": true
+        },
+        {
+          "name": "navigating_back",
+          "type": "bool",
+          "location": "query",
+          "description": "The user wants the previous page of results, so return the previous max_trades trades before the start time and ID",
+          "required": true
+        },
+        {
+          "name": "get_descriptions",
+          "type": "bool",
+          "location": "query",
+          "description": "If set, the item display data for the items included in the returned trades will also be returned",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to use when loading item display data",
+          "required": true
+        },
+        {
+          "name": "include_failed",
+          "type": "bool",
+          "location": "query",
+          "description": "Include failed",
+          "required": true
+        },
+        {
+          "name": "include_total",
+          "type": "bool",
+          "location": "query",
+          "description": "If set, the total number of trades the account has participated in will be included in the response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-hold-durations",
+      "description": "GetTradeHoldDurations operation of IEconService. Required: key, steamid_target, trade_offer_access_token. Returns the IeconServiceGetTradeHoldDurationsResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeHoldDurations/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid_target",
+          "type": "int",
+          "location": "query",
+          "description": "User you are trading with",
+          "required": true
+        },
+        {
+          "name": "trade_offer_access_token",
+          "type": "string",
+          "location": "query",
+          "description": "A special token that allows for trade offers from non-friends.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-offer",
+      "description": "GetTradeOffer operation of IEconService. Required: key, tradeofferid, language, get_descriptions. Returns the IeconServiceGetTradeOfferResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeOffer/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "tradeofferid",
+          "type": "int",
+          "location": "query",
+          "description": "Tradeofferid",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language",
+          "required": true
+        },
+        {
+          "name": "get_descriptions",
+          "type": "bool",
+          "location": "query",
+          "description": "If set, the item display data for the items included in the returned trade offers will also be returned. If one or more descriptions can't be retrieved, then your request will fail.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-offers",
+      "description": "GetTradeOffers operation of IEconService. Required: key, get_sent_offers, get_received_offers, get_descriptions, language, active_only, historical_only, time_historical_cutoff. Optional: cursor. Returns the IeconServiceGetTradeOffersResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeOffers/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "get_sent_offers",
+          "type": "bool",
+          "location": "query",
+          "description": "Request the list of sent offers.",
+          "required": true
+        },
+        {
+          "name": "get_received_offers",
+          "type": "bool",
+          "location": "query",
+          "description": "Request the list of received offers.",
+          "required": true
+        },
+        {
+          "name": "get_descriptions",
+          "type": "bool",
+          "location": "query",
+          "description": "If set, the item display data for the items included in the returned trade offers will also be returned. If one or more descriptions can't be retrieved, then your request will fail.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to use when loading item display data.",
+          "required": true
+        },
+        {
+          "name": "active_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates we should only return offers which are still active, or offers that have changed in state since the time_historical_cutoff",
+          "required": true
+        },
+        {
+          "name": "historical_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates we should only return offers which are not active.",
+          "required": true
+        },
+        {
+          "name": "time_historical_cutoff",
+          "type": "int",
+          "location": "query",
+          "description": "When active_only is set, offers updated since this time will also be returned. When historical_only is set, only offers updated since this time are included.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor aka start index"
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-offers-summary",
+      "description": "GetTradeOffersSummary operation of IEconService. Required: key, time_last_visit. Returns the IeconServiceGetTradeOffersSummaryResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeOffersSummary/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "time_last_visit",
+          "type": "int",
+          "location": "query",
+          "description": "The time the user last visited. If not passed, will use the time the user last visited the trade offer page.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iecon-service_get-trade-status",
+      "description": "GetTradeStatus operation of IEconService. Required: key, tradeid, get_descriptions, language. Returns the IeconServiceGetTradeStatusResponse.",
+      "method": "GET",
+      "path": "/IEconService/GetTradeStatus/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "tradeid",
+          "type": "int",
+          "location": "query",
+          "description": "Tradeid",
+          "required": true
+        },
+        {
+          "name": "get_descriptions",
+          "type": "bool",
+          "location": "query",
+          "description": "If set, the item display data for the items included in the returned trades will also be returned",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The language to use when loading item display data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-notifications-service_user-create-session",
+      "description": "UserCreateSession operation of IGameNotificationsService. Required: appid, context, steamid, title, users. Returns the new IgameNotificationsServiceUserCreateSessionResponse.",
+      "method": "POST",
+      "path": "/IGameNotificationsService/UserCreateSession/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "The appid to create the session for.",
+          "required": true
+        },
+        {
+          "name": "context",
+          "type": "int",
+          "location": "body",
+          "description": "Game-specified context value the game can used to associate the session with some object on their backend.",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) steamid to make the request on behalf of -- if specified, the user must be in the session and all users being added to the session must be friends with the user.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the session to be displayed within each user's list of sessions.",
+          "required": true
+        },
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "The initial state of all users in the session.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-notifications-service_user-delete-session",
+      "description": "UserDeleteSession operation of IGameNotificationsService. Required: appid, sessionid, steamid. Returns the new IgameNotificationsServiceUserDeleteSessionResponse.",
+      "method": "POST",
+      "path": "/IGameNotificationsService/UserDeleteSession/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "The appid of the session to delete.",
+          "required": true
+        },
+        {
+          "name": "sessionid",
+          "type": "int",
+          "location": "body",
+          "description": "The sessionid to delete.",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) steamid to make the request on behalf of -- if specified, the user must be in the session.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-notifications-service_user-update-session",
+      "description": "UserUpdateSession operation of IGameNotificationsService. Required: appid, sessionid, steamid, title, users. Returns the new IgameNotificationsServiceUserUpdateSessionResponse.",
+      "method": "POST",
+      "path": "/IGameNotificationsService/UserUpdateSession/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "The appid of the session to update.",
+          "required": true
+        },
+        {
+          "name": "sessionid",
+          "type": "int",
+          "location": "body",
+          "description": "The sessionid to update.",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) steamid to make the request on behalf of -- if specified, the user must be in the session and all users being added to the session must be friends with the user.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "(Optional) The new title of the session. If not specified, the title will not be changed.",
+          "required": true
+        },
+        {
+          "name": "users",
+          "type": "string",
+          "location": "body",
+          "description": "(Optional) A list of users whose state will be updated to reflect the given state. If the users are not already in the session, they will be added to it.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_create-account",
+      "description": "CreateAccount operation of IGameServersService. Required: appid, key, memo. Returns the new IgameServersServiceCreateAccountResponse.",
+      "method": "POST",
+      "path": "/IGameServersService/CreateAccount/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "The app to use the account for",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "memo",
+          "type": "string",
+          "location": "body",
+          "description": "The memo to set on the new account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_delete-account",
+      "description": "DeleteAccount operation of IGameServersService. Required: key, steamid. Returns the new IgameServersServiceDeleteAccountResponse.",
+      "method": "POST",
+      "path": "/IGameServersService/DeleteAccount/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The SteamID of the game server account to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_get-account-list",
+      "description": "GetAccountList operation of IGameServersService. Required: key. Returns the IgameServersServiceGetAccountListResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/GetAccountList/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_get-account-public-info",
+      "description": "GetAccountPublicInfo operation of IGameServersService. Required: key, steamid. Returns the IgameServersServiceGetAccountPublicInfoResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/GetAccountPublicInfo/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The SteamID of the game server to get info on",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_get-server-ips-by-steam-id",
+      "description": "GetServerIPsBySteamID operation of IGameServersService. Required: key, server_steamids. Returns the IgameServersServiceGetServerIpsBySteamIdResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/GetServerIPsBySteamID/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "server_steamids",
+          "type": "int",
+          "location": "query",
+          "description": "Server steamids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_get-server-steam-ids-by-ip",
+      "description": "GetServerSteamIDsByIP operation of IGameServersService. Required: key, server_ips. Returns the IgameServersServiceGetServerSteamIdsByIpResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/GetServerSteamIDsByIP/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "server_ips",
+          "type": "string",
+          "location": "query",
+          "description": "Server ips",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_query-by-fake-ip",
+      "description": "QueryByFakeIP operation of IGameServersService. Required: key, fake_ip, fake_port, app_id, query_type. Returns the IgameServersServiceQueryByFakeIpResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/QueryByFakeIP/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "fake_ip",
+          "type": "int",
+          "location": "query",
+          "description": "FakeIP of server to query.",
+          "required": true
+        },
+        {
+          "name": "fake_port",
+          "type": "int",
+          "location": "query",
+          "description": "Fake port of server to query.",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "int",
+          "location": "query",
+          "description": "AppID to use. Each AppID has its own FakeIP address.",
+          "required": true
+        },
+        {
+          "name": "query_type",
+          "type": "string",
+          "location": "query",
+          "description": "What type of query?",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_query-login-token",
+      "description": "QueryLoginToken operation of IGameServersService. Required: key, login_token. Returns the IgameServersServiceQueryLoginTokenResponse.",
+      "method": "GET",
+      "path": "/IGameServersService/QueryLoginToken/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "login_token",
+          "type": "string",
+          "location": "query",
+          "description": "Login token to query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_reset-login-token",
+      "description": "ResetLoginToken operation of IGameServersService. Required: key, steamid. Returns the new IgameServersServiceResetLoginTokenResponse.",
+      "method": "POST",
+      "path": "/IGameServersService/ResetLoginToken/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The SteamID of the game server to reset the login token of",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igame-servers-service_set-memo",
+      "description": "SetMemo operation of IGameServersService. Required: key, memo, steamid. Returns the new IgameServersServiceSetMemoResponse.",
+      "method": "POST",
+      "path": "/IGameServersService/SetMemo/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "memo",
+          "type": "string",
+          "location": "body",
+          "description": "The memo to set on the new account",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The SteamID of the game server to set the memo on",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "igcversion-1046930_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_1046930. Returns the Igcversion1046930GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1046930/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-1046930_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_1046930. Returns the Igcversion1046930GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1046930/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-1269260_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_1269260. Returns the Igcversion1269260GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1269260/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-1269260_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_1269260. Returns the Igcversion1269260GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1269260/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-1422450_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_1422450. Returns the Igcversion1422450GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1422450/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-1422450_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_1422450. Returns the Igcversion1422450GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_1422450/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-440_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_440. Returns the Igcversion440GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_440/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-440_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_440. Returns the Igcversion440GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_440/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-570_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_570. Returns the Igcversion570GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_570/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-570_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_570. Returns the Igcversion570GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_570/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-583950_get-client-version",
+      "description": "GetClientVersion operation of IGCVersion_583950. Returns the Igcversion583950GetClientVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_583950/GetClientVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-583950_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_583950. Returns the Igcversion583950GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_583950/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "igcversion-730_get-server-version",
+      "description": "GetServerVersion operation of IGCVersion_730. Returns the Igcversion730GetServerVersionResponse.",
+      "method": "GET",
+      "path": "/IGCVersion_730/GetServerVersion/v1",
+      "params": []
+    },
+    {
+      "name": "ihelp-request-logs-service_get-application-log-demand",
+      "description": "GetApplicationLogDemand operation of IHelpRequestLogsService. Required: appid. Returns the new IhelpRequestLogsServiceGetApplicationLogDemandResponse.",
+      "method": "POST",
+      "path": "/IHelpRequestLogsService/GetApplicationLogDemand/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "Appid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ihelp-request-logs-service_upload-user-application-log",
+      "description": "UploadUserApplicationLog operation of IHelpRequestLogsService. Required: appid, log_contents, log_type, request_id, version_string. Returns the new IhelpRequestLogsServiceUploadUserApplicationLogResponse.",
+      "method": "POST",
+      "path": "/IHelpRequestLogsService/UploadUserApplicationLog/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "Appid",
+          "required": true
+        },
+        {
+          "name": "log_contents",
+          "type": "string",
+          "location": "body",
+          "description": "Log contents",
+          "required": true
+        },
+        {
+          "name": "log_type",
+          "type": "string",
+          "location": "body",
+          "description": "Log type",
+          "required": true
+        },
+        {
+          "name": "request_id",
+          "type": "int",
+          "location": "body",
+          "description": "Request id",
+          "required": true
+        },
+        {
+          "name": "version_string",
+          "type": "string",
+          "location": "body",
+          "description": "Version string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iinventory-service_combine-item-stacks",
+      "description": "CombineItemStacks operation of IInventoryService. Required: appid, destitemid, fromitemid, key, quantity, steamid. Returns the new IinventoryServiceCombineItemStacksResponse.",
+      "method": "POST",
+      "path": "/IInventoryService/CombineItemStacks/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "Appid",
+          "required": true
+        },
+        {
+          "name": "destitemid",
+          "type": "int",
+          "location": "body",
+          "description": "Destitemid",
+          "required": true
+        },
+        {
+          "name": "fromitemid",
+          "type": "int",
+          "location": "body",
+          "description": "Fromitemid",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iinventory-service_get-price-sheet",
+      "description": "GetPriceSheet operation of IInventoryService. Required: key, ecurrency, currency_code. Returns the IinventoryServiceGetPriceSheetResponse.",
+      "method": "GET",
+      "path": "/IInventoryService/GetPriceSheet/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "ecurrency",
+          "type": "int",
+          "location": "query",
+          "description": "Ecurrency",
+          "required": true
+        },
+        {
+          "name": "currency_code",
+          "type": "string",
+          "location": "query",
+          "description": "Standard short code of the requested currency (preferred)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iinventory-service_split-item-stack",
+      "description": "SplitItemStack operation of IInventoryService. Required: appid, itemid, key, quantity, steamid. Returns the new IinventoryServiceSplitItemStackResponse.",
+      "method": "POST",
+      "path": "/IInventoryService/SplitItemStack/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "body",
+          "description": "Appid",
+          "required": true
+        },
+        {
+          "name": "itemid",
+          "type": "int",
+          "location": "body",
+          "description": "Itemid",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_get-badges",
+      "description": "GetBadges operation of IPlayerService. Required: key, steamid. Returns the IplayerServiceGetBadgesResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/GetBadges/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_get-community-badge-progress",
+      "description": "GetCommunityBadgeProgress operation of IPlayerService. Required: key, steamid, badgeid. Returns the IplayerServiceGetCommunityBadgeProgressResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/GetCommunityBadgeProgress/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        },
+        {
+          "name": "badgeid",
+          "type": "int",
+          "location": "query",
+          "description": "The badge we're asking about",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_get-owned-games",
+      "description": "GetOwnedGames operation of IPlayerService. Required: key, steamid, include_appinfo, include_played_free_games, appids_filter, include_free_sub, language, include_extended_appinfo. Optional: skip_unvetted_apps. Returns the IplayerServiceGetOwnedGamesResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/GetOwnedGames/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        },
+        {
+          "name": "include_appinfo",
+          "type": "bool",
+          "location": "query",
+          "description": "true if we want additional details (name, icon) about each game",
+          "required": true
+        },
+        {
+          "name": "include_played_free_games",
+          "type": "bool",
+          "location": "query",
+          "description": "Free games are excluded by default. If this is set, free games the user has played will be returned.",
+          "required": true
+        },
+        {
+          "name": "appids_filter",
+          "type": "int",
+          "location": "query",
+          "description": "if set, restricts result set to the passed in apps",
+          "required": true
+        },
+        {
+          "name": "include_free_sub",
+          "type": "bool",
+          "location": "query",
+          "description": "Some games are in the free sub, which are excluded by default.",
+          "required": true
+        },
+        {
+          "name": "skip_unvetted_apps",
+          "type": "bool",
+          "location": "query",
+          "description": "if set, skip unvetted store apps"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Will return appinfo in this language",
+          "required": true
+        },
+        {
+          "name": "include_extended_appinfo",
+          "type": "bool",
+          "location": "query",
+          "description": "true if we want even more details (capsule, sortas, and capabilities) about each game. include_appinfo must also be true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_get-recently-played-games",
+      "description": "GetRecentlyPlayedGames operation of IPlayerService. Required: key, steamid, count. Returns the IplayerServiceGetRecentlyPlayedGamesResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/GetRecentlyPlayedGames/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "The number of games to return (0/unset: all)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_get-steam-level",
+      "description": "GetSteamLevel operation of IPlayerService. Required: key, steamid. Returns the IplayerServiceGetSteamLevelResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/GetSteamLevel/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_is-playing-shared-game",
+      "description": "IsPlayingSharedGame operation of IPlayerService. Required: key, steamid, appid_playing. Returns the IplayerServiceIsPlayingSharedGameResponse.",
+      "method": "GET",
+      "path": "/IPlayerService/IsPlayingSharedGame/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The player we're asking about",
+          "required": true
+        },
+        {
+          "name": "appid_playing",
+          "type": "int",
+          "location": "query",
+          "description": "The game player is currently playing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iplayer-service_record-offline-playtime",
+      "description": "RecordOfflinePlaytime operation of IPlayerService. Required: play_sessions, steamid, ticket. Returns the new IplayerServiceRecordOfflinePlaytimeResponse.",
+      "method": "POST",
+      "path": "/IPlayerService/RecordOfflinePlaytime/v1",
+      "params": [
+        {
+          "name": "play_sessions",
+          "type": "string",
+          "location": "body",
+          "description": "Play sessions",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "Steamid",
+          "required": true
+        },
+        {
+          "name": "ticket",
+          "type": "string",
+          "location": "body",
+          "description": "Ticket",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iportal2-leaderboards-620_get-bucketized-data",
+      "description": "GetBucketizedData operation of IPortal2Leaderboards_620. Required: leaderboardName. Returns the Iportal2Leaderboards620GetBucketizedDataResponse.",
+      "method": "GET",
+      "path": "/IPortal2Leaderboards_620/GetBucketizedData/v1",
+      "params": [
+        {
+          "name": "leaderboardName",
+          "type": "string",
+          "location": "query",
+          "description": "The leaderboard name to fetch data for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_get-details",
+      "description": "GetDetails operation of IPublishedFileService. Required: key, publishedfileids, includetags, includeadditionalpreviews, includechildren, includekvtags, includevotes, short_description, includeforsaledata, includemetadata, return_playtime_stats, appid, strip_description_bbcode, admin_query. Optional: language, desired_revision, includereactions. Returns the IpublishedFileServiceGetDetailsResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/GetDetails/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "publishedfileids",
+          "type": "int",
+          "location": "query",
+          "description": "Set of published file Ids to retrieve details for.",
+          "required": true
+        },
+        {
+          "name": "includetags",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return tag information in the returned details.",
+          "required": true
+        },
+        {
+          "name": "includeadditionalpreviews",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return preview information in the returned details.",
+          "required": true
+        },
+        {
+          "name": "includechildren",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return children in the returned details.",
+          "required": true
+        },
+        {
+          "name": "includekvtags",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return key value tags in the returned details.",
+          "required": true
+        },
+        {
+          "name": "includevotes",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return vote data in the returned details.",
+          "required": true
+        },
+        {
+          "name": "short_description",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return a short description instead of the full description.",
+          "required": true
+        },
+        {
+          "name": "includeforsaledata",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return pricing data, if applicable.",
+          "required": true
+        },
+        {
+          "name": "includemetadata",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, populate the metadata field.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the localized text to return. Defaults to English."
+        },
+        {
+          "name": "return_playtime_stats",
+          "type": "int",
+          "location": "query",
+          "description": "Return playtime stats for the specified number of days before today.",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "Appid",
+          "required": true
+        },
+        {
+          "name": "strip_description_bbcode",
+          "type": "bool",
+          "location": "query",
+          "description": "Strips BBCode from descriptions.",
+          "required": true
+        },
+        {
+          "name": "desired_revision",
+          "type": "string",
+          "location": "query",
+          "description": "Return the data for the specified revision."
+        },
+        {
+          "name": "includereactions",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, then reactions to items will be returned."
+        },
+        {
+          "name": "admin_query",
+          "type": "bool",
+          "location": "query",
+          "description": "Admin tool is doing a query, return hidden items",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_get-sub-section-data",
+      "description": "GetSubSectionData operation of IPublishedFileService. Required: key, publishedfileid, for_table_of_contents, specific_sectionid. Optional: desired_revision. Returns the IpublishedFileServiceGetSubSectionDataResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/GetSubSectionData/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "publishedfileid",
+          "type": "int",
+          "location": "query",
+          "description": "Publishedfileid",
+          "required": true
+        },
+        {
+          "name": "for_table_of_contents",
+          "type": "bool",
+          "location": "query",
+          "description": "For table of contents",
+          "required": true
+        },
+        {
+          "name": "specific_sectionid",
+          "type": "int",
+          "location": "query",
+          "description": "Specific sectionid",
+          "required": true
+        },
+        {
+          "name": "desired_revision",
+          "type": "string",
+          "location": "query",
+          "description": "Return the data for the specified revision."
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_get-user-file-count",
+      "description": "GetUserFileCount operation of IPublishedFileService. Required: key, steamid, appid, shortcutid, privacy, requiredtags, excludedtags, required_kv_tags, filetype, creator_appid, match_cloud_filename, taggroups, excluded_content_descriptors, admin_query, totalonly, ids_only, return_tags, return_previews, return_children, return_for_sale_data, return_playtime_stats, strip_description_bbcode, startindex_override, return_apps. Optional: page, numperpage, type (plus 9 more). Returns the IpublishedFileServiceGetUserFileCountResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/GetUserFileCount/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steam ID of the user whose files are being requested.",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "App Id of the app that the files were published to.",
+          "required": true
+        },
+        {
+          "name": "shortcutid",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) Shortcut Id to retrieve published files from.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) Starting page for results."
+        },
+        {
+          "name": "numperpage",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of results, per page to return."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Type of files to be returned."
+        },
+        {
+          "name": "sortmethod",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Sorting method to use on returned values."
+        },
+        {
+          "name": "privacy",
+          "type": "int",
+          "location": "query",
+          "description": "(optional) Filter by privacy settings.",
+          "required": true
+        },
+        {
+          "name": "requiredtags",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Tags that must be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "excludedtags",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Tags that must NOT be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "required_kv_tags",
+          "type": "string",
+          "location": "query",
+          "description": "Required key-value tags to match on.",
+          "required": true
+        },
+        {
+          "name": "filetype",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) File type to match files to.",
+          "required": true
+        },
+        {
+          "name": "creator_appid",
+          "type": "int",
+          "location": "query",
+          "description": "App Id of the app that published the files, only matched if specified.",
+          "required": true
+        },
+        {
+          "name": "match_cloud_filename",
+          "type": "string",
+          "location": "query",
+          "description": "Match this cloud filename if specified.",
+          "required": true
+        },
+        {
+          "name": "cache_max_age_seconds",
+          "type": "int",
+          "location": "query",
+          "description": "Allow stale data to be returned for the specified number of seconds."
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the localized text to return. Defaults to English."
+        },
+        {
+          "name": "taggroups",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) At least one of the tags must be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "excluded_content_descriptors",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Filter out items that have these content descriptors.",
+          "required": true
+        },
+        {
+          "name": "admin_query",
+          "type": "bool",
+          "location": "query",
+          "description": "Admin tool is doing a query, return hidden items",
+          "required": true
+        },
+        {
+          "name": "totalonly",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the total number of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "ids_only",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the published file ids of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "return_vote_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return vote data"
+        },
+        {
+          "name": "return_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return tags in the file details",
+          "required": true
+        },
+        {
+          "name": "return_kv_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return key-value tags in the file details"
+        },
+        {
+          "name": "return_previews",
+          "type": "bool",
+          "location": "query",
+          "description": "Return preview image and video details in the file details",
+          "required": true
+        },
+        {
+          "name": "return_children",
+          "type": "bool",
+          "location": "query",
+          "description": "Return child item ids in the file details",
+          "required": true
+        },
+        {
+          "name": "return_short_description",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the short_description field instead of file_description"
+        },
+        {
+          "name": "return_for_sale_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return pricing information, if applicable",
+          "required": true
+        },
+        {
+          "name": "return_metadata",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the metadata field"
+        },
+        {
+          "name": "return_playtime_stats",
+          "type": "int",
+          "location": "query",
+          "description": "Return playtime stats for the specified number of days before today.",
+          "required": true
+        },
+        {
+          "name": "strip_description_bbcode",
+          "type": "bool",
+          "location": "query",
+          "description": "Strips BBCode from descriptions.",
+          "required": true
+        },
+        {
+          "name": "return_reactions",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, then reactions to items will be returned."
+        },
+        {
+          "name": "startindex_override",
+          "type": "int",
+          "location": "query",
+          "description": "Backwards compatible for the client.",
+          "required": true
+        },
+        {
+          "name": "desired_revision",
+          "type": "string",
+          "location": "query",
+          "description": "Return the data for the specified revision."
+        },
+        {
+          "name": "return_apps",
+          "type": "bool",
+          "location": "query",
+          "description": "Return list of apps the items belong to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_get-user-files",
+      "description": "GetUserFiles operation of IPublishedFileService. Required: key, steamid, appid, shortcutid, privacy, requiredtags, excludedtags, required_kv_tags, filetype, creator_appid, match_cloud_filename, taggroups, excluded_content_descriptors, admin_query, totalonly, ids_only, return_tags, return_previews, return_children, return_for_sale_data, return_playtime_stats, strip_description_bbcode, startindex_override, return_apps. Optional: page, numperpage, type (plus 9 more). Returns the IpublishedFileServiceGetUserFilesResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/GetUserFiles/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steam ID of the user whose files are being requested.",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "App Id of the app that the files were published to.",
+          "required": true
+        },
+        {
+          "name": "shortcutid",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) Shortcut Id to retrieve published files from.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) Starting page for results."
+        },
+        {
+          "name": "numperpage",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of results, per page to return."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Type of files to be returned."
+        },
+        {
+          "name": "sortmethod",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Sorting method to use on returned values."
+        },
+        {
+          "name": "privacy",
+          "type": "int",
+          "location": "query",
+          "description": "(optional) Filter by privacy settings.",
+          "required": true
+        },
+        {
+          "name": "requiredtags",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Tags that must be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "excludedtags",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Tags that must NOT be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "required_kv_tags",
+          "type": "string",
+          "location": "query",
+          "description": "Required key-value tags to match on.",
+          "required": true
+        },
+        {
+          "name": "filetype",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) File type to match files to.",
+          "required": true
+        },
+        {
+          "name": "creator_appid",
+          "type": "int",
+          "location": "query",
+          "description": "App Id of the app that published the files, only matched if specified.",
+          "required": true
+        },
+        {
+          "name": "match_cloud_filename",
+          "type": "string",
+          "location": "query",
+          "description": "Match this cloud filename if specified.",
+          "required": true
+        },
+        {
+          "name": "cache_max_age_seconds",
+          "type": "int",
+          "location": "query",
+          "description": "Allow stale data to be returned for the specified number of seconds."
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the localized text to return. Defaults to English."
+        },
+        {
+          "name": "taggroups",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) At least one of the tags must be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "excluded_content_descriptors",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Filter out items that have these content descriptors.",
+          "required": true
+        },
+        {
+          "name": "admin_query",
+          "type": "bool",
+          "location": "query",
+          "description": "Admin tool is doing a query, return hidden items",
+          "required": true
+        },
+        {
+          "name": "totalonly",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the total number of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "ids_only",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the published file ids of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "return_vote_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return vote data"
+        },
+        {
+          "name": "return_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return tags in the file details",
+          "required": true
+        },
+        {
+          "name": "return_kv_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return key-value tags in the file details"
+        },
+        {
+          "name": "return_previews",
+          "type": "bool",
+          "location": "query",
+          "description": "Return preview image and video details in the file details",
+          "required": true
+        },
+        {
+          "name": "return_children",
+          "type": "bool",
+          "location": "query",
+          "description": "Return child item ids in the file details",
+          "required": true
+        },
+        {
+          "name": "return_short_description",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the short_description field instead of file_description"
+        },
+        {
+          "name": "return_for_sale_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return pricing information, if applicable",
+          "required": true
+        },
+        {
+          "name": "return_metadata",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the metadata field"
+        },
+        {
+          "name": "return_playtime_stats",
+          "type": "int",
+          "location": "query",
+          "description": "Return playtime stats for the specified number of days before today.",
+          "required": true
+        },
+        {
+          "name": "strip_description_bbcode",
+          "type": "bool",
+          "location": "query",
+          "description": "Strips BBCode from descriptions.",
+          "required": true
+        },
+        {
+          "name": "return_reactions",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, then reactions to items will be returned."
+        },
+        {
+          "name": "startindex_override",
+          "type": "int",
+          "location": "query",
+          "description": "Backwards compatible for the client.",
+          "required": true
+        },
+        {
+          "name": "desired_revision",
+          "type": "string",
+          "location": "query",
+          "description": "Return the data for the specified revision."
+        },
+        {
+          "name": "return_apps",
+          "type": "bool",
+          "location": "query",
+          "description": "Return list of apps the items belong to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_get-user-vote-summary",
+      "description": "GetUserVoteSummary operation of IPublishedFileService. Required: publishedfileids. Returns the IpublishedFileServiceGetUserVoteSummaryResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/GetUserVoteSummary/v1",
+      "params": [
+        {
+          "name": "publishedfileids",
+          "type": "int",
+          "location": "query",
+          "description": "Publishedfileids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ipublished-file-service_query-files",
+      "description": "QueryFiles operation of IPublishedFileService. Required: key, query_type, page, cursor, creator_appid, appid, requiredtags, excludedtags, required_flags, omitted_flags, search_text, filetype, child_publishedfileid, days, include_recent_votes_only, required_kv_tags, taggroups, date_range_created, date_range_updated, excluded_content_descriptors, admin_query, special_filter, totalonly, ids_only, return_vote_data, return_tags, return_kv_tags, return_previews, return_children, return_short_description, return_for_sale_data, return_playtime_stats, return_details, strip_description_bbcode. Optional: numperpage, match_all_tags, cache_max_age_seconds (plus 4 more). Returns the IpublishedFileServiceQueryFilesResponse.",
+      "method": "GET",
+      "path": "/IPublishedFileService/QueryFiles/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Access key",
+          "required": true
+        },
+        {
+          "name": "query_type",
+          "type": "int",
+          "location": "query",
+          "description": "enumeration EPublishedFileQueryType in clientenums.h",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Current page",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to paginate through the results (set to '*' for the first request). Prefer this over using the page parameter, as it will allow you to do deep pagination. When used, the page parameter will be ignored.",
+          "required": true
+        },
+        {
+          "name": "numperpage",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of results, per page to return."
+        },
+        {
+          "name": "creator_appid",
+          "type": "int",
+          "location": "query",
+          "description": "App that created the files",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "App that consumes the files",
+          "required": true
+        },
+        {
+          "name": "requiredtags",
+          "type": "string",
+          "location": "query",
+          "description": "Tags to match on. See match_all_tags parameter below",
+          "required": true
+        },
+        {
+          "name": "excludedtags",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Tags that must NOT be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "match_all_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, then items must have all the tags specified, otherwise they must have at least one of the tags."
+        },
+        {
+          "name": "required_flags",
+          "type": "string",
+          "location": "query",
+          "description": "Required flags that must be set on any returned items",
+          "required": true
+        },
+        {
+          "name": "omitted_flags",
+          "type": "string",
+          "location": "query",
+          "description": "Flags that must not be set on any returned items",
+          "required": true
+        },
+        {
+          "name": "search_text",
+          "type": "string",
+          "location": "query",
+          "description": "Text to match in the item's title or description",
+          "required": true
+        },
+        {
+          "name": "filetype",
+          "type": "int",
+          "location": "query",
+          "description": "EPublishedFileInfoMatchingFileType",
+          "required": true
+        },
+        {
+          "name": "child_publishedfileid",
+          "type": "int",
+          "location": "query",
+          "description": "Find all items that reference the given item.",
+          "required": true
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "If query_type is k_PublishedFileQueryType_RankedByTrend, then this is the number of days to get votes for [1,7].",
+          "required": true
+        },
+        {
+          "name": "include_recent_votes_only",
+          "type": "bool",
+          "location": "query",
+          "description": "If query_type is k_PublishedFileQueryType_RankedByTrend, then limit result set just to items that have votes within the day range given",
+          "required": true
+        },
+        {
+          "name": "cache_max_age_seconds",
+          "type": "int",
+          "location": "query",
+          "description": "Allow stale data to be returned for the specified number of seconds."
+        },
+        {
+          "name": "language",
+          "type": "int",
+          "location": "query",
+          "description": "Language to search in and also what gets returned. Defaults to English."
+        },
+        {
+          "name": "required_kv_tags",
+          "type": "string",
+          "location": "query",
+          "description": "Required key-value tags to match on.",
+          "required": true
+        },
+        {
+          "name": "taggroups",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) At least one of the tags must be present on a published file to satisfy the query.",
+          "required": true
+        },
+        {
+          "name": "date_range_created",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Filter to items created within this range.",
+          "required": true
+        },
+        {
+          "name": "date_range_updated",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Filter to items updated within this range.",
+          "required": true
+        },
+        {
+          "name": "excluded_content_descriptors",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) Filter out items that have these content descriptors.",
+          "required": true
+        },
+        {
+          "name": "admin_query",
+          "type": "bool",
+          "location": "query",
+          "description": "Admin tool is doing a query, return hidden items",
+          "required": true
+        },
+        {
+          "name": "special_filter",
+          "type": "string",
+          "location": "query",
+          "description": "Additional special filtering",
+          "required": true
+        },
+        {
+          "name": "totalonly",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the total number of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "ids_only",
+          "type": "bool",
+          "location": "query",
+          "description": "(Optional) If true, only return the published file ids of files that satisfy this query.",
+          "required": true
+        },
+        {
+          "name": "return_vote_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return vote data",
+          "required": true
+        },
+        {
+          "name": "return_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return tags in the file details",
+          "required": true
+        },
+        {
+          "name": "return_kv_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Return key-value tags in the file details",
+          "required": true
+        },
+        {
+          "name": "return_previews",
+          "type": "bool",
+          "location": "query",
+          "description": "Return preview image and video details in the file details",
+          "required": true
+        },
+        {
+          "name": "return_children",
+          "type": "bool",
+          "location": "query",
+          "description": "Return child item ids in the file details",
+          "required": true
+        },
+        {
+          "name": "return_short_description",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the short_description field instead of file_description",
+          "required": true
+        },
+        {
+          "name": "return_for_sale_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Return pricing information, if applicable",
+          "required": true
+        },
+        {
+          "name": "return_metadata",
+          "type": "bool",
+          "location": "query",
+          "description": "Populate the metadata"
+        },
+        {
+          "name": "return_playtime_stats",
+          "type": "int",
+          "location": "query",
+          "description": "Return playtime stats for the specified number of days before today.",
+          "required": true
+        },
+        {
+          "name": "return_details",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, if none of the other 'return_*' fields are set, only some voting details are returned. Set this to true to return the default set of details.",
+          "required": true
+        },
+        {
+          "name": "strip_description_bbcode",
+          "type": "bool",
+          "location": "query",
+          "description": "Strips BBCode from descriptions.",
+          "required": true
+        },
+        {
+          "name": "desired_revision",
+          "type": "string",
+          "location": "query",
+          "description": "Return the data for the specified revision."
+        },
+        {
+          "name": "return_reactions",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, then reactions to items will be returned."
+        }
+      ]
+    },
+    {
+      "name": "isteam-apps_get-sdrconfig",
+      "description": "GetSDRConfig operation of ISteamApps. Required: appid. Returns the IsteamAppsGetSdrconfigResponse.",
+      "method": "GET",
+      "path": "/ISteamApps/GetSDRConfig/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID of game",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-apps_get-servers-at-address",
+      "description": "GetServersAtAddress operation of ISteamApps. Required: addr. Returns the IsteamAppsGetServersAtAddressResponse.",
+      "method": "GET",
+      "path": "/ISteamApps/GetServersAtAddress/v1",
+      "params": [
+        {
+          "name": "addr",
+          "type": "string",
+          "location": "query",
+          "description": "IP or IP:queryport to list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-apps_up-to-date-check",
+      "description": "UpToDateCheck operation of ISteamApps. Required: appid, version. Returns the IsteamAppsUpToDateCheckResponse.",
+      "method": "GET",
+      "path": "/ISteamApps/UpToDateCheck/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID of game",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "query",
+          "description": "The installed version of the game",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-broadcast_player-stats",
+      "description": "PlayerStats operation of ISteamBroadcast. Returns the new IsteamBroadcastPlayerStatsResponse.",
+      "method": "POST",
+      "path": "/ISteamBroadcast/PlayerStats/v1",
+      "params": []
+    },
+    {
+      "name": "isteam-broadcast_viewer-heartbeat",
+      "description": "ViewerHeartbeat operation of ISteamBroadcast. Required: steamid, sessionid, token. Optional: stream. Returns the IsteamBroadcastViewerHeartbeatResponse.",
+      "method": "GET",
+      "path": "/ISteamBroadcast/ViewerHeartbeat/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steam ID of the broadcaster",
+          "required": true
+        },
+        {
+          "name": "sessionid",
+          "type": "int",
+          "location": "query",
+          "description": "Broadcast Session ID",
+          "required": true
+        },
+        {
+          "name": "token",
+          "type": "int",
+          "location": "query",
+          "description": "Viewer token",
+          "required": true
+        },
+        {
+          "name": "stream",
+          "type": "int",
+          "location": "query",
+          "description": "video stream representation watching"
+        }
+      ]
+    },
+    {
+      "name": "isteam-cdn_set-client-filters",
+      "description": "SetClientFilters operation of ISteamCDN. Required: cdnname, key. Optional: allowedasns, allowedipblocks, allowedipcountries. Returns the new IsteamCdnSetClientFiltersResponse.",
+      "method": "POST",
+      "path": "/ISteamCDN/SetClientFilters/v1",
+      "params": [
+        {
+          "name": "allowedasns",
+          "type": "string",
+          "location": "body",
+          "description": "comma-separated list of allowed client network AS numbers - blank for not used"
+        },
+        {
+          "name": "allowedipblocks",
+          "type": "string",
+          "location": "body",
+          "description": "comma-separated list of allowed IP address blocks in CIDR format - blank for not used"
+        },
+        {
+          "name": "allowedipcountries",
+          "type": "string",
+          "location": "body",
+          "description": "comma-separated list of allowed client IP country codes in ISO 3166-1 format - blank for not used"
+        },
+        {
+          "name": "cdnname",
+          "type": "string",
+          "location": "body",
+          "description": "Steam name of CDN property",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "access key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-cdn_set-performance-stats",
+      "description": "SetPerformanceStats operation of ISteamCDN. Required: cdnname, key. Optional: cache_hit_percent, cpu_percent, mbps_recv (plus 1 more). Returns the new IsteamCdnSetPerformanceStatsResponse.",
+      "method": "POST",
+      "path": "/ISteamCDN/SetPerformanceStats/v1",
+      "params": [
+        {
+          "name": "cache_hit_percent",
+          "type": "int",
+          "location": "body",
+          "description": "Percent cache hits"
+        },
+        {
+          "name": "cdnname",
+          "type": "string",
+          "location": "body",
+          "description": "Steam name of CDN property",
+          "required": true
+        },
+        {
+          "name": "cpu_percent",
+          "type": "int",
+          "location": "body",
+          "description": "Percent CPU load"
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "mbps_recv",
+          "type": "int",
+          "location": "body",
+          "description": "Incoming network traffic in Mbps"
+        },
+        {
+          "name": "mbps_sent",
+          "type": "int",
+          "location": "body",
+          "description": "Outgoing network traffic in Mbps"
+        }
+      ]
+    },
+    {
+      "name": "isteam-directory_get-cmlist",
+      "description": "GetCMList operation of ISteamDirectory. Required: cellid. Optional: maxcount. Returns the IsteamDirectoryGetCmlistResponse.",
+      "method": "GET",
+      "path": "/ISteamDirectory/GetCMList/v1",
+      "params": [
+        {
+          "name": "cellid",
+          "type": "int",
+          "location": "query",
+          "description": "Client's Steam cell ID",
+          "required": true
+        },
+        {
+          "name": "maxcount",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of servers to return"
+        }
+      ]
+    },
+    {
+      "name": "isteam-directory_get-cmlist-for-connect",
+      "description": "GetCMListForConnect operation of ISteamDirectory. Optional: cellid, cmtype, realm (plus 2 more). Returns the IsteamDirectoryGetCmlistForConnectResponse.",
+      "method": "GET",
+      "path": "/ISteamDirectory/GetCMListForConnect/v1",
+      "params": [
+        {
+          "name": "cellid",
+          "type": "int",
+          "location": "query",
+          "description": "Client's Steam cell ID, uses IP location if blank"
+        },
+        {
+          "name": "cmtype",
+          "type": "string",
+          "location": "query",
+          "description": "Optional CM type filter"
+        },
+        {
+          "name": "realm",
+          "type": "string",
+          "location": "query",
+          "description": "Optional Steam Realm filter"
+        },
+        {
+          "name": "maxcount",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of servers to return"
+        },
+        {
+          "name": "qoslevel",
+          "type": "int",
+          "location": "query",
+          "description": "Desired connection priority"
+        }
+      ]
+    },
+    {
+      "name": "isteam-directory_get-steam-pipe-domains",
+      "description": "GetSteamPipeDomains operation of ISteamDirectory. Returns the IsteamDirectoryGetSteamPipeDomainsResponse.",
+      "method": "GET",
+      "path": "/ISteamDirectory/GetSteamPipeDomains/v1",
+      "params": []
+    },
+    {
+      "name": "isteam-economy_get-asset-class-info",
+      "description": "GetAssetClassInfo operation of ISteamEconomy. Required: appid, class_count, classid0. Optional: language, instanceid0. Returns the IsteamEconomyGetAssetClassInfoResponse.",
+      "method": "GET",
+      "path": "/ISteamEconomy/GetAssetClassInfo/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "Must be a steam economy app.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The user's local language"
+        },
+        {
+          "name": "class_count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of classes requested. Must be at least one.",
+          "required": true
+        },
+        {
+          "name": "classid0",
+          "type": "int",
+          "location": "query",
+          "description": "Class ID of the nth class.",
+          "required": true
+        },
+        {
+          "name": "instanceid0",
+          "type": "int",
+          "location": "query",
+          "description": "Instance ID of the nth class."
+        }
+      ]
+    },
+    {
+      "name": "isteam-economy_get-asset-prices",
+      "description": "GetAssetPrices operation of ISteamEconomy. Required: appid. Optional: currency, language. Returns the IsteamEconomyGetAssetPricesResponse.",
+      "method": "GET",
+      "path": "/ISteamEconomy/GetAssetPrices/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "Must be a steam economy app.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The currency to filter for"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "The user's local language"
+        }
+      ]
+    },
+    {
+      "name": "isteam-news_get-news-for-app",
+      "description": "GetNewsForApp operation of ISteamNews. Required: appid. Optional: maxlength, enddate, count (plus 1 more). Returns the IsteamNewsGetNewsForAppResponse.",
+      "method": "GET",
+      "path": "/ISteamNews/GetNewsForApp/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID to retrieve news for",
+          "required": true
+        },
+        {
+          "name": "maxlength",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum length for the content to return, if this is 0 the full content is returned, if it's less then a blurb is generated to fit."
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "query",
+          "description": "Retrieve posts earlier than this date (unix epoch timestamp)"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "of posts to retrieve (default 20)"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of tags to filter by (e.g. 'patchnodes')"
+        }
+      ]
+    },
+    {
+      "name": "isteam-news_get-news-for-app-isteamnews",
+      "description": "GetNewsForApp operation of ISteamNews. Required: appid. Optional: maxlength, enddate, count (plus 2 more). Returns the IsteamNewsGetNewsForAppIsteamnewsResponse.",
+      "method": "GET",
+      "path": "/ISteamNews/GetNewsForApp/v2",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID to retrieve news for",
+          "required": true
+        },
+        {
+          "name": "maxlength",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum length for the content to return, if this is 0 the full content is returned, if it's less then a blurb is generated to fit."
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "query",
+          "description": "Retrieve posts earlier than this date (unix epoch timestamp)"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "of posts to retrieve (default 20)"
+        },
+        {
+          "name": "feeds",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of feed names to return news for"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of tags to filter by (e.g. 'patchnodes')"
+        }
+      ]
+    },
+    {
+      "name": "isteam-remote-storage_get-collection-details",
+      "description": "GetCollectionDetails operation of ISteamRemoteStorage. Required: collectioncount, publishedfileids[0]. Returns the new IsteamRemoteStorageGetCollectionDetailsResponse.",
+      "method": "POST",
+      "path": "/ISteamRemoteStorage/GetCollectionDetails/v1",
+      "params": [
+        {
+          "name": "collectioncount",
+          "type": "int",
+          "location": "body",
+          "description": "Number of collections being requested",
+          "required": true
+        },
+        {
+          "name": "publishedfileids[0]",
+          "type": "int",
+          "location": "body",
+          "description": "collection ids to get the details for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-remote-storage_get-published-file-details",
+      "description": "GetPublishedFileDetails operation of ISteamRemoteStorage. Required: itemcount, publishedfileids[0]. Returns the new IsteamRemoteStorageGetPublishedFileDetailsResponse.",
+      "method": "POST",
+      "path": "/ISteamRemoteStorage/GetPublishedFileDetails/v1",
+      "params": [
+        {
+          "name": "itemcount",
+          "type": "int",
+          "location": "body",
+          "description": "Number of items being requested",
+          "required": true
+        },
+        {
+          "name": "publishedfileids[0]",
+          "type": "int",
+          "location": "body",
+          "description": "published file id to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-remote-storage_get-ugcfile-details",
+      "description": "GetUGCFileDetails operation of ISteamRemoteStorage. Required: ugcid, appid. Optional: steamid. Returns the IsteamRemoteStorageGetUgcfileDetailsResponse.",
+      "method": "GET",
+      "path": "/ISteamRemoteStorage/GetUGCFileDetails/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "If specified, only returns details if the file is owned by the SteamID specified"
+        },
+        {
+          "name": "ugcid",
+          "type": "int",
+          "location": "query",
+          "description": "ID of UGC file to get info for",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appID of product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_get-friend-list",
+      "description": "GetFriendList operation of ISteamUser. Required: key, steamid. Optional: relationship. Returns the IsteamUserGetFriendListResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/GetFriendList/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "SteamID of user",
+          "required": true
+        },
+        {
+          "name": "relationship",
+          "type": "string",
+          "location": "query",
+          "description": "relationship type (ex: friend)"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_get-player-bans",
+      "description": "GetPlayerBans operation of ISteamUser. Required: key, steamids. Returns the IsteamUserGetPlayerBansResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/GetPlayerBans/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited list of SteamIDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_get-player-summaries",
+      "description": "GetPlayerSummaries operation of ISteamUser. Required: key, steamids. Returns the IsteamUserGetPlayerSummariesResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/GetPlayerSummaries/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited list of SteamIDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_get-player-summaries-isteamuser",
+      "description": "GetPlayerSummaries operation of ISteamUser. Required: key, steamids. Returns the IsteamUserGetPlayerSummariesIsteamuserResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/GetPlayerSummaries/v2",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited list of SteamIDs (max: 100)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_get-user-group-list",
+      "description": "GetUserGroupList operation of ISteamUser. Required: key, steamid. Returns the IsteamUserGetUserGroupListResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/GetUserGroupList/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "SteamID of user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user_resolve-vanity-url",
+      "description": "ResolveVanityURL operation of ISteamUser. Required: key, vanityurl. Optional: url_type. Returns the IsteamUserResolveVanityUrlResponse.",
+      "method": "GET",
+      "path": "/ISteamUser/ResolveVanityURL/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "vanityurl",
+          "type": "string",
+          "location": "query",
+          "description": "The vanity URL to get a SteamID for",
+          "required": true
+        },
+        {
+          "name": "url_type",
+          "type": "int",
+          "location": "query",
+          "description": "The type of vanity URL. 1 (default): Individual profile, 2: Group, 3: Official game group"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-auth_authenticate-user-ticket",
+      "description": "AuthenticateUserTicket operation of ISteamUserAuth. Required: key, appid, ticket. Returns the IsteamUserAuthAuthenticateUserTicketResponse.",
+      "method": "GET",
+      "path": "/ISteamUserAuth/AuthenticateUserTicket/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appid of game",
+          "required": true
+        },
+        {
+          "name": "ticket",
+          "type": "string",
+          "location": "query",
+          "description": "Ticket from GetAuthSessionTicket.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-oauth_get-token-details",
+      "description": "GetTokenDetails operation of ISteamUserOAuth. Required: access_token. Returns the IsteamUserOauthGetTokenDetailsResponse.",
+      "method": "GET",
+      "path": "/ISteamUserOAuth/GetTokenDetails/v1",
+      "params": [
+        {
+          "name": "access_token",
+          "type": "string",
+          "location": "query",
+          "description": "OAuth2 token for which to return details",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-global-achievement-percentages-for-app",
+      "description": "GetGlobalAchievementPercentagesForApp operation of ISteamUserStats. Required: gameid. Returns the IsteamUserStatsGetGlobalAchievementPercentagesForAppResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v1",
+      "params": [
+        {
+          "name": "gameid",
+          "type": "int",
+          "location": "query",
+          "description": "GameID to retrieve the achievement percentages for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-global-achievement-percentages-for-app-isteamuserstats",
+      "description": "GetGlobalAchievementPercentagesForApp operation of ISteamUserStats. Required: gameid. Returns the IsteamUserStatsGetGlobalAchievementPercentagesForAppIsteamuserstatsResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2",
+      "params": [
+        {
+          "name": "gameid",
+          "type": "int",
+          "location": "query",
+          "description": "GameID to retrieve the achievement percentages for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-global-stats-for-game",
+      "description": "GetGlobalStatsForGame operation of ISteamUserStats. Required: appid, count, name[0]. Optional: startdate, enddate. Returns the IsteamUserStatsGetGlobalStatsForGameResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetGlobalStatsForGame/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID that we're getting global stats for",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of stats get data for",
+          "required": true
+        },
+        {
+          "name": "name[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Names of stat to get data for",
+          "required": true
+        },
+        {
+          "name": "startdate",
+          "type": "int",
+          "location": "query",
+          "description": "Start date for daily totals (unix epoch timestamp)"
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "query",
+          "description": "End date for daily totals (unix epoch timestamp)"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-number-of-current-players",
+      "description": "GetNumberOfCurrentPlayers operation of ISteamUserStats. Required: appid. Returns the IsteamUserStatsGetNumberOfCurrentPlayersResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetNumberOfCurrentPlayers/v1",
+      "params": [
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID that we're getting user count for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-player-achievements",
+      "description": "GetPlayerAchievements operation of ISteamUserStats. Required: key, steamid, appid. Optional: l. Returns the IsteamUserStatsGetPlayerAchievementsResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetPlayerAchievements/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "SteamID of user",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "AppID to get achievements for",
+          "required": true
+        },
+        {
+          "name": "l",
+          "type": "string",
+          "location": "query",
+          "description": "Language to return strings for"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-schema-for-game",
+      "description": "GetSchemaForGame operation of ISteamUserStats. Required: key, appid. Optional: l. Returns the IsteamUserStatsGetSchemaForGameResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetSchemaForGame/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appid of game",
+          "required": true
+        },
+        {
+          "name": "l",
+          "type": "string",
+          "location": "query",
+          "description": "localized langauge to return (english, french, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-schema-for-game-isteamuserstats",
+      "description": "GetSchemaForGame operation of ISteamUserStats. Required: key, appid. Optional: l. Returns the IsteamUserStatsGetSchemaForGameIsteamuserstatsResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetSchemaForGame/v2",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appid of game",
+          "required": true
+        },
+        {
+          "name": "l",
+          "type": "string",
+          "location": "query",
+          "description": "localized language to return (english, french, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-user-stats-for-game",
+      "description": "GetUserStatsForGame operation of ISteamUserStats. Required: key, steamid, appid. Returns the IsteamUserStatsGetUserStatsForGameResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetUserStatsForGame/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "SteamID of user",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appid of game",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-user-stats_get-user-stats-for-game-isteamuserstats",
+      "description": "GetUserStatsForGame operation of ISteamUserStats. Required: key, steamid, appid. Returns the IsteamUserStatsGetUserStatsForGameIsteamuserstatsResponse.",
+      "method": "GET",
+      "path": "/ISteamUserStats/GetUserStatsForGame/v2",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "SteamID of user",
+          "required": true
+        },
+        {
+          "name": "appid",
+          "type": "int",
+          "location": "query",
+          "description": "appid of game",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "isteam-web-apiutil_get-server-info",
+      "description": "GetServerInfo operation of ISteamWebAPIUtil. Returns the IsteamWebApiutilGetServerInfoResponse.",
+      "method": "GET",
+      "path": "/ISteamWebAPIUtil/GetServerInfo/v1",
+      "params": []
+    },
+    {
+      "name": "isteam-web-apiutil_get-supported-apilist",
+      "description": "GetSupportedAPIList operation of ISteamWebAPIUtil. Optional: key. Returns the IsteamWebApiutilGetSupportedApilistResponse.",
+      "method": "GET",
+      "path": "/ISteamWebAPIUtil/GetSupportedAPIList/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "access key"
+        }
+      ]
+    },
+    {
+      "name": "istore-service_get-app-list",
+      "description": "Gets a list of all apps available on the Steam Store. Required: key. Optional: max_results, last_appid. Returns the IstoreServiceGetAppListResponse.",
+      "method": "GET",
+      "path": "/IStoreService/GetAppList/v1",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Steam Web API key",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return"
+        },
+        {
+          "name": "last_appid",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor for pagination — pass the last appid from previous page"
+        }
+      ]
+    },
+    {
+      "name": "istore-service_get-games-followed",
+      "description": "GetGamesFollowed operation of IStoreService. Required: steamid. Returns the IstoreServiceGetGamesFollowedResponse.",
+      "method": "GET",
+      "path": "/IStoreService/GetGamesFollowed/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "istore-service_get-games-followed-count",
+      "description": "GetGamesFollowedCount operation of IStoreService. Required: steamid. Returns the IstoreServiceGetGamesFollowedCountResponse.",
+      "method": "GET",
+      "path": "/IStoreService/GetGamesFollowedCount/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "istore-service_get-recommended-tags-for-user",
+      "description": "GetRecommendedTagsForUser operation of IStoreService. Required: language, country_code, favor_rarer_tags. Returns the IstoreServiceGetRecommendedTagsForUserResponse.",
+      "method": "GET",
+      "path": "/IStoreService/GetRecommendedTagsForUser/v1",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language",
+          "required": true
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "query",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "favor_rarer_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Biases tags towards tags that are less common. e.g. Favor Zombies over Action if the user plays the same number of games with both tags.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "itfitems-440_get-golden-wrenches",
+      "description": "GetGoldenWrenches operation of ITFItems_440. Returns the Itfitems440GetGoldenWrenchesResponse.",
+      "method": "GET",
+      "path": "/ITFItems_440/GetGoldenWrenches/v1",
+      "params": []
+    },
+    {
+      "name": "itfitems-440_get-golden-wrenches-itfitems440",
+      "description": "GetGoldenWrenches operation of ITFItems_440. Returns the Itfitems440GetGoldenWrenchesItfitems440Response.",
+      "method": "GET",
+      "path": "/ITFItems_440/GetGoldenWrenches/v2",
+      "params": []
+    },
+    {
+      "name": "itfpromos-440_get-item-id",
+      "description": "GetItemID operation of ITFPromos_440. Required: steamid, promoid. Returns the Itfpromos440GetItemIdResponse.",
+      "method": "GET",
+      "path": "/ITFPromos_440/GetItemID/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        },
+        {
+          "name": "promoid",
+          "type": "int",
+          "location": "query",
+          "description": "The promo ID to grant an item for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "itfpromos-440_grant-item",
+      "description": "GrantItem operation of ITFPromos_440. Required: promoid, steamid. Returns the new Itfpromos440GrantItemResponse.",
+      "method": "POST",
+      "path": "/ITFPromos_440/GrantItem/v1",
+      "params": [
+        {
+          "name": "promoid",
+          "type": "int",
+          "location": "body",
+          "description": "The promo ID to grant an item for",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "itfpromos-620_get-item-id",
+      "description": "GetItemID operation of ITFPromos_620. Required: steamid, PromoID. Returns the Itfpromos620GetItemIdResponse.",
+      "method": "GET",
+      "path": "/ITFPromos_620/GetItemID/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        },
+        {
+          "name": "PromoID",
+          "type": "int",
+          "location": "query",
+          "description": "The promo ID to grant an item for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "itfpromos-620_grant-item",
+      "description": "GrantItem operation of ITFPromos_620. Required: PromoID, steamid. Returns the new Itfpromos620GrantItemResponse.",
+      "method": "POST",
+      "path": "/ITFPromos_620/GrantItem/v1",
+      "params": [
+        {
+          "name": "PromoID",
+          "type": "int",
+          "location": "body",
+          "description": "The promo ID to grant an item for",
+          "required": true
+        },
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "body",
+          "description": "The Steam ID to fetch items for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "itfsystem-440_get-world-status",
+      "description": "GetWorldStatus operation of ITFSystem_440. Returns the Itfsystem440GetWorldStatusResponse.",
+      "method": "GET",
+      "path": "/ITFSystem_440/GetWorldStatus/v1",
+      "params": []
+    },
+    {
+      "name": "iwishlist-service_get-wishlist",
+      "description": "GetWishlist operation of IWishlistService. Required: steamid. Returns the IwishlistServiceGetWishlistResponse.",
+      "method": "GET",
+      "path": "/IWishlistService/GetWishlist/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iwishlist-service_get-wishlist-item-count",
+      "description": "GetWishlistItemCount operation of IWishlistService. Required: steamid. Returns the IwishlistServiceGetWishlistItemCountResponse.",
+      "method": "GET",
+      "path": "/IWishlistService/GetWishlistItemCount/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steamid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "iwishlist-service_get-wishlist-sorted-filtered",
+      "description": "GetWishlistSortedFiltered operation of IWishlistService. Required: steamid, context, data_request, filters, share_token. Optional: sort_order, start_index, page_size. Returns the IwishlistServiceGetWishlistSortedFilteredResponse.",
+      "method": "GET",
+      "path": "/IWishlistService/GetWishlistSortedFiltered/v1",
+      "params": [
+        {
+          "name": "steamid",
+          "type": "int",
+          "location": "query",
+          "description": "Steamid",
+          "required": true
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "query",
+          "description": "Context",
+          "required": true
+        },
+        {
+          "name": "data_request",
+          "type": "string",
+          "location": "query",
+          "description": "If passed, item data will be returned",
+          "required": true
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "query",
+          "description": "Filters",
+          "required": true
+        },
+        {
+          "name": "start_index",
+          "type": "int",
+          "location": "query",
+          "description": "Data in this range will be filled in with StoreBrowse data"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "share_token",
+          "type": "string",
+          "location": "query",
+          "description": "The wishlist share token. Determines what items are visible and the effective filters.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

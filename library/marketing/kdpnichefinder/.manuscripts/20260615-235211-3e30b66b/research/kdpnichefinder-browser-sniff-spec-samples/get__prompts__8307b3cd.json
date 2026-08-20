@@ -1,0 +1,142 @@
+{
+  "endpoint": "GET /prompts",
+  "method": "GET",
+  "raw_url": "https://api.everbee.com/prompts",
+  "status": 200,
+  "request_headers": {
+    ":authority": "api.everbee.com",
+    ":method": "GET",
+    ":path": "/prompts",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "content-type": "application/json",
+    "dnt": "1",
+    "origin": "https://kdpnichefinder.com",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://kdpnichefinder.com/",
+    "sec-ch-ua": "\"Brave\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "sec-gpc": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "x-access-token": "<redacted>"
+  },
+  "request_body": null,
+  "response_headers": {
+    "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "",
+    "access-control-max-age": "7200",
+    "cache-control": "max-age=0, private, must-revalidate",
+    "content-encoding": "gzip",
+    "content-length": "4202",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Tue, 16 Jun 2026 05:04:33 GMT",
+    "etag": "W/\"17da92960d536f1069f33a91220b8acb\"",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "vary": "Accept, Accept-Encoding, Origin",
+    "x-content-type-options": "nosniff",
+    "x-download-options": "noopen",
+    "x-frame-options": "SAMEORIGIN",
+    "x-permitted-cross-domain-policies": "none",
+    "x-request-id": "c748e2b7-e3f3-4ee0-9397-1f21387f859e",
+    "x-runtime": "0.154132",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "prompts": [
+      {
+        "created_at": "2026-06-13T21:09:38.481Z",
+        "id": "8821c4b4-d9ab-4b1f-b80c-0e0c45a093de",
+        "is_default": true,
+        "label": "Image Variation",
+        "prompt": "First, carefully examine the provided image and determine whether the design is presented as standalone artwork or applied to a physical product (such as a t-shirt, hoodie, mug, phone case, canvas, wall art, tote bag, or similar). If the design appears on a product, isolate only the flat 2D artwork while ignoring all fabric texture, folds, shadows, product shape, environmental background, and any three-dimensional product elements. Once the artwork is isolated, analyze its broader creative direction: theme, audience appeal, typography style, illustration approach, emotional tone, and overall visual energy. Using these elements strictly as inspiration, generate a completely original POD design adapted to my brand. Do NOT recreate the original layout, composition, typography arrangement, or distinctive visual structure. Instead, reinterpret the concept through a fresh composition, alternate typography hierarchy, updated stylistic execution, and new visual balance. The final result should feel inspired by the same niche or audience interest while clearly appearing as a distinct and original creation. Output only a standalone flat design asset — no product mockups, no fabric, no folds, no environmental backgrounds. Use solid color shapes only (no gradients), clean linework, strong contrast, and clear visual hierarchy consistent with modern high-performing POD designs. Background: #D3D3D3, 1080x1080 square, all elements fully within canvas boundaries, readable on both light and dark backgrounds using dual-contrast techniques: outer strokes (#111111 or #FFFFFF depending on element), off-white tones (#F5E6C8 instead of pure white), and layered contrast separation.",
+        "rank": 1,
+        "updated_at": "2026-06-13T21:09:38.734Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.534Z",
+        "id": "3d4c825e-cd64-4b54-9b16-29d5586c3285",
+        "is_default": false,
+        "label": "Invert Light / Dark Variation",
+        "prompt": "First, examine the provided image and determine whether the design appears as a standalone graphic or is applied to a physical product (t-shirt, hoodie, mug, phone case, canvas, wall art, or similar). If on a product, extract only the flat 2D artwork from the product surface — discard all fabric texture, folds, product shape, shadows, and three-dimensional context. Once the design is cleanly isolated, produce two contrast-ready versions in a single 1080x1080 output, side by side on a split canvas (left half dark #111111, right half light #F5F5F5). Left side (dark background): convert light/white elements to off-white (#F5E6C8), ensure all dark elements carry a light outer stroke (#FFFFFF or light color) for separation, remove any dark background fill from the original graphic. Right side (light background): ensure all light elements carry a dark outer stroke (#111111), convert near-white fills to slightly deeper tones for visibility, remove any light background fill. Both versions must use solid colors only — no gradients. The design must be fully readable and high-contrast on both backgrounds. No product mockups, no fabric, no folds in either panel.",
+        "rank": 2,
+        "updated_at": "2026-06-13T21:09:38.534Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.554Z",
+        "id": "6c5d9bcd-1487-4d5b-aacf-645674af9ec7",
+        "is_default": false,
+        "label": "Extract Design Variation",
+        "prompt": "Carefully examine the provided image and determine whether the design is shown as a standalone flat graphic or applied to a physical product (such as a t-shirt, hoodie, mug, phone case, canvas, wall art, or similar). If displayed on a product, isolate only the flat 2D artwork while ignoring all fabric texture, folds, wrinkles, stitching, shadows, product silhouette, environmental background, and any three-dimensional elements. Then analyze the artwork’s visual structure, typography style, illustration direction, spacing rhythm, and compositional balance. Create a clean standalone vector-style reinterpretation inspired by the original creative direction while avoiding direct replication of the artwork, typography arrangement, or layout structure. Preserve the overall market appeal and thematic intent, but introduce a fresh composition, adjusted hierarchy, alternative stylistic details, and differentiated visual execution. Output only the standalone flat artwork on a solid #D3D3D3 background with zero product context. Use sharp linework, solid color fills only (no gradients), high-contrast separation, balanced spacing, and modern POD-ready readability. SPATIAL POSITIONING: Center the design horizontally, maintain clean margins within the 1080x1080 frame, and optimize scale for strong marketplace visibility without copying the original positioning exactly. The final result should feel professionally inspired by the source while clearly existing as a new and original design interpretation.",
+        "rank": 3,
+        "updated_at": "2026-06-13T21:09:38.554Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.594Z",
+        "id": "9ed7cbb0-916a-4a79-b96a-d14fc2e921c1",
+        "is_default": false,
+        "label": "Style Transfer & Mood Shift",
+        "prompt": "First, examine the provided image carefully and identify whether the design is presented as a standalone graphic or applied onto a physical product (such as a t-shirt, hoodie, mug, phone case, canvas, wall art, or similar). If the design appears on a product, extract only the flat 2D artwork — strip away all fabric texture, folds, shadows, product shape, and any three-dimensional or environmental context. Once the artwork is isolated, analyze its core visual DNA: subject matter, compositional structure, typography hierarchy, and color mood. Then recreate this design in a completely different aesthetic style — shift from playful to bold editorial, vintage to modern minimal, hand-drawn to geometric, or gritty to clean — while preserving the original concept and message. The result must feel like the same idea reimagined by a different creative director. Output as a standalone flat design on #D3D3D3 background, 1080x1080 square. No product mockups, no fabric, no folds, no gradients — solid colors only. All elements fully within canvas boundary, strong visual hierarchy, dual-contrast readability with outer strokes (#111111 or #FFFFFF as needed), and off-white (#F5E6C8) in place of pure white.",
+        "rank": 4,
+        "updated_at": "2026-06-13T21:09:38.594Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.637Z",
+        "id": "53dd97c4-0122-40a5-afd2-0c0a05aa6018",
+        "is_default": false,
+        "label": "Typography-Led Redesign",
+        "prompt": "First, examine the provided image and determine whether the design is a standalone graphic or is applied to a physical product (t-shirt, hoodie, mug, phone case, canvas, wall art, or other). If on a product, isolate only the flat 2D artwork by ignoring all fabric, folds, shadows, product shape, and environmental elements entirely. Extract the core message, phrase, or text from that isolated design. Then rebuild the concept as a typography-first piece where lettering and type hierarchy carry the full visual weight of the composition. The redesign should use the original words or message but treat type as the hero element — supported by only minimal illustration or iconography. Apply techniques from premium typographic POD design: stacked lettering, tight kerning, arched or curved text paths, heavy weight contrast between headline and subtext, and decorative type embellishments such as banners, underlines, borders, stars, or dividers. Output as a flat standalone design on #D3D3D3 background, 1080x1080 square. Solid colors only, no gradients, no product mockups. Every element fully within the frame, high-contrast, outer stroke separation on all elements, readable on both light and dark backgrounds.",
+        "rank": 5,
+        "updated_at": "2026-06-13T21:09:38.637Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.664Z",
+        "id": "69d78087-f678-481e-b77f-cac25303952b",
+        "is_default": false,
+        "label": "Colorway Expansion (Multi-Palette Output)",
+        "prompt": "First, examine the provided image and identify whether the design is a standalone graphic or displayed on a physical product (t-shirt, hoodie, mug, phone case, canvas, wall art, or similar). If applied to a product, extract only the flat 2D artwork — remove all fabric texture, folds, product shape, shadows, and three-dimensional context before proceeding. Once isolated, produce three distinct colorway variations of that extracted design in a single 1080x1080 output, arranged as a 3-panel horizontal strip (each panel 360x1080). Panel 1: a dark, high-contrast version using near-black primary (#111111 or #1A1A2E) with a bold accent color. Panel 2: a mid-tone earthy or muted version using warm neutrals, dusty tones, or desaturated hues. Panel 3: a bright, vibrant version with a high-saturation palette and maximum energy. All three panels must share the same extracted composition, typography, and illustration structure — only color application changes. No gradients, no product mockups, no elements cropped outside boundaries. Each panel must be independently readable and demonstrate how the isolated design performs across different color contexts.",
+        "rank": 6,
+        "updated_at": "2026-06-13T21:09:38.664Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.672Z",
+        "id": "aea382b3-1d39-4b8d-aa82-63df52a5801f",
+        "is_default": false,
+        "label": "Vintage / Distressed Heritage Version",
+        "prompt": "First, examine the provided image carefully and determine whether the design is a standalone graphic or applied to a physical product (such as a t-shirt, hoodie, mug, phone case, canvas, wall art, or any other surface). If the design is on a product, extract only the flat 2D artwork by discarding all fabric texture, stitching, folds, product silhouette, shadows, and any three-dimensional environmental elements. Once the artwork is cleanly isolated, reinterpret it in a premium vintage americana or heritage poster style, as if originally printed in the 1940s–1970s using classic screen-printing techniques. Apply authentic vintage characteristics: limited color palette (2–4 colors maximum), halftone dot textures on fills, slightly imperfect edges and worn linework, aged typography using serif or slab-serif display fonts, and classic layout structures such as oval badges, arched banners, starburst accents, rope borders, or pennant shapes. Output as a standalone flat asset on #D3D3D3 background, 1080x1080 square. No product mockups, no modern gradients, all elements fully within the canvas boundary, strong dual-contrast readability with outer stroke separation on all key elements.",
+        "rank": 7,
+        "updated_at": "2026-06-13T21:09:38.672Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.682Z",
+        "id": "f1b4fe69-cbb4-4a94-afdc-398e3ebd4c59",
+        "is_default": false,
+        "label": "Minimalist Icon / Badge Distillation",
+        "prompt": "First, examine the provided image and determine whether the design is a standalone graphic or is applied to a physical product (t-shirt, hoodie, mug, phone case, canvas, wall art, or other). If applied to a product, extract only the flat 2D printed artwork — ignore all fabric, folds, product shape, shadows, and environmental context entirely. Once isolated, distill that extracted design down to its absolute minimum: a single compact badge, emblem, or icon lockup that captures the full essence of the original at small scale. Remove all decorative elements that don't contribute to instant recognition — reduce illustration to its most essential 2–3 shapes, tighten typography to a single line or abbreviated wordmark, and build the composition within a tight circular, shield, hexagonal, or rectangular badge frame. The output must be instantly legible at 100px and visually impactful at 1080px. Output centered on #D3D3D3 background, 1080x1080 square. Solid colors only, bold linework, high-contrast fills, outer stroke separation (#111111 or #FFFFFF), complete visibility within canvas. No product mockups.",
+        "rank": 8,
+        "updated_at": "2026-06-13T21:09:38.682Z"
+      },
+      {
+        "created_at": "2026-06-13T21:09:38.724Z",
+        "id": "d2f7d3f9-792e-44e0-bda7-545aeaeb1c7e",
+        "is_default": false,
+        "label": "Split Concept: Text-Only vs. Illustration-Only",
+        "prompt": "First, examine the provided image and determine whether the design is a standalone graphic or displayed on a physical product (t-shirt, hoodie, mug, phone case, canvas, wall art, or similar). If the design is on a product, extract only the flat 2D artwork from that product surface — completely discard all fabric, folds, shadows, product silhouette, and environmental background before doing anything else. Once the design is isolated, deconstruct it into its two primary components and present them side by side in a single 1080x1080 split-canvas output (two 540x1080 panels). Left panel: the text and typography component only — all lettering, words, and type elements from the extracted design, arranged and styled to stand alone as a complete typographic piece without any illustration. Right panel: the illustration and graphic component only — all icons, characters, symbols, and visual motifs from the extracted design, arranged to stand alone as a purely visual piece without any text. Both panels must use the same color palette as the original extracted artwork and sit on a #D3D3D3 background. No product mockups, no gradients, all elements fully within the canvas boundary, dual-contrast readability with outer stroke separation on all elements.",
+        "rank": 9,
+        "updated_at": "2026-06-13T21:09:38.724Z"
+      }
+    ]
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.x-access-token"
+  ]
+}

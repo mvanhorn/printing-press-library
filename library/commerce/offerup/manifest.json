@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "offerup-pp-mcp",
+  "display_name": "OfferUp",
+  "version": "4.19.1",
+  "description": "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/offerup-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/offerup-pp-mcp",
+      "args": [],
+      "env": {
+        "OFFERUP_COOKIE": "${user_config.offerup_cookie}"
+      }
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "user_config": {
+    "offerup_cookie": {
+      "type": "string",
+      "title": "OFFERUP_COOKIE",
+      "description": "Optional. Sets OFFERUP_COOKIE for the Offerup MCP server.",
+      "sensitive": true
+    }
+  }
+}

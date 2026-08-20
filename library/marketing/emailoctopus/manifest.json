@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "emailoctopus-pp-mcp",
+  "display_name": "Emailoctopus",
+  "version": "4.8.0",
+  "description": "Emailoctopus API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/emailoctopus-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/emailoctopus-pp-mcp",
+      "args": [],
+      "env": {
+        "EMAILOCTOPUS_API_KEY": "${user_config.emailoctopus_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "emailoctopus_api_key": {
+      "type": "string",
+      "title": "EMAILOCTOPUS_API_KEY",
+      "description": "Sets EMAILOCTOPUS_API_KEY for the Emailoctopus MCP server. Get a credential from https://api.emailoctopus.com/developer/api-keys/create.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

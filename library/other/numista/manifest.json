@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "numista-pp-mcp",
+  "display_name": "Numista Documentation",
+  "version": "4.8.0",
+  "description": "Numista Documentation API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/numista-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/numista-pp-mcp",
+      "args": [],
+      "env": {
+        "NUMISTA_API_KEY": "${user_config.numista_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "numista_api_key": {
+      "type": "string",
+      "title": "NUMISTA_API_KEY",
+      "description": "Sets NUMISTA_API_KEY for the Numista Documentation MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

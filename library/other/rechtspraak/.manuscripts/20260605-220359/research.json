@@ -1,0 +1,371 @@
+{
+  "api_name": "rechtspraak",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "basm92/rechtspraak_cli",
+      "url": "https://github.com/basm92/rechtspraak_cli",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "maastrichtlawtech/rechtspraak-extractor",
+      "url": "https://github.com/maastrichtlawtech/rechtspraak-extractor",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openstate/open-rechtspraak",
+      "url": "https://github.com/openstate/open-rechtspraak",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "digitalheir/rechtspraak-js",
+      "url": "https://github.com/digitalheir/rechtspraak-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "digitalheir/java-rechtspraak-library",
+      "url": "https://github.com/digitalheir/java-rechtspraak-library",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Spijkervet/dutch_jurisdiction_elastic_search",
+      "url": "https://github.com/Spijkervet/dutch_jurisdiction_elastic_search",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "maastrichtlawtech/extraction_libraries",
+      "url": "https://github.com/maastrichtlawtech/extraction_libraries",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-05T22:08:00Z",
+  "novel_features": [
+    {
+      "name": "Appeal-chain walker",
+      "command": "chain",
+      "description": "Walk the cassation, conclusie, and eerdere-aanleg graph for a Dutch court decision in both directions and print the full chain as a tree or JSON.",
+      "rationale": "Requires recursively fetching content, parsing the psi: relations, and walking the appeal graph — no existing CLI does this, and the API surfaces the relations only one hop at a time.",
+      "example": "rechtspraak-pp-cli chain ECLI:NL:HR:2024:1 --depth 5 --agent",
+      "why_it_matters": "Use this whenever an agent needs the full procedural history of a Dutch decision (cassation chain, A-G conclusie, lower-court rulings) in one call instead of clicking through rechtspraak.nl tabs by hand.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Vindplaatsen extractor",
+      "command": "citations",
+      "description": "Extract the citation list (vindplaatsen) for a decision and emit as BibTeX, CSV, or JSON ready for legal-brief footnotes.",
+      "rationale": "rechtspraak-js flags vindplaatsen as a data-quality problem; no tool surfaces them as structured first-class output, even though every legal brief needs them.",
+      "example": "rechtspraak-pp-cli citations ECLI:NL:HR:2024:1 --format bibtex",
+      "why_it_matters": "Reach for this when an agent is drafting a Dutch legal brief and needs the citation list for a cited decision without parsing raw RDF/XML.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Dossier by zaaknummer",
+      "command": "dossier",
+      "description": "List every decision sharing a case number across instances, sorted chronologically.",
+      "rationale": "Requires a local index on zaaknummer that the upstream search endpoint does not expose as a filter; only possible after sync.",
+      "example": "rechtspraak-pp-cli dossier 22/00155 --agent",
+      "why_it_matters": "Use this when tracking a single Dutch case across the rechtbank, gerechtshof, and Hoge Raad — the API offers no case-file filter, only the local index does.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch / incremental new-decision poll",
+      "command": "watch",
+      "description": "Poll for new decisions matching a filter, dedupe against the local SQLite, and emit only the new ECLIs — cron-friendly with --quiet.",
+      "rationale": "Requires local persistence to dedupe; without the local store every poll repeats the same Atom feed.",
+      "example": "rechtspraak-pp-cli watch --court HR --subject belastingrecht --since 7d --quiet --agent",
+      "why_it_matters": "Wire this into a cron or agent loop to receive only newly-published Dutch court decisions on your filter — no manual rechtspraak.nl refreshing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conclusie pairing",
+      "command": "conclusie",
+      "description": "Given a Hoge Raad decision ECLI, return the matching A-G conclusie (or reverse).",
+      "rationale": "Walks the psi:conclusie relation as a one-shot; the API exposes the relation but no tool turns it into a paired lookup.",
+      "example": "rechtspraak-pp-cli conclusie ECLI:NL:HR:2024:1 --agent",
+      "why_it_matters": "When an agent reads a Hoge Raad ruling, immediately pull the Advocate-General's conclusie so the reasoning context is in scope.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Bulk archive ingest",
+      "command": "sync archive",
+      "description": "Download the official weekly full-corpus archive and bulk-insert to the local SQLite — orders of magnitude faster than paging the Atom feed for backfills.",
+      "rationale": "The Atom feed is fine for tail updates but useless for multi-year backfills; the archive ZIP is the right primitive for corpus work and no CLI uses it.",
+      "example": "rechtspraak-pp-cli sync archive --week 2024-W01",
+      "why_it_matters": "Use this when bootstrapping a research corpus or rebuilding the local DB; live sync against the Atom feed is the wrong tool for backfills.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Court-code dictionary",
+      "command": "code",
+      "description": "Bidirectional offline lookup against the Instanties controlled vocabulary — court code to full name and PSI URI, or fuzzy name to code.",
+      "rationale": "Court PSI URIs are unfriendly (http://standaarden.overheid.nl/owms/terms/Hoge_Raad_der_Nederlanden); a local dictionary command eliminates that friction for every other command.",
+      "example": "rechtspraak-pp-cli code RBAMS --agent",
+      "why_it_matters": "When an agent needs to resolve a Dutch court name, code, or PSI URI without round-tripping to the API, this is the lookup.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "MCP server mode",
+      "command": "mcp serve",
+      "description": "Expose every rechtspraak command as an MCP tool — the first MCP server for Dutch case law.",
+      "rationale": "No MCP server exists for rechtspraak today. Every absorbed and novel command becomes an MCP tool automatically.",
+      "example": "rechtspraak-pp-cli mcp serve",
+      "why_it_matters": "Wire this into Claude Desktop or any MCP-aware agent to give it native access to Dutch court decisions, citations, and case-files.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "ECLI parse/validate",
+      "command": "ecli parse",
+      "description": "Pure-local regex parse of an ECLI into country, court, year, and sequence — with validation — and `ecli url` for the deeplink.",
+      "rationale": "Every other command needs a parsed ECLI; exposing the parser as a command makes it agent-composable without a network round-trip.",
+      "example": "rechtspraak-pp-cli ecli parse ECLI:NL:HR:2024:1 --json",
+      "why_it_matters": "Use this whenever an agent needs to validate or destructure an ECLI before fetching content or chaining into another command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Narrowing pipe",
+      "command": "narrow",
+      "description": "Read an ECLI list from stdin (or piped from search/watch/sync), fetch each decision's content from the live API (paced via the shared rate limiter), apply local include/exclude/phrase/regex filters against title+summary+body, and emit the narrowed list — the defining workflow for keyword-overlap-heavy Dutch legal research. Bounded by --max-pages on upstream input scope; one HTTP call per ECLI.",
+      "rationale": "The upstream API has no free-text search; long-tail Dutch legal terms produce 1000+ results per topic. Iterative local narrowing over the synced corpus is the only way to cut a result set without throwing away precision.",
+      "example": "rechtspraak-pp-cli search --subject strafrecht --court HR --from 2024-01-01 --agent | rechtspraak-pp-cli narrow --keyword huurprijs --exclude \"kort geding\" --phrase \"huurprijswijziging\" --agent",
+      "why_it_matters": "Use this when a metadata-only search returns hundreds or thousands of decisions and an agent needs to narrow by phrasing — chain it after search, watch, or sync. The same vocabulary (`--keyword`, `--exclude`, `--phrase`, `--regex`) also lives on `search` directly for single-shot use.",
+      "group": "Search narrowing for long-tail legal terms"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Appeal-chain walker",
+      "command": "chain",
+      "description": "Walk the cassation, conclusie, and eerdere-aanleg graph for a Dutch court decision in both directions and print the full chain as a tree or JSON.",
+      "rationale": "Requires recursively fetching content, parsing the psi: relations, and walking the appeal graph — no existing CLI does this, and the API surfaces the relations only one hop at a time.",
+      "example": "rechtspraak-pp-cli chain ECLI:NL:HR:2024:1 --depth 5 --agent",
+      "why_it_matters": "Use this whenever an agent needs the full procedural history of a Dutch decision (cassation chain, A-G conclusie, lower-court rulings) in one call instead of clicking through rechtspraak.nl tabs by hand.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Vindplaatsen extractor",
+      "command": "citations",
+      "description": "Extract the citation list (vindplaatsen) for a decision and emit as BibTeX, CSV, or JSON ready for legal-brief footnotes.",
+      "rationale": "rechtspraak-js flags vindplaatsen as a data-quality problem; no tool surfaces them as structured first-class output, even though every legal brief needs them.",
+      "example": "rechtspraak-pp-cli citations ECLI:NL:HR:2024:1 --format bibtex",
+      "why_it_matters": "Reach for this when an agent is drafting a Dutch legal brief and needs the citation list for a cited decision without parsing raw RDF/XML.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Dossier by zaaknummer",
+      "command": "dossier",
+      "description": "List every decision sharing a case number across instances, sorted chronologically.",
+      "rationale": "Requires a local index on zaaknummer that the upstream search endpoint does not expose as a filter; only possible after sync.",
+      "example": "rechtspraak-pp-cli dossier 22/00155 --agent",
+      "why_it_matters": "Use this when tracking a single Dutch case across the rechtbank, gerechtshof, and Hoge Raad — the API offers no case-file filter, only the local index does.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch / incremental new-decision poll",
+      "command": "watch",
+      "description": "Poll for new decisions matching a filter, dedupe against the local SQLite, and emit only the new ECLIs — cron-friendly with --quiet.",
+      "rationale": "Requires local persistence to dedupe; without the local store every poll repeats the same Atom feed.",
+      "example": "rechtspraak-pp-cli watch --court HR --subject belastingrecht --since 7d --quiet --agent",
+      "why_it_matters": "Wire this into a cron or agent loop to receive only newly-published Dutch court decisions on your filter — no manual rechtspraak.nl refreshing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conclusie pairing",
+      "command": "conclusie",
+      "description": "Given a Hoge Raad decision ECLI, return the matching A-G conclusie (or reverse).",
+      "rationale": "Walks the psi:conclusie relation as a one-shot; the API exposes the relation but no tool turns it into a paired lookup.",
+      "example": "rechtspraak-pp-cli conclusie ECLI:NL:HR:2024:1 --agent",
+      "why_it_matters": "When an agent reads a Hoge Raad ruling, immediately pull the Advocate-General's conclusie so the reasoning context is in scope.",
+      "group": "Graph walks across decisions"
+    },
+    {
+      "name": "Bulk archive ingest",
+      "command": "sync archive",
+      "description": "Download the official weekly full-corpus archive and bulk-insert to the local SQLite — orders of magnitude faster than paging the Atom feed for backfills.",
+      "rationale": "The Atom feed is fine for tail updates but useless for multi-year backfills; the archive ZIP is the right primitive for corpus work and no CLI uses it.",
+      "example": "rechtspraak-pp-cli sync archive --week 2024-W01",
+      "why_it_matters": "Use this when bootstrapping a research corpus or rebuilding the local DB; live sync against the Atom feed is the wrong tool for backfills.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Court-code dictionary",
+      "command": "code",
+      "description": "Bidirectional offline lookup against the Instanties controlled vocabulary — court code to full name and PSI URI, or fuzzy name to code.",
+      "rationale": "Court PSI URIs are unfriendly (http://standaarden.overheid.nl/owms/terms/Hoge_Raad_der_Nederlanden); a local dictionary command eliminates that friction for every other command.",
+      "example": "rechtspraak-pp-cli code RBAMS --agent",
+      "why_it_matters": "When an agent needs to resolve a Dutch court name, code, or PSI URI without round-tripping to the API, this is the lookup.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "MCP server mode",
+      "command": "mcp serve",
+      "description": "Expose every rechtspraak command as an MCP tool — the first MCP server for Dutch case law.",
+      "rationale": "No MCP server exists for rechtspraak today. Every absorbed and novel command becomes an MCP tool automatically.",
+      "example": "rechtspraak-pp-cli mcp serve",
+      "why_it_matters": "Wire this into Claude Desktop or any MCP-aware agent to give it native access to Dutch court decisions, citations, and case-files.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "ECLI parse/validate",
+      "command": "ecli parse",
+      "description": "Pure-local regex parse of an ECLI into country, court, year, and sequence — with validation — and `ecli url` for the deeplink.",
+      "rationale": "Every other command needs a parsed ECLI; exposing the parser as a command makes it agent-composable without a network round-trip.",
+      "example": "rechtspraak-pp-cli ecli parse ECLI:NL:HR:2024:1 --json",
+      "why_it_matters": "Use this whenever an agent needs to validate or destructure an ECLI before fetching content or chaining into another command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Narrowing pipe",
+      "command": "narrow",
+      "description": "Read an ECLI list from stdin (or piped from search/watch/sync), fetch each decision's content from the live API (paced via the shared rate limiter), apply local include/exclude/phrase/regex filters against title+summary+body, and emit the narrowed list — the defining workflow for keyword-overlap-heavy Dutch legal research. Bounded by --max-pages on upstream input scope; one HTTP call per ECLI.",
+      "rationale": "The upstream API has no free-text search; long-tail Dutch legal terms produce 1000+ results per topic. Iterative local narrowing over the synced corpus is the only way to cut a result set without throwing away precision.",
+      "example": "rechtspraak-pp-cli search --subject strafrecht --court HR --from 2024-01-01 --agent | rechtspraak-pp-cli narrow --keyword huurprijs --exclude \"kort geding\" --phrase \"huurprijswijziging\" --agent",
+      "why_it_matters": "Use this when a metadata-only search returns hundreds or thousands of decisions and an agent needs to narrow by phrasing — chain it after search, watch, or sync. The same vocabulary (`--keyword`, `--exclude`, `--phrase`, `--regex`) also lives on `search` directly for single-shot use.",
+      "group": "Search narrowing for long-tail legal terms"
+    }
+  ],
+  "narrative": {
+    "display_name": "Rechtspraak",
+    "headline": "The first CLI for Dutch court decisions with rich local narrowing for long-tail legal keywords, an appeal-chain walker, and an MCP server.",
+    "value_prop": "Every Dutch ECLI from data.rechtspraak.nl, indexed locally so include/exclude/phrase/regex narrowing cuts a 1000-result topic down to a usable set — the upstream API has no free-text search, so this is the only place that workflow exists. Walks the cassation chain in one command, exports vindplaatsen as BibTeX, and exposes every command as an MCP tool — the first MCP server for Dutch case law.",
+    "quickstart": [
+      {
+        "command": "rechtspraak-pp-cli sync --since 7d",
+        "comment": "Pull the last week of decisions into the local SQLite cache."
+      },
+      {
+        "command": "rechtspraak-pp-cli uitspraken search --court HR --subject belastingrecht --agent",
+        "comment": "List recent Hoge Raad tax-law decisions — agent-shaped output."
+      },
+      {
+        "command": "rechtspraak-pp-cli uitspraken get --id ECLI:NL:HR:2024:1 --summary-only --agent",
+        "comment": "Pull the inhoudsindicatie (summary) for a specific decision."
+      },
+      {
+        "command": "rechtspraak-pp-cli chain ECLI:NL:HR:2024:1 --agent",
+        "comment": "Walk the full appeal chain (rechtbank → hof → Hoge Raad plus A-G conclusie)."
+      },
+      {
+        "command": "rechtspraak-pp-cli citations ECLI:NL:HR:2024:1 --format bibtex",
+        "comment": "Export the vindplaatsen as BibTeX for a brief's footnotes."
+      },
+      {
+        "command": "rechtspraak-pp-cli mcp serve",
+        "comment": "Run as an MCP server for Claude Desktop or any MCP-aware agent."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search with `--keyword` or `--phrase` returns zero results despite expected matches",
+        "fix": "Keyword/phrase filtering is local-only and requires the corpus to be synced first. Run `rechtspraak-pp-cli sync --court <code> --from <date>` to populate the FTS index, then re-run the search."
+      },
+      {
+        "symptom": "search returns more results than expected even with `--procedure cassatie`",
+        "fix": "The upstream API silently ignores `procedure=`; the CLI filters locally against Proceduresoorten metadata after sync. Confirm the procedure name resolves with `rechtspraak-pp-cli procedures list`."
+      },
+      {
+        "symptom": "search returns empty results from the API",
+        "fix": "Confirm the subject area name resolves to a PSI URI with `rechtspraak-pp-cli subjects list` — many spelling variants exist."
+      },
+      {
+        "symptom": "get ECLI returns metadata only, no summary",
+        "fix": "Pass `--summary` or `--full` to request `return=DOC` from the content endpoint."
+      },
+      {
+        "symptom": "Atom feed paging is slow for multi-year backfills",
+        "fix": "Use `sync archive --week <yyyy-Www>` instead — the official weekly archive is orders of magnitude faster."
+      },
+      {
+        "symptom": "court name not recognised",
+        "fix": "Run `rechtspraak-pp-cli code <name-or-code>` to see the canonical name and PSI URI."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to research, monitor, or correlate Dutch court decisions. Strong fit for Dutch legal research, appellate workflow assistance, jurisprudence-corpus building, and any agent that needs structured access to ECLIs without parsing raw RDF/XML. Pairs naturally with `tenderned` and `pdok-location` for a full Dutch civic-data agent stack.",
+    "recipes": [
+      {
+        "title": "Iteratively narrow an over-broad result set",
+        "command": "rechtspraak-pp-cli uitspraken search --subject strafrecht --court HR --from 2024-01-01 --keyword huurprijs --exclude \"kort geding\" --phrase \"huurprijswijziging\" --annotate-count --agent",
+        "explanation": "Upstream API returns metadata-only matches; the --keyword/--exclude/--phrase flags filter the result set locally against the FTS5 index — --annotate-count prints how many decisions survive after each filter pass."
+      },
+      {
+        "title": "Walk the full procedural history of a Hoge Raad decision",
+        "command": "rechtspraak-pp-cli chain ECLI:NL:HR:2024:1 --agent --select chain.ecli,chain.court,chain.date,chain.type",
+        "explanation": "The response is deeply nested across instances; the dotted --select projection keeps the agent's context lean by emitting only the chain skeleton."
+      },
+      {
+        "title": "Daily new-decision watch with narrowing",
+        "command": "rechtspraak-pp-cli watch --court HR --subject belastingrecht --since 1d --keyword \"omkering bewijslast\" --quiet --agent",
+        "explanation": "Exits silently if no new decisions match both the upstream filter (HR + belastingrecht + last 24h) AND the local keyword filter — drop-in for cron + mail."
+      },
+      {
+        "title": "Pipe-compose narrowing across commands",
+        "command": "rechtspraak-pp-cli uitspraken search --court HR --from 2024-01-01 --quiet | rechtspraak-pp-cli narrow --keyword belastingrecht --exclude conclusie --agent",
+        "explanation": "Read ECLIs from any source, apply local filters, emit narrowed list — the same vocabulary as search but composable across pipelines."
+      },
+      {
+        "title": "Bibliography export for a brief",
+        "command": "rechtspraak-pp-cli citations ECLI:NL:HR:2024:1 --format bibtex",
+        "explanation": "Emits the vindplaatsen as BibTeX entries with stable keys — paste directly into a LaTeX brief."
+      },
+      {
+        "title": "Resolve a court name to its PSI URI",
+        "command": "rechtspraak-pp-cli code \"Rechtbank Amsterdam\" --json --select code,name,psi_uri",
+        "explanation": "Fully offline after first sync; useful in agent chains that need to construct a search filter."
+      }
+    ],
+    "trigger_phrases": [
+      "look up Dutch court decision",
+      "find a rechtspraak ECLI",
+      "narrow Dutch case search by keyword",
+      "exclude term from rechtspraak results",
+      "walk the appeal chain",
+      "Dutch case law search",
+      "use rechtspraak",
+      "run rechtspraak"
+    ]
+  }
+}

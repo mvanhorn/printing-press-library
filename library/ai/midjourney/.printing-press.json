@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T21:26:52.74285Z",
+  "printing_press_version": "4.13.0",
+  "api_name": "midjourney",
+  "display_name": "Midjourney",
+  "cli_name": "midjourney-pp-cli",
+  "creator": {
+    "handle": "dave-agent-cerebro",
+    "name": "Dave Fano"
+  },
+  "owner": "mvanhorn",
+  "printer": "dave-agent-cerebro",
+  "printer_name": "Dave Fano",
+  "spec_path": "sniffed/midjourney.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:5841bc0752e3bc79dbaf690cb528bf8fe7c57f240f19ec28b697caf1aa2ec8e2",
+  "run_id": "20260523-212652",
+  "category": "ai",
+  "description": "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal",
+  "mcp_binary": "midjourney-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "MIDJOURNEY_COOKIE_HEADER"
+  ],
+  "novel_features": [
+    {
+      "name": "Submit Midjourney image jobs",
+      "command": "imagine",
+      "description": "Submit Midjourney imagine jobs through the browser-observed /api/submit-jobs flow, including model/version, style, reference, draft, and tuning flags."
+    },
+    {
+      "name": "Rerun existing jobs",
+      "command": "rerun",
+      "description": "Submit the observed Midjourney reroll payload for an existing job ID."
+    },
+    {
+      "name": "Export rendered images",
+      "command": "download",
+      "description": "Export rendered Midjourney job images through Chrome CDP when direct CDN fetches are blocked by Cloudflare or CORS."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "kit-redirect-api-key-scrub",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-111411",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Removed Kit's API key header from cross-host HTTP redirect requests while preserving same-host redirect auth.",
+  "reason": "Go strips standard auth headers on cross-domain redirects but does not strip custom API-key headers. Kit uses X-Kit-Api-Key, so the printed client must delete it explicitly before following a redirect to another host.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "go test ./internal/client passed.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1672"
+}

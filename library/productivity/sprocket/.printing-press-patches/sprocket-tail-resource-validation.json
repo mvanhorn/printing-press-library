@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-tail-resource-validation",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "tail validates its resource argument against tailKnownResources() and exits 2 on an unknown resource.",
+  "reason": "The generated framework tail command polled /<resource> for an unknown name and hung forever instead of failing fast; live dogfood error_path caught the hang.",
+  "files": ["internal/cli/tail.go"],
+  "validated_outcome": "tail bogus-resource exits 2; live dogfood error_path passes.",
+  "upstream_issue": "framework: tail should validate resource + not assume /<resource> REST paths (retro candidate)"
+}

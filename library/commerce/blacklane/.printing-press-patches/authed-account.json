@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "authed-account",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "Authenticated account surface: auth login/status/logout (Auth0 refresh-token grant), me, bookings, wallet.",
+  "reason": "Blacklane's account data lives behind Auth0; the access token alone is rejected without the apollographql-client-name:web header set, and the durable model is a one-time refresh-token import that self-refreshes.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/account.go"
+  ],
+  "validated_outcome": "Live: auth login mints tokens via login.blacklane.com/oauth/token; me/bookings(timeState)/wallet return real account data."
+}

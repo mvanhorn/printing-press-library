@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/paul/printing-press/.runstate/cli-printing-press-d5831482/runs/20260510-094714/working/outlook-calendar-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

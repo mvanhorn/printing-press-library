@@ -1,0 +1,68 @@
+{
+  "api_name": "wavespeed",
+  "narrative": "WaveSpeed is a dynamic AI generation API for image, video, audio, 3D, and LLM models. The printed CLI keeps the generated endpoint, MCP, store, and agent surfaces while adding an official-CLI-style dynamic model runner for fast-moving model families.",
+  "novel_features": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, JSON input merging, schema help, price estimates, waiting, downloads, aliases, and local media file upload coercion."
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print api_schema.api_schemas[0].request_schema for a model or project alias."
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs."
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations."
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction."
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, JSON input merging, schema help, price estimates, waiting, downloads, aliases, and local media file upload coercion."
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print api_schema.api_schemas[0].request_schema for a model or project alias."
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs."
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations."
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction."
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows."
+    }
+  ]
+}

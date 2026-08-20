@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-05-31",
+  "base_run_id": "nynj-world-cup-concierge-20260531",
+  "base_printing_press_version": "4.19.0",
+  "type": "prototype-port",
+  "description": "Ported the proven Trip Control Tower Python extractor into the generated Go CLI command surface.",
+  "files": [
+    "internal/cli/extractor.go",
+    "internal/cli/flags.go",
+    "internal/cli/extract.go",
+    "internal/cli/doctor.go",
+    "internal/cli/agent_context.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

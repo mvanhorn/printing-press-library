@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "google-search-console",
+  "run_id": "20260509-053752",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 75,
+  "tests_passed": 75,
+  "tests_skipped": 67,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "qbo-custom-subcommands",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-195055",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Added custom domain subcommands: changed, duplicates, reconcile, and net-worth.",
+  "reason": "Provide high-level accounting operations directly from the terminal bypassing raw API calls.",
+  "files": ["internal/cli/changed.go", "internal/cli/duplicates.go", "internal/cli/reconcile.go", "internal/cli/net_worth.go"]
+}

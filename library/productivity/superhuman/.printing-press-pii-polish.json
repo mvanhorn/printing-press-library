@@ -1,0 +1,3577 @@
+{
+  "timestamp": "2026-05-15T04:26:35.643201Z",
+  "cli_dir": "/tmp/printing-press/publish/superhuman-1p33qH/package/library/productivity/superhuman",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260512-165241/discovery/browser-sniff-report.md",
+      "line": 4,
+      "column": 140,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260512-165241/discovery/browser-sniff-report.md",
+      "line": 4,
+      "column": 163,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260512-165241/discovery/browser-sniff-report.md",
+      "line": 92,
+      "column": 6,
+      "matched_span": "user@gmail.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Documentation placeholder showing the shape of a stored account record. Not a real recipient."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260512-165241/research.json",
+      "line": 127,
+      "column": 81,
+      "matched_span": "teammate@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.com TLD; placeholder in research manuscript example command (drafts write recipe)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 114,
+      "column": 61,
+      "matched_span": "teammate@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 72,
+      "column": 54,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 79,
+      "column": 54,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 80,
+      "column": 54,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 125,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 151,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/cdp_test.go",
+      "line": 152,
+      "column": 62,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/auth/chrome_cookies_test.go",
+      "line": 46,
+      "column": 6,
+      "matched_span": "1234567890",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Synthetic 1234567890 placeholder used in chrome cookie-decryption test fixtures. Not a real phone number."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/auth/chrome_cookies_test.go",
+      "line": 97,
+      "column": 5,
+      "matched_span": "1234567890",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Synthetic 1234567890 placeholder used in chrome cookie-decryption test fixtures. Not a real phone number."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 32,
+      "column": 13,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 49,
+      "column": 19,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 50,
+      "column": 30,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 89,
+      "column": 13,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 124,
+      "column": 13,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 162,
+      "column": 13,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 224,
+      "column": 38,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 225,
+      "column": 38,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 242,
+      "column": 33,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 242,
+      "column": 54,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 249,
+      "column": 28,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 258,
+      "column": 26,
+      "matched_span": "ghost@nowhere.example",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved .example TLD used as test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 262,
+      "column": 37,
+      "matched_span": "ghost@nowhere.example",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved .example TLD used as test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 272,
+      "column": 32,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 272,
+      "column": 74,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 273,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 273,
+      "column": 75,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 274,
+      "column": 32,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 274,
+      "column": 74,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 275,
+      "column": 32,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 275,
+      "column": 74,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 276,
+      "column": 32,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 276,
+      "column": 74,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 380,
+      "column": 13,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 398,
+      "column": 70,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/extract_test.go",
+      "line": 403,
+      "column": 19,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 79,
+      "column": 12,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 145,
+      "column": 12,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 191,
+      "column": 14,
+      "matched_span": "test@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 237,
+      "column": 12,
+      "matched_span": "rl@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 263,
+      "column": 12,
+      "matched_span": "fivex@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 296,
+      "column": 12,
+      "matched_span": "netfail@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 320,
+      "column": 12,
+      "matched_span": "legacy@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 344,
+      "column": 53,
+      "matched_span": "missing@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 351,
+      "column": 37,
+      "matched_span": "missing@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/refresh_test.go",
+      "line": 371,
+      "column": 12,
+      "matched_span": "rl-persistent@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 33,
+      "column": 7,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 48,
+      "column": 7,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 72,
+      "column": 7,
+      "matched_span": "only@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 146,
+      "column": 25,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 149,
+      "column": 25,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 153,
+      "column": 26,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 161,
+      "column": 26,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 170,
+      "column": 22,
+      "matched_span": "nobody@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/auth/store_test.go",
+      "line": 255,
+      "column": 6,
+      "matched_span": "writer@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 141,
+      "column": 62,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 145,
+      "column": 29,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 151,
+      "column": 38,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 161,
+      "column": 26,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 162,
+      "column": 22,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 171,
+      "column": 62,
+      "matched_span": "foo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 172,
+      "column": 62,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 185,
+      "column": 29,
+      "matched_span": "foo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 185,
+      "column": 74,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 195,
+      "column": 62,
+      "matched_span": "foo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 196,
+      "column": 62,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 200,
+      "column": 29,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 202,
+      "column": 72,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 206,
+      "column": 38,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 207,
+      "column": 36,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 211,
+      "column": 26,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 212,
+      "column": 22,
+      "matched_span": "bar@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 214,
+      "column": 26,
+      "matched_span": "foo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 215,
+      "column": 28,
+      "matched_span": "foo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 329,
+      "column": 5,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 338,
+      "column": 5,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 370,
+      "column": 32,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 371,
+      "column": 22,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 373,
+      "column": 32,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 374,
+      "column": 22,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 378,
+      "column": 35,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 382,
+      "column": 38,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 488,
+      "column": 4,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 496,
+      "column": 47,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 507,
+      "column": 32,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 508,
+      "column": 22,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 516,
+      "column": 25,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 518,
+      "column": 22,
+      "matched_span": "single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 520,
+      "column": 35,
+      "matched_span": "id-token-single@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 533,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 534,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 543,
+      "column": 47,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 544,
+      "column": 47,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 555,
+      "column": 32,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 555,
+      "column": 82,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 561,
+      "column": 26,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 562,
+      "column": 22,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 564,
+      "column": 26,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 565,
+      "column": 22,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 574,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 575,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 583,
+      "column": 47,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 584,
+      "column": 47,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 588,
+      "column": 72,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 595,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 601,
+      "column": 26,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 602,
+      "column": 22,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 604,
+      "column": 26,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 605,
+      "column": 28,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 615,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 616,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 624,
+      "column": 47,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 625,
+      "column": 47,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 629,
+      "column": 67,
+      "matched_span": "nobody@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 637,
+      "column": 29,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 637,
+      "column": 76,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 650,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 686,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 703,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 705,
+      "column": 22,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 718,
+      "column": 4,
+      "matched_span": "default@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 725,
+      "column": 47,
+      "matched_span": "default@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 738,
+      "column": 26,
+      "matched_span": "default@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_login_test.go",
+      "line": 739,
+      "column": 22,
+      "matched_span": "default@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 74,
+      "column": 42,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 74,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 76,
+      "column": 74,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 80,
+      "column": 48,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 83,
+      "column": 58,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 84,
+      "column": 58,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 95,
+      "column": 42,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 95,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 97,
+      "column": 69,
+      "matched_span": "unknown@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.com TLD; placeholder for unknown-account test fixture."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 102,
+      "column": 29,
+      "matched_span": "unknown@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.com TLD; placeholder for unknown-account test fixture."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 105,
+      "column": 29,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 105,
+      "column": 75,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 122,
+      "column": 42,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 122,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 124,
+      "column": 72,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 127,
+      "column": 58,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 128,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 166,
+      "column": 42,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 166,
+      "column": 62,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 168,
+      "column": 72,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 172,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 181,
+      "column": 27,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 184,
+      "column": 27,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 211,
+      "column": 9,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 213,
+      "column": 40,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 215,
+      "column": 9,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/auth_use_test.go",
+      "line": 217,
+      "column": 41,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 62,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 63,
+      "column": 39,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 76,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 77,
+      "column": 39,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 93,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 94,
+      "column": 39,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 122,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/doctor_gmail_oauth_test.go",
+      "line": 125,
+      "column": 23,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/drafts_discard_test.go",
+      "line": 38,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/drafts_discard_test.go",
+      "line": 39,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/drafts_discard_test.go",
+      "line": 63,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/drafts_discard_test.go",
+      "line": 64,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 43,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 44,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 90,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 91,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 117,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 118,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 134,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/labels_list_test.go",
+      "line": 135,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 27,
+      "column": 32,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 28,
+      "column": 30,
+      "matched_span": "bob@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 65,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 66,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 116,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_get_test.go",
+      "line": 117,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 48,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 49,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 72,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 73,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 104,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 105,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 125,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_getattachment_test.go",
+      "line": 126,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_query_test.go",
+      "line": 28,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_query_test.go",
+      "line": 29,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 14,
+      "column": 17,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 14,
+      "column": 48,
+      "matched_span": "1700000000",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Unix epoch seconds (Nov 2023) used as an opened_at timestamp in a JSON test fixture. Not a US phone number."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 18,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 19,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 52,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/messages_readstatus_test.go",
+      "line": 53,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 42,
+      "column": 21,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 49,
+      "column": 52,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 270,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 277,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 283,
+      "column": 12,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_queue_test.go",
+      "line": 286,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 70,
+      "column": 15,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 71,
+      "column": 24,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 113,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 118,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 119,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 157,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 162,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 163,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 185,
+      "column": 33,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 213,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 218,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 219,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 253,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 258,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 259,
+      "column": 32,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 290,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 295,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 296,
+      "column": 24,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 326,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 331,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 332,
+      "column": 26,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 378,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_refresh_test.go",
+      "line": 379,
+      "column": 26,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 72,
+      "column": 17,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 74,
+      "column": 26,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 81,
+      "column": 30,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 82,
+      "column": 24,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 87,
+      "column": 17,
+      "matched_span": "no-name@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 88,
+      "column": 26,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 93,
+      "column": 15,
+      "matched_span": "no-name@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 94,
+      "column": 24,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 99,
+      "column": 17,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 101,
+      "column": 26,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 101,
+      "column": 37,
+      "matched_span": "b@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 101,
+      "column": 48,
+      "matched_span": "c@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 106,
+      "column": 18,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 107,
+      "column": 24,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 107,
+      "column": 35,
+      "matched_span": "b@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 107,
+      "column": 46,
+      "matched_span": "c@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 112,
+      "column": 17,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 114,
+      "column": 26,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 115,
+      "column": 26,
+      "matched_span": "c1@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 116,
+      "column": 26,
+      "matched_span": "b1@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 121,
+      "column": 18,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 122,
+      "column": 24,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 127,
+      "column": 17,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 129,
+      "column": 26,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 135,
+      "column": 18,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 136,
+      "column": 24,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 188,
+      "column": 20,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 190,
+      "column": 29,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 201,
+      "column": 20,
+      "matched_span": "no-name@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 202,
+      "column": 29,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 212,
+      "column": 20,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 214,
+      "column": 29,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 214,
+      "column": 40,
+      "matched_span": "b@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 224,
+      "column": 20,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 226,
+      "column": 29,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 227,
+      "column": 29,
+      "matched_span": "c1@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 228,
+      "column": 29,
+      "matched_span": "b1@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 238,
+      "column": 20,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 240,
+      "column": 29,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 349,
+      "column": 5,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 350,
+      "column": 5,
+      "matched_span": "no-name@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 405,
+      "column": 5,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 405,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 406,
+      "column": 5,
+      "matched_span": "x@y.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 406,
+      "column": 20,
+      "matched_span": "x@y.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 431,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 454,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 462,
+      "column": 12,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 465,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 487,
+      "column": 43,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 497,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 516,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 521,
+      "column": 12,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 524,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 541,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 550,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 556,
+      "column": 12,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 559,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 586,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 595,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 601,
+      "column": 12,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 604,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 632,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 633,
+      "column": 70,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 633,
+      "column": 107,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 649,
+      "column": 12,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 665,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 673,
+      "column": 12,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 677,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 693,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 709,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 714,
+      "column": 12,
+      "matched_span": "a@x.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Short test fixture domain (x.com / y.com) with single-letter local-part. Synthetic, not PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/send_test.go",
+      "line": 717,
+      "column": 14,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/splits_test.go",
+      "line": 58,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/splits_test.go",
+      "line": 59,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/splits_test.go",
+      "line": 82,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/splits_test.go",
+      "line": 83,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 69,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 70,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 109,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 110,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 143,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 144,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 181,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 182,
+      "column": 51,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 197,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_list_inbox_test.go",
+      "line": 198,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 30,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 31,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 59,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 60,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 76,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 77,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 103,
+      "column": 79,
+      "matched_span": "unsub@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 107,
+      "column": 17,
+      "matched_span": "unsub@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 112,
+      "column": 48,
+      "matched_span": "unsub@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 115,
+      "column": 17,
+      "matched_span": "unsub@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 202,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 203,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 242,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_terminal_test.go",
+      "line": 243,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 53,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 54,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 83,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 84,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 100,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 101,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 120,
+      "column": 36,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/threads_update_test.go",
+      "line": 121,
+      "column": 57,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 158,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 185,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 201,
+      "column": 33,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 217,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 244,
+      "column": 4,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 257,
+      "column": 37,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 274,
+      "column": 4,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 288,
+      "column": 37,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 304,
+      "column": 4,
+      "matched_span": "present@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 309,
+      "column": 24,
+      "matched_span": "missing@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 318,
+      "column": 37,
+      "matched_span": "missing@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 334,
+      "column": 29,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/client/client_auth_test.go",
+      "line": 359,
+      "column": 17,
+      "matched_span": "user2@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 76,
+      "column": 29,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 102,
+      "column": 19,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 132,
+      "column": 19,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 165,
+      "column": 33,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 182,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 207,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 236,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/client_test.go",
+      "line": 278,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/messages_test.go",
+      "line": 41,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "internal/gmail/messages_test.go",
+      "line": 132,
+      "column": 32,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 6761 reserved example.{com,org,net} TLD used as documentation/test placeholder. Not real PII."
+    }
+  ],
+  "findings_count_before": 598
+}

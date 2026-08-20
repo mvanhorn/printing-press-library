@@ -1,0 +1,97 @@
+{
+  "api_name": "cloudflare",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Wrangler",
+      "url": "https://developers.cloudflare.com/workers/wrangler/",
+      "summary": "Official developer CLI focused on Workers and related developer platform workflows."
+    },
+    {
+      "name": "cloudflared",
+      "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/",
+      "summary": "Official connector CLI for Cloudflare Tunnel runtime operations."
+    },
+    {
+      "name": "cf-domain",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/cloud/cf-domain",
+      "summary": "Published Printing Press CLI focused on Cloudflare Registrar domain search/check/register."
+    }
+  ],
+  "gaps": [
+    "Existing tools are product-specific and do not give agents a single plan/apply surface across Pages, Workers, tunnels, R2, Email Routing, tokens, AI Gateway, and cost signals.",
+    "Cloudflare API token permission groups are ID-keyed and should be resolved live instead of guessed by display name.",
+    "Agent workflows need redaction and explicit confirmation gates for token and secret operations."
+  ],
+  "patterns": [
+    "Prefer plan-first commands for multi-step Cloudflare workflows.",
+    "Keep raw endpoint MCP tools hidden behind search/execute for the large Cloudflare schema.",
+    "Expose high-level MCP aliases for operations agents actually perform."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-08T23:20:00Z",
+  "novel_features": [
+    {
+      "name": "Token recipes and diagnostics",
+      "command": "token doctor --recipe site-launch --account <id>",
+      "description": "Resolve Cloudflare token permission recipes through live permission group IDs and report whether the current token can support the workflow."
+    },
+    {
+      "name": "Agent-admin token bootstrap",
+      "command": "agent admin --write-env .env.cloudflare-admin",
+      "description": "Create or guide a token-management bootstrap token that can mint recipe-scoped API tokens for other agents, with redaction and dashboard fallback."
+    },
+    {
+      "name": "Project launch and preview",
+      "command": "project launch ./dist --project <name> --account <id> --domain <host>",
+      "description": "Plan or launch a Cloudflare Pages/Workers project, including static output detection, deployment mode choice, and optional domain attachment."
+    },
+    {
+      "name": "Domain connect",
+      "command": "domain connect <host> --target pages --project <name> --account <id> --zone <id>",
+      "description": "Connect hostnames to Pages, Workers, tunnels, or R2 with product-specific API calls instead of dashboard spelunking."
+    },
+    {
+      "name": "Worker secrets",
+      "command": "worker secret put <name> --script <worker> --account <id> --from-env <ENV>",
+      "description": "Set, list, and delete Worker secrets with redacted output and explicit confirmation gates."
+    },
+    {
+      "name": "AI and agent infrastructure bootstrap",
+      "command": "agent memory bootstrap --account <id> --name <name>",
+      "description": "Plan or create Cloudflare resources for AI agents and RAG stacks, including R2, D1, Vectorize, AI Gateway, KV, and Queues."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Token recipes and diagnostics",
+      "command": "token doctor --recipe site-launch --account <id>",
+      "description": "Resolve Cloudflare token permission recipes through live permission group IDs and report whether the current token can support the workflow."
+    },
+    {
+      "name": "Agent-admin token bootstrap",
+      "command": "agent admin --write-env .env.cloudflare-admin",
+      "description": "Create or guide a token-management bootstrap token that can mint recipe-scoped API tokens for other agents, with redaction and dashboard fallback."
+    },
+    {
+      "name": "Project launch and preview",
+      "command": "project launch ./dist --project <name> --account <id> --domain <host>",
+      "description": "Plan or launch a Cloudflare Pages/Workers project, including static output detection, deployment mode choice, and optional domain attachment."
+    },
+    {
+      "name": "Domain connect",
+      "command": "domain connect <host> --target pages --project <name> --account <id> --zone <id>",
+      "description": "Connect hostnames to Pages, Workers, tunnels, or R2 with product-specific API calls instead of dashboard spelunking."
+    },
+    {
+      "name": "Worker secrets",
+      "command": "worker secret put <name> --script <worker> --account <id> --from-env <ENV>",
+      "description": "Set, list, and delete Worker secrets with redacted output and explicit confirmation gates."
+    },
+    {
+      "name": "AI and agent infrastructure bootstrap",
+      "command": "agent memory bootstrap --account <id> --name <name>",
+      "description": "Plan or create Cloudflare resources for AI agents and RAG stacks, including R2, D1, Vectorize, AI Gateway, KV, and Queues."
+    }
+  ]
+}

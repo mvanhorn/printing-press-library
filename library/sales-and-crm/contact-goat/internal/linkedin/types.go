@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package linkedin wraps the stickerdaniel/linkedin-mcp-server Python MCP
 // subprocess (installable via `uvx linkedin-scraper-mcp@latest`). It speaks

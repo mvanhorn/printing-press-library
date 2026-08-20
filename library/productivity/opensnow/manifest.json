@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "opensnow-pp-mcp",
+  "display_name": "Opensnow",
+  "version": "4.0.3",
+  "description": "Opensnow API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/opensnow-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/opensnow-pp-mcp",
+      "args": [],
+      "env": {
+        "OPENSNOW_API_KEY": "${user_config.opensnow_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "opensnow_api_key": {
+      "type": "string",
+      "title": "OPENSNOW_API_KEY",
+      "description": "Sets OPENSNOW_API_KEY for the Opensnow MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

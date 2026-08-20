@@ -1,0 +1,30 @@
+{
+  "api_name": "facebook-marketplace",
+  "base_url": "https://www.facebook.com",
+  "description": "Browser-captured Facebook Marketplace GraphQL surface from the prepared HAR.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h3",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "env_vars": [
+      "FACEBOOK_MARKET_COOKIES"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FACEBOOK_MARKET_COOKIES",
+        "kind": "harvested",
+        "required": true,
+        "sensitive": true,
+        "description": "Browser session cookies captured from Chrome for facebook.com."
+      }
+    ],
+    "cookie_domain": ".facebook.com",
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/marketplace/",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [],
+  "tools": []
+}

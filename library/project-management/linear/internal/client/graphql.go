@@ -22,8 +22,13 @@ type GraphQLResponse struct {
 type GraphQLError struct {
 	Message    string `json:"message"`
 	Extensions struct {
-		Code            string `json:"code"`
-		UserPresentable bool   `json:"userPresentableMessage"`
+		Code string `json:"code"`
+		// Linear returns userPresentableMessage as the actual prose message
+		// shown to the user (a string). The v3 type was bool which made any
+		// error response with a populated message fail to decode. Using
+		// json.RawMessage tolerates string, null, or absent without enforcing
+		// a Go type.
+		UserPresentable json.RawMessage `json:"userPresentableMessage,omitempty"`
 	} `json:"extensions"`
 }
 

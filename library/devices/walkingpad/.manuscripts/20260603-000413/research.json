@@ -1,0 +1,213 @@
+{
+  "api_name": "walkingpad",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "ph4-walkingpad",
+      "url": "https://github.com/ph4r05/ph4-walkingpad",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "walkingpad-tracker",
+      "url": "https://github.com/kabirdos/walkingpad-tracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-03T00:04:13Z",
+  "novel_features": [
+    {
+      "name": "Local walk history",
+      "command": "today",
+      "description": "Keep a permanent local record of every walk \u2014 distance, steps, time \u2014 that survives the belt's power-cut memory loss.",
+      "rationale": "The belt only stores its last run and loses it on power-cut; recording walks to a local store is only possible with a persistent local database the belt and phone app don't keep.",
+      "example": "walkingpad-pp-cli today --json",
+      "why_it_matters": "Reach for this when an agent needs durable walk totals the device itself cannot retain.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Streak tracking",
+      "command": "streak",
+      "description": "See your current consecutive-day walking streak.",
+      "rationale": "Requires a cross-day join over local history that no single belt query can answer.",
+      "example": "walkingpad-pp-cli streak --json",
+      "why_it_matters": "Use when motivation/consistency tracking matters; the belt has no concept of streaks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily trends",
+      "command": "trends",
+      "description": "Distance, steps, and active minutes per day over a window.",
+      "rationale": "Requires historical daily rollups stored locally over time.",
+      "example": "walkingpad-pp-cli trends --days 14 --json",
+      "why_it_matters": "Use to summarize walking activity over weeks for an agent or dashboard.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Calorie estimate",
+      "command": "calories",
+      "description": "Estimate calories burned from your body profile \u2014 the number the belt refuses to report.",
+      "rationale": "The WalkingPad firmware does not report calories at all; they must be computed from a weight/age/height/sex profile and walk telemetry.",
+      "example": "walkingpad-pp-cli calories --days 7 --json",
+      "why_it_matters": "Use when an agent needs an energy-expenditure figure the device cannot provide.",
+      "group": "Insight the device can't give you"
+    },
+    {
+      "name": "Family-generic discovery",
+      "command": "scan",
+      "description": "Find any compatible WalkingPad by its BLE service, not its name.",
+      "rationale": "Models advertise different names (a C2 shows as 'KS-BLC2', not 'WalkingPad'); matching the shared fe00 service UUID works across the whole family.",
+      "example": "walkingpad-pp-cli scan --live --json",
+      "why_it_matters": "Use to locate the pad reliably across A1/C2/R1/R2/X21 where name-matching fails.",
+      "group": "Works with any WalkingPad"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local walk history",
+      "command": "today",
+      "description": "Keep a permanent local record of every walk \u2014 distance, steps, time \u2014 that survives the belt's power-cut memory loss.",
+      "rationale": "The belt only stores its last run and loses it on power-cut; recording walks to a local store is only possible with a persistent local database the belt and phone app don't keep.",
+      "example": "walkingpad-pp-cli today --json",
+      "why_it_matters": "Reach for this when an agent needs durable walk totals the device itself cannot retain.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Streak tracking",
+      "command": "streak",
+      "description": "See your current consecutive-day walking streak.",
+      "rationale": "Requires a cross-day join over local history that no single belt query can answer.",
+      "example": "walkingpad-pp-cli streak --json",
+      "why_it_matters": "Use when motivation/consistency tracking matters; the belt has no concept of streaks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily trends",
+      "command": "trends",
+      "description": "Distance, steps, and active minutes per day over a window.",
+      "rationale": "Requires historical daily rollups stored locally over time.",
+      "example": "walkingpad-pp-cli trends --days 14 --json",
+      "why_it_matters": "Use to summarize walking activity over weeks for an agent or dashboard.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Calorie estimate",
+      "command": "calories",
+      "description": "Estimate calories burned from your body profile \u2014 the number the belt refuses to report.",
+      "rationale": "The WalkingPad firmware does not report calories at all; they must be computed from a weight/age/height/sex profile and walk telemetry.",
+      "example": "walkingpad-pp-cli calories --days 7 --json",
+      "why_it_matters": "Use when an agent needs an energy-expenditure figure the device cannot provide.",
+      "group": "Insight the device can't give you"
+    },
+    {
+      "name": "Family-generic discovery",
+      "command": "scan",
+      "description": "Find any compatible WalkingPad by its BLE service, not its name.",
+      "rationale": "Models advertise different names (a C2 shows as 'KS-BLC2', not 'WalkingPad'); matching the shared fe00 service UUID works across the whole family.",
+      "example": "walkingpad-pp-cli scan --live --json",
+      "why_it_matters": "Use to locate the pad reliably across A1/C2/R1/R2/X21 where name-matching fails.",
+      "group": "Works with any WalkingPad"
+    }
+  ],
+  "narrative": {
+    "display_name": "WalkingPad",
+    "headline": "Control any WalkingPad treadmill from your terminal \u2014 with a local walk history, calories, and agent-native output no WalkingPad app has.",
+    "value_prop": "A single static binary (no Python, no cloud, no phone app) that drives the belt over Bluetooth: `run` holds the connection to walk the belt at any speed and records the session; `status`/`monitor` read live telemetry. It keeps a permanent local record of every walk the belt itself loses on power-cut, computes the calories the firmware never reports, and exposes every action as agent-native JSON. Physical-effect commands are safe-by-default: preview with --dry-run, confirm with --confirm-physical-effect.",
+    "auth_narrative": "No API key or account. The CLI talks to the belt directly over Bluetooth LE. Only one client can hold the connection, so close the official WalkingPad phone app before using live commands. Live BLE actions require --live; without it, commands run against a safe replay transport.",
+    "quickstart": [
+      {
+        "command": "walkingpad-pp-cli doctor --dry-run",
+        "comment": "Check BLE adapter, permissions, and that the pad is reachable before anything else."
+      },
+      {
+        "command": "walkingpad-pp-cli scan --live --json",
+        "comment": "Find your WalkingPad by its fe00 service (works even when the name isn't 'WalkingPad')."
+      },
+      {
+        "command": "walkingpad-pp-cli status --live --json",
+        "comment": "Read current speed, distance, steps, and mode from the belt."
+      },
+      {
+        "command": "walkingpad-pp-cli run --speed 2.0 --duration 30m --live --dry-run",
+        "comment": "Preview a guided 2.0 km/h walk; drop --dry-run and add --confirm-physical-effect to actually run + record it (the pad must be awake)."
+      },
+      {
+        "command": "walkingpad-pp-cli today --json",
+        "comment": "See today's recorded walking totals from the local history store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "commands are accepted but the belt won't start",
+        "fix": "Wake the pad physically (display on), then use `run` (not one-shot `start`) \u2014 the belt only runs over a held, polled connection, which `run` maintains."
+      },
+      {
+        "symptom": "scan finds nothing",
+        "fix": "Power on the pad and fully close the official WalkingPad phone app \u2014 only one BLE client can connect at a time."
+      },
+      {
+        "symptom": "connect hangs or times out",
+        "fix": "The BLE link is wedged from another client; quit the phone app, toggle the pad's power, and retry."
+      },
+      {
+        "symptom": "commands print 'would write ...' but nothing happens",
+        "fix": "Add --live to actuate; physical-effect commands also need --confirm-physical-effect (or --dry-run to preview)."
+      },
+      {
+        "symptom": "macOS says Bluetooth permission denied",
+        "fix": "Grant your terminal app Bluetooth access in System Settings -> Privacy & Security -> Bluetooth, then retry."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to control or monitor a KingSmith WalkingPad treadmill over Bluetooth without the phone app: starting/stopping the belt, setting a precise speed, reading live telemetry, or querying a durable local walk history (totals, streaks, trends, calories) that the belt and app do not retain.",
+    "recipes": [
+      {
+        "title": "Pre-flight health check",
+        "command": "walkingpad-pp-cli doctor --json",
+        "explanation": "Confirms the BLE adapter, OS permission, verify-state, and pad reachability in one call."
+      },
+      {
+        "title": "Start a 3.0 km/h walk safely",
+        "command": "walkingpad-pp-cli speed 3.0 --live --confirm-physical-effect",
+        "explanation": "Sets an exact 3.0 km/h (finer than the native 0.5 step) after an explicit physical-effect confirmation."
+      },
+      {
+        "title": "Record a walk and review it",
+        "command": "walkingpad-pp-cli record --live --json",
+        "explanation": "Captures the live telemetry stream into the local history store as a session you can query later."
+      },
+      {
+        "title": "Two-week trend for an agent",
+        "command": "walkingpad-pp-cli trends --days 14 --agent",
+        "explanation": "Returns the daily series as JSON; pipe to jq to narrow fields."
+      },
+      {
+        "title": "Export for Apple Health",
+        "command": "walkingpad-pp-cli export --json",
+        "explanation": "Writes daily.json + yesterday.json for an iPhone Shortcut to log Walking workouts into Health."
+      }
+    ],
+    "trigger_phrases": [
+      "start the treadmill",
+      "set the walkingpad to 3 km/h",
+      "how far did I walk today",
+      "what's my walking streak",
+      "stop the belt",
+      "use walkingpad",
+      "run walkingpad"
+    ]
+  }
+}

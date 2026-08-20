@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "fix-chemistry-drift-monotonicity-and-sentinels",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Enforce 5-sample monotonicity before flagging drift, filter Hayward -1 telemetry sentinels at write- and read-time, and align forecast timestamps with the filtered sample slice.",
+  "reason": "Three related drift-detection P1s from Greptile review on #431. (1) buildDriftReport compared delta>threshold without verifying the trend was monotonic over the last 5 samples — a single tail outlier (ORP spikes to 760 mV after six days averaging 700 mV) tripped drifting=true with no sustained trend, generating false service dispatches. Fix: check strict monotonicity of the trailing min(5,len) samples before setting drifting=true. (2) Hayward's -1 'sensor not reading' sentinel reached AppendTelemetry and contaminated drift baselines toward -1. Fix: filter AirTemp/WaterTemp/PH/ORP/SaltPPM<=0 at write-time, with a defense-in-depth v<=0 filter at read-time in buildDriftReport. (3) After the sentinel filter, projectExit still received samples[0].SampledAt / samples[len-1].SampledAt, so a legacy -1 row at the chronological start stretched the time span into the sensor-offline period and produced 2-3x slower rates. Fix: build a parallel times[] slice in lockstep with values[]. Also closes a SQL read-only guard bypass where strings.Contains(lower, banned+\" \") missed banned keywords followed by newline/tab — replaced with precompiled \\bkeyword\\b regex via mustBeReadOnlySQL.",
+  "files": [
+    "internal/cli/transcendence.go",
+    "internal/cli/ready_by_test.go",
+    "internal/store/writes.go",
+    "internal/store/store_test.go"
+  ],
+  "validated_outcome": "TestBuildDriftReport_MonotonicityCheck, TestBuildDriftReport_TimestampAlignment, TestAppendTelemetry_FiltersSentinels, TestMustBeReadOnlySQL_WordBoundary all pass."
+}

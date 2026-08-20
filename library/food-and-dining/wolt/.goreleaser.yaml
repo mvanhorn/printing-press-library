@@ -1,0 +1,51 @@
+version: 2
+project_name: wolt-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: wolt-pp-cli
+    main: ./cmd/wolt-pp-cli
+    binary: wolt-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/wolt/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: wolt-pp-mcp
+    main: ./cmd/wolt-pp-mcp
+    binary: wolt-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: wolt-pp-cli
+    repository:
+      owner: amit
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Browse-only Wolt consumer CLI."
+    install: |
+      bin.install "wolt-pp-cli"
+      bin.install "wolt-pp-mcp"

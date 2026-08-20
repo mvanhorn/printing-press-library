@@ -1,0 +1,51 @@
+version: 2
+project_name: smartlead-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: smartlead-pp-cli
+    main: ./cmd/smartlead-pp-cli
+    binary: smartlead-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/smartlead/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: smartlead-pp-mcp
+    main: ./cmd/smartlead-pp-mcp
+    binary: smartlead-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: smartlead-pp-cli
+    repository:
+      owner: bossriceshark
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every SmartLead API feature, plus a local mirror that answers campaign-health, silent-lead, and cross-campaign..."
+    install: |
+      bin.install "smartlead-pp-cli"
+      bin.install "smartlead-pp-mcp"

@@ -1,0 +1,163 @@
+
+=== verify ===
+Runtime Verification: /Users/smacdonald/printing-press/library/erank/erank
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+angles                         read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+browser-session-proof          read         PASS   PASS     PASS     3/3
+build                          read         PASS   PASS     PASS     3/3
+check-paddle-restriction       read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+intercom                       read         PASS   PASS     PASS     3/3
+listing                        read         PASS   PASS     FAIL     2/3
+lists                          read         PASS   PASS     FAIL     2/3
+member-shops                   read         PASS   PASS     PASS     3/3
+motd-v3                        read         PASS   PASS     PASS     3/3
+oauth                          read         PASS   PASS     PASS     3/3
+opportunity                    read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+quota                          read         PASS   PASS     PASS     3/3
+refresh-data                   read         PASS   PASS     PASS     3/3
+saturation                     read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+skill                          read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     FAIL     2/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+watch                          read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+browser-session-proof          auth         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS listing gaps
+  PASS lists optimize
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS tags consensus
+  PASS watch drift
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Browser Session Proof: valid
+Pass Rate: 100% (40/40 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 8 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/smacdonald/printing-press/library/erank/spec.yaml (bundled)
+Dogfood Report: erank
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MISMATCH
+  Generated: Uses "custom-composed" prefix
+  Detail: composed auth format "{XSRF-TOKEN}" does not start with a recognized scheme prefix
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    1 dead (WARN)
+  - extractResponseData (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          9/10 commands have examples (PASS)
+  - skill install: missing example
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - auth protocol mismatch
+  - 1 dead helper functions found
+  - 4 unregistered commands: newNovelListingGapsCmd, newNovelListsOptimizeCmd, newNovelTagsConsensusCmd, newNovelWatchDriftCmd
+
+=== workflow-verify ===
+Workflow Verification: erank
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== erank ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: erank
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              8/10
+  Vision               10/10
+  Workflows            6/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           2/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               4/5
+
+  Total: 80/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Passed: 7/7  (100% pass rate)
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+  - auth_protocol scored 2/10 - needs improvement
+  - MCP: 25 tools (0 public, 25 auth-required) — readiness: partial
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         26.724s
+  validate-narrative  PASS    0         1.396s
+  dogfood           PASS    0         2.494s
+  workflow-verify   PASS    0         12ms
+  verify-skill      PASS    0         1.3s
+  scorecard         PASS    0         7.099s
+
+Verdict: PASS (6/6 legs passed)

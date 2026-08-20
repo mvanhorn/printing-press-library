@@ -1,26 +1,41 @@
-# Weather Goat CLI
+# Weather GOAT CLI
 
 The weather CLI that answers the questions you actually ask: Should I bike today? Do I need an umbrella for the walk home? Is there a tornado warning? Is this summer hotter than normal?
 
 Powered by Open-Meteo (global forecasts, 80 years of history, air quality) and NWS (severe weather alerts). No API key required.
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
-The recommended path installs both the `weather-goat-pp-cli` binary and the `pp-weather-goat` agent skill in one shot:
+The recommended path installs both the `weather-goat-pp-cli` binary and the `pp-weather-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install weather-goat
+npx -y @mvanhorn/printing-press-library install weather-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install weather-goat --cli-only
+npx -y @mvanhorn/printing-press-library install weather-goat --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install weather-goat --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install weather-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install weather-goat --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli@latest
@@ -35,6 +50,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install weather-goat --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -47,13 +70,17 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install weather-goat --agent openclaw
 ```
-Install the pp-weather-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-weather-goat. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Authentication
 
@@ -240,7 +267,7 @@ weather-goat-pp-cli watch "Oklahoma City" --interval 30
 weather-goat-pp-cli history --latitude 47.6 --longitude -122.3 --start-date 2024-07-04 --end-date 2024-07-04
 
 # Commute forecast (set up times first)
-weather-goat-pp-cli config set-commute 08:00 18:00
+weather-goat-pp-cli config set-commute --depart 08:00 --return 18:00
 weather-goat-pp-cli go commute
 
 # Hourly forecast as JSON for scripting
@@ -252,8 +279,8 @@ weather-goat-pp-cli go drive --agent | jq '.verdict'
 # Sync data locally for offline access
 weather-goat-pp-cli sync
 
-# Export synced data for analysis
-weather-goat-pp-cli export --format jsonl > weather-backup.jsonl
+# Export forecast data for analysis
+weather-goat-pp-cli export forecast --format jsonl > weather-backup.jsonl
 ```
 
 ## Health Check

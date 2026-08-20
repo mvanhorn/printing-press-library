@@ -1,0 +1,356 @@
+{
+  "api_name": "nasa-images",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "peteretelej/nasa",
+      "url": "https://github.com/peteretelej/nasa",
+      "language": "Go",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AJFunk/nasa-sdk",
+      "url": "https://github.com/AJFunk/nasa-sdk",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 49,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DanielLMcGuire/nasa-images-cli",
+      "url": "https://github.com/DanielLMcGuire/nasa-images-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ProgramComputer/NASA-MCP-server",
+      "url": "https://github.com/ProgramComputer/NASA-MCP-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 88,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jezweb/nasa-mcp-server",
+      "url": "https://github.com/jezweb/nasa-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kaitoy/nasa-images-mcp-server",
+      "url": "https://github.com/kaitoy/nasa-images-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "abh80/nasa-api-wrapper",
+      "url": "https://github.com/abh80/nasa-api-wrapper",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scientific-dev/python-nasa-api",
+      "url": "https://github.com/scientific-dev/python-nasa-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T07:35:00Z",
+  "novel_features": [
+    {
+      "name": "Resumable album bulk download",
+      "command": "download album",
+      "description": "Bulk-download every asset in a curated NASA album with byte-range resume — re-runs pick up exactly where the last failed transfer left off.",
+      "rationale": "NASA's web UI offers no bulk-download; the Python nasa-images-cli restarts every failed file from byte zero. We use the /album/{name} + /asset/{id} pipeline plus a local downloads ledger to support real byte-range resume.",
+      "example": "nasa-images-pp-cli download album Apollo-at-50 --variant orig --resume --out ./apollo",
+      "why_it_matters": "When you need 200 NASA images for a deck or archive, this is the one command that finishes — flaky wifi, sleep-resume, mid-run cancellation all become non-events.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Caption text fetch",
+      "command": "captions fetch",
+      "description": "Returns the captions file CONTENT (.srt or .vtt), not just the URL — with an optional `--format text` mode that strips cue numbers and timecodes for readable transcripts.",
+      "rationale": "Every existing NIVL wrapper returns only the captions location URL. Editors and agents end up curl-ing the URL themselves. We follow the indirection and surface the text.",
+      "example": "nasa-images-pp-cli captions fetch jsc2022m000123 --format text --agent",
+      "why_it_matters": "Agents pulling NASA video captions for analysis, search, or quote-finding skip an extra HTTP call and a parse step.",
+      "group": "API indirections we follow for you"
+    },
+    {
+      "name": "Metadata sidecar with leak-field filter",
+      "command": "metadata fetch",
+      "description": "Follows the /metadata/{id} indirection, fetches the metadata.json sidecar, flattens AVAIL:* and EXIF fields, and drops internal-path leak fields (SourceFile, File:Directory, AVAIL:Owner).",
+      "rationale": "NASA's metadata indirection leaks the ingest server's tempfile path and the curator's login name. Every wrapper either returns the URL or pipes the noisy sidecar through. We clean it up.",
+      "example": "nasa-images-pp-cli metadata fetch PIA24439 --json --select AVAIL:Title,AVAIL:Photographer,AVAIL:DateCreated",
+      "why_it_matters": "Journalists and educators get the bylined photo credit (photographer + center + date) without scrubbing noise fields by hand.",
+      "group": "API indirections we follow for you"
+    },
+    {
+      "name": "Deterministic best-variant picker",
+      "command": "assets best",
+      "description": "Parses an asset's rendition manifest, classifies each file by variant (orig/large/medium/small/thumb), applies a caller preference order with optional byte ceiling, and prints exactly one URL.",
+      "rationale": "Agents currently compose /search + /asset/{id} + parse-prose-filenames to download a NASA image at a specific resolution. We collapse all of that into one deterministic command.",
+      "example": "nasa-images-pp-cli assets best as11-40-5874 --prefer orig,large,medium --max-bytes 5000000",
+      "why_it_matters": "Claude agents in MCP can ask for 'the best version of nasa_id X under 5 MB' and get exactly one URL — no token spend on parsing filenames.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local chronological FTS search (recent)",
+      "command": "recent",
+      "description": "FTS5 search over the synced local mirror (title, description, description_508, keywords, album), with chronological sort the upstream API doesn't expose.",
+      "rationale": "NASA's upstream search is keyword-only with no chronological sort (open issue nasa/api-docs#187, no maintainer response). Without a local mirror, finding the most recent assets on a topic is impossible.",
+      "example": "nasa-images-pp-cli recent --q \"perseverance\" --sort date-desc --limit 20 --json",
+      "why_it_matters": "When breaking news hits, you can pull the most recent NASA images on a topic in milliseconds — without paging through decades of archival results.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "NASA center profile",
+      "command": "center profile",
+      "description": "Local aggregation over the synced cache: counts by media_type, year-bucket histogram, top keywords, and top photographers for one of the 11 NASA centers.",
+      "rationale": "Each NASA center (JPL = Mars/outer planets, JSC = human spaceflight, KSC = launches, GSFC = Earth and Webb, etc.) has a distinct content profile. The API doesn't expose this aggregate — only the local mirror can.",
+      "example": "nasa-images-pp-cli center profile JPL --json",
+      "why_it_matters": "Journalists answer 'which center publishes this kind of image' before they search — saving search time on stories where a center is the obvious source.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unused-in-album anti-join",
+      "command": "unused-in",
+      "description": "Lists nasa_ids in a curated album that haven't been downloaded yet locally — anti-join against the downloads ledger.",
+      "rationale": "Educators and journalists building decks track 'used vs not used' in side notes today. The download command writes a ledger; this command queries it.",
+      "example": "nasa-images-pp-cli unused-in Apollo-at-50 --json",
+      "why_it_matters": "Plan next week's slides without picking the same image twice — without keeping a manual list of nasa_ids you've already used.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic timeline histogram",
+      "command": "timeline",
+      "description": "Local GROUP BY strftime('%Y-%m', date_created) over FTS-matched rows; prints month-bucket counts showing when a topic got coverage.",
+      "rationale": "The upstream API has no chronological surface. Asking 'when did Perseverance go quiet, then publish again?' is unanswerable without a local mirror.",
+      "example": "nasa-images-pp-cli timeline --q \"perseverance\" --bucket month --json",
+      "why_it_matters": "Spot publishing patterns — quiet months, new-release bursts — that surface story angles a keyword search hides.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Citation string generator",
+      "command": "citation",
+      "description": "Generates a ready-to-paste citation string (APA / MLA / Chicago) from cached metadata (photographer, date, center, nasa_id, URL).",
+      "rationale": "Journalists and educators hand-assemble citations from metadata.json today. A pure string template over a single metadata row covers every published style.",
+      "example": "nasa-images-pp-cli citation PIA24439 --style apa",
+      "why_it_matters": "Drop a NASA image in a piece and paste the citation underneath — no formatting by hand.",
+      "group": "Domain-specific shortcuts"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Resumable album bulk download",
+      "command": "download album",
+      "description": "Bulk-download every asset in a curated NASA album with byte-range resume — re-runs pick up exactly where the last failed transfer left off.",
+      "rationale": "NASA's web UI offers no bulk-download; the Python nasa-images-cli restarts every failed file from byte zero. We use the /album/{name} + /asset/{id} pipeline plus a local downloads ledger to support real byte-range resume.",
+      "example": "nasa-images-pp-cli download album Apollo-at-50 --variant orig --resume --out ./apollo",
+      "why_it_matters": "When you need 200 NASA images for a deck or archive, this is the one command that finishes — flaky wifi, sleep-resume, mid-run cancellation all become non-events.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Caption text fetch",
+      "command": "captions fetch",
+      "description": "Returns the captions file CONTENT (.srt or .vtt), not just the URL — with an optional `--format text` mode that strips cue numbers and timecodes for readable transcripts.",
+      "rationale": "Every existing NIVL wrapper returns only the captions location URL. Editors and agents end up curl-ing the URL themselves. We follow the indirection and surface the text.",
+      "example": "nasa-images-pp-cli captions fetch jsc2022m000123 --format text --agent",
+      "why_it_matters": "Agents pulling NASA video captions for analysis, search, or quote-finding skip an extra HTTP call and a parse step.",
+      "group": "API indirections we follow for you"
+    },
+    {
+      "name": "Metadata sidecar with leak-field filter",
+      "command": "metadata fetch",
+      "description": "Follows the /metadata/{id} indirection, fetches the metadata.json sidecar, flattens AVAIL:* and EXIF fields, and drops internal-path leak fields (SourceFile, File:Directory, AVAIL:Owner).",
+      "rationale": "NASA's metadata indirection leaks the ingest server's tempfile path and the curator's login name. Every wrapper either returns the URL or pipes the noisy sidecar through. We clean it up.",
+      "example": "nasa-images-pp-cli metadata fetch PIA24439 --json --select AVAIL:Title,AVAIL:Photographer,AVAIL:DateCreated",
+      "why_it_matters": "Journalists and educators get the bylined photo credit (photographer + center + date) without scrubbing noise fields by hand.",
+      "group": "API indirections we follow for you"
+    },
+    {
+      "name": "Deterministic best-variant picker",
+      "command": "assets best",
+      "description": "Parses an asset's rendition manifest, classifies each file by variant (orig/large/medium/small/thumb), applies a caller preference order with optional byte ceiling, and prints exactly one URL.",
+      "rationale": "Agents currently compose /search + /asset/{id} + parse-prose-filenames to download a NASA image at a specific resolution. We collapse all of that into one deterministic command.",
+      "example": "nasa-images-pp-cli assets best as11-40-5874 --prefer orig,large,medium --max-bytes 5000000",
+      "why_it_matters": "Claude agents in MCP can ask for 'the best version of nasa_id X under 5 MB' and get exactly one URL — no token spend on parsing filenames.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local chronological FTS search (recent)",
+      "command": "recent",
+      "description": "FTS5 search over the synced local mirror (title, description, description_508, keywords, album), with chronological sort the upstream API doesn't expose.",
+      "rationale": "NASA's upstream search is keyword-only with no chronological sort (open issue nasa/api-docs#187, no maintainer response). Without a local mirror, finding the most recent assets on a topic is impossible.",
+      "example": "nasa-images-pp-cli recent --q \"perseverance\" --sort date-desc --limit 20 --json",
+      "why_it_matters": "When breaking news hits, you can pull the most recent NASA images on a topic in milliseconds — without paging through decades of archival results.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "NASA center profile",
+      "command": "center profile",
+      "description": "Local aggregation over the synced cache: counts by media_type, year-bucket histogram, top keywords, and top photographers for one of the 11 NASA centers.",
+      "rationale": "Each NASA center (JPL = Mars/outer planets, JSC = human spaceflight, KSC = launches, GSFC = Earth and Webb, etc.) has a distinct content profile. The API doesn't expose this aggregate — only the local mirror can.",
+      "example": "nasa-images-pp-cli center profile JPL --json",
+      "why_it_matters": "Journalists answer 'which center publishes this kind of image' before they search — saving search time on stories where a center is the obvious source.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unused-in-album anti-join",
+      "command": "unused-in",
+      "description": "Lists nasa_ids in a curated album that haven't been downloaded yet locally — anti-join against the downloads ledger.",
+      "rationale": "Educators and journalists building decks track 'used vs not used' in side notes today. The download command writes a ledger; this command queries it.",
+      "example": "nasa-images-pp-cli unused-in Apollo-at-50 --json",
+      "why_it_matters": "Plan next week's slides without picking the same image twice — without keeping a manual list of nasa_ids you've already used.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic timeline histogram",
+      "command": "timeline",
+      "description": "Local GROUP BY strftime('%Y-%m', date_created) over FTS-matched rows; prints month-bucket counts showing when a topic got coverage.",
+      "rationale": "The upstream API has no chronological surface. Asking 'when did Perseverance go quiet, then publish again?' is unanswerable without a local mirror.",
+      "example": "nasa-images-pp-cli timeline --q \"perseverance\" --bucket month --json",
+      "why_it_matters": "Spot publishing patterns — quiet months, new-release bursts — that surface story angles a keyword search hides.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Citation string generator",
+      "command": "citation",
+      "description": "Generates a ready-to-paste citation string (APA / MLA / Chicago) from cached metadata (photographer, date, center, nasa_id, URL).",
+      "rationale": "Journalists and educators hand-assemble citations from metadata.json today. A pure string template over a single metadata row covers every published style.",
+      "example": "nasa-images-pp-cli citation PIA24439 --style apa",
+      "why_it_matters": "Drop a NASA image in a piece and paste the citation underneath — no formatting by hand.",
+      "group": "Domain-specific shortcuts"
+    }
+  ],
+  "narrative": {
+    "display_name": "NASA Image and Video Library",
+    "headline": "Every NASA Image and Video Library endpoint, plus a local SQLite mirror, FTS search, resumable bulk download, caption text extraction, and an agent-native MCP surface no other tool offers.",
+    "value_prop": "The official NASA Image and Video Library exposes five endpoints but no Go CLI covers all of them, and none of the existing wrappers go past returning JSON. nasa-images-pp-cli adds a local SQLite mirror with FTS5 search, byte-range resumable album downloads, caption text extraction (not just URLs), deterministic best-variant picking for agents, and a typed MCP server — every command works offline once synced, and every command pipes cleanly to jq.",
+    "quickstart": [
+      {
+        "command": "nasa-images-pp-cli media --q \"perseverance rover\" --media-type image --year-start 2024 --json",
+        "comment": "search the live API with all the filters NASA exposes"
+      },
+      {
+        "command": "nasa-images-pp-cli assets best PIA26345 --prefer orig,large --max-bytes 5000000",
+        "comment": "get exactly one URL for the best variant under a size cap — no manifest parsing"
+      },
+      {
+        "command": "nasa-images-pp-cli download album Mars-Perseverance --variant orig --resume --out ./mars",
+        "comment": "bulk-download a curated album with byte-range resume; re-runs pick up where they left off"
+      },
+      {
+        "command": "nasa-images-pp-cli mirror search --q \"webb\" --year-start 2022",
+        "comment": "populate the local SQLite mirror for offline FTS search via mirror search and timeline queries"
+      },
+      {
+        "command": "nasa-images-pp-cli recent --q \"deep field\" --sort date-desc --limit 10",
+        "comment": "chronologically-sorted FTS search NASA's upstream API doesn't offer"
+      },
+      {
+        "command": "nasa-images-pp-cli captions fetch jsc2022m000123 --format text",
+        "comment": "actual caption text, not the .srt URL every other wrapper stops at"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results from media list",
+        "fix": "Check spelling and try a broader --q; the upstream API uses keyword matching only. For breaking-news content, run `mirror search --q \u003ctopic\u003e` first then use `recent --sort date-desc`."
+      },
+      {
+        "symptom": "404 from album get",
+        "fix": "Album names are exactly case-sensitive — `Apollo-at-50` works, `apollo-at-50` does not. Discover album names from search results' `data[].album` field."
+      },
+      {
+        "symptom": "400 from captions fetch with mediatype=image error",
+        "fix": "Captions only exist for video assets. Run `assets get \u003cnasa_id\u003e` first to confirm media_type=video."
+      },
+      {
+        "symptom": "metadata fetch returns AVAIL:Owner or SourceFile fields",
+        "fix": "Upgrade — current version filters these leak fields by default. The upstream sidecar still leaks them, but our metadata fetch strips them."
+      },
+      {
+        "symptom": "Download interrupted mid-album",
+        "fix": "Re-run the same `download album` command with `--resume`. The local downloads ledger tracks per-file progress, and in-flight files resume from the last completed byte."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or workflow needs deterministic access to NASA's public-domain media archive — image search, asset rendition picking, caption extraction, bulk album archiving — without parsing prose. The local SQLite mirror makes repeat queries free and unlocks chronological/topic-timeline analyses the upstream API doesn't support. The MCP surface gives Claude agents typed tools for every endpoint plus the novel composed commands (assets best, captions fetch text, citation, etc.).",
+    "recipes": [
+      {
+        "title": "Find a recent Mars image and pick the best variant",
+        "command": "nasa-images-pp-cli media --q \"mars rover\" --year-start 2024 --media-type image --page-size 5 --json --select 'collection.items.data.nasa_id,collection.items.data.title'",
+        "explanation": "Lists recent Mars rover images; pick a nasa_id and pass it to `assets best` for the best variant URL."
+      },
+      {
+        "title": "Archive a full curated album",
+        "command": "nasa-images-pp-cli download album Webb-Telescope-First-Images --variant large --resume --out ./webb-firsts",
+        "explanation": "Walks every page of the album, fetches the asset manifest per item, then byte-range-resumes each variant download."
+      },
+      {
+        "title": "Pull a video transcript",
+        "command": "nasa-images-pp-cli captions fetch jsc2022m000123 --format text \u003e webb-deployment.txt",
+        "explanation": "Caption indirection is two GETs; --format text strips SRT cue numbers for clean transcripts."
+      },
+      {
+        "title": "Build an offline FTS search index",
+        "command": "nasa-images-pp-cli mirror search --q \"apollo\" --year-start 1968 --year-end 1975 \u0026\u0026 nasa-images-pp-cli recent --q \"bootprint\" --sort date-desc --json --select 'nasa_id,title,date_created'",
+        "explanation": "sync populates the SQLite mirror; search local uses FTS5 and adds chronological sort NASA's upstream search doesn't expose."
+      },
+      {
+        "title": "Generate an APA citation",
+        "command": "nasa-images-pp-cli citation PIA24439 --style apa",
+        "explanation": "Pulls the metadata sidecar (cached or live) and formats a ready-to-paste citation string."
+      }
+    ],
+    "trigger_phrases": [
+      "NASA images",
+      "NASA image library",
+      "images.nasa.gov",
+      "NASA Apollo photos",
+      "Mars rover images",
+      "NASA video captions",
+      "download NASA images",
+      "use nasa-images",
+      "run nasa-images"
+    ]
+  }
+}

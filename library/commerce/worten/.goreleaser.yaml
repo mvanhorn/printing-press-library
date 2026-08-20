@@ -1,0 +1,51 @@
+version: 2
+project_name: worten-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: worten-pp-cli
+    main: ./cmd/worten-pp-cli
+    binary: worten-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/worten/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: worten-pp-mcp
+    main: ./cmd/worten-pp-mcp
+    binary: worten-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: worten-pp-cli
+    repository:
+      owner: asantos00
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Local OpenAPI seed extracted from the working housebuy Worten CLI."
+    install: |
+      bin.install "worten-pp-cli"
+      bin.install "worten-pp-mcp"

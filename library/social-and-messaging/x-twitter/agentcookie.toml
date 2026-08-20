@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "x-twitter-pp-cli"
+display_name = "X (Twitter)"
+description = "The only X CLI with an offline, searchable local mirror — full-text search and SQL over your archived posts without re-spending per-read API credits — plus a full-surface MCP server and honest tier/reachability diagnostics."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/x-twitter-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+X_BEARER_TOKEN = true
+X_OAUTH2_USER_TOKEN = true

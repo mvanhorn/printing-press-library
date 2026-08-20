@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "feat-per-site-sensor-capabilities",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "New `capabilities` subcommand (get/set/clear) backed by a site_capabilities table; chemistry/status/telemetry/sweep/ready-by all project telemetry through per-site capabilities so absent sensors do not false-positive verdicts.",
+  "reason": "Hayward returns -1/null for absent sensors, and without per-site configuration the CLI can't distinguish 'sensor missing entirely' from 'sensor offline right now'. Before this feature, status on a healthy pre-season pool with no chemistry probes reported verdict='caution' (false positive from null chemistry); sweep over multiple sites emitted chemistry_verdict='unknown' forever and bumped priority on otherwise-healthy installs. Schema bumped 1->2 to add site_capabilities (HasPH/HasORP/HasSalt/TempNeedsFlow). AssumeAllEquipped() preserves backward compatibility — when no row exists, every sensor is assumed present, matching the most common OmniLogic install. Verdict logic in buildChemistryForBow now omits unequipped sensors from output and verdict math; when all chemistry sensors are unequipped, drops to verdict='not_equipped' instead of misleading 'unknown'. Water-temp -1 with TempNeedsFlow=true and no pump running is labelled temp_state='n/a-pump-off' (expected silence-while-idle), and with pump running it stays 'offline' (real failure). chemistry get/status emit a setup_hint to stderr when no capability row is configured.",
+  "files": [
+    "internal/cli/capabilities.go",
+    "internal/store/capabilities.go",
+    "internal/store/capabilities_test.go",
+    "internal/omnilogic/types.go",
+    "internal/cli/omnilogic_commands.go",
+    "internal/cli/root.go",
+    "internal/cli/transcendence.go",
+    "internal/store/store.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live-verified against the printer's pool: capabilities set --has-ph false --has-orp false --has-salt false --temp-needs-flow true flips status verdict from caution to ok with temp_state='n/a-pump-off' while the pump is idle. Five regression tests in capabilities_test.go cover round-trip / update / clear / AssumeAllEquipped default."
+}

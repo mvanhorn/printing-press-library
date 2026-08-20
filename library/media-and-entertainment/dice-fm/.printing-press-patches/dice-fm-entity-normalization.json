@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-entity-normalization",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "date": "2026-05-27",
+  "summary": "Hand-authored entity-normalization subsystem: `normalize` (+ `stats`, `recommend`) canonicalizes free-text ticket-type and venue names into structured axes in a parallel, re-runnable local store.",
+  "reason": "The generator emits only spec-driven resource commands; DICE's manually-entered ticket-type and venue strings need canonicalization to power cross-event joins and `revenue summary --by-axis`. None of this is derivable from the GraphQL spec.",
+  "files": [
+    "internal/cli/normalize_cmd.go",
+    "internal/cli/normalize_engine.go",
+    "internal/cli/normalize_pipeline.go",
+    "internal/cli/normalize_classify.go",
+    "internal/cli/normalize_canon.go",
+    "internal/cli/normalize_axes.go",
+    "internal/cli/normalize_rules.go",
+    "internal/cli/normalize_recommend.go",
+    "internal/cli/normalize_import.go",
+    "internal/cli/normalize_starter.go",
+    "internal/cli/normalize_starter.yaml",
+    "internal/cli/root.go"
+  ],
+  "notes": "Parallel and re-runnable: raw synced data is never modified and resolved mappings stay local. `normalize` is intentionally NOT annotated mcp:read-only (it writes the local store); `normalize stats` is read-only and carries the annotation. `normalize recommend` profiles the store and emits a starter config. Read-only annotation discipline confirmed during the 2026-05-27 MCP audit. API-specific value-add, not a generator gap."
+}

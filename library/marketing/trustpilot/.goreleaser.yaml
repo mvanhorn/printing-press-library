@@ -1,0 +1,51 @@
+version: 2
+project_name: trustpilot-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: trustpilot-pp-cli
+    main: ./cmd/trustpilot-pp-cli
+    binary: trustpilot-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/trustpilot/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: trustpilot-pp-mcp
+    main: ./cmd/trustpilot-pp-mcp
+    binary: trustpilot-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: trustpilot-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other..."
+    install: |
+      bin.install "trustpilot-pp-cli"
+      bin.install "trustpilot-pp-mcp"

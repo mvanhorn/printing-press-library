@@ -1,0 +1,259 @@
+name: coffee-goat
+display_name: "Coffee GOAT"
+description: "The third-wave coffee terminal: every elite roaster, every YouTube creator review, your brews, and the God cup."
+cli_description: "The third-wave coffee terminal — search across roasters, lookup Hoffmann/Hedrick clips, map your SCA flavor wheel, recommend bags for friends, and let the God cup recommender pick your next pour."
+kind: synthetic
+spec_source: community
+http_transport: standard
+version: "0.1.0"
+base_url: "https://coffee-goat.local"
+website_url: "https://github.com/justinwfu/coffee-goat-pp-cli"
+category: food-and-dining
+owner: justinwfu
+owner_name: "Justin Fu"
+printer: justinwfu
+printer_name: "Justin Fu"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/coffee-goat/config.toml"
+
+# Anchor resource: the unified Product corpus. Synthetic — every command
+# that touches roaster_products is hand-authored against the local store
+# rather than emitted from the spec. The list endpoint exists so the
+# generator has a structural anchor for the store/types layer.
+resources:
+  products:
+    description: "Unified roaster product corpus synced from 24 specialty coffee roasters"
+    endpoints:
+      list:
+        method: GET
+        path: "/products"
+        description: "List synced roaster products with structured filters"
+        params:
+          - name: roaster
+            type: string
+            description: "Filter by roaster slug"
+          - name: origin
+            type: string
+            description: "Filter by origin country (e.g. Ethiopia, Colombia, Kenya)"
+          - name: process
+            type: string
+            description: "Filter by process (washed, natural, anaerobic, honey)"
+          - name: in_stock
+            type: bool
+            description: "Show only beans currently in stock"
+          - name: limit
+            type: int
+            description: "Maximum rows to return"
+        response:
+          type: array
+          item: Product
+
+types:
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: roaster
+        type: string
+      - name: title
+        type: string
+      - name: handle
+        type: string
+      - name: vendor
+        type: string
+      - name: product_type
+        type: string
+      - name: origin
+        type: string
+      - name: region
+        type: string
+      - name: producer
+        type: string
+      - name: process
+        type: string
+      - name: varietal
+        type: string
+      - name: altitude_m_min
+        type: int
+      - name: altitude_m_max
+        type: int
+      - name: roast_level
+        type: string
+      - name: tags
+        type: string
+      - name: price_cents
+        type: int
+      - name: currency
+        type: string
+      - name: weight_g
+        type: int
+      - name: url
+        type: string
+      - name: image_url
+        type: string
+      - name: in_stock
+        type: bool
+      - name: body_text
+        type: string
+      - name: published_at
+        type: string
+      - name: updated_at
+        type: string
+
+  Roaster:
+    fields:
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: country
+        type: string
+      - name: website
+        type: string
+      - name: sync_url
+        type: string
+      - name: source_tier
+        type: string
+      - name: transport
+        type: string
+      - name: last_synced_at
+        type: string
+
+  Bean:
+    fields:
+      - name: id
+        type: string
+      - name: product_id
+        type: string
+      - name: roaster
+        type: string
+      - name: name
+        type: string
+      - name: roast_date
+        type: string
+      - name: purchase_date
+        type: string
+      - name: purchase_price_cents
+        type: int
+      - name: current_mass_g
+        type: int
+      - name: rating
+        type: int
+      - name: notes
+        type: string
+
+  Brew:
+    fields:
+      - name: id
+        type: string
+      - name: bean_id
+        type: string
+      - name: method
+        type: string
+      - name: grind
+        type: string
+      - name: dose_g
+        type: int
+      - name: yield_g
+        type: int
+      - name: time_s
+        type: int
+      - name: temperature_c
+        type: int
+      - name: water_tds_ppm
+        type: int
+      - name: rating
+        type: int
+      - name: notes
+        type: string
+      - name: brewed_at
+        type: string
+
+  Watch:
+    fields:
+      - name: id
+        type: string
+      - name: query
+        type: string
+      - name: filters_json
+        type: string
+      - name: last_sync_anchor
+        type: string
+
+  Review:
+    fields:
+      - name: id
+        type: string
+      - name: product_id
+        type: string
+      - name: roaster
+        type: string
+      - name: bean_name
+        type: string
+      - name: score
+        type: int
+      - name: descriptors_json
+        type: string
+      - name: reviewer
+        type: string
+      - name: published_at
+        type: string
+
+  Producer:
+    fields:
+      - name: name
+        type: string
+      - name: country
+        type: string
+      - name: region
+        type: string
+      - name: first_seen_at
+        type: string
+
+# All hand-written novel-feature commands declared so SKILL.md documents
+# them. The actual Cobra commands are hand-authored in internal/cli/ during
+# Phase 3 — none of these are code-generated.
+extra_commands:
+  # Vertical-slice transcendence commands (Phase 3 — actually shipped).
+  # 14 more transcendence commands and 7 more source adapters are documented
+  # in proofs/<run-id>-fix-coffee-goat-pp-cli-handoff.md and deferred.
+
+  - name: search
+    description: "Cross-roaster FTS5 search over the synced roaster_products corpus"
+    args: "[query] [--in-stock] [--origin <s>] [--process <s>] [--price-lt <cents>] [--limit <N>]"
+  - name: watch save
+    description: "Save a cross-roaster query that emits only new matches on subsequent runs"
+    args: "<name> <query>"
+  - name: watch list
+    description: "List saved watch queries with last-sync-anchor"
+  - name: watch run
+    description: "Run a saved (or all) watch queries; emits only newly-arrived matching products"
+    args: "[<name>]"
+  - name: twin
+    description: "Find the closest match to a bean across all roasters via attribute + descriptor similarity"
+    args: "<roaster-or-product-slug> [--top <N>]"
+  - name: creator-review
+    description: "Lookup Hoffmann/Hedrick YouTube clips mentioning a bean or roaster (with transcript excerpts)"
+    args: "<bean-or-roaster-slug>"
+  - name: flavor-wheel
+    description: "Map your rated brews onto the official SCA Coffee Tasters' Flavor Wheel hierarchy"
+  - name: friend-pick palate-export
+    description: "Export a portable JSON palate profile derived from your brews + ratings + descriptors"
+    args: "<name> --out <file>"
+  - name: friend-pick palate-import
+    description: "Import a friend's palate profile into the local store"
+    args: "<file>"
+  - name: friend-pick pick
+    description: "Recommend bags ranked against an imported friend's palate signature (not yours)"
+    args: "<name> [--from market|shelf] [--top <N>]"
+  - name: god-cup
+    description: "Headline meta-recommendation: one brew pick from your shelf + one buy pick across the market, integrating shelf freshness, brew history, Coffee Review scores, and creator coverage"
+    args: "[--method espresso|v60|aeropress|...]"
+
+mcp:
+  transport: [stdio, http]

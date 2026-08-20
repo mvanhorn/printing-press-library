@@ -1,0 +1,11 @@
+{
+  "version": 0,
+  "api_name": "coffee-goat",
+  "run_id": "20260520-110818",
+  "scope": "cli-printing-press-c68cda0c",
+  "output_dir": "/Users/justinfu/printing-press/.runstate/cli-printing-press-c68cda0c/runs/20260520-110818/working/coffee-goat-pp-cli",
+  "working_dir": "/Users/justinfu/printing-press/library/coffee-goat",
+  "published_dir": "/Users/justinfu/printing-press/library/coffee-goat",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": {}
+}

@@ -1,0 +1,322 @@
+{
+  "api_name": "sec-edgar",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "edgartools",
+      "url": "https://github.com/dgunning/edgartools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sec-edgar-mcp",
+      "url": "https://github.com/stefanoamorelli/sec-edgar-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "secedgar",
+      "url": "https://github.com/sec-edgar/sec-edgar",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sec-api-python",
+      "url": "https://github.com/janlukasschroeder/sec-api-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sec-edgar-toolkit",
+      "url": "https://github.com/stefanoamorelli/sec-edgar-toolkit",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bellingcat-edgar",
+      "url": "https://github.com/bellingcat/EDGAR",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tumarkin-edgar",
+      "url": "https://github.com/tumarkin/edgar",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T18:14:00Z",
+  "novel_features": [
+    {
+      "name": "Coverage-list 8-K item pivot",
+      "command": "watchlist items",
+      "description": "Across a saved watchlist of CIKs, surface 8-Ks filed in the window grouped by Item code (2.05 restructuring, 5.02 exec change, 4.02 non-reliance).",
+      "rationale": "Joins the local filings table with an in-CLI watchlist file. No single SEC endpoint does cross-CIK + Item-code pivot.",
+      "example": "sec-edgar-pp-cli watchlist items --since 30d --item 2.05,5.02,4.02 --cik 0000320193,0000789019,0001652044 --json",
+      "why_it_matters": "Equity analysts triage filings by Item code, not by company. Pick this when an agent needs cross-company 8-K filtering by Item.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Insider cluster detector",
+      "command": "insider-cluster",
+      "description": "Flag issuers where 3+ distinct insiders filed Form 4 with the same transaction code (open-market buy or sale) within a rolling N-day window.",
+      "rationale": "Requires a SQL self-join over the local insider_txns table grouped by issuer with HAVING COUNT(DISTINCT insider). Form 4 endpoints give the rows; the cluster is the JOIN.",
+      "example": "sec-edgar-pp-cli insider-cluster --within 5d --min-insiders 3 --code S --since 90d --json",
+      "why_it_matters": "Clustered insider selling is a textbook forensic signal. Pick this when an agent needs derived signals over raw Form 4 data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live filing watch with filters",
+      "command": "watch",
+      "description": "Stream the SEC Atom getcurrent feed with multi-dimensional filtering: form type, 8-K item, CIK watchlist, and keyword regex. Emits one NDJSON line per match.",
+      "rationale": "sec-api offers a paid raw filing stream; no free competitor combines multi-dimensional filters with structured output. Polls Atom feed locally; verify-safe via PRINTING_PRESS_VERIFY env-var.",
+      "example": "sec-edgar-pp-cli watch --form 8-K --item 2.05 --cik 0000320193,0000789019 --keyword 'going concern' --one-shot --json",
+      "why_it_matters": "Agents that monitor for specific filing events should subscribe to this stream rather than polling submissions per CIK.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "XBRL peer-group bench",
+      "command": "industry-bench",
+      "description": "Take an XBRL concept for one reporting period, group by SIC code, and emit percentile statistics (p10/p50/p90) across every public-company filer in that SIC.",
+      "rationale": "JOIN xbrl_facts ON companies.sic; compute percentiles in-process. XBRL frames feeds the rows but offers no SIC grouping. Competitors stop at the raw frame call.",
+      "example": "sec-edgar-pp-cli industry-bench --tag us-gaap:Revenues --period CY2024Q4 --sic 7372 --stat p50,p90 --json",
+      "why_it_matters": "Quant researchers and equity analysts need peer-group benchmarks. Pick this when an agent should answer 'how does X compare to its industry peers'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-section concept across companies",
+      "command": "cross-section",
+      "description": "Pivot a single XBRL concept across an explicit company list and the last N reporting periods. Output as a wide pivot table (one row per company, one column per period).",
+      "rationale": "SELECT cik, period, value FROM xbrl_facts WHERE tag=? AND cik IN(?) ORDER BY cik, period. edgartools covers one company × all periods; frames covers all companies × one period; neither does both axes constrained at once.",
+      "example": "sec-edgar-pp-cli cross-section --tag us-gaap:Revenues --ticker AAPL,MSFT,GOOGL --periods last8 --json",
+      "why_it_matters": "Comp-set analysis is one of the highest-frequency analyst rituals. Pick this when an agent compares fundamentals across an explicit ticker list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restatement / non-reliance scanner",
+      "command": "restatements",
+      "description": "Surface 8-K Item 4.02 (non-reliance on prior financials) plus all 10-K/A and 10-Q/A amendments filed in the window — the textbook accounting-irregularity signal.",
+      "rationale": "SELECT WHERE (form='8-K' AND items LIKE '%4.02%') OR form LIKE '%/A' AND filed \u003e= cursor. No competitor surfaces this as a first-class command — it requires knowing the Item code + the amendment-form list.",
+      "example": "sec-edgar-pp-cli restatements --since 90d --json",
+      "why_it_matters": "Forensic accounting agents look for restatements as a leading indicator of trouble. Pick this when an agent needs accounting-quality signals.",
+      "group": "SEC-specific signals"
+    },
+    {
+      "name": "Late filer scanner",
+      "command": "late-filers",
+      "description": "Find issuers that filed an NT 10-K, NT 10-Q, or NT 20-F in the window — the SEC's 'I'm going to miss my reporting deadline' notification.",
+      "rationale": "SELECT WHERE form IN ('NT 10-K','NT 10-Q','NT 20-F') AND filed \u003e= cursor; JOIN companies for name+SIC. bellingcat/EDGAR can search but no competitor surfaces NT-form as first-class.",
+      "example": "sec-edgar-pp-cli late-filers --since 90d --form 10-K --json",
+      "why_it_matters": "Late filings are leading indicators of operational or accounting trouble. Pick this when an agent needs to flag at-risk companies.",
+      "group": "SEC-specific signals"
+    },
+    {
+      "name": "13F holdings delta",
+      "command": "holdings delta",
+      "description": "Diff an institutional investor's 13F holdings across two consecutive quarters. Categorize each issuer as ADD / EXIT / INCREASE / DECREASE with share-count delta.",
+      "rationale": "LEFT JOIN holdings_13f current vs prior on (filer, issuer). sec-api/edgartools require hand-rolled diff in Python; no competing tool does it as a single command.",
+      "example": "sec-edgar-pp-cli holdings delta --filer-cik 0001067983 --period 2024Q4 --vs 2024Q3 --json",
+      "why_it_matters": "Tracking institutional money flow is a classic factor signal. Pick this when an agent compares a fund's positioning across quarters.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Coverage-list 8-K item pivot",
+      "command": "watchlist items",
+      "description": "Across a saved watchlist of CIKs, surface 8-Ks filed in the window grouped by Item code (2.05 restructuring, 5.02 exec change, 4.02 non-reliance).",
+      "rationale": "Joins the local filings table with an in-CLI watchlist file. No single SEC endpoint does cross-CIK + Item-code pivot.",
+      "example": "sec-edgar-pp-cli watchlist items --since 30d --item 2.05,5.02,4.02 --cik 0000320193,0000789019,0001652044 --json",
+      "why_it_matters": "Equity analysts triage filings by Item code, not by company. Pick this when an agent needs cross-company 8-K filtering by Item.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Insider cluster detector",
+      "command": "insider-cluster",
+      "description": "Flag issuers where 3+ distinct insiders filed Form 4 with the same transaction code (open-market buy or sale) within a rolling N-day window.",
+      "rationale": "Requires a SQL self-join over the local insider_txns table grouped by issuer with HAVING COUNT(DISTINCT insider). Form 4 endpoints give the rows; the cluster is the JOIN.",
+      "example": "sec-edgar-pp-cli insider-cluster --within 5d --min-insiders 3 --code S --since 90d --json",
+      "why_it_matters": "Clustered insider selling is a textbook forensic signal. Pick this when an agent needs derived signals over raw Form 4 data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live filing watch with filters",
+      "command": "watch",
+      "description": "Stream the SEC Atom getcurrent feed with multi-dimensional filtering: form type, 8-K item, CIK watchlist, and keyword regex. Emits one NDJSON line per match.",
+      "rationale": "sec-api offers a paid raw filing stream; no free competitor combines multi-dimensional filters with structured output. Polls Atom feed locally; verify-safe via PRINTING_PRESS_VERIFY env-var.",
+      "example": "sec-edgar-pp-cli watch --form 8-K --item 2.05 --cik 0000320193,0000789019 --keyword 'going concern' --one-shot --json",
+      "why_it_matters": "Agents that monitor for specific filing events should subscribe to this stream rather than polling submissions per CIK.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "XBRL peer-group bench",
+      "command": "industry-bench",
+      "description": "Take an XBRL concept for one reporting period, group by SIC code, and emit percentile statistics (p10/p50/p90) across every public-company filer in that SIC.",
+      "rationale": "JOIN xbrl_facts ON companies.sic; compute percentiles in-process. XBRL frames feeds the rows but offers no SIC grouping. Competitors stop at the raw frame call.",
+      "example": "sec-edgar-pp-cli industry-bench --tag us-gaap:Revenues --period CY2024Q4 --sic 7372 --stat p50,p90 --json",
+      "why_it_matters": "Quant researchers and equity analysts need peer-group benchmarks. Pick this when an agent should answer 'how does X compare to its industry peers'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-section concept across companies",
+      "command": "cross-section",
+      "description": "Pivot a single XBRL concept across an explicit company list and the last N reporting periods. Output as a wide pivot table (one row per company, one column per period).",
+      "rationale": "SELECT cik, period, value FROM xbrl_facts WHERE tag=? AND cik IN(?) ORDER BY cik, period. edgartools covers one company × all periods; frames covers all companies × one period; neither does both axes constrained at once.",
+      "example": "sec-edgar-pp-cli cross-section --tag us-gaap:Revenues --ticker AAPL,MSFT,GOOGL --periods last8 --json",
+      "why_it_matters": "Comp-set analysis is one of the highest-frequency analyst rituals. Pick this when an agent compares fundamentals across an explicit ticker list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restatement / non-reliance scanner",
+      "command": "restatements",
+      "description": "Surface 8-K Item 4.02 (non-reliance on prior financials) plus all 10-K/A and 10-Q/A amendments filed in the window — the textbook accounting-irregularity signal.",
+      "rationale": "SELECT WHERE (form='8-K' AND items LIKE '%4.02%') OR form LIKE '%/A' AND filed \u003e= cursor. No competitor surfaces this as a first-class command — it requires knowing the Item code + the amendment-form list.",
+      "example": "sec-edgar-pp-cli restatements --since 90d --json",
+      "why_it_matters": "Forensic accounting agents look for restatements as a leading indicator of trouble. Pick this when an agent needs accounting-quality signals.",
+      "group": "SEC-specific signals"
+    },
+    {
+      "name": "Late filer scanner",
+      "command": "late-filers",
+      "description": "Find issuers that filed an NT 10-K, NT 10-Q, or NT 20-F in the window — the SEC's 'I'm going to miss my reporting deadline' notification.",
+      "rationale": "SELECT WHERE form IN ('NT 10-K','NT 10-Q','NT 20-F') AND filed \u003e= cursor; JOIN companies for name+SIC. bellingcat/EDGAR can search but no competitor surfaces NT-form as first-class.",
+      "example": "sec-edgar-pp-cli late-filers --since 90d --form 10-K --json",
+      "why_it_matters": "Late filings are leading indicators of operational or accounting trouble. Pick this when an agent needs to flag at-risk companies.",
+      "group": "SEC-specific signals"
+    },
+    {
+      "name": "13F holdings delta",
+      "command": "holdings delta",
+      "description": "Diff an institutional investor's 13F holdings across two consecutive quarters. Categorize each issuer as ADD / EXIT / INCREASE / DECREASE with share-count delta.",
+      "rationale": "LEFT JOIN holdings_13f current vs prior on (filer, issuer). sec-api/edgartools require hand-rolled diff in Python; no competing tool does it as a single command.",
+      "example": "sec-edgar-pp-cli holdings delta --filer-cik 0001067983 --period 2024Q4 --vs 2024Q3 --json",
+      "why_it_matters": "Tracking institutional money flow is a classic factor signal. Pick this when an agent compares a fund's positioning across quarters.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "SEC EDGAR",
+    "headline": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline.",
+    "value_prop": "An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts.sec.gov full-text search, and the live Atom feed. The synced SQLite store enables joins no single SEC endpoint supports: insider-cluster detection across issuers, XBRL peer-group benchmarks by SIC, 13F holdings deltas across quarters, and live filing watches with multi-dimensional filters. All free — SEC provides no API key, just a mandatory User-Agent header.",
+    "auth_narrative": "SEC EDGAR requires no API key. Every request must include a User-Agent header naming a human and contact email (e.g. 'Alex Researcher alex@example.com'). Set SEC_EDGAR_USER_AGENT in your environment; the CLI refuses to run without it. The SEC enforces a 10-req/sec rate cap per host; this CLI caps itself at 8 req/sec with jitter.",
+    "quickstart": [
+      {
+        "command": "sec-edgar-pp-cli doctor",
+        "comment": "Confirm the User-Agent is set and SEC hosts are reachable."
+      },
+      {
+        "command": "sec-edgar-pp-cli companies lookup AAPL --json",
+        "comment": "Resolve a ticker to its CIK from the local company-ticker map."
+      },
+      {
+        "command": "sec-edgar-pp-cli filings list --cik 0000320193 --form 10-K --limit 5 --json",
+        "comment": "Apple's last five 10-Ks from the synced submissions store."
+      },
+      {
+        "command": "sec-edgar-pp-cli facts statement --cik 0000320193 --kind income --periods last4 --json",
+        "comment": "Apple's last four quarters of income-statement XBRL facts."
+      },
+      {
+        "command": "sec-edgar-pp-cli insider-cluster --within 5d --min-insiders 3 --code S --since 30d --json",
+        "comment": "Flag issuers with 3+ insiders selling in any 5-day window over the last 30 days."
+      },
+      {
+        "command": "sec-edgar-pp-cli watch --form 8-K --item 2.05 --keyword 'going concern' --json",
+        "comment": "Stream live filings matching multi-dim filters as NDJSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 from data.sec.gov",
+        "fix": "The User-Agent header is missing or generic. Set SEC_EDGAR_USER_AGENT='Your Name your@email.com' and retry."
+      },
+      {
+        "symptom": "HTTP 429 (rate-limited)",
+        "fix": "Reduce concurrency. The CLI caps at 8 req/sec by default; --concurrency 4 halves it. Sync commands resume from cursor."
+      },
+      {
+        "symptom": "CIK not found",
+        "fix": "CIKs are 10 digits with leading zeros. Use 'companies lookup \u003cticker\u003e' to resolve; the CLI also accepts un-padded CIKs and pads them."
+      },
+      {
+        "symptom": "Empty 'facts company' output for a known filer",
+        "fix": "Not all filers report XBRL (e.g. older filings, foreign private issuers using 20-F). 'filings list' shows what they did file."
+      }
+    ],
+    "when_to_use": "Pick this CLI when an agent needs to query SEC filings, XBRL financial facts, insider trading (Form 4), or institutional holdings (13F) across many companies or many periods — anything that benefits from a local SQLite store rather than a per-call API roundtrip. For one-off single-filing reads, the typed endpoint mirrors (filings get, facts get) work without sync. For cross-company pivots, insider clustering, peer-group benchmarks, or live filing watches, the transcendence commands turn what would be ten API calls + a Python loop into one CLI invocation.",
+    "recipes": [
+      {
+        "title": "Apple income-statement trend, agent-friendly",
+        "command": "sec-edgar-pp-cli facts statement --cik 0000320193 --kind income --periods last8 --agent --select 'facts.us-gaap.Revenues,facts.us-gaap.OperatingIncomeLoss,facts.us-gaap.NetIncomeLoss'",
+        "explanation": "XBRL responses are deeply nested; --select with dotted paths picks only the three concepts the agent needs across the last 8 periods."
+      },
+      {
+        "title": "Cluster-buying watchlist scan",
+        "command": "sec-edgar-pp-cli insider-cluster --within 14d --min-insiders 3 --code P --since 90d --json",
+        "explanation": "Open-market insider buying (Form 4 code P) clustered across 3+ insiders in 14 days, last 90 days. The store-backed JOIN is what makes this one command."
+      },
+      {
+        "title": "Quarterly comp-set revenue pivot",
+        "command": "sec-edgar-pp-cli cross-section --tag us-gaap:Revenues --cik 0000320193,0000789019,0001652044 --periods last8 --json",
+        "explanation": "Apple vs Microsoft vs Alphabet revenue, last 8 quarters, as a single pivot. Both axes constrained — neither edgartools nor the frames endpoint covers this shape."
+      },
+      {
+        "title": "Watchlist Monday triage",
+        "command": "sec-edgar-pp-cli watchlist items --since 30d --item 2.05,5.02,4.02 --cik 0000320193,0000789019,0001652044 --json --agent",
+        "explanation": "Cross-CIK 8-K Item pivot — Maya's exact Monday ritual. The watchlist file is one CIK per line."
+      },
+      {
+        "title": "Late-filer compliance scan",
+        "command": "sec-edgar-pp-cli late-filers --since 60d --form 10-K --json",
+        "explanation": "Surfaces NT 10-K filings (companies that warned they'd miss their reporting deadline). Single SELECT against the local filings table."
+      }
+    ],
+    "trigger_phrases": [
+      "look up an SEC filing",
+      "check insider trading on",
+      "compare quarterly financials for",
+      "find restatements in the last quarter",
+      "watch SEC filings for",
+      "use sec-edgar",
+      "run sec-edgar"
+    ]
+  }
+}

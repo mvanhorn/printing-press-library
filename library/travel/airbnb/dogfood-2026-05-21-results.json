@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "run_at": "2026-05-21",
+  "run_branch": "fix/airbnb-hash-rate-limit-dogfood",
+  "binary_version": "1.0.0",
+  "base_pr": 712,
+  "fixture": {
+    "listing_id": "18413186",
+    "city": "Mercer Island, WA",
+    "checkin": "2026-05-26",
+    "checkout": "2026-05-29",
+    "adults": 1
+  },
+  "tier_1": {
+    "summary": "6/6 green",
+    "gating_command": "cheapest",
+    "gate_status": "pass",
+    "results": [
+      {
+        "name": "airbnb-listing search",
+        "tier": 1,
+        "ok": true,
+        "shape": ["title", "url", "primary_price", "per_night_price", "reviews_count", "avg_rating_localized"],
+        "notes": "18 results populated. Caveat: per_night_price is labeled per-night but actually carries the multi-night total for stays > 1 night; the primary_price.qualifier (\"for 3 nights\") is the disambiguator. Existing search-extractor behavior, not a regression."
+      },
+      {
+        "name": "airbnb-listing get",
+        "tier": 1,
+        "ok": true,
+        "shape": ["price_breakdown.total", "price_breakdown.per_night", "city", "host_name"],
+        "evidence": {"total": 514, "per_night": 171.18, "city": "Mercer Island", "host": "Wally"}
+      },
+      {
+        "name": "cheapest",
+        "tier": 1,
+        "ok": true,
+        "shape": ["cheapest.source", "cheapest.total", "cheapest.url", "host.brand", "listing.platform", "options"],
+        "evidence": {"cheapest_total": 100, "cheapest_url_host": "bookdirectvacationrental.com", "host_brand": "wally"}
+      },
+      {
+        "name": "plan",
+        "tier": 1,
+        "ok": true,
+        "shape": ["results[].cheapest", "results[].direct_url", "results[].platform_url", "results[].savings"],
+        "evidence": {"result_count": 3, "top_savings_absolute": 514}
+      },
+      {
+        "name": "compare",
+        "tier": 1,
+        "ok": true,
+        "shape": ["platform_total", "direct_total", "savings.absolute", "savings.percent"],
+        "evidence": {"platform_total": 514, "direct_total": 213, "savings_absolute": 301, "savings_percent": 58.56}
+      },
+      {
+        "name": "host extract",
+        "tier": 1,
+        "ok": true,
+        "shape": ["brand", "name", "confidence", "source", "type"],
+        "evidence": {"brand": "wally", "confidence": 0.95, "source": "property_management", "type": "pmc"}
+      }
+    ]
+  },
+  "tier_2": {
+    "summary": "7/7 functional",
+    "results": [
+      {
+        "name": "find-twin",
+        "tier": 2,
+        "ok": true,
+        "shape": ["candidates[].domain", "candidates[].score"]
+      },
+      {
+        "name": "match",
+        "tier": 2,
+        "ok": true,
+        "shape": ["fingerprint.components"],
+        "notes": "vrbo branch emits the known ErrDisabled warning; airbnb side returns the fingerprint."
+      },
+      {
+        "name": "watch list",
+        "tier": 2,
+        "ok": true,
+        "shape": ["[].id"]
+      },
+      {
+        "name": "watch add",
+        "tier": 2,
+        "ok": true,
+        "shape": ["added_at", "checkin", "checkout", "listing_id"]
+      },
+      {
+        "name": "airbnb-wishlist list",
+        "tier": 2,
+        "ok": true,
+        "result": "empty",
+        "notes": "No saved wishlists on the maintainer's account; clean empty-array response, not an error."
+      },
+      {
+        "name": "host portfolio",
+        "tier": 2,
+        "ok": true,
+        "result": "null listings",
+        "notes": "Local store unsynced; design behavior — portfolio is derived from a local index built up over many calls."
+      },
+      {
+        "name": "fingerprint",
+        "tier": 2,
+        "ok": true,
+        "shape": ["components.baths", "components.beds", "components.city"]
+      }
+    ]
+  },
+  "auxiliary": {
+    "summary": "5/7 green; 2 known gaps",
+    "results": [
+      {"name": "doctor", "ok": true, "notes": "Cache stale WARN (expected)"},
+      {"name": "agent-context", "ok": true},
+      {"name": "which", "ok": true, "evidence": "'show me the cheapest place to stay' → cheapest (score 3)"},
+      {"name": "profile list", "ok": true},
+      {"name": "--dry-run on search", "ok": false, "gap": "Returns []; --dry-run is wired to the generated client, not the source/airbnb scrape path. SG-004 known gap. Not a regression."},
+      {"name": "auth status", "ok": true},
+      {"name": "feedback list", "ok": false, "gap": "Returns empty {} objects per entry — serialization bug on feedback entries. Pre-existing, not a regression."}
+    ]
+  },
+  "outstanding_minor_issues": [
+    "search per_night_price field carries multi-night total when the listing displays \"for N nights\" qualifier",
+    "--dry-run no-ops for scrape-path commands (SG-004)",
+    "feedback list entries serialize as empty objects",
+    "host portfolio + wishlist surfaces are functional but return empty until the local store is populated"
+  ],
+  "gate_decision": {
+    "strict_bar": "cheapest returns real data on a known-good listing AND the rate-limit guard demonstrably fires under hammering",
+    "cheapest_ok": true,
+    "rate_limit_guard_ok": "not yet verified — U3/U4/U5 not yet implemented",
+    "verdict": "Half of the strict bar is met. The other half (rate-limit guard) is pending U3-U5 implementation."
+  }
+}

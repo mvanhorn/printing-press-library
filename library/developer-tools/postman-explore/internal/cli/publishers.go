@@ -54,7 +54,7 @@ Run 'sync' first; this command reads the local store.`,
 			if entityType != "" && !validEntityType(entityType) {
 				return usageErr(fmt.Errorf("invalid --type %q (use one of collection, workspace, api, flow, or omit for all)", entityType))
 			}
-			db, err := openLocalStore()
+			db, err := openLocalStore(flags)
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}
@@ -197,9 +197,9 @@ func lookupPublisherHandles(db *sql.DB) map[string]string {
 		}
 		var doc struct {
 			Meta struct {
-				PublisherID     string `json:"publisherId"`
-				PublicHandle    string `json:"workspaceSlug"`
-				PublisherType   string `json:"publisherType"`
+				PublisherID   string `json:"publisherId"`
+				PublicHandle  string `json:"workspaceSlug"`
+				PublisherType string `json:"publisherType"`
 			} `json:"meta"`
 		}
 		if err := json.Unmarshal([]byte(dataText), &doc); err != nil {

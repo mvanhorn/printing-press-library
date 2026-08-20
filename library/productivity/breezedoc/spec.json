@@ -1,0 +1,1848 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BreezeDoc API",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "/img/logo.svg"
+    },
+    "description": "# Introduction\nBreezeDoc's REST API provides a handful of endpoints which can be used to get information about your account and bookings.  It uses conventional OAuth 2.0 protocol for authentication.\n\n# Authentication\n### Personal Access Token\nCreate a personal access token at https://breezedoc.com/integrations/api.  Once created, it can be used to authenticate requests by passing it in the `Authorization` header.\n```\nAuthorization: Bearer {TOKEN}\n```\n\n### OAuth 2.0 Client\nIf you're building a custom integration to BreezeDoc which requires users to authenticate in order to get access tokens to make API requests on their behalf, you'll need to create an OAuth 2.0 client. This is easy to do from the \\\"OAuth Apps\\\" settings page found here https://breezedoc.com/integrations/api\n\nUsing the `authorization_code` grant type to authenticate users using OAuth 2.0 to retrieve an access token is fairly conventional, more information on that process can be found here: https://www.oauth.com/oauth2-servers/server-side-apps/authorization-code/\n\n\n* Authorization URL: https://breezedoc.com/oauth/authorize\n* Access Token URL: https://breezedoc.com/oauth/token\n\n# Rate Limiting\nThe API currently has a rate limit of 60 requests per minute. If you exceed this limit, you will receive a 429 error.\n"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "API base URL"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://breezedoc.com/oauth/authorize",
+            "tokenUrl": "https://breezedoc.com/oauth/token",
+            "scopes": {}
+          }
+        }
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array"
+          },
+          "first_page_url": {
+            "type": "string"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "last_page_url": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "prev_page_url": {
+            "type": "string"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "document_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "document_file_pages": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "recipient_field": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "recipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recipient"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "Recipient": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "recipient_fields": {
+            "type": "object"
+          },
+          "party": {
+            "type": "integer"
+          },
+          "owner": {
+            "type": "boolean"
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "Team": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Template": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "is_template": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          }
+        ]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three-letter ISO currency code (uppercase)",
+            "example": "USD"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "paid",
+              "uncollectible",
+              "void"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "description": "Invoice title displayed to the customer",
+            "example": "Invoice"
+          },
+          "invoice_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional invoice reference number"
+          },
+          "customer_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "customer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "readOnly": true
+          },
+          "payment_due": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "payment_terms": {
+            "type": "string",
+            "enum": [
+              "due_on_receipt",
+              "net_15",
+              "net_30",
+              "net_60",
+              "net_90",
+              "custom"
+            ],
+            "nullable": true
+          },
+          "footer_note": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "description": "Total amount in decimal (e.g., 150.00)"
+          },
+          "localized_total": {
+            "type": "string",
+            "description": "Formatted total with currency symbol (e.g., \"$150.00\")",
+            "nullable": true
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceItem"
+            }
+          },
+          "payment_platforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentPlatform"
+            }
+          },
+          "pay_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL where the customer can pay the invoice"
+          }
+        }
+      },
+      "InvoiceItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_price": {
+            "type": "integer",
+            "description": "Unit price in cents (e.g., 10000 = $100.00)"
+          },
+          "total_price": {
+            "type": "integer",
+            "description": "Total price in cents (quantity × unit_price)"
+          },
+          "localized_unit_price": {
+            "type": "string",
+            "description": "Formatted unit price with currency symbol"
+          },
+          "localized_total": {
+            "type": "string",
+            "description": "Formatted total with currency symbol"
+          }
+        }
+      },
+      "PaymentPlatform": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Payment platform UUID. Online payment buttons currently use Stripe or PayPal IDs."
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "Stripe",
+              "PayPal",
+              "Bank",
+              "Check",
+              "Cash",
+              "Other"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "summary": "Get current user information",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "User information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/documents": {
+      "get": {
+        "operationId": "listDocuments",
+        "summary": "Get list of documents",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "completed_at",
+                "id"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of documents retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Document"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "storeDocument",
+        "summary": "Create a new document",
+        "tags": [
+          "Documents"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "email",
+                        "name",
+                        "party"
+                      ],
+                      "properties": {
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 191
+                        },
+                        "party": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/documents/{document}": {
+      "get": {
+        "operationId": "getDocument",
+        "summary": "Get a specific document",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Document not found"
+          }
+        }
+      }
+    },
+    "/documents/{document}/send": {
+      "post": {
+        "operationId": "sendDocument",
+        "summary": "Send a document to its recipients",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "recipients"
+                ],
+                "properties": {
+                  "recipients": {
+                    "type": "array",
+                    "description": "Array of recipients that must match the number of recipients on the document, provided in ascending order of party.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "email"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "maxLength": 191
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "maxLength": 191
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Document may have already been sent"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - User may not have permission to send this document"
+          },
+          "404": {
+            "description": "Document not found"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/documents/{document}/recipients": {
+      "get": {
+        "operationId": "listDocumentRecipients",
+        "summary": "Get recipients for a specific document",
+        "tags": [
+          "Documents",
+          "Recipients"
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "completed_at",
+                "id"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "completed",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                true,
+                false
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of document recipients retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Recipient"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Document not found"
+          }
+        }
+      }
+    },
+    "/recipients": {
+      "get": {
+        "operationId": "listRecipients",
+        "summary": "Get list of recipients",
+        "tags": [
+          "Recipients"
+        ],
+        "parameters": [
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "completed_at",
+                "id"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recipients retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Recipient"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/templates": {
+      "get": {
+        "operationId": "listTemplates",
+        "summary": "Get list of templates",
+        "tags": [
+          "Templates"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of templates retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Template"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/templates/{template}": {
+      "get": {
+        "operationId": "getTemplate",
+        "summary": "Get a specific template",
+        "tags": [
+          "Templates"
+        ],
+        "parameters": [
+          {
+            "name": "template",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      }
+    },
+    "/templates/{template}/create-document": {
+      "post": {
+        "operationId": "createDocumentFromTemplate",
+        "summary": "Create a new document from a template",
+        "tags": [
+          "Templates"
+        ],
+        "parameters": [
+          {
+            "name": "template",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Document created successfully from template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      }
+    },
+    "/teams/{team}/documents": {
+      "get": {
+        "operationId": "listTeamDocuments",
+        "summary": "Get list of documents sent by any member of a team",
+        "description": "Retrieves a list of all documents sent by any member of a given team. This exposes an existing data relationship.\nUse Case: Enables a team lead or agency owner to build a custom dashboard to monitor their team's signing activities and document statuses.\n",
+        "tags": [
+          "Teams",
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "team",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The team ID"
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "completed_at",
+                "created_at"
+              ]
+            },
+            "required": false,
+            "description": "Field to order by"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false,
+            "description": "Sort direction"
+          },
+          {
+            "name": "completed",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                true,
+                false
+              ]
+            },
+            "required": false,
+            "description": "Filter by completion status"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of team documents retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Document"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to view this team's documents"
+          },
+          "404": {
+            "description": "Team not found"
+          }
+        }
+      }
+    },
+    "/teams/{team}/templates": {
+      "get": {
+        "operationId": "listTeamTemplates",
+        "summary": "Get list of templates shared with a specific team",
+        "description": "Retrieves a list of all templates shared with a specific team.\nUse Case: Allows an organization to programmatically audit their team's available templates to ensure brand and legal compliance.\n",
+        "tags": [
+          "Teams",
+          "Templates"
+        ],
+        "parameters": [
+          {
+            "name": "team",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The team ID"
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            "required": false,
+            "description": "Field to order by"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false,
+            "description": "Sort direction"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of team templates retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Template"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to view this team's templates"
+          },
+          "404": {
+            "description": "Team not found"
+          }
+        }
+      }
+    },
+    "/invoices": {
+      "get": {
+        "operationId": "listInvoices",
+        "summary": "Get list of invoices",
+        "description": "Retrieves a paginated list of invoices for the authenticated user.",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "created_at",
+                "payment_due"
+              ]
+            },
+            "required": false,
+            "description": "Field to order by"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false,
+            "description": "Sort direction"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "uncollectible",
+                "void"
+              ]
+            },
+            "required": false,
+            "description": "Filter by invoice status"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of invoices retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Pagination"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Invoice"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createInvoice",
+        "summary": "Create a new invoice",
+        "description": "Creates a new invoice with line items. Optionally sends the invoice immediately by setting `send: true`.\n",
+        "tags": [
+          "Invoices"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "customer_email",
+                  "currency",
+                  "description",
+                  "payment_due",
+                  "items"
+                ],
+                "properties": {
+                  "customer_email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "customer_name": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Three-letter ISO currency code (uppercase)",
+                    "example": "USD"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "nullable": true,
+                    "description": "Optional invoice title. Omitted or null values use the default title, \"Invoice\"."
+                  },
+                  "invoice_number": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true,
+                    "pattern": "^[a-zA-Z0-9\\-_]*$",
+                    "description": "Optional invoice reference number."
+                  },
+                  "payment_due": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "payment_terms": {
+                    "type": "string",
+                    "enum": [
+                      "due_on_receipt",
+                      "net_15",
+                      "net_30",
+                      "net_60",
+                      "net_90",
+                      "custom"
+                    ],
+                    "nullable": true,
+                    "description": "Optional payment due term label. Clients should still provide the calculated payment_due date."
+                  },
+                  "footer_note": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "description",
+                        "quantity",
+                        "unit_price"
+                      ],
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "maxLength": 191
+                        },
+                        "details": {
+                          "type": "string",
+                          "maxLength": 1000,
+                          "nullable": true
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "minimum": 0.01
+                        },
+                        "unit_price": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Price in cents (e.g., 10000 = $100.00)"
+                        }
+                      }
+                    }
+                  },
+                  "payment_platform_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "description": "Array of payment platform UUIDs to enable for this invoice. Online payment buttons currently use Stripe (`0ce25e9d-949b-4a89-8aef-36bdc07b1ec5`) or PayPal (`61059a6c-f124-4948-8616-0ae581fad7ea`).\n"
+                  },
+                  "send": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, immediately sends the invoice to the customer"
+                  }
+                }
+              },
+              "example": {
+                "customer_email": "client@example.com",
+                "customer_name": "Client Name",
+                "currency": "USD",
+                "description": "Consulting Services",
+                "title": "Invoice",
+                "invoice_number": "INV-1001",
+                "payment_due": "2026-02-01",
+                "payment_terms": "net_30",
+                "items": [
+                  {
+                    "description": "Week of January 12th, 2026",
+                    "details": "Product meeting, Review management, Sprint planning",
+                    "quantity": 3,
+                    "unit_price": 10000
+                  }
+                ],
+                "send": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invoice created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Invoice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/invoices/{invoice}": {
+      "get": {
+        "operationId": "getInvoice",
+        "summary": "Get a specific invoice",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The invoice ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Invoice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Invoice not found"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateInvoice",
+        "summary": "Update an invoice",
+        "description": "Updates an existing invoice. Cannot update invoices with status: paid, uncollectible, or void.\nWhen updating items, the entire items array is replaced.\n",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The invoice ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "customer_name": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Three-letter ISO currency code (uppercase)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "Optional invoice title."
+                  },
+                  "invoice_number": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true,
+                    "pattern": "^[a-zA-Z0-9\\-_]*$",
+                    "description": "Optional invoice reference number. Send null to clear it."
+                  },
+                  "payment_due": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "payment_terms": {
+                    "type": "string",
+                    "enum": [
+                      "due_on_receipt",
+                      "net_15",
+                      "net_30",
+                      "net_60",
+                      "net_90",
+                      "custom"
+                    ],
+                    "nullable": true,
+                    "description": "Optional payment due term label. Send null to clear it."
+                  },
+                  "footer_note": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "Replaces all existing line items",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "description",
+                        "quantity",
+                        "unit_price"
+                      ],
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "maxLength": 191
+                        },
+                        "details": {
+                          "type": "string",
+                          "maxLength": 1000,
+                          "nullable": true
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "minimum": 0.01
+                        },
+                        "unit_price": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Price in cents (e.g., 10000 = $100.00)"
+                        }
+                      }
+                    }
+                  },
+                  "payment_platform_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "description": "Array of payment platform UUIDs to enable for this invoice. Online payment buttons currently use Stripe (`0ce25e9d-949b-4a89-8aef-36bdc07b1ec5`) or PayPal (`61059a6c-f124-4948-8616-0ae581fad7ea`).\n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Invoice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Invoice not found"
+          },
+          "422": {
+            "description": "Validation error or invoice cannot be updated due to its status"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchInvoice",
+        "summary": "Partially update an invoice",
+        "description": "Same as PUT - updates an existing invoice. Cannot update invoices with status paid, uncollectible, or void.",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The invoice ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 191
+                  },
+                  "customer_name": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Three-letter ISO currency code (uppercase)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 191
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "Optional invoice title."
+                  },
+                  "invoice_number": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true,
+                    "pattern": "^[a-zA-Z0-9\\-_]*$",
+                    "description": "Optional invoice reference number. Send null to clear it."
+                  },
+                  "payment_due": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "payment_terms": {
+                    "type": "string",
+                    "enum": [
+                      "due_on_receipt",
+                      "net_15",
+                      "net_30",
+                      "net_60",
+                      "net_90",
+                      "custom"
+                    ],
+                    "nullable": true,
+                    "description": "Optional payment due term label. Send null to clear it."
+                  },
+                  "footer_note": {
+                    "type": "string",
+                    "maxLength": 191,
+                    "nullable": true
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "description",
+                        "quantity",
+                        "unit_price"
+                      ],
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "maxLength": 191
+                        },
+                        "details": {
+                          "type": "string",
+                          "maxLength": 1000,
+                          "nullable": true
+                        },
+                        "quantity": {
+                          "type": "number",
+                          "minimum": 0.01
+                        },
+                        "unit_price": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  },
+                  "payment_platform_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "description": "Array of payment platform UUIDs to enable for this invoice. Online payment buttons currently use Stripe (`0ce25e9d-949b-4a89-8aef-36bdc07b1ec5`) or PayPal (`61059a6c-f124-4948-8616-0ae581fad7ea`).\n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Invoice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Invoice not found"
+          },
+          "422": {
+            "description": "Validation error or invoice cannot be updated due to its status"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteInvoice",
+        "summary": "Delete an invoice",
+        "description": "Deletes a draft invoice. Cannot delete invoices that have already been sent.",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The invoice ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invoice deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Invoice not found"
+          },
+          "422": {
+            "description": "Cannot delete an invoice that has already been sent"
+          }
+        }
+      }
+    },
+    "/invoices/{invoice}/send": {
+      "post": {
+        "operationId": "sendInvoice",
+        "summary": "Send an invoice to the customer",
+        "description": "Sends (or re-sends) an invoice to the customer via email. Cannot send invoices with status: paid, uncollectible, or void.\n",
+        "tags": [
+          "Invoices"
+        ],
+        "parameters": [
+          {
+            "name": "invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The invoice ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Invoice"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Invoice not found"
+          },
+          "422": {
+            "description": "Cannot send an invoice with its current status"
+          }
+        }
+      }
+    }
+  }
+}

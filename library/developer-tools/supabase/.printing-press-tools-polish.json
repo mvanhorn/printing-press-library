@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T23:05:08.732984Z",
+  "cli_dir": "\u003ccli-dir\u003e/supabase-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "2026-05-12T23:03:43.14673Z"
+  }
+}

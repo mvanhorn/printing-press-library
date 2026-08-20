@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "skip",
+  "api_name": "opensnow",
+  "run_id": "20260508-183509",
+  "skip_reason": "no_api_key",
+  "skipped": true,
+  "reason": "no_api_key",
+  "detail": "OpenSnow API requires partnership-level access. No API key was available during this run.",
+  "mechanical_verification": {
+    "verify_pass_rate": 100,
+    "scorecard_total": 77,
+    "verify_skill": "pass"
+  }
+}

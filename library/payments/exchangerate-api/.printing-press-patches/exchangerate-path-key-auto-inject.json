@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-path-key-auto-inject",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Auto-inject EXCHANGERATE_API_KEY from config into the URL path for every spec-derived command; remove the user-facing <api_key> positional.",
+  "reason": "ExchangeRate-API embeds the credential as a path segment (/v6/{key}/...), which the internal spec format does not natively support. The generator rendered <api_key> as a positional argument; that pushes secret handling onto the agent on every invocation. Patched each spec-derived RunE to read c.Config.ExchangerateApiKey and shift positional indices accordingly.",
+  "files": [
+    "internal/cli/rates_latest.go",
+    "internal/cli/rates_pair.go",
+    "internal/cli/rates_pair_amount.go",
+    "internal/cli/rates_enriched.go",
+    "internal/cli/rates_history.go",
+    "internal/cli/promoted_codes.go",
+    "internal/cli/promoted_quota.go"
+  ],
+  "validated_outcome": "Live calls succeed for all spec-derived commands without typing the key (rates pair USD EUR, codes, quota, etc.); shipcheck 6/6 PASS; doctor reports auth source as env:EXCHANGERATE_API_KEY."
+}

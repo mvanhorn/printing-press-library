@@ -1,0 +1,1979 @@
+{
+  "api_name": "lunch-money",
+  "base_url": "https://api.lunchmoney.dev/v2",
+  "description": "Welcome to the documentation for the \"next version\" of the Lunch Money v2 API.This documentation includes proposed updates to the API design that have not yet been released.\u003cp\u003e\nThis documentation is for the **v2.11.0** release of the API.\u003cp\u003e\n\nSee the [version history](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/version-history) for what is new in this release.\nNew functionality may only be available in the Mock Service until the release is finalized. \u003cbr\u003e\u003cbr\u003e\n\nThe latest complete implementation of the spec is for the **v2.8.5** release and can be found [here](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/). \u003cbr\u003e\u003cbr\u003e\nFeedback on any of the API design is welcome, but we are particularly interested in getting feedback on most recent changes in the [version history](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/version-history).\n\n------------------------------------------------------------------------------------------------\nWelcome to the Lunch Money v2 API.\n\nA working version of this API is now available through these docs, or directly at:\n\n`https://api.lunchmoney.dev/v2`\n\n\u003cspan class=\"red-text\"\u003e\u003cstrong\u003eThis is in alpha launch of a major API update. It is still subject to change during this alpha review \nperiod and bugs may still exist. We strongly encourage users to use the mock service or create a test budget with sample data as the first step to interacting with the v2 API.\u003c/strong\u003e\u003c/span\u003e\nSee the [Getting Started Guide](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/getting-started) for more information on using a test budget.\u003cp\u003e\n\nIf you are new to the v2 API, you may wish to review the [v2 API Overview of Changes](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/changelog).\n\n### Static Mock Server\n\nYou may also use these docs to explore the API using a static mock server endpoint.\u003cp\u003e \nThis will allow you to become familiar with the API without having to create an access token, and eliminates the possibility of changing real data. \u003cp\u003e\nTo access this endpoint, select the second endpoint in the \"Server\" dropdown to the right. When selected, you should see \"Static Mock v2 Lunch Money API Server\".\u003cbr\u003e\nWhen using this server, set your Bearer token to any string with 11 or more characters.\n\n### Migrating from V1\n\nThe v2 API is NOT backwards compatible with the v1 API. We encourage developers to review the [Migration Guide](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/migration-guide) to understand the changes and plan their migration.\n\n### Acknowledgments\n\nIf you have provided feedback on the API during our ongoing design process, **THANK YOU**. We are thrilled that you can finally interact with the working API we built based on your feedback.\n\n### Useful links:\n- [Getting Started](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/getting-started)\n- [v2 API Changelog](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/changelog)\n- [Migration Guide](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/migration-guide)\n- [Rate Limits](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/rate-limits)\n- [Current v1 Lunch Money API Documentation](https://lunchmoney.dev)\n- [Awesome Lunch Money Projects](https://github.com/lunch-money/awesome-lunchmoney?tab=readme-ov-file)",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "LUNCHMONEY_ACCESS_TOKEN",
+      "LUNCHMONEY_API_KEY",
+      "LUNCHMONEY_TOKEN",
+      "LUNCHMONEY_API_TOKEN",
+      "LUNCH_MONEY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LUNCHMONEY_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "LUNCHMONEY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "LUNCHMONEY_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "LUNCHMONEY_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "LUNCH_MONEY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://my.lunchmoney.app/developers"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "balance-history_delete-entry",
+      "description": "Delete a single monthly balance history entry by its id. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/balance_history/entries/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Balance history row identifier to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "balance-history_delete-for-account",
+      "description": "Delete all historical balance entries for a single manual, Plaid, manual crypto, or deleted account. Crypto synced accounts require an additional `symbol` path parameter. Required: account_type (default: manual), account_id. Destructive.",
+      "method": "DELETE",
+      "path": "/balance_history/{account_type}/{account_id}",
+      "params": [
+        {
+          "name": "account_type",
+          "type": "string",
+          "location": "path",
+          "description": "Source family to delete. Use `manual`, `plaid`, `crypto_manual`, or `deleted`."
+        },
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account or deleted-source identifier within the selected `account_type`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "balance-history_delete-for-crypto-synced",
+      "description": "Delete all historical balance entries for a single synced crypto symbol stream.\u003cbr\u003e\u003cbr\u003e The path identifies both the synced crypto account and the symbol whose history should be deleted. Required: account_id, symbol. Destructive.",
+      "method": "DELETE",
+      "path": "/balance_history/crypto_synced/{account_id}/{symbol}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account identifier.",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol identifying one balance stream within the synced crypto account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "balance-history_get",
+      "description": "Retrieve historical balance entries.\u003cbr\u003e\u003cbr\u003e Balance history is monthly. When `start_date` and `end_date` are both provided, they must be first-of-month dates. `start_date` must not be in the future, while `end_date` may be in the future. If one of `start_date` or `end_date` is provided, the other is required. If neither is provided, all available balance history is returned.\u003cbr\u003e\u003cbr\u003e The response groups entries by source account. Each item in `balance_history` contains a `source` object plus a `balances` array containing one balance entry per month in the requested range, or all stored entries when no range is provided.\u003cbr\u003e\u003cbr\u003e Historical entries for accounts that have been deleted may still be returned. These entries use `source.type: deleted` and include `deleted_account_id`, archived display fields, and account metadata on the `source` object. Optional: start_date, end_date. Returns the BalanceHistoryListResponseObject.",
+      "method": "GET",
+      "path": "/balance_history",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional start date for the requested history range in YYYY-MM-DD format."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional end date for the requested history range in YYYY-MM-DD format. If set, `start_date` is also required. This must be the first day of a month. For a single month, set this to the same first-of-month date as `start_date`."
+        }
+      ]
+    },
+    {
+      "name": "balance-history_get-for-account",
+      "description": "Retrieve historical balance entries for one manual, Plaid, manual crypto, or deleted account. Crypto synced accounts require an additional `symbol` path parameter.\u003cbr\u003e\u003cbr\u003e The `account_type` path parameter identifies the type of account and the `account_id` path parameter identifies the specific id for that account type.\u003cbr\u003e\u003cbr\u003e When `start_date` and `end_date` are both provided, they must be first-of-month dates. `start_date` must not be in the future, while `end_date` may be in the future. If one of `start_date` or `end_date` is provided, the other is required. If neither is provided, all available history for the source is returned. Required: account_type (default: manual), account_id. Optional: start_date, end_date. Returns the BalanceHistoryListResponseObject.",
+      "method": "GET",
+      "path": "/balance_history/{account_type}/{account_id}",
+      "params": [
+        {
+          "name": "account_type",
+          "type": "string",
+          "location": "path",
+          "description": "Source family to retrieve. Use `manual`, `plaid`, `crypto_manual`, or `deleted`."
+        },
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account or deleted-source identifier within the selected `account_type`.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional start date for the requested history range in YYYY-MM-DD format."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional end date for the requested history range in YYYY-MM-DD format. If set, `start_date` is also required. This must be the first day of a month."
+        }
+      ]
+    },
+    {
+      "name": "balance-history_get-for-crypto-synced",
+      "description": "Retrieve historical balance entries for a single synced crypto symbol stream.\u003cbr\u003e\u003cbr\u003e Use the `crypto_synced` account id together with a `symbol` path parameter to select one balance stream within that synced crypto account.\u003cbr\u003e\u003cbr\u003e When `start_date` and `end_date` are both provided, they must be first-of-month dates. `start_date` must not be in the future, while `end_date` may be in the future. If one of `start_date` or `end_date` is provided, the other is required. If neither is provided, all available history for the symbol stream is returned. Required: account_id, symbol. Optional: start_date, end_date. Returns the BalanceHistoryListResponseObject.",
+      "method": "GET",
+      "path": "/balance_history/crypto_synced/{account_id}/{symbol}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account identifier.",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol identifying one balance stream within the synced crypto account.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional start date for the requested history range in YYYY-MM-DD format."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional end date for the requested history range in YYYY-MM-DD format. If set, `start_date` is also required. This must be the first day of a month."
+        }
+      ]
+    },
+    {
+      "name": "balance-history_update-details",
+      "description": "Update archived metadata for a deleted balance history source.\u003cbr\u003e\u003cbr\u003e Pass the `deleted` source id returned on `source.deleted_account_id`. This endpoint updates the stored deleted-source metadata used for all historical entries associated with that deleted source. Required: account_id. Optional: account_type, display_name, institution_name (plus 3 more). Returns the updated UpdateBalanceHistoryDetailsResponseObject.",
+      "method": "PUT",
+      "path": "/balance_history/deleted/{account_id}/details",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Deleted account history source identifier to update.",
+          "required": true
+        },
+        {
+          "name": "account_type",
+          "type": "string",
+          "location": "body",
+          "description": "New archived account type for the deleted account source."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name for the deleted account source."
+        },
+        {
+          "name": "institution_name",
+          "type": "string",
+          "location": "body",
+          "description": "New archived institution name for the deleted account source."
+        },
+        {
+          "name": "mask",
+          "type": "string",
+          "location": "body",
+          "description": "New archived account mask for the deleted account source."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New archived account name for the deleted account source."
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "body",
+          "description": "New archived subtype for the deleted account source."
+        }
+      ]
+    },
+    {
+      "name": "balance-history_upsert-for-account",
+      "description": "Upsert one or more historical balance entries for a single manual, Plaid, manual crypto, or deleted acount. Crypto synced accounts require an additional `symbol` path parameter.\u003cbr\u003e\u003cbr\u003e The `account_type` path parameter identifies the the type of account and the `account_id` path parameter identifies the specific id for that account type.\u003cbr\u003e\u003cbr\u003e Submit one or more entries in the `balances` array. Each entry must specify a `date` and `balance` value.\u003cbr\u003e\u003cbr\u003e Balance history is monthly. Each entry's `date` must be the first day of a month and must not be in the future.\u003cbr\u003e\u003cbr\u003e `currency` may be provided for any balance entry. If omitted, it defaults to the account currency for manual/Plaid accounts, or the user's primary currency for crypto/deleted accounts.\u003cbr\u003e\u003cbr\u003e `symbol` is optional for `crypto_manual` accounts, tolerated for `deleted` accounts, and invalid for `manual` or `plaid` accounts.\u003cbr\u003e\u003cbr\u003e `crypto_balance` may be provided for `crypto_manual` and `deleted` accounts, and is invalid for `manual` or `plaid` accounts.\u003cbr\u003e\u003cbr\u003e Use `PUT /v2/balance_history/deleted/{account_id}/details` to update deleted-source metadata. Required: account_type (default: manual), account_id, balances. Returns the updated UpsertBalanceHistoryResponseObject.",
+      "method": "PUT",
+      "path": "/balance_history/{account_type}/{account_id}",
+      "params": [
+        {
+          "name": "account_type",
+          "type": "string",
+          "location": "path",
+          "description": "Source family to update. Use `manual`, `plaid`, `crypto_manual`, or `deleted`."
+        },
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Account or deleted-source identifier within the selected `account_type`.",
+          "required": true
+        },
+        {
+          "name": "balances",
+          "type": "array",
+          "location": "body",
+          "description": "One or more monthly balance history entries to upsert",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "balance-history_upsert-for-crypto-synced",
+      "description": "Upsert one or more historical balance entries for a single synced crypto symbol stream.\u003cbr\u003e\u003cbr\u003e The path identifies both the synced crypto account and the symbol being updated.\u003cbr\u003e\u003cbr\u003e Submit one or more entries in the `balances` array. Each entry must specify a `date` and `balance` value.\u003cbr\u003e\u003cbr\u003e Balance history is monthly. Each entry's `date` must be the first day of a month and must not be in the future.\u003cbr\u003e\u003cbr\u003e The request body must not include `symbol`; the symbol is supplied by the path.\u003cbr\u003e\u003cbr\u003e `currency` may be provided for any balance entry. If omitted, it defaults to the user's primary currency for synced crypto balances.\u003cbr\u003e\u003cbr\u003e `crypto_balance` may be provided for synced crypto balances. Required: account_id, symbol, balances. Returns the updated UpsertBalanceHistoryResponseObject.",
+      "method": "PUT",
+      "path": "/balance_history/crypto_synced/{account_id}/{symbol}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account identifier to update.",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol identifying one balance stream within the synced crypto account.",
+          "required": true
+        },
+        {
+          "name": "balances",
+          "type": "array",
+          "location": "body",
+          "description": "One or more monthly balance history entries to upsert",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "budgets_delete",
+      "description": "Removes the budget for the given category and period. If there already is no budget set for that period, the request still succeeds (idempotent).\u003cp\u003e Note that `start_date` **must** be a valid budget period start for the account (based on the account's budget period settings). If an invalid `start_date` is provided, the request will fail with an error that indicates what the previous and next valid start dates are.\u003cp\u003e Use the [budgets/settings](#tag/budgets/GET/budgets/settings) endpoint to view the account's budget settings.\u003cbr\u003e To view details for existing budgets, use the [summary](#tag/summary) endpoint. Required: category_id, start_date. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "Category ID of the budget to delete",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date of the budget period in ISO 8601 date format (YYYY-MM-DD)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "budgets_get-settings",
+      "description": "Returns the budget-related settings for the user's account.",
+      "method": "GET",
+      "path": "/budgets/settings",
+      "params": []
+    },
+    {
+      "name": "budgets_upsert",
+      "description": "Create or update a budget for a category and period.\u003cp\u003e If a budget already exists for the specified `start_date` and `category_id`, the `amount` (and optional `currency` and `notes`) are updated; otherwise a new budget entry is created.\u003cp\u003e Note that `start_date` **must** be a valid budget period start for the account (based on the account's budget period settings). If an invalid `start_date` is provided, the request will fail with an error that indicates what the previous and next valid start dates are.\u003cp\u003e Use the [budgets/settings](#tag/budgets/GET/budgets/settings) endpoint to view the account's budget settings.\u003cbr\u003e To view details for existing budgets, use the [summary](#tag/summary) endpoint. Required: amount, category_id, start_date. Optional: currency, notes. Returns the updated BudgetUpsertResponseObject.",
+      "method": "PUT",
+      "path": "/budgets",
+      "params": [
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "body",
+          "description": "Budget amount. May be a string or a number in double format.",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Category ID for the budget",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter currency code. If omitted, the primary currency for the user's account is used."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Optional notes for the budget period"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date of the budget period in ISO 8601 date format (YYYY-MM-DD). Must be a valid budget period start for the account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_create-category",
+      "description": "Creates a new category with the given name.\u003cbr\u003e If the `is_group` attribute is set to true, a category group is created. In this case, the `children` attribute may be set to an array of category IDs to add to the newly created category group. Required: name. Optional: archived (default: false), children, collapsed (plus 7 more). Returns the new CategoryObject.",
+      "method": "POST",
+      "path": "/categories",
+      "params": [
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the category is archived and in relevant areas of the Lunch Money app."
+        },
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "List of categories to include in the new category group. This field should only be set if `is_group` is also set to true.\u003cbr\u003e You may provide existing category objects, existing category IDs, or names for new categories to add to the group. Categories or IDs must already exist and cannot be category groups. Categories that already belong to another group will be moved. If strings are provided, they will be used as names for new categories added to the group. The request will fail if any provided name already exists.\u003cbr\u003e You may mix category objects, IDs, and new category names in the same request."
+        },
+        {
+          "name": "collapsed",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the category group appears collapsed in the Lunch Money app. Can only be set to `true` for category groups.\u003cbr\u003eWhile this property can be set via the API, it is usually managed by the user in the Lunch Money app."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the category. Maximum length is 200 characters."
+        },
+        {
+          "name": "exclude_from_budget",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, transactions in this category are excluded from the budget. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "exclude_from_totals",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, transactions in this category are excluded from totals. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "If set to the ID of an existing category group, the new category will be added to that group. Cannot be used if `is_group` is true."
+        },
+        {
+          "name": "is_group",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, this category will be created as a category group."
+        },
+        {
+          "name": "is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, transactions in this category are treated as income. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the new category. Must be between 1 and 100 characters. The name must not match the name of any existing categories or category groups.",
+          "required": true
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "location": "body",
+          "description": "Position of the category on the categories page in the Lunch Money app. For grouped categories, the order is relative to other categories in the same group.\u003cbr\u003eWhile this property can be set via the API, it is usually managed by the user in the Lunch Money app."
+        }
+      ]
+    },
+    {
+      "name": "categories_delete-category",
+      "description": "Attempts to delete the single category or category group specified on the path. By default, this will only work if there are no dependencies, such as existing budgets for the category, categorized transactions, child categories for a category group, categorized recurring items, etc. If there are dependents, this endpoint will return an object that describes the number and type of existing dependencies. Required: id. Optional: force (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the category to delete",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to force deletion even if there are dependencies"
+        }
+      ]
+    },
+    {
+      "name": "categories_get-all",
+      "description": "Retrieve a list of all categories associated with the user's account. Optional: format (default: nested), is_group. Returns the CategoriesGetAllResponse.",
+      "method": "GET",
+      "path": "/categories",
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "If `nested`, returns top-level categories (either category groups or categories not part of a category group) in alphabetical order. Grouped categories are nested within the category group under the property `children`. A `flattened`, response is similar but it includes grouped categories at the top level.\u003cbr/\u003e\u003cbr/\u003e Categories are sorted by their `order`. When `order` is null, they are listed in alphabetical order below other categories with an `order`."
+        },
+        {
+          "name": "is_group",
+          "type": "bool",
+          "location": "query",
+          "description": "If `false`, only categories not part of a category group are returned.\u003cbr\u003e If `true`, only category groups are returned.\u003cbr\u003e When set, the `format` parameter is ignored."
+        }
+      ]
+    },
+    {
+      "name": "categories_get-category-by-id",
+      "description": "Retrieve details of a specific category or category group by its ID. Required: id. Returns the CategoryObject.",
+      "method": "GET",
+      "path": "/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the category to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_update-category",
+      "description": "Modifies the properties of an existing category or category group.\u003cbr\u003e\u003cbr\u003e You may submit the response from a `GET /categories/{id}` as the request body; however, only certain properties can be updated using this API. The following properties are accepted in the request body but their values will be ignored: `id`, `is_group`, `updated_at`, `created_at`, and `order`.\u003cbr\u003e\u003cbr\u003e It is also possible to provide only the properties to be updated in the request body, as long as the request includes at least one of the properties that is not listed above. For example, a request body that contains only a `name` property is valid.\u003cbr\u003e\u003cbr\u003e It is not possible to use this API to convert a category to a category group, or vice versa, so while submitting a request body with the `is_group` property is tolerated, it will result in an error response if the value is changed.\u003cbr\u003e\u003cbr\u003e It is possible to modify the children of an existing category group with this API by setting the `children` attribute. If this is set, it will replace the existing children with the newly specified children. If the intention is to add or remove a single category, it is more straightforward to update the child category by specifying the new `group_id` attribute. If the goal is to add multiple new children or remove multiple existing children, it is recommended to first call the `GET /categories/{id}` endpoint to get the existing children and then modify the list as desired.\u003cbr\u003e\u003cbr\u003e. Required: id. Optional: archived, archived_at, children (plus 11 more). Returns the updated CategoryObject.",
+      "method": "PUT",
+      "path": "/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the category to update",
+          "required": true
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, determines whether this category is archived."
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "System set date and time of when the category was last archived (in the ISO 8601 extended format). Provide an ISO 8601 extended datetime or `null` to clear it."
+        },
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "List of existing category objects, existing category IDs, or names of new categories to add to the category group. This attribute should only be set when modifying an existing category group.\u003cbr\u003e Categories or IDs must already exist and must not already belong to a category group. Categories that already belong to another category group will be moved. If strings are specified, they will be used as names for new categories added to the group. The request will fail if any provided name matches an existing category name.\u003cbr\u003e You may mix full category objects, IDs, and new category names in the same request."
+        },
+        {
+          "name": "collapsed",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the category is collapsed in the Lunch Money app.\u003cbr\u003eWhile this property can be set via the API it is generally set by the user in the Lunch Money app."
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "System set date and time of when the category was created (in the ISO 8601 extended format). Ignored if set."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "If set, updates the category description. Must not exceed 200 characters."
+        },
+        {
+          "name": "exclude_from_budget",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, determines whether transactions in this category are excluded from budgets. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "exclude_from_totals",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, determines whether transactions in this category are excluded from totals. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "If set to the ID of an existing category group, and this category is not itself a category group, this category will be assigned to that group."
+        },
+        {
+          "name": "is_group",
+          "type": "bool",
+          "location": "body",
+          "description": "This property is tolerated but cannot be changed. This API cannot be used to convert a category into a category group or vice versa."
+        },
+        {
+          "name": "is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, determines whether transactions in this category are treated as income. (See [Category Properties](https://support.lunchmoney.app/setup/categories/category-properties) for details)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, updates the category name. Must be between 1 and 100 characters."
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "location": "body",
+          "description": "Position of the category on the categories page in the Lunch Money app. For categories within a category group, the order is relative to the other categories in the group.\u003cbr\u003eWhile this property can be set via the API, it is generally managed by the user in the Lunch Money app."
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "System set date and time of when the category was last updated (in the ISO 8601 extended format). Ignored if set."
+        }
+      ]
+    },
+    {
+      "name": "crypto_create-manual",
+      "description": "Create a manually managed crypto asset.\u003cbr\u003e\u003cbr\u003e If `display_name` is `null`, clients may derive one from `institution_name` + `name`. Required: balance, name, symbol. Optional: display_name, institution_name. Returns the new CryptoManualObject.",
+      "method": "POST",
+      "path": "/crypto/manual",
+      "params": [
+        {
+          "name": "balance",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric value of the balance, up to 18 decimal places",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional display name for the manual crypto asset. If omitted, clients may derive one from `institution_name` + `name`."
+        },
+        {
+          "name": "institution_name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional institution or wallet provider display name"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User-defined name for the manual crypto asset",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Cryptocurrency symbol to track. Must match the `symbol` of one of the supported cryptocurrencies returned by `GET /cryptocurrencies`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_delete-manual",
+      "description": "Delete a single manually managed crypto asset by ID.\u003cp\u003e If this crypto asset has a balance history, and you do not explicitly set the query parameter`keep_history`, a 422 response will be returned requesting you to explicitly set `keep_history` to `true` or `false`. Required: id. Optional: keep_history. Destructive.",
+      "method": "DELETE",
+      "path": "/crypto/manual/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual crypto balance to delete",
+          "required": true
+        },
+        {
+          "name": "keep_history",
+          "type": "bool",
+          "location": "query",
+          "description": "Explicitly set to `true` to preserve balance history, or `false` to remove associated history during deletion. This must be set if the account has a balance history."
+        }
+      ]
+    },
+    {
+      "name": "crypto_get-all-manual",
+      "description": "Retrieve all manually managed crypto balances associated with the user's account. Returns the CryptoManualListResponseObject.",
+      "method": "GET",
+      "path": "/crypto/manual",
+      "params": []
+    },
+    {
+      "name": "crypto_get-all-synced",
+      "description": "Retrieves all synced crypto accounts associated with the user's account. Returns the CryptoSyncedListResponseObject.",
+      "method": "GET",
+      "path": "/crypto/synced",
+      "params": []
+    },
+    {
+      "name": "crypto_get-manual-by-id",
+      "description": "Retrieve a single manually managed crypto balance by ID. Required: id. Returns the CryptoManualObject.",
+      "method": "GET",
+      "path": "/crypto/manual/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual crypto balance to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_get-synced-balance-by-symbol",
+      "description": "Retrieves a single balance from the specified synced crypto account using the crypto symbol. Required: id, symbol. Returns the CryptoSyncedBalance.",
+      "method": "GET",
+      "path": "/crypto/synced/{id}/{symbol}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account ID",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol within the synced account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_get-synced-by-id",
+      "description": "Retrieves the synced crypto account and all nested balances for the specified synced crypto account ID. Required: id. Returns the SyncedCryptoAccount.",
+      "method": "GET",
+      "path": "/crypto/synced/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_refresh-synced",
+      "description": "Trigger a balance refresh for the specified synced crypto account. Returns the refreshed synced crypto account. Required: id.",
+      "method": "POST",
+      "path": "/crypto/synced/{id}/refresh",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Synced crypto account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_update-manual",
+      "description": "Modify a manually managed crypto balance.\u003cbr\u003e\u003cbr\u003e You may submit the response from `GET /crypto/manual/{id}` as the request body. System-defined properties are accepted according to the `x-updatable` metadata in the update schema. Required: id. Optional: balance, balance_as_of, coingecko_id (plus 8 more). Returns the updated CryptoManualObject.",
+      "method": "PUT",
+      "path": "/crypto/manual/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual crypto balance to update",
+          "required": true
+        },
+        {
+          "name": "balance",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new balance value up to 18 decimal places"
+        },
+        {
+          "name": "balance_as_of",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date/time the balance was last updated in ISO 8601 extended format. Ignored if set"
+        },
+        {
+          "name": "coingecko_id",
+          "type": "string",
+          "location": "body",
+          "description": "System-defined CoinGecko identifier for this symbol. Ignored if set."
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date/time the crypto asset was created in ISO 8601 extended format. Ignored if set"
+        },
+        {
+          "name": "created_by_name",
+          "type": "string",
+          "location": "body",
+          "description": "System defined name of the user who created the crypto asset. Ignored if set"
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new display name for the manual crypto asset"
+        },
+        {
+          "name": "institution_name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new institution or wallet provider display name"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new name of the manual crypto asset"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Existing cryptocurrency symbol. Ignored if set."
+        },
+        {
+          "name": "to_base",
+          "type": "float",
+          "location": "body",
+          "description": "System defined balance converted to the user's primary currency. Ignored if set"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date/time the crypto asset was last updated in ISO 8601 extended format. Ignored if set"
+        }
+      ]
+    },
+    {
+      "name": "cryptocurrencies_create-cryptocurrency",
+      "description": "Adds a new cryptocurrency to the supported manual-crypto list.\u003cbr\u003e\u003cbr\u003e Lunch Money uses [CoinGecko](https://www.coingecko.com/us/coins/ethereum) to convert crypto balances to the user's primary currency. Users add a new supported cryptocurrency by submitting a CoinGecko coin-page URL. The server validates the URL, extracts the id from `/coins/{id}`, checks for an existing supported `coingecko_id`, validates the id against CoinGecko, then confirms the resolved symbol is not already supported before creating the new entry. Required: coingecko_url. Returns the new CryptoCurrencyObject.",
+      "method": "POST",
+      "path": "/cryptocurrencies",
+      "params": [
+        {
+          "name": "coingecko_url",
+          "type": "string",
+          "location": "body",
+          "description": "CoinGecko coin-page URL in the form `https://www.coingecko.com/{locale}/coins/{id}`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cryptocurrencies_get-all",
+      "description": "Retrieve the list of cryptocurrencies currently supported for manual tracking.\u003cp\u003e When creating a new manual crypto balance via `POST /crypto/manual`, the `symbol` you specify must match the `symbol` of one of the entries returned by this endpoint. Returns the CryptoCurrencyResponseObject.",
+      "method": "GET",
+      "path": "/cryptocurrencies",
+      "params": []
+    },
+    {
+      "name": "manual-accounts_create",
+      "description": "Create a new manually-managed account. Required: balance, name, type. Optional: balance_as_of, closed_on, currency (plus 7 more). Returns the new ManualAccountObject.",
+      "method": "POST",
+      "path": "/manual_accounts",
+      "params": [
+        {
+          "name": "balance",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric value of the current balance, up to four decimal places, of the account as a number or string. Do not include any special characters aside from a decimal point.",
+          "required": true
+        },
+        {
+          "name": "balance_as_of",
+          "type": "string",
+          "location": "body",
+          "description": "Date/time the balance of the manual account was last updated in ISO 8601 extended format"
+        },
+        {
+          "name": "closed_on",
+          "type": "string",
+          "location": "body",
+          "description": "The date this manual account was closed in YYYY-MM-DD format. If set, `status` must also be set to `closed`."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter lowercase currency code of the transaction in ISO 4217 format"
+        },
+        {
+          "name": "custom_metadata",
+          "type": "object",
+          "location": "body",
+          "description": "An optional JSON object that includes additional data related to this account. This must be a valid JSON object and, when stringified, must not exceed 4096 characters."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name of the manual account as set by user or derived from the `institution_name` and `name` if not explicitly set.\u003cbr\u003e This must be unique for the budgeting account."
+        },
+        {
+          "name": "exclude_from_transactions",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, transactions may not be assigned to this manual account"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "An optional user-defined ID for the manual account"
+        },
+        {
+          "name": "institution_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of institution holding the manual account"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the manual account",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the account"
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "body",
+          "description": "An optional manual account subtype. Examples include\u003cbr\u003e - retirement - checking - savings - prepaid credit card"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of manual account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manual-accounts_delete",
+      "description": "Deletes the single manual account with the ID specified on the path. If any transactions exist with the `manual_account_id` property set to this account's ID they will appear with a warning when displayed in the web view. Required: id. Optional: delete_items (default: false), delete_balance_history (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/manual_accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual account to delete",
+          "required": true
+        },
+        {
+          "name": "delete_items",
+          "type": "bool",
+          "location": "query",
+          "description": "When set to true will also delete any transactions, rules, and recurring items associated with this account. Use this option with caution, it is irreversible!"
+        },
+        {
+          "name": "delete_balance_history",
+          "type": "bool",
+          "location": "query",
+          "description": "When set to true will delete any balance history associated with this account."
+        }
+      ]
+    },
+    {
+      "name": "manual-accounts_get-all",
+      "description": "Retrieve a list of all manually-managed accounts associated with the user's account. Returns the ManualAccountsGetAllResponse.",
+      "method": "GET",
+      "path": "/manual_accounts",
+      "params": []
+    },
+    {
+      "name": "manual-accounts_get-by-id",
+      "description": "Retrieve the details of the manual account with the specified ID. Required: id. Returns the ManualAccountObject.",
+      "method": "GET",
+      "path": "/manual_accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual account to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manual-accounts_update",
+      "description": "Modifies the properties of an existing manual account.\u003cbr\u003e\u003cbr\u003e You may submit the response from a `GET /manual_accounts/{id}` as the request body, however only certain properties can be updated using this API. The following system set properties are accepted in the request body but their values will be ignored: `id`, `to_base`, `created_at`, and `updated_at`.\u003cbr\u003e\u003cbr\u003e It is also possible to provide only the properties to be updated in the request body, as long as the request includes at least one of the properties that is not listed above. For example a request body that contains only a `name` property is valid.\u003cbr\u003e\u003cbr\u003e. Required: id. Optional: balance, balance_as_of, closed_on (plus 14 more). Returns the updated ManualAccountObject.",
+      "method": "PUT",
+      "path": "/manual_accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the manual account to update",
+          "required": true
+        },
+        {
+          "name": "balance",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric value of the current balance, up to four decimal places, of the manual account as a number or string. Do not include any special characters aside from a decimal point."
+        },
+        {
+          "name": "balance_as_of",
+          "type": "string",
+          "location": "body",
+          "description": "If set, updates the `balance_as_of` value. May be provided as a date in YYYY-MM-DD format or as a date-time string in ISO 8601 extended format. This property is ignored unless `balance` is also set. If `balance` is set and this property is not set, the current time is used."
+        },
+        {
+          "name": "closed_on",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the date this manual account was closed in YYYY-MM-DD format. If updating an account that is not already closed, `status` must also be set to `closed`."
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date/time the account was created in ISO 8601 extended format. Ignored if set."
+        },
+        {
+          "name": "created_by_name",
+          "type": "string",
+          "location": "body",
+          "description": "System defined name of the user who created the account. Ignored if set"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new three-letter lowercase currency code of the manual account balance."
+        },
+        {
+          "name": "custom_metadata",
+          "type": "object",
+          "location": "body",
+          "description": "An optional JSON object that includes additional data related to this account. This must be a valid JSON object and, when stringified, must not exceed 4096 characters."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new display name for the manual account.\u003cbr\u003e This must be unique for the user."
+        },
+        {
+          "name": "exclude_from_transactions",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, transactions may not be assigned to this manual account"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "An optional user-defined ID for the manual account"
+        },
+        {
+          "name": "institution_name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the name of the institution holding the account"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new name of the manual account"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "If set, updates the status of the manual account. If set to `closed`, `closed_on` will be set to the current date unless it is also set."
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "body",
+          "description": "If set, an optional account subtype. Examples include\u003cbr\u003e - retirement - checking - savings - prepaid credit card"
+        },
+        {
+          "name": "to_base",
+          "type": "float",
+          "location": "body",
+          "description": "System defined balance converted to the user's primary currency. Ignored if set. Use `balance` to update the balance in the account"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new type of the manual account"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date/time the account was last updated in ISO 8601 extended format. Ignored if set."
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Get details about the user associated with the supplied authorization token. Returns the UserObject.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "plaid-accounts_get-all",
+      "description": "Retrieve a list of all synced accounts associated with the user's account. Returns the PlaidAccountsGetAllResponse.",
+      "method": "GET",
+      "path": "/plaid_accounts",
+      "params": []
+    },
+    {
+      "name": "plaid-accounts_get-by-id",
+      "description": "Retrieve the details of the plaid account with the specified ID. Required: id. Returns the PlaidAccountObject.",
+      "method": "GET",
+      "path": "/plaid_accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the plaid account to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "plaid-accounts_trigger-fetch",
+      "description": "Use this endpoint to trigger a fetch for latest data from Plaid.\u003cbr\u003e\u003cbr\u003e Eligible accounts are those who last_fetch value is over 1 minute ago. (Although the limit is every minute, please use this endpoint sparingly!) Successive calls to this endpoint under a minute after the first will return a 425 TOO EARLY response.\u003cbr\u003e\u003cbr\u003e Successful calls will return a 202 ACCEPTED response. Note that fetching from Plaid is a background job. This endpoint simply queues up the job. You may track the `plaid_last_successful_update`, `last_fetch` and `last_import` properties to verify the results of the fetch. The `last fetch` property is updated when Plaid accepts a request to fetch data. The `plaid_last_successful_update`is updated when it successfully contacts the associated financial institution. The `last_import` field is updated only when new transactions have been imported. Optional: start_date, end_date, id.",
+      "method": "POST",
+      "path": "/plaid_accounts/fetch",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the beginning of the time period to fetch transactions for. If omitted, the most recent transactions will be returned. \u003cbr\u003e Required if end_date exists. \u003cbr\u003e"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the end of the time period to fetch transactions for. Required if start_date exists."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Specific ID of a plaid account to fetch. If not set the endpoint will trigger a fetch for all eligible accounts."
+        }
+      ]
+    },
+    {
+      "name": "recurring-items_get-all-recurring",
+      "description": "Retrieve recurring items for a specified time frame. Optional: start_date, end_date, include_suggested. Returns the RecurringItemsGetAllRecurringResponse.",
+      "method": "GET",
+      "path": "/recurring_items",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the beginning of the range used to populate the `matching` object in the recurring items. If omitted, the current month will be used as the range.\u003cbr\u003e Required if end_date exists."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the end of the range used to populate the `matching` object in the recurring items. Required if start_date exists."
+        },
+        {
+          "name": "include_suggested",
+          "type": "bool",
+          "location": "query",
+          "description": "Include suggested"
+        }
+      ]
+    },
+    {
+      "name": "recurring-items_get-recurring-by-id",
+      "description": "Retrieve the details of a specific recurring item with the specified ID. Required: id. Optional: start_date, end_date. Returns the RecurringObject.",
+      "method": "GET",
+      "path": "/recurring_items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the recurring item to retrieve",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the beginning of the range used to populate the `matching` object in the recurring items. If omitted, the current month will be used as the range.\u003cbr\u003e Required if end_date exists."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the end of the range used to populate the `matching` object in the recurring items. Required if start_date exists."
+        }
+      ]
+    },
+    {
+      "name": "summary_get-budget",
+      "description": "Retrieves a summary of the user's budget. Use this endpoint to access budget configuration details and performance for a specified date range.\u003cp\u003e Use the [/budgets](#tag/budgets) endpoint to manage budget objects. Required: start_date, end_date. Optional: include_exclude_from_budgets (default: false), include_occurrences (default: false), include_past_budget_dates (default: false) (plus 2 more). Returns the SummaryResponseObject.",
+      "method": "GET",
+      "path": "/summary",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start of date range in ISO 8601 date format (YYYY-MM-DD).",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End of date range in ISO 8601 date format (YYYY-MM-DD).",
+          "required": true
+        },
+        {
+          "name": "include_exclude_from_budgets",
+          "type": "bool",
+          "location": "query",
+          "description": "Enable to include categories that have the 'Exclude from Budgets' flag set in the returned `categories` array."
+        },
+        {
+          "name": "include_occurrences",
+          "type": "bool",
+          "location": "query",
+          "description": "Enable to include an `occurrences` array for each category in an aligned response. Each array will include an object for each budget period that falls within the specified date range which includes details on the activity for the budget period."
+        },
+        {
+          "name": "include_past_budget_dates",
+          "type": "bool",
+          "location": "query",
+          "description": "Enable to include the three budget occurrences prior to the start date in the `occurrences` array for each category in an aligned response. This property is ignored if `include_occurrences` is not also set to `true`."
+        },
+        {
+          "name": "include_totals",
+          "type": "bool",
+          "location": "query",
+          "description": "Enable to include a top-level `totals` section that summarizes the inflow and outflow across all transactions for the specified date range."
+        },
+        {
+          "name": "include_rollover_pool",
+          "type": "bool",
+          "location": "query",
+          "description": "Enable to include a `rollover_pool` section that summarizes the current rollover pool balance and all previous adjustments."
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Creates a new tag with the given name. Required: name. Optional: archived (default: false), background_color, description (plus 1 more). Returns the new TagObject.",
+      "method": "POST",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the tag is archived and not displayed in relevant areas of the Lunch Money app."
+        },
+        {
+          "name": "background_color",
+          "type": "string",
+          "location": "body",
+          "description": "The background color of the tag."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the tag. Must not exceed 200 characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the new tag. Must be between 1 and 100 characters. Must not match the name of any existing tags.",
+          "required": true
+        },
+        {
+          "name": "text_color",
+          "type": "string",
+          "location": "body",
+          "description": "The text color of the tag."
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Deletes the tag with the ID specified on the path.\u003cbr\u003e If transactions or rules exist with the tag, a dependents object is returned and the tag is not deleted. This behavior can be overridden by setting the `force` parameter to `true`. Required: id. Optional: force (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the tag to delete",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to force deletion even if there are dependencies"
+        }
+      ]
+    },
+    {
+      "name": "tags_get-all",
+      "description": "Retrieve a list of all tags associated with the user's account. Returns the TagsGetAllResponse.",
+      "method": "GET",
+      "path": "/tags",
+      "params": []
+    },
+    {
+      "name": "tags_get-by-id",
+      "description": "Retrieve the details of a specific tag with the specified ID. Required: id. Returns the TagObject.",
+      "method": "GET",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the tag to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Updates an existing tag.\u003cbr\u003e\u003cbr\u003e You may submit the response from a `GET /tags/{id}` as the request body; however, only certain properties can be updated using this API. The following system set properties are accepted in the request body but their values will be ignored: `id`, `updated_at`, and `created_at`.\u003cbr\u003e\u003cbr\u003e It is also possible to provide only the properties to be updated in the request body, as long as the request includes at least one of the properties that is not listed above. For example, a request body that contains only a `name` attribute is valid. Required: id. Optional: archived, archived_at, background_color (plus 5 more). Returns the updated TagObject.",
+      "method": "PUT",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the tag to update",
+          "required": true
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "body",
+          "description": "If set, determines whether this tag is archived."
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "If set, updates the archived timestamp for the tag. Provide an ISO 8601 extended datetime or `null` to clear it."
+        },
+        {
+          "name": "background_color",
+          "type": "string",
+          "location": "body",
+          "description": "The background color of the tag."
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "System-set time the tag was created. Ignored if set."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new description of the tag. Must not exceed 200. characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "If set, the new name of the tag. Must be between 1 and 100. characters."
+        },
+        {
+          "name": "text_color",
+          "type": "string",
+          "location": "body",
+          "description": "The text color of the tag."
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "System-set time the tag was last updated. Ignored if set"
+        }
+      ]
+    },
+    {
+      "name": "transactions_create-new",
+      "description": "Use this endpoint to add transactions to a budget.\u003cp\u003e The request body for this endpoint must include a list of transactions with at least one transaction and not more than 500 transactions to insert.\u003cp\u003e The successful request to this endpoint will return a response body which will include two arrays:\u003cbr\u003e - `transactions`: A list of transactions that were successfully inserted.\u003cbr\u003e - `skipped_duplicates`: A list of transactions that were duplicates of existing transactions and were not inserted. Required: transactions. Optional: apply_rules (default: false), skip_balance_update (default: false), skip_duplicates (default: false). Returns the new InsertTransactionsResponseObject.",
+      "method": "POST",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "apply_rules",
+          "type": "bool",
+          "location": "body",
+          "description": "If explicitly set to `true`, any rules associated with the account specified by the `manual_account_id` property for each transaction will be applied."
+        },
+        {
+          "name": "skip_balance_update",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, and new transactions include a `manual_account_id`, the balances of these accounts will not be updated, when the transactions are inserted."
+        },
+        {
+          "name": "skip_duplicates",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the system will flag new transactions that have the same `date`, `payee`, `amount`, and account_id (plaid or manual), as an existing transaction, as a duplicate. \u003cbr\u003e\u003cbr\u003e Note that deduplication based on `external_id` will always occur regardless of how this property is set."
+        },
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "List of transactions to insert.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete",
+      "description": "Deletes the transaction with the IDs specified in the request body.\u003cp\u003e If any of the specified transactions are a split transaction or a split parent, or if any are a grouped transactions or part of a transaction group, the request will fail with a suggestion on how to unsplit or ungroup the transaction(s) prior to deletion. This will also fail if any of the specified transaction IDs do not exist.\u003cp\u003e Otherwise, the specified transactions are deleted.\u003cp\u003e \u003cspan class='red-text'\u003e\u003cstrong\u003eUse with caution. This action is not reversible!\u003c/strong\u003e\u003c/span\u003e. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of existing Transaction IDs to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete-attachment",
+      "description": "Deletes a file attachment from a transaction. Required: file_id. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions/attachments/{file_id}",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "int",
+          "location": "path",
+          "description": "File id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete-by-id",
+      "description": "Deletes the transaction with the ID specified on the path.\u003cp\u003e If the specified transaction is a split transaction or a split parent, or if it is a grouped transactions or part of a transaction group, the request will fail with a suggestion on how to unsplit or ungroup the transaction(s) prior to deletion. Otherwise, the specified transaction is deleted. \u003cp\u003e \u003cspan class='red-text'\u003e\u003cstrong\u003eUse with caution. This action is not reversible!\u003c/strong\u003e\u003c/span\u003e. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the transaction to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-all",
+      "description": "Retrieve a list of all transactions associated with a user's account. \u003cbr\u003eIf called with no parameters, this endpoint will return the most recent transactions, up to the specified `limit`. Optional: start_date, end_date, created_since (plus 17 more). Returns the TransactionsGetAllResponse.",
+      "method": "GET",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the beginning of the time period to fetch transactions for. If omitted, the most recent transactions will be returned. See `limit`. Required if end_date exists. \u003cbr\u003e"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates the end of the time period to fetch transactions for. Required if start_date exists."
+        },
+        {
+          "name": "created_since",
+          "type": "string",
+          "location": "query",
+          "description": "Filter transactions to those created after the specified timestamp. Accepts either a date (YYYY-MM-DD) or ISO 8601 datetime string. Date-only values are interpreted as midnight UTC (00:00:00Z)."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Filter transactions to those updated after the specified timestamp. Accepts either a date (YYYY-MM-DD) or ISO 8601 datetime string. Date-only values are interpreted as midnight UTC (00:00:00Z)."
+        },
+        {
+          "name": "manual_account_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter transactions to those associated with specified manual account ID or set this to 0 to omit any transactions from manual accounts. Setting both this and `plaid_account_id` to 0 will return transactions with no account. These are listed as 'Cash Transactions' in the Lunch Money app.\u003cbr\u003e Note that transaction groups are not associated with any account. If you want the response to include transactions from transaction groups, set the `include_group_children` query parameter to `true` when filtering by manual accounts."
+        },
+        {
+          "name": "plaid_account_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter transactions to those associated with specified plaid account ID or set this to 0 to omit any transactions from plaid accounts. Setting both this and `manual_account_id` to 0 will return transactions with no account. These are listed as 'Cash Transactions' in the Lunch Money app.\u003cbr\u003e Note that transaction groups are not associated with any account. If you want the response to include transactions from transaction groups, set the `include_group_children` query parameter to `true` when filtering by plaid accounts."
+        },
+        {
+          "name": "recurring_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter transactions to those associated with the specified recurring item ID."
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter transactions to those associated with the specified category ID. Will also match category groups. Set this to 0 to return only uncategorized transactions."
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter transactions to those that have the specified tag ID"
+        },
+        {
+          "name": "is_group_parent",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by group (returns only transaction groups if `true`)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter transactions to those with the specified status:\u003cbr\u003e - `reviewed`: Only user reviewed transactions or those that were automatically marked as reviewed due to reviewed recurring_item logic\u003cbr\u003e - `unreviewed`: Only transactions that need to be reviewed\u003cbr\u003e - `delete_pending`: Only transactions that require manual intervention because the plaid account deleted this transaction after it was updated by the user."
+        },
+        {
+          "name": "is_pending",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter transactions by pending status. Set to `true` to return only pending transactions, or `false` to return only non-pending transactions. When this parameter is set, it takes precedence over `include_pending`. Note: Pending transactions always have a status of `unreviewed`, so when setting this parameter to `true`, either omit the `status` parameter or set it to `unreviewed`."
+        },
+        {
+          "name": "include_pending",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, pending transactions are excluded from results. Set to `true` to include imported transactions with a pending status in the results. This query param is ignored if the `is_pending` query param is also set."
+        },
+        {
+          "name": "include_metadata",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, custom and plaid metadata are not included in the response. Set to true if you'd like the returned transaction objects to include any metadata associated with the transactions."
+        },
+        {
+          "name": "include_split_parents",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, transactions that were split into multiple transactions are not included in the response. Set to true if you'd like the returned transaction objects to include transactions that were split into multiple transactions. Use with caution, as this data is normally not exposed after the split transactions are created."
+        },
+        {
+          "name": "include_group_children",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, individual transactions that joined into a transaction group are not included in the response. Set to true if you'd like the returned transactions objects to include any transactions that joined into a transaction group."
+        },
+        {
+          "name": "include_children",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, the `children` property is not included in the response. Set to true if you'd like the children property to be populated with the transactions that make up a transaction group, or, if the `include_split_parents` query param is also set, the transactions that were split from a parent transaction."
+        },
+        {
+          "name": "include_files",
+          "type": "bool",
+          "location": "query",
+          "description": "By default, the `files` property is not included in the response. Set to true if you'd like the responses to include a list of objects that describe any files attached to the transactions."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Sets the maximum number of transactions to return. If more match the filter criteria, the response will include a `has_more` attribute set to `true`. See [Pagination](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/pagination)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Sets the offset for the records returned. This is typically set automatically in the header. See [Pagination](https://lm-v2-api-next-a7fabcab8e9a.herokuapp.com/v2/pagination)"
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-attachment-url",
+      "description": "Returns a signed url that can be used to download the file attachment. Required: file_id.",
+      "method": "GET",
+      "path": "/transactions/attachments/{file_id}",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "int",
+          "location": "path",
+          "description": "File id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-by-id",
+      "description": "Retrieves the details of a specific transaction by its ID, including the following properties which are not returned by default in the response to a `GET /transactions` request:\u003cbr\u003e - `plaid_metadata` will either be `null` or contain the metadata for transactions associated with an account that is synced via plaid. - `custom_metadata` will either be `null` or contain any custom_metadata added to transactions that were inserted or updated via the API. - `files` will be a list of objects that describe any attachments to the transaction. If `is_group_parent` is true in the returned transaction, the object will also include the `children` property which will contain a list of the original transactions that make up the transaction group.\u003cbr\u003e If `is_split_parent` is true in the returned transaction, the object will also include the `children` property which will contain a list of the split transactions. Required: id. Returns the TransactionObject.",
+      "method": "GET",
+      "path": "/transactions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the transaction to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_group",
+      "description": "Specify a set of existing transaction IDs to group together as a single grouped transaction. The new transaction will have an amount equal to the sum of the grouped transaction amounts. If the grouped transactions have different currencies, the new group transaction will be set in the user's default currency.\u003cbr\u003e\u003cbr\u003e After a transaction has been grouped, the original transactions are no longer shown on the transactions page or returned by a `GET /transactions` request. The newly created grouped transaction is returned instead. To see the details of the original transactions that were used to create a transaction group, use the `GET /transactions/{id}` endpoint and pass the ID of the grouped transaction. The grouped transactions will be included in the `children` property of the transaction returned in the response. Required: date, ids, payee. Optional: category_id, notes, status (plus 1 more). Returns the new TransactionObject.",
+      "method": "POST",
+      "path": "/transactions/group",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of an existing category to assign to the grouped transaction. If not set and all the grouped transactions have the same category, the grouped transaction will inherit the category, otherwise the new transaction will have no category."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Date for the new grouped transaction in ISO 8601 format.",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of existing transaction IDs to group. Split and recurring transactions may not be grouped. Transactions that are already grouped must be ungrouped before being regrouped.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes for the grouped transaction."
+        },
+        {
+          "name": "payee",
+          "type": "string",
+          "location": "body",
+          "description": "The payee for the new grouped transaction.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "If set, must be either `reviewed` or `unreviewed`. If not set, defaults to `reviewed`."
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "A list of IDs for the tags associated with the grouped transaction. Each ID must match an existing tag associated with the user's account. If not set, no tags will be associated with the created transaction."
+        }
+      ]
+    },
+    {
+      "name": "transactions_split",
+      "description": "Splits an existing transaction into a set of smaller child transactions.\u003cbr\u003e\u003cbr\u003e After a transaction has been split, the original transaction is no longer shown on the transactions page or returned by a `GET /transactions` request. The newly created child transactions are returned instead. To see the details of the original parent transaction after it has been split, use the `GET /transactions/{id}` endpoint and pass the value of the `split_parent_id` of one of the children. Required: id, child_transactions. Returns the new TransactionObject.",
+      "method": "POST",
+      "path": "/transactions/split/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the transaction to spit",
+          "required": true
+        },
+        {
+          "name": "child_transactions",
+          "type": "array",
+          "location": "body",
+          "description": "List of child transactions to create. The sum of the `amounts` must match the split transaction amount.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_ungroup",
+      "description": "Deletes the transaction group with the ID specified on the path.\u003cbr\u003e The transactions within the group are not removed and will subsequently be treated as 'normal' ungrouped transactions. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions/group/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the transaction group to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_unsplit",
+      "description": "Deletes the split children of a previously split transactions and restores the parent transactions to the normal unsplit state.\u003cbr\u003e\u003cbr\u003e Use the value of the `split_parent_id`property of a split transaction to specify the parent ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/transactions/split/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the previously split transaction to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_update",
+      "description": "Modifies the properties of multiple existing transactions in a single request.\u003cbr\u003e\u003cbr\u003e You may submit complete transaction objects from the response returned by a `GET /transactions` in the request body for each transaction, however only certain properties can be updated using this API. The following system set properties are accepted in the request body, but their values will be ignored: `id`, `to_base`, `is_pending`, `created_at`, `updated_at`, `source`, and `plaid_metadata`.\u003cbr\u003e\u003cbr\u003e Transactions that have been previously split or grouped may not be modified by this endpoint. Therefore the `is_split_parent`, `split_parent_id`, `is_group_parent`, `group_parent_id`, and `children` properties are also ignored when provided in the request body.\u003cbr\u003e\u003cbr\u003e Each transaction in the array **must** include an `id` property to identify which transaction to update, along with at least one other property to be updated. For example, a transaction object that contains only an `id` and `category_id` property is valid.\u003cbr\u003e\u003cbr\u003e The request can include between 1 and 500 transactions to update in a single call. Required: transactions. Returns the updated TransactionsUpdateResponse.",
+      "method": "PUT",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "List of transactions to update. Each transaction must have an `id` property and at least one other property to update.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_update-id",
+      "description": "Modifies the properties of an existing transaction.\u003cbr\u003e\u003cbr\u003e You may submit the response from a `GET /transactions/{id}` as the request body, however only certain properties can be updated using this API. The following system set properties are accepted in the request body but their values will be ignored: `id`, `to_base`, `is_pending`, `created_at`, `updated_at`, `source`, and `plaid_metadata`.\u003cbr\u003e\u003cbr\u003e Transactions that have been previously split or grouped may not be modified by this endpoint. Therefore the `is_split_parent`, `split_parent_id`, `is_group_parent`, `group_parent_id`, and `children` properties are also ignored when provided in the request body.\u003cbr\u003e\u003cbr\u003e It is also possible to provide only the properties to be updated in the request body, as long as the request includes at least one of the properties that is not listed above. For example a request body that contains only an `category_id` attribute is valid. Required: id. Optional: update_balance, additional_tag_ids, amount (plus 24 more). Returns the updated TransactionObject.",
+      "method": "PUT",
+      "path": "/transactions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the transaction to update",
+          "required": true
+        },
+        {
+          "name": "update_balance",
+          "type": "bool",
+          "location": "query",
+          "description": "Set this to `false` to skip updating the transaction's associated account balance. Default behavior is to update balances."
+        },
+        {
+          "name": "additional_tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "A list of tag_ids for the tags associated with this transaction. If set, the tags listed in this property will be added to any existing transaction tags. Use `tag_ids` to overwrite or clear transaction tags. If set, `tag_ids` may not be set."
+        },
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "body",
+          "description": "Numeric value of the amount without a currency symbol. For example, $4.25 should be provided as 4.25. May be a string or a number in double format. Positive values indicate a debit transaction, negative values indicate a credit transaction. \u003cbr\u003e May not be updated on transactions that belong to a synced account with the 'Allow Modifications to Transactions' property disabled."
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the category for this transaction. Set this to null to clear the transaction's category."
+        },
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "An array of child transactions present when a transaction has been split or when the transaction is a group. Split and grouped transactions may not be modified using this API. Ignored if set."
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date and time of when the transaction was created. Ignored if set."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter lowercase currency code of the transaction in ISO 4217 format.\u003cbr\u003e May not be updated on transactions that belong to a synced account with the 'Allow Modifications to Transactions' property disabled."
+        },
+        {
+          "name": "custom_metadata",
+          "type": "object",
+          "location": "body",
+          "description": "User defined JSON data that can be set or cleared via the API."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Transaction date in ISO 8601 format"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "A user-defined external ID for the transaction. The update will fail if the transaction does not also have a `manual_account_id` or if there is already an existing transaction with the same `manual_account_id`/`external_id` combination."
+        },
+        {
+          "name": "group_parent_id",
+          "type": "int",
+          "location": "body",
+          "description": "A transaction group ID if this transaction is part of a group. Grouped transactions may not be modified with this API. Use the `transactions/group` endpoint instead. Ignored if set."
+        },
+        {
+          "name": "is_group_parent",
+          "type": "bool",
+          "location": "body",
+          "description": "System defined boolean indicating if this transaction represents a group of transactions. Grouped transactions may not be modified with this API. Use the `transactions/group` endpoint instead. Ignored if set."
+        },
+        {
+          "name": "is_pending",
+          "type": "bool",
+          "location": "body",
+          "description": "System defined flag set for pending transactions. Ignored if set."
+        },
+        {
+          "name": "is_split_parent",
+          "type": "bool",
+          "location": "body",
+          "description": "System defined boolean indicating if this transaction was split. To split or unsplit a transaction use the `/transactions/split` endpoint. Ignored if set."
+        },
+        {
+          "name": "manual_account_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique identifier of the manual account associated with this transaction. Set this to null to disassociate the transaction with an account. If set, `plaid_account_id` may not also be set to a non null value. Moving an existing transaction to another account will not work if the transaction belongs to a synced account whose 'Allow Modifications to Transactions' property is not set."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "New notes for the transaction. Set this to an empty string to clear the existing notes."
+        },
+        {
+          "name": "original_name",
+          "type": "string",
+          "location": "body",
+          "description": "Original payee name. Cannot be changed. Ignored if set."
+        },
+        {
+          "name": "payee",
+          "type": "string",
+          "location": "body",
+          "description": "The new payee for the transaction."
+        },
+        {
+          "name": "plaid_account_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique identifier of the Plaid account associated with this transaction. If set, `manual_account_id` may not also be set to a non null value. Attempting to modify this on a transaction associated with a Plaid account will not work if the account's 'Allow Modifications to Transactions' property is not set. Similarly, this cannot be set to an id associated with this type of locked Plaid account."
+        },
+        {
+          "name": "plaid_metadata",
+          "type": "object",
+          "location": "body",
+          "description": "System set metadata from a Plaid account sync. Ignored if set."
+        },
+        {
+          "name": "recurring_id",
+          "type": "int",
+          "location": "body",
+          "description": "The unique identifier of the associated recurring item that this transaction matches."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "System defined original source of the transaction. Ignored if set."
+        },
+        {
+          "name": "split_parent_id",
+          "type": "int",
+          "location": "body",
+          "description": "A transaction ID if this is a split transaction. Split transactions may not be modified this API. Use the `transactions/split` endpoint instead. Ignored if set."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the transaction, may be one of: - `reviewed`: User has reviewed the transaction, or it was automatically marked as reviewed due to reviewed recurring_item logic - `unreviewed`: User has not reviewed the transaction and it does not match any reviewed recurring_items."
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "A list of tag_ids for the tags associated with this transaction. If set, this property will overwrite any existing tags. Use `additional_tag_ids` to add tags to the existing transaction's tags. Set this to an empty array to remove all tags from a transaction. If set `additional_tag_ids` may not be set."
+        },
+        {
+          "name": "to_base",
+          "type": "float",
+          "location": "body",
+          "description": "System defined amount of this transaction in the user's primary currency. Ignored if set. Use `amount` to update the amount in the transaction."
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "System defined date and time of when the transaction was last updated. Ignored if set."
+        }
+      ]
+    },
+    {
+      "name": "transactions_attachments_attach-file-to-transaction",
+      "description": "Attaches a file to a transaction. The file must be less than 10MB in size.\u003cbr\u003e\u003cbr\u003e The file will be attached to the transaction and can be downloaded from the link returned by a `GET /transactions/attachments/{file_id}` request. Required: transaction_id, file. Optional: notes. Returns the new TransactionAttachmentObject.",
+      "method": "POST",
+      "path": "/transactions/{transaction_id}/attachments",
+      "params": [
+        {
+          "name": "transaction_id",
+          "type": "int",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to attach via multipart form encoding. File size may not exceed 10MB.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Optional notes about the file"
+        }
+      ]
+    }
+  ]
+}

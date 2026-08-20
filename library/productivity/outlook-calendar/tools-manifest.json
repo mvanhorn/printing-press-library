@@ -1,0 +1,864 @@
+{
+  "api_name": "outlook-calendar",
+  "base_url": "https://graph.microsoft.com/v1.0",
+  "description": "Outlook Calendar CLI for personal Microsoft 365 accounts via Microsoft Graph",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {OUTLOOK_CALENDAR_TOKEN}",
+    "env_vars": [
+      "OUTLOOK_CALENDAR_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OUTLOOK_CALENDAR_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "outlook-calendar-pp-cli/0.1"
+    }
+  ],
+  "tools": [
+    {
+      "name": "attachments_delete",
+      "description": "Delete an attachment. Required: event_id, attachment_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/events/{event_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attachments_get",
+      "description": "Get a specific attachment by id. Required: event_id, attachment_id. Returns the Attachment.",
+      "method": "GET",
+      "path": "/me/events/{event_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attachments_list",
+      "description": "List attachments on an event. Required: event_id. Returns array of Attachment.",
+      "method": "GET",
+      "path": "/me/events/{event_id}/attachments",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "availability_find",
+      "description": "Suggest meeting times based on attendee availability and constraints. Optional: attendees, meetingDurationMinutes (default: 30), maxCandidates (default: 10) (plus 3 more).",
+      "method": "POST",
+      "path": "/me/findMeetingTimes",
+      "params": [
+        {
+          "name": "attendees",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated attendee email addresses (omit for self-only)"
+        },
+        {
+          "name": "meetingDurationMinutes",
+          "type": "int",
+          "location": "body",
+          "description": "Required meeting duration in minutes"
+        },
+        {
+          "name": "maxCandidates",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum meeting-time suggestions to return"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Earliest acceptable start (ISO 8601)"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "Latest acceptable end (ISO 8601)"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone applied to the window"
+        }
+      ]
+    },
+    {
+      "name": "availability_schedule",
+      "description": "Get free/busy schedule for a list of users (limited on personal Microsoft accounts). Required: schedules, startTime, endTime. Optional: timeZone (default: UTC), availabilityViewInterval (default: 60).",
+      "method": "POST",
+      "path": "/me/calendar/getSchedule",
+      "params": [
+        {
+          "name": "schedules",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated email addresses to query",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Window start (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "Window end (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone for the window"
+        },
+        {
+          "name": "availabilityViewInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Bucket size in minutes (15..1440)"
+        }
+      ]
+    },
+    {
+      "name": "calendars_create",
+      "description": "Create a new calendar. Required: name. Optional: color. Returns the new Calendar.",
+      "method": "POST",
+      "path": "/me/calendars",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar name",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Predefined color name (lightBlue, lightGreen, lightOrange, ...)"
+        }
+      ]
+    },
+    {
+      "name": "calendars_default",
+      "description": "Get the user's default calendar. Returns the Calendar.",
+      "method": "GET",
+      "path": "/me/calendar",
+      "params": []
+    },
+    {
+      "name": "calendars_delete",
+      "description": "Delete a calendar. Required: calendar_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/calendars/{calendar_id}",
+      "params": [
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_get",
+      "description": "Get a calendar by id. Required: calendar_id. Returns the Calendar.",
+      "method": "GET",
+      "path": "/me/calendars/{calendar_id}",
+      "params": [
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_list",
+      "description": "List all calendars on the account. Optional: top (default: 50), select-fields. Returns array of Calendar.",
+      "method": "GET",
+      "path": "/me/calendars",
+      "params": [
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum calendars to return"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "calendars_update",
+      "description": "Update a calendar. Required: calendar_id. Optional: name, color, hexColor. Returns the updated Calendar.",
+      "method": "PATCH",
+      "path": "/me/calendars/{calendar_id}",
+      "params": [
+        {
+          "name": "calendar_id",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New calendar name"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Predefined color name"
+        },
+        {
+          "name": "hexColor",
+          "type": "string",
+          "location": "body",
+          "description": "Custom hex color (e.g. #2563eb)"
+        }
+      ]
+    },
+    {
+      "name": "categories_create",
+      "description": "Create a new master category. Required: displayName. Optional: color. Returns the new Category.",
+      "method": "POST",
+      "path": "/me/outlook/masterCategories",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Category display name",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Preset color (preset0..preset24, or none)"
+        }
+      ]
+    },
+    {
+      "name": "categories_delete",
+      "description": "Delete a master category. Required: category_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/outlook/masterCategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List master categories. Returns array of Category.",
+      "method": "GET",
+      "path": "/me/outlook/masterCategories",
+      "params": []
+    },
+    {
+      "name": "delta_events",
+      "description": "Pull incremental event changes since the last delta token. Optional: delta-token, top (default: 200). Returns array of Event.",
+      "method": "GET",
+      "path": "/me/events/delta",
+      "params": [
+        {
+          "name": "delta-token",
+          "wire_name": "$deltatoken",
+          "type": "string",
+          "location": "query",
+          "description": "Delta token from a previous sync (optional; empty starts a fresh sync)"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "delta_view",
+      "description": "Pull incremental calendar-view changes within a window. Optional: from, to, delta-token. Returns array of Event.",
+      "method": "GET",
+      "path": "/me/calendarView/delta",
+      "params": [
+        {
+          "name": "from",
+          "wire_name": "startDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Window start (ISO 8601, only used on initial sync)"
+        },
+        {
+          "name": "to",
+          "wire_name": "endDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Window end (ISO 8601, only used on initial sync)"
+        },
+        {
+          "name": "delta-token",
+          "wire_name": "$deltatoken",
+          "type": "string",
+          "location": "query",
+          "description": "Delta token from a previous sync"
+        }
+      ]
+    },
+    {
+      "name": "events_accept",
+      "description": "Accept a meeting invite. Required: event_id. Optional: comment, sendResponse (default: true).",
+      "method": "POST",
+      "path": "/me/events/{event_id}/accept",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional response comment to the organizer"
+        },
+        {
+          "name": "sendResponse",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to send a response back to the organizer"
+        }
+      ]
+    },
+    {
+      "name": "events_cancel",
+      "description": "Cancel an event you organized (notifies attendees). Required: event_id. Optional: comment.",
+      "method": "POST",
+      "path": "/me/events/{event_id}/cancel",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional cancellation message to attendees"
+        }
+      ]
+    },
+    {
+      "name": "events_create",
+      "description": "Create a new event on the default calendar. Required: subject, start, end. Optional: body, timeZone (default: UTC), location (plus 3 more). Returns the new Event.",
+      "method": "POST",
+      "path": "/me/events",
+      "params": [
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Event title",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Event body text (plain or HTML; pass content directly)"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "Start dateTime (ISO 8601, e.g. 2026-05-10T14:00:00)",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "End dateTime (ISO 8601, e.g. 2026-05-10T15:00:00)",
+          "required": true
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone applied to start and end (e.g. America/New_York)"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Display name for the event location"
+        },
+        {
+          "name": "attendees",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated attendee email addresses"
+        },
+        {
+          "name": "isOnlineMeeting",
+          "type": "bool",
+          "location": "body",
+          "description": "Create as a Microsoft Teams online meeting"
+        },
+        {
+          "name": "categories",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated master-category names to apply"
+        }
+      ]
+    },
+    {
+      "name": "events_decline",
+      "description": "Decline a meeting invite. Required: event_id. Optional: comment, sendResponse (default: true).",
+      "method": "POST",
+      "path": "/me/events/{event_id}/decline",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional response comment to the organizer"
+        },
+        {
+          "name": "sendResponse",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to send a response back to the organizer"
+        }
+      ]
+    },
+    {
+      "name": "events_delete",
+      "description": "Delete an event by id. Required: event_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/events/{event_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_dismiss",
+      "description": "Dismiss the reminder for an event. Required: event_id.",
+      "method": "POST",
+      "path": "/me/events/{event_id}/dismissReminder",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_forward",
+      "description": "Forward an event to additional attendees. Required: event_id, toRecipients. Optional: comment.",
+      "method": "POST",
+      "path": "/me/events/{event_id}/forward",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional comment included in the forwarded invite"
+        },
+        {
+          "name": "toRecipients",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated recipient email addresses",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Get a single event by id. Required: event_id. Optional: select-fields. Returns the Event.",
+      "method": "GET",
+      "path": "/me/events/{event_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "events_instances",
+      "description": "List occurrences of a recurring event in a date range. Required: event_id, from, to. Optional: top (default: 100). Returns array of Event.",
+      "method": "GET",
+      "path": "/me/events/{event_id}/instances",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series-master event id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "wire_name": "startDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start of the window (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "to",
+          "wire_name": "endDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "End of the window (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum instances to return"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events on the default calendar. Optional: top (default: 50), skip, orderby (default: start/dateTime) (plus 2 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/me/events",
+      "params": [
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of events to return (1-1000)"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Number of events to skip (offset pagination)"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "OData order-by expression (e.g. 'start/dateTime', 'subject')"
+        },
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData filter expression"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "events_range",
+      "description": "List events occurring within a date range (calendarView; expands recurring instances). Required: from, to. Optional: top (default: 100), orderby (default: start/dateTime), select-fields. Returns array of Event.",
+      "method": "GET",
+      "path": "/me/calendarView",
+      "params": [
+        {
+          "name": "from",
+          "wire_name": "startDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start of the window (ISO 8601, e.g. 2026-05-10T00:00:00)",
+          "required": true
+        },
+        {
+          "name": "to",
+          "wire_name": "endDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "End of the window (ISO 8601, e.g. 2026-05-17T00:00:00)",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum events to return"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "OData order-by expression"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "events_search",
+      "description": "Server-side search across events ($search query). Required: query. Optional: top (default: 25). Returns array of Event.",
+      "method": "GET",
+      "path": "/me/events",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "$search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string (matches subject and body)",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum events to return (server-side $search caps low)"
+        }
+      ]
+    },
+    {
+      "name": "events_snooze",
+      "description": "Snooze the reminder for an event until a specific time. Required: event_id, newReminderTime. Optional: timeZone (default: UTC).",
+      "method": "POST",
+      "path": "/me/events/{event_id}/snoozeReminder",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "newReminderTime",
+          "type": "string",
+          "location": "body",
+          "description": "New reminder ISO 8601 dateTime (e.g. 2026-05-10T13:50:00)",
+          "required": true
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone for the new reminder time"
+        }
+      ]
+    },
+    {
+      "name": "events_tentative",
+      "description": "Tentatively accept a meeting invite. Required: event_id. Optional: comment, sendResponse (default: true).",
+      "method": "POST",
+      "path": "/me/events/{event_id}/tentativelyAccept",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional response comment to the organizer"
+        },
+        {
+          "name": "sendResponse",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to send a response back to the organizer"
+        }
+      ]
+    },
+    {
+      "name": "events_update",
+      "description": "Update fields on an existing event (subject, body, time, location, attendees). Required: event_id. Optional: subject, body, start (plus 4 more). Returns the updated Event.",
+      "method": "PATCH",
+      "path": "/me/events/{event_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "New event title"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "New event body text"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "New start dateTime (ISO 8601)"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "New end dateTime (ISO 8601)"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone applied to start and end"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "New location display name"
+        },
+        {
+          "name": "isOnlineMeeting",
+          "type": "bool",
+          "location": "body",
+          "description": "Toggle Microsoft Teams online meeting"
+        }
+      ]
+    }
+  ]
+}

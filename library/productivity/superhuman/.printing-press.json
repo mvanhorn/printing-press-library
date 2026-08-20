@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T01:05:46.21975Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "superhuman",
+  "display_name": "Superhuman",
+  "cli_name": "superhuman-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "contributors": [
+    {
+      "handle": "noahlevin",
+      "name": "Noah Levin"
+    }
+  ],
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:df4b73576bf54b74c371f79ae94b222135dc3c853185286e1f260589dbbc73c9",
+  "run_id": "20260512-165241",
+  "mcp_binary": "superhuman-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SUPERHUMAN_JWT"
+  ],
+  "novel_features": [
+    {
+      "name": "Workflow compound commands",
+      "command": "workflow",
+      "description": "Compound commands that combine multiple API operations into one verb (see `workflow --help`)."
+    },
+    {
+      "name": "Capability discovery via `which`",
+      "command": "which",
+      "description": "Resolve a natural-language capability query to the best matching command from this CLI's curated feature index."
+    }
+  ]
+}

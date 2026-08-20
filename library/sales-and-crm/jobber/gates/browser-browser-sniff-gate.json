@@ -1,0 +1,11 @@
+{
+  "run_id": "20260522-234028",
+  "sources": [
+    {
+      "source_name": "jobber",
+      "decision": "skip-silent",
+      "reason": "complete-schema-introspection-available-locally; user-provided schema/ research at C:\\Users\\melan\\Documents\\Bouvier_Advisors\\assignments\\CRMs\\Jobber\\schema with verified 2026-05-15 live GraphQL introspection covering 18 root surfaces, 22 objects, 431 fields. No gap signal from research that would benefit from browser-sniffing the docs site.",
+      "asked_at": "2026-05-22T23:42:30Z"
+    }
+  ]
+}

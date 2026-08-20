@@ -1,0 +1,29 @@
+# Compiled binaries (root only — leading slash anchors to .gitignore dir)
+/chrome-history-pp-cli
+/chrome-history
+/build/
+
+# Local SQLite snapshot + offline FTS cache
+.cache/
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Regenerable run artifacts
+.printing-press-*-polish.json
+*-verify-report.json
+dogfood-results.json
+workflow-verify-report.json
+.codex-*
+
+# Go test/coverage
+coverage.out
+*.test
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

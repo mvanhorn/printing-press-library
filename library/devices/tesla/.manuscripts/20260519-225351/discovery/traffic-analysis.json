@@ -1,0 +1,3227 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://owner-api.teslamotors.com/api/1/logs",
+    "entry_count": 60,
+    "api_entry_count": 58,
+    "noise_entry_count": 2,
+    "host_distribution": {
+      "digitalassets-energy.tesla.com": 2,
+      "firebaseremoteconfig.googleapis.com": 1,
+      "owner-api.teslamotors.com": 52,
+      "ownership.tesla.com": 4,
+      "www.tesla.com": 1
+    },
+    "http_version_distribution": {
+      "h2": 59,
+      "h3": 1
+    },
+    "time_start": "2026-05-18T22:55:20.26995Z",
+    "time_end": "2026-05-18T22:57:33.256283Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "owner-api.teslamotors.com returns 401 (not challenge) without bearer; plain HTTPS proven by direct curl"
+    ],
+    "evidence": [
+      {
+        "method": "GET",
+        "host": "owner-api.teslamotors.com",
+        "path": "/api/1/products",
+        "status": 401,
+        "reason": "direct curl returned plain JSON error: token expired"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "firebase",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "firebaseremoteconfig.googleapis.com",
+          "path": "/v1/projects/tesla-prod/namespaces/fireperf:fetch",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "firebase/firestore host or path"
+        }
+      ]
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "firebaseremoteconfig.googleapis.com",
+          "path": "/v1/projects/tesla-prod/namespaces/fireperf:fetch",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/energy_sites/rate_tariffs",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/service_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/orders",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "www.tesla.com",
+          "path": "/referral/content/v2",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/notification_preferences",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/app_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/products",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/update-app/assets",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/macgyver/diagnostic",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/service/surveys",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/drive/appointments",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 28,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/keys",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 31,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 32,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 33,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 34,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 36,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 37,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 41,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 44,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 45,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "bearer_token",
+        "confidence": 0.9,
+        "header_names": [
+          "authorization"
+        ],
+        "evidence": [
+          {
+            "entry_index": 0,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 1,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/feature_config",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 3,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/feature_config",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 4,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/diagnostics",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 5,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/charging/queue",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 8,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/diagnostics",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 9,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/energy_sites/rate_tariffs",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 10,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/diagnostics",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 11,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/service_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 12,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/charging/queue",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 13,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/orders",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 15,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/notification_preferences",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 16,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/app_config",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 17,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/products",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 18,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 19,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 20,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/feature_config",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 21,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/update-app/assets",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 22,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 23,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 24,
+            "method": "POST",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/macgyver/diagnostic",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 25,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/service/surveys",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 26,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/drive/appointments",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 27,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 28,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/users/keys",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 29,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 30,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 31,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 32,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 33,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 34,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 35,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 36,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 37,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 38,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 39,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 40,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 41,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 42,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 43,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 44,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 45,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 46,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 47,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 48,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 49,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 50,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 51,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 52,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 53,
+            "method": "GET",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 54,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 55,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 56,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 57,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 58,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/logs",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "bearer authorization header"
+          },
+          {
+            "entry_index": 59,
+            "method": "POST",
+            "host": "owner-api.teslamotors.com",
+            "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "bearer authorization header"
+          }
+        ]
+      },
+      {
+        "type": "cookie",
+        "confidence": 0.8,
+        "cookie_names": [
+          "_abck",
+          "bm_sz"
+        ],
+        "evidence": [
+          {
+            "entry_index": 6,
+            "method": "GET",
+            "host": "digitalassets-energy.tesla.com",
+            "path": "/raw/upload/app/supercharger-queue/superchargers/prd/supercharger_locations.csv",
+            "status": 200,
+            "content_type": "text/csv",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 7,
+            "method": "GET",
+            "host": "digitalassets-energy.tesla.com",
+            "path": "/raw/upload/app/supercharger-queue/superchargers/prd/supercharger_locations.csv",
+            "status": 200,
+            "content_type": "text/csv",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 14,
+            "method": "GET",
+            "host": "www.tesla.com",
+            "path": "/referral/content/v2",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 21,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/update-app/assets",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 24,
+            "method": "POST",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/macgyver/diagnostic",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 25,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/service/surveys",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "cookie header"
+          },
+          {
+            "entry_index": 26,
+            "method": "GET",
+            "host": "ownership.tesla.com",
+            "path": "/mobile-app/drive/appointments",
+            "status": 200,
+            "content_type": "application/json; charset=utf-8",
+            "reason": "cookie header"
+          }
+        ]
+      },
+      {
+        "type": "api_key",
+        "confidence": 0.7,
+        "query_names": [
+          "key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 2,
+            "method": "POST",
+            "host": "firebaseremoteconfig.googleapis.com",
+            "path": "/v1/projects/tesla-prod/namespaces/fireperf:fetch",
+            "status": 200,
+            "content_type": "application/json; charset=UTF-8",
+            "reason": "auth-like query parameter"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/charging/queue",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/diagnostics",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/energy_sites/rate_tariffs",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "response",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/energy_sites/rate_tariffs",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/logs",
+      "count": 21,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "details",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 31,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 34,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 36,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 37,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 41,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 44,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 45,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/notification_preferences",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "app_version",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "device_token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "device_type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "notification_preferences",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/notification_preferences",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/products",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "response",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/products",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/users/app_config",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/app_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/users/feature_config",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/users/keys",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "battery_level",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "bluetooth_authorization",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "bluetooth_enabled",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "device_token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "device_type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "kind",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "location_permissions",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "low_power_mode",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "model",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "public_key",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tag",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 28,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/keys",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/users/orders",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "response",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/orders",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 32,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "POST",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "uuid",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "token",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/service_data",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/service_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "owner-api.teslamotors.com",
+      "method": "GET",
+      "path": "/api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+      "count": 9,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json; charset=utf-8"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "response",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "firebaseremoteconfig.googleapis.com",
+          "path": "/v1/projects/tesla-prod/namespaces/fireperf:fetch",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/energy_sites/rate_tariffs",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "page",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/app_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_auto_conditioning_start",
+      "resource": "auto_conditioning_start",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start traffic.",
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_auto_conditioning_stop",
+      "resource": "auto_conditioning_stop",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop traffic.",
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_diagnostic",
+      "resource": "diagnostic",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /mobile-app/macgyver/diagnostic traffic.",
+      "evidence": [
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/macgyver/diagnostic",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_door_lock",
+      "resource": "door_lock",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock traffic.",
+      "evidence": [
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_door_unlock",
+      "resource": "door_unlock",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock traffic.",
+      "evidence": [
+        {
+          "entry_index": 32,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fireperf:fetch",
+      "resource": "fireperf:fetch",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /v1/projects/tesla-prod/namespaces/fireperf:fetch traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "firebaseremoteconfig.googleapis.com",
+          "path": "/v1/projects/tesla-prod/namespaces/fireperf:fetch",
+          "status": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_hermes",
+      "resource": "hermes",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes traffic.",
+      "evidence": [
+        {
+          "entry_index": 38,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_keys",
+      "resource": "keys",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/users/keys traffic.",
+      "evidence": [
+        {
+          "entry_index": 28,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/keys",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_logs",
+      "resource": "logs",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/logs traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 31,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 34,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 36,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 37,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 41,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 44,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 45,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 49,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 51,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 54,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 56,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 57,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 58,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/logs",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_notification_preferences",
+      "resource": "notification_preferences",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/notification_preferences traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/notification_preferences",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_remote_start_drive",
+      "resource": "remote_start_drive",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive traffic.",
+      "evidence": [
+        {
+          "entry_index": 39,
+          "method": "POST",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_app_config",
+      "resource": "app_config",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/users/app_config traffic.",
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/app_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_diagnostics",
+      "resource": "diagnostics",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/diagnostics traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/diagnostics",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_feature_config",
+      "resource": "feature_config",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/users/feature_config traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/feature_config",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_orders",
+      "resource": "orders",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/users/orders traffic.",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/users/orders",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_products",
+      "resource": "products",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/products traffic.",
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/products",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_queue",
+      "resource": "queue",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/charging/queue traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/charging/queue",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_rate_tariffs",
+      "resource": "rate_tariffs",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/energy_sites/rate_tariffs traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/energy_sites/rate_tariffs",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_service_data",
+      "resource": "service_data",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/service_data traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/service_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_vehicle_data",
+      "resource": "vehicle_data",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data traffic.",
+      "evidence": [
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 47,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "owner-api.teslamotors.com",
+          "path": "/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_appointments",
+      "resource": "appointments",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /mobile-app/drive/appointments traffic.",
+      "evidence": [
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/drive/appointments",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_assets",
+      "resource": "assets",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /mobile-app/update-app/assets traffic.",
+      "evidence": [
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/update-app/assets",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_content",
+      "resource": "content",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /referral/content/v2 traffic.",
+      "evidence": [
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "www.tesla.com",
+          "path": "/referral/content/v2",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_surveys",
+      "resource": "surveys",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /mobile-app/service/surveys traffic.",
+      "evidence": [
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "ownership.tesla.com",
+          "path": "/mobile-app/service/surveys",
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_clearance_required",
+    "requires_browser_auth"
+  ]
+}

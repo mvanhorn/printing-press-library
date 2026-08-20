@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-network-code-live-fetch",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add internal/cli/gam_helpers.go (network-scoped live fetch + mirror cache) and rework the store-backed novel commands (adunits tree, inventory orphans, since, order graph) to fetch live when the local mirror is empty.",
+  "reason": "Generated 'sync' cannot fill the RFC 6570 reserved-expansion {+parent}=networks/{code} path parameter, so the local mirror never populates and every store-only command returned empty. gamLoadResource resolves this with a mirror-first, network-scoped-GET-and-cache fallback so the commands work without a pre-populated mirror.",
+  "files": ["internal/cli/gam_helpers.go", "internal/cli/adunits_tree.go", "internal/cli/inventory_orphans.go", "internal/cli/since.go", "internal/cli/order_graph.go"],
+  "validated_outcome": "adunits tree, inventory orphans, since, and order graph all returned live data against the GAM network via --network with an empty local mirror."
+}

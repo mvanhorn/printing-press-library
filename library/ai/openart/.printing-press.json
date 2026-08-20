@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T02:43:15.768984Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "openart",
+  "display_name": "OpenArt",
+  "cli_name": "openart-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:bb8bdf1687e27d8540062fb84046fa722c9ddd655f4841d170d05c4533f56478",
+  "run_id": "20260513-152641",
+  "description": "Generate videos and images on OpenArt from the terminal. Spend your existing OpenArt credits across Seedance, Kling, Veo, Wan, Grok Imagine and more.",
+  "mcp_binary": "openart-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Image generation",
+      "command": "image gen",
+      "description": "Submit + poll + download images in one command (Nano Banana verified; GPT Image 2, FLUX 2 Pro, Seedream, Imagen 4, Qwen Image gated as --accept-experimental)."
+    },
+    {
+      "name": "Disable Seedance audio",
+      "command": "video gen",
+      "description": "--no-audio flag turns off Seedance's auto-generated audio track. Workaround for OutputAudioSensitiveContentDetected moderation failures; halves the cost on Seedance 2.0 normal mode."
+    },
+    {
+      "name": "Cost preview before submit",
+      "command": "cost estimate",
+      "description": "Project the credit cost of a generation before you spend."
+    },
+    {
+      "name": "Credit burn breakdown",
+      "command": "credits burn",
+      "description": "Aggregate credit spend by model, tool, day, or project."
+    },
+    {
+      "name": "Credit runway forecast",
+      "command": "credits forecast",
+      "description": "Project how many weeks of runway your current balance gives at recent burn."
+    },
+    {
+      "name": "Cheapest-model lookup",
+      "command": "models cheapest",
+      "description": "Find the cheapest model that satisfies a target shape (type/duration/resolution/features)."
+    },
+    {
+      "name": "Cross-model fan-out compare",
+      "command": "compare",
+      "description": "Run one prompt across multiple models in parallel; return a side-by-side report with cost and URLs."
+    },
+    {
+      "name": "Replay a past generation",
+      "command": "prompts replay",
+      "description": "Re-run a past generation, optionally on a different model, with parameter bumps."
+    },
+    {
+      "name": "Prompt FTS recovery search",
+      "command": "prompts find",
+      "description": "Full-text search prior generations by prompt text with OpenArt-specific filters (model, audio, duration, starred, since)."
+    },
+    {
+      "name": "Prompt spend leaderboard",
+      "command": "prompts top",
+      "description": "Rank past prompts by total credit spend over a window."
+    },
+    {
+      "name": "Library stats blob",
+      "command": "stats",
+      "description": "One-shot stats over the local media library: counts per type/model/period and rolling spend."
+    }
+  ]
+}

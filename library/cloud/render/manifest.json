@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "render-pp-mcp",
+  "display_name": "Render",
+  "version": "4.2.0",
+  "description": "Render Public API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/render-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/render-pp-mcp",
+      "args": [],
+      "env": {
+        "RENDER_API_KEY": "${user_config.render_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "render_api_key": {
+      "type": "string",
+      "title": "RENDER_API_KEY",
+      "description": "Sets RENDER_API_KEY for the Render Public MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "api_name": "sutra-fitness",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T06:20:00Z",
+  "novel_features": [
+    {
+      "name": "Instructor scorecard",
+      "command": "scorecard",
+      "description": "Rank instructors by class fill rate, no-show rate, and check-in rate across your synced schedule.",
+      "rationale": "Requires joining classes and reservations and aggregating per instructor_name; the Sutra API returns no per-instructor aggregates.",
+      "example": "sutra-fitness-pp-cli scorecard --agent",
+      "why_it_matters": "Reach for this when you need to compare teacher performance to decide who to coach or feature, not raw class rows.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "No-show rate",
+      "command": "no-shows",
+      "description": "Surface no-show rates grouped by instructor, class, or client from synced reservations.",
+      "rationale": "Aggregates reservations with status NO_SHOW over booked; the platform buries this inside a fixed Attendance report.",
+      "example": "sutra-fitness-pp-cli no-shows --group-by instructor --json",
+      "why_it_matters": "Use when you need to quantify and pivot no-shows, e.g. which instructor or client drives the most absences.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Capacity utilization",
+      "command": "utilization",
+      "description": "Compute fill ratio (booked vs capacity) per class, instructor, time-slot, or location over a date window.",
+      "rationale": "Segmenting total_booked/max_capacity across the schedule is local-only; no single endpoint aggregates it.",
+      "example": "sutra-fitness-pp-cli utilization --group-by instructor",
+      "why_it_matters": "Reach for this to find under-filled slots and over-subscribed classes before schedule planning.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Expiring / low-balance watchlist",
+      "command": "expiring",
+      "description": "List active memberships and class-packs expiring within a window or running low on credits, with client contact info.",
+      "rationale": "Filters purchases by end_date and remaining_uses and joins client contact details; ranking plus contact join is local-only.",
+      "example": "sutra-fitness-pp-cli expiring --within 7d --low-credits",
+      "why_it_matters": "Use for deterministic renewal outreach: who needs to re-up this week, with their email and phone.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Churn / at-risk clients",
+      "command": "churn",
+      "description": "Flag non-removed clients with no recent check-in and/or an expired plan using a mechanical recency threshold.",
+      "rationale": "Requires joining clients, reservations, and purchases to detect behavioral lapse; impossible from one call.",
+      "example": "sutra-fitness-pp-cli churn --inactive-days 30 --json",
+      "why_it_matters": "Reach for this to build a win-back list of members drifting away, distinct from hard date-based expiry.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Revenue with prior-period comparison",
+      "command": "revenue",
+      "description": "Sum purchase revenue by membership type for a window and show the delta versus the prior equal window.",
+      "rationale": "Prior-period comparison is the explicit feature operators ask for and the canned vendor reports omit; computed from local purchases.",
+      "example": "sutra-fitness-pp-cli revenue --group-by type --compare-prior",
+      "why_it_matters": "Use for the Monday revenue review: is this week up or down versus last, by membership type.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Referral funnel conversion",
+      "command": "referral-funnel",
+      "description": "Trace referrals to whether the referred client signed up, purchased, and attended, and rank top referrers.",
+      "rationale": "Walks referrals to clients to purchases to reservations — a three-table funnel no Sutra endpoint exposes.",
+      "example": "sutra-fitness-pp-cli referral-funnel --json",
+      "why_it_matters": "Reach for this to measure whether your referral program actually converts and who your best referrers are.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Client lifetime value",
+      "command": "ltv",
+      "description": "Rank clients by total purchase spend with tenure since signup.",
+      "rationale": "Per-client lifetime totals require summing purchases per client and joining tenure; multi-table aggregation only.",
+      "example": "sutra-fitness-pp-cli ltv --limit 25",
+      "why_it_matters": "Use to identify your highest-value members for VIP outreach or to understand revenue concentration.",
+      "group": "Studio analytics the dashboard buries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Instructor scorecard",
+      "command": "scorecard",
+      "description": "Rank instructors by class fill rate, no-show rate, and check-in rate across your synced schedule.",
+      "rationale": "Requires joining classes and reservations and aggregating per instructor_name; the Sutra API returns no per-instructor aggregates.",
+      "example": "sutra-fitness-pp-cli scorecard --agent",
+      "why_it_matters": "Reach for this when you need to compare teacher performance to decide who to coach or feature, not raw class rows.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "No-show rate",
+      "command": "no-shows",
+      "description": "Surface no-show rates grouped by instructor, class, or client from synced reservations.",
+      "rationale": "Aggregates reservations with status NO_SHOW over booked; the platform buries this inside a fixed Attendance report.",
+      "example": "sutra-fitness-pp-cli no-shows --group-by instructor --json",
+      "why_it_matters": "Use when you need to quantify and pivot no-shows, e.g. which instructor or client drives the most absences.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Capacity utilization",
+      "command": "utilization",
+      "description": "Compute fill ratio (booked vs capacity) per class, instructor, time-slot, or location over a date window.",
+      "rationale": "Segmenting total_booked/max_capacity across the schedule is local-only; no single endpoint aggregates it.",
+      "example": "sutra-fitness-pp-cli utilization --group-by instructor",
+      "why_it_matters": "Reach for this to find under-filled slots and over-subscribed classes before schedule planning.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Expiring / low-balance watchlist",
+      "command": "expiring",
+      "description": "List active memberships and class-packs expiring within a window or running low on credits, with client contact info.",
+      "rationale": "Filters purchases by end_date and remaining_uses and joins client contact details; ranking plus contact join is local-only.",
+      "example": "sutra-fitness-pp-cli expiring --within 7d --low-credits",
+      "why_it_matters": "Use for deterministic renewal outreach: who needs to re-up this week, with their email and phone.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Churn / at-risk clients",
+      "command": "churn",
+      "description": "Flag non-removed clients with no recent check-in and/or an expired plan using a mechanical recency threshold.",
+      "rationale": "Requires joining clients, reservations, and purchases to detect behavioral lapse; impossible from one call.",
+      "example": "sutra-fitness-pp-cli churn --inactive-days 30 --json",
+      "why_it_matters": "Reach for this to build a win-back list of members drifting away, distinct from hard date-based expiry.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Revenue with prior-period comparison",
+      "command": "revenue",
+      "description": "Sum purchase revenue by membership type for a window and show the delta versus the prior equal window.",
+      "rationale": "Prior-period comparison is the explicit feature operators ask for and the canned vendor reports omit; computed from local purchases.",
+      "example": "sutra-fitness-pp-cli revenue --group-by type --compare-prior",
+      "why_it_matters": "Use for the Monday revenue review: is this week up or down versus last, by membership type.",
+      "group": "Studio analytics the dashboard buries"
+    },
+    {
+      "name": "Referral funnel conversion",
+      "command": "referral-funnel",
+      "description": "Trace referrals to whether the referred client signed up, purchased, and attended, and rank top referrers.",
+      "rationale": "Walks referrals to clients to purchases to reservations — a three-table funnel no Sutra endpoint exposes.",
+      "example": "sutra-fitness-pp-cli referral-funnel --json",
+      "why_it_matters": "Reach for this to measure whether your referral program actually converts and who your best referrers are.",
+      "group": "Retention and renewals"
+    },
+    {
+      "name": "Client lifetime value",
+      "command": "ltv",
+      "description": "Rank clients by total purchase spend with tenure since signup.",
+      "rationale": "Per-client lifetime totals require summing purchases per client and joining tenure; multi-table aggregation only.",
+      "example": "sutra-fitness-pp-cli ltv --limit 25",
+      "why_it_matters": "Use to identify your highest-value members for VIP outreach or to understand revenue concentration.",
+      "group": "Studio analytics the dashboard buries"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SUTRA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Sutra",
+    "headline": "Every Sutra (Arketa) Partner API resource plus a local mirror and the studio analytics the dashboard buries.",
+    "value_prop": "The Sutra/Arketa Partner API is pure CRUD with zero reporting endpoints, so studio operators are stuck with canned vendor reports they cannot customize and a client list the vendor is cagey about exporting. This CLI syncs your studio's full dataset (locations, classes, clients, purchases, referrals, reservations) into a local SQLite database you own, then answers the questions the dashboard hides: instructor scorecards, no-show rates, capacity utilization, expiring memberships, churn risk, referral conversion, client LTV, and revenue with prior-period comparison. The daily front-desk loop (book, cancel, check-in) is in here too, all offline-queryable and agent-native.",
+    "auth_narrative": "Authentication uses a partner API key plus your partner ID. Set SUTRA_API_KEY to the key Arketa issued you (sent as the X-API-Key header) and SUTRA_PARTNER_ID to your partner identifier, which scopes every request. Run 'sutra-fitness-pp-cli doctor' to confirm both are set and the API is reachable before syncing.",
+    "quickstart": [
+      {
+        "command": "sutra-fitness-pp-cli doctor --dry-run",
+        "comment": "Confirm SUTRA_API_KEY and SUTRA_PARTNER_ID are configured before any live call."
+      },
+      {
+        "command": "sutra-fitness-pp-cli sync --resources classes,clients,purchases,reservations,locations,referrals",
+        "comment": "Pull your studio's full dataset into a local SQLite mirror you own (run this first)."
+      },
+      {
+        "command": "sutra-fitness-pp-cli utilization --group-by instructor",
+        "comment": "See fill rate per instructor across the synced schedule."
+      },
+      {
+        "command": "sutra-fitness-pp-cli expiring --within 7d",
+        "comment": "List memberships and class-packs expiring in the next week for renewal outreach."
+      },
+      {
+        "command": "sutra-fitness-pp-cli scorecard",
+        "comment": "Rank instructors by fill, no-show, and check-in rate."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized / API key required",
+        "fix": "Set SUTRA_API_KEY to your Arketa partner key; it is sent as the X-API-Key header. Verify with 'sutra-fitness-pp-cli doctor'."
+      },
+      {
+        "symptom": "403 Forbidden / access denied to partner data",
+        "fix": "Set SUTRA_PARTNER_ID to your own partner identifier; the key only grants access to its own partner's data."
+      },
+      {
+        "symptom": "Analytics commands return empty or 'no local mirror'",
+        "fix": "Run 'sutra-fitness-pp-cli sync --resources classes,clients,purchases,reservations' first; analytics read the local store."
+      },
+      {
+        "symptom": "Stale numbers in reports",
+        "fix": "Re-run 'sutra-fitness-pp-cli sync --since 24h' to pull recently updated records via the updated_at cursor."
+      },
+      {
+        "symptom": "429 / rate limited during a large sync",
+        "fix": "The API caps at ~25 req/sec; re-run sync (it resumes from the cursor) or narrow with --resources and --since."
+      }
+    ],
+    "when_to_use": "Use this CLI when an operator or agent needs to answer studio-operations questions the Arketa dashboard cannot: no-show rates by instructor, capacity utilization across the schedule, which memberships expire this week, churn risk, referral conversion, client lifetime value, or revenue with prior-period comparison. It is also the fastest path for the front-desk loop of listing rosters, booking, canceling, and checking in reservations. Sync first, then query the local mirror offline.",
+    "anti_triggers": [
+      "Charging cards, processing payments, or issuing arbitrary refunds — the API exposes purchases read-only and only supports reservation cancel/refund flags, not money movement.",
+      "Creating or editing classes, schedules, rooms, or locations — these are read-only in the Partner API.",
+      "Creating or editing client profiles — clients are read-only; only reservations can be created, canceled, or checked in.",
+      "Real-time live dashboards or streaming monitors — this is a sync-then-query tool, not a live feed."
+    ],
+    "recipes": [
+      {
+        "title": "Monday revenue review",
+        "command": "sutra-fitness-pp-cli revenue --group-by type --compare-prior",
+        "explanation": "Totals revenue by membership type for the current window and shows the delta versus the prior equal window."
+      },
+      {
+        "title": "Renewal outreach list",
+        "command": "sutra-fitness-pp-cli expiring --within 7d --low-credits --csv",
+        "explanation": "Exports a CSV of members expiring this week or low on credits, with contact info, ready for an email or SMS campaign."
+      },
+      {
+        "title": "Agent-friendly instructor ranking",
+        "command": "sutra-fitness-pp-cli scorecard --agent --select instructors.name,instructors.fill_rate,instructors.no_show_rate",
+        "explanation": "Returns a narrowed, machine-readable instructor ranking so an agent can reason over fill and no-show rates without parsing the full nested payload."
+      },
+      {
+        "title": "At-risk client sweep",
+        "command": "sutra-fitness-pp-cli churn --inactive-days 30 --json",
+        "explanation": "Lists members with no check-in in 30 days or an expired plan as a JSON win-back list."
+      }
+    ],
+    "trigger_phrases": [
+      "no-show rate by instructor",
+      "which memberships expire this week",
+      "studio class utilization",
+      "at-risk clients for my studio",
+      "studio revenue versus last week",
+      "use sutra fitness",
+      "run sutra"
+    ]
+  }
+}

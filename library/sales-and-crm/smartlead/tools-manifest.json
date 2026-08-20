@@ -1,0 +1,1173 @@
+{
+  "api_name": "smartlead",
+  "base_url": "https://server.smartlead.ai/api/v1",
+  "description": "SmartLead is a cold email outreach automation platform. This CLI drives the SmartLead REST API to manage campaigns, leads, email sender accounts, sequences, webhooks, and deliverability analytics.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "SMARTLEAD_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SMARTLEAD_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_create",
+      "description": "Create a new campaign. Required: name. Optional: client_id.",
+      "method": "POST",
+      "path": "/campaigns/create",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional client/whitelabel ID to assign the campaign to"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete",
+      "description": "Permanently delete a SmartLead campaign and its sequence by numeric ID. Required: campaign_id (path). Destructive and irreversible — the campaign, its steps, and its lead associations are removed. Prefer pausing the campaign over deleting if you only need to stop sends.",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Fetch a single SmartLead campaign by its numeric ID. Required: campaign_id (path). Returns the full campaign object — name, status (DRAFTED/ACTIVE/PAUSED/COMPLETED), schedule, and settings. Use this when you already have a campaign ID; use campaigns_list to discover IDs by name or status.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "Retrieves every email campaign for the authenticated SmartLead account.",
+      "method": "GET",
+      "path": "/campaigns",
+      "params": []
+    },
+    {
+      "name": "campaigns_analytics_get-campaign",
+      "description": "Get top-level analytics for a campaign. Required: campaign_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/analytics",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_analytics-by-date_get-campaign",
+      "description": "Get campaign analytics for a date range. Required: campaign_id, start_date, end_date.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/analytics-by-date",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range start",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range end",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_email-accounts_add-campaign",
+      "description": "Attach email accounts to a campaign. Required: campaign_id, email_account_ids.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "email_account_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Email account IDs to attach as senders.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_email-accounts_get-campaign",
+      "description": "List email accounts attached to a campaign. Required: campaign_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_email-accounts_remove-campaign",
+      "description": "Detach email accounts from a campaign. Required: campaign_id, email_account_ids. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "email_account_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Email account IDs to detach.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_add-to-campaign",
+      "description": "Add leads to a campaign. Required: campaign_id, lead_list.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_list",
+          "type": "array",
+          "location": "body",
+          "description": "Lead objects (email, first_name, last_name, company_name, custom_fields).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_delete-from-campaign",
+      "description": "Remove a lead from a campaign. Required: campaign_id, lead_id. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_get-message-history",
+      "description": "Get the full email thread for a lead in a campaign. Required: campaign_id, lead_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/message-history",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_list-campaign",
+      "description": "List leads in a campaign. Required: campaign_id. Optional: offset, limit.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max leads to return per page"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_pause-in-campaign",
+      "description": "Stop further sends and follow-ups to one lead without deleting the lead or its metrics. Reversible with resume-lead. Required: campaign_id, lead_id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/pause",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_resume-in-campaign",
+      "description": "Resume sends to a lead previously paused. Fails when the lead has already reached the end of the sequence. Required: campaign_id, lead_id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/resume",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_unsubscribe-from-campaign",
+      "description": "Unsubscribe a lead from a single campaign. Required: campaign_id, lead_id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/unsubscribe",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_update-category",
+      "description": "Set the category of a lead within a campaign. Required: campaign_id, lead_id, category_id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/category",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Lead category ID (see leads list-categories)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_update-in-campaign",
+      "description": "Update custom_fields or contact fields for one lead in a specific campaign. SmartLead matches the lead by email together with the lead_id path parameter, so email is required even for partial updates. Required: campaign_id, lead_id, email. Optional: company_name, custom_fields, first_name (plus 1 more).",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        },
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead company name"
+        },
+        {
+          "name": "custom_fields",
+          "type": "object",
+          "location": "body",
+          "description": "Custom field key/value pairs to set on the lead"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Lead email; required - SmartLead matches the lead by email plus lead_id",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead first name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead last name"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads-export_export-campaign-leads",
+      "description": "Export all leads in a campaign as CSV data. Required: campaign_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads-export",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_reply-email-thread_reply-to-lead-thread",
+      "description": "Send a reply within an existing campaign email thread, preserving the original sending account. Requires the stats ID and message ID of the email being replied to, both available from the lead's message-history. Required: campaign_id, email_body, email_stats_id, reply_message_id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/reply-email-thread",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "email_body",
+          "type": "string",
+          "location": "body",
+          "description": "Reply body",
+          "required": true
+        },
+        {
+          "name": "email_stats_id",
+          "type": "string",
+          "location": "body",
+          "description": "stats_id of the email being replied to (from message-history)",
+          "required": true
+        },
+        {
+          "name": "reply_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "message_id of the email being replied to (from message-history)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_schedule_update-campaign",
+      "description": "Update a campaign sending schedule. Required: campaign_id. Optional: days_of_the_week, end_hour, max_new_leads_per_day (plus 4 more).",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/schedule",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "days_of_the_week",
+          "type": "array",
+          "location": "body",
+          "description": "Active sending days, 0=Sunday through 6=Saturday."
+        },
+        {
+          "name": "end_hour",
+          "type": "string",
+          "location": "body",
+          "description": "Daily send window end"
+        },
+        {
+          "name": "max_new_leads_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Cap on new leads contacted per day"
+        },
+        {
+          "name": "min_time_btw_emails",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum minutes between emails"
+        },
+        {
+          "name": "schedule_start_time",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 datetime to start sending"
+        },
+        {
+          "name": "start_hour",
+          "type": "string",
+          "location": "body",
+          "description": "Daily send window start"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_sequences_get",
+      "description": "Get the email sequence steps for a campaign. Required: campaign_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/sequences",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_sequences_save",
+      "description": "Save the email sequence steps for a campaign. Required: campaign_id, sequences.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/sequences",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "sequences",
+          "type": "array",
+          "location": "body",
+          "description": "Ordered list of sequence step objects (subject, body, delay, variants).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_settings_update-campaign",
+      "description": "Update campaign tracking and stop-condition settings. Required: campaign_id. Optional: client_id, follow_up_percentage, send_as_plain_text (plus 3 more).",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/settings",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional client/whitelabel ID"
+        },
+        {
+          "name": "follow_up_percentage",
+          "type": "int",
+          "location": "body",
+          "description": "Percentage of leads to follow up with"
+        },
+        {
+          "name": "send_as_plain_text",
+          "type": "bool",
+          "location": "body",
+          "description": "Send emails as plain text"
+        },
+        {
+          "name": "stop_lead_settings",
+          "type": "array",
+          "location": "body",
+          "description": "Lead actions that stop further follow-ups."
+        },
+        {
+          "name": "track_settings",
+          "type": "array",
+          "location": "body",
+          "description": "Tracking behaviors to disable."
+        },
+        {
+          "name": "unsubscribe_text",
+          "type": "string",
+          "location": "body",
+          "description": "Unsubscribe footer text"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_statistics_get-campaign",
+      "description": "Get per-lead send statistics for a campaign. Required: campaign_id. Optional: offset, limit, email_sequence_number (plus 1 more).",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/statistics",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows per page"
+        },
+        {
+          "name": "email_sequence_number",
+          "type": "int",
+          "location": "query",
+          "description": "Filter to one sequence step"
+        },
+        {
+          "name": "email_status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter rows by email outcome."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_status_update-campaign",
+      "description": "Start, pause, or stop a campaign. Required: campaign_id, status.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/status",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New campaign run state.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_webhooks_delete-campaign",
+      "description": "Delete a campaign webhook. Required: campaign_id, id. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/webhooks",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Webhook ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_webhooks_list-campaign",
+      "description": "List webhooks registered on a campaign. Required: campaign_id.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/webhooks",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_webhooks_upsert-campaign",
+      "description": "Create or update a campaign webhook. Required: campaign_id, event_types, name, webhook_url. Optional: categories, id.",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/webhooks",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead campaign ID.",
+          "required": true
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Lead categories that trigger LEAD_CATEGORY_UPDATED events."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "body",
+          "description": "Events to subscribe to.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Webhook ID to update; omit to create"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook label",
+          "required": true
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL for event POSTs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_create",
+      "description": "Create a whitelabel client. Required: email, name. Optional: logo, logo_url, password (plus 1 more).",
+      "method": "POST",
+      "path": "/client/save",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Client login email",
+          "required": true
+        },
+        {
+          "name": "logo",
+          "type": "string",
+          "location": "body",
+          "description": "Client logo label"
+        },
+        {
+          "name": "logo_url",
+          "type": "string",
+          "location": "body",
+          "description": "Client logo image URL"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Client name",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Client login password"
+        },
+        {
+          "name": "permission",
+          "type": "array",
+          "location": "body",
+          "description": "Access scopes granted to the client."
+        }
+      ]
+    },
+    {
+      "name": "client_list",
+      "description": "List all whitelabel (sub-account) clients under the authenticated SmartLead account. No parameters. Returns each client's id, name, and email. Use this to resolve a client ID before scoping campaign or email-account operations to a specific whitelabel client.",
+      "method": "GET",
+      "path": "/client",
+      "params": []
+    },
+    {
+      "name": "email-accounts_create",
+      "description": "Add a new email sender account. Required: from_email, from_name, imap_host, imap_port, password, smtp_host, smtp_port, user_name. Optional: bcc, client_id, custom_tracking_url (plus 6 more).",
+      "method": "POST",
+      "path": "/email-accounts",
+      "params": [
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "BCC address for all sends"
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional client/whitelabel ID"
+        },
+        {
+          "name": "custom_tracking_url",
+          "type": "string",
+          "location": "body",
+          "description": "Custom open/click tracking domain"
+        },
+        {
+          "name": "daily_rampup",
+          "type": "int",
+          "location": "body",
+          "description": "Warmup ramp-up increment per day"
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "Sender email address",
+          "required": true
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name on outgoing mail",
+          "required": true
+        },
+        {
+          "name": "imap_host",
+          "type": "string",
+          "location": "body",
+          "description": "IMAP server host",
+          "required": true
+        },
+        {
+          "name": "imap_port",
+          "type": "int",
+          "location": "body",
+          "description": "IMAP server port",
+          "required": true
+        },
+        {
+          "name": "max_email_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Daily send cap"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "SMTP/IMAP password",
+          "required": true
+        },
+        {
+          "name": "reply_rate_percentage",
+          "type": "int",
+          "location": "body",
+          "description": "Warmup reply rate target"
+        },
+        {
+          "name": "signature",
+          "type": "string",
+          "location": "body",
+          "description": "Email signature HTML"
+        },
+        {
+          "name": "smtp_host",
+          "type": "string",
+          "location": "body",
+          "description": "SMTP server host",
+          "required": true
+        },
+        {
+          "name": "smtp_port",
+          "type": "int",
+          "location": "body",
+          "description": "SMTP server port",
+          "required": true
+        },
+        {
+          "name": "total_warmup_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Warmup emails per day"
+        },
+        {
+          "name": "user_name",
+          "type": "string",
+          "location": "body",
+          "description": "SMTP/IMAP login username",
+          "required": true
+        },
+        {
+          "name": "warmup_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable inbox warmup"
+        }
+      ]
+    },
+    {
+      "name": "email-accounts_list",
+      "description": "List every email sender account connected to the SmartLead workspace. No parameters. Returns each account's id, from-email, from-name, warmup status, and daily send limit. Use this to find the sender account ID to attach to a campaign or to audit warmup health across senders.",
+      "method": "GET",
+      "path": "/email-accounts",
+      "params": []
+    },
+    {
+      "name": "email-accounts_reconnect-failed",
+      "description": "Trigger a reconnect of all disconnected email accounts.",
+      "method": "POST",
+      "path": "/email-accounts/reconnect-failed-email-accounts",
+      "params": []
+    },
+    {
+      "name": "email-accounts_update",
+      "description": "Update an email sender account. Required: email_account_id. Optional: bcc, client_id, custom_tracking_url (plus 2 more).",
+      "method": "POST",
+      "path": "/email-accounts/{email_account_id}",
+      "params": [
+        {
+          "name": "email_account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead email (sender) account ID.",
+          "required": true
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "BCC address for all sends"
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional client/whitelabel ID"
+        },
+        {
+          "name": "custom_tracking_url",
+          "type": "string",
+          "location": "body",
+          "description": "Custom tracking domain"
+        },
+        {
+          "name": "max_email_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Daily send cap"
+        },
+        {
+          "name": "signature",
+          "type": "string",
+          "location": "body",
+          "description": "Email signature HTML"
+        }
+      ]
+    },
+    {
+      "name": "email-accounts_warmup_set-settings",
+      "description": "Configure inbox warmup for an email account. Required: email_account_id, warmup_enabled. Optional: daily_rampup, reply_rate_percentage, total_warmup_per_day.",
+      "method": "POST",
+      "path": "/email-accounts/{email_account_id}/warmup",
+      "params": [
+        {
+          "name": "email_account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead email (sender) account ID.",
+          "required": true
+        },
+        {
+          "name": "daily_rampup",
+          "type": "int",
+          "location": "body",
+          "description": "Ramp-up increment per day"
+        },
+        {
+          "name": "reply_rate_percentage",
+          "type": "int",
+          "location": "body",
+          "description": "Target warmup reply rate"
+        },
+        {
+          "name": "total_warmup_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Warmup emails per day"
+        },
+        {
+          "name": "warmup_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Turn warmup on or off",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-accounts_warmup-stats_get",
+      "description": "Get warmup performance stats for an email account. Required: email_account_id.",
+      "method": "GET",
+      "path": "/email-accounts/{email_account_id}/warmup-stats",
+      "params": [
+        {
+          "name": "email_account_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead email (sender) account ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-campaigns_send-email-thread",
+      "description": "Send a reply through the master inbox using only the stats ID of the email being replied to. Use as a fallback when the reply message ID is not available for reply-email-thread. Required: campaignId, emailBody, emailStatsId.",
+      "method": "POST",
+      "path": "/email-campaigns/send-email-thread",
+      "params": [
+        {
+          "name": "campaignId",
+          "type": "int",
+          "location": "body",
+          "description": "Campaign ID the thread belongs to",
+          "required": true
+        },
+        {
+          "name": "emailBody",
+          "type": "string",
+          "location": "body",
+          "description": "Reply body",
+          "required": true
+        },
+        {
+          "name": "emailStatsId",
+          "type": "string",
+          "location": "body",
+          "description": "stats_id of the email being replied to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_add-domain-block-list",
+      "description": "Add domains to the account-wide block list. Required: domain_block_list. Optional: client_id.",
+      "method": "POST",
+      "path": "/leads/add-domain-block-list",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional client/whitelabel ID"
+        },
+        {
+          "name": "domain_block_list",
+          "type": "array",
+          "location": "body",
+          "description": "Domains to block from all campaigns.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_get-by-email",
+      "description": "Look up a lead by email address. Required: email.",
+      "method": "GET",
+      "path": "/leads",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Lead email address to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_list-categories",
+      "description": "List all lead categories defined for the SmartLead account (e.g. Interested, Not Interested, Meeting Booked). No parameters. Returns each category's id and name. Call this first to resolve a category ID before assigning a lead to a category within a campaign.",
+      "method": "GET",
+      "path": "/leads/fetch-categories",
+      "params": []
+    },
+    {
+      "name": "leads_update",
+      "description": "Update a lead's fields globally by numeric lead ID. Required: lead_id (path). Request body holds the fields to change — first_name, last_name, company_name, custom_fields, and similar lead attributes; only the supplied fields are modified. Returns the updated lead object. This edits the account-level lead record; use the campaign-scoped update endpoint to change a lead only within one campaign.",
+      "method": "POST",
+      "path": "/leads/{lead_id}",
+      "params": [
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_campaigns_get-lead",
+      "description": "List every campaign a lead belongs to. Required: lead_id.",
+      "method": "GET",
+      "path": "/leads/{lead_id}/campaigns",
+      "params": [
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_unsubscribe_lead-from-all",
+      "description": "Unsubscribe a lead from every campaign. Required: lead_id.",
+      "method": "POST",
+      "path": "/leads/{lead_id}/unsubscribe",
+      "params": [
+        {
+          "name": "lead_id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric SmartLead lead ID.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

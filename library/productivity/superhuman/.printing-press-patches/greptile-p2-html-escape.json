@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-p2-html-escape",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "HTML-escape plain-text send bodies before the <div> wrap.",
+  "reason": "renderBody wrapped raw plain-text bodies in <div>, so user-supplied `<`, `>`, `&` (including <script>) rendered as HTML in recipient clients. Escape first, then substitute newlines for <br> so the <br> survives. Surfaced by greptile P2 on PR #578.",
+  "files": [
+    "internal/cli/send.go",
+    "internal/cli/send_test.go"
+  ],
+  "validated_outcome": "TestRenderBody_PlainTextEscapesHTML covers angle brackets, script tags, ampersands, and HTML-mode pass-through."
+}

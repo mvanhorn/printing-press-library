@@ -1,0 +1,51 @@
+version: 2
+project_name: meta-ads-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: meta-ads-pp-cli
+    main: ./cmd/meta-ads-pp-cli
+    binary: meta-ads-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/meta-ads/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: meta-ads-pp-mcp
+    main: ./cmd/meta-ads-pp-mcp
+    binary: meta-ads-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: meta-ads-pp-cli
+    repository:
+      owner: dhilip-subramanian
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer."
+    install: |
+      bin.install "meta-ads-pp-cli"
+      bin.install "meta-ads-pp-mcp"

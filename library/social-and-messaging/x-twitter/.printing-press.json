@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-04T07:18:42.636118Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "x-twitter",
+  "display_name": "X (Twitter)",
+  "cli_name": "x-twitter-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "x-enriched-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:0dfd4f3560f7cdf014e5d2e8a34cfb669f8a7141aad29b9a8df594b85c26baf8",
+  "run_id": "20260603-230951",
+  "category": "social-and-messaging",
+  "description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics.",
+  "mcp_binary": "x-twitter-pp-mcp",
+  "mcp_tool_count": 163,
+  "mcp_ready": "full",
+  "api_version": "2.165",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "X_BEARER_TOKEN",
+    "X_OAUTH2_USER_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "X_BEARER_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token)."
+    },
+    {
+      "name": "X_OAUTH2_USER_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain from an OAuth2 authorization-code + PKCE flow and set/import explicitly. auth login --chrome is cookie-only for X Articles."
+    }
+  ],
+  "auth_key_url": "https://console.x.com/",
+  "novel_features": [
+    {
+      "name": "Post URL resolver",
+      "command": "post resolve",
+      "description": "Normalize any X post URL or raw post ID into a canonical structured post record with provenance, author context, metrics, local-state reuse, and suggested next workflow commands."
+    },
+    {
+      "name": "Conversation context resolver",
+      "command": "thread context",
+      "description": "Resolve a post URL or ID, include parent and quote context when available, and optionally pull bounded replies from local store or recent search."
+    },
+    {
+      "name": "Durable post collections",
+      "command": "collection save/list/export",
+      "description": "Save resolved X posts into local named collections, list saved source material, and export it as markdown, JSON, JSONL, or CSV."
+    },
+    {
+      "name": "Watermarked X monitors",
+      "command": "monitor create/run/list",
+      "description": "Create named query, URL, or account monitors, run them with local watermarks and dedupe, and reuse saved results for later briefing."
+    },
+    {
+      "name": "Source-backed X briefs",
+      "command": "brief",
+      "description": "Package monitor results, collections, or explicit posts into deterministic JSON or markdown briefs with source links and metrics."
+    },
+    {
+      "name": "Account snapshots",
+      "command": "account snapshot",
+      "description": "Capture profile basics, public metrics, pinned post, and recent posts for an account by username or user ID."
+    },
+    {
+      "name": "URL mention tracking",
+      "command": "url mentions",
+      "description": "Find recent posts mentioning a URL, domain, repo, article, or product page and optionally save them into a collection or monitor."
+    },
+    {
+      "name": "Post performance tracking",
+      "command": "performance snapshot/backfill/analyze",
+      "description": "Store timestamped post metrics locally, backfill recent account posts when auth allows, and analyze saved snapshots by useful dimensions."
+    },
+    {
+      "name": "Timeline export",
+      "command": "timeline export",
+      "description": "Export an account or query timeline as markdown, JSON, or JSONL for research, notes, archives, or downstream analysis."
+    },
+    {
+      "name": "Offline thread reconstruction",
+      "command": "thread show",
+      "description": "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits."
+    },
+    {
+      "name": "Markdown to tweet thread",
+      "command": "thread compose",
+      "description": "Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post."
+    },
+    {
+      "name": "Markdown to X Article",
+      "command": "articles-publish-md",
+      "description": "Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly."
+    },
+    {
+      "name": "Offline bookmark search",
+      "command": "users bookmarks find",
+      "description": "Search your synced bookmarks by keyword and/or author, offline — X has no bookmark search and its API exposes no bookmark timestamp, so the local store rebuilds the missing retrieval layer without re-spending read credits."
+    },
+    {
+      "name": "Top posts ranking",
+      "command": "top-posts",
+      "description": "Compose /2/users/me with the user-timeline read into one ranked leaderboard of your recent posts by engagement (likes + reposts + replies + quotes), or by a single metric via --metric. Paginates the timeline up to --max-fetch, ranks client-side, and degrades gracefully when impression_count is unavailable below Basic tier. Read-only."
+    }
+  ],
+  "owner_name": null,
+  "catalog_description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics."
+}

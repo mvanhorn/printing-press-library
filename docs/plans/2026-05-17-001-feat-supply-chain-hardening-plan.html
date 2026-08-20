@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>feat: supply-chain hardening for printing-press-library and cli-printing-press</title>
+<meta name="created" content="2026-05-17">
+<meta name="status" content="active">
+<meta name="origin" content="solo invocation (no upstream brainstorm)">
+<meta name="depth" content="standard-with-deep-extensions">
+<style>
+  :root {
+    --fg: #1a1a1a;
+    --muted: #555;
+    --accent: #1f5fbb;
+    --warn: #b15800;
+    --danger: #a4282d;
+    --ok: #1f6b3a;
+    --border: #d4d4d4;
+    --bg-alt: #f7f7f8;
+    --bg-code: #f3f3f5;
+    --bg-callout: #f0f6ff;
+    --bg-defer: #fff8ec;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 15px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--fg);
+    max-width: 56rem;
+    margin: 1rem auto 4rem;
+    padding: 0 1.25rem;
+    line-height: 1.55;
+  }
+  header.plan-meta {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  header.plan-meta h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.7rem;
+    line-height: 1.25;
+  }
+  header.plan-meta dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.15rem 0.75rem;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  header.plan-meta dt { font-weight: 600; }
+  header.plan-meta dd { margin: 0; }
+  h2 {
+    font-size: 1.3rem;
+    margin-top: 2.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+  h3 { font-size: 1.05rem; margin-top: 1.5rem; }
+  h4 { font-size: 0.95rem; margin-top: 1rem; color: var(--muted); }
+  code, pre {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em;
+  }
+  code { background: var(--bg-code); padding: 0.1em 0.35em; border-radius: 3px; }
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+  pre code { background: transparent; padding: 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { background: var(--bg-alt); font-weight: 600; }
+  tr:nth-child(even) td { background: #fafafa; }
+  ul, ol { padding-left: 1.5rem; }
+  li { margin-bottom: 0.2rem; }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--bg-callout);
+    padding: 0.6rem 0.9rem;
+    margin: 1rem 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout.warn { border-left-color: var(--warn); background: var(--bg-defer); }
+  .callout.danger { border-left-color: var(--danger); background: #fdeeef; }
+  .badge {
+    display: inline-block;
+    padding: 0.05em 0.5em;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-right: 0.3em;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .badge.block { background: #fdeeef; color: var(--danger); border-color: #f3c2c4; }
+  .badge.advise { background: var(--bg-defer); color: var(--warn); border-color: #f0d9a8; }
+  .badge.ok { background: #e7f4ec; color: var(--ok); border-color: #b9dbc4; }
+  .badge.repo { background: #eaf0fb; color: var(--accent); border-color: #c1d4ed; }
+  .unit {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.85rem 1.15rem;
+    margin: 1.25rem 0;
+    background: #fcfcfc;
+  }
+  .unit > h3 {
+    margin-top: 0.2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+  }
+  .unit .field {
+    margin: 0.35rem 0;
+  }
+  .unit .field > b { display: inline-block; min-width: 8em; }
+  .toc {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  .toc ol { margin: 0; padding-left: 1.3rem; }
+  .anchor { color: var(--muted); text-decoration: none; margin-left: 0.3em; }
+  .anchor:hover { color: var(--accent); }
+  svg.diagram {
+    display: block;
+    margin: 1rem auto;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+  }
+  .deferred {
+    background: var(--bg-defer);
+    border-left: 4px solid var(--warn);
+    padding: 0.6rem 0.9rem;
+    border-radius: 0 4px 4px 0;
+  }
+</style>
+</head>
+<body>
+
+<header class="plan-meta">
+  <h1>feat: supply-chain hardening for <code>printing-press-library</code> and <code>cli-printing-press</code></h1>
+  <dl>
+    <dt>Created:</dt><dd>2026-05-17</dd>
+    <dt>Status:</dt><dd>active</dd>
+    <dt>Depth:</dt><dd>Standard with deep extensions (security-sensitive, cross-repo)</dd>
+    <dt>Origin:</dt><dd>solo invocation; no upstream brainstorm</dd>
+    <dt>Target repos:</dt><dd><code>mvanhorn/printing-press-library</code>, <code>mvanhorn/cli-printing-press</code></dd>
+    <dt>Plan type:</dt><dd><code>feat</code></dd>
+  </dl>
+</header>
+
+<nav class="toc" aria-label="Table of contents">
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#problem-frame">Problem Frame</a></li>
+    <li><a href="#scope">Scope Boundaries</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#decisions">Key Technical Decisions</a></li>
+    <li><a href="#design">High-Level Technical Design</a></li>
+    <li><a href="#output">Output Structure</a></li>
+    <li><a href="#units">Implementation Units</a></li>
+    <li><a href="#acceptance">Acceptance Examples</a></li>
+    <li><a href="#risks">Risks &amp; Dependencies</a></li>
+    <li><a href="#sources">Sources &amp; Research</a></li>
+  </ol>
+</nav>
+
+<h2 id="summary">Summary <a href="#summary" class="anchor">#</a></h2>
+
+<p>Add layered supply-chain defenses to both the published catalog (<code>printing-press-library</code>) and its upstream generator (<code>cli-printing-press</code>), targeting the attack shapes observed in four real-world May 2026 incidents: Axios, TanStack mini-Shai-Hulud, node-ipc, and BufferZoneCorp.</p>
+
+<p>The defense combines two layers, applied identically across both repos:</p>
+
+<ul>
+  <li><b>Greptile rules</b> (judgment): six new entries in each repo's <code>greptile.json</code> covering GitHub Actions trust patterns, Go-module supply-chain shapes, npm-wrapper lifecycle scripts, Go-module-path drift on existing CLIs, and Go-source credential reads.</li>
+  <li><b>Deterministic Python scan</b> (mechanical hard-fail): a small script wired into a new <code>verify-supply-chain.yml</code> workflow that blocks PRs introducing the highest-confidence attack signals. Patterned after the existing <code>.github/scripts/verify-publish-package/</code> shape.</li>
+</ul>
+
+<p>The plan lands in two coordinated PRs (one per repo) by an author with admin on both, with the published-library PR merging first so false-positive calibration informs the generator-repo mirror.</p>
+
+<h2 id="problem-frame">Problem Frame <a href="#problem-frame" class="anchor">#</a></h2>
+
+<p>The <code>printing-press-library</code> repo publishes a catalog of Go CLIs (119 today) plus an npm installer wrapper (<code>@mvanhorn/printing-press</code>), and is fed by the <code>cli-printing-press</code> generator. The existing PR-time gates (<code>verify-library-conventions.yml</code>, <code>verify-skills.yml</code>, <code>govulncheck.yml</code>, Greptile review) cover canonical CLI shape and known-CVE Go dependencies. They do <em>not</em> cover supply-chain attack shapes that have hit comparable ecosystems in the last two months.</p>
+
+<h3>Concrete attack shapes to defend against</h3>
+
+<table>
+  <thead><tr><th>Incident</th><th>Vector</th><th>What it would look like in a PR here</th></tr></thead>
+  <tbody>
+    <tr><td>Axios (Mar 31, 2026)</td><td>Compromised npm account; phantom dependency (<code>plain-crypto-js</code>) with <code>postinstall</code> RAT.</td><td>A PR to <code>npm/package.json</code> adds a new dependency and a new <code>postinstall</code>/<code>preinstall</code>/<code>prepare</code> script.</td></tr>
+    <tr><td>TanStack mini-Shai-Hulud (May 11, 2026)</td><td><code>pull_request_target</code> + checkout-PR-head pattern; OIDC token extracted from runner memory; <code>id-token: write</code> abused to publish.</td><td>A PR to <code>.github/workflows/**</code> adds a <code>pull_request_target</code> workflow that checks out <code>github.event.pull_request.head.sha</code> and/or grants <code>id-token: write</code> in a non-publish workflow.</td></tr>
+    <tr><td>node-ipc (May 14, 2026)</td><td>Expired-domain account takeover; obfuscated IIFE; harvests <code>~/.aws</code>, <code>~/.ssh</code>, <code>~/.kube</code>, <code>~/.claude</code>, env tokens.</td><td>A PR to <code>library/&lt;cat&gt;/&lt;slug&gt;/internal/**/*.go</code> adds code reading home-dir credential paths or sensitive env vars.</td></tr>
+    <tr><td>BufferZoneCorp (May 2026)</td><td>Sleeper Go modules; <code>replace</code> directives redirect to attacker forks; <code>GOPROXY</code>/<code>GONOSUMCHECK</code> overrides in CI.</td><td>A PR to <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code> adds a <code>replace</code> directive pointing at a remote URL, or a workflow exports <code>GOPROXY</code>/<code>GOFLAGS</code>/<code>GONOSUMCHECK</code>. Or the <code>module</code> line on an existing CLI is rewritten to a non-canonical path so <code>go install</code> resolves to an attacker-controlled module.</td></tr>
+  </tbody>
+</table>
+
+<h3>Current state audit (origin/main, both repos)</h3>
+
+<p>Performed on <time>2026-05-17</time> against fresh <code>origin/main</code> fetches. Findings:</p>
+
+<ul>
+  <li><span class="badge ok">SAFE</span> <code>printing-press-library</code> has exactly one <code>pull_request_target</code> workflow (<code>.github/workflows/greptile-policy-gate.yml</code>). Permissions are <code>checks: read</code>, <code>contents: read</code>, <code>issues: write</code>, <code>pull-requests: write</code>; it does <em>not</em> check out PR head code and does <em>not</em> grant <code>id-token</code>. It only makes API calls.</li>
+  <li><span class="badge ok">SAFE</span> <code>printing-press-library</code> grants <code>id-token: write</code> only in <code>.github/workflows/npm-publish.yml</code>, the OIDC Trusted Publishing job for the npm wrapper. This is the recommended posture.</li>
+  <li><span class="badge ok">SAFE</span> <code>cli-printing-press</code> has exactly one <code>pull_request_target</code> workflow (<code>.github/workflows/conversation-resolution-check.yml</code>). Permissions are <code>contents: read</code>, <code>pull-requests: read</code>; no checkout of PR head, no <code>id-token</code>.</li>
+  <li><span class="badge ok">SAFE</span> <code>cli-printing-press</code> has no <code>id-token: write</code> anywhere; <code>release.yml</code> uses keyed cosign rather than keyless OIDC signing.</li>
+  <li><span class="badge advise">EXISTS</span> <code>library/food-and-dining/ordertogo/go.mod</code> has three <code>replace</code> directives, all pointing at local relative paths (<code>./third_party/...</code>). These pre-date this plan and are legitimate vendoring; the rule design accounts for them (see <a href="#kd5">KD5</a>).</li>
+  <li><span class="badge ok">CLEAN</span> No <code>GOPROXY</code>, <code>GOFLAGS</code>, or <code>GONOSUMCHECK</code> overrides in any workflow in either repo.</li>
+  <li><span class="badge ok">CLEAN</span> Every <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code> spot-checked uses the canonical <code>module github.com/mvanhorn/printing-press-library/library/&lt;cat&gt;/&lt;slug&gt;</code> form.</li>
+</ul>
+
+<p class="callout"><b>Audit conclusion:</b> both repos are in good baseline posture. The new rules are forward-looking gates, not retroactive fixes. No <em>existing</em> code needs to change for the audit to clear — only new entries on PRs will trip the gates.</p>
+
+<h3>Implicit assumptions documented</h3>
+
+<ul>
+  <li>The <code>module_path</code> attack surface lives in <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code>'s <code>module</code> directive (verified — there is no <code>module_path</code> field in <code>.printing-press.json</code>).</li>
+  <li>The npm wrapper's blast radius dominates per-CLI Go binary blast radius: a compromised <code>@mvanhorn/printing-press</code> reaches every user via <code>npx</code> on install, whereas a single compromised Go CLI only reaches users who installed that one slug.</li>
+  <li>The generator repo's bugs that produce broken published CLIs are not in scope here; this plan defends against malicious <em>PRs</em>, not template regressions.</li>
+</ul>
+
+<h2 id="scope">Scope Boundaries <a href="#scope" class="anchor">#</a></h2>
+
+<h3>In scope</h3>
+<ul>
+  <li>Six new <code>greptile.json</code> rules in <code>printing-press-library</code> (R1–R6).</li>
+  <li>One Python scan script under <code>.github/scripts/verify-supply-chain/</code> in <code>printing-press-library</code> (R7).</li>
+  <li>One new CI workflow <code>verify-supply-chain.yml</code> in <code>printing-press-library</code> (R8).</li>
+  <li>AGENTS.md section + solutions doc in <code>printing-press-library</code>.</li>
+  <li>Mirror of the rules, script, and workflow into <code>cli-printing-press</code> (R9), with scope adaptations for the generator-repo surface.</li>
+  <li>Branch-protection request: add <code>verify-supply-chain</code> as a required check once a one-week green window has elapsed on each repo's main.</li>
+</ul>
+
+<h3 id="not-in-scope">Not in scope</h3>
+<ul>
+  <li>Runtime sandboxing of <code>go install</code>, <code>npx</code>, or any user-machine execution.</li>
+  <li>Sigstore/Fulcio signing changes for the npm wrapper (already uses OIDC Trusted Publishing — sufficient).</li>
+  <li>Mandatory 2FA enforcement on the org or per-account.</li>
+  <li>Slack/Discord alerting on scan findings.</li>
+  <li>Slack-based incident-response runbook.</li>
+  <li>Real-time dependency-age checks against the npm registry API (high false-positive rate; rate-limit risk).</li>
+  <li>Retroactive sweep of already-published CLIs for any pattern the new scan flags.</li>
+  <li>Replacing or disabling existing Greptile rules, <code>govulncheck.yml</code>, or any verify-* workflow.</li>
+</ul>
+
+<h3>Deferred to follow-up work</h3>
+<div class="deferred">
+  <ul>
+    <li><b>Parity-check script</b> diffing <code>signals.py</code> between the two repos. Cheap to add, but with a single admin owning both repos and only two surfaces to keep in sync, deliberate coordination is sufficient for the first iteration. Revisit if a second contributor lands meaningful changes to either copy.</li>
+    <li><b>SHA256 IOC matching</b> against known malicious payload hashes (e.g., the TanStack <code>router_init.js</code> hash). Useful once a hash-feed source is selected; out of scope here to avoid coupling the gate to an external feed.</li>
+    <li><b>Base64-array heuristics</b> for obfuscator.io fingerprints. Real signal but high false-positive rate against legitimate bundlers; defer until we see a near-miss attack shape that would have caught it.</li>
+    <li><b>Egress blocking of known C2 hosts</b> (e.g., <code>.getsession.org</code>) at the org perimeter. Outside this repo's surface; route to org-level network policy.</li>
+  </ul>
+</div>
+
+<h2 id="requirements">Requirements <a href="#requirements" class="anchor">#</a></h2>
+
+<table>
+  <thead><tr><th>ID</th><th>Requirement</th><th>Acceptance signal</th></tr></thead>
+  <tbody>
+    <tr><td>R1</td><td>Detect <code>pull_request_target</code> workflows that check out PR head code (the TanStack root cause).</td><td>A fixture workflow with <code>pull_request_target</code> trigger + <code>ref: ${{ github.event.pull_request.head.sha }}</code> on <code>actions/checkout</code> is hard-failed by the scan and called out by Greptile.</td></tr>
+    <tr><td>R2</td><td>Detect <code>id-token: write</code> granted outside the publishing allowlist (<code>npm-publish.yml</code> in published-library; none in generator repo).</td><td>A fixture workflow granting <code>id-token: write</code> in any other workflow is hard-failed.</td></tr>
+    <tr><td>R3</td><td>Detect new <code>replace</code> directives in <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code>, tiered by target: remote URL targets hard-fail; local-path targets warn.</td><td>A PR adding <code>replace X =&gt; github.com/...</code> blocks; a PR adding <code>replace X =&gt; ./local-fork</code> emits an advisory but does not block.</td></tr>
+    <tr><td>R4</td><td>Detect <code>GOPROXY</code>, <code>GOFLAGS</code>, or <code>GONOSUMCHECK</code> overrides anywhere in <code>.github/workflows/**</code>.</td><td>Any workflow with <code>env: { GOPROXY: ... }</code> at job or step level is hard-failed.</td></tr>
+    <tr><td>R5</td><td>Detect new lifecycle scripts (<code>preinstall</code>, <code>postinstall</code>, <code>prepare</code>) added to <code>npm/package.json</code>.</td><td>A PR adding any of these scripts to the npm wrapper's <code>package.json</code> is hard-failed.</td></tr>
+    <tr><td>R6</td><td>Detect <code>module</code> directive drift on an existing CLI's <code>go.mod</code> (must continue to begin with <code>github.com/mvanhorn/printing-press-library/library/</code>).</td><td>A PR rewriting an existing <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code>'s <code>module</code> line to a non-canonical path is hard-failed.</td></tr>
+    <tr><td>R7</td><td>Greptile flags (judgment, not hard-fail) Go source under <code>library/**/internal/**/*.go</code> and <code>library/**/cmd/**/*.go</code> that reads home-dir credential paths or sensitive env vars.</td><td>A PR introducing literal <code>".aws/credentials"</code> or <code>os.Getenv("AWS_SECRET_ACCESS_KEY")</code> in a non-auth CLI is flagged by Greptile with a rationale comment.</td></tr>
+    <tr><td>R8</td><td>The <code>verify-supply-chain</code> workflow runs on every PR that touches the relevant scopes and posts structured findings via GitHub Actions annotations.</td><td>A representative PR triggers the workflow, annotations appear on the PR, exit code matches signal severity.</td></tr>
+    <tr><td>R9</td><td>The same rules, script, and workflow exist in <code>cli-printing-press</code>, with scope adaptations: no <code>npm/package.json</code> rule (no wrapper there), no <code>module</code>-drift rule (no published CLIs), <code>replace</code>-directive rule scoped to generator output, not the generator's own <code>go.mod</code>.</td><td>A representative PR in <code>cli-printing-press</code> with the same attack shape triggers the same workflow.</td></tr>
+    <tr><td>R10</td><td>Documentation in both repos names the new rules, the new workflow, and the four incidents that motivated them.</td><td><code>grep -n "supply chain" AGENTS.md</code> returns the new section heading in both repos; the solutions doc cites all four primary sources.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="decisions">Key Technical Decisions <a href="#decisions" class="anchor">#</a></h2>
+
+<h3 id="kd1">KD1: Extend existing <code>greptile.json</code> rather than create a new config file</h3>
+<p>The repo already uses <code>greptile.json</code> with six <code>customContext.rules</code> entries. Append the new rules; do not introduce a parallel config. One config file, one review surface.</p>
+
+<h3 id="kd2">KD2: Two-layer defense, by signal type</h3>
+<p>Mechanical signals (regex matches, JSON key presence, specific string literals) go to the Python scan and hard-fail with structured GitHub Actions error annotations. Judgment signals (does this Go source actually read credentials in context? is this <code>replace</code> directive's stated purpose plausible?) go to Greptile rules that surface rationale in a PR comment. Each layer plays to its strength.</p>
+
+<h3 id="kd3">KD3: Path-scoped rules over global rules</h3>
+<p>Every new rule names a path glob. Avoids noise on generated output, minified files, and legitimate auth surfaces. Follows existing repo precedent (<code>scope: ["library/**/.printing-press.json"]</code> on every customContext rule today).</p>
+
+<h3 id="kd4">KD4: Treat the npm wrapper as a first-class blast-radius surface</h3>
+<p>A compromised <code>@mvanhorn/printing-press</code> reaches every user via <code>npx</code>. A compromised single Go CLI only reaches users who installed that slug. The npm-wrapper lifecycle-script rule (R5) is a hard-fail; per-CLI rules are tiered.</p>
+
+<h3 id="kd5">KD5: <code>replace</code> directive tiering (the <code>ordertogo</code> precedent)</h3>
+<p>The existing <code>library/food-and-dining/ordertogo/go.mod</code> has three <code>replace</code> directives pointing at <code>./third_party/...</code> for legitimate vendoring. A blanket-block rule would either grandfather <code>ordertogo</code> via allowlist (drift risk) or fire on its next reprint (false alarm). Instead, tier by target shape:</p>
+<ul>
+  <li><span class="badge block">block</span> <code>replace X =&gt; github.com/...</code> or any URL/host target.</li>
+  <li><span class="badge advise">advise</span> <code>replace X =&gt; ./local/path</code> or <code>../path</code>. Greptile flags for review; scan emits notice, does not block.</li>
+</ul>
+<p>This is consistent with the BufferZoneCorp attack shape (remote redirect to attacker fork) without false-positiving on legitimate local vendoring.</p>
+
+<h3 id="kd6">KD6: Coordinated landing, but staged main merges</h3>
+<p>The two repo PRs are authored together by the same person with admin access on both. Land the <code>printing-press-library</code> PR first, observe one week of clean runs, then land the <code>cli-printing-press</code> mirror. Rationale: false-positive calibration on the larger repo (more PR throughput, more diverse touch surface) before duplicating any miscalibration into the upstream generator. Both PRs are written in parallel; merge order is the discipline.</p>
+
+<h3 id="kd7">KD7: Required-check promotion happens <em>after</em> a green window, not at merge</h3>
+<p>The new workflow runs informationally on every PR for one week. After a week of clean runs (no spurious failures on legitimate PRs), promote to a required check via branch protection. Avoids day-one merge-blocker pain if a rule mis-fires on a real PR.</p>
+
+<h2 id="design">High-Level Technical Design <a href="#design" class="anchor">#</a></h2>
+
+<p>Two-layer defense, mirrored across both repos. Below shows the per-PR flow; the mirror is structurally identical with scope adaptations per <a href="#requirements">R9</a>.</p>
+
+<svg class="diagram" viewBox="0 0 760 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-layer defense flow for a PR">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
+    </marker>
+    <style>
+      .box { fill: #fff; stroke: #555; stroke-width: 1.5; }
+      .box-greptile { fill: #eaf0fb; stroke: #1f5fbb; }
+      .box-scan { fill: #fdeeef; stroke: #a4282d; }
+      .box-doc { fill: #f7f7f8; stroke: #555; stroke-dasharray: 4 3; }
+      .box-merge { fill: #e7f4ec; stroke: #1f6b3a; stroke-width: 2; }
+      .lbl { font: 13px -apple-system, sans-serif; fill: #1a1a1a; }
+      .lbl-bold { font: 600 13px -apple-system, sans-serif; fill: #1a1a1a; }
+      .lbl-small { font: 11px -apple-system, sans-serif; fill: #555; }
+      .arrow { stroke: #555; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .lane { font: 600 11px -apple-system, sans-serif; fill: #555; letter-spacing: 0.05em; }
+    </style>
+  </defs>
+
+  <text x="380" y="22" text-anchor="middle" class="lbl-bold">Per-PR flow: layered supply-chain defense</text>
+
+  <!-- PR entry -->
+  <rect x="320" y="40" width="120" height="44" rx="6" class="box"/>
+  <text x="380" y="60" text-anchor="middle" class="lbl-bold">PR opened</text>
+  <text x="380" y="76" text-anchor="middle" class="lbl-small">or push to branch</text>
+
+  <!-- Split arrows -->
+  <path d="M 360 84 L 180 130" class="arrow"/>
+  <path d="M 400 84 L 580 130" class="arrow"/>
+
+  <!-- Lane labels -->
+  <text x="180" y="115" text-anchor="middle" class="lane">JUDGMENT LAYER</text>
+  <text x="580" y="115" text-anchor="middle" class="lane">MECHANICAL LAYER</text>
+
+  <!-- Greptile lane -->
+  <rect x="80" y="130" width="200" height="80" rx="6" class="box box-greptile"/>
+  <text x="180" y="152" text-anchor="middle" class="lbl-bold">greptile.json rules</text>
+  <text x="180" y="170" text-anchor="middle" class="lbl-small">R1, R2, R3 (advise tier),</text>
+  <text x="180" y="184" text-anchor="middle" class="lbl-small">R4, R5, R6, R7</text>
+  <text x="180" y="200" text-anchor="middle" class="lbl-small">Posts review w/ rationale</text>
+
+  <!-- Scan lane -->
+  <rect x="480" y="130" width="200" height="80" rx="6" class="box box-scan"/>
+  <text x="580" y="152" text-anchor="middle" class="lbl-bold">verify-supply-chain</text>
+  <text x="580" y="170" text-anchor="middle" class="lbl-small">scan.py + signals.py</text>
+  <text x="580" y="184" text-anchor="middle" class="lbl-small">Hard-fail: R1, R2, R3 (block),</text>
+  <text x="580" y="200" text-anchor="middle" class="lbl-small">R4, R5, R6</text>
+
+  <!-- Greptile output -->
+  <rect x="80" y="240" width="200" height="50" rx="6" class="box"/>
+  <text x="180" y="260" text-anchor="middle" class="lbl">Greptile Review</text>
+  <text x="180" y="278" text-anchor="middle" class="lbl-small">P0/P1/P2 findings + score</text>
+  <path d="M 180 210 L 180 240" class="arrow"/>
+
+  <!-- Scan output -->
+  <rect x="480" y="240" width="200" height="50" rx="6" class="box"/>
+  <text x="580" y="260" text-anchor="middle" class="lbl">GitHub Actions annotations</text>
+  <text x="580" y="278" text-anchor="middle" class="lbl-small">::error / ::notice / exit code</text>
+  <path d="M 580 210 L 580 240" class="arrow"/>
+
+  <!-- AGENTS.md context (sidecar) -->
+  <rect x="320" y="240" width="120" height="50" rx="6" class="box box-doc"/>
+  <text x="380" y="260" text-anchor="middle" class="lbl">AGENTS.md §</text>
+  <text x="380" y="278" text-anchor="middle" class="lbl-small">policy reference</text>
+  <path d="M 320 265 L 280 265" class="arrow" stroke-dasharray="3 3"/>
+  <path d="M 440 265 L 480 265" class="arrow" stroke-dasharray="3 3"/>
+
+  <!-- Merge gate -->
+  <rect x="290" y="330" width="180" height="60" rx="6" class="box box-merge"/>
+  <text x="380" y="354" text-anchor="middle" class="lbl-bold">Branch protection gate</text>
+  <text x="380" y="372" text-anchor="middle" class="lbl-small">scan = required (after green window)</text>
+  <text x="380" y="384" text-anchor="middle" class="lbl-small">Greptile = blocking via policy gate</text>
+  <path d="M 180 290 L 320 330" class="arrow"/>
+  <path d="M 580 290 L 440 330" class="arrow"/>
+
+  <!-- Final outcome -->
+  <text x="380" y="425" text-anchor="middle" class="lbl-bold">Merge or block</text>
+  <path d="M 380 390 L 380 410" class="arrow"/>
+
+</svg>
+
+<p class="lbl-small" style="text-align: center; color: var(--muted); margin-top: -0.5rem;">Same shape mirrors into <code>cli-printing-press</code>; the wrapper-specific rules (R5, R6) drop in the generator copy. See <a href="#units">Implementation Units</a> for the scope adaptations.</p>
+
+<h2 id="output">Output Structure <a href="#output" class="anchor">#</a></h2>
+
+<p>Files created or modified by this plan, by repo. <em>Modifications to existing files are marked <code>[mod]</code>; new files are unmarked.</em></p>
+
+<pre><code>printing-press-library/
+├── greptile.json                                          [mod] U1, U4
+├── AGENTS.md                                              [mod] U5
+├── .github/
+│   ├── scripts/
+│   │   └── verify-supply-chain/                           U2
+│   │       ├── __init__.py
+│   │       ├── scan.py
+│   │       ├── signals.py
+│   │       └── test_scan.py
+│   └── workflows/
+│       └── verify-supply-chain.yml                        U3
+└── docs/
+    └── solutions/
+        └── security/                                      U5 (new subdir)
+            └── 2026-05-supply-chain-hardening.md
+
+cli-printing-press/
+├── greptile.json                                          [mod or new] U6
+├── AGENTS.md                                              [mod] U8
+└── .github/
+    ├── scripts/
+    │   └── verify-supply-chain/                           U7 (vendored from U2)
+    │       ├── __init__.py
+    │       ├── scan.py
+    │       ├── signals.py
+    │       └── test_scan.py
+    └── workflows/
+        └── verify-supply-chain.yml                        U7</code></pre>
+
+<p>The per-unit <code>**Files:**</code> sections below remain authoritative for what each unit creates or modifies.</p>
+
+<h2 id="units">Implementation Units <a href="#units" class="anchor">#</a></h2>
+
+<p>Suggested landing order: <b>PR A</b> = U1 + U2 + U3 + U4 + U5 into <code>printing-press-library</code>. <b>PR B</b> = U6 + U7 + U8 into <code>cli-printing-press</code>. PR A merges first; one-week green window observed before PR B merges. See <a href="#kd6">KD6</a>.</p>
+
+<div class="unit" id="u1">
+  <h3>U1. Add mechanical-signal Greptile rules to <code>printing-press-library</code></h3>
+  <div class="field"><b>Goal:</b> Extend <code>greptile.json</code> with six new <code>customContext.rules</code> entries covering R1–R6 attack shapes. Greptile reviews every PR and posts a comment with rationale; this is the judgment layer that explains <em>why</em> the rule fired even when the mechanical scan also blocks.</div>
+  <div class="field"><b>Requirements:</b> R1, R2, R3, R4, R5, R6.</div>
+  <div class="field"><b>Dependencies:</b> none.</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>greptile.json</code> [mod]</li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b> Append six entries to <code>customContext.rules</code>. Each follows the existing rule shape: <code>{"scope": [...path globs...], "rule": "..."}</code>. The rule prose names the attack shape, the file shape that would trip it, and an explicit allowlist where one applies (e.g., <code>npm-publish.yml</code> for <code>id-token: write</code>). Greptile severity is implicit — rules are written as "Flag X" / "P0. Block X" matching the existing patterns.
+    <ul>
+      <li><b>R1 rule:</b> scope <code>.github/workflows/**</code>. Detect any workflow that combines <code>pull_request_target</code> trigger with a checkout step whose <code>ref</code> references <code>github.event.pull_request.head.sha</code>, <code>github.event.pull_request.head.ref</code>, or <code>refs/pull/&lt;n&gt;/merge</code>. This is the TanStack root cause.</li>
+      <li><b>R2 rule:</b> scope <code>.github/workflows/**</code>. Detect <code>id-token: write</code> anywhere except inside <code>npm-publish.yml</code>. Reference the OIDC Trusted Publishing allowlist.</li>
+      <li><b>R3 rule:</b> scope <code>library/**/go.mod</code>. Detect new <code>replace</code> directives. Two tiers: hard-flag (P0) when the target is a URL/host (<code>github.com/...</code>, <code>http*://...</code>); advisory (P1) when the target is a local relative path. Reference the BufferZoneCorp attack shape.</li>
+      <li><b>R4 rule:</b> scope <code>.github/workflows/**</code>. Detect <code>GOPROXY</code>, <code>GOFLAGS</code>, or <code>GONOSUMCHECK</code> appearing in <code>env:</code> blocks at workflow, job, or step level.</li>
+      <li><b>R5 rule:</b> scope <code>npm/package.json</code>. Detect newly-added <code>preinstall</code>, <code>postinstall</code>, or <code>prepare</code> entries under the <code>scripts</code> object. Reference Axios and TanStack as primary motivators.</li>
+      <li><b>R6 rule:</b> scope <code>library/**/go.mod</code>. When the file existed on <code>origin/main</code>, the <code>module</code> directive must continue to begin with <code>github.com/mvanhorn/printing-press-library/library/</code>. Flag any rewrite to an external module path.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b> The existing six entries in <code>customContext.rules</code> (<code>library/**/.printing-press.json</code> rules, the <code>cli-skills/pp-*/SKILL.md</code> P0 rule) — same prose voice (declarative, names the attack, names the allowlist).</div>
+  <div class="field"><b>Test scenarios:</b>
+    <ul>
+      <li>Fixture PR adds a workflow with <code>on: pull_request_target</code> + <code>steps: - uses: actions/checkout@v4 with: { ref: ${{ github.event.pull_request.head.sha }} }</code> → Greptile flags R1 with TanStack reference.</li>
+      <li>Fixture PR adds <code>permissions: { id-token: write }</code> to a non-publish workflow → Greptile flags R2.</li>
+      <li>Fixture PR adds <code>replace github.com/example/foo =&gt; github.com/attacker/fork v1.0.0</code> to <code>library/payments/kalshi/go.mod</code> → Greptile flags R3 hard-tier.</li>
+      <li>Fixture PR adds <code>replace github.com/example/foo =&gt; ./vendor/foo</code> to a library go.mod → Greptile flags R3 advisory-tier (does not demand block).</li>
+      <li>Fixture PR sets <code>env: { GOPROXY: "https://mirror.example/" }</code> in a workflow job → Greptile flags R4.</li>
+      <li>Fixture PR adds <code>"postinstall": "node setup.js"</code> to <code>npm/package.json</code> → Greptile flags R5.</li>
+      <li>Fixture PR rewrites the <code>module</code> line in an existing <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code> from canonical to <code>github.com/attacker/fork/...</code> → Greptile flags R6.</li>
+      <li>Fixture PR bumps a Go dependency in <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code> normally (no <code>replace</code>, no <code>module</code> change) → no rule fires.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Verification:</b> <code>jq . greptile.json</code> validates as JSON; manual sandbox PR for each fixture above produces the expected Greptile comment within the existing 17-minute window the policy gate already waits on.</div>
+</div>
+
+<div class="unit" id="u2">
+  <h3>U2. Build Python scan script under <code>.github/scripts/verify-supply-chain/</code></h3>
+  <div class="field"><b>Goal:</b> Implement the mechanical layer — a deterministic Python script that consumes the PR diff and emits structured GitHub Actions annotations for each signal, exiting non-zero on any block-severity finding.</div>
+  <div class="field"><b>Requirements:</b> R1, R2, R3 (block tier only), R4, R5, R6, R7 (advisory severity), R8.</div>
+  <div class="field"><b>Dependencies:</b> none (script can be developed and tested standalone before wiring into CI).</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>.github/scripts/verify-supply-chain/__init__.py</code></li>
+      <li><code>.github/scripts/verify-supply-chain/scan.py</code></li>
+      <li><code>.github/scripts/verify-supply-chain/signals.py</code></li>
+      <li><code>.github/scripts/verify-supply-chain/test_scan.py</code></li>
+    </ul>
+  </div>
+  <div class="field"><b>Execution note:</b> Develop test-first. Write <code>test_scan.py</code> against the fixture-PR shapes enumerated below before <code>scan.py</code> grows past a skeleton. This is a security gate — false negatives are silent and expensive.</div>
+  <div class="field"><b>Approach:</b>
+    <ul>
+      <li><code>scan.py</code> is the entry point: parses CLI args (<code>--base-ref</code>, <code>--head-ref</code>, optional <code>--strict</code>), computes the diff via <code>subprocess.run(['git', 'diff', ...])</code>, iterates files, dispatches each touched file to its signal matchers in <code>signals.py</code>.</li>
+      <li><code>signals.py</code> defines the pattern catalog. Each signal is a small function or dataclass with: a path-glob predicate, a content predicate (regex or AST-light parsing for go.mod and YAML), a severity (<code>block</code> or <code>advise</code>), a one-line message template, and a one-line remediation hint.</li>
+      <li>Output format: GitHub Actions annotations — <code>::error file=...,line=...::&lt;message&gt;</code> for block, <code>::notice file=...,line=...::&lt;message&gt;</code> for advise. This is the same pattern <code>verify_publish_package.py</code> uses.</li>
+      <li>Exit code: <code>0</code> if no block-severity findings, <code>1</code> if any block-severity finding. Advisory findings do not affect exit code.</li>
+      <li><code>--strict</code> flag escalates advisories to block; off by default. Used in dispatch-only debugging, not the workflow.</li>
+      <li>Signal implementations:
+        <ul>
+          <li><b>R1:</b> YAML-parse touched <code>.github/workflows/*.yml</code> files; for each top-level <code>on:</code> with <code>pull_request_target</code>, walk jobs/steps looking for <code>uses: actions/checkout</code> with a <code>with.ref</code> value containing <code>head.sha</code>, <code>head.ref</code>, or <code>refs/pull/</code>.</li>
+          <li><b>R2:</b> YAML-parse touched <code>.github/workflows/*.yml</code> files; emit error if <code>permissions.id-token: write</code> appears at workflow or job level and the filename is not <code>npm-publish.yml</code>.</li>
+          <li><b>R3:</b> Line-diff parse touched <code>library/**/go.mod</code>; for each added line matching <code>^replace\s+\S+\s+=&gt;\s+(\S+)</code>, classify target: starts with <code>./</code> or <code>../</code> → advise; contains <code>://</code> or matches <code>^[a-z]+\.[a-z]+/</code> → block.</li>
+          <li><b>R4:</b> Line-diff parse touched <code>.github/workflows/*.yml</code>; emit error if added lines define <code>GOPROXY</code>, <code>GOFLAGS</code>, or <code>GONOSUMCHECK</code> inside an <code>env:</code> block.</li>
+          <li><b>R5:</b> JSON-parse <code>npm/package.json</code> at base and head; emit error for any key in <code>scripts</code> at head that is in <code>{preinstall, postinstall, prepare}</code> and was not in base.</li>
+          <li><b>R6:</b> For each touched <code>library/**/go.mod</code>, fetch base copy via <code>git show &lt;base-ref&gt;:&lt;path&gt;</code>. If the file existed at base, extract <code>module</code> directive from both; emit error if head's value does not start with <code>github.com/mvanhorn/printing-press-library/library/</code>.</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b>
+    <ul>
+      <li><code>.github/scripts/verify-publish-package/verify_publish_package.py</code> — argparse, <code>subprocess</code> for git, <code>pathlib.Path</code>, dataclass <code>Problem</code>, GH-annotation escape helper, <code>REPO_ROOT = Path(__file__).resolve().parents[3]</code>.</li>
+      <li><code>.github/scripts/verify-skill/verify_skill.py</code> — predicate-style signal matchers, <code>COMMON_FLAGS</code> allowlist set pattern (mirror this for the <code>npm-publish.yml</code> allowlist).</li>
+    </ul>
+  </div>
+  <div class="field"><b>Test scenarios:</b>
+    <ul>
+      <li><b>R1 happy path:</b> diff adds a workflow with safe <code>pull_request_target</code> and no checkout ref override → no findings. Covers AE1.</li>
+      <li><b>R1 attack shape:</b> diff adds a workflow with <code>pull_request_target</code> + <code>ref: ${{ github.event.pull_request.head.sha }}</code> → block, exit 1.</li>
+      <li><b>R2 attack shape:</b> diff adds <code>id-token: write</code> in <code>verify-skills.yml</code> → block, exit 1.</li>
+      <li><b>R2 allowlist:</b> diff modifies <code>npm-publish.yml</code> with <code>id-token: write</code> already present → no finding.</li>
+      <li><b>R3 block tier:</b> diff adds <code>replace example.com/foo =&gt; github.com/attacker/foo v0.0.1</code> to a library go.mod → block, exit 1.</li>
+      <li><b>R3 advise tier:</b> diff adds <code>replace example.com/foo =&gt; ./vendor/foo</code> to a library go.mod → notice, exit 0.</li>
+      <li><b>R3 existing-untouched:</b> a PR that does not modify <code>library/food-and-dining/ordertogo/go.mod</code> produces zero findings even though that file contains three legitimate <code>replace</code> directives. Regression guard against scanning beyond the diff.</li>
+      <li><b>R4 attack shape:</b> diff adds <code>env: { GOPROXY: "https://attacker.example/" }</code> to a workflow → block, exit 1.</li>
+      <li><b>R5 attack shape:</b> diff adds <code>"postinstall": "node ./malicious.js"</code> to <code>npm/package.json</code> → block, exit 1.</li>
+      <li><b>R5 legitimate:</b> diff modifies an existing legitimate <code>prepublishOnly</code> script (already present in <code>npm/package.json</code>) → no finding (not in the watched set).</li>
+      <li><b>R6 attack shape:</b> diff rewrites <code>module github.com/mvanhorn/...</code> to <code>module github.com/attacker/fork</code> in an existing go.mod → block, exit 1.</li>
+      <li><b>R6 new CLI:</b> diff adds a brand-new <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code> with canonical module path → no finding.</li>
+      <li><b>R6 new CLI bad path:</b> diff adds a brand-new go.mod with non-canonical module path → block, exit 1.</li>
+      <li><b>Mixed clean PR:</b> diff touches only Go source under an existing CLI's <code>internal/cli/</code> with no go.mod changes, no workflow changes, no npm changes → no findings.</li>
+      <li><b>Strict mode:</b> with <code>--strict</code>, R3 advise-tier promotes to block → exit 1.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Verification:</b> <code>python3 -m pytest .github/scripts/verify-supply-chain/test_scan.py -v</code> passes all fixtures. <code>python3 -m .github.scripts.verify-supply-chain.scan --base-ref origin/main --head-ref HEAD</code> runs cleanly on a clean checkout of main against itself (zero findings).</div>
+</div>
+
+<div class="unit" id="u3">
+  <h3>U3. Wire scan into CI as a new workflow <code>verify-supply-chain.yml</code></h3>
+  <div class="field"><b>Goal:</b> Run the scan on every PR that touches a relevant scope; surface findings as PR annotations; exit code drives the check pass/fail.</div>
+  <div class="field"><b>Requirements:</b> R8.</div>
+  <div class="field"><b>Dependencies:</b> U2 (script must exist).</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>.github/workflows/verify-supply-chain.yml</code></li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b>
+    <ul>
+      <li>Trigger: <code>pull_request</code> (not <code>pull_request_target</code> — this workflow does not need elevated permissions). Path filter on <code>.github/workflows/**</code>, <code>library/**/go.mod</code>, <code>library/**/go.sum</code>, <code>npm/package.json</code>, <code>npm/package-lock.json</code>.</li>
+      <li>Permissions: <code>contents: read</code> only. No <code>id-token</code>, no write permissions.</li>
+      <li>Job runs Python 3.12, checks out the PR branch (default ref — safe under <code>pull_request</code>), runs <code>scan.py</code> with <code>--base-ref origin/${{ github.base_ref }}</code> and <code>--head-ref HEAD</code>.</li>
+      <li>Concurrency: cancel-in-progress on the same PR.</li>
+      <li>Does <em>not</em> become a required check on day one. After a one-week green window, separately add it to branch protection.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b>
+    <ul>
+      <li><code>.github/workflows/verify-library-conventions.yml</code> — Python setup, diff-aware trigger, GA annotations.</li>
+      <li><code>.github/workflows/verify-skills.yml</code> — concurrency-group shape, timeout.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Test scenarios:</b>
+    <ul>
+      <li>Sandbox PR with each U2 fixture attack shape → workflow runs, posts annotations, fails red on block-tier signals.</li>
+      <li>Sandbox PR that touches only docs (no path-filter match) → workflow does not trigger.</li>
+      <li>Clean library PR (Go source change inside an existing CLI's <code>internal/</code>, no go.mod or workflow change) → workflow runs (path filter on go.sum is permissive enough), passes green.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Verification:</b> Workflow appears in the Actions tab on a sandbox PR; annotations render on the PR's Files tab; the check's pass/fail mirrors the script exit code.</div>
+</div>
+
+<div class="unit" id="u4">
+  <h3>U4. Add Greptile-only judgment rule for Go credential-path reads</h3>
+  <div class="field"><b>Goal:</b> Catch the node-ipc / TanStack credential-harvesting shape <em>in Go source</em> — a non-auth CLI that suddenly starts reading <code>~/.aws/credentials</code> or harvesting tokens. This rule lives in Greptile only, never in the mechanical scan, because legitimate auth CLIs (GitHub API wrappers, AWS clients) read these paths intentionally.</div>
+  <div class="field"><b>Requirements:</b> R7.</div>
+  <div class="field"><b>Dependencies:</b> none.</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>greptile.json</code> [mod]</li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b> One new <code>customContext.rules</code> entry. Scope: <code>library/**/internal/**/*.go</code>, <code>library/**/cmd/**/*.go</code>. Rule prose names the credential-path literals (<code>.aws/credentials</code>, <code>.ssh/id_</code>, <code>.kube/config</code>, <code>.claude/</code>, <code>.vscode/</code> hooks) and the sensitive env vars (<code>AWS_SECRET_ACCESS_KEY</code>, <code>AWS_SESSION_TOKEN</code>, <code>ACTIONS_ID_TOKEN_REQUEST_URL</code>, <code>GITHUB_TOKEN</code>). The rule instructs Greptile to <em>judge</em> whether the CLI's purpose plausibly explains the credential read: a CLI named <code>aws-foo-pp-cli</code> reading <code>.aws/credentials</code> is fine; a CLI named <code>weather-api-pp-cli</code> reading the same path is a P0 finding.</div>
+  <div class="field"><b>Patterns to follow:</b> The existing manuscript-content rule in <code>greptile.json</code> under <code>"other"</code> is the closest analog — judgment-heavy, prose-driven, scope-specific.</div>
+  <div class="field"><b>Test scenarios:</b>
+    <ul>
+      <li>Sandbox PR adds <code>os.Getenv("AWS_SECRET_ACCESS_KEY")</code> to <code>library/payments/kalshi/internal/client/client.go</code> (Kalshi is not an AWS CLI) → Greptile flags P0.</li>
+      <li>Sandbox PR adds <code>os.Getenv("AWS_SECRET_ACCESS_KEY")</code> to a hypothetical AWS-shaped CLI → Greptile does not flag (judgment).</li>
+      <li>Sandbox PR adds <code>os.Getenv("GITHUB_TOKEN")</code> to a GitHub-shaped CLI → Greptile does not flag.</li>
+      <li>Sandbox PR adds a string literal <code>"~/.claude/settings.json"</code> in any CLI → Greptile flags (the TanStack persistence path; no CLI in this catalog should write there).</li>
+    </ul>
+  </div>
+  <div class="field"><b>Verification:</b> JSON validates. Manual sandbox PRs of each shape produce expected Greptile output. Existing AWS- or GitHub-shaped CLIs in the catalog do not produce spurious findings on unrelated PRs.</div>
+</div>
+
+<div class="unit" id="u5">
+  <h3>U5. Document the new gates in AGENTS.md and a solutions doc</h3>
+  <div class="field"><b>Goal:</b> Future contributors and agents understand what the new rules do, why they exist, and where to look when one fires.</div>
+  <div class="field"><b>Requirements:</b> R10.</div>
+  <div class="field"><b>Dependencies:</b> U1, U2, U3, U4 (sections need final rule/workflow names).</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>AGENTS.md</code> [mod] — new section.</li>
+      <li><code>docs/solutions/security/2026-05-supply-chain-hardening.md</code> — new file in a new <code>security/</code> subdirectory.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b>
+    <ul>
+      <li><b>AGENTS.md section</b> (under existing top-level structure, after "Automated code review with Greptile"): one paragraph naming the new rules and the workflow, one paragraph naming the four incidents that motivated them, one paragraph linking to the solutions doc. Voice matches existing AGENTS.md sections — declarative, names the rule, names the path, names the trigger.</li>
+      <li><b>Solutions doc</b>: incident timeline (Axios Mar 31, TanStack May 11, node-ipc May 14, BufferZoneCorp May 2026), attack-vector taxonomy mapped to the defenses, primary-source citations. Frontmatter follows the existing <code>docs/solutions/</code> convention (sniff one entry under <code>best-practices/</code> for the exact shape before writing).</li>
+      <li>Both files cross-link. AGENTS.md text says "See <code>docs/solutions/security/2026-05-supply-chain-hardening.md</code> for incident details"; the solutions doc references AGENTS.md for the operational rules.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b>
+    <ul>
+      <li>Existing AGENTS.md sections: "Automated code review with Greptile", "Preflight before opening a PR" — voice and structure.</li>
+      <li>Any existing entry under <code>docs/solutions/best-practices/</code> — frontmatter shape and prose density.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Test scenarios:</b> <em>none — this is documentation; verification is presence and accuracy review.</em></div>
+  <div class="field"><b>Verification:</b>
+    <ul>
+      <li><code>grep -n "supply chain" AGENTS.md</code> returns one section heading.</li>
+      <li>Section names the four incidents and the new workflow.</li>
+      <li>Solutions doc cites all four primary sources (Datadog, Socket.dev, Microsoft, Hacker News) with URLs.</li>
+      <li>Both files use repo-relative paths; no absolute paths anywhere.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="unit" id="u6">
+  <h3>U6. Mirror Greptile rules into <code>cli-printing-press/greptile.json</code></h3>
+  <div class="field"><b>Goal:</b> Apply the same rule coverage in the generator repo, with scope adaptations for what doesn't apply there.</div>
+  <div class="field"><b>Requirements:</b> R9.</div>
+  <div class="field"><b>Dependencies:</b> U1 (rule text is mirrored, so finalize U1 first).</div>
+  <div class="field"><b>Files:</b>
+    <ul>
+      <li><code>cli-printing-press/greptile.json</code> [mod or new — confirm file existence in <code>cli-printing-press</code>; if absent, create with the same top-level shape as <code>printing-press-library</code>'s <code>greptile.json</code>]</li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b> Copy four of the six rules from U1 and adapt scope:
+    <ul>
+      <li><b>R1 (workflow trust):</b> apply unchanged. Scope <code>.github/workflows/**</code> exists in both repos.</li>
+      <li><b>R2 (id-token allowlist):</b> apply with adjustment. Generator repo currently has <em>no</em> <code>id-token: write</code> workflow at all. The allowlist is empty; any addition trips the rule. If the future <code>release.yml</code> migrates to keyless cosign with OIDC, allowlist that specific workflow at that time.</li>
+      <li><b>R3 (replace directive tiering):</b> apply with scope swap. In the generator repo, <code>library/**/go.mod</code> does not exist; the equivalent is the generator's own templates and testdata (<code>internal/generator/templates/**</code>, <code>testdata/**</code>). The generator's own <code>go.mod</code> is allowlisted because generator development sometimes uses local <code>replace</code> for fork work.</li>
+      <li><b>R4 (GOPROXY/GOFLAGS):</b> apply unchanged.</li>
+      <li><b>R5 (npm lifecycle):</b> <em>omit.</em> No npm wrapper in the generator repo.</li>
+      <li><b>R6 (module-path drift):</b> <em>omit.</em> No published-CLI module paths to defend.</li>
+      <li><b>R7 (Go credential reads):</b> apply with scope swap. The generator repo's <code>internal/</code> reads no credentials in its normal operation; same severity logic as U4.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b> U1's rule text verbatim where applicable; same prose voice; preserve scope-glob conventions.</div>
+  <div class="field"><b>Test scenarios:</b>
+    <ul>
+      <li>Sandbox PR in <code>cli-printing-press</code> adds a <code>pull_request_target</code> workflow with <code>ref</code> override → Greptile flags R1.</li>
+      <li>Sandbox PR adds <code>id-token: write</code> to any workflow → Greptile flags R2.</li>
+      <li>Sandbox PR adds <code>replace</code> directive in a generator template's example go.mod → Greptile flags R3 per tier.</li>
+      <li>Sandbox PR adds <code>GOPROXY</code> override in a workflow → Greptile flags R4.</li>
+      <li>Sandbox PR adds a <code>postinstall</code>-style script anywhere → no rule fires (R5 omitted by design).</li>
+    </ul>
+  </div>
+  <div class="field"><b>Verification:</b> JSON validates. Sandbox PRs produce expected behavior. Existing generator development PRs (recent main commits) re-run against the new config produce zero spurious findings.</div>
+</div>
+
+<div class="unit" id="u7">
+  <h3>U7. Vendor scan script and workflow into <code>cli-printing-press</code></h3>
+  <div class="field"><b>Goal:</b> The generator repo gets the same mechanical gate as the published library.</div>
+  <div class="field"><b>Requirements:</b> R9.</div>
+  <div class="field"><b>Dependencies:</b> U2 (vendor source), U3 (workflow pattern).</div>
+  <div class="field"><b>Files (in <code>cli-printing-press</code>):</b>
+    <ul>
+      <li><code>cli-printing-press/.github/scripts/verify-supply-chain/__init__.py</code></li>
+      <li><code>cli-printing-press/.github/scripts/verify-supply-chain/scan.py</code></li>
+      <li><code>cli-printing-press/.github/scripts/verify-supply-chain/signals.py</code></li>
+      <li><code>cli-printing-press/.github/scripts/verify-supply-chain/test_scan.py</code></li>
+      <li><code>cli-printing-press/.github/workflows/verify-supply-chain.yml</code></li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b>
+    <ul>
+      <li>Vendor (file-copy) <code>scan.py</code> and <code>test_scan.py</code> verbatim. They are general-purpose.</li>
+      <li>Adapt <code>signals.py</code> per U6's scope adjustments: drop R5 (npm), drop R6 (module-path), retarget R3's path glob from <code>library/**/go.mod</code> to <code>{internal/generator/templates/**/go.mod,testdata/**/go.mod}</code> or whatever the generator-output convention is — confirm by reading the generator repo at U7 time.</li>
+      <li>Vendor the workflow YAML; adjust path filters to match generator-repo paths.</li>
+      <li>A header comment at the top of <code>scan.py</code> in the generator repo names the source repo (<code>printing-press-library</code>) and the date of the vendor copy. Drift is detected by side-by-side review when either copy changes.</li>
+    </ul>
+  </div>
+  <div class="field"><b>Patterns to follow:</b> U2 source; <code>cli-printing-press/.github/scripts/validate-skill-docs.sh</code> is the only existing script there — directory pattern is new but follows <code>printing-press-library</code>'s shape.</div>
+  <div class="field"><b>Execution note:</b> Test-first in this repo too. Re-run U2's pytest fixtures against the vendored copy with adapted paths; all U2 fixtures (minus R5/R6) must pass.</div>
+  <div class="field"><b>Test scenarios:</b> Same as U2's R1, R2, R3, R4, R7 fixtures, re-run against the vendored copy with paths adapted to generator-repo conventions.</div>
+  <div class="field"><b>Verification:</b> <code>pytest</code> green in the generator repo; workflow runs on a sandbox PR; vendor-source header is present and dated.</div>
+</div>
+
+<div class="unit" id="u8">
+  <h3>U8. Mirror AGENTS.md section into <code>cli-printing-press</code></h3>
+  <div class="field"><b>Goal:</b> Generator-repo contributors see the same policy as published-library contributors, with appropriate scope notes.</div>
+  <div class="field"><b>Requirements:</b> R10.</div>
+  <div class="field"><b>Dependencies:</b> U6, U7 (final rule and workflow names).</div>
+  <div class="field"><b>Files (in <code>cli-printing-press</code>):</b>
+    <ul>
+      <li><code>cli-printing-press/AGENTS.md</code> [mod]</li>
+    </ul>
+  </div>
+  <div class="field"><b>Approach:</b> Shorter than U5's section. One paragraph names the new rules and workflow, one paragraph references the <code>printing-press-library</code> solutions doc as the canonical incident-and-rationale source (do <em>not</em> duplicate the incident timeline — single source of truth in the published-library repo).</div>
+  <div class="field"><b>Patterns to follow:</b> Existing AGENTS.md sections in <code>cli-printing-press</code>.</div>
+  <div class="field"><b>Test scenarios:</b> <em>none — documentation.</em></div>
+  <div class="field"><b>Verification:</b> Section exists; cross-link to published-library solutions doc resolves; mentions all rules present in the generator repo's <code>greptile.json</code>.</div>
+</div>
+
+<h2 id="acceptance">Acceptance Examples <a href="#acceptance" class="anchor">#</a></h2>
+
+<table>
+  <thead><tr><th>ID</th><th>Scenario</th><th>Expected outcome</th></tr></thead>
+  <tbody>
+    <tr><td>AE1</td><td>A normal CLI bug-fix PR (changes <code>library/&lt;cat&gt;/&lt;slug&gt;/internal/cli/foo.go</code>; no go.mod, workflow, or npm changes).</td><td><code>verify-supply-chain</code> runs (path-filtered to false on this PR shape), passes green with no annotations. Greptile review is unaffected. PR mergeable.</td></tr>
+    <tr><td>AE2</td><td>An attacker-shaped PR adds a new <code>pull_request_target</code> workflow with <code>ref: ${{ github.event.pull_request.head.sha }}</code>.</td><td><code>verify-supply-chain</code> fails red with a structured error annotation. Greptile posts a P0 finding citing TanStack. The PR cannot merge.</td></tr>
+    <tr><td>AE3</td><td>A PR adds <code>replace github.com/example/foo =&gt; github.com/attacker/fork v0.0.1</code> to <code>library/payments/kalshi/go.mod</code>.</td><td><code>verify-supply-chain</code> fails red. Greptile posts a P0 citing BufferZoneCorp. PR cannot merge.</td></tr>
+    <tr><td>AE4</td><td>A legitimate reprint of <code>library/food-and-dining/ordertogo</code> regenerates its existing three local-path <code>replace</code> directives (no new entries, target shape unchanged).</td><td><code>verify-supply-chain</code> passes (existing lines unchanged; new advise-tier additions = 0). Greptile does not flag. PR mergeable.</td></tr>
+    <tr><td>AE5</td><td>A PR to <code>npm/package.json</code> adds a new <code>postinstall</code> script.</td><td><code>verify-supply-chain</code> fails red. Greptile posts a P0 citing Axios. PR cannot merge.</td></tr>
+    <tr><td>AE6</td><td>A weather-API CLI's PR adds <code>os.Getenv("AWS_SECRET_ACCESS_KEY")</code> to its client code.</td><td><code>verify-supply-chain</code> passes (no mechanical signal here). Greptile posts a P0 from U4's judgment rule asking why a weather CLI reads AWS credentials. Resolution requires either an explanation accepted by the reviewer or a code change.</td></tr>
+    <tr><td>AE7</td><td>A PR rewrites <code>module github.com/mvanhorn/printing-press-library/library/payments/kalshi</code> to <code>module github.com/attacker/kalshi-fork</code>.</td><td><code>verify-supply-chain</code> fails red with module-path-drift annotation. Greptile posts a P0. PR cannot merge.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="risks">Risks &amp; Dependencies <a href="#risks" class="anchor">#</a></h2>
+
+<table>
+  <thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>False positives on legitimate <code>replace</code> directives.</td>
+      <td>Medium (one CLI today has them).</td>
+      <td>KD5 tiering: local-path targets are advise-only. Existing <code>ordertogo</code> directives don't trip the gate because the scan is diff-aware (only new lines count). Reprints regenerate the same lines verbatim.</td>
+    </tr>
+    <tr>
+      <td>False positives on legitimate auth surfaces (Go CLIs that genuinely read <code>~/.aws/credentials</code>).</td>
+      <td>Medium.</td>
+      <td>U4 is judgment-only (Greptile), never mechanical-block. Greptile reads the CLI's purpose from <code>SKILL.md</code> / <code>README.md</code> / its name and grants context-appropriate findings.</td>
+    </tr>
+    <tr>
+      <td>Day-one merge blocking on legitimate PRs because of mis-tuned regex.</td>
+      <td>Medium.</td>
+      <td>KD7: new check runs informationally for one week. Promoted to required after a clean window. No branch-protection wiring on landing.</td>
+    </tr>
+    <tr>
+      <td>Drift between the two repos' <code>signals.py</code> over time.</td>
+      <td>Low (single admin owns both).</td>
+      <td>Vendor-source header in <code>cli-printing-press/.github/scripts/verify-supply-chain/scan.py</code> names date and source. Drift surfaces on next review of either repo's PR. Parity script deferred (see Scope/Deferred).</td>
+    </tr>
+    <tr>
+      <td>YAML parsing brittle on unusual workflow shapes.</td>
+      <td>Low.</td>
+      <td>Use <code>pyyaml</code> safe-load (already available in the verify-* scripts ecosystem). Test fixtures include the existing repo workflows as known-good inputs.</td>
+    </tr>
+    <tr>
+      <td>Greptile misinterprets rule prose and over- or under-flags.</td>
+      <td>Medium.</td>
+      <td>Two-layer design (KD2): mechanical scan is the authoritative block gate. Greptile is for rationale. A Greptile false-negative still loses the alert but does not let a block-tier attack through — the scan catches those.</td>
+    </tr>
+    <tr>
+      <td>Attacker pre-pollutes a repo and the gate misses it because the attack landed before the gate did.</td>
+      <td>Low (audit confirmed clean baseline).</td>
+      <td>Audit findings documented above (origin/main as of 2026-05-17 is clean for both repos).</td>
+    </tr>
+    <tr>
+      <td>The scan workflow itself becomes an attack surface.</td>
+      <td>Low.</td>
+      <td>Runs as <code>pull_request</code> (not <code>pull_request_target</code>), <code>contents: read</code> only, no <code>id-token</code>. Cannot be turned into a credential-exfil path on its own merits. Treat any PR modifying <code>.github/scripts/verify-supply-chain/**</code> as a Greptile P0 review surface (folded into U1's general workflow-trust prose).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="sources">Sources &amp; Research <a href="#sources" class="anchor">#</a></h2>
+
+<h3>Primary-source incident references</h3>
+<ul>
+  <li>Socket.dev — <a href="https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack">TanStack mini-Shai-Hulud</a> (May 2026).</li>
+  <li>Datadog Security Labs — <a href="https://securitylabs.datadoghq.com/articles/axios-npm-supply-chain-compromise/">Axios npm compromise</a> (Mar 31, 2026).</li>
+  <li>Microsoft Security Blog — <a href="https://www.microsoft.com/en-us/security/blog/2026/04/01/mitigating-the-axios-npm-supply-chain-compromise/">Mitigating Axios npm</a>.</li>
+  <li>Google Cloud Threat Intelligence — <a href="https://cloud.google.com/blog/topics/threat-intelligence/north-korea-threat-actor-targets-axios-npm-package">North Korea–nexus Axios attribution</a>.</li>
+  <li>The Hacker News — <a href="https://thehackernews.com/2026/05/poisoned-ruby-gems-and-go-modules.html">Poisoned Ruby gems and Go modules (BufferZoneCorp)</a>.</li>
+  <li>Security Arsenal — <a href="https://securityarsenal.com/blog/bufferzonecorp-supply-chain-attack-poisoned-ruby-and-go-modules-targeting-ci-pipelines">BufferZoneCorp deep dive</a>.</li>
+  <li>The Hacker News — <a href="https://thehackernews.com/2026/05/tanstack-supply-chain-attack-hits-two.html">TanStack hits OpenAI devices</a>.</li>
+  <li>Axios GitHub — <a href="https://github.com/axios/axios/issues/10636">Post-mortem issue #10636</a>.</li>
+</ul>
+
+<h3>Local repo context used in planning</h3>
+<ul>
+  <li><code>greptile.json</code> at <code>origin/main</code> as of 2026-05-17 — existing rule shape and scope conventions.</li>
+  <li><code>.github/workflows/greptile-policy-gate.yml</code> at <code>origin/main</code> — confirmed safe <code>pull_request_target</code> pattern.</li>
+  <li><code>.github/workflows/npm-publish.yml</code> — confirmed sole legitimate <code>id-token: write</code> location.</li>
+  <li><code>.github/scripts/verify-publish-package/verify_publish_package.py</code> — Python script pattern to mirror for U2.</li>
+  <li><code>.github/scripts/verify-skill/verify_skill.py</code> — allowlist-set pattern (<code>COMMON_FLAGS</code>) to mirror for U2's <code>npm-publish.yml</code> allowlist.</li>
+  <li><code>library/food-and-dining/ordertogo/go.mod</code> — known existing <code>replace</code> directives that informed KD5 tiering.</li>
+  <li><code>cli-printing-press/.github/workflows/conversation-resolution-check.yml</code> at <code>origin/main</code> — confirmed safe <code>pull_request_target</code> pattern in the generator repo.</li>
+  <li><code>cli-printing-press/.github/workflows/release.yml</code> at <code>origin/main</code> — confirmed no <code>id-token</code> grant.</li>
+</ul>
+
+<h3>Planning-time questions resolved</h3>
+<ul>
+  <li><b>Where does the "module path" attack surface live?</b> In <code>library/&lt;cat&gt;/&lt;slug&gt;/go.mod</code>'s <code>module</code> directive. There is no <code>module_path</code> field in <code>.printing-press.json</code>. <code>tools/generate-registry/main.go</code> reads from <code>go.mod</code>.</li>
+  <li><b>Do <code>replace</code> directives appear in any current library go.mod?</b> Yes — three in <code>library/food-and-dining/ordertogo/go.mod</code>, all local <code>./third_party/</code> paths. Informs KD5 tiering.</li>
+  <li><b>Are there any current <code>GOPROXY</code> overrides?</b> No, in either repo. Rule is purely forward-looking.</li>
+  <li><b>Does cli-printing-press have a <code>greptile.json</code> today?</b> To be confirmed at U6 time; the unit handles both "extend" and "create" paths.</li>
+</ul>
+
+<h3>Deferred to implementation time</h3>
+<ul>
+  <li>Exact regex strings inside <code>signals.py</code> — finalize against the test fixtures, not in the plan.</li>
+  <li>Whether to vendor <code>pyyaml</code> via <code>requirements.txt</code> or rely on the runner image's default. Decide when wiring U3.</li>
+  <li>Exact <code>docs/solutions/best-practices/</code> frontmatter shape — read an existing entry at U5 time and match.</li>
+  <li>Exact path glob for the generator repo's <code>replace</code>-directive scope (R3 mirror) — read <code>cli-printing-press</code> directory structure at U7 time.</li>
+</ul>
+
+</body>
+</html>

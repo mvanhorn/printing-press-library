@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "wordpress-pp-cli"
+display_name = "WordPress"
+description = "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/wordpress-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WORDPRESS_APP_PASSWORD = true
+WORDPRESS_USER = true

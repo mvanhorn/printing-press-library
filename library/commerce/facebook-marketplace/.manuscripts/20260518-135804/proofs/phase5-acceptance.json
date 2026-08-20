@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "facebook-marketplace",
+  "run_id": "20260518-135804",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_skipped": 4,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": true
+  }
+}

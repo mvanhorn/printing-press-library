@@ -1,0 +1,316 @@
+{
+  "device_candidates": [
+    {
+      "address": "device-1",
+      "rssi": -46
+    },
+    {
+      "address": "device-10",
+      "rssi": -59,
+      "service_uuids": [
+        "98ed0001-a541-11e4-b6a0-0002a5d5c51b"
+      ]
+    },
+    {
+      "address": "device-11",
+      "rssi": -59
+    },
+    {
+      "address": "device-12",
+      "rssi": -60
+    },
+    {
+      "address": "device-13",
+      "rssi": -60
+    },
+    {
+      "address": "device-14",
+      "rssi": -62
+    },
+    {
+      "address": "device-15",
+      "rssi": -62
+    },
+    {
+      "address": "device-16",
+      "rssi": -63,
+      "service_uuids": [
+        "0000febe-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-17",
+      "rssi": -65
+    },
+    {
+      "address": "device-18",
+      "name": "N00FV",
+      "rssi": -65,
+      "service_uuids": [
+        "0000feaf-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-19",
+      "rssi": -65
+    },
+    {
+      "address": "device-2",
+      "rssi": -52
+    },
+    {
+      "address": "device-20",
+      "name": "LE_Home Theatre",
+      "rssi": -65
+    },
+    {
+      "address": "device-21",
+      "name": "KS-BLC2",
+      "rssi": -68,
+      "service_uuids": [
+        "0000fe00-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-22",
+      "rssi": -68
+    },
+    {
+      "address": "device-23",
+      "name": "110035_50A0",
+      "rssi": -69,
+      "service_uuids": [
+        "4772911e-d07c-4617-8241-f4d10948d6ae"
+      ]
+    },
+    {
+      "address": "device-24",
+      "rssi": -70
+    },
+    {
+      "address": "device-25",
+      "rssi": -71
+    },
+    {
+      "address": "device-26",
+      "name": "C5500XK2203007979",
+      "rssi": -71
+    },
+    {
+      "address": "device-27",
+      "rssi": -71
+    },
+    {
+      "address": "device-28",
+      "rssi": -71
+    },
+    {
+      "address": "device-29",
+      "rssi": -72
+    },
+    {
+      "address": "device-3",
+      "rssi": -52
+    },
+    {
+      "address": "device-30",
+      "name": "R33-0199",
+      "rssi": -72
+    },
+    {
+      "address": "device-31",
+      "rssi": -75
+    },
+    {
+      "address": "device-32",
+      "name": "S17 3ACC LE",
+      "rssi": -76,
+      "service_uuids": [
+        "0000fe07-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-33",
+      "rssi": -77
+    },
+    {
+      "address": "device-34",
+      "rssi": -78
+    },
+    {
+      "address": "device-35",
+      "rssi": -78
+    },
+    {
+      "address": "device-36",
+      "name": "XBLOOM 56H041",
+      "rssi": -79,
+      "service_uuids": [
+        "0000e0ff-3c17-d293-8e48-14fe2e4da212"
+      ]
+    },
+    {
+      "address": "device-37",
+      "name": "[TV] Samsung The Frame (55)",
+      "rssi": -85
+    },
+    {
+      "address": "device-38",
+      "rssi": -86
+    },
+    {
+      "address": "device-39",
+      "rssi": -87
+    },
+    {
+      "address": "device-4",
+      "rssi": -54
+    },
+    {
+      "address": "device-40",
+      "rssi": -88
+    },
+    {
+      "address": "device-41",
+      "rssi": -88
+    },
+    {
+      "address": "device-42",
+      "rssi": -89
+    },
+    {
+      "address": "device-43",
+      "rssi": -91
+    },
+    {
+      "address": "device-44",
+      "rssi": -92
+    },
+    {
+      "address": "device-45",
+      "rssi": -92,
+      "service_uuids": [
+        "0000febe-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-46",
+      "name": "lime-207907433049",
+      "rssi": -92
+    },
+    {
+      "address": "device-47",
+      "name": "net",
+      "rssi": -94,
+      "service_uuids": [
+        "0000ff80-0000-1000-8000-00805f9b34fb",
+        "0000ff90-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-48",
+      "name": "N062F",
+      "rssi": -94,
+      "service_uuids": [
+        "0000feaf-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-49",
+      "name": "Govee_H7015_0E3D",
+      "rssi": -96
+    },
+    {
+      "address": "device-5",
+      "rssi": -58
+    },
+    {
+      "address": "device-50",
+      "rssi": -96
+    },
+    {
+      "address": "device-51",
+      "name": "lime-930703634973",
+      "rssi": -96
+    },
+    {
+      "address": "device-52",
+      "name": "1F1B301EE4FB",
+      "rssi": -96
+    },
+    {
+      "address": "device-53",
+      "rssi": -97
+    },
+    {
+      "address": "device-54",
+      "name": "WL_SCLET",
+      "rssi": -97,
+      "service_uuids": [
+        "0000fd7b-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-55",
+      "rssi": -97
+    },
+    {
+      "address": "device-56",
+      "rssi": -97
+    },
+    {
+      "address": "device-57",
+      "rssi": -98
+    },
+    {
+      "address": "device-58",
+      "rssi": -98
+    },
+    {
+      "address": "device-59",
+      "rssi": -98
+    },
+    {
+      "address": "device-6",
+      "rssi": -59,
+      "service_uuids": [
+        "093b30d3-2d5b-4960-b561-852829ab91b1"
+      ]
+    },
+    {
+      "address": "device-60",
+      "rssi": -98
+    },
+    {
+      "address": "device-61",
+      "rssi": -98,
+      "service_uuids": [
+        "0000fe9f-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "address": "device-62",
+      "rssi": -100
+    },
+    {
+      "address": "device-7",
+      "rssi": -59
+    },
+    {
+      "address": "device-8",
+      "rssi": -59
+    },
+    {
+      "address": "device-9",
+      "rssi": -59
+    }
+  ],
+  "requires_operator_selection": true,
+  "command_discovery": {
+    "status": "no_surface",
+    "message": "No writable BLE command surface was discovered."
+  },
+  "warnings": [
+    "multiple matching BLE devices; require explicit operator selection"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-novel-commands",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Hand-authored timeline/rabbitholes/dwell/graph/profile/topic commands over the local store (journeys/searches/downloads are capability-gated off for Safari).",
+  "reason": "Transcendence features over the local store; not generatable from a spec.",
+  "files": [
+    "internal/cli/timeline.go",
+    "internal/cli/rabbitholes.go",
+    "internal/cli/dwell.go",
+    "internal/cli/graph.go",
+    "internal/cli/profile.go",
+    "internal/cli/topic.go"
+  ]
+}

@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // newSubaccountsCmd is the parent for novel 'subaccounts' commands. The
@@ -78,6 +78,9 @@ underlying sync lands.`,
 			}
 
 			if flags.asJSON {
+				if rows == nil {
+					rows = []subaccountsRollupRow{} // emit [], never null (same guard as movers/calendar)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 

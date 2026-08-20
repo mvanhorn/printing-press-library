@@ -1,0 +1,341 @@
+{
+  "api_name": "domain-goat",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "dnstwist",
+      "url": "https://github.com/elceef/dnstwist",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5500,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openrdap/rdap",
+      "url": "https://github.com/openrdap/rdap",
+      "language": "Go",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "likexian/whois",
+      "url": "https://github.com/likexian/whois",
+      "language": "Go",
+      "install_method": "",
+      "stars": 700,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "whoiser",
+      "url": "https://github.com/LayeredStudio/whoiser",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dorukardahan/domain-search-mcp",
+      "url": "https://github.com/dorukardahan/domain-search-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "saidutt46/domain-check",
+      "url": "https://github.com/saidutt46/domain-check",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bharathvaj-ganesan/whois-mcp",
+      "url": "https://github.com/bharathvaj-ganesan/whois-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "domainr-cli (archived)",
+      "url": "https://github.com/MichaelThessel/domainr-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 25,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T09:40:00Z",
+  "novel_features": [
+    {
+      "name": "Top-N finalist promotion",
+      "command": "shortlist promote",
+      "description": "Promote the top-N candidates from a list into a finalist sub-list ranked by combined score, price, and availability.",
+      "rationale": "Requires correlating brandability score, current price, and RDAP availability in a single local query — no API call returns all three.",
+      "example": "domain-goat-pp-cli shortlist promote --list ai-startup --top 10 --by combined --agent",
+      "why_it_matters": "When an agent needs to converge on a buyable shortlist, this collapses 'fetch scores, fetch prices, fetch availability, sort, persist' into one deterministic call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "5-year true-cost budget filter",
+      "command": "budget",
+      "description": "Filter candidates whose 5-year total cost (registration + 4 renewals) is under your ceiling, sorted ascending.",
+      "rationale": "Registrar UIs hide year-2 renewal prices until checkout; Porkbun's pricing endpoint is the only no-auth source that exposes both registration and renewal prices for every TLD.",
+      "example": "domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --available-only",
+      "why_it_matters": "Avoid the $12-year-1 / $4,800-renewal trap before falling in love with a name.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "One row per domain with score, length, TLD prestige, cross-registrar price, RDAP status, and drop flag.",
+      "rationale": "Joins every synced table by domain — no current CLI or web tool returns all dimensions in one structured response.",
+      "example": "domain-goat-pp-cli compare kindred.io kindred.ai kindred.studio --json --select status,price,score",
+      "why_it_matters": "Lets an agent or user finalize a shortlist in one command instead of cross-referencing 5 tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drop timeline by score",
+      "command": "drops timeline",
+      "description": "Time-axis view of every watched domain hitting pendingDelete/redemptionPeriod, filtered by brandability score and TLD.",
+      "rationale": "Reads persisted RDAP events_json — ExpiredDomains.net is web-only with no score filter; raw WHOIS output is unstructured text.",
+      "example": "domain-goat-pp-cli drops timeline --days 30 --min-score 7 --tld io,ai --agent",
+      "why_it_matters": "Drop-catchers and brand investors want to know 'what's queued for next week that's worth bidding on?' This answers it.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Why-killed audit",
+      "command": "why-killed",
+      "description": "Show why a domain is no longer on the active shortlist: status, score, notes, tag history, last price.",
+      "rationale": "FTS5 over candidates.notes + tags joined with the last pricing/RDAP snapshot — recovers institutional memory weeks after the kill decision.",
+      "example": "domain-goat-pp-cli why-killed kindred.studio --json",
+      "why_it_matters": "Agency teams kill the same name twice in a sprint without this — and an agent re-suggesting a killed name burns user trust.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pricing arbitrage radar",
+      "command": "pricing-arbitrage",
+      "description": "Rank TLDs by renewal-delta (year-1 trap risk) or by prestige-to-price ratio.",
+      "rationale": "Porkbun's public pricing endpoint is the only no-auth source publishing both registration and renewal prices for 600+ TLDs — aggregating them surfaces structural facts neither registrar UIs nor comparison sites show.",
+      "example": "domain-goat-pp-cli pricing-arbitrage --by renewal-delta --top 20 --agent",
+      "why_it_matters": "Helps users and agents avoid TLDs where year-2 pricing destroys the deal.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Drop re-release window",
+      "command": "drop-bid-window",
+      "description": "Compute the exact UTC re-release window for a domain in pendingDelete (RDAP event + 5-day grace).",
+      "rationale": "ICANN's expiry → redemption → pendingDelete → drop windows are deterministic but unsurfaced by any CLI — we read RDAP events_json and add the RFC grace.",
+      "example": "domain-goat-pp-cli drop-bid-window expiring.io --json",
+      "why_it_matters": "Drop-catchers need minute-level timing; this replaces hand-parsed WHOIS regex.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Seed-to-TLD affinity",
+      "command": "tld-affinity",
+      "description": "Given a seed keyword, rank TLDs by suffix-semantics fit, historical availability rate in local history, and price tier.",
+      "rationale": "Joins tlds × pricing × candidates from the local store; grounds 'should I look at .ai or .studio for this?' in cached data instead of gut feel.",
+      "example": "domain-goat-pp-cli tld-affinity kindred --top 10 --json",
+      "why_it_matters": "Helps an agent pick generative TLDs before running expensive permutation passes.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Top-N finalist promotion",
+      "command": "shortlist promote",
+      "description": "Promote the top-N candidates from a list into a finalist sub-list ranked by combined score, price, and availability.",
+      "rationale": "Requires correlating brandability score, current price, and RDAP availability in a single local query — no API call returns all three.",
+      "example": "domain-goat-pp-cli shortlist promote --list ai-startup --top 10 --by combined --agent",
+      "why_it_matters": "When an agent needs to converge on a buyable shortlist, this collapses 'fetch scores, fetch prices, fetch availability, sort, persist' into one deterministic call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "5-year true-cost budget filter",
+      "command": "budget",
+      "description": "Filter candidates whose 5-year total cost (registration + 4 renewals) is under your ceiling, sorted ascending.",
+      "rationale": "Registrar UIs hide year-2 renewal prices until checkout; Porkbun's pricing endpoint is the only no-auth source that exposes both registration and renewal prices for every TLD.",
+      "example": "domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --available-only",
+      "why_it_matters": "Avoid the $12-year-1 / $4,800-renewal trap before falling in love with a name.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "One row per domain with score, length, TLD prestige, cross-registrar price, RDAP status, and drop flag.",
+      "rationale": "Joins every synced table by domain — no current CLI or web tool returns all dimensions in one structured response.",
+      "example": "domain-goat-pp-cli compare kindred.io kindred.ai kindred.studio --json --select status,price,score",
+      "why_it_matters": "Lets an agent or user finalize a shortlist in one command instead of cross-referencing 5 tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drop timeline by score",
+      "command": "drops timeline",
+      "description": "Time-axis view of every watched domain hitting pendingDelete/redemptionPeriod, filtered by brandability score and TLD.",
+      "rationale": "Reads persisted RDAP events_json — ExpiredDomains.net is web-only with no score filter; raw WHOIS output is unstructured text.",
+      "example": "domain-goat-pp-cli drops timeline --days 30 --min-score 7 --tld io,ai --agent",
+      "why_it_matters": "Drop-catchers and brand investors want to know 'what's queued for next week that's worth bidding on?' This answers it.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Why-killed audit",
+      "command": "why-killed",
+      "description": "Show why a domain is no longer on the active shortlist: status, score, notes, tag history, last price.",
+      "rationale": "FTS5 over candidates.notes + tags joined with the last pricing/RDAP snapshot — recovers institutional memory weeks after the kill decision.",
+      "example": "domain-goat-pp-cli why-killed kindred.studio --json",
+      "why_it_matters": "Agency teams kill the same name twice in a sprint without this — and an agent re-suggesting a killed name burns user trust.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pricing arbitrage radar",
+      "command": "pricing-arbitrage",
+      "description": "Rank TLDs by renewal-delta (year-1 trap risk) or by prestige-to-price ratio.",
+      "rationale": "Porkbun's public pricing endpoint is the only no-auth source publishing both registration and renewal prices for 600+ TLDs — aggregating them surfaces structural facts neither registrar UIs nor comparison sites show.",
+      "example": "domain-goat-pp-cli pricing-arbitrage --by renewal-delta --top 20 --agent",
+      "why_it_matters": "Helps users and agents avoid TLDs where year-2 pricing destroys the deal.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Drop re-release window",
+      "command": "drop-bid-window",
+      "description": "Compute the exact UTC re-release window for a domain in pendingDelete (RDAP event + 5-day grace).",
+      "rationale": "ICANN's expiry → redemption → pendingDelete → drop windows are deterministic but unsurfaced by any CLI — we read RDAP events_json and add the RFC grace.",
+      "example": "domain-goat-pp-cli drop-bid-window expiring.io --json",
+      "why_it_matters": "Drop-catchers need minute-level timing; this replaces hand-parsed WHOIS regex.",
+      "group": "Reachability + persistence"
+    },
+    {
+      "name": "Seed-to-TLD affinity",
+      "command": "tld-affinity",
+      "description": "Given a seed keyword, rank TLDs by suffix-semantics fit, historical availability rate in local history, and price tier.",
+      "rationale": "Joins tlds × pricing × candidates from the local store; grounds 'should I look at .ai or .studio for this?' in cached data instead of gut feel.",
+      "example": "domain-goat-pp-cli tld-affinity kindred --top 10 --json",
+      "why_it_matters": "Helps an agent pick generative TLDs before running expensive permutation passes.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Domain Goat",
+    "headline": "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal.",
+    "value_prop": "domain-goat absorbs everything dnstwist, openrdap, whois, and the abandoned domainr-cli ever did, then transcends with a local SQLite shortlist that knows your scores, your notes, your watch list, and 5-year renewal cost for every TLD — so you can find domains worth registering instead of just typing names into instant-domain-search.com five at a time.",
+    "auth_narrative": "No auth required for the headline path. RDAP, WHOIS port 43, and the Porkbun public pricing endpoint are all open. Optional registrar adapters (Namecheap, Porkbun authed, Name.com, Domainr) enrich pricing and suggestions when you set keys via `auth set-key`.",
+    "quickstart": [
+      {
+        "command": "domain-goat-pp-cli tlds sync",
+        "comment": "Pull the IANA RDAP bootstrap and Porkbun pricing snapshot once — everything offline after this."
+      },
+      {
+        "command": "domain-goat-pp-cli check kindred.io kindred.ai kindred.studio --json",
+        "comment": "RDAP-native availability with WHOIS fallback for the three TLDs you're stuck on."
+      },
+      {
+        "command": "domain-goat-pp-cli gen suggest --seeds kindred,studio --tlds com,io,ai,studio --available-only --count 50",
+        "comment": "Generate 50 brandable variants, filter to only available ones, all offline."
+      },
+      {
+        "command": "domain-goat-pp-cli lists add ai-startup kindred.ai lumen.ai novella.ai",
+        "comment": "Save survivors to a shortlist with optional notes and tags."
+      },
+      {
+        "command": "domain-goat-pp-cli shortlist promote --list ai-startup --top 10 --by combined",
+        "comment": "Rank by combined score/price/availability and promote the top 10 to a finalist sub-list."
+      },
+      {
+        "command": "domain-goat-pp-cli compare kindred.ai lumen.ai novella.ai --json",
+        "comment": "Side-by-side: scores, prices, RDAP status, drop flags."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "RDAP returns 5xx or no bootstrap entry for a ccTLD",
+        "fix": "domain-goat-pp-cli falls back to WHOIS port 43 automatically; verify with `--source rdap` vs `--source whois`."
+      },
+      {
+        "symptom": "GoDaddy adapter returns ACCESS_DENIED",
+        "fix": "GoDaddy gated their API in 2023; new keys require \u003e=10 domains on the account. Use Porkbun or Name.com instead."
+      },
+      {
+        "symptom": "Verisign WHOIS port 43 tarpitting your bulk run",
+        "fix": "Add `--prefer-rdap` (default) or `--parallel 2` to slow down; RDAP at rdap.verisign.com is rate-limit safer for .com/.net."
+      },
+      {
+        "symptom": "Domainr commands return 401",
+        "fix": "Domainr ships only via RapidAPI; run `domain-goat-pp-cli auth set-key domainr \u003cRapidAPI-key\u003e` and verify with `doctor`."
+      }
+    ],
+    "when_to_use": "Reach for domain-goat when you need to identify (not transact) domains worth registering — bulk-checking a name list across many TLDs, generating brandable variants, scoring candidates, watching for drops, comparing 5-year true cost across TLDs, or driving any of those workflows from an agent via MCP. Skip it if you already know which domain you want and just need to buy it — that's a registrar's job.",
+    "recipes": [
+      {
+        "title": "Friday brand pitch — generate 50 ranked candidates",
+        "command": "domain-goat-pp-cli gen suggest --seeds kindred,studio --tlds com,io,ai,studio --count 50 --max-renewal 80 --json",
+        "explanation": "Generate brandable variants, score each, filter by Porkbun renewal-price ceiling — agent-friendly JSON ready for the deck."
+      },
+      {
+        "title": "Persist a shortlist and promote the top 10",
+        "command": "domain-goat-pp-cli lists add brand-sprint kindred.io lumen.ai novella.studio --tags founder",
+        "explanation": "Save survivors to a candidate list; `shortlist promote --list brand-sprint --top 10` then picks finalists."
+      },
+      {
+        "title": "Drop-catch worth-bidding-on hunt",
+        "command": "domain-goat-pp-cli drops timeline --days 14 --min-score 7 --tld com,io --json --select fqdn,drop_at,score,price",
+        "explanation": "Two weeks of upcoming drops, score-filtered, agent-narrow output."
+      },
+      {
+        "title": "Five-year true-cost shortlist",
+        "command": "domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --agent --select fqdn,total_5yr,renewal_price",
+        "explanation": "Cuts the $12-year-1 / $4,800-renewal trap before you fall in love with a name."
+      },
+      {
+        "title": "Why did we kill this one?",
+        "command": "domain-goat-pp-cli why-killed kindred.studio --json",
+        "explanation": "FTS5 over notes + tags + last RDAP/pricing snapshot — recovers institutional memory weeks later."
+      },
+      {
+        "title": "Agent-friendly compare",
+        "command": "domain-goat-pp-cli compare kindred.io kindred.ai kindred.studio --agent --select fqdn,available,price,score,drop_flag,registrar_status",
+        "explanation": "Dotted-path --select keeps the agent's context tight — each row is ~80 bytes instead of the full RDAP envelope."
+      }
+    ],
+    "trigger_phrases": [
+      "find me a domain name",
+      "check if this domain is available",
+      "is example.io available",
+      "generate brand name candidates",
+      "compare these domain options",
+      "what domains are dropping soon",
+      "score this domain name",
+      "5 year cost of this domain",
+      "use domain-goat",
+      "run domain-goat"
+    ]
+  }
+}

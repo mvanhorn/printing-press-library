@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T23:40:28Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "jobber",
+  "display_name": "Jobber",
+  "cli_name": "jobber-pp-cli",
+  "creator": {
+    "handle": "melanson633",
+    "name": "melanson633"
+  },
+  "owner": "user",
+  "printer": "melanson633",
+  "printer_name": "melanson633",
+  "category": "sales-and-crm",
+  "spec_format": "internal-yaml",
+  "spec_source": "internal-yaml",
+  "run_id": "20260522-234028",
+  "mcp_binary": "jobber-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "2025-04-16",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "JOBBER_CLIENT_ID",
+    "JOBBER_CLIENT_SECRET",
+    "JOBBER_CALLBACK_URL",
+    "JOBBER_ACCESS_TOKEN",
+    "JOBBER_REFRESH_TOKEN",
+    "JOBBER_GRAPHQL_VERSION"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "JOBBER_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "Jobber OAuth2 client_id from your Developer Center app."
+    },
+    {
+      "name": "JOBBER_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "Jobber OAuth2 client_secret paired with JOBBER_CLIENT_ID."
+    },
+    {
+      "name": "JOBBER_CALLBACK_URL",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "OAuth2 redirect URI registered on the Jobber app (e.g. http://localhost:8765/callback)."
+    },
+    {
+      "name": "JOBBER_ACCESS_TOKEN",
+      "kind": "bearer",
+      "required": true,
+      "sensitive": true,
+      "description": "Current Jobber bearer access token. Refreshed automatically on 401."
+    },
+    {
+      "name": "JOBBER_REFRESH_TOKEN",
+      "kind": "refresh",
+      "required": true,
+      "sensitive": true,
+      "description": "Jobber refresh token. Jobber rotates this on every refresh; the CLI persists the new value back to the Windows User environment so the rotation chain stays alive."
+    },
+    {
+      "name": "JOBBER_GRAPHQL_VERSION",
+      "kind": "config",
+      "required": true,
+      "sensitive": false,
+      "description": "GraphQL schema version pinned in the X-JOBBER-GRAPHQL-VERSION header (e.g. 2025-04-16)."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "AR aging",
+      "command": "ar aging",
+      "description": "Aged AR by client with 0-30/31-60/61-90/90+ buckets and per-bucket totals — every advisor's first question, offline and instantly."
+    },
+    {
+      "name": "Invoice payment trace",
+      "command": "invoices trace",
+      "description": "Per-invoice ledger comparing total, payments_total, deposit_amount, and the sum of payment records. --mismatched flags drift > $0.005."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "snapshot diff",
+      "description": "Diff two labeled SQLite snapshots: new clients, status transitions, newly paid invoices, per-client open-AR deltas."
+    },
+    {
+      "name": "Full-text search",
+      "command": "search",
+      "description": "FTS5 search across every synced resource — clients, jobs, invoices, properties, quotes, visits, payment records — with no live API hit."
+    },
+    {
+      "name": "Read-only ad-hoc SQL",
+      "command": "sql",
+      "description": "Read-only ad-hoc SQL against the local store (write tokens rejected at the CLI layer + sqlite mode=ro) for anything the curated commands don't answer."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mailchimp-readme-env-var-update",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-014518",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Rewrote README.md and SKILL.md authentication sections to surface MAILCHIMP_API_KEY as the canonical env var, plus added a Known Limitations block documenting 3 upstream Mailchimp API quirks.",
+  "reason": "The generator emitted MAILCHIMP_USERNAME / MAILCHIMP_PASSWORD as separate env vars from the spec's basicAuth scheme. Mailchimp's real-world convention is one combined env var with the datacenter suffix. README + SKILL updates: (a) point at MAILCHIMP_API_KEY in install instructions, env var table, troubleshooting, and the Authentication section, (b) document MAILCHIMP_DC as the OAuth-token override, (c) add a 'Known Limitations' block surfacing 3 Mailchimp API quirks discovered during live dogfood (file-manager and sms-campaigns content return 200 with default content for invalid IDs; workflow archive --json emits NDJSON event stream).",
+  "files": [
+    "README.md",
+    "SKILL.md"
+  ]
+}

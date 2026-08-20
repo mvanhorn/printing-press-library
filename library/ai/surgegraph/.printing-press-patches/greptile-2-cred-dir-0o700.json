@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-2-cred-dir-0o700",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Tighten auth_login.saveConfigTOML to create the credentials directory at 0o700 instead of 0o755.",
+  "reason": "0o755 made directory existence enumerable by every local user; config.toml is 0o600 but the parent directory disclosed that a credentials file exists. Once created world-executable, MkdirAll cannot retroactively tighten the mode.",
+  "files": [
+    "internal/cli/auth_login.go"
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "api_name": "drug-enforcement",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-07T20:15:00Z",
+  "novel_features": [
+    {
+      "name": "Recall check by drug",
+      "command": "check",
+      "description": "Find active FDA recalls that mention a drug, optionally filtered to the most serious class.",
+      "rationale": "Wraps the openFDA enforcement search with the safety contract: no match reports 'no recall records found', never that the drug is safe.",
+      "example": "drug-enforcement-pp-cli check \"ibuprofen\" --class 1",
+      "why_it_matters": "Reach for this when an agent needs the recall status of a specific medication by name.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recalls by firm",
+      "command": "firm",
+      "description": "List every recall attributed to a recalling firm or manufacturer.",
+      "rationale": "Pre-builds the recalling_firm search so an agent does not hand-roll openFDA Lucene syntax.",
+      "example": "drug-enforcement-pp-cli firm \"Teva\"",
+      "why_it_matters": "Use this to audit a manufacturer's recall history.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recent recalls window",
+      "command": "recent",
+      "description": "List recalls initiated in the last N days, most recent first.",
+      "rationale": "Computes the inclusive date range and openFDA date-range query for a rolling window.",
+      "example": "drug-enforcement-pp-cli recent --days 30",
+      "why_it_matters": "Use this for a periodic sweep of newly initiated drug recalls.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recall detail by number",
+      "command": "reference",
+      "description": "Show full detail for a single recall number, with the FDA class legend.",
+      "rationale": "Exact recall_number lookup with the class meanings printed in place for interpretation.",
+      "example": "drug-enforcement-pp-cli reference D-0183-2023",
+      "why_it_matters": "Use this to expand one recall's full facts after a check/firm/recent lookup surfaces its number.",
+      "group": "Recall lookups"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recall check by drug",
+      "command": "check",
+      "description": "Find active FDA recalls that mention a drug, optionally filtered to the most serious class.",
+      "rationale": "Wraps the openFDA enforcement search with the safety contract: no match reports 'no recall records found', never that the drug is safe.",
+      "example": "drug-enforcement-pp-cli check \"ibuprofen\" --class 1",
+      "why_it_matters": "Reach for this when an agent needs the recall status of a specific medication by name.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recalls by firm",
+      "command": "firm",
+      "description": "List every recall attributed to a recalling firm or manufacturer.",
+      "rationale": "Pre-builds the recalling_firm search so an agent does not hand-roll openFDA Lucene syntax.",
+      "example": "drug-enforcement-pp-cli firm \"Teva\"",
+      "why_it_matters": "Use this to audit a manufacturer's recall history.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recent recalls window",
+      "command": "recent",
+      "description": "List recalls initiated in the last N days, most recent first.",
+      "rationale": "Computes the inclusive date range and openFDA date-range query for a rolling window.",
+      "example": "drug-enforcement-pp-cli recent --days 30",
+      "why_it_matters": "Use this for a periodic sweep of newly initiated drug recalls.",
+      "group": "Recall lookups"
+    },
+    {
+      "name": "Recall detail by number",
+      "command": "reference",
+      "description": "Show full detail for a single recall number, with the FDA class legend.",
+      "rationale": "Exact recall_number lookup with the class meanings printed in place for interpretation.",
+      "example": "drug-enforcement-pp-cli reference D-0183-2023",
+      "why_it_matters": "Use this to expand one recall's full facts after a check/firm/recent lookup surfaces its number.",
+      "group": "Recall lookups"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "openFDA Drug Enforcement",
+    "headline": "Search FDA drug recall records by drug, firm, recency, or recall number — keyless, with a safety contract that never calls a drug \"safe\".",
+    "value_prop": "A keyless CLI over the openFDA drug enforcement endpoint. The check, firm, recent, and reference commands wrap FDA recall search with pre-built queries; every result cites the recall number, prints the FDA class legend, and carries an enforcement-not-medical-advice disclaimer. A drug with no recall is reported as 'no recall records found', never as safe.",
+    "quickstart": [
+      {
+        "command": "drug-enforcement-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI and openFDA endpoint are reachable"
+      },
+      {
+        "command": "drug-enforcement-pp-cli check \"ibuprofen\"",
+        "comment": "recalls mentioning a drug"
+      },
+      {
+        "command": "drug-enforcement-pp-cli check \"metformin\" --class 1",
+        "comment": "narrow to the most serious (Class I) recalls"
+      },
+      {
+        "command": "drug-enforcement-pp-cli recent --days 30",
+        "comment": "recalls initiated in the last 30 days"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "check returns 'no recall records found'",
+        "fix": "This means no FDA enforcement record matched — it is not a statement that the drug is safe. Consult a pharmacist or doctor."
+      },
+      {
+        "symptom": "HTTP 429 from openFDA",
+        "fix": "openFDA is rate limited to 240 requests/minute per IP; wait and retry."
+      }
+    ],
+    "when_to_use": "Use this CLI to look up FDA drug recall (enforcement) facts: which drugs or manufacturers have active or historical recalls, the recall class, reason, and distribution. It reports FDA enforcement data only.",
+    "anti_triggers": [
+      "Do not use this CLI to decide whether a medication is safe to take — it reports recalls, not safety.",
+      "Do not use it for drug interactions, dosing, or clinical advice.",
+      "Do not use it for device or food recalls; it covers drug enforcement only."
+    ],
+    "recipes": [
+      {
+        "title": "Serious recalls for a drug",
+        "command": "drug-enforcement-pp-cli check \"valsartan\" --class 1 --json --select results.recall_number,results.reason_for_recall",
+        "explanation": "Class I recalls for a drug, narrowed to the recall number and reason."
+      },
+      {
+        "title": "Manufacturer recall history",
+        "command": "drug-enforcement-pp-cli firm \"Teva\" --json",
+        "explanation": "Every recall attributed to a firm, as JSON."
+      },
+      {
+        "title": "Rolling 7-day sweep",
+        "command": "drug-enforcement-pp-cli recent --days 7",
+        "explanation": "Recalls initiated in the last week, most recent first."
+      }
+    ],
+    "trigger_phrases": [
+      "check drug recall",
+      "is there a recall for",
+      "FDA recall for",
+      "recent drug recalls",
+      "recalls by manufacturer",
+      "use drug-enforcement",
+      "run drug-enforcement"
+    ]
+  }
+}

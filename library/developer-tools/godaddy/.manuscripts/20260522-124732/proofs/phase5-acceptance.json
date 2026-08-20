@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "godaddy",
+  "run_id": "20260522-124732",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 10,
+  "tests_passed": 10,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "sso-key",
+    "api_key_available": false
+  }
+}

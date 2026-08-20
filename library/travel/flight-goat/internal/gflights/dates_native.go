@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Native Go implementation of Google Flights' GetCalendarGraph endpoint —
 // what fli (the Python library) exposes as cheapest-dates / date-grid search.
@@ -25,8 +25,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -35,8 +33,8 @@ import (
 )
 
 const (
-	calendarEndpoint    = "https://www.google.com/_/FlightsFrontendUi/data/travel.frontend.flights.FlightsFrontendService/GetCalendarGraph"
-	maxDaysPerSearch    = 61
+	calendarEndpoint     = "https://www.google.com/_/FlightsFrontendUi/data/travel.frontend.flights.FlightsFrontendService/GetCalendarGraph"
+	maxDaysPerSearch     = 61
 	googleResponsePrefix = ")]}'"
 	chromeUserAgent      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 )
@@ -46,21 +44,33 @@ const (
 const (
 	tripTypeOneWay    = 2
 	tripTypeRoundTrip = 1
+	// PATCH(library): trip_type=3 is Google Flights' multi-city mode.
+	// Discovered by reverse-engineering the GetShoppingResults POST that
+	// the multi-city UI fires — see internal/gflights/multicity.go.
+	tripTypeMultiCity = 3
 
 	seatTypeEconomy        = 1
 	seatTypePremiumEconomy = 2
 	seatTypeBusiness       = 3
 	seatTypeFirst          = 4
 
-	maxStopsAny           = 0
-	maxStopsNonStop       = 1
-	maxStopsOneOrFewer    = 2
-	maxStopsTwoOrFewer    = 3
+	maxStopsAny        = 0
+	maxStopsNonStop    = 1
+	maxStopsOneOrFewer = 2
+	maxStopsTwoOrFewer = 3
 )
 
 // datesNative is the native-Go replacement for the fli subprocess. Returns
 // the same DatesResult shape so callers don't care which backend ran.
 func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
+	// PATCH(upstream cli-printing-press#804): the native calendar endpoint
+	// reads currency from Google's JSPB extension header, matching the
+	// krisukox PriceGraph path this code was ported around.
+	_, currencyCode, err := normalizeCurrency(opts.Currency)
+	if err != nil {
+		return nil, err
+	}
+
 	from, err := time.Parse("2006-01-02", opts.From)
 	if err != nil {
 		return nil, fmt.Errorf("parsing from date %q: %w", opts.From, err)
@@ -75,6 +85,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 
 	// Chunk ranges > maxDaysPerSearch. Google rejects single requests spanning
 	// more than 61 days; fli does the same chunking in its Python loop.
+	note := ""
 	var all []DatePrice
 	cur := from
 	for !cur.After(to) {
@@ -87,6 +98,16 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		// the equivalent inside its loop.
 		chunk, err := datesChunk(ctx, opts, cur, chunkEnd)
 		if err != nil {
+			// PATCH(amend-2026-06-26): datesChunk retries transient code-13
+			// envelopes internally. If the BotGuard gate persists, serve the
+			// whole requested range from per-day server-rendered pages instead.
+			if errors.Is(err, errShoppingBlocked) {
+				all, note, err = datesViaHTML(ctx, opts, from, to, currencyCode)
+				if err != nil {
+					return nil, fmt.Errorf("google flights calendar RPC is blocked and the HTML fallback failed: %w", err)
+				}
+				break
+			}
 			return nil, err
 		}
 		all = append(all, chunk...)
@@ -101,9 +122,11 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		Query: SearchQuery{
 			Origin:      opts.Origin,
 			Destination: opts.Destination,
+			Currency:    currencyCode,
 		},
 		Count: len(all),
 		Dates: all,
+		Note:  note,
 	}, nil
 }
 
@@ -116,34 +139,17 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 	}
 	body := "f.req=" + payload
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, calendarEndpoint, strings.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("building request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.Header.Set("User-Agent", chromeUserAgent)
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-
-	resp, err := utlsClient().Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling calendar endpoint: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		snippet := string(respBody)
-		if len(snippet) > 200 {
-			snippet = snippet[:200] + "..."
+	_, currencyCode, _ := normalizeCurrency(opts.Currency)
+	var rows []DatePrice
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, calendarEndpoint, "calendar", body, currencyCode)
+		if err != nil {
+			return err
 		}
-		return nil, fmt.Errorf("calendar endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
-	}
-
-	return parseDatesResponse(respBody)
+		rows, err = parseDatesResponse(respBody, currencyCode)
+		return err
+	})
+	return rows, err
 }
 
 // buildDatesPayload constructs the URL-encoded `f.req` value for a single
@@ -183,19 +189,19 @@ func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
 	segment := []any{
 		[]any{[]any{[]any{strings.ToUpper(opts.Origin), 0}}},      // [0] departure airport, nested 3 deep
 		[]any{[]any{[]any{strings.ToUpper(opts.Destination), 0}}}, // [1] arrival airport
-		nil,                                                       // [2] time restrictions
-		stops,                                                     // [3] stops
-		airlinesField,                                             // [4] airlines
-		nil,                                                       // [5] unknown
-		travelDate,                                                // [6] travel date (anchor)
-		nil,                                                       // [7] max duration
-		nil,                                                       // [8] selected flight
-		nil,                                                       // [9] layover airports
-		nil,                                                       // [10] unknown
-		nil,                                                       // [11] unknown
-		nil,                                                       // [12] layover duration
-		nil,                                                       // [13] emissions filter
-		3,                                                         // [14] unknown — fli always sends 3
+		nil,           // [2] time restrictions
+		stops,         // [3] stops
+		airlinesField, // [4] airlines
+		nil,           // [5] unknown
+		travelDate,    // [6] travel date (anchor)
+		nil,           // [7] max duration
+		nil,           // [8] selected flight
+		nil,           // [9] layover airports
+		nil,           // [10] unknown
+		nil,           // [11] unknown
+		nil,           // [12] layover duration
+		nil,           // [13] emissions filter
+		3,             // [14] unknown — fli always sends 3
 	}
 
 	filters := []any{
@@ -208,17 +214,17 @@ func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
 			[]any{},                               // [4]
 			seat,                                  // [5] seat type
 			[]any{passengerAdults(opts), 0, 0, 0}, // [6] passengers: [adults, children, lap, seat]
-			nil,                          // [7] price limit
-			nil,                          // [8]
-			nil,                          // [9]
-			nil,                          // [10] bags
-			nil,                          // [11]
-			nil,                          // [12]
-			[]any{segment},               // [13] segments
-			nil,                          // [14]
-			nil,                          // [15]
-			nil,                          // [16]
-			1,                            // [17]
+			nil,                                   // [7] price limit
+			nil,                                   // [8]
+			nil,                                   // [9]
+			nil,                                   // [10] bags
+			nil,                                   // [11]
+			nil,                                   // [12]
+			[]any{segment},                        // [13] segments
+			nil,                                   // [14]
+			nil,                                   // [15]
+			nil,                                   // [16]
+			1,                                     // [17]
 		},
 		[]any{from.Format("2006-01-02"), to.Format("2006-01-02")},
 	}
@@ -256,24 +262,27 @@ func mapSeatType(s string) (int, error) {
 }
 
 func mapMaxStops(s string) (int, error) {
-	switch strings.ToUpper(strings.TrimSpace(s)) {
+	// PATCH(codex P2): accept the legacy/documented aliases krisukox accepted
+	// (numeric 0/1/2, lowercase non_stop/one_stop/two_plus_stops) so the
+	// existing CLI help text in primary.go keeps working unchanged.
+	switch strings.ToUpper(strings.ReplaceAll(strings.TrimSpace(s), "-", "_")) {
 	case "", "ANY":
 		return maxStopsAny, nil
-	case "NON_STOP", "NONSTOP", "NON-STOP":
+	case "0", "NON_STOP", "NONSTOP":
 		return maxStopsNonStop, nil
-	case "ONE_STOP_OR_FEWER", "ONE-STOP-OR-FEWER":
+	case "1", "ONE_STOP", "ONE_STOP_OR_FEWER":
 		return maxStopsOneOrFewer, nil
-	case "TWO_OR_FEWER_STOPS", "TWO-OR-FEWER-STOPS":
+	case "2", "TWO_PLUS_STOPS", "TWO_PLUS", "TWO_OR_FEWER_STOPS":
 		return maxStopsTwoOrFewer, nil
 	default:
-		return 0, fmt.Errorf("unknown max stops %q", s)
+		return 0, fmt.Errorf("unknown --stops %q (valid: any, non_stop, one_stop, two_plus_stops)", s)
 	}
 }
 
 // parseDatesResponse unwraps Google's )]}' prefix, drills into the wrb.fr
 // envelope, and returns one DatePrice per date that came back with a price.
 // Items with null price are silently skipped (mirrors fli).
-func parseDatesResponse(body []byte) ([]DatePrice, error) {
+func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error) {
 	stripped := strings.TrimPrefix(string(body), googleResponsePrefix)
 	stripped = strings.TrimSpace(stripped)
 
@@ -285,8 +294,13 @@ func parseDatesResponse(body []byte) ([]DatePrice, error) {
 		return nil, errors.New("response envelope missing wrb.fr entry")
 	}
 	innerStr, ok := outer[0][2].(string)
-	if !ok || innerStr == "" {
-		return nil, errors.New("response wrb.fr payload is not a string")
+	if !ok {
+		// PATCH(amend-2026-06-11): since ~2026-06-09 Google rejects
+		// non-interactive calendar RPC calls with an ErrorResponse envelope
+		// whose payload slot is null — classify it so datesNative can fall
+		// back to per-day server-rendered pages instead of dying with the
+		// bare "payload is not a string" error users hit in the field.
+		return nil, envelopeBlockedErr(stripped)
 	}
 
 	var inner []any
@@ -316,6 +330,9 @@ func parseDatesResponse(body []byte) ([]DatePrice, error) {
 		price, currency := parsePriceAndCurrency(item[2])
 		if price <= 0 {
 			continue
+		}
+		if currency == "" {
+			currency = defaultCurrency
 		}
 		out = append(out, DatePrice{
 			DepartureDate: dateStr,

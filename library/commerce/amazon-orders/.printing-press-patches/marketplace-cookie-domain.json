@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "marketplace-cookie-domain",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Amazon buyer-cookie auth must support non-US marketplace domains such as amazon.in.",
+  "reason": "The published CLI hardcoded .amazon.com for Chrome cookie discovery, auth status, browser-session proof validation, refresh, and portable session export. Users logged in to regional marketplaces like amazon.in have valid Amazon buyer sessions under a different cookie domain, so auth login --chrome failed even though Chrome was logged in.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_portable.go",
+    "internal/cli/doctor.go",
+    "internal/cli/auth_count_cookies_test.go",
+    "README.md",
+    "SKILL.md",
+    "manifest.json",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "Focused auth-domain tests, go test ./..., and go vet ./... passed from this CLI directory; built amazon-orders-pp-cli and smoke-tested --dry-run with --domain amazon.in, AMAZON_ORDERS_BASE_URL=https://www.amazon.in, and rejection of --domain amazon.evil.com. Browser-session validation now probes the real orders endpoint (/your-orders/orders?timeFilter=months-3) instead of the US account-history redirect path; auth login and auth refresh keep extracted cookies when Amazon blocks the validation probe so users can still verify with orders list."
+}

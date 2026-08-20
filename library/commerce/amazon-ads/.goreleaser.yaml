@@ -1,0 +1,51 @@
+version: 2
+project_name: amazon-ads-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: amazon-ads-pp-cli
+    main: ./cmd/amazon-ads-pp-cli
+    binary: amazon-ads-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/amazon-ads/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: amazon-ads-pp-mcp
+    main: ./cmd/amazon-ads-pp-mcp
+    binary: amazon-ads-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: amazon-ads-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation."
+    install: |
+      bin.install "amazon-ads-pp-cli"
+      bin.install "amazon-ads-pp-mcp"

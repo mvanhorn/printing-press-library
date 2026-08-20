@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-25T13:36:27.777767Z",
+  "cli_dir": "\u003ccli-dir\u003e/semrush-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 364,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ]
+}

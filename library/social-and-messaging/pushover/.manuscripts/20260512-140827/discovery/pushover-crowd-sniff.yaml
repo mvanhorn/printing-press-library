@@ -1,0 +1,47 @@
+name: pushover
+description: Discovered API spec for pushover (crowd-sniff)
+version: 0.1.0
+base_url: https://api.pushover.net
+spec_source: community
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/pushover-pp-cli/config.toml
+resources:
+    $:
+        description: Operations on $
+        endpoints:
+            create_$:
+                method: POST
+                path: /$
+                description: POST /$
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    plugins:
+        description: Operations on test
+        endpoints:
+            create_test:
+                method: POST
+                path: /plugins/signalk-pushover-plugin/test
+                description: POST /plugins/signalk-pushover-plugin/test
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

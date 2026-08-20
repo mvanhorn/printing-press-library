@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "an-unsynced-mirror-must-announce-itself",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Every local-mirror read and every artifact this CLI writes must say on stderr when the mirror is empty, because an empty planner and an unsynced planner produce identical output.",
+  "reason": "The analysis commands are the whole point of this CLI and they all answer in the affirmative: capacity reports free hours, gaps reports open windows, backup writes a snapshot, feed writes a calendar. On a never-synced store each of those is confidently wrong rather than obviously wrong, and all exit 0. The hint belongs on stderr, not in the human-text renderer, because JSON is the default whenever stdout is not a terminal, which is exactly the caller that would script against a silently empty result.",
+  "files": ["internal/cli/tiimo_local.go", "internal/cli/backup.go", "internal/cli/feed.go"],
+  "validated_outcome": "A mirror with no sync_state rows now emits the unsynced hint on stderr for every local read; a synced mirror emits nothing."
+}

@@ -1,0 +1,238 @@
+{
+  "api_name": "fathom",
+  "base_url": "https://api.fathom.ai/external/v1",
+  "description": "Sync, search, and analyze your Fathom meeting recordings — transcripts, summaries, and action items — offline and at scale.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Key",
+    "in": "header",
+    "env_vars": [
+      "FATHOM_PP_CLI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FATHOM_PP_CLI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "meetings_list",
+      "description": "List meetings with optional filters and included data. Optional: calendar_invitees_domains, calendar_invitees_domains_type, created_after (plus 8 more).",
+      "method": "GET",
+      "path": "/meetings",
+      "params": [
+        {
+          "name": "calendar_invitees_domains",
+          "type": "string[]",
+          "location": "query",
+          "description": "Filter by participant email domains"
+        },
+        {
+          "name": "calendar_invitees_domains_type",
+          "type": "string",
+          "location": "query",
+          "description": "Domain filter type: all, only_internal, one_or_more_external"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter meetings created after this ISO 8601 timestamp"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter meetings created before this ISO 8601 timestamp"
+        },
+        {
+          "name": "recorded_by",
+          "type": "string[]",
+          "location": "query",
+          "description": "Filter by recorder email addresses"
+        },
+        {
+          "name": "teams",
+          "type": "string[]",
+          "location": "query",
+          "description": "Filter by team names"
+        },
+        {
+          "name": "include_action_items",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include action items in each meeting"
+        },
+        {
+          "name": "include_crm_matches",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include CRM contact/company/deal matches"
+        },
+        {
+          "name": "include_summary",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include AI-generated summary"
+        },
+        {
+          "name": "include_transcript",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include full transcript with speaker attribution"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from previous response"
+        }
+      ]
+    },
+    {
+      "name": "recordings_get-summary",
+      "description": "Get AI-generated meeting summary in markdown format. Required: recording_id. Optional: destination_url.",
+      "method": "GET",
+      "path": "/recordings/{recording_id}/summary",
+      "params": [
+        {
+          "name": "recording_id",
+          "type": "integer",
+          "location": "path",
+          "description": "Numeric recording ID from meeting list",
+          "required": true
+        },
+        {
+          "name": "destination_url",
+          "type": "string",
+          "location": "query",
+          "description": "Webhook URL for async delivery (optional)"
+        }
+      ]
+    },
+    {
+      "name": "recordings_get-transcript",
+      "description": "Get full transcript for a recording with speaker attribution and timestamps. Required: recording_id. Optional: destination_url.",
+      "method": "GET",
+      "path": "/recordings/{recording_id}/transcript",
+      "params": [
+        {
+          "name": "recording_id",
+          "type": "integer",
+          "location": "path",
+          "description": "Numeric recording ID from meeting list",
+          "required": true
+        },
+        {
+          "name": "destination_url",
+          "type": "string",
+          "location": "query",
+          "description": "Webhook URL for async delivery (optional)"
+        }
+      ]
+    },
+    {
+      "name": "team-members_list",
+      "description": "List team members, optionally filtered by team name. Optional: team, cursor.",
+      "method": "GET",
+      "path": "/team_members",
+      "params": [
+        {
+          "name": "team",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by team name"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List all teams accessible to your account. Optional: cursor.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook to receive meeting data on completion. Required: destination_url, triggered_for. Optional: include_action_items, include_crm_matches, include_summary (plus 1 more).",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "destination_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to POST meeting data to when triggered",
+          "required": true
+        },
+        {
+          "name": "triggered_for",
+          "type": "string[]",
+          "location": "body",
+          "description": "Scopes: my_recordings, shared_external_recordings, my_shared_with_team_recordings, shared_team_recordings",
+          "required": true
+        },
+        {
+          "name": "include_action_items",
+          "type": "boolean",
+          "location": "body",
+          "description": "Include action items in webhook payload"
+        },
+        {
+          "name": "include_crm_matches",
+          "type": "boolean",
+          "location": "body",
+          "description": "Include CRM matches in webhook payload"
+        },
+        {
+          "name": "include_summary",
+          "type": "boolean",
+          "location": "body",
+          "description": "Include AI summary in webhook payload"
+        },
+        {
+          "name": "include_transcript",
+          "type": "boolean",
+          "location": "body",
+          "description": "Include full transcript in webhook payload"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook by ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID to delete",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

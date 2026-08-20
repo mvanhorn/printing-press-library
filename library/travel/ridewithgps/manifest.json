@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "ridewithgps-pp-mcp",
+  "display_name": "Ride with GPS",
+  "version": "0.0.0",
+  "description": "Your whole Ride with GPS library, offline — bulk export, gear mileage, and ride analytics no other tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ridewithgps-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ridewithgps-pp-mcp",
+      "args": [],
+      "env": {
+        "RIDEWITHGPS_API_KEY": "${user_config.ridewithgps_api_key}",
+        "RIDEWITHGPS_AUTH_TOKEN": "${user_config.ridewithgps_auth_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ridewithgps_api_key": {
+      "type": "string",
+      "title": "RIDEWITHGPS_API_KEY",
+      "description": "Sets RIDEWITHGPS_API_KEY for the Ride with GPS MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "ridewithgps_auth_token": {
+      "type": "string",
+      "title": "RIDEWITHGPS_AUTH_TOKEN",
+      "description": "Sets RIDEWITHGPS_AUTH_TOKEN for the Ride with GPS MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

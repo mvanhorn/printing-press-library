@@ -1,0 +1,51 @@
+version: 2
+project_name: plane-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: plane-pp-cli
+    main: ./cmd/plane-pp-cli
+    binary: plane-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: plane-pp-mcp
+    main: ./cmd/plane-pp-mcp
+    binary: plane-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: plane-pp-cli
+    repository:
+      owner: sidorovanthon
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The Plane REST API Visit our quick start guide and full API documentation at [developers.plane.so](https://developers."
+    install: |
+      bin.install "plane-pp-cli"
+      bin.install "plane-pp-mcp"

@@ -1,0 +1,113 @@
+version: 1
+name: walkingpad
+display_name: WalkingPad
+protocol: ble
+identity:
+  advertised_names: ["KS-BLC2", "WalkingPad", "KS-BLR"]
+  address_policy: dynamic
+  gatt_fingerprint:
+    - service:0000fe00-0000-1000-8000-00805f9b34fb
+    - char:0000fe01-0000-1000-8000-00805f9b34fb:notify
+    - char:0000fe02-0000-1000-8000-00805f9b34fb:write
+  match_strength: strong
+ble:
+  services:
+    - uuid: 0000fe00-0000-1000-8000-00805f9b34fb
+      name: WalkingPad Control
+      characteristics:
+        - uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+          name: Status Notify
+          properties: [notify]
+        - uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+          name: Command Write
+          properties: [write, write-without-response]
+    - uuid: 0000180a-0000-1000-8000-00805f9b34fb
+      name: Device Information
+      characteristics:
+        - uuid: 00002a24-0000-1000-8000-00805f9b34fb
+          name: Model Number
+          properties: [read]
+        - uuid: 00002a26-0000-1000-8000-00805f9b34fb
+          name: Firmware Revision
+          properties: [read]
+        - uuid: 00002a29-0000-1000-8000-00805f9b34fb
+          name: Manufacturer Name
+          properties: [read]
+capabilities:
+  commands:
+    - name: start
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-start_belt, c2-live-fe02]
+      payload:
+        encoding: hex
+        bytes: "f7a20401a7fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+    - name: stop
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-stop_belt, c2-live-fe02]
+      payload:
+        encoding: hex
+        bytes: "f7a20100a3fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+    - name: wake
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-switch_mode-manual, c2-live-fe02]
+      payload:
+        encoding: hex
+        bytes: "f7a20201a5fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+  telemetry:
+    - name: belt_state
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+    - name: speed_kmh
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: km/h
+      sample_cadence: notification
+      store: false
+    - name: mode
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+    - name: time_s
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: s
+      sample_cadence: notification
+      store: false
+    - name: distance_m
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: m
+      sample_cadence: notification
+      store: false
+    - name: steps
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+session:
+  mode: one-shot
+evidence:
+  - id: ph4-start_belt
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.start_belt sends F7 A2 04 01 .. FD.
+  - id: ph4-stop_belt
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.change_speed(0) sends F7 A2 01 00 .. FD.
+  - id: ph4-switch_mode-manual
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.switch_mode(MANUAL=1) sends F7 A2 02 01 .. FD.
+  - id: c2-live-fe02
+    source: ble-event
+    summary: Live inspect of WalkingPad C2 confirmed writable characteristic fe02 under service fe00.
+  - id: c2-live-fe01
+    source: ble-event
+    summary: Live inspect of WalkingPad C2 confirmed notify characteristic fe01 under service fe00.
+  - id: c2-live-advert
+    source: ble-event
+    summary: Live scan saw device KS-BLC2 advertising service fe00 (name does not contain "walkingpad").

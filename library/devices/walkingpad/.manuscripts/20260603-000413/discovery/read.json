@@ -1,0 +1,13 @@
+{
+  "name": "ble-live-capture",
+  "identity": {},
+  "events": [
+    {
+      "id": "live-read",
+      "type": "read",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a24-0000-1000-8000-00805f9b34fb",
+      "value_hex": "424b2d424c452d312e30"
+    }
+  ]
+}

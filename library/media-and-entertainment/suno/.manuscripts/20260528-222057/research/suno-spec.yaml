@@ -1,0 +1,415 @@
+name: suno
+description: "The correct, offline-first Suno AI music CLI — generate, manage, and search your library with local SQLite persistence and agent-native output."
+version: "0.1.0"
+base_url: "https://studio-api-prod.suno.com"
+http_transport: standard
+health_check_path: "/api/billing/info/"
+
+required_headers:
+  - name: Origin
+    value: "https://suno.com"
+  - name: Referer
+    value: "https://suno.com/"
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - SUNO_JWT
+
+config:
+  format: toml
+  path: "~/.config/suno-pp-cli/config.toml"
+
+resources:
+  clips:
+    description: "Your Suno songs (clips) — generate, list, fetch, manage"
+    endpoints:
+      list:
+        method: POST
+        path: "/api/feed/v3"
+        description: "List your library (walks the opaque next_cursor; use --all to drain)"
+        body:
+          - name: cursor
+            type: string
+            required: false
+            description: "Opaque pagination cursor (the next_cursor from the prior page; omit for first page)"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Page size"
+        response:
+          type: array
+          item: Clip
+        response_path: clips
+        pagination:
+          type: cursor
+          cursor_field: next_cursor
+          has_more_field: has_more
+      info:
+        method: GET
+        path: "/api/feed/"
+        description: "Fetch clip(s) by ID (comma-separated; Suno batches 2 at a time)"
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Clip ID(s), comma-separated"
+        response:
+          type: array
+          item: Clip
+      concat:
+        method: POST
+        path: "/api/generate/concat/v2/"
+        description: "Finalize/concatenate an extended clip into a full song"
+        body:
+          - name: clip_id
+            type: string
+            required: true
+            description: "Clip ID to finalize"
+        response:
+          type: object
+          item: Clip
+      stems:
+        method: POST
+        path: "/api/edit/stems/{clip_id}"
+        description: "Separate a clip into stems (vocals + instruments)"
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+        response:
+          type: object
+          item: Clip
+      set-visibility:
+        method: POST
+        path: "/api/gen/{clip_id}/set_visibility/"
+        description: "Toggle a clip public or private"
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+        body:
+          - name: is_public
+            type: bool
+            required: true
+            description: "true = public, false = private"
+      set-metadata:
+        method: POST
+        path: "/api/gen/{clip_id}/set_metadata/"
+        description: "Update a clip's title, caption, or lyrics"
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+        body:
+          - name: title
+            type: string
+            required: false
+            description: "New title"
+          - name: caption
+            type: string
+            required: false
+            description: "New caption"
+          - name: lyrics
+            type: string
+            required: false
+            description: "New lyrics"
+      aligned-lyrics:
+        method: GET
+        path: "/api/gen/{clip_id}/aligned_lyrics/v2/"
+        description: "Word-level timestamped lyrics for a clip"
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+        response:
+          type: object
+          item: AlignedLyrics
+      convert-wav:
+        method: POST
+        path: "/api/gen/{clip_id}/convert_wav/"
+        description: "Trigger WAV (lossless) conversion for a clip (Pro/Premier). Poll wav-url for the result."
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+      wav-url:
+        method: GET
+        path: "/api/gen/{clip_id}/wav_file/"
+        description: "Get the WAV download URL for a clip (null until conversion finishes)"
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            positional: true
+            description: "Clip ID"
+        response:
+          type: object
+          item: WavFile
+
+  lyrics:
+    description: "Generate and fetch lyrics"
+    endpoints:
+      create:
+        method: POST
+        path: "/api/generate/lyrics/"
+        description: "Submit a lyrics-generation job (returns an id to poll)"
+        body:
+          - name: prompt
+            type: string
+            required: true
+            description: "Description of the lyrics to write"
+        response:
+          type: object
+          item: LyricsJob
+      get:
+        method: GET
+        path: "/api/generate/lyrics/{id}"
+        description: "Poll a lyrics job by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Lyrics job ID"
+        response:
+          type: object
+          item: LyricsResult
+
+  billing:
+    description: "Account credits, plan, and available models"
+    endpoints:
+      info:
+        method: GET
+        path: "/api/billing/info/"
+        description: "Show credits, plan, and models"
+        response:
+          type: object
+          item: BillingInfo
+
+  personas:
+    description: "Voice personas"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/persona/get-persona-paginated/{persona_id}/"
+        description: "View a voice persona"
+        params:
+          - name: persona_id
+            type: string
+            required: true
+            positional: true
+            description: "Persona ID"
+          - name: page
+            type: int
+            required: false
+            default: 0
+            description: "Page of persona clips"
+        response:
+          type: object
+          item: Persona
+
+  workspace:
+    description: "Workspaces (Suno 'projects') — organize your tracks into collections"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/project/me"
+        description: "List your workspaces"
+        params:
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+          - name: sort
+            type: string
+            required: false
+            default: "created_at"
+            description: "Sort field"
+          - name: show_trashed
+            type: bool
+            required: false
+            description: "Include trashed workspaces"
+          - name: query
+            type: string
+            required: false
+            description: "Search workspaces by name"
+        response:
+          type: array
+          item: Project
+        response_path: projects
+      get:
+        method: GET
+        path: "/api/project/{project_id}"
+        description: "Show a workspace and its clips"
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Workspace ID"
+        response:
+          type: object
+          item: Project
+      create:
+        method: POST
+        path: "/api/project"
+        description: "Create a new workspace"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Workspace name (max 100 chars)"
+          - name: description
+            type: string
+            required: false
+            description: "Workspace description"
+        response:
+          type: object
+          item: Project
+      rename:
+        method: POST
+        path: "/api/project/{project_id}/metadata"
+        description: "Rename a workspace"
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Workspace ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New workspace name (max 100 chars)"
+          - name: description
+            type: string
+            required: false
+            description: "New description"
+      trash:
+        method: POST
+        path: "/api/project/trash"
+        description: "Trash (or restore) a workspace"
+        body:
+          - name: project_id
+            type: string
+            required: true
+            description: "Workspace ID"
+          - name: undo_trash
+            type: bool
+            required: false
+            description: "true restores instead of trashing"
+
+types:
+  Clip:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: status
+        type: string
+      - name: model_name
+        type: string
+      - name: audio_url
+        type: string
+      - name: video_url
+        type: string
+      - name: image_url
+        type: string
+      - name: created_at
+        type: string
+      - name: play_count
+        type: int
+      - name: upvote_count
+        type: int
+      - name: tags
+        type: string
+      - name: prompt
+        type: string
+      - name: duration
+        type: float
+      - name: avg_bpm
+        type: float
+      - name: has_stem
+        type: bool
+      - name: is_remix
+        type: bool
+      - name: make_instrumental
+        type: bool
+  AlignedLyrics:
+    fields:
+      - name: aligned_words
+        type: string
+  LyricsJob:
+    fields:
+      - name: id
+        type: string
+  LyricsResult:
+    fields:
+      - name: text
+        type: string
+      - name: title
+        type: string
+      - name: status
+        type: string
+      - name: error_message
+        type: string
+  BillingInfo:
+    fields:
+      - name: credits
+        type: int
+      - name: total_credits_left
+        type: int
+      - name: monthly_usage
+        type: int
+      - name: monthly_limit
+        type: int
+      - name: is_active
+        type: bool
+      - name: period
+        type: string
+      - name: renews_on
+        type: string
+  Persona:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: user_display_name
+        type: string
+  WavFile:
+    fields:
+      - name: wav_file_url
+        type: string
+  Project:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: clip_count
+        type: int
+      - name: shared
+        type: bool

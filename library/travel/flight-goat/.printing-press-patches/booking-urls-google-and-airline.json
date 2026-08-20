@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "booking-urls-google-and-airline",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "",
+  "files": [
+    "internal/gflights/booking_urls.go",
+    "internal/gflights/booking_urls_test.go",
+    "internal/gflights/gflights.go",
+    "internal/gflights/flights_native.go"
+  ],
+  "summary": "Each Flight result now carries `booking_urls: {google, airline?}` — a Google Flights tfs= protobuf deeplink plus an airline-direct booking URL when the itinerary is operated end-to-end by one of AS/AA/UA/B6/AC/BA.",
+  "reason": "Search results previously left users to re-enter their query on a booking surface. The Google URL encodes the trip type, origin/destination IATA codes, dates, and passenger count into Google's tfs= protobuf parameter so clicking lands on a pre-executed Google Flights search. Codeshare itineraries and carriers outside the curated table omit the airline URL and rely on the Google fallback.",
+  "validated_outcome": "go test ./internal/gflights/... -run TestBuild -count=1 (38 tests); live `flights SEA JFK 2026-07-15 --airlines AS,AA,UA --agent` populates both URLs on every AA-single-carrier result; live `flights SEA LAX --passengers 2` populates only the Google URL for Frontier (F9 not in table)."
+}

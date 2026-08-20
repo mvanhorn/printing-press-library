@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "stale-type-validation",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-201949",
+  "base_printing_press_version": "4.11.0",
+  "summary": "stale --type validates against the known set; unknown values fail loud with the valid list.",
+  "reason": "An unknown --type (e.g. organization vs organizations) used to silently match no entries and return an empty list with no error.",
+  "files": [
+    "internal/cli/stale.go"
+  ],
+  "validated_outcome": "go build ./..."
+}

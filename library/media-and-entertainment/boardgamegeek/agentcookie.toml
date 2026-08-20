@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "boardgamegeek-pp-cli"
+display_name = "Boardgamegeek Xml Api2"
+description = "BoardGameGeek's official XMLAPI2 (https://boardgamegeek."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/boardgamegeek-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BGG_TOKEN = true
+BOARDGAMEGEEK_TOKEN = true

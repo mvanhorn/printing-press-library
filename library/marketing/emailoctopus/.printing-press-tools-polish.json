@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-05-17T09:58:48.516402Z",
+  "cli_dir": "\u003ccli-dir\u003e/emailoctopus-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "queue",
+      "file": "automations_queue.go",
+      "line": 11,
+      "evidence": "Manage queue",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper with parentNoSubcommandRunE; description must be lifted via generator template, not hand-edit. Retro candidate: parent-grouper Short emitter should compose from child set (e.g. 'Send automation queue requests')."
+    },
+    {
+      "kind": "thin-short",
+      "command": "reports",
+      "file": "campaigns_reports.go",
+      "line": 11,
+      "evidence": "Manage reports",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper with parentNoSubcommandRunE; description must be lifted via generator template, not hand-edit. Retro candidate: same template fix as automations queue."
+    }
+  ]
+}

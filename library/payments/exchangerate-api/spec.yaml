@@ -1,0 +1,324 @@
+name: exchangerate-api
+description: "ExchangeRate-API CLI — live FX rates, conversions, watchlists, and an MCP server"
+cli_description: "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server."
+version: "0.1.0"
+base_url: "https://v6.exchangerate-api.com"
+
+auth:
+  type: api_key
+  in: query
+  header: "apikey_placeholder"
+  env_vars:
+    - EXCHANGERATE_API_KEY
+
+config:
+  format: yaml
+  path: "~/.config/exchangerate-api-pp-cli/config.yaml"
+
+resources:
+  rates:
+    description: "Live exchange rates and conversions"
+    endpoints:
+      latest:
+        method: GET
+        path: "/v6/{api_key}/latest/{base_code}"
+        description: "Get all exchange rates from a base currency"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+          - name: base_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 base currency (USD, EUR, JPY, ...)"
+        response:
+          type: object
+          item: LatestResponse
+
+      pair:
+        method: GET
+        path: "/v6/{api_key}/pair/{base_code}/{target_code}"
+        description: "Get conversion rate between two currencies"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+          - name: base_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 base currency"
+          - name: target_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 target currency"
+        response:
+          type: object
+          item: PairResponse
+
+      pair_amount:
+        method: GET
+        path: "/v6/{api_key}/pair/{base_code}/{target_code}/{amount}"
+        description: "Convert a specific amount between two currencies"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+          - name: base_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 base currency"
+          - name: target_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 target currency"
+          - name: amount
+            type: string
+            required: true
+            positional: true
+            description: "Amount to convert (decimal)"
+        response:
+          type: object
+          item: PairAmountResponse
+
+      enriched:
+        method: GET
+        path: "/v6/{api_key}/enriched/{base_code}/{target_code}"
+        description: "Pair conversion with locale, flag, and currency display metadata (Business/Volume tier)"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+          - name: base_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 base currency"
+          - name: target_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 target currency"
+        response:
+          type: object
+          item: EnrichedResponse
+
+      history:
+        method: GET
+        path: "/v6/{api_key}/history/{base_code}/{year}/{month}/{day}"
+        description: "Historical exchange rates for a specific date (Pro/Business/Volume tier)"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+          - name: base_code
+            type: string
+            required: true
+            positional: true
+            description: "ISO 4217 base currency"
+          - name: year
+            type: int
+            required: true
+            positional: true
+            description: "Year (e.g. 2024)"
+          - name: month
+            type: int
+            required: true
+            positional: true
+            description: "Month, no leading zero (1-12)"
+          - name: day
+            type: int
+            required: true
+            positional: true
+            description: "Day, no leading zero (1-31)"
+        response:
+          type: object
+          item: HistoryResponse
+
+  codes:
+    description: "Supported currency codes"
+    endpoints:
+      list:
+        method: GET
+        path: "/v6/{api_key}/codes"
+        description: "List all 161 supported currency codes"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+        response:
+          type: object
+          item: CodesResponse
+
+  quota:
+    description: "Your API quota usage"
+    endpoints:
+      get:
+        method: GET
+        path: "/v6/{api_key}/quota"
+        description: "Check remaining requests in the current quota period"
+        params:
+          - name: api_key
+            type: string
+            required: true
+            positional: true
+            description: "API key (auto-injected from EXCHANGERATE_API_KEY)"
+        response:
+          type: object
+          item: QuotaResponse
+
+types:
+  LatestResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: time_last_update_unix
+        type: int
+      - name: time_last_update_utc
+        type: string
+      - name: time_next_update_unix
+        type: int
+      - name: time_next_update_utc
+        type: string
+      - name: base_code
+        type: string
+      - name: conversion_rates
+        type: object
+
+  PairResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: time_last_update_unix
+        type: int
+      - name: time_last_update_utc
+        type: string
+      - name: time_next_update_unix
+        type: int
+      - name: time_next_update_utc
+        type: string
+      - name: base_code
+        type: string
+      - name: target_code
+        type: string
+      - name: conversion_rate
+        type: float
+
+  PairAmountResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: time_last_update_unix
+        type: int
+      - name: time_last_update_utc
+        type: string
+      - name: time_next_update_unix
+        type: int
+      - name: time_next_update_utc
+        type: string
+      - name: base_code
+        type: string
+      - name: target_code
+        type: string
+      - name: conversion_rate
+        type: float
+      - name: conversion_result
+        type: float
+
+  EnrichedResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: time_last_update_unix
+        type: int
+      - name: time_last_update_utc
+        type: string
+      - name: time_next_update_unix
+        type: int
+      - name: time_next_update_utc
+        type: string
+      - name: base_code
+        type: string
+      - name: target_code
+        type: string
+      - name: conversion_rate
+        type: float
+      - name: target_data
+        type: object
+
+  HistoryResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: year
+        type: int
+      - name: month
+        type: int
+      - name: day
+        type: int
+      - name: base_code
+        type: string
+      - name: conversion_rates
+        type: object
+
+  CodesResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: supported_codes
+        type: array
+
+  QuotaResponse:
+    fields:
+      - name: result
+        type: string
+      - name: documentation
+        type: string
+      - name: terms_of_use
+        type: string
+      - name: plan_quota
+        type: int
+      - name: requests_remaining
+        type: int
+      - name: refresh_day_of_month
+        type: int

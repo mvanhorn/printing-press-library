@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "gravitus-pp-mcp",
+  "display_name": "Gravitus",
+  "version": "4.8.0",
+  "description": "Gravitus API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gravitus-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gravitus-pp-mcp",
+      "args": [],
+      "env": {
+        "GRAVITUS_SESSION_ID": "${user_config.gravitus_session_id}"
+      }
+    }
+  },
+  "user_config": {
+    "gravitus_session_id": {
+      "type": "string",
+      "title": "GRAVITUS_SESSION_ID",
+      "description": "Optional. Sets GRAVITUS_SESSION_ID for the Gravitus MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

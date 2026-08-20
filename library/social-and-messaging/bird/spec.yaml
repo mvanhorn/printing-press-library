@@ -1,0 +1,1006 @@
+name: bird
+display_name: "Bird"
+description: "Bird (formerly MessageBird) Conversations and SMS API"
+cli_description: "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local SQLite mirror nobody else ships."
+version: "0.1.0"
+base_url: "https://api.bird.com/workspaces/{workspace_id}"
+endpoint_template_vars:
+  - workspace_id
+website_url: "https://bird.com"
+category: social-and-messaging
+spec_source: docs
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "AccessKey {api_key}"
+  in: header
+  key_url: "https://app.bird.com/settings/security/access-keys"
+  env_vars:
+    - BIRD_API_KEY
+  description: |
+    Bird uses an Access Key passed in the Authorization header. Generate one at
+    https://app.bird.com/settings/security/access-keys and export it as BIRD_API_KEY.
+  verify_path: "/channels"
+
+config:
+  format: toml
+  path: "~/.config/bird-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  addr: ":7777"
+
+resources:
+  conversations:
+    description: "Manage Bird conversation threads (cross-channel customer interactions)"
+    endpoints:
+      list:
+        method: GET
+        path: "/conversations"
+        description: "List conversations across the workspace"
+        params:
+          - name: status
+            type: string
+            description: "Filter by conversation status (active, snoozed, closed)"
+            enum: [active, snoozed, closed]
+          - name: limit
+            type: int
+            description: "Page size (max 100, default 10)"
+          - name: pageToken
+            type: string
+            description: "Pagination cursor returned by a previous list call"
+        response:
+          type: array
+          item: Conversation
+      get:
+        method: GET
+        path: "/conversations/{conversation_id}"
+        description: "Get one conversation by ID"
+        params:
+          - name: conversation_id
+            type: string
+            required: true
+            positional: true
+            description: "Conversation ID"
+        response:
+          type: object
+          item: Conversation
+      create:
+        method: POST
+        path: "/conversations"
+        description: "Start a new conversation"
+        body:
+          - name: channelId
+            type: string
+            required: true
+            description: "Channel ID to attach this conversation to"
+          - name: name
+            type: string
+            description: "Conversation display name"
+          - name: status
+            type: string
+            description: "Initial status (active, snoozed, closed)"
+            enum: [active, snoozed, closed]
+          - name: visibility
+            type: string
+            description: "Visibility (public or private)"
+            enum: [public, private]
+          - name: participants
+            type: array
+            description: "Initial participants (objects with type and identifier)"
+        response:
+          type: object
+          item: Conversation
+      update:
+        method: PATCH
+        path: "/conversations/{conversation_id}"
+        description: "Update a conversation (status, name, etc.)"
+        params:
+          - name: conversation_id
+            type: string
+            required: true
+            positional: true
+            description: "Conversation ID"
+        body:
+          - name: status
+            type: string
+            description: "New status"
+            enum: [active, snoozed, closed]
+          - name: name
+            type: string
+            description: "New display name"
+        response:
+          type: object
+          item: Conversation
+      delete:
+        method: DELETE
+        path: "/conversations/{conversation_id}"
+        description: "Delete a conversation"
+        params:
+          - name: conversation_id
+            type: string
+            required: true
+            positional: true
+            description: "Conversation ID"
+    sub_resources:
+      messages:
+        description: "Messages exchanged within a conversation"
+        endpoints:
+          list:
+            method: GET
+            path: "/conversations/{conversation_id}/messages"
+            description: "List messages in a conversation"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: limit
+                type: int
+                description: "Page size (max 100)"
+              - name: pageToken
+                type: string
+                description: "Pagination cursor"
+            response:
+              type: array
+              item: ConversationMessage
+          get:
+            method: GET
+            path: "/conversations/{conversation_id}/messages/{message_id}"
+            description: "Get one conversation message"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: message_id
+                type: string
+                required: true
+                positional: true
+                description: "Message ID"
+            response:
+              type: object
+              item: ConversationMessage
+          create:
+            method: POST
+            path: "/conversations/{conversation_id}/messages"
+            description: "Send a reply in a conversation"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+            body:
+              - name: body
+                type: object
+                required: true
+                description: "Message body envelope (e.g., {type: text, text: {text: hello}})"
+              - name: receiver
+                type: object
+                description: "Optional receiver override; defaults to conversation's contact"
+            response:
+              type: object
+              item: ConversationMessage
+          update:
+            method: PATCH
+            path: "/conversations/{conversation_id}/messages/{message_id}"
+            description: "Update a conversation message"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: message_id
+                type: string
+                required: true
+                positional: true
+                description: "Message ID"
+            body:
+              - name: status
+                type: string
+                description: "New message status"
+            response:
+              type: object
+              item: ConversationMessage
+          delete:
+            method: DELETE
+            path: "/conversations/{conversation_id}/messages/{message_id}"
+            description: "Delete a conversation message"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: message_id
+                type: string
+                required: true
+                positional: true
+                description: "Message ID"
+      participants:
+        description: "Participants (contacts, agents, bots) in a conversation"
+        endpoints:
+          add:
+            method: POST
+            path: "/conversations/{conversation_id}/participants"
+            description: "Add a participant to a conversation"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+            body:
+              - name: type
+                type: string
+                required: true
+                description: "Participant type (contact, user, accessKey, bot, flow, connector, channel, collaborationAutomation)"
+                enum: [contact, user, accessKey, bot, flow, connector, channel, collaborationAutomation]
+              - name: identifierKey
+                type: string
+                description: "Identifier key for contacts (e.g. phonenumber, emailaddress)"
+              - name: identifierValue
+                type: string
+                description: "Identifier value (e.g. +31612345678)"
+              - name: id
+                type: string
+                description: "Participant ID when type is user/bot/etc."
+            response:
+              type: object
+              item: Participant
+          list:
+            method: GET
+            path: "/conversations/{conversation_id}/participants"
+            description: "List participants in a conversation"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: limit
+                type: int
+                description: "Page size"
+              - name: pageToken
+                type: string
+                description: "Pagination cursor"
+            response:
+              type: array
+              item: Participant
+          get:
+            method: GET
+            path: "/conversations/{conversation_id}/participants/{participant_id}"
+            description: "Get a participant by ID"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: participant_id
+                type: string
+                required: true
+                positional: true
+                description: "Participant ID"
+            response:
+              type: object
+              item: Participant
+          find:
+            method: GET
+            path: "/conversations/{conversation_id}/participants/key/{identifier_key}/value/{identifier_value}"
+            description: "Look up a participant by identifier key and value"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: identifier_key
+                type: string
+                required: true
+                description: "Identifier key (e.g. phonenumber)"
+              - name: identifier_value
+                type: string
+                required: true
+                description: "Identifier value (e.g. +31612345678)"
+            response:
+              type: object
+              item: Participant
+          update:
+            method: PATCH
+            path: "/conversations/{conversation_id}/participants/{participant_id}"
+            description: "Update a participant by ID"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: participant_id
+                type: string
+                required: true
+                positional: true
+                description: "Participant ID"
+            body:
+              - name: status
+                type: string
+                description: "New participant status"
+              - name: displayName
+                type: string
+                description: "New display name"
+            response:
+              type: object
+              item: Participant
+          remove:
+            method: DELETE
+            path: "/conversations/{conversation_id}/participants/{participant_id}"
+            description: "Remove a participant from a conversation"
+            params:
+              - name: conversation_id
+                type: string
+                required: true
+                positional: true
+                description: "Conversation ID"
+              - name: participant_id
+                type: string
+                required: true
+                positional: true
+                description: "Participant ID"
+
+  participants:
+    description: "Workspace-wide participant lookup"
+    endpoints:
+      conversations:
+        method: GET
+        path: "/participants/{participant_id}/conversations"
+        description: "List conversations a participant belongs to (by participant ID)"
+        params:
+          - name: participant_id
+            type: string
+            required: true
+            positional: true
+            description: "Participant ID"
+          - name: limit
+            type: int
+            description: "Page size"
+          - name: pageToken
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Conversation
+      conversations-by-identifier:
+        method: GET
+        path: "/participants/key/{identifier_key}/value/{identifier_value}/conversations"
+        description: "List conversations a participant belongs to (by identifier key and value)"
+        params:
+          - name: identifier_key
+            type: string
+            required: true
+            description: "Identifier key (e.g. phonenumber)"
+          - name: identifier_value
+            type: string
+            required: true
+            description: "Identifier value (e.g. +31612345678)"
+        response:
+          type: array
+          item: Conversation
+
+  channel-config:
+    description: "Per-channel Conversations API configuration"
+    endpoints:
+      get:
+        method: GET
+        path: "/channels/{channel_id}/conversations-configuration"
+        description: "Get the Conversations configuration for a channel"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            positional: true
+            description: "Channel ID"
+        response:
+          type: object
+          item: ConversationsConfig
+      update:
+        method: PUT
+        path: "/channels/{channel_id}/conversations-configuration"
+        description: "Update Conversations configuration for a channel"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            positional: true
+            description: "Channel ID"
+        body:
+          - name: enabled
+            type: boolean
+            description: "Whether Conversations is enabled on this channel"
+          - name: customStatuses
+            type: array
+            description: "Optional list of custom statuses"
+        response:
+          type: object
+          item: ConversationsConfig
+
+  channels:
+    description: "SMS channels available in the workspace"
+    endpoints:
+      list:
+        method: GET
+        path: "/channels"
+        description: "List channels in the workspace (filter --kind sms)"
+        params:
+          - name: kind
+            type: string
+            description: "Filter by channel kind (sms, whatsapp, email, etc.)"
+          - name: limit
+            type: int
+            description: "Page size"
+          - name: pageToken
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Channel
+      get:
+        method: GET
+        path: "/channels/{channel_id}"
+        description: "Get one channel by ID"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            positional: true
+            description: "Channel ID"
+        response:
+          type: object
+          item: Channel
+      messageability:
+        method: GET
+        path: "/channels/{channel_id}/messageability/{contact_id}"
+        description: "Check whether a channel can message a given contact (the customer-service window probe)"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            positional: true
+            description: "Channel ID"
+          - name: contact_id
+            type: string
+            required: true
+            positional: true
+            description: "Contact ID"
+        response:
+          type: object
+          item: Messageability
+
+  messages:
+    description: "Channel-level messages (the SMS send/receive layer)"
+    endpoints:
+      list:
+        method: GET
+        path: "/channels/{channel_id}/messages"
+        description: "List messages on a channel (chronological)"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            description: "Channel ID (or set BIRD_CHANNEL_ID)"
+          - name: limit
+            type: int
+            description: "Page size"
+          - name: pageToken
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Message
+      list-all:
+        method: GET
+        path: "/messages"
+        description: "List messages across the workspace"
+        params:
+          - name: limit
+            type: int
+            description: "Page size"
+          - name: pageToken
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Message
+      get:
+        method: GET
+        path: "/channels/{channel_id}/messages/{message_id}"
+        description: "Get one message by ID"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            description: "Channel ID"
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message ID"
+        response:
+          type: object
+          item: Message
+      interactions:
+        method: GET
+        path: "/channels/{channel_id}/messages/{message_id}/interactions"
+        description: "List delivery-event interactions for a message (sent, delivered, read, failed)"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            description: "Channel ID"
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message ID"
+        response:
+          type: array
+          item: Interaction
+
+  sms:
+    description: "Programmable SMS send (the headline command)"
+    endpoints:
+      send:
+        method: POST
+        path: "/channels/{channel_id}/messages"
+        description: "Send an SMS message"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            description: "SMS channel ID (or set BIRD_CHANNEL_ID)"
+        body:
+          - name: receiver
+            type: object
+            required: true
+            description: "Receiver envelope: {contacts: [{identifierKey: phonenumber, identifierValue: +31612345678}]}"
+          - name: body
+            type: object
+            required: true
+            description: "Message body envelope: {type: text, text: {text: hello}}"
+          - name: idempotencyKey
+            type: string
+            description: "Idempotency key (recommended for retries)"
+        response:
+          type: object
+          item: Message
+
+  media:
+    description: "Pre-signed media uploads for messages with attachments"
+    endpoints:
+      presigned-upload:
+        method: POST
+        path: "/channel-media/presigned-upload"
+        description: "Create a workspace-wide pre-signed media upload URL"
+        body:
+          - name: contentType
+            type: string
+            required: true
+            description: "MIME type (e.g. image/jpeg)"
+          - name: contentLength
+            type: int
+            description: "Content length in bytes"
+        response:
+          type: object
+          item: PresignedUpload
+
+  channel-media:
+    description: "Channel-specific pre-signed media uploads"
+    endpoints:
+      presigned-upload:
+        method: POST
+        path: "/channels/{channel_id}/presigned-upload"
+        description: "Create a channel-scoped pre-signed media upload URL"
+        params:
+          - name: channel_id
+            type: string
+            required: true
+            positional: true
+            description: "Channel ID"
+        body:
+          - name: contentType
+            type: string
+            required: true
+            description: "MIME type"
+          - name: contentLength
+            type: int
+            description: "Content length in bytes"
+        response:
+          type: object
+          item: PresignedUpload
+
+  workspace:
+    description: "Workspace-level configuration: anti-spam and allow/block rules"
+    sub_resources:
+      antispam:
+        description: "Workspace anti-spam setting"
+        endpoints:
+          get:
+            method: GET
+            path: "/conversation-settings/antispam"
+            description: "Get the anti-spam setting"
+            response:
+              type: object
+              item: AntispamSetting
+          update:
+            method: PUT
+            path: "/conversation-settings/antispam"
+            description: "Update the anti-spam setting"
+            body:
+              - name: enabled
+                type: boolean
+                required: true
+                description: "Whether anti-spam classification is enabled"
+            response:
+              type: object
+              item: AntispamSetting
+      rules:
+        description: "Allow/block rules CRUD"
+        endpoints:
+          create:
+            method: POST
+            path: "/conversation-settings/allow-block-rules"
+            description: "Create an allow or block rule"
+            body:
+              - name: kind
+                type: string
+                required: true
+                description: "Rule kind (allow or block)"
+                enum: [allow, block]
+              - name: identifierKey
+                type: string
+                required: true
+                description: "Identifier key (e.g. phonenumber)"
+              - name: identifierValue
+                type: string
+                required: true
+                description: "Identifier value (e.g. +31612345678)"
+            response:
+              type: object
+              item: AllowBlockRule
+          list:
+            method: GET
+            path: "/conversation-settings/allow-block-rules"
+            description: "List allow/block rules"
+            params:
+              - name: kind
+                type: string
+                description: "Filter by allow or block"
+                enum: [allow, block]
+              - name: limit
+                type: int
+                description: "Page size"
+              - name: pageToken
+                type: string
+                description: "Pagination cursor"
+            response:
+              type: array
+              item: AllowBlockRule
+          get:
+            method: GET
+            path: "/conversation-settings/allow-block-rules/{rule_id}"
+            description: "Get one allow/block rule"
+            params:
+              - name: rule_id
+                type: string
+                required: true
+                positional: true
+                description: "Rule ID"
+            response:
+              type: object
+              item: AllowBlockRule
+          update:
+            method: PATCH
+            path: "/conversation-settings/allow-block-rules/{rule_id}"
+            description: "Update an allow/block rule"
+            params:
+              - name: rule_id
+                type: string
+                required: true
+                positional: true
+                description: "Rule ID"
+            body:
+              - name: kind
+                type: string
+                description: "Rule kind"
+                enum: [allow, block]
+            response:
+              type: object
+              item: AllowBlockRule
+          delete:
+            method: DELETE
+            path: "/conversation-settings/allow-block-rules/{rule_id}"
+            description: "Delete an allow/block rule"
+            params:
+              - name: rule_id
+                type: string
+                required: true
+                positional: true
+                description: "Rule ID"
+          bulk-add:
+            method: POST
+            path: "/conversation-settings/allow-block-rules/bulk"
+            description: "Bulk add allow/block rules from a list"
+            body:
+              - name: rules
+                type: array
+                required: true
+                description: "Array of rule objects (kind/identifierKey/identifierValue)"
+            response:
+              type: object
+              item: BulkRulesUpload
+          bulk-status:
+            method: GET
+            path: "/conversation-settings/allow-block-rules/bulk/{upload_id}"
+            description: "Get the status of a bulk rules upload"
+            params:
+              - name: upload_id
+                type: string
+                required: true
+                positional: true
+                description: "Bulk upload ID"
+            response:
+              type: object
+              item: BulkRulesUpload
+
+  compliance:
+    description: "Channel compliance keyword routing (HELP/STOP/START)"
+    sub_resources:
+      keywords:
+        description: "Compliance keyword messages"
+        endpoints:
+          list:
+            method: GET
+            path: "/channels/{channel_id}/compliance-keywords"
+            description: "List compliance keyword messages"
+            params:
+              - name: channel_id
+                type: string
+                required: true
+                description: "Channel ID"
+            response:
+              type: array
+              item: ComplianceKeyword
+          get:
+            method: GET
+            path: "/channels/{channel_id}/compliance-keywords/{keyword}"
+            description: "Get one compliance keyword's configuration"
+            params:
+              - name: channel_id
+                type: string
+                required: true
+                description: "Channel ID"
+              - name: keyword
+                type: string
+                required: true
+                positional: true
+                description: "Keyword (HELP, STOP, START)"
+                enum: [HELP, STOP, START]
+            response:
+              type: object
+              item: ComplianceKeyword
+          set:
+            method: PUT
+            path: "/channels/{channel_id}/compliance-keywords/{keyword}"
+            description: "Set the auto-reply for a compliance keyword"
+            params:
+              - name: channel_id
+                type: string
+                required: true
+                description: "Channel ID"
+              - name: keyword
+                type: string
+                required: true
+                positional: true
+                description: "Keyword (HELP, STOP, START)"
+                enum: [HELP, STOP, START]
+            body:
+              - name: body
+                type: object
+                required: true
+                description: "Auto-reply body envelope"
+            response:
+              type: object
+              item: ComplianceKeyword
+
+types:
+  Conversation:
+    description: "A Bird conversation thread"
+    fields:
+      - name: id
+        type: string
+        description: "Conversation ID"
+      - name: name
+        type: string
+        description: "Conversation display name"
+      - name: status
+        type: string
+        description: "Status (active, snoozed, closed)"
+      - name: visibility
+        type: string
+        description: "Visibility (public, private)"
+      - name: createdAt
+        type: string
+        format: date-time
+        description: "Creation timestamp"
+      - name: updatedAt
+        type: string
+        format: date-time
+        description: "Last update timestamp"
+      - name: lastReceivedMessageAt
+        type: string
+        format: date-time
+        description: "Last inbound message timestamp"
+
+  ConversationMessage:
+    description: "A message inside a conversation"
+    fields:
+      - name: id
+        type: string
+        description: "Message ID"
+      - name: conversationId
+        type: string
+        description: "Parent conversation ID"
+      - name: status
+        type: string
+        description: "Message status"
+      - name: direction
+        type: string
+        description: "incoming or outgoing"
+      - name: createdAt
+        type: string
+        format: date-time
+        description: "Creation timestamp"
+
+  Participant:
+    description: "A participant in a conversation"
+    fields:
+      - name: id
+        type: string
+        description: "Participant ID"
+      - name: type
+        type: string
+        description: "Participant type"
+      - name: status
+        type: string
+        description: "Participant status"
+      - name: displayName
+        type: string
+        description: "Display name"
+
+  ConversationsConfig:
+    description: "Per-channel Conversations configuration"
+    fields:
+      - name: enabled
+        type: boolean
+        description: "Whether Conversations is enabled on this channel"
+
+  Channel:
+    description: "A messaging channel (SMS, WhatsApp, etc.)"
+    fields:
+      - name: id
+        type: string
+        description: "Channel ID"
+      - name: name
+        type: string
+        description: "Channel display name"
+      - name: kind
+        type: string
+        description: "Channel kind (sms, whatsapp, email, ...)"
+      - name: status
+        type: string
+        description: "Channel status"
+
+  Messageability:
+    description: "Result of a messageability probe"
+    fields:
+      - name: messageable
+        type: boolean
+        description: "Whether the channel can currently message this contact"
+      - name: reason
+        type: string
+        description: "Reason if not messageable"
+
+  Message:
+    description: "A channel message (SMS or other)"
+    fields:
+      - name: id
+        type: string
+        description: "Message ID"
+      - name: status
+        type: string
+        description: "Message status"
+      - name: direction
+        type: string
+        description: "incoming or outgoing"
+      - name: createdAt
+        type: string
+        format: date-time
+        description: "Creation timestamp"
+
+  Interaction:
+    description: "A single delivery interaction (sent, delivered, read, failed)"
+    fields:
+      - name: id
+        type: string
+        description: "Interaction ID"
+      - name: type
+        type: string
+        description: "Event type (sent, delivered, read, failed, undelivered)"
+      - name: timestamp
+        type: string
+        format: date-time
+        description: "Event timestamp"
+      - name: reason
+        type: string
+        description: "Reason code on failure"
+
+  PresignedUpload:
+    description: "A pre-signed media upload URL"
+    fields:
+      - name: mediaUrl
+        type: string
+        description: "URL to PUT the media bytes to"
+      - name: expiresAt
+        type: string
+        format: date-time
+        description: "URL expiry"
+
+  AntispamSetting:
+    description: "Workspace anti-spam configuration"
+    fields:
+      - name: enabled
+        type: boolean
+        description: "Whether anti-spam classification is enabled"
+
+  AllowBlockRule:
+    description: "An allow or block rule"
+    fields:
+      - name: id
+        type: string
+        description: "Rule ID"
+      - name: kind
+        type: string
+        description: "allow or block"
+      - name: identifierKey
+        type: string
+        description: "Identifier key (phonenumber, emailaddress, ...)"
+      - name: identifierValue
+        type: string
+        description: "Identifier value"
+
+  BulkRulesUpload:
+    description: "A bulk rules upload job"
+    fields:
+      - name: id
+        type: string
+        description: "Upload ID"
+      - name: status
+        type: string
+        description: "Upload status (pending, processing, completed, failed)"
+      - name: rulesProcessed
+        type: int
+        description: "Number of rules processed so far"
+
+  ComplianceKeyword:
+    description: "A compliance keyword auto-reply configuration"
+    fields:
+      - name: keyword
+        type: string
+        description: "Keyword (HELP, STOP, START)"
+      - name: enabled
+        type: boolean
+        description: "Whether the auto-reply is active"

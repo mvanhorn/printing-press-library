@@ -47,10 +47,10 @@ func TestNearbyByTags_BuildsQL(t *testing.T) {
 	for _, want := range []string{
 		"out%3Ajson", // [out:json]
 		"timeout%3A25",
-		"amenity%3Dcafe",                  // [amenity=cafe]
-		"%5Btourism%5D",                   // [tourism]
-		"around%3A800%2C35.689500",        // around:800,35.689500
-		"out+center+tags+50",              // out center tags 50
+		"amenity%3Dcafe",           // [amenity=cafe]
+		"%5Btourism%5D",            // [tourism]
+		"around%3A800%2C35.689500", // around:800,35.689500
+		"out+center+tags+50",       // out center tags 50
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("expected body to contain %q; full body: %s", want, got)

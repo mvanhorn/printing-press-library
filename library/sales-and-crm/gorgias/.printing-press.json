@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T05:06:22.787213Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "gorgias",
+  "display_name": "Gorgias",
+  "description": "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+  "cli_name": "gorgias-pp-cli",
+  "owner": "chrisyoungcooks",
+  "printer": "chrisyoungcooks",
+  "printer_name": "Chris Young",
+  "spec_path": "spec-sources/gorgias-crowd.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d438fc396513d91b765cb2a7f72556c18900ea6d51e702a71167608675e02d6d",
+  "mcp_binary": "gorgias-pp-mcp",
+  "mcp_endpoint_count": 108,
+  "mcp_tool_count": 15,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "GORGIAS_USERNAME",
+    "GORGIAS_API_KEY",
+    "GORGIAS_BASE_URL"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GORGIAS_USERNAME",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "GORGIAS_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "GORGIAS_BASE_URL",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://docs.gorgias.com/en-US/rest-api-208286",
+  "novel_features": [
+    {
+      "name": "Code-orchestration MCP surface",
+      "command": "gorgias-pp-mcp --transport http --addr :7777",
+      "description": "108 Gorgias endpoints reachable through a small fixed set of MCP tools — 15 typed tools total, ~9K context tokens for a full tools/list response (~1K of descriptions, ~7K of JSON schemas). Agents reach the full surface through gorgias_search + gorgias_execute, not a 108-tool catalog. Live tool count is reported by the `context` tool."
+    },
+    {
+      "name": "Doctor with live credential verification",
+      "command": "gorgias-pp-cli doctor --json",
+      "description": "Probes /account with the configured credentials and reports credentials: valid only when an authenticated call succeeds. Surfaces auth failures as the first command an agent runs, before any read or write."
+    },
+    {
+      "name": "Auto-refresh of stale local mirror",
+      "command": "GORGIAS_AUTO_REFRESH_TTL=15m gorgias-pp-cli tickets list",
+      "description": "Opt-in: read commands automatically sync the resource before serving if the local SQLite mirror is older than the TTL. Off by default to keep behavior predictable for agents preferring explicit syncs."
+    },
+    {
+      "name": "Local FTS5 search across synced data",
+      "command": "gorgias-pp-cli sync --resources tickets --since 7d && gorgias-pp-cli search refund --agent",
+      "description": "Sync to local SQLite, then full-text search with subsecond latency. Turns a 30-second multi-page paginated search into a 50ms SQL-backed query. Pairs with cron for warm local data."
+    },
+    {
+      "name": "Agent-readable endpoint surface",
+      "command": "gorgias-pp-cli agent-context --json",
+      "description": "agent-context exposes the command catalog, global flags, env requirements, MCP surface, and endpoint counts so an agent can inspect supported capabilities without parsing help text or making tenant-specific live calls."
+    }
+  ],
+  "run_id": "20260512-201610",
+  "category": "sales-and-crm"
+}

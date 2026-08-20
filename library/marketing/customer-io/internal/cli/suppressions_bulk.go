@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -133,14 +133,14 @@ Default audit path: ~/.config/customer-io-pp-cli/audit/suppressions-YYYYMMDD.jso
 					}
 				}
 				rec := map[string]any{
-					"timestamp":  time.Now().UTC().Format(time.RFC3339Nano),
-					"op":         op,
-					"recipient":  id,
-					"reason":     reason,
-					"status":     status,
-					"error":      apiErrMsg,
-					"endpoint":   path,
-					"dry_run":    flags.dryRun,
+					"timestamp": time.Now().UTC().Format(time.RFC3339Nano),
+					"op":        op,
+					"recipient": id,
+					"reason":    reason,
+					"status":    status,
+					"error":     apiErrMsg,
+					"endpoint":  path,
+					"dry_run":   flags.dryRun,
 				}
 				results = append(results, rec)
 				_ = appendJSONL(audit, rec)

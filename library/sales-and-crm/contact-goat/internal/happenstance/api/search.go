@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package api
 
@@ -17,10 +17,10 @@ import (
 // OpenAPI shape verbatim so callers can compare against the constants rather
 // than scattering literal strings.
 const (
-	StatusRunning          = "RUNNING"
-	StatusCompleted        = "COMPLETED"
-	StatusFailed           = "FAILED"
-	StatusFailedAmbiguous  = "FAILED_AMBIGUOUS"
+	StatusRunning         = "RUNNING"
+	StatusCompleted       = "COMPLETED"
+	StatusFailed          = "FAILED"
+	StatusFailedAmbiguous = "FAILED_AMBIGUOUS"
 )
 
 // DefaultPollTimeout matches the cookie surface's poll ceiling. Both surfaces

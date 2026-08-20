@@ -1,0 +1,22 @@
+type: object
+properties:
+  banner_image:
+    type: string
+  big_banner_image:
+    type: string
+  banner_tablet_image:
+    type: string
+  banner_mobile_image:
+    type: string
+  banner_url:
+    type: string
+  banner_video:
+    type: string
+  big_banner_video:
+    type: string
+  banner_tablet_video:
+    type: string
+  banner_mobile_video:
+    type: string
+  location:
+    type: string

@@ -1,0 +1,1678 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Roam HQ Events API (Alpha)",
+    "description": "The Roam HQ Events API (Alpha) delivers real-time notifications to your application via webhooks. Subscribe to events and receive HTTP callbacks when things happen in your Roam workspace.\n\n**OpenAPI Spec:** [webhooks.json](https://developer.ro.am/webhooks.json)\n\n## Configuring Webhooks\n\nYou can configure webhooks in two ways:\n- **Static:** In **Roam Administration > Developer > API Client**, add webhook URLs directly to your app configuration\n- **Dynamic:** Use the subscription endpoints below to manage webhooks programmatically\n\n## Subscription Endpoints\n\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/webhook.subscribe`](/docs/webhooks/webhook-subscribe) | POST | Create or update a webhook subscription |\n| [`/webhook.unsubscribe`](/docs/webhooks/webhook-unsubscribe) | POST | Remove a webhook subscription |\n\n## Available Events\n\n| Event | Description |\n|-------|-------------|\n| [`chat:message:dm`](/docs/webhooks/chat-message) | Direct message received by your app |\n| [`chat:message:channel`](/docs/webhooks/chat-message) | Channel message in a group where your app is a member |\n| [`chat:message:mention`](/docs/webhooks/chat-message) | Message that @mentions your app |\n| [`chat:message:reaction`](/docs/webhooks/chat-message-reaction) | Emoji reaction added to a message |\n| [`recording:saved`](/docs/webhooks/recording-saved) | Meeting recording is ready for download |\n| [`transcript:started`](/docs/webhooks/transcript-started) | Magic Minutes has started on a meeting |\n| [`transcript:saved`](/docs/webhooks/transcript-saved) | Meeting transcript (Magic Minutes) is available |\n| [`lobby:booked`](/docs/webhooks/lobby-booked) | New booking created for a lobby |\n| [`user:status:update`](/docs/webhooks/user-status-update) | User checked in or out of the Roam |\n| [`onair.event.created`](/docs/webhooks/onair-event-created) | On-Air event is created |\n| [`onair.event.updated`](/docs/webhooks/onair-event-updated) | On-Air event is updated |\n| [`onair.event.canceled`](/docs/webhooks/onair-event-canceled) | On-Air event is canceled |\n| [`onair.guest.rsvp`](/docs/webhooks/onair-guest-rsvp) | Guest RSVP status changed |\n| [`onair.guest.added`](/docs/webhooks/onair-guest-added) | Guest(s) added to an event |\n| [`magicast.created`](/docs/webhooks/magicast-created) | A magicast is created and ready |\n\n## Access Models\n\nWebhooks support both [Organization access and Personal access](/docs/guides/access-models). The same events are available in both modes, but the scope differs:\n\n- **Organization access:** Webhooks deliver events for all activity across the workspace (e.g. all messages in public groups, all meeting transcripts).\n- **Personal access:** Webhooks deliver only events involving the authenticated user (e.g. only your DMs, only your meeting transcripts).\n\nSee the [Access Models guide](/docs/guides/access-models) for details on choosing the right model.\n\n## Webhook Payload Format\n\nAll webhooks are delivered as POST requests with JSON payloads. Your endpoint should return a 2xx status to acknowledge receipt.\n\n## Signature Verification\n\nWebhooks are signed using the [Standard Webhooks](https://github.com/standard-webhooks/standard-webhooks) specification. Each request includes three headers for verification:\n\n| Header | Description |\n|--------|-------------|\n| `webhook-id` | Unique identifier for this webhook delivery |\n| `webhook-timestamp` | Unix timestamp (seconds) when the webhook was sent |\n| `webhook-signature` | HMAC-SHA256 signature of the payload |\n\nYour **Webhook Signing Secret** is available in **Roam Administration > Developer > API Client**.\n\nTo verify a webhook:\n1. Concatenate: `{webhook-id}.{webhook-timestamp}.{payload}`\n2. Compute HMAC-SHA256 using your signing secret (base64-decoded)\n3. Compare with the signature in `webhook-signature` header\n\nWe recommend using the [standard-webhooks client libraries](https://github.com/standard-webhooks/standard-webhooks#libraries) for verification:\n\n```javascript\nimport { Webhook } from \"standardwebhooks\";\n\nconst wh = new Webhook(signingSecret);\nconst payload = wh.verify(requestBody, requestHeaders);\n```\n\n## Delivery Behavior\n\n- **Timeout**: Webhook requests timeout after **3 seconds**. Ensure your endpoint responds quickly.\n- **Retries**: Webhooks are **not automatically retried**. If your endpoint returns a non-2xx status or times out, the delivery is logged but not reattempted.\n- **Order**: Webhooks are delivered asynchronously and may arrive out of order.\n\nFor reliable processing, we recommend:\n- Acknowledge webhooks immediately with a 200 response\n- Process webhook data asynchronously in a background job\n- Use the `webhook-id` header for idempotency\n\n## Filtering\n\nSome events support filters to limit notifications:\n- `lobby:booked`: Filter by `lobbyId` to receive bookings for specific lobbies only\n- `chat:message:reaction`: Filter by `codes` to receive only specific reaction types\n- `onair.event.created`, `onair.event.updated`, `onair.event.canceled`, `onair.guest.added`: Filter by `eventId` to receive notifications for a specific event only\n- `onair.guest.rsvp`: Filter by `eventId` and/or `status` to receive notifications for a specific event or RSVP status\n\n## Authentication\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\n## Base URL\n\n```\nhttps://api.ro.am/v0\n```\n\n---\nHave questions? Contact us via [Roam Support Chat](https://ro.am/support/contact-us) or email [developer@ro.am](mailto:developer@ro.am).\n",
+    "version": "0.1",
+    "termsOfService": "https://ro.am/terms",
+    "contact": {
+      "name": "Developer Support",
+      "email": "developer@ro.am",
+      "url": "https://developer.ro.am"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.ro.am/v0",
+      "description": "Production Server"
+    }
+  ],
+  "externalDocs": {
+    "description": "Webhooks API Documentation",
+    "url": "https://developer.ro.am/docs/webhooks"
+  },
+  "paths": {
+    "/webhook.subscribe": {
+      "post": {
+        "summary": "Subscribe to an event webhook",
+        "description": "Create or update a webhook subscription for a given event. If a subscription\nalready exists for the same event and URL, its filter is updated instead of\ncreating a duplicate.\n\n**Access:** Organization only.\n\n**Required scope:** `webhook:write`\n\n---\n\n**OpenAPI Spec:** [webhooks.json](https://developer.ro.am/webhooks.json)\n",
+        "operationId": "webhook.subscribe",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookSubscriptionRequest"
+              },
+              "examples": {
+                "lobby-booked": {
+                  "summary": "Subscribe to lobby booking events",
+                  "value": {
+                    "url": "https://example.com/hooks/lobby-booked",
+                    "event": "lobby.booked",
+                    "filter": {
+                      "lobbyId": "L-12345"
+                    }
+                  }
+                },
+                "message-reaction": {
+                  "summary": "Subscribe to message reaction events",
+                  "value": {
+                    "url": "https://example.com/hooks/reactions",
+                    "event": "chat.message.reaction",
+                    "filter": {
+                      "codes": [
+                        "+1",
+                        "heart"
+                      ]
+                    }
+                  }
+                },
+                "onair-guest-rsvp": {
+                  "summary": "Subscribe to On-Air guest RSVP changes",
+                  "value": {
+                    "url": "https://example.com/hooks/rsvp",
+                    "event": "onair.guest.rsvp",
+                    "filter": {
+                      "eventId": "evt_abc123",
+                      "status": "going"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription created or updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                },
+                "example": {
+                  "id": "19c6401f-6d02-4d8c-87c5-9fc45f02f4b5",
+                  "event": "lobby.booked",
+                  "url": "https://example.com/hooks/lobby-booked",
+                  "filter": {
+                    "lobbyId": "L-12345"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/webhook.unsubscribe": {
+      "post": {
+        "summary": "Unsubscribe from an event webhook",
+        "description": "Remove a webhook subscription by ID.\n\n**Access:** Organization only.\n\n**Required scope:** `webhook:write`\n\n---\n\n**OpenAPI Spec:** [webhooks.json](https://developer.ro.am/webhooks.json)\n",
+        "operationId": "webhook.unsubscribe",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookUnsubscribeRequest"
+              },
+              "example": {
+                "id": "19c6401f-6d02-4d8c-87c5-9fc45f02f4b5"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Subscription deleted."
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "description": "Subscription not found."
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "x-webhooks": {
+    "chat.message.dm": {
+      "post": {
+        "summary": "Message received",
+        "description": "A chat message addressed to the app.\n\nWebhooks are delivered only when:\n- Someone sends a direct message (DM) to the app\n- The app is added to a chat group (channel) and that group receives messages\n- Someone @mentions the app in a message\n\nThe Events API does NOT deliver every chat message in the account—only those where the app is a participant or mentioned.\n\n**Available events:**\n- `chat:message:dm` — Direct messages to the app\n- `chat:message:channel` — Messages in groups where the app is a member\n- `chat:message:mention` — Messages that @mention the app (useful for bots that only respond when called)\n",
+        "operationId": "chat.message",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to indicate that the data was received successfully"
+          }
+        }
+      }
+    },
+    "chat.message.channel": {
+      "post": {
+        "summary": "Message received",
+        "description": "A chat message addressed to the app.\n\nWebhooks are delivered only when:\n- Someone sends a direct message (DM) to the app\n- The app is added to a chat group (channel) and that group receives messages\n- Someone @mentions the app in a message\n\nThe Events API does NOT deliver every chat message in the account—only those where the app is a participant or mentioned.\n\n**Available events:**\n- `chat:message:dm` — Direct messages to the app\n- `chat:message:channel` — Messages in groups where the app is a member\n- `chat:message:mention` — Messages that @mention the app (useful for bots that only respond when called)\n",
+        "operationId": "chat.message",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to indicate that the data was received successfully"
+          }
+        }
+      }
+    },
+    "chat.message.reaction": {
+      "post": {
+        "summary": "Message reaction added",
+        "description": "A reaction was added to a chat message.\n\n**Event name:** `chat:message:reaction`\n\nWebhooks are delivered when someone adds a reaction to a message in a chat where the app is a participant.\n",
+        "operationId": "chat.message.reaction",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reaction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to indicate that the data was received successfully"
+          }
+        }
+      }
+    },
+    "recording.saved": {
+      "post": {
+        "summary": "Recording saved",
+        "description": "A meeting recording (video) has been finalized and is now available for download / playback.\n\n**Event name:** `recording:saved`\n\n**Required scopes:** Your app must have `user:read` and `user:read.email` scopes to receive participant information in the webhook payload. Without these scopes, participant details will be omitted.\n",
+        "operationId": "recording.saved",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Recording"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "transcript.started": {
+      "post": {
+        "summary": "Transcript started",
+        "description": "Magic Minutes has started on a meeting and a live transcript is now available.\n\n**Event name:** `transcript:started`\n\nUse the transcript `id` from this payload with\n[`/transcript.info`](/docs/chat-api/get-transcript) to fetch live transcript\ncontent. Pass the `sinceOffset` parameter to poll for incremental updates.\n\n**Required scope:** `transcript:read`\n\nThe `hostEmail` field is only included if your app has the `user:read.email` scope.\n",
+        "operationId": "transcript.started",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The transcript ID. Use with `/transcript.info` to fetch transcript content."
+                  },
+                  "meetingId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The meeting GUID."
+                  },
+                  "start": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When Magic Minutes began."
+                  },
+                  "location": {
+                    "type": "string",
+                    "description": "The meeting location or name."
+                  },
+                  "hostEmail": {
+                    "type": "string",
+                    "description": "Email of the meeting host. Only included if your app has the `user:read.email` scope."
+                  }
+                }
+              },
+              "example": {
+                "id": "f9274881-c48f-4838-865d-98140ea7016d",
+                "meetingId": "dde68f39-3eb0-42ef-9873-511509c8764f",
+                "start": "2026-03-17T14:00:00.000Z",
+                "location": "Conference Room A",
+                "hostEmail": "alex.chen@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "transcript.saved": {
+      "post": {
+        "summary": "Transcript saved",
+        "description": "A meeting transcript (Magic Minutes) has been finalized and is now available.\n\n**Event name:** `transcript:saved`\n\nThis webhook provides transcript metadata only. To retrieve the full transcript\ncontent including cues (speaker text), summary, and action items, use\n[`/transcript.info`](/docs/chat-api/get-transcript) with the transcript `id` from this payload.\n\n**Required scopes:** Your app must have `user:read` and `user:read.email` scopes to receive participant information in the webhook payload. Without these scopes, participant details will be omitted.\n",
+        "operationId": "transcript.saved",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transcript"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "lobby.booked": {
+      "post": {
+        "summary": "Lobby booking created",
+        "description": "A new booking has been created for a lobby.\n\n**Event name:** `lobby:booked`\n\nThis event fires when a guest completes booking for a lobby (via a lobby link/handle).\n",
+        "operationId": "lobby.booked",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LobbyBooked"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "user.status.update": {
+      "post": {
+        "summary": "User status update",
+        "description": "A user's presence status has changed (checked in or checked out of the Roam).\n\n**Event name:** `user:status:update`\n\nThe webhook payload contains the full user object with the updated `status` field.\n\n**Required scopes:** Your app must have `user:read` scope to receive this event. Add `user:read.email` to include the user's email address in the payload.\n",
+        "operationId": "user.status.update",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "example": {
+                "id": "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                "name": "Alex Chen",
+                "imageUrl": "https://ro.am/card-images/7be550c0-6994-4b8f-9a41-48825c6fc62a",
+                "email": "alex.chen@example.com",
+                "isAdmin": false,
+                "status": "checkedIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "onair.event.created": {
+      "post": {
+        "summary": "On-Air event created",
+        "description": "A new On-Air event has been created.\n\n**Event name:** `onair.event.created`\n\n**Required scope:** `onair:read`\n",
+        "operationId": "onair.event.created",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The event type.",
+                    "enum": [
+                      "onair.event.created"
+                    ]
+                  },
+                  "event": {
+                    "$ref": "#/components/schemas/OnAirEvent"
+                  }
+                }
+              },
+              "example": {
+                "type": "onair.event.created",
+                "event": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands",
+                  "description": "Quarterly company all-hands meeting",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-01T14:00:00Z",
+                  "end": "2026-04-01T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": [
+                    {
+                      "id": "host_1",
+                      "displayName": "Jane Smith"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "onair.event.updated": {
+      "post": {
+        "summary": "On-Air event updated",
+        "description": "An On-Air event has been updated (e.g. title, time, or settings changed).\n\n**Event name:** `onair.event.updated`\n\n**Required scope:** `onair:read`\n",
+        "operationId": "onair.event.updated",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The event type.",
+                    "enum": [
+                      "onair.event.updated"
+                    ]
+                  },
+                  "event": {
+                    "$ref": "#/components/schemas/OnAirEvent"
+                  }
+                }
+              },
+              "example": {
+                "type": "onair.event.updated",
+                "event": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands (Rescheduled)",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-02T14:00:00Z",
+                  "end": "2026-04-02T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": [
+                    {
+                      "id": "host_1",
+                      "displayName": "Jane Smith"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "onair.event.canceled": {
+      "post": {
+        "summary": "On-Air event canceled",
+        "description": "An On-Air event has been canceled.\n\n**Event name:** `onair.event.canceled`\n\n**Required scope:** `onair:read`\n",
+        "operationId": "onair.event.canceled",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The event type.",
+                    "enum": [
+                      "onair.event.canceled"
+                    ]
+                  },
+                  "event": {
+                    "$ref": "#/components/schemas/OnAirEvent"
+                  }
+                }
+              },
+              "example": {
+                "type": "onair.event.canceled",
+                "event": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-01T14:00:00Z",
+                  "end": "2026-04-01T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": []
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "onair.guest.rsvp": {
+      "post": {
+        "summary": "Guest RSVP changed",
+        "description": "A guest's RSVP status has changed for an On-Air event.\n\n**Event name:** `onair.guest.rsvp`\n\n**Required scope:** `onair:read`\n",
+        "operationId": "onair.guest.rsvp",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The event type.",
+                    "enum": [
+                      "onair.guest.rsvp"
+                    ]
+                  },
+                  "event": {
+                    "$ref": "#/components/schemas/OnAirEvent"
+                  },
+                  "guest": {
+                    "$ref": "#/components/schemas/OnAirGuest"
+                  }
+                }
+              },
+              "example": {
+                "type": "onair.guest.rsvp",
+                "event": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-01T14:00:00Z",
+                  "end": "2026-04-01T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": []
+                },
+                "guest": {
+                  "id": "gst_xyz789",
+                  "eventId": "evt_abc123",
+                  "email": "alice@example.com",
+                  "name": "Alice Johnson",
+                  "status": "going",
+                  "created": "2026-03-15T10:00:00Z",
+                  "updated": "2026-03-20T14:30:00Z"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "onair.guest.added": {
+      "post": {
+        "summary": "Guests added to event",
+        "description": "One or more guests have been added to an On-Air event.\n\n**Event name:** `onair.guest.added`\n\n**Required scope:** `onair:read`\n",
+        "operationId": "onair.guest.added",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "The event type.",
+                    "enum": [
+                      "onair.guest.added"
+                    ]
+                  },
+                  "event": {
+                    "$ref": "#/components/schemas/OnAirEvent"
+                  },
+                  "guests": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/OnAirGuest"
+                    },
+                    "description": "The guests that were added."
+                  }
+                }
+              },
+              "example": {
+                "type": "onair.guest.added",
+                "event": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-01T14:00:00Z",
+                  "end": "2026-04-01T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": []
+                },
+                "guests": [
+                  {
+                    "id": "gst_xyz789",
+                    "eventId": "evt_abc123",
+                    "email": "alice@example.com",
+                    "name": "Alice Johnson",
+                    "status": "invited",
+                    "created": "2026-03-15T10:00:00Z",
+                    "updated": "2026-03-15T10:00:00Z"
+                  },
+                  {
+                    "id": "gst_xyz790",
+                    "eventId": "evt_abc123",
+                    "email": "bob@example.com",
+                    "name": "Bob Williams",
+                    "status": "invited",
+                    "created": "2026-03-15T10:00:00Z",
+                    "updated": "2026-03-15T10:00:00Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    },
+    "magicast.created": {
+      "post": {
+        "summary": "Magicast created",
+        "description": "A magicast has been created and is ready.\n\n**Event name:** `magicast.created`\n\n**Required scope:** `magicast:read`\n",
+        "operationId": "magicast.created",
+        "tags": [
+          "events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Magicast"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to acknowledge receipt of the event"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WebhookSubscriptionFilter": {
+        "type": "object",
+        "description": "Event-specific filter to limit webhook notifications. Different properties apply to different events.",
+        "properties": {
+          "lobbyId": {
+            "type": "string",
+            "description": "For `lobby.booked`: restrict to bookings for the specified lobby."
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "For `chat.message.reaction`: restrict to the specified reaction codes (e.g. 'thumbs_up', 'heart')."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "For On-Air events (`onair.event.*`, `onair.guest.*`): restrict to the specified event."
+          },
+          "status": {
+            "type": "string",
+            "description": "For `onair.guest.rsvp`: restrict to the specified RSVP status.",
+            "enum": [
+              "invited",
+              "going",
+              "maybe",
+              "notGoing"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "nullable": true
+      },
+      "WebhookSubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 255,
+            "description": "Destination URL for webhook deliveries. HTTPS is required outside local environments."
+          },
+          "event": {
+            "type": "string",
+            "description": "Event to subscribe to.",
+            "enum": [
+              "chat.message.dm",
+              "chat.message.channel",
+              "chat.message.reaction",
+              "recording.saved",
+              "transcript.started",
+              "transcript.saved",
+              "lobby.booked",
+              "user.status.update",
+              "onair.event.created",
+              "onair.event.updated",
+              "onair.event.canceled",
+              "onair.guest.rsvp",
+              "onair.guest.added"
+            ]
+          },
+          "filter": {
+            "$ref": "#/components/schemas/WebhookSubscriptionFilter"
+          }
+        },
+        "required": [
+          "url",
+          "event"
+        ]
+      },
+      "Webhook": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the webhook subscription."
+          },
+          "event": {
+            "type": "string",
+            "description": "Subscribed event name.",
+            "enum": [
+              "chat.message.dm",
+              "chat.message.channel",
+              "recording.saved",
+              "transcript.saved",
+              "lobby.booked",
+              "onair.event.created",
+              "onair.event.updated",
+              "onair.event.canceled",
+              "onair.guest.rsvp",
+              "onair.guest.added"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Destination URL for webhook deliveries."
+          },
+          "filter": {
+            "$ref": "#/components/schemas/WebhookSubscriptionFilter",
+            "description": "Event-specific filter applied to the subscription."
+          }
+        },
+        "required": [
+          "id",
+          "event",
+          "url"
+        ]
+      },
+      "WebhookUnsubscribeRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the webhook subscription to remove."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "TaggedUUID": {
+        "type": "string",
+        "pattern": "^[BUVGMDPC]-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "description": "A UUID prefixed by a tag identifying the specific type of object"
+      },
+      "ChatItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID identifying this item"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "photo",
+              "blob"
+            ],
+            "description": "Type of item:\n\n- **photo**: Images with inline preview and thumbnail\n  - image/jpeg, image/png, image/gif, image/webp\n\n- **blob**: Any other file type (download only, no preview)\n  - application/octet-stream\n"
+          },
+          "mime": {
+            "type": "string",
+            "description": "MIME type of the file (e.g., \"application/octet-stream\").\nMay be omitted for photo items where the type is inferred from the image format.\n"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the item was created"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the item (typically the filename)."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the uploaded item."
+          },
+          "thumbnail": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for a thumbnail of the uploaded item (photo type only).\nThis may be equal to the item's main URL if it is suitable to use as a thumbnail.\n"
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the item in bytes"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Width in pixels (images only)"
+          },
+          "height": {
+            "type": "integer",
+            "description": "Height in pixels (images only)"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "created",
+          "name",
+          "url"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The User ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the user's profile image"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the user (requires `user:read.email` scope)"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Whether the user is an admin of the Roam"
+          },
+          "jobTitle": {
+            "type": "string",
+            "description": "User's job title"
+          },
+          "location": {
+            "type": "string",
+            "description": "User's location"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "checkedIn",
+              "checkedOut"
+            ],
+            "description": "User's current presence status. Only included when `expand=status` is requested and the `user:read.status` scope is granted."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Reaction": {
+        "type": "object",
+        "description": "A reaction added to a chat message",
+        "properties": {
+          "chat": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The chat containing the message that was reacted to."
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Timestamp of the message that was reacted to."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the reaction that was added (e.g. \"thumbs_up\", \"heart\")."
+          },
+          "user": {
+            "$ref": "#/components/schemas/User",
+            "description": "The user who added the reaction."
+          }
+        },
+        "required": [
+          "chat",
+          "timestamp",
+          "name",
+          "user"
+        ]
+      },
+      "ChatMessage": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "message"
+            ],
+            "description": "Message type identifier"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "block",
+              "voice",
+              "poll"
+            ],
+            "description": "Type of message content"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The message sender's Address ID"
+          },
+          "chat": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "ID of the chat in which the message was sent"
+          },
+          "threadTimestamp": {
+            "type": "integer",
+            "description": "Key of the message that this is a reply to. Omitted if this is not a reply."
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Key of the message within a chat, as Unix microseconds"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text of the message, formatted as github-flavored markdown"
+          },
+          "items": {
+            "type": "array",
+            "description": "Items attached to this message",
+            "items": {
+              "$ref": "#/components/schemas/ChatItem"
+            }
+          },
+          "blocks": {
+            "type": "array",
+            "description": "Block Kit blocks, present when contentType is `block`. See the [Block Kit guide](/docs/guides/block-kit).",
+            "items": {
+              "type": "object"
+            }
+          },
+          "color": {
+            "type": "string",
+            "description": "Color strip on the message. One of: `good`, `warning`, `danger`, or a hex color like `#5B3FD9`. Present only on Block Kit messages."
+          },
+          "poll": {
+            "type": "object",
+            "description": "Poll content, present when contentType is `poll`.",
+            "properties": {
+              "question": {
+                "type": "string",
+                "description": "The poll question."
+              },
+              "options": {
+                "type": "array",
+                "description": "The poll answer options.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique option identifier."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Option display text."
+                    }
+                  }
+                }
+              },
+              "allowMultipleAnswers": {
+                "type": "boolean",
+                "description": "Whether voters can select multiple options."
+              },
+              "closesAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the poll closes (RFC-3339). Omitted if no close time is set."
+              }
+            }
+          },
+          "replyTimestamp": {
+            "type": "integer",
+            "description": "Key of the message that this is a reply to. This applies only in DM chats which lack real threads."
+          },
+          "reactions": {
+            "type": "array",
+            "description": "Reactions on this message",
+            "items": {
+              "$ref": "#/components/schemas/Reaction"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "contentType",
+          "sender",
+          "chat",
+          "timestamp"
+        ]
+      },
+      "RecordingParticipant": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the participant"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Primary email address of the participant (if available)"
+          },
+          "user": {
+            "type": "string",
+            "description": "Unique Roam user identifier"
+          }
+        },
+        "required": [
+          "name",
+          "user"
+        ]
+      },
+      "Recording": {
+        "type": "object",
+        "properties": {
+          "recordingId": {
+            "type": "string",
+            "description": "Unique identifier for the recording"
+          },
+          "host": {
+            "$ref": "#/components/schemas/RecordingParticipant",
+            "description": "Host (meeting organizer, if available)"
+          },
+          "location": {
+            "type": "string",
+            "description": "Geographic region where the recording took place / storage region"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 start time of the recording"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 end time of the recording"
+          },
+          "videoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Direct download URL for the video (if enabled)"
+          },
+          "transcriptId": {
+            "type": "string",
+            "description": "Identifier for the associated transcript (if available)"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordingParticipant"
+            },
+            "description": "Participants present in the recording"
+          }
+        },
+        "required": [
+          "recordingId",
+          "location",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "ConversationParticipant": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "unconfirmedEmail": {
+            "type": "string",
+            "description": "Self-reported email address provided by a guest participant. Not verified — the guest was not logged in."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "member",
+              "guest"
+            ],
+            "description": "Whether the participant is a workspace member or a guest"
+          },
+          "user": {
+            "$ref": "#/components/schemas/TaggedUUID"
+          }
+        }
+      },
+      "TranscriptCue": {
+        "type": "object",
+        "properties": {
+          "speaker": {
+            "type": "string",
+            "description": "Name of the person speaking"
+          },
+          "text": {
+            "type": "string",
+            "description": "The transcribed text of what was said."
+          },
+          "startOffset": {
+            "type": "integer",
+            "description": "Milliseconds from the start of the transcript when the utterance began."
+          },
+          "endOffset": {
+            "type": "integer",
+            "description": "Milliseconds from the start of the transcript when the utterance ended."
+          }
+        },
+        "required": [
+          "speaker",
+          "text",
+          "startOffset",
+          "endOffset"
+        ]
+      },
+      "TranscriptActionItem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Short name for the action item."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional context or details about the action item."
+          },
+          "assignee": {
+            "type": "string",
+            "description": "Person responsible for the action item, if known."
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "Transcript": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the transcript"
+          },
+          "meetingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the meeting.\nA meeting may encompass 0 or multiple transcripts.\n"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript began"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript stopped"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationParticipant"
+            }
+          },
+          "cues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptCue"
+            }
+          },
+          "eventName": {
+            "type": "string",
+            "description": "Name of meeting event associated with the transcript (optional)"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Magic Minutes Summary"
+          },
+          "actionItems": {
+            "type": "array",
+            "description": "Action items identified during the meeting.",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptActionItem"
+            }
+          },
+          "meetingLinkId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Meeting link identifier, if this transcript is from a scheduled calendar event"
+          },
+          "invitees": {
+            "type": "array",
+            "description": "Email addresses of calendar event invitees",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        }
+      },
+      "LobbyConfiguration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the lobby configuration"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe slug for the lobby"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Human-readable name of the lobby"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the lobby is currently active"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public URL for the lobby"
+          },
+          "handle": {
+            "type": "string",
+            "description": "The handle extracted from the lobby URL, if available"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "displayName",
+          "active",
+          "url"
+        ]
+      },
+      "LobbyBookingHost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the host"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the host"
+          },
+          "isOrganizer": {
+            "type": "boolean",
+            "description": "Whether this host is the organizer"
+          }
+        },
+        "required": [
+          "email",
+          "isOrganizer"
+        ]
+      },
+      "LobbyBookingInvitee": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the invitee"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the invitee"
+          },
+          "status": {
+            "type": "string",
+            "description": "Invitee's RSVP or booking status"
+          },
+          "isBooker": {
+            "type": "boolean",
+            "description": "Whether this invitee created the booking"
+          }
+        },
+        "required": [
+          "email",
+          "status"
+        ]
+      },
+      "LobbyBooking": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique booking identifier"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start time in RFC3339"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End time in RFC3339"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the booking"
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone of the booking times"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes provided by the booker"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation time"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LobbyBookingHost"
+            }
+          },
+          "invitees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LobbyBookingInvitee"
+            }
+          },
+          "meetingLink": {
+            "type": "string",
+            "format": "uri",
+            "description": "Meeting link URL, used to join the meeting"
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end",
+          "status"
+        ]
+      },
+      "LobbyBooked": {
+        "type": "object",
+        "properties": {
+          "lobby": {
+            "$ref": "#/components/schemas/LobbyConfiguration"
+          },
+          "booking": {
+            "$ref": "#/components/schemas/LobbyBooking"
+          }
+        },
+        "required": [
+          "lobby",
+          "booking"
+        ]
+      },
+      "OnAirHost": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the host."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the host."
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the host's profile image."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "OnAirEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the event."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the event."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event."
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly slug for the event."
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start time of the event (RFC 3339)."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End time of the event (RFC 3339)."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone identifier (e.g. `America/New_York`)."
+          },
+          "eventPageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public URL of the event page."
+          },
+          "joinLinkUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for joining the event."
+          },
+          "enableSEO": {
+            "type": "boolean",
+            "description": "Whether the event page is indexed by search engines."
+          },
+          "autoAdmit": {
+            "type": "boolean",
+            "description": "Whether guests are automatically admitted when they join."
+          },
+          "disableRSVP": {
+            "type": "boolean",
+            "description": "Whether RSVPs are disabled for this event."
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OnAirHost"
+            },
+            "description": "List of hosts for the event."
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "start",
+          "end",
+          "timeZone",
+          "eventPageUrl",
+          "enableSEO",
+          "autoAdmit",
+          "disableRSVP",
+          "hosts"
+        ]
+      },
+      "OnAirGuest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the guest."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Identifier of the event this guest belongs to."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the guest."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the guest."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number of the guest."
+          },
+          "status": {
+            "type": "string",
+            "description": "RSVP status of the guest.",
+            "enum": [
+              "invited",
+              "going",
+              "maybe",
+              "notGoing"
+            ]
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the guest was added (RFC 3339)."
+          },
+          "updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the guest record was last updated (RFC 3339)."
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "status"
+        ]
+      },
+      "Magicast": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the magicast"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the magicast"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp when the magicast was created (UTC)"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Address ID of the magicast owner"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the magicast cover image thumbnail"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt"
+        ]
+      }
+    },
+    "responses": {
+      "Error": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "A description of the error."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

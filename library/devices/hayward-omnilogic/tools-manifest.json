@@ -1,0 +1,293 @@
+{
+  "api_name": "hayward-omnilogic",
+  "base_url": "https://www.haywardomnilogic.com",
+  "description": "Drive the Hayward OmniLogic pool/spa cloud API: telemetry, control, schedule diffs, multi-site sweeps, and historical chemistry from a local store.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "alarms_list",
+      "description": "List active alarms for a site or every site. Optional: msp_system_id. Returns array of Alarm.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "msp_system_id",
+          "type": "int",
+          "location": "query",
+          "description": "Site MspSystemID. Omit to sweep every site."
+        }
+      ]
+    },
+    {
+      "name": "chemistry_get",
+      "description": "Current chemistry snapshot: pH, ORP, salt, water temp, with safe-range verdict. Optional: msp_system_id. Returns the new Chemistry.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "msp_system_id",
+          "type": "int",
+          "location": "query",
+          "description": "Site MspSystemID. Omit to use the only registered site."
+        }
+      ]
+    },
+    {
+      "name": "chlorinator_set_params",
+      "description": "Set chlorinator config (op mode, timed percent, ORP timeout, etc). Defaults to current MSP values for any flag you don't pass. Optional: op_mode, timed_pct, cell_type (plus 2 more). Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "op_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Operating mode: timed | orp-autosense | disabled."
+        },
+        {
+          "name": "timed_pct",
+          "type": "int",
+          "location": "query",
+          "description": "Timed-mode chlorination percent (0-100)."
+        },
+        {
+          "name": "cell_type",
+          "type": "string",
+          "location": "query",
+          "description": "Cell type: T-3 | T-5 | T-9 | T-15. Defaults to the value in MSP config."
+        },
+        {
+          "name": "sc_timeout",
+          "type": "int",
+          "location": "query",
+          "description": "Superchlorinate timeout in hours (1-96)."
+        },
+        {
+          "name": "orp_timeout",
+          "type": "int",
+          "location": "query",
+          "description": "ORP timeout in hours (1-96)."
+        }
+      ]
+    },
+    {
+      "name": "config_get",
+      "description": "Fetch the equipment inventory for one site — pumps, heaters, chlorinator, lights, valves, relays, sensors. Optional: msp_system_id. Returns the new MspConfig.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "msp_system_id",
+          "type": "int",
+          "location": "query",
+          "description": "Site MspSystemID. Omit to use the only registered site, or the first site if multiple exist."
+        }
+      ]
+    },
+    {
+      "name": "equipment_off",
+      "description": "Turn an equipment item off. Required: name. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Equipment name. Use 'config get' to list them."
+        }
+      ]
+    },
+    {
+      "name": "equipment_on",
+      "description": "Turn an equipment item on. Use --for to run for a bounded duration; otherwise stays on until you turn it off. Required: name. Optional: for. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Equipment name (relay, valve, accessory pump, light). Use 'config get' to list them."
+        },
+        {
+          "name": "for",
+          "type": "string",
+          "location": "query",
+          "description": "Duration to run, e.g. 1h, 30m, 2h30m. Omit to run indefinitely."
+        }
+      ]
+    },
+    {
+      "name": "heater_disable",
+      "description": "Turn a heater off. Required: heater_name. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "heater_name",
+          "type": "string",
+          "location": "path",
+          "description": "Heater name. Use 'config get' to list them."
+        }
+      ]
+    },
+    {
+      "name": "heater_enable",
+      "description": "Turn a heater on. Heater stays on until set-temp is reached or you disable it. Required: heater_name. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "heater_name",
+          "type": "string",
+          "location": "path",
+          "description": "Heater name from the MSP config (e.g. 'Pool Heater', 'Spa Heater'). Use 'config get' to list them."
+        }
+      ]
+    },
+    {
+      "name": "heater_set_temp",
+      "description": "Set a heater's target setpoint in degrees Fahrenheit. Required: heater_name, temp. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "heater_name",
+          "type": "string",
+          "location": "path",
+          "description": "Heater name. Use 'config get' to list them."
+        },
+        {
+          "name": "temp",
+          "type": "int",
+          "location": "query",
+          "description": "Target temperature in °F. Must fall within the heater's Min-Settable / Max-Settable range from MSP config.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "light_list_shows",
+      "description": "List every available ColorLogic show with its numeric ID and human-readable name. Returns array of LightShow.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": []
+    },
+    {
+      "name": "light_show",
+      "description": "Activate a ColorLogic show. V2 lights also accept --speed and --brightness. Required: show. Optional: light_name, speed, brightness. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "show",
+          "type": "string",
+          "location": "path",
+          "description": "Show name (case-insensitive) or numeric ID. Use 'light list-shows' to enumerate.",
+          "required": true
+        },
+        {
+          "name": "light_name",
+          "type": "string",
+          "location": "query",
+          "description": "Light name. Omit to apply to all ColorLogic lights at the site."
+        },
+        {
+          "name": "speed",
+          "type": "int",
+          "location": "query",
+          "description": "(V2 only) Show speed 0-8."
+        },
+        {
+          "name": "brightness",
+          "type": "int",
+          "location": "query",
+          "description": "(V2 only) Brightness 0-100."
+        }
+      ]
+    },
+    {
+      "name": "pump_set_speed",
+      "description": "Set a pump's running speed in RPM or percent (range comes from the pump's MSP config). Required: pump_name, speed. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "pump_name",
+          "type": "string",
+          "location": "path",
+          "description": "Pump name. Use 'config get' to list them."
+        },
+        {
+          "name": "speed",
+          "type": "int",
+          "location": "query",
+          "description": "Speed value (RPM for high-speed pumps, percent for VSPs).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "List every site registered under your Hayward account. Returns array of Site.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": []
+    },
+    {
+      "name": "spillover_set",
+      "description": "Set spillover speed and optional run duration. Required: speed. Optional: for. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "speed",
+          "type": "int",
+          "location": "query",
+          "description": "Spillover speed percent.",
+          "required": true
+        },
+        {
+          "name": "for",
+          "type": "string",
+          "location": "query",
+          "description": "Duration to run, e.g. 2h. Omit to run indefinitely."
+        }
+      ]
+    },
+    {
+      "name": "superchlor_off",
+      "description": "Stop a running superchlorination cycle early on the salt chlorinator. Normal chlorinator setpoint resumes once the boost is canceled. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": []
+    },
+    {
+      "name": "superchlor_on",
+      "description": "Start superchlorination on the body-of-water's salt chlorinator. Runs until the configured SCTimeout expires or you turn it off. Returns the new CommandResult.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": []
+    },
+    {
+      "name": "telemetry_get",
+      "description": "Snapshot live state: chemistry (pH/ORP/salt), water and air temperature, pump speeds, heater enable, light state, alarm flags. Append-only-stored in telemetry_samples. Optional: msp_system_id. Returns the new Telemetry.",
+      "method": "POST",
+      "path": "/HAAPI/HomeAutomation/API.ashx",
+      "params": [
+        {
+          "name": "msp_system_id",
+          "type": "int",
+          "location": "query",
+          "description": "Site MspSystemID. Omit to use the only registered site."
+        }
+      ]
+    }
+  ]
+}

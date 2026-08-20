@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -46,8 +47,16 @@ func TestCopyUpstreamSkill_Present(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading destination: %v", err)
 	}
-	if string(got) != string(upstream) {
-		t.Errorf("destination content does not match upstream byte-for-byte\nwant: %q\ngot:  %q", upstream, got)
+	sourcePath := filepath.ToSlash(filepath.Join(entryPath, "SKILL.md"))
+	want := injectGeneratedHeader(upstream, sourcePath)
+	if string(got) != string(want) {
+		t.Errorf("destination should be upstream with generated-header injected\nwant: %q\ngot:  %q", want, got)
+	}
+	if !bytes.Contains(got, []byte("GENERATED FILE")) {
+		t.Errorf("destination missing generated-header warning, got:\n%s", got)
+	}
+	if !bytes.Contains(got, []byte(sourcePath)) {
+		t.Errorf("destination missing concrete source path %q, got:\n%s", sourcePath, got)
 	}
 }
 
@@ -110,8 +119,9 @@ func TestCopyUpstreamSkill_OverwritesExisting(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(got) != string(upstream) {
-		t.Errorf("upstream should overwrite stale content\nwant: %q\ngot:  %q", upstream, got)
+	want := injectGeneratedHeader(upstream, filepath.ToSlash(filepath.Join(entryPath, "SKILL.md")))
+	if string(got) != string(want) {
+		t.Errorf("upstream (with header injected) should overwrite stale content\nwant: %q\ngot:  %q", want, got)
 	}
 }
 
@@ -220,8 +230,9 @@ func TestIntegration_CopiesUpstreamVerbatim(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading copied skill: %v", err)
 	}
-	if string(got) != upstreamContent {
-		t.Errorf("upstream skill not copied byte-for-byte\nwant: %q\ngot:  %q", upstreamContent, got)
+	want := string(injectGeneratedHeader([]byte(upstreamContent), "library/commerce/yahoo-finance/SKILL.md"))
+	if string(got) != want {
+		t.Errorf("mirrored skill should be upstream with generated-header injected\nwant: %q\ngot:  %q", want, got)
 	}
 	if !strings.Contains(string(out), "Mirrored 1 skill") {
 		t.Errorf("expected mirror summary in output, got:\n%s", out)
@@ -252,8 +263,9 @@ func TestIntegration_DiscoversNewCLIWithoutRegistry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading copied skill: %v", err)
 	}
-	if string(got) != upstreamContent {
-		t.Errorf("new CLI skill not copied byte-for-byte\nwant: %q\ngot:  %q", upstreamContent, got)
+	want := string(injectGeneratedHeader([]byte(upstreamContent), "library/marketing/customer-io/SKILL.md"))
+	if string(got) != want {
+		t.Errorf("new CLI mirror should be upstream with generated-header injected\nwant: %q\ngot:  %q", want, got)
 	}
 }
 
@@ -316,8 +328,9 @@ func TestIntegration_UpstreamOverwritesStaleMirror(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(got) != upstreamContent {
-		t.Errorf("upstream should overwrite stale mirror\nwant: %q\ngot:  %q", upstreamContent, got)
+	want := string(injectGeneratedHeader([]byte(upstreamContent), "library/commerce/api/SKILL.md"))
+	if string(got) != want {
+		t.Errorf("upstream (with header injected) should overwrite stale mirror\nwant: %q\ngot:  %q", want, got)
 	}
 }
 
@@ -358,11 +371,259 @@ func TestPruneOrphanSkills(t *testing.T) {
 	}
 }
 
+func TestInjectGeneratedHeader_WithFrontmatter(t *testing.T) {
+	src := []byte("---\nname: pp-thing\ndescription: \"hi\"\n---\n\n# Body\n\nNarrative.\n")
+	got := injectGeneratedHeader(src, "library/productivity/thing/SKILL.md")
+	gotStr := string(got)
+
+	frontmatter := "---\nname: pp-thing\ndescription: \"hi\"\n---\n"
+	if !strings.HasPrefix(gotStr, frontmatter) {
+		t.Errorf("frontmatter must be the first bytes of the file for skill parsers; got prefix: %q", gotStr[:len(frontmatter)])
+	}
+	headerStart := strings.Index(gotStr, "<!-- GENERATED FILE")
+	if headerStart != len(frontmatter) {
+		t.Errorf("header should be injected immediately after frontmatter close, got headerStart=%d, want %d", headerStart, len(frontmatter))
+	}
+	if !strings.Contains(gotStr, "# Body\n\nNarrative.\n") {
+		t.Errorf("body content lost, got:\n%s", gotStr)
+	}
+	if !strings.Contains(gotStr, "library/productivity/thing/SKILL.md") {
+		t.Errorf("header should include the concrete source path, got:\n%s", gotStr)
+	}
+	if strings.Contains(gotStr, "library/<category>/<slug>/SKILL.md") {
+		t.Errorf("header should not include the placeholder path, got:\n%s", gotStr)
+	}
+}
+
+// TestInjectGeneratedHeader_NoAgentConfigLiteral guards against reintroducing a
+// literal agent-config filename into the generated header. Hermes' skills guard
+// (and similar scanners) flag the substrings AGENTS.md, CLAUDE.md, .cursorrules,
+// and .clinerules as CRITICAL "persistence" findings, which hard-block install of
+// every mirrored cli-skills/pp-*/SKILL.md. The header must point at the docs
+// without naming the file. See docs/plans/2026-06-01-001-fix-hermes-skills-guard-false-positive-plan.md.
+func TestInjectGeneratedHeader_NoAgentConfigLiteral(t *testing.T) {
+	src := []byte("---\nname: pp-thing\ndescription: \"hi\"\n---\n\n# Body\n")
+	got := string(injectGeneratedHeader(src, "library/productivity/thing/SKILL.md"))
+	for _, literal := range []string{"AGENTS.md", "CLAUDE.md", ".cursorrules", ".clinerules"} {
+		if strings.Contains(got, literal) {
+			t.Errorf("generated header must not contain the scanner-tripping literal %q (flags every mirror DANGEROUS in Hermes), got:\n%s", literal, got)
+		}
+	}
+}
+
+func TestInjectGeneratedHeader_NoFrontmatter(t *testing.T) {
+	src := []byte("# Plain skill\n\nNo frontmatter at all.\n")
+	got := injectGeneratedHeader(src, "library/productivity/plain/SKILL.md")
+	gotStr := string(got)
+
+	if !strings.HasPrefix(gotStr, "<!-- GENERATED FILE") {
+		t.Errorf("with no frontmatter, header should prepend the file, got prefix: %q", gotStr[:50])
+	}
+	if !strings.HasSuffix(gotStr, string(src)) {
+		t.Errorf("original body should be preserved after the header, got:\n%s", gotStr)
+	}
+}
+
+func TestInjectGeneratedHeader_Idempotent(t *testing.T) {
+	src := []byte("---\nname: pp-thing\n---\n\n# Body\n")
+	once := injectGeneratedHeader(src, "library/productivity/thing/SKILL.md")
+	twice := injectGeneratedHeader(once, "library/productivity/thing/SKILL.md")
+	if string(once) != string(twice) {
+		t.Errorf("injectGeneratedHeader should be idempotent\nonce:  %q\ntwice: %q", once, twice)
+	}
+}
+
+func TestInjectGeneratedHeader_IdempotentWithDifferentSourcePathLength(t *testing.T) {
+	src := []byte("---\nname: pp-thing\n---\n\n# Body\n")
+	once := injectGeneratedHeader(src, "library/productivity/a-very-long-generated-skill-source-path/SKILL.md")
+	twice := injectGeneratedHeader(once, "x/SKILL.md")
+	if string(once) != string(twice) {
+		t.Errorf("injectGeneratedHeader should not depend on formatted source path length\nonce:  %q\ntwice: %q", once, twice)
+	}
+}
+
+func TestInjectGeneratedHeader_WindowsLineEndings(t *testing.T) {
+	src := []byte("---\r\nname: pp-thing\r\n---\r\n\r\n# Body\r\n")
+	got := injectGeneratedHeader(src, "library/productivity/thing/SKILL.md")
+	gotStr := string(got)
+	headerStart := strings.Index(gotStr, "<!-- GENERATED FILE")
+	if headerStart < 0 {
+		t.Fatalf("header not injected; got:\n%s", gotStr)
+	}
+	// Header must come AFTER the closing fence so frontmatter parsers
+	// don't see it as part of the YAML block.
+	closeFenceIdx := strings.Index(gotStr, "---\r\n\r\n")
+	if closeFenceIdx < 0 {
+		// Fence-with-trailing-blank pattern may have been split; fall back
+		// to checking the second `---\r\n` after the opener.
+		closeFenceIdx = strings.Index(gotStr[len("---\r\n"):], "---\r\n") + len("---\r\n")
+	}
+	if headerStart <= closeFenceIdx {
+		t.Errorf("header injected before frontmatter close; headerStart=%d closeFenceIdx=%d", headerStart, closeFenceIdx)
+	}
+}
+
+func TestFrontmatterEnd(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want int
+	}{
+		{"unix frontmatter", "---\nname: x\n---\nbody", len("---\nname: x\n---\n")},
+		{"windows frontmatter", "---\r\nname: x\r\n---\r\nbody", len("---\r\nname: x\r\n---\r\n")},
+		{"no frontmatter", "# Plain\n", 0},
+		{"missing close", "---\nname: x\nno close ever", 0},
+		{"three dashes mid-line is not fence", "---\nname: x\nfoo ---\n---\nbody", len("---\nname: x\nfoo ---\n---\n")},
+		{"empty input", "", 0},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := frontmatterEnd([]byte(tc.in))
+			if got != tc.want {
+				t.Errorf("frontmatterEnd(%q) = %d, want %d", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestPruneOrphanSkills_DirMissing(t *testing.T) {
 	// Fresh checkout where cli-skills/ doesn't exist yet should not error.
 	missing := filepath.Join(t.TempDir(), "does-not-exist")
 	removed := pruneOrphanSkills(missing, map[string]struct{}{})
 	if removed != 0 {
 		t.Fatalf("removed = %d, want 0 for missing dir", removed)
+	}
+}
+
+func TestValidateLibrarySkills(t *testing.T) {
+	root := t.TempDir()
+
+	// Build a fixture with three entries: good, missing, empty-whitespace.
+	goodDir := filepath.Join(root, "library", "good-cat", "good")
+	if err := os.MkdirAll(goodDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(goodDir, "SKILL.md"), []byte("---\nname: pp-good\n---\n\n# Good skill\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	missingDir := filepath.Join(root, "library", "missing-cat", "missing")
+	if err := os.MkdirAll(missingDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	// no SKILL.md written
+
+	emptyDir := filepath.Join(root, "library", "empty-cat", "empty")
+	if err := os.MkdirAll(emptyDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(emptyDir, "SKILL.md"), []byte("   \n\t\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	skills := []LibrarySkill{
+		{Name: "good", Path: goodDir},
+		{Name: "missing", Path: missingDir},
+		{Name: "empty", Path: emptyDir},
+	}
+
+	errs := validateLibrarySkills(skills)
+	if len(errs) != 2 {
+		t.Fatalf("expected 2 errors (missing + empty), got %d: %v", len(errs), errs)
+	}
+
+	joined := strings.Join(errs, "\n")
+	for _, want := range []string{
+		"missing: SKILL.md missing",
+		"empty: SKILL.md is empty",
+	} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("missing substring %q in validateLibrarySkills output:\n%s", want, joined)
+		}
+	}
+	// The "good" entry must not appear in the error report.
+	if strings.Contains(joined, "good:") {
+		t.Errorf("valid entry should not be reported as failing:\n%s", joined)
+	}
+}
+
+func TestValidateLibrarySkills_AllValid(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "library", "cat", "ok")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# Real content\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if errs := validateLibrarySkills([]LibrarySkill{{Name: "ok", Path: dir}}); len(errs) != 0 {
+		t.Fatalf("expected no errors for valid fixture, got: %v", errs)
+	}
+}
+
+func TestValidateLibrarySkills_EmptyInput(t *testing.T) {
+	if errs := validateLibrarySkills(nil); len(errs) != 0 {
+		t.Fatalf("nil input should produce no errors, got: %v", errs)
+	}
+}
+
+func TestIntegration_ValidateMode_PassesOnHappyFixture(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	upstreamDir := writeManifest(t, root, "commerce", "happy", "happy")
+	if err := os.WriteFile(filepath.Join(upstreamDir, "SKILL.md"), []byte("# Real content\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command(bin, "--validate")
+	cmd.Dir = root
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("--validate should exit 0 on happy fixture: %v\n%s", err, out)
+	}
+	if !strings.Contains(string(out), "validation passed") {
+		t.Errorf("expected 'validation passed' in output, got:\n%s", out)
+	}
+	// No cli-skills/ directory should be created.
+	if _, err := os.Stat(filepath.Join(root, "cli-skills")); !os.IsNotExist(err) {
+		t.Errorf("--validate must not create cli-skills/, stat err = %v", err)
+	}
+}
+
+func TestIntegration_ValidateMode_FailsOnMissingSkillAndDoesNotWrite(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	// One valid entry, one entry with no SKILL.md.
+	goodDir := writeManifest(t, root, "commerce", "good", "good")
+	if err := os.WriteFile(filepath.Join(goodDir, "SKILL.md"), []byte("# Good\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	writeManifest(t, root, "commerce", "broken", "broken") // no SKILL.md
+
+	cmd := exec.Command(bin, "--validate")
+	cmd.Dir = root
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("--validate should exit non-zero when an entry is missing SKILL.md; output:\n%s", out)
+	}
+	outStr := string(out)
+	if !strings.Contains(outStr, "broken") {
+		t.Errorf("error output should name the broken slug, got:\n%s", outStr)
+	}
+	if !strings.Contains(outStr, "SKILL.md missing") {
+		t.Errorf("expected 'SKILL.md missing' diagnostic, got:\n%s", outStr)
+	}
+	// Crucially: no cli-skills/ writes happened despite the valid entry being
+	// processable. validate-mode short-circuits before any mirror writes.
+	if _, err := os.Stat(filepath.Join(root, "cli-skills")); !os.IsNotExist(err) {
+		t.Errorf("--validate must not write cli-skills/ even when partial entries are valid, stat err = %v", err)
 	}
 }

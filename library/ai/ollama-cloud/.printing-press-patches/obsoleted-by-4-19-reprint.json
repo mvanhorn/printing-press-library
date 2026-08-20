@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "obsoleted-by-4.19-reprint",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260524-003533",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Prior generated-file patches from the initial 4.2.0 print are no longer needed — the 4.19.0 machine fixes them natively.",
+  "reason": "PR #805 also flagged a non-deterministic cache key, a rate-limiter Wait() TOCTOU, discarded per-request context deadlines, and a silent token-refresh no-op — all in generator-owned files. The 4.19.0 reprint regenerates those files with the fixes built in (cacheKey is fully reworked, the client API is context-first, AdaptiveLimiter.Wait reserves its slot under the lock, refresh paths error explicitly), so no hand-edit to generated code remains for them.",
+  "files": [],
+  "validated_outcome": "Verified by inspection of regenerated internal/client/client.go and internal/cliutil/ratelimit.go"
+}

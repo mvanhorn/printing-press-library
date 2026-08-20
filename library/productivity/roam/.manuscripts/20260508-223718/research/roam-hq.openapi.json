@@ -1,0 +1,616 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Roam HQ API",
+    "description": "The Roam HQ API is your programmatic interface to your all-in-one Virtual Office.\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n\n**Other APIs:**\n- [On-Air API](https://developer.ro.am/docs/onair-api/on-air-api) (events, guests, attendance) — [onair.json](https://developer.ro.am/onair.json)\n- [Alpha API](https://developer.ro.am/docs/chat-api/roam-hq-chat-api-alpha) (chat, users, meetings) — [chat.json](https://developer.ro.am/chat.json)\n- [SCIM 2.0 API](https://developer.ro.am/docs/scim/roam-hq-scim-2-0-api) (user provisioning) — [scim.json](https://developer.ro.am/scim.json)\n- [Webhooks API](https://developer.ro.am/docs/webhooks/roam-hq-events-api-alpha) (real-time events) — [webhooks.json](https://developer.ro.am/webhooks.json)\n\n## Endpoints Overview\n\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/chat.sendMessage`](/docs/roam-api/send-message) | POST | Send a message to a group as a bot |\n| [`/groups.list`](/docs/roam-api/list-groups) | GET | List all public groups in your Roam |\n| [`/recording.list`](/docs/roam-api/list-recordings) | GET | List meeting recordings with optional date filtering |\n| [`/messageevent.export`](/docs/roam-api/messageevent-export) | POST | Export daily message archives (DMs and group chats) |\n| [`/magicast.list`](/docs/roam-api/list-magicasts) | GET | List magicasts |\n| [`/magicast.info`](/docs/roam-api/get-magicast) | GET | Get a magicast by ID |\n\n## Common Use Cases\n\n### Send Notifications to Groups\nIntegrate external services (CI/CD, monitoring, ticketing) to post alerts into Roam groups.\n- Use [`/groups.list`](/docs/roam-api/list-groups) to let users pick a destination\n- Use [`/chat.sendMessage`](/docs/roam-api/send-message) to post updates\n\n### Compliance & Archival\nExport message events daily for compliance, legal holds, or data warehousing.\n- Use [`/messageevent.export`](/docs/roam-api/messageevent-export) to retrieve daily archives\n\n### Process Recordings\nBuild workflows to archive or transcribe recordings.\n- Use [`/recording.list`](/docs/roam-api/list-recordings) to fetch available recordings\n\n## Authentication\n\nAll requests require a Bearer token. Create an API Key or OAuth app in **Roam Administration > Developer**.\n\n```\nAuthorization: Bearer YOUR_API_KEY\n```\n\n## Base URL\n\n```\nhttps://api.ro.am/v1\n```\n\n---\nHave questions? Contact us via [Roam Support Chat](https://ro.am/support/contact-us) or email [developer@ro.am](mailto:developer@ro.am).\n",
+    "version": "1.0",
+    "termsOfService": "https://ro.am/terms",
+    "contact": {
+      "name": "Developer Support",
+      "email": "developer@ro.am",
+      "url": "https://developer.ro.am"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.ro.am/v1",
+      "description": "Production Server"
+    }
+  ],
+  "externalDocs": {
+    "description": "Roam API Documentation",
+    "url": "https://developer.ro.am/docs/roam-api"
+  },
+  "paths": {
+    "/chat.sendMessage": {
+      "post": {
+        "summary": "Send a Roam message",
+        "description": "Sends the given message to the specified recipients. At this time, we only\nsupport sending to a single group recipient. You can obtain the group ID on the \"Group\nSettings\" page. That means `recipients` will always be a single-element array containing\na single UUIDv4.\n\nThe `sender` JSON object contains three (optional) string fields: `id`, `name`, and\n`imageUrl`. The `id` is an internal name of the bot you wish to send as, `name` is the\nuser-visible bot name (that is seen when viewing groups), and `imageUrl` is the image\nURL of the bot. Generally, you only need to specify `id` and `name` (e.g.\n`datadog` as `id` and `Datadog Alerts` as `name`). If omitted, the ID and\nsender are inferred to be the API client name.\n\n## Message Text Format\n\nAt this time, we do not fully support standard Markdown, but support is forthcoming. To\nindicate a line break, you must use TWO new line characters in the message (e.g.. `\\n\\n`).\n\n**Access:** Organization only.\n\n**Required scope:** `chat:send_message`\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "sendMessage",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "The message to send.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "markdown": {
+                    "type": "boolean",
+                    "description": "Text is markdown by default. If this is set to false, markdown interpretation will be disabled."
+                  },
+                  "sender": {
+                    "$ref": "#/components/schemas/MessageSender"
+                  }
+                },
+                "required": [
+                  "recipients",
+                  "text"
+                ]
+              },
+              "example": {
+                "recipients": [
+                  "757dfe66-37b4-4772-baa5-8c86ec68c176"
+                ],
+                "sender": {
+                  "id": "datadog",
+                  "name": "Datadog"
+                },
+                "text": "Test message"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message successfully sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chatId": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "chatId": "757dfe66-37b4-4772-baa5-8c86ec68c176",
+                  "status": "ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/groups.list": {
+      "get": {
+        "summary": "List groups",
+        "description": "Lists all public, non-archived groups in your home Roam.\n\n**Access:** Organization only.\n\n**Required scope:** `groups:read`\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "listGroups",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Group"
+                  }
+                },
+                "example": [
+                  {
+                    "addressId": "88bebce7-6cbb-4666-96f9-5c02d73e6661",
+                    "roamId": 12345,
+                    "accountId": 67890,
+                    "groupType": "roam",
+                    "name": "All Hands",
+                    "accessMode": "public",
+                    "groupManagement": "groupAdminsOnly",
+                    "enforceThreadedMode": false,
+                    "dateCreated": "2025-01-15T10:00:00Z",
+                    "imageUrl": "https://ro.am/card-images/88bebce7-6cbb-4666-96f9-5c02d73e6661"
+                  },
+                  {
+                    "addressId": "c6040d77-a61c-4834-a939-fe3e687ffd72",
+                    "roamId": 12345,
+                    "accountId": 67890,
+                    "groupType": "group",
+                    "name": "Engineering Team",
+                    "accessMode": "public",
+                    "groupManagement": "allMembers",
+                    "enforceThreadedMode": true,
+                    "dateCreated": "2025-02-20T14:30:00Z",
+                    "imageUrl": "https://ro.am/card-images/c6040d77-a61c-4834-a939-fe3e687ffd72"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recording.list": {
+      "get": {
+        "summary": "List meeting recordings",
+        "description": "Lists all recordings in your home Roam, filtered by date range (after/before).\n\nThe ordering of results depends on the filter specified:\n\n- When no parameters are provided, the most recent recordings are returned,\n  sorted in reverse chronological order. This is equivalent to specifying `before`\n  as NOW and leaving `after` unspecified.\n\n- If `after` is specified, the results are sorted in forward chronological order.\n\nEither dates or datetimes may be specified. Dates are interpreted in UTC.\n\n**Access:** Organization only.\n\n**Required scope:** `recordings:read`\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "listRecordings",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime to begin listing recordings (YYYY-MM-DD or RFC-3339).\nDefaults to \"no filter\".\n"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime until which to list recordings (YYYY-MM-DD or RFC-3339).\nDefaults to \"now\".\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of recordings to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recordings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "recordingId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "A unique identifier for the recording"
+                          },
+                          "location": {
+                            "type": "string",
+                            "description": "Name of the Roam room where the recording took place"
+                          },
+                          "startTime": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Exact time when the recording began"
+                          },
+                          "endTime": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Exact time when the recording stopped"
+                          },
+                          "videoUrl": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "URL where the video file may be downloaded"
+                          }
+                        }
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Returned if there is a subsequent page of recordings."
+                    }
+                  }
+                },
+                "example": {
+                  "recordings": [
+                    {
+                      "recordingId": "9003ec0e-ea7d-41b4-93cf-ef42d730f771",
+                      "location": "Conference Room A",
+                      "startTime": "2026-01-21T14:10:54Z",
+                      "endTime": "2026-01-21T15:12:27Z",
+                      "videoUrl": "https://ro.am/recordings/video/9003ec0e-ea7d-41b4-93cf-ef42d730f771.mp4?pwd=abc123"
+                    },
+                    {
+                      "recordingId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "location": "Huddle Space",
+                      "startTime": "2026-01-21T10:00:00Z",
+                      "endTime": "2026-01-21T10:45:00Z",
+                      "videoUrl": "https://ro.am/recordings/video/a1b2c3d4-e5f6-7890-abcd-ef1234567890.mp4?pwd=def456"
+                    }
+                  ],
+                  "nextCursor": "MjAyNi0wMS0yMVQxMDowMDowMC4wMDBa"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messageevent.export": {
+      "post": {
+        "summary": "Export message events",
+        "description": "Obtain a daily message event export containing DMs and group\nchats within your account.\n\nFor customers with archival enabled (please reach out to a Roam\nArchiTech to get this process started), at the end of every day,\nwe export all message events for a particular day as a JSON Lines file.\nThis file contains all messages sent:\n- by a Roam user who is a member of your organization\n- into a chat containing (at the time of export) at least one Roam user who is a member of your organization\n- by a bot integration that is part of your organization\n\nThis file also contains message edit and deletion events that meet the above criteria.\nWe specifically exclude waves, room invitations, and other non-message content\n(that may appear as chats within the Roam application) from the export.\n\n**Access:** Organization only.\n\n**Required scope:** `admin:compliance:read`\n\n### Message Event Structure\n\nEach line within the file is a JSON object containing the following fields:\n- eventType: a string that is one of “sent”, “edited”, or “deleted”\n- chatId: a UUIDv4 identifier for a particular chat. All messages within the same chat shared the same chatId.\n- threadTimestamp (optional): if part of a thread, the Unix epoch timestamp of the thread’s parent message in numerical format. All messages part of a thread share the same threadTimestamp.\n- timestamp: the Unix epoch timestamp when the message was originally sent in numerical format.\n- messageId: an internal UUIDv4 identifier as a string\n- sender: a “Participant” object that identifiers the message sender\n- contentType: a string that is one of the contentTypes associated with the “MessageContent” object\n- content: a “MessageContent” object that contains the message’s content\n### Participant\n\nA Participant is a JSON object that contains three common fields: “participantType”, “id”, and “displayName”\n- participantType: one of “email”, “bot”, or “occupant”\n- id: a UUID identifier for the participant\n- displayName: the name associated with the account or an empty string if not provided\n\nDepending on the participant type, the object also contains additional fields:\n\nEmail Participant (a human user with a Roam user account)\n- email: the email of the participant\n\nBot Participant (an automated user maintained by the Roam team or created via the Roam API)\n- roamId: the roam ID associated with the integration\n- integrationId: a unique integration ID name provided by the bot creator\n- botCode: a unique identifier\n\n### Message Content\n\nA “MessageContent” object is a JSON object that contains the field “contentType” and,\ndepending on the content type, contains additional fields:\n\n*Text Content* (contentType = “text”)\n- text: the text in plaintext\n- markdownText: the text in Markdown format\n- attachments: A list of attachment objects \n\n*Emoji Content* (contentType = “emoji”)\n- text: text representation of the emoji\n- colons: emoji in :emoji: format\n- fileUrl: an optional field containing the URL to a custom emoji image\n\n*Item Content* (contentType = “item”)\n- itemUrl: the URL where the file can be downloaded from\n- itemType: the type of item (e.g. \"photo\", \"pdf\", \"blob\", \"video\", \"audio\", etc.)\n\n*Text Snippet Content* (contentType = \"textSnippet\")\n- text: the content of the snippet\n- language: the language of the snippet\n\n*Members Changed Content* (contentType = “membersChanged”)\n- added: a list of Participant objects corresponding to all participants added in this event\n- removed: a list of Participant objects corresponding to all participants removed in this event\n\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "messageevent.export",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "description": "Information on the archive to export",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "description": "The UTC date to fetch the export for in YYYY-MM-DD format."
+                  }
+                },
+                "required": [
+                  "date"
+                ]
+              },
+              "example": {
+                "date": "2026-01-21"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Export file returned successfully",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string",
+                  "description": "JSON Lines (NDJSON) format with one message event per line"
+                },
+                "example": "{\"eventType\":\"sent\",\"chatId\":\"757dfe66-37b4-4772-baa5-8c86ec68c176\",\"timestamp\":1737454800000000,\"messageId\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"sender\":{\"participantType\":\"email\",\"id\":\"U-709b8a57-70bc-427a-b6f0-b16ba5297f8c\",\"displayName\":\"Alex Chen\",\"email\":\"alex.chen@example.com\"},\"contentType\":\"text\",\"content\":{\"text\":\"Good morning team!\",\"markdownText\":\"Good morning team!\",\"attachments\":[]}}\n{\"eventType\":\"sent\",\"chatId\":\"757dfe66-37b4-4772-baa5-8c86ec68c176\",\"timestamp\":1737454860000000,\"messageId\":\"b2c3d4e5-f6a7-8901-bcde-f23456789012\",\"sender\":{\"participantType\":\"email\",\"id\":\"U-af6663d5-0f37-4105-95df-4fea20ef7c7c\",\"displayName\":\"Jordan Smith\",\"email\":\"jordan.smith@example.com\"},\"contentType\":\"text\",\"content\":{\"text\":\"Good morning! Ready for the standup?\",\"markdownText\":\"Good morning! Ready for the standup?\",\"attachments\":[]}}\n"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/magicast.list": {
+      "get": {
+        "tags": [
+          "Magicasts"
+        ],
+        "summary": "List magicasts",
+        "description": "Lists all magicasts in your Roam, sorted in reverse chronological order.\n\n**Access:** Organization and Personal. In Personal mode, only magicasts owned by the authenticated user are returned.\n\n**Required scope:** `magicast:read`\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "listMagicasts",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of magicasts to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "magicasts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Magicast"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Returned if there is a subsequent page of magicasts."
+                    }
+                  }
+                },
+                "example": {
+                  "magicasts": [
+                    {
+                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "name": "Q1 Product Launch Recap",
+                      "createdAt": "2026-03-20T14:30:00Z",
+                      "ownerId": "0cc74785-e31e-4403-aa5e-0cc7c1897e66",
+                      "coverImageUrl": "https://ro.am/assets/a1b2c3d4/thumbnail"
+                    },
+                    {
+                      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                      "name": "Weekly Standup Highlights",
+                      "createdAt": "2026-03-18T09:15:00Z",
+                      "ownerId": "6a897aa3-0cab-4ba4-a48b-4be14a9585d0",
+                      "coverImageUrl": "https://ro.am/assets/b2c3d4e5/thumbnail"
+                    }
+                  ],
+                  "nextCursor": "MjAyNi0wMy0xOFQwOToxNTowMC4wMDBa"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/magicast.info": {
+      "get": {
+        "tags": [
+          "Magicasts"
+        ],
+        "summary": "Get magicast",
+        "description": "Retrieve a magicast by ID.\n\n**Access:** Organization and Personal. In Personal mode, only magicasts owned by the authenticated user are accessible.\n\n**Required scope:** `magicast:read`\n\n---\n\n**OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)\n",
+        "operationId": "getMagicast",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The magicast ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Magicast"
+                },
+                "example": {
+                  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "name": "Q1 Product Launch Recap",
+                  "createdAt": "2026-03-20T14:30:00Z",
+                  "ownerId": "0cc74785-e31e-4403-aa5e-0cc7c1897e66",
+                  "coverImageUrl": "https://ro.am/assets/a1b2c3d4/thumbnail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid `id` parameter"
+          },
+          "404": {
+            "description": "Magicast not found"
+          }
+        }
+      }
+    },
+    "/test": {
+      "get": {
+        "summary": "Test endpoint",
+        "responses": {
+          "200": {
+            "description": "Valid"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Pass your API Key or OAuth access token as a Bearer token.\nExample: `Authorization: Bearer <token>`\n"
+      }
+    },
+    "schemas": {
+      "MessageSender": {
+        "name": "Sender",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Group": {
+        "type": "object",
+        "properties": {
+          "addressId": {
+            "type": "string"
+          },
+          "roamId": {
+            "type": "integer"
+          },
+          "accountId": {
+            "type": "integer"
+          },
+          "groupType": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "accessMode": {
+            "type": "string"
+          },
+          "groupManagement": {
+            "type": "string"
+          },
+          "enforceThreadedMode": {
+            "type": "boolean",
+            "default": false
+          },
+          "dateCreated": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "Magicast": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the magicast"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the magicast"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp when the magicast was created (UTC)"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Address ID of the magicast owner"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the magicast cover image thumbnail"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt"
+        ]
+      }
+    },
+    "responses": {
+      "Error": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "A description of the error."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

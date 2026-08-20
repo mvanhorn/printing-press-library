@@ -1,0 +1,184 @@
+name: dice-fm
+display_name: DICE
+description: DICE Partners API — query and export your event ticket, order, fan, and revenue data.
+cli_description: Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.
+version: "0.1.0"
+category: media-and-entertainment
+base_url: https://partners-endpoint.dice.fm
+graphql_endpoint_path: /graphql
+spec_source: docs
+
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - DICE_FM_TOKEN
+  # doctor POSTs this small viewer query to validate the token (2xx + no errors).
+  verify_query: "query { viewer { id name } }"
+
+resources:
+  events:
+    description: Events on your DICE account (scheduling, state, venues, ticket types)
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List your events
+        params:
+          - name: state
+            type: string
+            description: "Filter by event state: APPROVED, ARCHIVED, CANCELLED, DECLINED, DRAFT, REVIEW, SUBMITTED"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+      get:
+        method: POST
+        path: /graphql
+        description: Get a single event by ID
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Event ID
+        response:
+          type: object
+          item: Event
+
+  tickets:
+    description: Sold tickets with holder details, pricing, and claim status
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List sold tickets (filter by event)
+        params:
+          - name: event
+            type: string
+            description: Filter by event ID
+          - name: fan-phone
+            type: string
+            description: Filter by fan phone number
+        response:
+          type: array
+          item: Ticket
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+  orders:
+    description: Ticket purchase orders with financial and geographic data
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List orders (filter by event)
+        params:
+          - name: event
+            type: string
+            description: Filter by event ID
+        response:
+          type: array
+          item: Order
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+  returns:
+    description: Ticket returns and refunds
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List returns (filter by event)
+        params:
+          - name: event
+            type: string
+            description: Filter by event ID
+        response:
+          type: array
+          item: Return
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+  transfers:
+    description: Ticket transfers between fans
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List ticket transfers (filter by event)
+        params:
+          - name: event
+            type: string
+            description: Filter by event ID
+        response:
+          type: array
+          item: TicketTransfer
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+  extras:
+    description: Extras and add-ons sold with tickets
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List extras (filter by event)
+        params:
+          - name: event
+            type: string
+            description: Filter by event ID
+          - name: separate-barcode
+            type: boolean
+            description: Filter to extras that have a separate access barcode
+        response:
+          type: array
+          item: Extra
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+  genres:
+    description: Event genre types and their child genres
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        description: List genre types
+        response:
+          type: array
+          item: GenreType
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+
+# Hand-written commands declared so SKILL.md / README can document them
+# alongside the spec-driven resources. The generator emits NO code for these —
+# they are authored in internal/cli/ and recorded in .printing-press-patches.json.
+extra_commands:
+  - name: capacity
+    description: Cross-event sold-vs-capacity headroom rollup from the local store
+  - name: capacity pools
+    description: Per-ticket-pool allocation breakdown (pool-sum vs event total) from the local store
+  - name: tier-performance
+    description: Per price-tier redemptions and share-of-sales rate from the local store
+  - name: normalize
+    description: Normalize raw ticket-type and venue names into canonical, structured form
+  - name: normalize stats
+    description: Print normalized entity counts per axis from the local attribute tables
+  - name: normalize recommend
+    description: Profile the local store and emit a starter normalization config

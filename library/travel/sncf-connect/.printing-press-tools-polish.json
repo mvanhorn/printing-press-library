@@ -1,0 +1,391 @@
+{
+  "timestamp": "2026-05-21T19:48:00.142858Z",
+  "cli_dir": "\u003ccli-dir\u003e/sncf-connect-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "access-points",
+      "file": "coord_access-points.go",
+      "line": 11,
+      "evidence": "Manage access points"
+    },
+    {
+      "kind": "thin-short",
+      "command": "equipment-reports",
+      "file": "coord_equipment-reports.go",
+      "line": 11,
+      "evidence": "Manage equipment reports"
+    },
+    {
+      "kind": "thin-short",
+      "command": "freefloatings-nearby",
+      "file": "coord_freefloatings-nearby.go",
+      "line": 11,
+      "evidence": "Manage freefloatings nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "obstacles-nearby",
+      "file": "coord_obstacles-nearby.go",
+      "line": 11,
+      "evidence": "Manage obstacles nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "places-nearby",
+      "file": "coord_places-nearby.go",
+      "line": 11,
+      "evidence": "Manage places nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "vehicle-positions",
+      "file": "coord_vehicle-positions.go",
+      "line": 11,
+      "evidence": "Manage vehicle positions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "access-points",
+      "file": "coords_access-points.go",
+      "line": 11,
+      "evidence": "Manage access points"
+    },
+    {
+      "kind": "thin-short",
+      "command": "equipment-reports",
+      "file": "coords_equipment-reports.go",
+      "line": 11,
+      "evidence": "Manage equipment reports"
+    },
+    {
+      "kind": "thin-short",
+      "command": "freefloatings-nearby",
+      "file": "coords_freefloatings-nearby.go",
+      "line": 11,
+      "evidence": "Manage freefloatings nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "obstacles-nearby",
+      "file": "coords_obstacles-nearby.go",
+      "line": 11,
+      "evidence": "Manage obstacles nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "places-nearby",
+      "file": "coords_places-nearby.go",
+      "line": 11,
+      "evidence": "Manage places nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "vehicle-positions",
+      "file": "coords_vehicle-positions.go",
+      "line": 11,
+      "evidence": "Manage vehicle positions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "coverage",
+      "file": "coverage.go",
+      "line": 11,
+      "evidence": "Manage coverage"
+    },
+    {
+      "kind": "thin-short",
+      "command": "access-points",
+      "file": "coverage_access-points.go",
+      "line": 11,
+      "evidence": "Manage access points"
+    },
+    {
+      "kind": "thin-short",
+      "command": "addresses",
+      "file": "coverage_addresses.go",
+      "line": 11,
+      "evidence": "Manage addresses"
+    },
+    {
+      "kind": "thin-short",
+      "command": "arrivals",
+      "file": "coverage_arrivals.go",
+      "line": 11,
+      "evidence": "Manage arrivals"
+    },
+    {
+      "kind": "thin-short",
+      "command": "calendars",
+      "file": "coverage_calendars.go",
+      "line": 11,
+      "evidence": "Manage calendars"
+    },
+    {
+      "kind": "thin-short",
+      "command": "commercial-modes",
+      "file": "coverage_commercial-modes.go",
+      "line": 11,
+      "evidence": "Manage commercial modes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "companies",
+      "file": "coverage_companies.go",
+      "line": 11,
+      "evidence": "Manage companies"
+    },
+    {
+      "kind": "thin-short",
+      "command": "contributors",
+      "file": "coverage_contributors.go",
+      "line": 11,
+      "evidence": "Manage contributors"
+    },
+    {
+      "kind": "thin-short",
+      "command": "coord",
+      "file": "coverage_coord.go",
+      "line": 11,
+      "evidence": "Manage coord"
+    },
+    {
+      "kind": "thin-short",
+      "command": "coords",
+      "file": "coverage_coords.go",
+      "line": 11,
+      "evidence": "Manage coords"
+    },
+    {
+      "kind": "thin-short",
+      "command": "datasets",
+      "file": "coverage_datasets.go",
+      "line": 11,
+      "evidence": "Manage datasets"
+    },
+    {
+      "kind": "thin-short",
+      "command": "departures",
+      "file": "coverage_departures.go",
+      "line": 11,
+      "evidence": "Manage departures"
+    },
+    {
+      "kind": "thin-short",
+      "command": "disruptions",
+      "file": "coverage_disruptions.go",
+      "line": 11,
+      "evidence": "Manage disruptions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "elevations",
+      "file": "coverage_elevations.go",
+      "line": 11,
+      "evidence": "Manage elevations"
+    },
+    {
+      "kind": "thin-short",
+      "command": "equipment-reports",
+      "file": "coverage_equipment-reports.go",
+      "line": 11,
+      "evidence": "Manage equipment reports"
+    },
+    {
+      "kind": "thin-short",
+      "command": "freefloatings-nearby",
+      "file": "coverage_freefloatings-nearby.go",
+      "line": 11,
+      "evidence": "Manage freefloatings nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "geo-status",
+      "file": "coverage_geo-status.go",
+      "line": 11,
+      "evidence": "Manage geo status"
+    },
+    {
+      "kind": "thin-short",
+      "command": "heat-maps",
+      "file": "coverage_heat-maps.go",
+      "line": 11,
+      "evidence": "Manage heat maps"
+    },
+    {
+      "kind": "thin-short",
+      "command": "isochrones",
+      "file": "coverage_isochrones.go",
+      "line": 11,
+      "evidence": "Manage isochrones"
+    },
+    {
+      "kind": "thin-short",
+      "command": "journey-patterns",
+      "file": "coverage_journey-patterns.go",
+      "line": 11,
+      "evidence": "Manage journey patterns"
+    },
+    {
+      "kind": "thin-short",
+      "command": "journeys",
+      "file": "coverage_journeys.go",
+      "line": 11,
+      "evidence": "Manage journeys"
+    },
+    {
+      "kind": "thin-short",
+      "command": "line-groups",
+      "file": "coverage_line-groups.go",
+      "line": 11,
+      "evidence": "Manage line groups"
+    },
+    {
+      "kind": "thin-short",
+      "command": "line-reports",
+      "file": "coverage_line-reports.go",
+      "line": 11,
+      "evidence": "Manage line reports"
+    },
+    {
+      "kind": "thin-short",
+      "command": "lines",
+      "file": "coverage_lines.go",
+      "line": 11,
+      "evidence": "Manage lines"
+    },
+    {
+      "kind": "thin-short",
+      "command": "networks",
+      "file": "coverage_networks.go",
+      "line": 11,
+      "evidence": "Manage networks"
+    },
+    {
+      "kind": "thin-short",
+      "command": "obstacles-nearby",
+      "file": "coverage_obstacles-nearby.go",
+      "line": 11,
+      "evidence": "Manage obstacles nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "physical-modes",
+      "file": "coverage_physical-modes.go",
+      "line": 11,
+      "evidence": "Manage physical modes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "places-nearby",
+      "file": "coverage_places-nearby.go",
+      "line": 11,
+      "evidence": "Manage places nearby"
+    },
+    {
+      "kind": "thin-short",
+      "command": "places",
+      "file": "coverage_places.go",
+      "line": 11,
+      "evidence": "Manage places"
+    },
+    {
+      "kind": "thin-short",
+      "command": "poi-types",
+      "file": "coverage_poi-types.go",
+      "line": 11,
+      "evidence": "Manage poi types"
+    },
+    {
+      "kind": "thin-short",
+      "command": "pois",
+      "file": "coverage_pois.go",
+      "line": 11,
+      "evidence": "Manage pois"
+    },
+    {
+      "kind": "thin-short",
+      "command": "pt-objects",
+      "file": "coverage_pt-objects.go",
+      "line": 11,
+      "evidence": "Manage pt objects"
+    },
+    {
+      "kind": "thin-short",
+      "command": "route-schedules",
+      "file": "coverage_route-schedules.go",
+      "line": 11,
+      "evidence": "Manage route schedules"
+    },
+    {
+      "kind": "thin-short",
+      "command": "routes",
+      "file": "coverage_routes.go",
+      "line": 11,
+      "evidence": "Manage routes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "stop-areas",
+      "file": "coverage_stop-areas.go",
+      "line": 11,
+      "evidence": "Manage stop areas"
+    },
+    {
+      "kind": "thin-short",
+      "command": "stop-points",
+      "file": "coverage_stop-points.go",
+      "line": 11,
+      "evidence": "Manage stop points"
+    },
+    {
+      "kind": "thin-short",
+      "command": "stop-schedules",
+      "file": "coverage_stop-schedules.go",
+      "line": 11,
+      "evidence": "Manage stop schedules"
+    },
+    {
+      "kind": "thin-short",
+      "command": "terminus-schedules",
+      "file": "coverage_terminus-schedules.go",
+      "line": 11,
+      "evidence": "Manage terminus schedules"
+    },
+    {
+      "kind": "thin-short",
+      "command": "traffic-reports",
+      "file": "coverage_traffic-reports.go",
+      "line": 11,
+      "evidence": "Manage traffic reports"
+    },
+    {
+      "kind": "thin-short",
+      "command": "trips",
+      "file": "coverage_trips.go",
+      "line": 11,
+      "evidence": "Manage trips"
+    },
+    {
+      "kind": "thin-short",
+      "command": "vehicle-journeys",
+      "file": "coverage_vehicle-journeys.go",
+      "line": 11,
+      "evidence": "Manage vehicle journeys"
+    },
+    {
+      "kind": "thin-short",
+      "command": "vehicle-positions",
+      "file": "coverage_vehicle-positions.go",
+      "line": 11,
+      "evidence": "Manage vehicle positions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "places",
+      "file": "places.go",
+      "line": 11,
+      "evidence": "Manage places"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -15,9 +15,9 @@ import (
 // drifts, this test catches it before a user sees a rationale mismatch.
 func TestBearerRationale_DecisionTable(t *testing.T) {
 	cases := []struct {
-		name     string
-		bridges  []client.Bridge
-		want     string
+		name    string
+		bridges []client.Bridge
+		want    string
 	}{
 		{
 			name:    "friend bridge with positive affinity",

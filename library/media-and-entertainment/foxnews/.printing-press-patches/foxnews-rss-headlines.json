@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "foxnews-rss-headlines",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260603-120000",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Hand-built RSS-only foxnews CLI for Google Publisher feeds on moxie.foxnews.com.",
+  "reason": "Initial catalog entry: headlines and sections commands over public RSS endpoints; no HTML scraping or SQLite history.",
+  "files": [
+    "internal/foxnews/feed.go",
+    "internal/foxnews/sections.go",
+    "internal/cli/headlines.go",
+    "internal/cli/sections_cmd.go",
+    "internal/cli/root.go",
+    "internal/cli/output.go",
+    "internal/cli/agent_context.go",
+    "SKILL.md"
+  ]
+}

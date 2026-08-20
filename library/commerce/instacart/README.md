@@ -22,7 +22,7 @@ item is waiting for you next time you open the app.
 ## Quick Start
 
 ```bash
-# 1. Build (requires Go 1.23+)
+# 1. Build (requires Go 1.26.5 or newer)
 go build -o instacart ./cmd/instacart
 
 # 2. Seed the persisted-query hash cache
@@ -38,8 +38,32 @@ go build -o instacart ./cmd/instacart
 # Or paste a Cookie header from devtools:
 ./instacart auth paste
 
-# 4. Verify
+# 4. Verify (this also surfaces if location config is missing)
 ./instacart doctor
+```
+
+`auth login` (and the `paste` / `import-file` variants) automatically fetches
+your default Instacart address and persists `address_id`, `postal_code`,
+`latitude`, and `longitude` to `~/.config/instacart/config.json`. Without these,
+every `search`, `add`, and `cart show` against an uncached retailer fails at
+the `ShopCollectionScoped` bootstrap. If auto-populate doesn't work for your
+account (for example because Instacart's schema changed), the CLI prints a
+note pointing you at the manual fallbacks below.
+
+### Setting location manually
+
+```bash
+# Option 1: auto-derive from your Instacart address ID. Find the ID in the
+# URL or a graphql variable on https://www.instacart.com/store/account/your-account
+# (DevTools Network tab). Uses the cached GetAddressById op.
+./instacart config set-address --id 12345678-aaaa-bbbb-cccc-deadbeef0000
+
+# Option 2: pass coordinates directly (e.g., from Google Maps right-click
+# "What's here?"). --postal is optional but recommended.
+./instacart config set-coords --lat 47.6740 --lon -122.1215 --postal 98052
+
+# View what's currently set:
+./instacart config show
 ```
 
 ## First-time history backfill
@@ -250,23 +274,38 @@ available for offline reads.
   top result may not match your intent. Use `instacart search` first to see
   the ranked list, then pass `--item-id` to `add` for precision.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
-The recommended path installs both the `instacart-pp-cli` binary and the `pp-instacart` agent skill in one shot:
+The recommended path installs both the `instacart-pp-cli` binary and the `pp-instacart` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install instacart
+npx -y @mvanhorn/printing-press-library install instacart
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install instacart --cli-only
+npx -y @mvanhorn/printing-press-library install instacart --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install instacart --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install instacart --agent claude-code
+npx -y @mvanhorn/printing-press-library install instacart --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
@@ -282,6 +321,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install instacart --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -294,11 +341,15 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install instacart --agent openclaw
 ```
-Install the pp-instacart skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-instacart. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "api_name": "hotel-tonight",
+  "run_id": "20260519-235715",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 59,
+  "tests_skipped": 33,
+  "tests_failed": 5,
+  "auth_context": {
+    "type": "none"
+  },
+  "failure_summary": {
+    "http_4xx": 2,
+    "output_mismatch": 1,
+    "other": 2,
+    "commands": [
+      "history",
+      "inventory",
+      "verdict",
+      "workflow archive"
+    ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "dir": "\u003ccli-dir\u003e/semrush-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 67,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 147,
+      "registered": 147
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 12,
+    "found": 12
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 12,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "drift",
+        "file": "drift.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "snapshot",
+        "file": "snapshot.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "backlink new",
+        "file": "backlink_new.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "budget",
+        "file": "budget.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "keyword gap",
+        "file": "backlink_gap.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "backlink gap",
+        "file": "backlink_gap.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "audit triage",
+        "file": "audit_triage.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "tracking drift",
+        "file": "drift.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "serp-features",
+        "file": "serp_features.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "cannibalization",
+        "file": "cannibalization.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "audit regression",
+        "file": "audit_regression.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 139
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 139
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "11/12 novel features look reimplemented: drift (drift.go) — hand-rolled response: no API client call, no store access; snapshot (snapshot.go) — hand-rolled response: no API client call, no store access; backlink new (backlink_new.go) — hand-rolled response: no API client call, no store access; budget (budget.go) — hand-rolled response: no API client call, no store access; keyword gap (backlink_gap.go) — hand-rolled response: no API client call, no store access; backlink gap (backlink_gap.go) — hand-rolled response: no API client call, no store access; audit triage (audit_triage.go) — hand-rolled response: no API client call, no store access; tracking drift (drift.go) — hand-rolled response: no API client call, no store access; serp-features (serp_features.go) — hand-rolled response: no API client call, no store access; cannibalization (cannibalization.go) — hand-rolled response: no API client call, no store access; audit regression (audit_regression.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

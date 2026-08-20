@@ -1,0 +1,541 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://ddragon.leagueoflegends.com/api/versions.json",
+    "entry_count": 6,
+    "api_entry_count": 6,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "ddragon.leagueoflegends.com": 6
+    },
+    "time_start": "2026-05-23T11:30:00Z",
+    "time_end": "2026-05-23T11:30:00Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/api/versions.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion/Aatrox.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/item.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/runesReforged.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/summoner.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/api/versions.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/api/versions.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/cdn/16.10.1/data/en_US/champion.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "format",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/cdn/16.10.1/data/en_US/champion/Aatrox.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "format",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion/Aatrox.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/cdn/16.10.1/data/en_US/item.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/item.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/cdn/16.10.1/data/en_US/runesReforged.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "icon",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "key",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "slots",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/runesReforged.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ddragon.leagueoflegends.com",
+      "method": "GET",
+      "path": "/cdn/16.10.1/data/en_US/summoner.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "version",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/summoner.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/api/versions.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion/Aatrox.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/item.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/runesReforged.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/summoner.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "list_Aatrox.json",
+      "resource": "Aatrox.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cdn/16.10.1/data/en_US/champion/Aatrox.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion/Aatrox.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_champion.json",
+      "resource": "champion.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cdn/16.10.1/data/en_US/champion.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/champion.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_item.json",
+      "resource": "item.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cdn/16.10.1/data/en_US/item.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/item.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_runesReforged.json",
+      "resource": "runesReforged.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cdn/16.10.1/data/en_US/runesReforged.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/runesReforged.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_summoner.json",
+      "resource": "summoner.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cdn/16.10.1/data/en_US/summoner.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/cdn/16.10.1/data/en_US/summoner.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_versions.json",
+      "resource": "versions.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/versions.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "ddragon.leagueoflegends.com",
+          "path": "/api/versions.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

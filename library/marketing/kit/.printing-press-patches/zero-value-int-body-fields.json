@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "zero-value-int-body-fields",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260519-111411",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Send integer body fields when explicitly set to 0 (gate on cmd.Flags().Changed instead of != 0), and require --name on sequences create.",
+  "reason": "The generated create/update commands omitted any int flag whose value was 0, so documented, valid values were unreachable: sequences send_hour=0 (midnight) and sequence-email delay_value=0 (the only way to make an immediate first email) could never be transmitted. Also filled the empty stdin-guard block on sequences create with the required --name validation the API enforces, so a missing name returns a clear error instead of a cryptic 422.",
+  "files": [
+    "internal/cli/broadcasts_create.go",
+    "internal/cli/broadcasts_update.go",
+    "internal/cli/purchases_create.go",
+    "internal/cli/sequences_create.go",
+    "internal/cli/sequences_update.go",
+    "internal/cli/sequences_emails_create.go",
+    "internal/cli/sequences_emails_update.go"
+  ],
+  "validated_outcome": "sequences create --name X --send-hour 0 --dry-run now emits \"send_hour\": 0 in the request body; sequences create with no --name returns \"--name is required\" instead of sending an empty body."
+}

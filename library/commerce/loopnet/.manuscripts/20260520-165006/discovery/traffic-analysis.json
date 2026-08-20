@@ -1,0 +1,170 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.loopnet.com/search/office/los-angeles-ca/for-sale/",
+    "entry_count": 3,
+    "api_entry_count": 0,
+    "noise_entry_count": 3,
+    "host_distribution": {
+      "www.loopnet.com": 3
+    },
+    "http_version_distribution": {
+      "h2": 3
+    },
+    "time_start": "2026-05-20T11:42:00Z",
+    "time_end": "2026-05-20T11:42:00Z"
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.85,
+    "reasons": [
+      "probe-reachability classified browser_http: Surf with a Chrome TLS fingerprint returns HTTP 200. Captured pages are complete SSR HTML with embedded JSON-LD (verified: 525 search results, 23 RealEstateListing items, full detail page). The cloudflare/captcha/akamai markers are dormant defense scripts embedded in real served pages, not active challenge pages."
+    ],
+    "evidence": [
+      {
+        "entry_index": 0,
+        "method": "GET",
+        "host": "www.loopnet.com",
+        "path": "/search/office/los-angeles-ca/for-sale/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "www.loopnet.com",
+        "path": "/search/office/los-angeles-ca/for-lease/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "www.loopnet.com",
+        "path": "/Listing/2035-W-15th-St-Long-Beach-CA/38523625/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-sale/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-lease/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/Listing/2035-W-15th-St-Long-Beach-CA/38523625/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        }
+      ],
+      "details": {
+        "signature": "application/ld+json"
+      }
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-sale/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-lease/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    },
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-sale/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/search/office/los-angeles-ca/for-lease/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/Listing/2035-W-15th-St-Long-Beach-CA/38523625/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    },
+    {
+      "label": "akamai",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.loopnet.com",
+          "path": "/Listing/2035-W-15th-St-Long-Beach-CA/38523625/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Akamai header or body marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [],
+  "generation_hints": [
+    "requires_protected_client"
+  ]
+}

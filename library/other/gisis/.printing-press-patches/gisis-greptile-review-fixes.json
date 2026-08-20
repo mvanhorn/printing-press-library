@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "gisis-greptile-review-fixes",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260527-211808",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Resolved both Greptile findings on publish PR #953: (1) extended the existing isValidIMOFormat 7-digit guard (previously only on ship pin/unpin) to ship get, ship history, ship batch, and ship refresh, so malformed input (typos, the runner's __printing_press_invalid__ sentinel, junk lines from --file) exits 2 with a usage error instead of firing a throttled GISIS request per token and logging not_found; (2) dropped the mcp:read-only annotation from ship batch and ship refresh (both fetch from GISIS and write the local cache) and — for consistency with the identical fix Greptile required on gfw's watch pin/unpin in sibling PR #952 — also from ship pin and ship unpin (both mutate the user-curated watchlist).",
+  "reason": "Greptile flagged the missing IMO validation on batch/get/history and the mcp:read-only annotation on refresh/batch. The pin/unpin annotations were the same defect Greptile separately flagged on gfw, so they were corrected here too. ship get and ship history keep mcp:read-only: single-vessel reads whose caching is transparent/derived, matching how gfw's single-vessel commands were left — only watchlist mutations and multi-vessel cache sweeps lose the annotation. The maintainer (tmchow) requested the feedback be addressed before merge.",
+  "files": [
+    "internal/cli/ship_get_handler.go",
+    "internal/cli/ship_history_impl.go",
+    "internal/cli/ship_batch_impl.go",
+    "internal/cli/ship_pin_impl.go"
+  ],
+  "validated_outcome": "go build ./... + go vet ./... clean; go test -count=1 ./internal/cli/ PASS (full module suite green). Functional check: `ship batch --imos __printing_press_invalid__,9866641` now exits 2 with 'invalid IMO number(s): __printing_press_invalid__ — each must be 7 digits' instead of round-tripping to GISIS.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Same template bug filed from gfw: the generated novel-feature stub template stamps mcp:read-only: \"true\" onto commands that write local state and/or make non-idempotent calls (gisis ship pin/unpin/batch/refresh, gfw watch pin/unpin/refresh). Template should only mark genuinely side-effect-free commands read-only, or introduce a distinct value for write-local-cache-only commands.",
+      "reason": "Reproduces across gisis and gfw from the same generator — the AGENTS.md multi-CLI signal for a real template fix. Tracked in the single upstream issue against mvanhorn/cli-printing-press (see gfw patch gfw-greptile-review-fixes)."
+    }
+  ]
+}

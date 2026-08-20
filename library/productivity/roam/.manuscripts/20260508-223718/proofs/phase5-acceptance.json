@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "api_name": "roam",
+  "cli_name": "roam-pp-cli",
+  "run_id": "20260508-223718",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_total": 4,
+  "tests_passed": 4,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "completed_at": "2026-05-08T23:01:00Z",
+  "summary": "Live smoke via doctor token + transcript-prompt: HQ:200, Chat:200, SCIM:200, Webhooks:405-expected, On-Air:401 (token lacks onair:read scope) — recorded as skipped.",
+  "auth_context": {
+    "type": "bearer",
+    "api_key_available": true,
+    "browser_session_available": false
+  }
+}

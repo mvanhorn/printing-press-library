@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "automation-audit-db-flag",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Thread an optional `--db` flag through every `--apply`-capable automation command into the audit-write path.",
+  "reason": "Before this patch, `automation-audit --db` was honored on read but `attachAutomationAudit` always wrote to the per-user default path. A user pointing at a custom audit store would see an empty list because writes landed elsewhere. The flag now defaults to the per-user store and travels through the audit signature so reads and writes share the same path.",
+  "files": [
+    "internal/cli/automation.go"
+  ],
+  "validated_outcome": "go test ./internal/cli, go build, and verify-skill all pass; --db is documented uniformly on auto-negate, auto-promote, budget-rebalance, and bid-rules apply."
+}

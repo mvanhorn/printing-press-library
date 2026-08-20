@@ -1,0 +1,144 @@
+{
+  "api_name": "alltrails",
+  "base_url": "https://www.alltrails.com",
+  "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract.",
+  "mcp_ready": "full",
+  "http_transport": "browser-http",
+  "auth": {
+    "type": "bearer_or_cookie",
+    "env": [
+      "ALLTRAILS_ACCESS_TOKEN",
+      "ALLTRAILS_COOKIE",
+      "ALLTRAILS_CSRF_TOKEN"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "alltrails_create",
+      "description": "Write-gated AllTrails activity upload route; defaults to dry-run and requires ALLTRAILS_PP_ALLOW_WRITES=1 for live execution.",
+      "method": "POST",
+      "path": "/api/alltrails/v3/activities/upload",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "alltrails_get",
+      "description": "Activity detail with GPS/stat surfaces. Required: activity_id.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/activities/{activity_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "activity_id",
+          "type": "string",
+          "location": "path",
+          "description": "activity_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alltrails_get-v3",
+      "description": "Read AllTrails trail detail, geometry, and offline metadata surfaces by trail id; optional detail query can request offline payloads.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/trails/{trail_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "trail_id",
+          "type": "string",
+          "location": "path",
+          "description": "Trail id",
+          "required": true
+        },
+        {
+          "name": "detail",
+          "type": "string",
+          "location": "query",
+          "description": "Detail"
+        }
+      ]
+    },
+    {
+      "name": "alltrails_get-v3-2",
+      "description": "Read subscription-gated offline map metadata for a named AllTrails region without mutating account state.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/maps/offline/{region}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "location": "path",
+          "description": "region",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alltrails_get-v3-3",
+      "description": "Map static image metadata/render endpoint. Required: map_id.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/maps/{map_id}/static_map",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "map_id",
+          "type": "string",
+          "location": "path",
+          "description": "map_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alltrails_get-v3-4",
+      "description": "Trail static map image metadata/render endpoint. Required: trail_id.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/trails/{trail_id}/static_map",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "trail_id",
+          "type": "string",
+          "location": "path",
+          "description": "trail_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alltrails_get-v3-5",
+      "description": "Read authenticated AllTrails user activity list for a supplied user id; response bodies are never captured in repo evidence.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/user/{user_id}/activities",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "user_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alltrails_list",
+      "description": "Read AllTrails trail search results by text, location, and filters using captured browser-route query patterns.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/trails/search",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "alltrails_list-v3",
+      "description": "Read the current authenticated AllTrails profile route; requires caller-owned token or browser cookie when used live.",
+      "method": "GET",
+      "path": "/api/alltrails/v3/user/me",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

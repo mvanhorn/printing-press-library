@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "greptile-pr444-applyAuthFormat-dead-code",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Remove unused applyAuthFormat() helper, its `var _ = strings.ReplaceAll` keep-import sentinel, and the now-unused `strings` import in internal/config/config.go.",
+  "reason": "Greptile P2 finding on PR #444 (config.go:96-107). Dead code emitted by generator template, never wired into call graph for query-param auth.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "build/vet clean; strings import removed.",
+  "upstream_issue": "see upstream_tracking.press-config-applyAuthFormat-dead-code"
+}

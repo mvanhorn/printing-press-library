@@ -5,7 +5,13 @@
   "api_name": "seats-aero",
   "display_name": "Seats Aero Partner",
   "cli_name": "seats-aero-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://developers.seats.aero/reference",
   "spec_path": "/Users/knox/Developer/PrintingPress/seats-specs/seats-aero-openapi.yaml",
   "spec_format": "openapi3",
@@ -20,7 +26,7 @@
   ],
   "run_id": "20260506-seats-aero",
   "category": "travel",
-  "description": "Search Seats.aero award-flight availability, route coverage, and trip details from the terminal.",
+  "description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
   "auth_key_url": "https://seats.aero/partner-api",
   "novel_features": [
     {
@@ -40,5 +46,6 @@
     }
   ],
   "auth_title": "Seats.aero API key",
-  "auth_description": "Seats.aero Partner API key from https://seats.aero/partner-api."
+  "auth_description": "Seats.aero Partner API key from https://seats.aero/partner-api.",
+  "catalog_description": "Search Seats.aero award-flight availability, route coverage, mileage-program feeds, and trip details from the terminal."
 }

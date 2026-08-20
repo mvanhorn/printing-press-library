@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-05-14T21:18:39.51243Z",
+  "cli_dir": "/tmp/printing-press/publish/resend-qRGAyo/package/library/productivity/resend",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260514-152759/research.json",
+      "line": 167,
+      "column": 43,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "research.json narrative.quickstart example for `emails to \u003crecipient\u003e`. RFC 2606 reserved @example.com placeholder; first occurrence in each of SKILL/README/research.json was replaced with angle-bracket placeholder, this is the second occurrence in the file."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260514-152759/research.json",
+      "line": 194,
+      "column": 48,
+      "matched_span": "contact@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "research.json narrative.recipes example for `contacts where \u003cemail\u003e`. RFC 2606 reserved @example.com placeholder; remaining occurrence after first was replaced with \u003ccontact-email\u003e."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260514-152759/research.json",
+      "line": 283,
+      "column": 45,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "research.json narrative.recipes 'Reconstruct what a user has received' example. RFC 2606 reserved @example.com placeholder; remaining occurrence after first replacement to \u003cyour-email\u003e."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 237,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL.md Recipes section, 'Reconstruct what a user has received' worked example. RFC 2606 reserved @example.com used as documentation placeholder; angle-bracket placeholders applied to all other SKILL/README/research.json occurrences in this same pass to reduce baseline PII count."
+    }
+  ],
+  "findings_count_before": 10
+}

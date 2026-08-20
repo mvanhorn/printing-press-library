@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "zoho-expense",
+  "run_id": "20260523-163843",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 7,
+  "tests_passed": 7,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "oauth2",
+    "api_key_available": true,
+    "browser_session_available": false
+  }
+}

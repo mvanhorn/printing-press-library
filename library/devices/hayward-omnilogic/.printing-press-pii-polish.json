@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-05-12T18:55:26.68238Z",
+  "cli_dir": "/tmp/printing-press/publish/hayward-omnilogic-dTYVed/package/library/devices/hayward-omnilogic",
+  "findings": [
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/ready_by_test.go",
+      "line": 18,
+      "column": 59,
+      "matched_span": "3216365845",
+      "status": "accepted",
+      "note": "span \"3216365845\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216365845); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/ready_by_test.go",
+      "line": 108,
+      "column": 45,
+      "matched_span": "3216424950",
+      "status": "accepted",
+      "note": "span \"3216424950\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216424950); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/ready_by_test.go",
+      "line": 120,
+      "column": 67,
+      "matched_span": "3216533851",
+      "status": "accepted",
+      "note": "span \"3216533851\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216533851); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/ready_by_test.go",
+      "line": 208,
+      "column": 66,
+      "matched_span": "3228229129",
+      "status": "accepted",
+      "note": "span \"3228229129\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3228229129); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/ready_by_test.go",
+      "line": 313,
+      "column": 60,
+      "matched_span": "3216464122",
+      "status": "accepted",
+      "note": "span \"3216464122\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216464122); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/schedule_diff_test.go",
+      "line": 13,
+      "column": 29,
+      "matched_span": "3216324918",
+      "status": "accepted",
+      "note": "span \"3216324918\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216324918); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/store/store_test.go",
+      "line": 175,
+      "column": 5,
+      "matched_span": "3216464198",
+      "status": "accepted",
+      "note": "span \"3216464198\" is a Greptile P1 finding ID used as test provenance (e.g. // Regression for Greptile P1 #3216464198); not real PII",
+      "category": "documentation_example",
+      "evidence_context": "Greptile review-comment ID in test regression provenance — 10-digit GitHub issue identifier, not a phone number; pattern detector false positive"
+    }
+  ],
+  "findings_count_before": 7
+}

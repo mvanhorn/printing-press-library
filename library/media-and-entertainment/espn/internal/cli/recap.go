@@ -12,9 +12,9 @@ func newRecapCmd(flags *rootFlags) *cobra.Command {
 	var eventID string
 
 	cmd := &cobra.Command{
-		Use:   "recap <sport> <league>",
+		Use:         "recap <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Game recap with box score and leaders",
+		Short:       "Game recap with box score and leaders",
 		Example: `  espn-pp-cli recap football nfl --event 401547417
   espn-pp-cli recap basketball nba --event 401584793 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -37,9 +37,9 @@ func newRecapCmd(flags *rootFlags) *cobra.Command {
 			path := fmt.Sprintf("/%s/%s/summary", sport, league)
 			params := map[string]string{"event": eventID}
 
-			data, err := c.Get(path, params)
+			data, err := c.Get(cmd.Context(), path, params)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			// JSON output

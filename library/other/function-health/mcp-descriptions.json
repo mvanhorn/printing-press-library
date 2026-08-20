@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "notifications_list": "List notifications about result changes for the authenticated Function Health member — new biomarker results landing, direction changes (improving/worsening), and round-completion events. Takes no parameters. Returns an array of notification objects with id, type, biomarker reference (when applicable), createdAt, and read/unread status. Use this to detect what's new since the last sync rather than re-reading every result.",
+    "schedules_list": "List upcoming scheduled lab-draw appointments the authenticated Function Health member has booked but not yet completed. Takes no parameters. Returns an array of schedule objects with id, scheduledFor timestamp, location, and visit type. Use this to surface what's on the calendar; for completed draws see visits_list or requisitions_list."
+  }
+}

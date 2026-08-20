@@ -1,0 +1,1754 @@
+{
+  "api_name": "tella-public",
+  "base_url": "https://api.tella.com",
+  "description": "The Tella Public API allows you to programmatically access your videos and playlists, including transcripts, chapters, and thumbnails.\n\n## Authentication\n\nAll requests require a Bearer token in the Authorization header:\n```\nAuthorization: Bearer tella_pk_xxxxx...\n```\n\nAPI keys can be generated in your Tella workspace settings.\n\n## Rate Limiting\n\nThe API is rate-limited to 100 requests per minute per organization.\nRate limit information is returned in response headers:\n- `X-RateLimit-Limit`: Maximum requests per window\n- `X-RateLimit-Remaining`: Remaining requests in current window\n- `X-RateLimit-Reset`: Unix timestamp when the window resets",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TELLA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TELLA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "playlists_create",
+      "description": "Create a new playlist for the authenticated user. Required: name. Optional: description, emoji, linkScope (plus 3 more). Returns the new PlaylistsCreateResponse.",
+      "method": "POST",
+      "path": "/v1/playlists",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Playlist description"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Unicode emoji character for the playlist"
+        },
+        {
+          "name": "linkScope",
+          "type": "string",
+          "location": "body",
+          "description": "Access level (default: public)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Playlist name (required)",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for viewing. Required when linkScope is 'password', ignored otherwise."
+        },
+        {
+          "name": "searchEngineIndexingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow search engine indexing (default: false)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Share with org or keep personal (default: personal)"
+        }
+      ]
+    },
+    {
+      "name": "playlists_delete",
+      "description": "Permanently delete a playlist. Videos in the playlist are not deleted. Required: id. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/playlists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique playlist identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_get",
+      "description": "Returns detailed information about a playlist including its videos. Required: id.",
+      "method": "GET",
+      "path": "/v1/playlists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique playlist identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_list",
+      "description": "Returns a list of all playlists for the authenticated user. Optional: visibility (default: personal), cursor, limit.",
+      "method": "GET",
+      "path": "/v1/playlists",
+      "params": [
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by visibility: personal (only your playlists) or org (shared with organization). Default: personal"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from previous response"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page (default: 20, max: 100)"
+        }
+      ]
+    },
+    {
+      "name": "playlists_update",
+      "description": "Update a playlist's name and/or description. Required: id. Optional: description, linkScope, name (plus 2 more). Returns the updated PlaylistsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/playlists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique playlist identifier",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Playlist description"
+        },
+        {
+          "name": "linkScope",
+          "type": "string",
+          "location": "body",
+          "description": "Access level"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Playlist name"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for viewing. Required when linkScope is 'password', ignored otherwise."
+        },
+        {
+          "name": "searchEngineIndexingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow search engine indexing"
+        }
+      ]
+    },
+    {
+      "name": "playlists_videos_add-to-playlist",
+      "description": "Adds an existing video to the specified playlist. Required: id, videoId. Returns the new SuccessResponse.",
+      "method": "POST",
+      "path": "/v1/playlists/{id}/videos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique playlist identifier",
+          "required": true
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the video to add to the playlist",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_videos_remove-from-playlist",
+      "description": "Removes a video from the specified playlist. The video itself is not deleted. Required: id, videoId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/playlists/{id}/videos/{videoId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique playlist identifier",
+          "required": true
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_delete",
+      "description": "Permanently delete a video. Required: id. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_get",
+      "description": "Returns detailed information about a video including chapters, transcript, and thumbnails. Required: id.",
+      "method": "GET",
+      "path": "/v1/videos/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_list",
+      "description": "Returns a paginated list of all videos for the authenticated user. Use playlistId query parameter to filter videos by playlist. Optional: cursor, limit, playlistId.",
+      "method": "GET",
+      "path": "/v1/videos",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from previous response"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page (default: 20, max: 100)"
+        },
+        {
+          "name": "playlistId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter videos by playlist ID"
+        }
+      ]
+    },
+    {
+      "name": "videos_update",
+      "description": "Update a video's settings including viewer options, download permissions, access controls, and metadata. Some features require Premium plan. Required: id. Optional: allowedEmbedDomains, captionsDefaultEnabled, commentEmailsEnabled (plus 13 more). Returns the updated VideosUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        },
+        {
+          "name": "allowedEmbedDomains",
+          "type": "array",
+          "location": "body",
+          "description": "Restrict embedding to these domains only (Premium feature). Empty array allows all domains."
+        },
+        {
+          "name": "captionsDefaultEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Show subtitles/captions by default"
+        },
+        {
+          "name": "commentEmailsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Send email notifications for new comments"
+        },
+        {
+          "name": "commentsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to comment"
+        },
+        {
+          "name": "customThumbnailURL",
+          "type": "string",
+          "location": "body",
+          "description": "Custom thumbnail image URL"
+        },
+        {
+          "name": "defaultPlaybackRate",
+          "type": "float",
+          "location": "body",
+          "description": "Default playback speed (0.5-2.0). Viewers can still adjust."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Video description"
+        },
+        {
+          "name": "downloadsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to download the video"
+        },
+        {
+          "name": "linkScope",
+          "type": "string",
+          "location": "body",
+          "description": "Access level: public (anyone with link), private (org members only), password (requires password), embedonly (only viewable when embedded)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Video title"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for viewing. Required when linkScope is 'password', ignored otherwise."
+        },
+        {
+          "name": "publishDateEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Show publish date on video page"
+        },
+        {
+          "name": "rawDownloadsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to download raw source files"
+        },
+        {
+          "name": "searchEngineIndexingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow search engines to index the video page"
+        },
+        {
+          "name": "transcriptsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Show transcript panel to viewers"
+        },
+        {
+          "name": "viewCountEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Show view count on video page"
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_add-blur",
+      "description": "Adds a blur mask to a clip. Always targets the subject screen layer (the only supported target). Required: id, clipId, dimensions, durationMs, point, startTimeMs. Returns the new ClipMaskResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/blurs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "object",
+          "location": "body",
+          "description": "Size of the masked rectangle (percentages)",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms",
+          "required": true
+        },
+        {
+          "name": "point",
+          "type": "object",
+          "location": "body",
+          "description": "Top-left corner of the masked rectangle (percentages)",
+          "required": true
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_add-highlight",
+      "description": "Adds a highlight mask to a clip. Always targets the subject screen layer (the only supported target). Required: id, clipId, dimensions, durationMs, point, startTimeMs. Returns the new ClipMaskResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/highlights",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "object",
+          "location": "body",
+          "description": "Size of the masked rectangle (percentages)",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms",
+          "required": true
+        },
+        {
+          "name": "point",
+          "type": "object",
+          "location": "body",
+          "description": "Top-left corner of the masked rectangle (percentages)",
+          "required": true
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_add-layout",
+      "description": "Adds a layout to a clip. Provide both startTimeMs and durationMs for a time-ranged layout, or omit both for a clip-spanning layout. Required: id, clipId, layout. Optional: durationMs, media, startTimeMs (plus 1 more). Returns the new ClipLayoutResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/layouts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Provide together with startTimeMs for a time-ranged layout."
+        },
+        {
+          "name": "layout",
+          "type": "object",
+          "location": "body",
+          "description": "Structured layout description, discriminated by `kind`. Valid kinds depend on the clip's `layoutSceneType` and the story's aspect ratio; the server validates the kind+fields and returns a 400 if they don't fit.",
+          "required": true
+        },
+        {
+          "name": "media",
+          "type": "object",
+          "location": "body",
+          "description": "Optional media content to show during this layout. Only valid on time-ranged layouts."
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Provide together with durationMs for a time-ranged layout."
+        },
+        {
+          "name": "transitionStyle",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Only valid on time-ranged layouts. Defaults to the clip's setting when omitted."
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_add-zoom",
+      "description": "Add a zoom to a clip. Required: id, clipId, durationMs, startTimeMs, type. Optional: focusPoint, scale. Returns the new ClipZoomResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/zooms",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms",
+          "required": true
+        },
+        {
+          "name": "focusPoint",
+          "type": "object",
+          "location": "body",
+          "description": "Point on the screen recording to zoom into, expressed as percentages of the screen dimensions. Required for `manualZoom`; ignored for `trackingZoom`."
+        },
+        {
+          "name": "scale",
+          "type": "float",
+          "location": "body",
+          "description": "Magnification factor (1 = no zoom, 3.5 = max)."
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "`manualZoom` zooms into a fixed `focusPoint` on the screen. `trackingZoom` automatically follows the cursor in the screen recording.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_cut",
+      "description": "Cut a time range from a clip. Overlapping or adjacent ranges are merged into the existing cuts. To clear all cuts, call updateClip with cuts: []. Required: id, clipId, fromMs, toMs. Returns the new GetClipResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/cut",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "fromMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start of the range to cut, in milliseconds from the clip's start.",
+          "required": true
+        },
+        {
+          "name": "toMs",
+          "type": "int",
+          "location": "body",
+          "description": "End of the range to cut, in milliseconds from the clip's start. Clamped to the clip's max duration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_delete",
+      "description": "Removes a clip from its video. The underlying recording is preserved. Required: id, clipId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}/clips/{clipId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_duplicate",
+      "description": "Duplicates an existing clip in its video. By default the new clip is inserted right after the source. Required: id, clipId. Optional: name, order. Returns the new GetClipResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/duplicate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the duplicated clip (defaults to the source clip name)"
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "location": "body",
+          "description": "Position to insert the new clip (defaults to right after the source)"
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get",
+      "description": "Returns a single clip in a video. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-cut-transcript",
+      "description": "Returns the words spoken in a clip with cuts applied — what viewers actually hear. Times are in ms relative to the clip's playback start. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/transcript/cut",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-silences",
+      "description": "Returns silent ranges in a clip's audio. Required: id, clipId. Optional: minDurationMs.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/silences",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "minDurationMs",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum silence duration to report, in ms. Defaults to 200."
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-source-thumbnail",
+      "description": "Get a thumbnail of a source. If you pass `width`/`height`, the aspect ratio must match the source's native ratio. Omit both to default to the source's native size. Required: id, clipId, sourceId. Optional: format, inpointMs, durationMs (plus 4 more). Returns the ThumbnailResponse.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/sources/{sourceId}/thumbnail",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Source ID",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Output format. Defaults to jpg."
+        },
+        {
+          "name": "inpointMs",
+          "type": "int",
+          "location": "query",
+          "description": "Frame offset in ms from the source's start. Defaults to 0."
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "query",
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4."
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "query",
+          "description": "Width"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "query",
+          "description": "Height"
+        },
+        {
+          "name": "download",
+          "type": "string",
+          "location": "query",
+          "description": "Suggest a download disposition on the signed URL."
+        },
+        {
+          "name": "response",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect."
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-source-waveform",
+      "description": "Returns the audio waveform JSON for a source in BBC audiowaveform format. Use the `data` array to render a custom waveform visualization. Required: id, clipId, sourceId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/sources/{sourceId}/waveform",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Source ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-thumbnail",
+      "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a clip. By default returns a 302 redirect to the URL — set `?response=json` to get `{url}` JSON instead. `inpointMs` is clip-relative (recording time, ignores cuts). `durationMs` only applies to gif/mp4. Required: id, clipId. Optional: format, inpointMs, durationMs (plus 4 more).",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/thumbnail",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Output format. Defaults to jpg."
+        },
+        {
+          "name": "inpointMs",
+          "type": "int",
+          "location": "query",
+          "description": "Frame offset in ms from the clip's start. Defaults to 0."
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "query",
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4."
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "query",
+          "description": "Output width in pixels"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "query",
+          "description": "Output height in pixels"
+        },
+        {
+          "name": "download",
+          "type": "string",
+          "location": "query",
+          "description": "Suggest a download disposition on the signed URL."
+        },
+        {
+          "name": "response",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect."
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_get-uncut-transcript",
+      "description": "Returns the words spoken in a clip without cuts applied. Times are in ms relative to the source's start. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/transcript/uncut",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list",
+      "description": "Returns the clips of a video in playback order. Required: id.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list-blurs",
+      "description": "List blurs on a clip. Required: id, clipId. Returns the ListClipMasksResponse.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/blurs",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list-highlights",
+      "description": "List highlights on a clip. Required: id, clipId. Returns the ListClipMasksResponse.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/highlights",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list-layouts",
+      "description": "Returns the layouts (sections) attached to a clip. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/layouts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list-sources",
+      "description": "Returns the underlying sources used by a clip's layers. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/sources",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_list-zooms",
+      "description": "Returns the zoom effects on a clip. Required: id, clipId.",
+      "method": "GET",
+      "path": "/v1/videos/{id}/clips/{clipId}/zooms",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_remove-blur",
+      "description": "Remove a blur. Required: id, clipId, maskId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}/clips/{clipId}/blurs/{maskId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "maskId",
+          "type": "string",
+          "location": "path",
+          "description": "Mask ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_remove-fillers",
+      "description": "Detects filler words ('um', 'uh', 'hmm', etc.) and adds cuts that bracket each filler. New cuts are merged with any existing cuts. Returns the updated clip. Required: id, clipId.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/remove-fillers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_remove-highlight",
+      "description": "Remove a highlight. Required: id, clipId, maskId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}/clips/{clipId}/highlights/{maskId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "maskId",
+          "type": "string",
+          "location": "path",
+          "description": "Mask ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_remove-layout",
+      "description": "Remove a layout. Required: id, clipId, layoutId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}/clips/{clipId}/layouts/{layoutId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "layoutId",
+          "type": "string",
+          "location": "path",
+          "description": "Layout (section) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_remove-zoom",
+      "description": "Remove a zoom. Required: id, clipId, zoomId. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/videos/{id}/clips/{clipId}/zooms/{zoomId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "zoomId",
+          "type": "string",
+          "location": "path",
+          "description": "Zoom ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_reorder",
+      "description": "Moves a clip to a new position within its video. Other clips are renumbered to keep ordering contiguous. Required: id, clipId, order. Returns the new GetClipResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/clips/{clipId}/reorder",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "location": "body",
+          "description": "New position for the clip (0 = first)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_update",
+      "description": "Update a clip's name, ordering, cuts, background, or transition. At least one field must be provided. Required: id, clipId. Optional: background, cuts, name (plus 1 more). Returns the updated GetClipResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}/clips/{clipId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video identifier",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip identifier",
+          "required": true
+        },
+        {
+          "name": "background",
+          "type": "object",
+          "location": "body",
+          "description": "Clip background. Use type = 'solid' with `color`, type = 'image' with `imageUrl`, type = 'video' with `videoUrl` + `videoDurationSeconds`, or type = 'gradient' with `gradientColor1`, `gradientColor2`, `gradientAngle`."
+        },
+        {
+          "name": "cuts",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the clip's cuts. Total cut duration must be less than `maxDurationSeconds`."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New clip name"
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "location": "body",
+          "description": "New position of the clip within the video"
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_update-blur",
+      "description": "Update a blur. Required: id, clipId, maskId. Optional: dimensions, durationMs, point (plus 1 more). Returns the updated ClipMaskResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}/clips/{clipId}/blurs/{maskId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "maskId",
+          "type": "string",
+          "location": "path",
+          "description": "Mask ID",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "object",
+          "location": "body",
+          "description": "Size of the masked rectangle (percentages)"
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms"
+        },
+        {
+          "name": "point",
+          "type": "object",
+          "location": "body",
+          "description": "Top-left corner of the masked rectangle (percentages)"
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms"
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_update-highlight",
+      "description": "Update a highlight. Required: id, clipId, maskId. Optional: dimensions, durationMs, point (plus 1 more). Returns the updated ClipMaskResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}/clips/{clipId}/highlights/{maskId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "maskId",
+          "type": "string",
+          "location": "path",
+          "description": "Mask ID",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "object",
+          "location": "body",
+          "description": "Size of the masked rectangle (percentages)"
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms"
+        },
+        {
+          "name": "point",
+          "type": "object",
+          "location": "body",
+          "description": "Top-left corner of the masked rectangle (percentages)"
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms"
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_update-layout",
+      "description": "Update a layout. Required: id, clipId, layoutId. Optional: durationMs, layout, media (plus 2 more). Returns the updated ClipLayoutResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}/clips/{clipId}/layouts/{layoutId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "layoutId",
+          "type": "string",
+          "location": "path",
+          "description": "Layout (section) ID",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms"
+        },
+        {
+          "name": "layout",
+          "type": "object",
+          "location": "body",
+          "description": "Structured layout description, discriminated by `kind`. Valid kinds depend on the clip's `layoutSceneType` and the story's aspect ratio; the server validates the kind+fields and returns a 400 if they don't fit."
+        },
+        {
+          "name": "media",
+          "type": "object",
+          "location": "body",
+          "description": "Replace the layout's media content. Only valid on time-ranged layouts; rejected on the base (clip-spanning) layout."
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms"
+        },
+        {
+          "name": "transitionStyle",
+          "type": "string",
+          "location": "body",
+          "description": "Only valid on time-ranged layouts; rejected on the base (clip-spanning) layout."
+        }
+      ]
+    },
+    {
+      "name": "videos_clips_update-zoom",
+      "description": "Update a zoom. Required: id, clipId, zoomId. Optional: durationMs, focusPoint, scale (plus 2 more). Returns the updated ClipZoomResponse.",
+      "method": "PATCH",
+      "path": "/v1/videos/{id}/clips/{clipId}/zooms/{zoomId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "zoomId",
+          "type": "string",
+          "location": "path",
+          "description": "Zoom ID",
+          "required": true
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "body",
+          "description": "Duration ms"
+        },
+        {
+          "name": "focusPoint",
+          "type": "object",
+          "location": "body",
+          "description": "Point on the screen recording to zoom into, expressed as percentages of the screen dimensions. Required for `manualZoom`; ignored for `trackingZoom`."
+        },
+        {
+          "name": "scale",
+          "type": "float",
+          "location": "body",
+          "description": "Magnification factor (1 = no zoom, 3.5 = max)."
+        },
+        {
+          "name": "startTimeMs",
+          "type": "int",
+          "location": "body",
+          "description": "Start time ms"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "`manualZoom` zooms into a fixed `focusPoint` on the screen. `trackingZoom` automatically follows the cursor in the screen recording."
+        }
+      ]
+    },
+    {
+      "name": "videos_collaborators_add-to-video",
+      "description": "Grants access to a video for the specified user. The user must be a member of your workspace. Required: id, email, role. Returns the new AddCollaboratorResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/collaborators",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the user to add. Must be a member of your workspace.",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role to grant. Allowed values: 'editor' or 'viewer'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_duplicate_video",
+      "description": "Creates a copy of the specified video. Optionally specify a new name for the duplicate. Required: id. Optional: name, trim. Returns the new DuplicateVideoResponse.",
+      "method": "POST",
+      "path": "/v1/videos/{id}/duplicate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the duplicated video. Defaults to original name with ' (Copy)' suffix."
+        },
+        {
+          "name": "trim",
+          "type": "object",
+          "location": "body",
+          "description": "Optional trim parameters. Specify startTime+endTime for time range trim (duration must be at least 1 second), or chapterIndex to extract a specific chapter."
+        }
+      ]
+    },
+    {
+      "name": "videos_exports_video",
+      "description": "Starts an export of the specified video. Returns the export status including download URL when completed. Required: id. Optional: fps, granularity, resolution (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/videos/{id}/exports",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        },
+        {
+          "name": "fps",
+          "type": "string",
+          "location": "body",
+          "description": "Frames per second. 60fps may require paid plan."
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "body",
+          "description": "Export granularity: video (full video), clips (one file per clip), raw (original uploads)"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "location": "body",
+          "description": "Export resolution. Default is 1080p."
+        },
+        {
+          "name": "speed",
+          "type": "string",
+          "location": "body",
+          "description": "Playback speed multiplier"
+        },
+        {
+          "name": "subtitles",
+          "type": "bool",
+          "location": "body",
+          "description": "Burn subtitles into the video"
+        }
+      ]
+    },
+    {
+      "name": "videos_thumbnail_get-video",
+      "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a video at a video-relative time. By default returns a 302 redirect — set `?response=json` to get `{url}` JSON instead. Required: id. Optional: format, inpointMs, durationMs (plus 4 more).",
+      "method": "GET",
+      "path": "/v1/videos/{id}/thumbnail",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique video identifier",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Output format. Defaults to jpg."
+        },
+        {
+          "name": "inpointMs",
+          "type": "int",
+          "location": "query",
+          "description": "Frame offset in ms from the clip's start. Defaults to 0."
+        },
+        {
+          "name": "durationMs",
+          "type": "int",
+          "location": "query",
+          "description": "Duration of the animated preview in ms. Only valid when format is gif or mp4."
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "query",
+          "description": "Output width in pixels"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "query",
+          "description": "Output height in pixels"
+        },
+        {
+          "name": "download",
+          "type": "string",
+          "location": "query",
+          "description": "Suggest a download disposition on the signed URL."
+        },
+        {
+          "name": "response",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'json' to receive `{url}` instead of the default 302 redirect."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create-endpoint",
+      "description": "Creates a new webhook endpoint to receive events. Returns the endpoint ID and signing secret. Required: filterTypes, url.",
+      "method": "POST",
+      "path": "/v1/webhooks/endpoints",
+      "params": [
+        {
+          "name": "filterTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Event types to subscribe to (e.g., video.created, export.ready)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL where webhook events will be sent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete-endpoint",
+      "description": "Permanently deletes a webhook endpoint. Required: id. Returns the DeleteEndpointResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/webhooks/endpoints/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook endpoint ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get-endpoint-secret",
+      "description": "Retrieves the signing secret for a webhook endpoint. Use this to verify incoming webhook payloads. Required: id. Returns the EndpointSecretResponse.",
+      "method": "GET",
+      "path": "/v1/webhooks/endpoints/{id}/secret",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook endpoint ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get-message",
+      "description": "Returns details of a specific webhook message by ID. Required: id.",
+      "method": "GET",
+      "path": "/v1/webhooks/messages/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list-messages",
+      "description": "Returns a list of recently sent webhook messages for debugging purposes. Optional: event_types, limit.",
+      "method": "GET",
+      "path": "/v1/webhooks/messages",
+      "params": [
+        {
+          "name": "event_types",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of event types to filter by"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of messages to return (default: 10)"
+        }
+      ]
+    }
+  ]
+}

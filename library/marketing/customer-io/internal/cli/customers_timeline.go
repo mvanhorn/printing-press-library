@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -84,9 +84,9 @@ or partial; the JSON envelope's "data_source" field tells you which.`,
 			})
 
 			out := map[string]any{
-				"customer":       customer,
-				"events":         events,
-				"deliveries_count":  len(deliveries),
+				"customer":           customer,
+				"events":             events,
+				"deliveries_count":   len(deliveries),
 				"suppressions_count": len(suppressions),
 			}
 			if includeSegments {

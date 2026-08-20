@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "robinhood-pp-mcp",
+  "display_name": "Robinhood Crypto Trading",
+  "version": "4.11.0",
+  "description": "Welcome to Robinhood Crypto Trading API documentation for traders and developers!",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/robinhood-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/robinhood-pp-mcp",
+      "args": [],
+      "env": {
+        "ROBINHOOD_API_KEY": "${user_config.robinhood_api_key}",
+        "ROBINHOOD_PRIVATE_KEY_B64": "${user_config.robinhood_private_key_b64}"
+      }
+    }
+  },
+  "user_config": {
+    "robinhood_api_key": {
+      "type": "string",
+      "title": "ROBINHOOD_API_KEY",
+      "description": "Sets ROBINHOOD_API_KEY for the Robinhood Crypto Trading MCP server. Get a credential from https://robinhood.com/account/crypto.",
+      "sensitive": true,
+      "required": true
+    },
+    "robinhood_private_key_b64": {
+      "type": "string",
+      "title": "ROBINHOOD_PRIVATE_KEY_B64",
+      "description": "Sets the base64 Ed25519 private signing key for the Robinhood Crypto Trading MCP server. Create credentials at https://robinhood.com/account/crypto.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

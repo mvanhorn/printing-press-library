@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "greptile-public-submit-fixes",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Fix public submit review issues for cart preview query resolution, deterministic cache keys, and generic approval wording.",
+  "reason": "Greptile and library CI flagged production-path issues after the first submission: cart preview sent query file names as GraphQL documents, GET cache keys depended on map iteration order, and a live-order flag description embedded a maintainer handle.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/cart.go",
+    "internal/cli/which.go",
+    "internal/cli/queries/checkout.graphql",
+    "internal/cli/queries/totalFeeTally.graphql"
+  ],
+  "validated_outcome": "go test ./... and scoped govulncheck passed before updating PR #773."
+}

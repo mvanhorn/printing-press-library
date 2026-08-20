@@ -1,0 +1,204 @@
+{
+  "api_name": "greatclips",
+  "base_url": "https://webservices.greatclips.com",
+  "description": "Customer-facing CLI for Great Clips salons. Joins the customer-facing\nGreatClips webservices (salon metadata, profile, hours, geocoding) with\nthe third-party ICS Net Check-In service that powers wait times and\ncheck-in submission (the \"Powered by ICS\" footer on the official site).\n\nBoth host families share one Auth0 Bearer token, captured once via\n`auth login --chrome` from a logged-in browser session.\n",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GREATCLIPS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GREATCLIPS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cancel_submit",
+      "description": "Cancel the active check-in for this account. Returns the new CancelResult.",
+      "method": "POST",
+      "path": "/api/customer/cancel",
+      "params": []
+    },
+    {
+      "name": "checkin_submit",
+      "description": "Add yourself and optionally other party members to a salon waitlist. Required: firstName, lastName, phoneNumber, salonNumber. Optional: guests (default: 1). Returns the new CheckInResult.",
+      "method": "POST",
+      "path": "/api/customer/checkIn",
+      "params": [
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "Your first name (will appear on the in-salon waitlist)",
+          "required": true
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Your last name",
+          "required": true
+        },
+        {
+          "name": "phoneNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number for ReadyNext text alerts",
+          "required": true
+        },
+        {
+          "name": "salonNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Salon number to check into",
+          "required": true
+        },
+        {
+          "name": "guests",
+          "type": "int",
+          "location": "body",
+          "description": "Total number of haircuts (1-5; you + any additional party members)"
+        }
+      ]
+    },
+    {
+      "name": "customer_profile",
+      "description": "Get the authenticated customer's profile. Returns the Profile.",
+      "method": "GET",
+      "path": "/cmp2/profile/get",
+      "params": []
+    },
+    {
+      "name": "geo_postal_code",
+      "description": "Resolve a zip/postal code to lat/lng/city/state. Required: query. Optional: limit (default: 20). Returns array of GeoResult.",
+      "method": "POST",
+      "path": "/customer/geo-names/postal-code",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code (e.g. 98040)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "body",
+          "description": "Max results"
+        }
+      ]
+    },
+    {
+      "name": "hours_upcoming",
+      "description": "Get 14-day hours forecast for one salon. Required: salon. Returns array of SalonHours.",
+      "method": "GET",
+      "path": "/customer/salon-hours/upcoming",
+      "params": [
+        {
+          "name": "salon",
+          "wire_name": "salonNumber",
+          "type": "string",
+          "location": "query",
+          "description": "Salon number",
+          "required": true,
+          "aliases": [
+            "salon-number"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "salons_get",
+      "description": "Get a single salon by its salon number. Required: num. Optional: limit (default: 1). Returns the new Salon.",
+      "method": "POST",
+      "path": "/customer/salon-search/salon",
+      "params": [
+        {
+          "name": "num",
+          "type": "string",
+          "location": "body",
+          "description": "Salon number (e.g. 8991 for Island Square on Mercer Island)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "body",
+          "description": "Limit (typically 1)"
+        }
+      ]
+    },
+    {
+      "name": "salons_search",
+      "description": "Search salons by zip code, city, or coordinates within a radius. Required: term. Optional: radius (default: 25), limit (default: 50), lat (default: 0) (plus 1 more). Returns array of Salon.",
+      "method": "POST",
+      "path": "/customer/salon-search/term",
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "body",
+          "description": "Zip code, city, or address term",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "body",
+          "description": "Search radius in miles"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "body",
+          "description": "Max salons to return (as string)"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude (0 to ignore)"
+        },
+        {
+          "name": "lng",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude (0 to ignore)"
+        }
+      ]
+    },
+    {
+      "name": "status_get",
+      "description": "Get your active check-in status (position in line, estimated wait). Returns the CheckInStatus.",
+      "method": "GET",
+      "path": "/api/customer/status",
+      "params": []
+    },
+    {
+      "name": "wait_one",
+      "description": "Get wait time for one salon (body is a single-element array of {storeNumber}). Required: storeNumber. Returns array of WaitTime.",
+      "method": "POST",
+      "path": "/api/store/waitTime",
+      "params": [
+        {
+          "name": "storeNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Salon number",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: outlook-calendar-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: outlook-calendar-pp-cli
+    main: ./cmd/outlook-calendar-pp-cli
+    binary: outlook-calendar-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/outlook-calendar/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: outlook-calendar-pp-mcp
+    main: ./cmd/outlook-calendar-pp-mcp
+    binary: outlook-calendar-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: outlook-calendar-pp-cli
+    repository:
+      owner: paul-brennaman
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first Outlook calendar CLI built for AI agents on personal Microsoft 365 accounts — with offline conflict..."
+    install: |
+      bin.install "outlook-calendar-pp-cli"
+      bin.install "outlook-calendar-pp-mcp"

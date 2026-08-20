@@ -1,0 +1,383 @@
+"""Fireflies.ai meeting intelligence API"""
+type Query {
+  """Get a single transcript by ID"""
+  transcript(id: String!): Transcript
+
+  """List transcripts with optional filters"""
+  transcripts(
+    keyword: String
+    fromDate: DateTime
+    toDate: DateTime
+    limit: Int
+    skip: Int
+    host_email: String
+    participants: [String]
+    mine: Boolean
+    scope: String
+  ): [Transcript]
+
+  """Get the authenticated user's profile"""
+  user(id: String): User
+
+  """List all team members"""
+  users: [User]
+
+  """List accessible channels"""
+  channels: [Channel]
+
+  """Get a single channel by ID"""
+  channel(id: String!): Channel
+
+  """Get team analytics"""
+  analytics(start_time: String, end_time: String): Analytics
+
+  """List currently active/live meetings"""
+  active_meetings(email: String, states: [String]): [ActiveMeeting]
+
+  """Get an AskFred AI thread"""
+  askfred_thread(id: String!): AskFredThread
+
+  """List AskFred AI threads"""
+  askfred_threads: [AskFredThreadSummary]
+
+  """List meeting soundbites/clips"""
+  bites(limit: Int, skip: Int): [Bite]
+
+  """Get a single soundbite"""
+  bite(id: String!): Bite
+
+  """List team contacts"""
+  contacts: [Contact]
+
+  """List user groups"""
+  user_groups: [UserGroup]
+
+  """Get live action items for an active meeting"""
+  live_action_items(meeting_id: String!): [LiveActionItem]
+
+  """Get AI App outputs"""
+  apps(transcript_id: String, limit: Int): [AppOutput]
+}
+
+type Mutation {
+  """Update a meeting title"""
+  updateMeetingTitle(id: String!, title: String!): MutationResult
+
+  """Update meeting privacy"""
+  updateMeetingPrivacy(id: String!, privacy: String!): MutationResult
+
+  """Update meeting channel/folder"""
+  updateMeetingChannel(id: String!, channel_id: String!): MutationResult
+
+  """Share a meeting with external emails"""
+  shareMeeting(meeting_id: String!, emails: [String!]!, expiry_days: Int): MutationResult
+
+  """Revoke external sharing access"""
+  revokeSharedMeetingAccess(meeting_id: String!, email: String!): MutationResult
+
+  """Delete a transcript"""
+  deleteTranscript(id: String!): MutationResult
+
+  """Upload audio/video for transcription"""
+  uploadAudio(url: String!, title: String, webhook: String, custom_language: String, attendees: [AttendeeInput]): AudioUploadStatus
+
+  """Create an AskFred AI thread"""
+  createAskFredThread(query: String!, transcript_id: String, response_language: String): AskFredResponse
+
+  """Continue an AskFred AI thread"""
+  continueAskFredThread(thread_id: String!, query: String!, response_language: String): AskFredResponse
+
+  """Delete an AskFred thread"""
+  deleteAskFredThread(thread_id: String!): MutationResult
+
+  """Add Fireflies bot to a live meeting"""
+  addToLive(meeting_id: String!): MutationResult
+
+  """Pause or resume a live recording"""
+  updateMeetingState(id: String!, state: String!): ActiveMeeting
+
+  """Create a live action item"""
+  createLiveActionItem(meeting_id: String!, description: String!, assigned_to: String): LiveActionItem
+
+  """Create a soundbite/clip from a transcript"""
+  createBite(transcript_id: String!, start_time: Float!, end_time: Float!, title: String): Bite
+
+  """Set a team member's role"""
+  setUserRole(user_id: String!, role: String!): User
+}
+
+type Transcript {
+  id: ID!
+  title: String
+  date: Float
+  dateString: DateTime
+  duration: Float
+  privacy: String
+  transcript_url: String
+  audio_url: String
+  video_url: String
+  is_live: Boolean
+  meeting_link: String
+  calendar_type: String
+  organizer_email: String
+  host_email: String
+  participants: [String]
+  fireflies_users: [String]
+  workspace_users: [String]
+  speakers: [Speaker]
+  meeting_attendees: [MeetingAttendee]
+  meeting_attendance: [MeetingAttendance]
+  sentences: [Sentence]
+  summary: Summary
+  analytics: MeetingAnalytics
+  meeting_info: MeetingInfo
+  channels: [Channel]
+  shared_with: [SharedWith]
+  user: User
+  calendar_id: String
+}
+
+type Speaker {
+  id: Int
+  name: String
+}
+
+type Sentence {
+  index: Int
+  text: String
+  raw_text: String
+  start_time: String
+  end_time: String
+  speaker_id: ID
+  speaker_name: String
+  ai_filters: AIFilter
+}
+
+type AIFilter {
+  task: String
+  pricing: String
+  metric: String
+  question: String
+  date_and_time: String
+  text_cleanup: String
+  sentiment: String
+}
+
+type Summary {
+  action_items: String
+  keywords: [String]
+  outline: String
+  overview: String
+  shorthand_bullet: String
+  notes: String
+  gist: String
+  bullet_gist: String
+  short_summary: String
+  meeting_type: String
+  topics_discussed: [String]
+}
+
+type MeetingAnalytics {
+  sentiments: Sentiments
+  categories: AnalyticsCategories
+  speakers: [AnalyticsSpeaker]
+}
+
+type Sentiments {
+  positive_pct: Float
+  neutral_pct: Float
+  negative_pct: Float
+}
+
+type AnalyticsCategories {
+  questions: Int
+  date_times: Int
+  metrics: Int
+  tasks: Int
+}
+
+type AnalyticsSpeaker {
+  speaker_id: Int
+  name: String
+  duration: Float
+  word_count: Int
+  longest_monologue: Float
+  monologues_count: Int
+  filler_words: Int
+  questions: Int
+  duration_pct: Float
+  words_per_minute: Float
+}
+
+type MeetingInfo {
+  fred_joined: Boolean
+  silent_meeting: Boolean
+  summary_status: String
+}
+
+type User {
+  user_id: String
+  email: String
+  name: String
+  num_transcripts: Int
+  recent_transcript: String
+  minutes_consumed: Int
+  is_admin: Boolean
+  integrations: [String]
+  is_calendar_in_sync: Boolean
+}
+
+type Channel {
+  id: String
+  title: String
+  is_private: Boolean
+  created_by: String
+  created_at: DateTime
+  updated_at: DateTime
+  members: [ChannelMember]
+}
+
+type ChannelMember {
+  user_id: String
+  email: String
+  name: String
+}
+
+type Analytics {
+  team_meetings: Int
+  team_hours: Float
+  avg_duration: Float
+  users: [UserAnalytics]
+}
+
+type UserAnalytics {
+  user_id: String
+  name: String
+  email: String
+  num_meetings: Int
+  hours: Float
+  words_per_minute: Float
+  questions: Int
+  filler_words: Int
+  longest_monologue: Float
+  talk_ratio: Float
+}
+
+type ActiveMeeting {
+  id: String
+  title: String
+  organizer_email: String
+  meeting_link: String
+  start_time: DateTime
+  end_time: DateTime
+  privacy: String
+  state: String
+}
+
+type AskFredThread {
+  id: String
+  messages: [AskFredMessage]
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type AskFredThreadSummary {
+  id: String
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type AskFredMessage {
+  id: String
+  thread_id: String
+  query: String
+  answer: String
+  suggested_queries: [String]
+  status: String
+  created_at: DateTime
+}
+
+type AskFredResponse {
+  thread_id: String
+  answer: String
+  suggested_queries: [String]
+}
+
+type Bite {
+  id: String
+  transcript_id: String
+  title: String
+  start_time: Float
+  end_time: Float
+  created_at: DateTime
+  audio_url: String
+}
+
+type Contact {
+  email: String
+  name: String
+  last_meeting: DateTime
+}
+
+type UserGroup {
+  id: String
+  name: String
+  members: [User]
+}
+
+type LiveActionItem {
+  id: String
+  meeting_id: String
+  description: String
+  assigned_to: String
+  created_at: DateTime
+}
+
+type SharedWith {
+  email: String
+  expires_at: DateTime
+  created_at: DateTime
+}
+
+type MeetingAttendee {
+  displayName: String
+  email: String
+  phoneNumber: String
+  name: String
+}
+
+type MeetingAttendance {
+  name: String
+  join_time: DateTime
+  leave_time: DateTime
+}
+
+type MutationResult {
+  success: Boolean
+  message: String
+}
+
+type AudioUploadStatus {
+  title: String
+  url: String
+  status: String
+  message: String
+}
+
+type AppOutput {
+  transcript_id: String
+  user_id: String
+  app_id: String
+  created_at: DateTime
+  title: String
+  prompt: String
+  response: String
+}
+
+input AttendeeInput {
+  displayName: String
+  email: String
+  phoneNumber: String
+}
+
+scalar DateTime

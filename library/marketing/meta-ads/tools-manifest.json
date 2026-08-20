@@ -1,0 +1,304 @@
+{
+  "api_name": "meta-ads",
+  "base_url": "https://graph.facebook.com/v19.0",
+  "description": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "META_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "META_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://developers.facebook.com/docs/marketing-api/access"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "adcreatives_list-ad-creatives",
+      "description": "Get creatives attached to an ad. Required: adId. Returns array of Creative.",
+      "method": "GET",
+      "path": "/{adId}/adcreatives",
+      "params": [
+        {
+          "name": "adId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad ID (numeric string)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ads_list",
+      "description": "List ads in an ad account. Required: adAccountId. Returns array of Ad.",
+      "method": "GET",
+      "path": "/{adAccountId}/ads",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "adsets_list-ad-sets",
+      "description": "Returns ad sets with targeting summary, budget, optimization goal, and bid strategy. Includes learning_phase metadata when adsets are still exiting the algorithm's learning window. Required: adAccountId.",
+      "method": "GET",
+      "path": "/{adAccountId}/adsets",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "Returns campaigns with status, objective, and budget metadata. Use effective_status (not status) for the live delivery state - status is what you set; effective_status is what Meta is actually doing. Required: adAccountId. Optional: effective_status.",
+      "method": "GET",
+      "path": "/{adAccountId}/campaigns",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        },
+        {
+          "name": "effective_status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by effective status array, e.g. ['ACTIVE','PAUSED']"
+        }
+      ]
+    },
+    {
+      "name": "customaudiences_list-custom-audiences",
+      "description": "List custom audiences in an ad account. Required: adAccountId. Returns array of CustomAudience.",
+      "method": "GET",
+      "path": "/{adAccountId}/customaudiences",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delivery-estimate_get",
+      "description": "Get reach/impressions delivery estimate. Required: adAccountId. Optional: targeting_spec, optimization_goal. Returns array of DeliveryEstimateGetItem.",
+      "method": "GET",
+      "path": "/{adAccountId}/delivery_estimate",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        },
+        {
+          "name": "targeting_spec",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded targeting specification"
+        },
+        {
+          "name": "optimization_goal",
+          "type": "string",
+          "location": "query",
+          "description": "Optimization goal"
+        }
+      ]
+    },
+    {
+      "name": "insights_get-account",
+      "description": "Returns aggregated insights across the entire ad account. Requires either time_range or date_preset - there is no default time window. Breakdowns are mutually exclusive in groups (age+gender works, age+placement does not). Required: adAccountId. Optional: date_preset, time_range, time_increment (plus 2 more).",
+      "method": "GET",
+      "path": "/{adAccountId}/insights",
+      "params": [
+        {
+          "name": "adAccountId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad account ID with 'act_' prefix (e.g., act_1234567890)",
+          "required": true
+        },
+        {
+          "name": "date_preset",
+          "type": "string",
+          "location": "query",
+          "description": "Preset time window. Common values: today, yesterday, this_week_mon_today, last_7d, last_14d,..."
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded time range, e."
+        },
+        {
+          "name": "time_increment",
+          "type": "string",
+          "location": "query",
+          "description": "Group results into N-day buckets."
+        },
+        {
+          "name": "breakdowns",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated breakdowns."
+        },
+        {
+          "name": "level",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation level (account, campaign, adset, ad)"
+        }
+      ]
+    },
+    {
+      "name": "insights_get-ad",
+      "description": "Ad-level insights with frequency, CPM, CTR over time. With time_increment=1 and a date_preset like last_30d, this returns the daily series that powers creative-fatigue detection. Required: adId. Optional: date_preset, time_range, time_increment (plus 1 more).",
+      "method": "GET",
+      "path": "/{adId}/insights",
+      "params": [
+        {
+          "name": "adId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad ID (numeric string)",
+          "required": true
+        },
+        {
+          "name": "date_preset",
+          "type": "string",
+          "location": "query",
+          "description": "Preset time window. Common values: today, yesterday, this_week_mon_today, last_7d, last_14d,..."
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded time range, e."
+        },
+        {
+          "name": "time_increment",
+          "type": "string",
+          "location": "query",
+          "description": "Group results into N-day buckets."
+        },
+        {
+          "name": "breakdowns",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated breakdowns."
+        }
+      ]
+    },
+    {
+      "name": "insights_get-ad-set",
+      "description": "Get ad set-level insights. Required: adSetId. Optional: date_preset, time_range, time_increment (plus 1 more). Returns array of InsightsRow.",
+      "method": "GET",
+      "path": "/{adSetId}/insights",
+      "params": [
+        {
+          "name": "adSetId",
+          "type": "string",
+          "location": "path",
+          "description": "Ad set ID (numeric string)",
+          "required": true
+        },
+        {
+          "name": "date_preset",
+          "type": "string",
+          "location": "query",
+          "description": "Preset time window. Common values: today, yesterday, this_week_mon_today, last_7d, last_14d,..."
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded time range, e."
+        },
+        {
+          "name": "time_increment",
+          "type": "string",
+          "location": "query",
+          "description": "Group results into N-day buckets."
+        },
+        {
+          "name": "breakdowns",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated breakdowns."
+        }
+      ]
+    },
+    {
+      "name": "insights_get-campaign",
+      "description": "Get campaign-level insights. Required: campaignId. Optional: date_preset, time_range, time_increment (plus 1 more). Returns array of InsightsRow.",
+      "method": "GET",
+      "path": "/{campaignId}/insights",
+      "params": [
+        {
+          "name": "campaignId",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign ID (numeric string)",
+          "required": true
+        },
+        {
+          "name": "date_preset",
+          "type": "string",
+          "location": "query",
+          "description": "Preset time window. Common values: today, yesterday, this_week_mon_today, last_7d, last_14d,..."
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded time range, e."
+        },
+        {
+          "name": "time_increment",
+          "type": "string",
+          "location": "query",
+          "description": "Group results into N-day buckets."
+        },
+        {
+          "name": "breakdowns",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated breakdowns."
+        }
+      ]
+    },
+    {
+      "name": "me_list-ad-accounts",
+      "description": "Returns every ad account the access token has been granted access to. Use this on first run to discover which accounts you can query.",
+      "method": "GET",
+      "path": "/me/adaccounts",
+      "params": []
+    }
+  ]
+}

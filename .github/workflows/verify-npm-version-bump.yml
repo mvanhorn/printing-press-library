@@ -1,0 +1,72 @@
+name: Verify npm version bump
+
+# The npm publish workflow only runs after npm/package.json's version changes on
+# main. This PR-time guard catches package-code/docs changes that would
+# otherwise merge without ever reaching npmjs.com.
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verify-npm-version-bump.yml'
+      - 'npm/**'
+      - '!npm/tests/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-npm-version-bump-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify npm version bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify npm package version bump
+        if: github.event_name == 'pull_request'
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+          git remote add pr "https://github.com/${HEAD_REPO}.git" 2>/dev/null || git remote set-url pr "https://github.com/${HEAD_REPO}.git"
+          git fetch --no-tags pr "${HEAD_SHA}"
+          merge_base=$(git merge-base "${BASE_SHA}" "${HEAD_SHA}")
+
+          changed=$(git diff --name-only --diff-filter=ACMRD "${merge_base}" "${HEAD_SHA}" -- npm)
+          release_relevant=$(printf '%s\n' "${changed}" | awk '
+            /^npm\/(CHANGELOG\.md|LICENSE|README\.md|package-lock\.json|package\.json|tsconfig\.json)$/ { print; next }
+            /^npm\/(bin|src)\// { print }
+          ')
+
+          if [ -z "${release_relevant}" ]; then
+            echo "No npm package release-relevant files changed. OK."
+            exit 0
+          fi
+
+          base_version=$(git show "${merge_base}:npm/package.json" | jq -er '.version | strings')
+          head_version=$(git show "${HEAD_SHA}:npm/package.json" | jq -er '.version | strings')
+
+          if [ "${base_version}" != "${head_version}" ]; then
+            echo "npm package release-relevant files changed and version changed (${base_version} -> ${head_version}). OK."
+            exit 0
+          fi
+
+          echo "::error::This PR changes files that ship in, build, or document the npm package, but npm/package.json's version did not change."
+          echo "::error::Bump npm/package.json's version in this PR so merge triggers npm publish."
+          while IFS= read -r file; do
+            [ -z "${file}" ] && continue
+            echo "::error file=${file}::requires an npm/package.json version bump"
+          done <<< "${release_relevant}"
+          echo "Tests-only npm changes under npm/tests/ do not require a version bump."
+          exit 1

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stdin-only-require-stdin-sweep",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Require --stdin on 20 additional stdin-only mutation commands (customer domains, agents verify, certificates email/cancel, etc.).",
+  "reason": "Greptile P1 pattern (flagged on DNS records + aftermarket previously): empty '!stdinBody' guards on stdin-only commands silently sent {} to the API, producing cryptic 400s. Same usageErr require-stdin fix applied to the remaining stdin-only mutation commands.",
+  "files": [
+    "internal/cli/*.go (20 stdin-only command files)"
+  ]
+}

@@ -1,0 +1,162 @@
+
+=== dogfood ===
+warning: skipping request body for PUT "/env-groups/{envGroupId}/env-vars/{envVarKey}": contains oneOf/anyOf
+warning: skipping request body for PUT "/services/{serviceId}/env-vars/{envVarKey}": contains oneOf/anyOf
+Dogfood Report: render-pp-cli
+================================
+
+Path Validity:     4/4 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    11/11 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== verify ===
+warning: skipping request body for PUT "/env-groups/{envGroupId}/env-vars/{envVarKey}": contains oneOf/anyOf
+warning: skipping request body for PUT "/services/{serviceId}/env-vars/{envVarKey}": contains oneOf/anyOf
+Runtime Verification: /Users/giu/printing-press/.runstate/cli-printing-press-eeffaa17/runs/20260509-092314/working/render-pp-cli/render-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+audit                          read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+blueprints                     read         PASS   PASS     PASS     3/3
+cost                           read         PASS   PASS     FAIL     2/3
+cron-jobs                      read         PASS   PASS     PASS     3/3
+deploys                        read         PASS   PASS     PASS     3/3
+disks                          read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+drift                          read         PASS   PASS     FAIL     2/3
+env                            read         PASS   PASS     PASS     3/3
+env-groups                     read         PASS   PASS     PASS     3/3
+environments                   read         PASS   PASS     PASS     3/3
+events                         read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+incident-timeline              read         PASS   PASS     PASS     3/3
+jobs                           read         PASS   PASS     PASS     3/3
+key-value                      read         PASS   PASS     PASS     3/3
+load                           read         PASS   PASS     PASS     3/3
+logs                           read         PASS   PASS     PASS     3/3
+maintenance                    read         PASS   PASS     PASS     3/3
+metrics                        read         PASS   PASS     PASS     3/3
+metrics-stream                 read         PASS   PASS     PASS     3/3
+notification-settings          read         PASS   PASS     PASS     3/3
+organizations                  read         PASS   PASS     PASS     3/3
+orphans                        read         PASS   PASS     PASS     3/3
+owners                         read         PASS   PASS     PASS     3/3
+postgres                       read         PASS   PASS     PASS     3/3
+preview-cleanup                read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+projects                       read         PASS   PASS     PASS     3/3
+redis                          read         PASS   PASS     PASS     3/3
+registrycredentials            read         PASS   PASS     PASS     3/3
+rightsize                      read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+services                       read         PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+task-runs                      read         PASS   PASS     PASS     3/3
+tasks                          read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+webhooks                       read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+workflows                      read         PASS   PASS     PASS     3/3
+workflowversions               read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (51/51 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: render-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== render-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+FAILED [recipes]: render-pp-cli env diff srv-staging srv-prod --json --select changed && render-pp-cli env promote --from srv-staging --to srv-prod --exclude DEBUG_TOKEN,SENTRY_DEV_DSN --dry-run → full example failed: /Users/giu/printing-press/.runstate/cli-printing-press-eeffaa17/runs/20260509-092314/working/render-pp-cli/render-pp-cli env diff srv-staging srv-prod --json --select changed && render-pp-cli env promote --from srv-staging --to srv-prod --exclude DEBUG_TOKEN,SENTRY_DEV_DSN --dry-run: exit status 1: Error: unknown flag: --from
+unknown flag: --from
+DONE: 10 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Quality Scorecard: render
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       10/10
+
+  Domain Correctness
+  Path Validity           9/10
+  Auth Protocol           8/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 88/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - MCP: 196 tools (0 public, 196 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.71s
+  verify            PASS    0         4.701s
+  workflow-verify   PASS    0         12ms
+  verify-skill      PASS    0         461ms
+  validate-narrative  FAIL    1         1.296s
+  scorecard         PASS    0         128ms
+
+Verdict: FAIL (1/6 legs failed)

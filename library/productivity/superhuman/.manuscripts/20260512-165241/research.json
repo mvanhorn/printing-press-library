@@ -1,0 +1,157 @@
+{
+  "api_name": "superhuman",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "edwinhu/superhuman-cli",
+      "url": "https://github.com/edwinhu/superhuman-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "superhuman/mcp-mail",
+      "url": "https://github.com/superhuman/mcp-mail",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "himalaya",
+      "url": "https://github.com/pimalaya/himalaya",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aerc",
+      "url": "https://git.sr.ht/~rjarry/aerc",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T00:30:00Z",
+  "novel_features": [
+    {
+      "name": "Workflow compound commands",
+      "command": "workflow",
+      "description": "Compound commands that combine multiple API operations into one verb (see `workflow --help`).",
+      "example": "superhuman-pp-cli workflow --help"
+    },
+    {
+      "name": "Capability discovery via `which`",
+      "command": "which",
+      "description": "Resolve a natural-language capability query to the best matching command from this CLI's curated feature index.",
+      "example": "superhuman-pp-cli which 'snooze a thread for tomorrow'"
+    }
+  ],
+  "novel_features_built": [],
+  "narrative": {
+    "display_name": "Superhuman",
+    "headline": "Read, draft, send, and snooze Superhuman email from your terminal or Claude Code.",
+    "value_prop": "Superhuman email from your terminal or Claude Code, backed by a local SQLite store and agent-native JSON I/O.",
+    "auth_narrative": "Superhuman has no public API key. Lift your Firebase JWT from a logged-in Chrome session via DevTools (Application > Local Storage > mail.superhuman.com), then persist it with `superhuman-pp-cli auth set-token <jwt>`. Firebase JWTs expire after ~1 hour; the CLI returns 401 when stale and you re-paste the current value.",
+    "quickstart": [
+      {
+        "command": "superhuman-pp-cli auth setup",
+        "comment": "Get the JWT-from-Chrome instructions (one-time)"
+      },
+      {
+        "command": "superhuman-pp-cli auth set-token \"$SUPERHUMAN_JWT\"",
+        "comment": "Persist the JWT lifted from your Chrome session"
+      },
+      {
+        "command": "superhuman-pp-cli doctor",
+        "comment": "Confirm auth and connectivity are green"
+      },
+      {
+        "command": "superhuman-pp-cli sync --full",
+        "comment": "Populate the local SQLite store for offline analysis"
+      },
+      {
+        "command": "superhuman-pp-cli threads list --limit 20 --json",
+        "comment": "List recent threads as structured JSON"
+      },
+      {
+        "command": "superhuman-pp-cli drafts list --json",
+        "comment": "See pending drafts before sending"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 on every backend call",
+        "fix": "Run `superhuman-pp-cli doctor` to confirm the JWT is set, then re-paste a fresh JWT from Chrome DevTools and re-run `auth set-token`. Firebase JWTs expire roughly hourly."
+      },
+      {
+        "symptom": "auth setup says no token configured",
+        "fix": "Set SUPERHUMAN_JWT in your environment or persist it with `superhuman-pp-cli auth set-token <jwt>`."
+      },
+      {
+        "symptom": "threads list is empty after sync",
+        "fix": "Confirm `doctor --json` shows a recent sync; if not, re-run `sync --full`."
+      },
+      {
+        "symptom": "ai returns 400 invalid-question-event-id",
+        "fix": "The JWT may be from a different account or expired; re-paste a fresh JWT and retry."
+      }
+    ],
+    "when_to_use": "Pick the Superhuman CLI when you want email read/draft/respond access from a terminal or Claude Code, scriptable thread search backed by a local store, capability discovery via `which`, or Ask AI semantic search piped into other tools.",
+    "recipes": [
+      {
+        "title": "Fast triage view across recent threads",
+        "command": "superhuman-pp-cli threads list --limit 100 --json --select id,subject,snippet,participants",
+        "explanation": "Pull a wide swath of recent threads with only the fields you need; pipe to jq or an LLM for further triage."
+      },
+      {
+        "title": "Draft from stdin and send with an undo window",
+        "command": "echo 'Body text here' | superhuman-pp-cli drafts write --to teammate@example.com --subject 'Update' --stdin && superhuman-pp-cli messages --draft-message-id <draft-id> --delay 30",
+        "explanation": "Write a draft from a piped body, then send it with a 30s undo window \u2014 agents can abort before the send fires."
+      },
+      {
+        "title": "Snooze a thread for later",
+        "command": "superhuman-pp-cli reminders create --thread-id <thread-id> --trigger-at 2026-05-13T09:00:00Z",
+        "explanation": "Schedule a thread to resurface at a specific time; pair with `reminders cancel` to un-snooze."
+      },
+      {
+        "title": "Discover a capability by description",
+        "command": "superhuman-pp-cli which 'send an email with an undo window'",
+        "explanation": "Resolve a natural-language capability query to the best matching command from this CLI's curated feature index."
+      },
+      {
+        "title": "Ask AI semantic search across mail",
+        "command": "superhuman-pp-cli ai --query 'what did Alice say about pricing last week' --agent",
+        "explanation": "Run a semantic query through Superhuman's Ask AI surface; --agent gives you JSON streams pipeable to other tools."
+      }
+    ],
+    "trigger_phrases": [
+      "check my email",
+      "what's in my inbox",
+      "draft a reply to <thread>",
+      "send <draft> with undo",
+      "who hasn't responded to me",
+      "triage my newsletters",
+      "use superhuman",
+      "run superhuman"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "azure-functions-admin-pp-cli"
+display_name = "Azure Functions"
+description = "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/azure-functions-admin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+AZURE_CLIENT_ID = true
+AZURE_CLIENT_SECRET = true
+AZURE_SUBSCRIPTION_ID = true
+AZURE_TENANT_ID = true

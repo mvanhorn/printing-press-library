@@ -1,0 +1,164 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-05T23:27:03.023217Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "iclasspro",
+  "display_name": "iClassPro",
+  "cli_name": "iclasspro-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "iclasspro.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:dcb1707d35b3e8105655dce7a432b8c2f1e9a97fd2a21c2a2675eb8b3b195b9a",
+  "run_id": "20260805-132802-de816ded",
+  "category": "productivity",
+  "description": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+  "mcp_binary": "iclasspro-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_public_tool_count": 15,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE",
+    "ICLASSPRO_STAFF_USERNAME",
+    "ICLASSPRO_STAFF_PASSWORD"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "ICLASSPRO_STAFF_USERNAME",
+      "kind": "staff_session_login",
+      "required": false,
+      "sensitive": false
+    },
+    {
+      "name": "ICLASSPRO_STAFF_PASSWORD",
+      "kind": "staff_session_login",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Openings watcher",
+      "command": "watch",
+      "description": "Get told the moment a spot frees up in a class or camp that is currently full."
+    },
+    {
+      "name": "Catalog drift",
+      "command": "drift",
+      "description": "See what changed between syncs: classes and camps added, removed, retimed, or newly marked deleted."
+    },
+    {
+      "name": "Registration windows",
+      "command": "opens-soon",
+      "description": "Find registration that has not opened yet or is about to close, across every synced class and camp."
+    },
+    {
+      "name": "Calendar export",
+      "command": "calendar",
+      "description": "Export synced camps and classes to an RFC 5545 calendar file, one event per session."
+    },
+    {
+      "name": "Tenant capability probe",
+      "command": "tenant",
+      "description": "Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated."
+    },
+    {
+      "name": "Fill-rate trend",
+      "command": "fill-rate",
+      "description": "Show how fast classes are filling over time, by class or by program."
+    },
+    {
+      "name": "Cross-tenant compare",
+      "command": "compare",
+      "description": "Compare the same kind of program across several gyms at once."
+    },
+    {
+      "name": "Catalog lint",
+      "command": "lint",
+      "description": "Flag catalog quality problems: missing descriptions or images, expired registration windows, deleted-but-listed programs."
+    },
+    {
+      "name": "Read-only Office Portal access",
+      "command": "admin capabilities",
+      "description": "Read an explicit allow-list of authenticated staff resources without mutation, export, or response caching."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Openings watcher",
+      "command": "watch",
+      "description": "Get told the moment a spot frees up in a class or camp that is currently full."
+    },
+    {
+      "name": "Catalog drift",
+      "command": "drift",
+      "description": "See what changed between syncs: classes and camps added, removed, retimed, or newly marked deleted."
+    },
+    {
+      "name": "Registration windows",
+      "command": "opens-soon",
+      "description": "Find registration that has not opened yet or is about to close, across every synced class and camp."
+    },
+    {
+      "name": "Calendar export",
+      "command": "calendar",
+      "description": "Export synced camps and classes to an RFC 5545 calendar file, one event per session."
+    },
+    {
+      "name": "Tenant capability probe",
+      "command": "tenant",
+      "description": "Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated."
+    },
+    {
+      "name": "Fill-rate trend",
+      "command": "fill-rate",
+      "description": "Show how fast classes are filling over time, by class or by program."
+    },
+    {
+      "name": "Cross-tenant compare",
+      "command": "compare",
+      "description": "Compare the same kind of program across several gyms at once."
+    },
+    {
+      "name": "Catalog lint",
+      "command": "lint",
+      "description": "Flag catalog quality problems: missing descriptions or images, expired registration windows, deleted-but-listed programs."
+    },
+    {
+      "name": "Read-only Office Portal access",
+      "command": "admin capabilities",
+      "description": "Read an explicit allow-list of authenticated staff resources without mutation, export, or response caching."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 51,
+    "total": 51,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+      "total": 83
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

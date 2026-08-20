@@ -1,0 +1,216 @@
+{
+  "api_name": "grubhub",
+  "base_url": "https://api-gtm.grubhub.com",
+  "description": "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar, and offline menu-item search no Grubhub tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {GRUBHUB_TOKEN}",
+    "env_vars": [
+      "GRUBHUB_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GRUBHUB_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.grubhub.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.grubhub.com/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "geo_geocode",
+      "description": "Geocode a street address to Grubhub coordinates. Required: address. Returns array of Geocode.",
+      "method": "GET",
+      "path": "/geocode",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "path",
+          "description": "Street address, e.g. '350 5th Ave, New York, NY'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_get",
+      "description": "Get a restaurant's details and full menu by id. Required: restaurant_id. Optional: location, version (default: 4), order-type (default: standard) (plus 3 more). Returns the RestaurantDetail.",
+      "method": "GET",
+      "path": "/restaurants/{restaurant_id}",
+      "params": [
+        {
+          "name": "restaurant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Grubhub restaurant id",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "WKT point as POINT(longitude latitude) for delivery context"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "query",
+          "description": "Menu API version"
+        },
+        {
+          "name": "order-type",
+          "wire_name": "orderType",
+          "type": "string",
+          "location": "query",
+          "description": "Order type context"
+        },
+        {
+          "name": "show-coupons",
+          "wire_name": "showMenuItemCoupons",
+          "type": "bool",
+          "location": "query",
+          "description": "Include item-level coupons"
+        },
+        {
+          "name": "include-promos",
+          "wire_name": "includePromos",
+          "type": "bool",
+          "location": "query",
+          "description": "Include restaurant promotions"
+        },
+        {
+          "name": "hide-unavailable",
+          "wire_name": "hideUnavailableMenuItems",
+          "type": "bool",
+          "location": "query",
+          "description": "Hide unavailable menu items"
+        }
+      ]
+    },
+    {
+      "name": "restaurants_menu-item",
+      "description": "Get a menu item's full detail including modifier/choice categories. Required: restaurant_id, item_id. Optional: order-type (default: standard), version (default: 4). Returns the MenuItem.",
+      "method": "GET",
+      "path": "/restaurants/{restaurant_id}/menu_items/{item_id}",
+      "params": [
+        {
+          "name": "restaurant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Grubhub restaurant id",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Grubhub menu item id",
+          "required": true
+        },
+        {
+          "name": "order-type",
+          "wire_name": "orderType",
+          "type": "string",
+          "location": "query",
+          "description": "Order type context"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "query",
+          "description": "Menu API version"
+        }
+      ]
+    },
+    {
+      "name": "restaurants_search",
+      "description": "Search restaurants near a location (raw API surface; use the top-level 'search' command for address-based search). Required: location. Optional: order-method (default: delivery), facet-set (default: umamiV6), sort-set (default: umamiv3) (plus 5 more). Returns the SearchResponse.",
+      "method": "GET",
+      "path": "/restaurants/search",
+      "params": [
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "WKT point as POINT(longitude latitude), e.g. POINT(-73.9857 40.7484)",
+          "required": true
+        },
+        {
+          "name": "order-method",
+          "wire_name": "orderMethod",
+          "type": "string",
+          "location": "query",
+          "description": "Order method: delivery or pickup"
+        },
+        {
+          "name": "facet-set",
+          "wire_name": "facetSet",
+          "type": "string",
+          "location": "query",
+          "description": "Grubhub facet set identifier"
+        },
+        {
+          "name": "sort-set",
+          "wire_name": "sortSetId",
+          "type": "string",
+          "location": "query",
+          "description": "Grubhub sort set identifier"
+        },
+        {
+          "name": "sponsored-size",
+          "wire_name": "sponsoredSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of sponsored results to include"
+        },
+        {
+          "name": "page",
+          "wire_name": "pageNum",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "include-offers",
+          "wire_name": "includeOffers",
+          "type": "bool",
+          "location": "query",
+          "description": "Include promotional offers in results"
+        },
+        {
+          "name": "hide-hateoas-links",
+          "wire_name": "hideHateoasLinks",
+          "type": "bool",
+          "location": "query",
+          "description": "Suppress verbose HATEOAS link blocks"
+        }
+      ]
+    }
+  ]
+}

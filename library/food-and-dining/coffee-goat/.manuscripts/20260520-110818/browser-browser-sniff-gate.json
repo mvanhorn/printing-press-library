@@ -1,0 +1,41 @@
+{
+  "run_id": "20260520-110818",
+  "sources": [
+    {
+      "source_name": "roaster-sites",
+      "decision": "skip-silent",
+      "reason": "convention-based spec known (Shopify /products.json, WooCommerce /wp-json/wc/store/v1/products, Square Online HTML, Snipcart HTML); prior run 20260520-102217 probed 24/24 reachable; no hidden XHR API to discover",
+      "asked_at": "2026-05-20T18:16:06Z"
+    },
+    {
+      "source_name": "james-hoffmann",
+      "decision": "skip-silent",
+      "reason": "data path is YouTube transcripts via the already-published youtube-pp-cli (timedtext endpoint, no-auth); blog jameshoffmann.com ECONNREFUSED during probe and deferred from this session; no hidden site to browser-sniff",
+      "asked_at": "2026-05-20T18:16:06Z"
+    },
+    {
+      "source_name": "coffee-review",
+      "decision": "skip-silent",
+      "reason": "WP REST + /feed/ surface confirmed in prior run 20260520-102217; no hidden XHR API",
+      "asked_at": "2026-05-20T18:16:06Z"
+    },
+    {
+      "source_name": "world-barista-championship",
+      "decision": "skip-silent",
+      "reason": "data on wcc.coffee is static HTML tables (no SPA, no hidden XHR); Wikipedia winners table available via documented public REST API; recipe data lives in Sprudge editorial coverage already handled by prior run with Chrome-cookie clearance",
+      "asked_at": "2026-05-20T18:16:06Z"
+    },
+    {
+      "source_name": "lance-hedrick",
+      "decision": "skip-silent",
+      "reason": "data path is YouTube transcripts via youtube-pp-cli (same as Hoffmann); no separate website source",
+      "asked_at": "2026-05-20T18:16:06Z"
+    },
+    {
+      "source_name": "other-trusted-sources",
+      "decision": "skip-silent",
+      "reason": "extensibility placeholder; Sprudge already covered in prior research; cafe-finder uses documented Overpass API (overpass-api.de/api/interpreter) + Sprudge guides with existing Cloudflare-cookie path; no novel endpoint discovery needed",
+      "asked_at": "2026-05-20T18:16:06Z"
+    }
+  ]
+}

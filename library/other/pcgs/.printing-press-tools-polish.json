@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-17T04:23:35.25215Z",
+  "cli_dir": "\u003ccli-dir\u003e/pcgs",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-17T04:18:56.899017Z"
+  }
+}

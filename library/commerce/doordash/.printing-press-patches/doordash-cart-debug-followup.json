@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "doordash-cart-debug-followup",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Expose addCartItemV2 order-item IDs and store-scoped cart show for safer live cart debugging.",
+  "reason": "The previous controlled live cart test returned a cart ID but no visible cart; the next approved test needs the exact added item ID when DoorDash returns it and a read-only store-scoped listCarts check before any removal/cleanup attempt.",
+  "files": [
+    "DOORDASH_CLI_STATUS.md",
+    "PHASE5_PAUSE_HANDOFF.md",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/src/api/cart.ts",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/src/cli.ts",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/dist/api/cart.js",
+    "/home/hermes/printing-press/sources/doordash-mcp-ashah360/dist/cli.js"
+  ],
+  "validated_outcome": "2026-05-14T05:11Z: node --check passed for dist/api/cart.js and dist/cli.js; active CLI help shows cart show --store-id; cart add --dry-run returns safely; cart show --store-id 2418408 returns a list; doctor remains authenticated/csrf_present with consumer_id_present=false; cart add without --yes and order place without ALLOW_DOORDASH_ORDERING=1 both reject. No live mutation/order attempted."
+}

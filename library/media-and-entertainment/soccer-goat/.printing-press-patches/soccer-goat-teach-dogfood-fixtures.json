@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "soccer-goat-teach-dogfood-fixtures",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-074136",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Add pp:happy-args to framework teach/teach-pattern/teach-playbook/playbook-amend, honor explicit --json on teach, and single-line the teach Example so live dogfood can exercise them.",
+  "reason": "Generated framework teaching commands ship without pp:happy-args, so dogfood --live happy_path/json_fidelity probes exit 2/empty; the teach Example's shell line-continuation backslash also leaked into dogfood's parsed arg vector.",
+  "files": ["internal/cli/teach.go", "internal/cli/teach_playbook.go"],
+  "validated_outcome": "cli-printing-press dogfood --live --level full: 104/104.",
+  "upstream_issue": ""
+}

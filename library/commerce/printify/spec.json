@@ -1,0 +1,5886 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "license": {
+      "name": "ISC",
+      "url": "https://www.isc.org/licenses/"
+    },
+    "title": "Printify Public API",
+    "description": "## Getting started\n\nPrintify API enables you to automate product and order creation for a variety of scenarios,\nincluding integration with your on-site design generator, on-site product customization and more.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "servers": [
+    {
+      "url": "https://api.printify.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Shops",
+      "description": "Manage Printify shops and shop connections. Retrieve shop information and disconnect shops from your account."
+    },
+    {
+      "name": "Catalog",
+      "description": "Browse the Printify catalog including blueprints, print providers, product variants, and shipping information. Explore available products and their customization options."
+    },
+    {
+      "name": "Products",
+      "description": "Create, update, delete, and manage products in your shop. Publish products to sales channels and handle product lifecycle events including GPSR compliance information."
+    },
+    {
+      "name": "Orders",
+      "description": "Create and manage orders including standard orders, Printify Express orders, and order lifecycle management. Calculate shipping costs and track order fulfillment."
+    },
+    {
+      "name": "Uploads",
+      "description": "Upload and manage images and assets. Upload images from URLs or base64-encoded content, retrieve upload information, and archive uploaded images."
+    },
+    {
+      "name": "Webhooks",
+      "description": "Configure webhooks to receive notifications about order and product events. Create, update, and delete webhook subscriptions."
+    },
+    {
+      "name": "V2 Catalog Blueprints",
+      "description": "V2 API endpoints for catalog and shipping information. Retrieve shipping methods and variant-specific shipping details using JSON API format."
+    }
+  ],
+  "paths": {
+    "/v1/shops.json": {
+      "get": {
+        "tags": [
+          "Shops"
+        ],
+        "summary": "Retrieve list of shops in a Printify account",
+        "description": "This will return the list of available merchant shops (IDs and titles)",
+        "operationId": "retrieveListOfShopsInAPrintifyAccount",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/shopsList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/shops/{shop_id}/connection.json": {
+      "delete": {
+        "tags": [
+          "Shops"
+        ],
+        "summary": "Disconnect a shop",
+        "description": "Disconnect a shop",
+        "operationId": "disconnectAShop",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/variants.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve a list of variants of a blueprint from a specific print provider",
+        "description": "Retrieves the list of of variants options for the Print Provider and Blueprint.\n    Those form the set of options available for customization Product (Blueprint)\n    on particular manufacturer (Print Provider).",
+        "operationId": "retrieveAListOfVariantsOfABlueprintFromASpecificPrintProvider",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/show-out-of-stock"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/variantsResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        },
+        {
+          "$ref": "#/components/parameters/print_provider_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve a list of all print providers that fulfill orders for a specific blueprint",
+        "description": "Retrieves the list of print providers avilable for the Blueprint",
+        "operationId": "retrieveAListOfAllPrintProvidersThatFulfillOrdersForASpecificBlueprint",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/printProvidersList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve shipping information",
+        "description": "Retrieves the list of print providers avilable for the Blueprint",
+        "operationId": "retrieveShippingInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/shippingResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieves list of blueprints in the catalog",
+        "description": "Retrieves the list of blueprints in the catalog to explore from",
+        "operationId": "retrievesListOfBlueprintsInTheCatalog",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/blueprintsList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/catalog/blueprints/{blueprint_id}.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve a specific blueprint",
+        "description": "Retrieves the list of blueprints in the catalog to explore from",
+        "operationId": "retrieveASpecificBlueprint",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/blueprint"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/print_providers.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve a list of available print providers",
+        "description": "Retrieves the list of blueprints in the catalog to explore from",
+        "operationId": "retrieveAListOfAvailablePrintProviders",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/printProvidersFullList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/catalog/print_providers/{print_provider_id}.json": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Retrieve a specific print provider",
+        "description": "Retrieves the list of blueprints in the catalog to explore from",
+        "operationId": "retrieveASpecificPrintProvider",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/printProviderFull"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/print_provider_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}.json": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Retrieve a product",
+        "description": "Retrieve a product",
+        "operationId": "retrieveAProduct",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/product"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update a product",
+        "description": "Update a product",
+        "operationId": "updateAProduct",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/updateProduct"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/product"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Delete a product",
+        "description": "Delete a product",
+        "operationId": "deleteAProduct",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products.json": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Retrieve a list of products",
+        "description": "Retrieve a list of products",
+        "operationId": "retrieveAListOfProducts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_50"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/productsList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Create a new product",
+        "description": "Create a new product",
+        "operationId": "createANewProduct",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createProduct"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/product"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}/publishing_succeeded.json": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Set product publish status to succeeded",
+        "description": "Set product publish status to succeeded",
+        "operationId": "setProductPublishStatusToSucceeded",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_50"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/productPublishStatusSucceeded"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}/publishing_failed.json": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Set product publish status to failed",
+        "description": "Set product publish status to failed",
+        "operationId": "setProductPublishStatusToFailed",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_50"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/productPublishStatusFailed"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}/unpublish.json": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Notify that a product has been unpublished",
+        "description": "Notify that a product has been unpublished",
+        "operationId": "notifyThatAProductHasBeenUnpublished",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_50"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}/publish.json": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Publish a product",
+        "description": "Publish a product",
+        "operationId": "publishAProduct",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_50"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/publishProduct"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/products/{product_id}/gpsr.json": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Retrieve product GPSR information",
+        "description": "Retrieve product GPSR information",
+        "operationId": "retrieveProductGpsrInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/gpsrList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/product_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders.json": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Retrieve a list of orders",
+        "description": "Retrieve a list of orders",
+        "operationId": "retrieveAListOfOrders",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_10"
+          },
+          {
+            "$ref": "#/components/parameters/page_with_example"
+          },
+          {
+            "$ref": "#/components/parameters/status"
+          },
+          {
+            "$ref": "#/components/parameters/sku"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ordersList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Submit an order",
+        "description": "Submit an order",
+        "operationId": "submitAnOrder",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/submitOrder"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/orderCreated"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders/{order_id}/cancel.json": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Cancel an order",
+        "description": "Cancel an order",
+        "operationId": "cancelAnOrder",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/order"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/order_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders/{order_id}/send_to_production.json": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Send an existing order to production",
+        "description": "Send an existing order to production",
+        "operationId": "sendAnExistingOrderToProduction",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/orderIdResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/order_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders/shipping.json": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Calculate the shipping cost of an order",
+        "description": "Calculate the shipping cost of an order",
+        "operationId": "calculateTheShippingCostOfAnOrder",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/calculateShipping"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/shippingCosts"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders/express.json": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Submit a Printify Express order",
+        "description": "Submit a Printify Express order",
+        "operationId": "submitAPrintifyExpressOrder",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/submitExpressOrder"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/expressOrderResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/orders/{order_id}.json": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Get order details by ID",
+        "description": "Get order details by ID",
+        "operationId": "getOrderDetailsById",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/order"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/order_id"
+        }
+      ]
+    },
+    "/v1/uploads.json": {
+      "get": {
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Retrieve a list of uploaded images",
+        "description": "Retrieve a list of uploaded images",
+        "operationId": "retrieveAListOfUploadedImages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_100"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/uploadsList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/uploads/{image_id}.json": {
+      "get": {
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Retrieve an uploaded image by id",
+        "description": "Retrieve an uploaded image by id",
+        "operationId": "retrieveAnUploadedImageById",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/upload"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/image_id"
+        }
+      ]
+    },
+    "/v1/uploads/images.json": {
+      "post": {
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Upload an image",
+        "description": "Upload an image",
+        "operationId": "uploadAnImage",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/uploadImage"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/upload"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/uploads/{image_id}/archive.json": {
+      "post": {
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Archive an uploaded image",
+        "description": "Archive an uploaded image",
+        "operationId": "archiveAnUploadedImage",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/emptySuccess"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/image_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/webhooks.json": {
+      "get": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Retrieve a list of webhooks",
+        "description": "Retrieve a list of webhooks",
+        "operationId": "retrieveAListOfWebhooks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit_max_100"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/webhooksList"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Create a new webhook",
+        "description": "Create a new webhook",
+        "operationId": "createANewWebhook",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/createWebhook"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/webhook"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/webhooks/{webhook_id}.json": {
+      "put": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Modify a webhook",
+        "description": "Modify a webhook",
+        "operationId": "modifyAWebhook",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/modifyWebhook"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/webhook"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Delete a webhook",
+        "description": "Delete a webhook",
+        "operationId": "deleteAWebhook",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/host"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/webhookDeleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/shop_id"
+        },
+        {
+          "$ref": "#/components/parameters/webhook_id"
+        }
+      ]
+    },
+    "/v1/shops/{shop_id}/webhooks/{webhook_id}/simulate": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Simulate a webhook",
+        "description": "Simulate a webhook",
+        "operationId": "simulateWebhook",
+        "responses": {
+          "204": {
+            "description": "The webhook event was simulated"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping.json": {
+      "get": {
+        "tags": [
+          "V2 Catalog Blueprints"
+        ],
+        "summary": "Retrieve available shipping list information",
+        "description": "Retrieves the list of print providers avilable for the Blueprint",
+        "operationId": "retrieveAvailableShippingListInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/v2ShippingResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        },
+        {
+          "$ref": "#/components/parameters/print_provider_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/standard.json": {
+      "get": {
+        "tags": [
+          "V2 Catalog Blueprints"
+        ],
+        "summary": "Retrieve specific shipping method information",
+        "description": "Retrieves the list of print providers avilable for the Blueprint",
+        "operationId": "retrieveSpecificShippingMethodInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/v2ShippingStandardResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/priority.json": {
+      "get": {
+        "tags": [
+          "V2 Catalog Blueprints"
+        ],
+        "summary": "Retrieve priority shipping method information",
+        "description": "Retrieves the list of print providers available for the Blueprint",
+        "operationId": "retrievePriorityShippingMethodInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/successfulOperation"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/express.json": {
+      "get": {
+        "tags": [
+          "V2 Catalog Blueprints"
+        ],
+        "summary": "Retrieve express shipping method information",
+        "description": "Retrieves the list of print providers available for the Blueprint",
+        "operationId": "retrieveExpressShippingMethodInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/successfulOperation"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    },
+    "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/economy.json": {
+      "get": {
+        "tags": [
+          "V2 Catalog Blueprints"
+        ],
+        "summary": "Retrieve economy shipping method information",
+        "description": "Retrieves the list of print providers available for the Blueprint",
+        "operationId": "retrieveEconomyShippingMethodInformation",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/successfulOperation"
+          },
+          "400": {
+            "$ref": "#/components/responses/error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/blueprint_id"
+        }
+      ]
+    }
+  },
+  "x-webhooks": {
+    "shop:disconnected": {
+      "post": {
+        "operationId": "shopDisconnected",
+        "summary": "Shop disconnected event",
+        "description": "Triggered when a shop is disconnected from a Printify account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/shopDisconnected"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "product:deleted": {
+      "post": {
+        "operationId": "productDeleted",
+        "summary": "Product deleted event",
+        "description": "Triggered when a product is deleted from a shop",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/productDeleted"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "product:created": {
+      "post": {
+        "operationId": "productCreated",
+        "summary": "Product created event",
+        "description": "Triggered when a product is created in a shop",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/productCreated"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "product:updated": {
+      "post": {
+        "operationId": "productUpdated",
+        "summary": "Product updated event",
+        "description": "Triggered when a product is updated in a shop",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/productUpdated"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "product:publish:started": {
+      "post": {
+        "operationId": "productPublishStarted",
+        "summary": "Product publish started event",
+        "description": "Triggered when a product publish process starts. Can be for creation or deletion.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/productPublishStarted"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "order:created": {
+      "post": {
+        "operationId": "orderCreatedEvent",
+        "summary": "Order created event",
+        "description": "Triggered when a new order is created",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderCreatedEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "order:updated": {
+      "post": {
+        "operationId": "orderUpdated",
+        "summary": "Order updated event",
+        "description": "Triggered when an order is updated",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderUpdated"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "order:shipment:created": {
+      "post": {
+        "operationId": "orderShipmentCreated",
+        "summary": "Order shipment created event",
+        "description": "Triggered when a shipment is created for an order",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderShipmentCreated"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "order:shipment:delivered": {
+      "post": {
+        "operationId": "orderShipmentDelivered",
+        "summary": "Order shipment delivered event",
+        "description": "Triggered when a shipment is delivered",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderShipmentDelivered"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "order:sent-to-production": {
+      "post": {
+        "operationId": "orderSentToProduction",
+        "summary": "Order sent to production event",
+        "description": "Triggered when an order is sent to production",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderSentToProduction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "shop": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 5432
+          },
+          "title": {
+            "type": "string",
+            "example": "My new store"
+          },
+          "sales_channel": {
+            "type": "string",
+            "example": "My Sales Channel"
+          }
+        }
+      },
+      "errorDetails": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Image has low quality"
+          },
+          "code": {
+            "type": "integer",
+            "example": 8203
+          }
+        }
+      },
+      "errorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "code": {
+            "type": "integer",
+            "example": 8203
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed."
+          },
+          "errors": {
+            "$ref": "#/components/schemas/errorDetails"
+          }
+        }
+      },
+      "variantOptions": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": "string",
+            "example": "Heather Grey"
+          },
+          "size": {
+            "type": "string",
+            "example": "XS"
+          }
+        }
+      },
+      "variantPlaceholder": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string",
+            "example": "back"
+          },
+          "decoration_method": {
+            "type": "string",
+            "example": "dtf"
+          },
+          "height": {
+            "type": "integer",
+            "example": 3995
+          },
+          "width": {
+            "type": "integer",
+            "example": 3153
+          }
+        }
+      },
+      "variant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 17390
+          },
+          "title": {
+            "type": "string",
+            "example": "Heather Grey / XS"
+          },
+          "options": {
+            "$ref": "#/components/schemas/variantOptions"
+          },
+          "placeholders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/variantPlaceholder"
+            }
+          },
+          "decoration_methods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "dtg",
+              "embroidery"
+            ]
+          }
+        }
+      },
+      "variantsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 3
+          },
+          "title": {
+            "type": "string",
+            "example": "DJ"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/variant"
+            }
+          }
+        }
+      },
+      "printProviderSimple": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 3
+          },
+          "title": {
+            "type": "string",
+            "example": "DJ"
+          },
+          "decoration_methods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "dtg",
+              "embroidery"
+            ]
+          }
+        }
+      },
+      "handlingTime": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "example": 30
+          },
+          "unit": {
+            "type": "string",
+            "example": "day"
+          }
+        }
+      },
+      "shippingCost": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "integer",
+            "example": 450
+          },
+          "currency": {
+            "type": "string",
+            "example": "USD"
+          }
+        }
+      },
+      "shippingProfile": {
+        "type": "object",
+        "properties": {
+          "variant_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              42716,
+              42717,
+              42718
+            ]
+          },
+          "first_item": {
+            "$ref": "#/components/schemas/shippingCost"
+          },
+          "additional_items": {
+            "$ref": "#/components/schemas/shippingCost"
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "US"
+            ]
+          }
+        }
+      },
+      "shippingResponse": {
+        "type": "object",
+        "properties": {
+          "handling_time": {
+            "$ref": "#/components/schemas/handlingTime"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/shippingProfile"
+            }
+          }
+        }
+      },
+      "blueprint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 3
+          },
+          "title": {
+            "type": "string",
+            "example": "Kids Regular Fit Tee"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Description goes here"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Delta"
+          },
+          "model": {
+            "type": "string",
+            "example": "11736"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "example": [
+              "https://images.printify.com/5853fe7dce46f30f8327f5cd",
+              "https://images.printify.com/5c487ee2a342bc9b8b2fc4d2"
+            ]
+          }
+        }
+      },
+      "location": {
+        "type": "object",
+        "properties": {
+          "address1": {
+            "type": "string",
+            "nullable": true,
+            "example": "89 Weirfield St"
+          },
+          "address2": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "city": {
+            "type": "string",
+            "example": "Brooklyn"
+          },
+          "country": {
+            "type": "string",
+            "example": "US"
+          },
+          "region": {
+            "type": "string",
+            "example": "NY"
+          },
+          "zip": {
+            "type": "string",
+            "example": "11221-5120"
+          }
+        }
+      },
+      "printProvider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "SPOKE Custom Products"
+          },
+          "location": {
+            "$ref": "#/components/schemas/location"
+          },
+          "blueprints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/blueprint"
+            }
+          }
+        }
+      },
+      "optionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1189
+          },
+          "title": {
+            "type": "string",
+            "example": "11oz"
+          }
+        }
+      },
+      "productOption": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Sizes"
+          },
+          "type": {
+            "type": "string",
+            "example": "size"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/optionValue"
+            }
+          }
+        }
+      },
+      "productVariant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 33719
+          },
+          "sku": {
+            "type": "string",
+            "example": "866366009"
+          },
+          "cost": {
+            "type": "integer",
+            "example": 516
+          },
+          "price": {
+            "type": "integer",
+            "example": 860
+          },
+          "title": {
+            "type": "string",
+            "example": "11oz"
+          },
+          "grams": {
+            "type": "integer",
+            "example": 460
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_default": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_available": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_printify_express_eligible": {
+            "type": "boolean",
+            "example": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1189
+            ]
+          }
+        }
+      },
+      "productImage": {
+        "type": "object",
+        "properties": {
+          "src": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://images.printify.com/mockup/5d39b159e7c48c000728c89f/33719/145/mug-11oz.jpg"
+          },
+          "variant_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              33719
+            ]
+          },
+          "position": {
+            "type": "string",
+            "example": "front"
+          },
+          "is_default": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "pattern": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "spacing_x": {
+            "type": "integer",
+            "example": 1
+          },
+          "spacing_y": {
+            "type": "integer",
+            "example": 2
+          },
+          "scale": {
+            "type": "integer",
+            "example": 3
+          },
+          "offset": {
+            "type": "integer",
+            "example": 4
+          }
+        }
+      },
+      "placeholderImage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5c7665205342af161e1cb26e"
+          },
+          "src": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "example": "https://image-storage.example.com/5d39b159e7c48c000728c89f"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "example": "Test.png"
+          },
+          "type": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "height": {
+            "type": "integer",
+            "example": 5850
+          },
+          "width": {
+            "type": "integer",
+            "example": 4350
+          },
+          "x": {
+            "type": "number",
+            "format": "float",
+            "example": 0.5
+          },
+          "y": {
+            "type": "number",
+            "format": "float",
+            "example": 0.5
+          },
+          "scale": {
+            "type": "number",
+            "format": "float",
+            "example": 1.01
+          },
+          "angle": {
+            "type": "integer",
+            "example": 0
+          },
+          "font_family": {
+            "type": "string",
+            "nullable": true,
+            "example": "ABeeZee"
+          },
+          "font_size": {
+            "type": "integer",
+            "nullable": true,
+            "example": 200
+          },
+          "font_weight": {
+            "type": "integer",
+            "nullable": true,
+            "example": 400
+          },
+          "font_color": {
+            "type": "string",
+            "nullable": true,
+            "example": "#ffffff"
+          },
+          "font_style": {
+            "type": "string",
+            "nullable": true,
+            "example": "normal"
+          },
+          "input_text": {
+            "type": "string",
+            "nullable": true,
+            "example": "Text example"
+          },
+          "text_align": {
+            "type": "string",
+            "nullable": true,
+            "example": "left"
+          },
+          "pattern": {
+            "$ref": "#/components/schemas/pattern"
+          }
+        }
+      },
+      "placeholder": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string",
+            "example": "front"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/placeholderImage"
+            }
+          }
+        }
+      },
+      "printArea": {
+        "type": "object",
+        "properties": {
+          "variant_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              33719
+            ]
+          },
+          "placeholders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/placeholder"
+            }
+          },
+          "background": {
+            "type": "string",
+            "example": "#ffffff"
+          }
+        }
+      },
+      "viewFile": {
+        "type": "object",
+        "properties": {
+          "src": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://images.printify.com/api/catalog/618e1792f80e2001a840687b.svg"
+          },
+          "variant_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              33719
+            ]
+          }
+        }
+      },
+      "view": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 34395
+          },
+          "label": {
+            "type": "string",
+            "example": "Front side"
+          },
+          "position": {
+            "type": "string",
+            "example": "front"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/viewFile"
+            }
+          }
+        }
+      },
+      "product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d39b159e7c48c000728c89f"
+          },
+          "title": {
+            "type": "string",
+            "example": "Mug 11oz"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Perfect for coffee, tea and hot chocolate..."
+          },
+          "safety_information": {
+            "type": "string",
+            "nullable": true,
+            "example": "GPSR information: John Doe..."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Home & Living",
+              "Mugs",
+              "11 oz"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productOption"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productVariant"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productImage"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-07-25 13:40:41+00:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-07-25 13:40:59+00:00"
+          },
+          "visible": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_locked": {
+            "type": "boolean",
+            "example": false
+          },
+          "is_printify_express_eligible": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_printify_express_enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_economy_shipping_eligible": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_economy_shipping_enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "blueprint_id": {
+            "type": "integer",
+            "example": 68
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1337
+          },
+          "shop_id": {
+            "type": "integer",
+            "example": 1337
+          },
+          "print_provider_id": {
+            "type": "integer",
+            "example": 9
+          },
+          "print_areas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/printArea"
+            }
+          },
+          "views": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/view"
+            }
+          },
+          "sales_channel_properties": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "example": []
+          }
+        }
+      },
+      "updateProductRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Product"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Good product"
+          },
+          "safety_information": {
+            "type": "string",
+            "nullable": true,
+            "example": "GPSR information: John Doe..."
+          },
+          "blueprint_id": {
+            "type": "integer",
+            "example": 384
+          },
+          "print_provider_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 45740
+                },
+                "price": {
+                  "type": "integer",
+                  "example": 400
+                },
+                "is_enabled": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "print_areas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/printArea"
+            }
+          }
+        }
+      },
+      "paginatedResponse": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer",
+            "example": 1
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "first_page_url": {
+            "type": "string",
+            "example": "/?page=1"
+          },
+          "from": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "last_page": {
+            "type": "integer",
+            "example": 22
+          },
+          "last_page_url": {
+            "type": "string",
+            "example": "/?page=22"
+          },
+          "next_page_url": {
+            "type": "string",
+            "nullable": true,
+            "example": "/?page=2"
+          },
+          "path": {
+            "type": "string",
+            "example": "/"
+          },
+          "per_page": {
+            "type": "integer",
+            "example": 1
+          },
+          "prev_page_url": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "to": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "total": {
+            "type": "integer",
+            "example": 22
+          }
+        }
+      },
+      "createProductRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "blueprint_id",
+          "print_provider_id",
+          "variants",
+          "print_areas"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Product"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Good product"
+          },
+          "safety_information": {
+            "type": "string",
+            "nullable": true,
+            "example": "GPSR information: John Doe..."
+          },
+          "blueprint_id": {
+            "type": "integer",
+            "example": 384
+          },
+          "print_provider_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 45740
+                },
+                "price": {
+                  "type": "integer",
+                  "example": 400
+                },
+                "is_enabled": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "print_areas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/printArea"
+            }
+          }
+        }
+      },
+      "externalProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5941187eb8e7e37b3f0e62e5"
+          },
+          "handle": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/path/to/product"
+          }
+        }
+      },
+      "publishingSucceededRequest": {
+        "type": "object",
+        "properties": {
+          "external": {
+            "$ref": "#/components/schemas/externalProduct"
+          }
+        }
+      },
+      "publishingFailedRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Request timed out"
+          }
+        }
+      },
+      "publishRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "boolean",
+            "example": true
+          },
+          "description": {
+            "type": "boolean",
+            "example": true
+          },
+          "images": {
+            "type": "boolean",
+            "example": true
+          },
+          "variants": {
+            "type": "boolean",
+            "example": true
+          },
+          "tags": {
+            "type": "boolean",
+            "example": true
+          },
+          "keyFeatures": {
+            "type": "boolean",
+            "example": true
+          },
+          "shipping_template": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "gpsrInfo": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "GPSR information"
+          },
+          "text": {
+            "type": "string",
+            "example": "John Doe, test@example.com, 123 Main St, Apt 1, New York, NY, 10001, US"
+          }
+        }
+      },
+      "addressTo": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "example": "Jane"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Smith"
+          },
+          "region": {
+            "type": "string",
+            "nullable": true,
+            "example": ""
+          },
+          "address1": {
+            "type": "string",
+            "example": "ExampleBaan 121"
+          },
+          "address2": {
+            "type": "string",
+            "example": "Apt 4B"
+          },
+          "city": {
+            "type": "string",
+            "example": "Retie"
+          },
+          "zip": {
+            "type": "string",
+            "example": "2470"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "example@msn.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0574 69 21 90"
+          },
+          "country": {
+            "type": "string",
+            "example": "BE"
+          },
+          "company": {
+            "type": "string",
+            "nullable": true,
+            "example": "MSN"
+          }
+        }
+      },
+      "lineItemMetadata": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "18K gold plated Necklace"
+          },
+          "price": {
+            "type": "integer",
+            "example": 2200
+          },
+          "variant_label": {
+            "type": "string",
+            "example": "Golden indigocoin"
+          },
+          "sku": {
+            "type": "string",
+            "example": "168699843"
+          },
+          "country": {
+            "type": "string",
+            "example": "United States"
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "line-item-abc-001"
+          }
+        }
+      },
+      "lineItem": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "example": "5b05842f3921c9547531758d"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "variant_id": {
+            "type": "integer",
+            "example": 17887
+          },
+          "print_provider_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "cost": {
+            "type": "integer",
+            "example": 1050
+          },
+          "shipping_cost": {
+            "type": "integer",
+            "example": 400
+          },
+          "status": {
+            "type": "string",
+            "example": "fulfilled"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/lineItemMetadata"
+          },
+          "sent_to_production_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          },
+          "fulfilled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          }
+        }
+      },
+      "orderMetadata": {
+        "type": "object",
+        "properties": {
+          "order_type": {
+            "type": "string",
+            "example": "external"
+          },
+          "shop_order_id": {
+            "type": "integer",
+            "example": 1370762297
+          },
+          "shop_order_label": {
+            "type": "string",
+            "example": "1370762297"
+          },
+          "shop_fulfilled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          }
+        }
+      },
+      "shipment": {
+        "type": "object",
+        "properties": {
+          "carrier": {
+            "type": "string",
+            "example": "usps"
+          },
+          "number": {
+            "type": "string",
+            "example": "94001116990045395649372"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "http://example.com/94001116990045395649372"
+          },
+          "delivered_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          }
+        }
+      },
+      "printifyConnect": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/printify_connect_hash"
+          },
+          "id": {
+            "type": "string",
+            "example": "printify_connect_hash"
+          }
+        }
+      },
+      "order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5a6e03bd2f7d8055768923c8"
+          },
+          "app_order_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "215014.44"
+          },
+          "address_to": {
+            "$ref": "#/components/schemas/addressTo"
+          },
+          "line_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/lineItem"
+            }
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/orderMetadata"
+          },
+          "total_price": {
+            "type": "integer",
+            "example": 2200
+          },
+          "total_shipping": {
+            "type": "integer",
+            "example": 400
+          },
+          "total_tax": {
+            "type": "integer",
+            "example": 0
+          },
+          "status": {
+            "type": "string",
+            "example": "fulfilled"
+          },
+          "shipping_method": {
+            "type": "integer",
+            "example": 1
+          },
+          "is_printify_express": {
+            "type": "boolean",
+            "example": false
+          },
+          "is_economy_shipping": {
+            "type": "boolean",
+            "example": false
+          },
+          "shipments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/shipment"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-04-18 13:24:28+00:00"
+          },
+          "sent_to_production_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          },
+          "fulfilled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2017-04-18 13:24:28+00:00"
+          },
+          "printify_connect": {
+            "$ref": "#/components/schemas/printifyConnect"
+          }
+        }
+      },
+      "lineItemWithProduct": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "variant_id",
+          "quantity"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "example": "5bfd0b66a342bcc9b5563216"
+          },
+          "variant_id": {
+            "type": "integer",
+            "example": 17887
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "line-item-abc-001"
+          }
+        }
+      },
+      "printAreasSimple": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "format": "uri"
+        },
+        "example": {
+          "front": "https://images.example.com/image.png"
+        }
+      },
+      "positionedImage": {
+        "type": "object",
+        "properties": {
+          "src": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://images.example.com/image.png"
+          },
+          "scale": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "example": 0.15
+          },
+          "x": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "example": 0.8
+          },
+          "y": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "example": 0.34
+          },
+          "angle": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "example": 0.34
+          }
+        }
+      },
+      "printAreasAdvanced": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/positionedImage"
+          }
+        },
+        "example": {
+          "front": [
+            {
+              "src": "https://images.example.com/image.png",
+              "scale": 0.15,
+              "x": 0.8,
+              "y": 0.34,
+              "angle": 0.34
+            },
+            {
+              "src": "https://images.example.com/image.png",
+              "scale": 1,
+              "x": 0.5,
+              "y": 0.5,
+              "angle": 1
+            }
+          ]
+        }
+      },
+      "printDetails": {
+        "type": "object",
+        "properties": {
+          "print_on_side": {
+            "type": "string",
+            "nullable": true,
+            "example": "mirror"
+          }
+        }
+      },
+      "lineItemWithBlueprint": {
+        "type": "object",
+        "required": [
+          "print_provider_id",
+          "blueprint_id",
+          "variant_id",
+          "quantity"
+        ],
+        "properties": {
+          "print_provider_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "blueprint_id": {
+            "type": "integer",
+            "example": 9
+          },
+          "variant_id": {
+            "type": "integer",
+            "example": 17887
+          },
+          "print_areas": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/printAreasSimple"
+              },
+              {
+                "$ref": "#/components/schemas/printAreasAdvanced"
+              }
+            ]
+          },
+          "print_details": {
+            "$ref": "#/components/schemas/printDetails"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "line-item-abc-001"
+          }
+        }
+      },
+      "lineItemWithSku": {
+        "type": "object",
+        "required": [
+          "sku",
+          "quantity"
+        ],
+        "properties": {
+          "sku": {
+            "type": "string",
+            "example": "MY-SKU"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "line-item-abc-001"
+          }
+        }
+      },
+      "submitOrderRequest": {
+        "type": "object",
+        "required": [
+          "line_items",
+          "address_to"
+        ],
+        "properties": {
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "2750e210-39bb-11e9-a503-452618153e4a"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "example": "00012"
+          },
+          "line_items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/lineItemWithProduct"
+                },
+                {
+                  "$ref": "#/components/schemas/lineItemWithBlueprint"
+                },
+                {
+                  "$ref": "#/components/schemas/lineItemWithSku"
+                }
+              ]
+            }
+          },
+          "shipping_method": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "is_printify_express": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "is_economy_shipping": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "send_shipping_notification": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "address_to": {
+            "$ref": "#/components/schemas/addressTo"
+          }
+        }
+      },
+      "orderCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5a96f649b2439217d070f507"
+          }
+        }
+      },
+      "calculateShippingRequest": {
+        "type": "object",
+        "required": [
+          "line_items",
+          "address_to"
+        ],
+        "properties": {
+          "line_items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/lineItemWithProduct"
+                },
+                {
+                  "$ref": "#/components/schemas/lineItemWithBlueprint"
+                },
+                {
+                  "$ref": "#/components/schemas/lineItemWithSku"
+                }
+              ]
+            }
+          },
+          "address_to": {
+            "$ref": "#/components/schemas/addressTo"
+          }
+        }
+      },
+      "shippingCosts": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "type": "integer",
+            "example": 1000
+          },
+          "express": {
+            "type": "integer",
+            "example": 5000
+          },
+          "priority": {
+            "type": "integer",
+            "example": 5000
+          },
+          "printify_express": {
+            "type": "integer",
+            "example": 799
+          },
+          "economy": {
+            "type": "integer",
+            "example": 399
+          }
+        }
+      },
+      "expressOrderRequest": {
+        "type": "object",
+        "required": [
+          "line_items",
+          "address_to"
+        ],
+        "properties": {
+          "external_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "2750e210-39bb-11e9-a503-452618153e4a"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "example": "00012"
+          },
+          "line_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/lineItemWithProduct"
+            }
+          },
+          "shipping_method": {
+            "type": "integer",
+            "nullable": true,
+            "example": 3
+          },
+          "send_shipping_notification": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "address_to": {
+            "$ref": "#/components/schemas/addressTo"
+          }
+        }
+      },
+      "expressOrderLineItem": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "example": "5b05842f3921c9547531758d"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "variant_id": {
+            "type": "integer",
+            "example": 12359
+          },
+          "print_provider_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "cost": {
+            "type": "integer",
+            "example": 2200
+          },
+          "shipping_cost": {
+            "type": "integer",
+            "example": 799
+          },
+          "status": {
+            "type": "string",
+            "example": "pending"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/lineItemMetadata"
+          },
+          "sent_to_production_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2023-10-18 13:24:28+00:00"
+          },
+          "fulfilled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "expressOrderAttributes": {
+        "type": "object",
+        "properties": {
+          "app_order_id": {
+            "type": "string",
+            "nullable": true,
+            "example": "215014.44"
+          },
+          "fulfilment_type": {
+            "type": "string",
+            "example": "express"
+          },
+          "line_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/expressOrderLineItem"
+            }
+          }
+        }
+      },
+      "expressOrderItem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "order"
+          },
+          "id": {
+            "type": "string",
+            "example": "5a96f649b2439217d070f508"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/expressOrderAttributes"
+          }
+        }
+      },
+      "expressOrderResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/expressOrderItem"
+            }
+          }
+        }
+      },
+      "upload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5e16d66791287a0006e522b2"
+          },
+          "file_name": {
+            "type": "string",
+            "example": "png-images-logo-1.jpg"
+          },
+          "height": {
+            "type": "integer",
+            "example": 5979
+          },
+          "width": {
+            "type": "integer",
+            "example": 17045
+          },
+          "size": {
+            "type": "integer",
+            "example": 1138575
+          },
+          "mime_type": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "preview_url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/image-storage/uuid1"
+          },
+          "upload_time": {
+            "type": "string",
+            "example": "2020-01-09 07:29:43"
+          }
+        }
+      },
+      "uploadImageFromUrl": {
+        "type": "object",
+        "required": [
+          "file_name",
+          "url"
+        ],
+        "properties": {
+          "file_name": {
+            "type": "string",
+            "example": "1x1-ff00007f.png"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "http://png-pixel.com/1x1-ff00007f.png"
+          }
+        }
+      },
+      "uploadImageFromContents": {
+        "type": "object",
+        "required": [
+          "file_name",
+          "contents"
+        ],
+        "properties": {
+          "file_name": {
+            "type": "string",
+            "example": "image.png"
+          },
+          "contents": {
+            "type": "string",
+            "description": "Base64-encoded image content",
+            "example": "base-64-encoded-content"
+          }
+        }
+      },
+      "uploadImageRequest": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/uploadImageFromUrl"
+          },
+          {
+            "$ref": "#/components/schemas/uploadImageFromContents"
+          }
+        ]
+      },
+      "webhook": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "example": "order:created"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/webhooks/order/created"
+          },
+          "shop_id": {
+            "type": "string",
+            "example": "1"
+          },
+          "id": {
+            "type": "string",
+            "example": "5cb87a8cd490a2ccb256cec4"
+          }
+        }
+      },
+      "modifyWebhookRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/callback/order/created"
+          }
+        }
+      },
+      "webhookDeleted": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5cb87a8cd490a2ccb256cec4"
+          }
+        }
+      },
+      "shippingMethodAttributes": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "standard"
+          }
+        }
+      },
+      "shippingMethodItem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "shipping_method"
+          },
+          "id": {
+            "type": "string",
+            "example": "1"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/shippingMethodAttributes"
+          }
+        }
+      },
+      "shippingLinks": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "type": "string",
+            "example": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/standard.json"
+          },
+          "priority": {
+            "type": "string",
+            "example": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/priority.json"
+          },
+          "express": {
+            "type": "string",
+            "example": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/express.json"
+          },
+          "economy": {
+            "type": "string",
+            "example": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/economy.json"
+          }
+        }
+      },
+      "v2ShippingResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/shippingMethodItem"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/shippingLinks"
+          }
+        }
+      },
+      "countryCode": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "US"
+          }
+        }
+      },
+      "handlingTimeRange": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "integer",
+            "example": 4
+          },
+          "to": {
+            "type": "integer",
+            "example": 8
+          }
+        }
+      },
+      "shippingCostAmount": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "example": 399
+          },
+          "currency": {
+            "type": "string",
+            "example": "USD"
+          }
+        }
+      },
+      "v2ShippingCost": {
+        "type": "object",
+        "properties": {
+          "firstItem": {
+            "$ref": "#/components/schemas/shippingCostAmount"
+          },
+          "additionalItems": {
+            "$ref": "#/components/schemas/shippingCostAmount"
+          }
+        }
+      },
+      "variantShippingAttributes": {
+        "type": "object",
+        "properties": {
+          "shippingType": {
+            "type": "string",
+            "example": "standard"
+          },
+          "country": {
+            "$ref": "#/components/schemas/countryCode"
+          },
+          "variantId": {
+            "type": "integer",
+            "example": 23494
+          },
+          "shippingPlanId": {
+            "type": "string",
+            "example": "65a7c0825b50fcd56a018e02"
+          },
+          "handlingTime": {
+            "$ref": "#/components/schemas/handlingTimeRange"
+          },
+          "shippingCost": {
+            "$ref": "#/components/schemas/v2ShippingCost"
+          }
+        }
+      },
+      "variantShippingItem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "variant_shipping_standard_us"
+          },
+          "id": {
+            "type": "string",
+            "example": "23494"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/variantShippingAttributes"
+          }
+        }
+      },
+      "v2ShippingStandardResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/variantShippingItem"
+            }
+          }
+        }
+      },
+      "shopDisconnected": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "shop:disconnected"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 815256
+              },
+              "type": {
+                "type": "string",
+                "example": "shop"
+              },
+              "data": {
+                "type": "object",
+                "nullable": true,
+                "example": null
+              }
+            }
+          }
+        }
+      },
+      "productDeletedData": {
+        "type": "object",
+        "required": [
+          "shop_id"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          }
+        }
+      },
+      "productDeleted": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "product:deleted"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5cb87a8cd490a2ccb256cec4"
+              },
+              "type": {
+                "type": "string",
+                "example": "product"
+              },
+              "data": {
+                "$ref": "#/components/schemas/productDeletedData"
+              }
+            }
+          }
+        }
+      },
+      "productCreatedData": {
+        "type": "object",
+        "required": [
+          "shop_id"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          }
+        }
+      },
+      "productCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "product:created"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5cb87a8cd490a2ccb256cec4"
+              },
+              "type": {
+                "type": "string",
+                "example": "product"
+              },
+              "data": {
+                "$ref": "#/components/schemas/productCreatedData"
+              }
+            }
+          }
+        }
+      },
+      "productUpdatedData": {
+        "type": "object",
+        "required": [
+          "shop_id"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          }
+        }
+      },
+      "productUpdated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "product:updated"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5cb87a8cd490a2ccb256cec4"
+              },
+              "type": {
+                "type": "string",
+                "example": "product"
+              },
+              "data": {
+                "$ref": "#/components/schemas/productUpdatedData"
+              }
+            }
+          }
+        }
+      },
+      "productPublishStartedDataCreate": {
+        "type": "object",
+        "required": [
+          "shop_id",
+          "publish_details",
+          "action"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          },
+          "publish_details": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "boolean",
+                "example": true
+              },
+              "variants": {
+                "type": "boolean",
+                "example": false
+              },
+              "description": {
+                "type": "boolean",
+                "example": true
+              },
+              "tags": {
+                "type": "boolean",
+                "example": true
+              },
+              "images": {
+                "type": "boolean",
+                "example": false
+              },
+              "key_features": {
+                "type": "boolean",
+                "example": false
+              },
+              "shipping_template": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "create"
+            ],
+            "example": "create"
+          },
+          "out_of_stock_publishing": {
+            "type": "integer",
+            "example": 0
+          }
+        }
+      },
+      "productPublishStartedDataDelete": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "delete"
+            ],
+            "example": "delete"
+          }
+        }
+      },
+      "productPublishStarted": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "product:publish:started"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5cb87a8cd490a2ccb256cec4"
+              },
+              "type": {
+                "type": "string",
+                "example": "product"
+              },
+              "data": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/productPublishStartedDataCreate"
+                  },
+                  {
+                    "$ref": "#/components/schemas/productPublishStartedDataDelete"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "orderCreatedEventData": {
+        "type": "object",
+        "required": [
+          "shop_id"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          }
+        }
+      },
+      "orderCreatedEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "order:created"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5a96f649b2439217d070f507"
+              },
+              "type": {
+                "type": "string",
+                "example": "order"
+              },
+              "data": {
+                "$ref": "#/components/schemas/orderCreatedEventData"
+              }
+            }
+          }
+        }
+      },
+      "orderUpdatedData": {
+        "type": "object",
+        "required": [
+          "shop_id",
+          "status"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          },
+          "status": {
+            "type": "string",
+            "example": "in-production"
+          }
+        }
+      },
+      "orderUpdated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "order:updated"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5a96f649b2439217d070f507"
+              },
+              "type": {
+                "type": "string",
+                "example": "order"
+              },
+              "data": {
+                "$ref": "#/components/schemas/orderUpdatedData"
+              }
+            }
+          }
+        }
+      },
+      "orderShipmentCarrier": {
+        "type": "object",
+        "required": [
+          "code",
+          "tracking_number"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "USPS"
+          },
+          "tracking_number": {
+            "type": "string",
+            "example": "9400110200828911663274"
+          },
+          "tracking_url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/track/9400110200828911663274"
+          }
+        }
+      },
+      "orderShipmentCreatedData": {
+        "type": "object",
+        "required": [
+          "shop_id",
+          "shipped_at",
+          "carrier",
+          "skus"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          },
+          "shipped_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "carrier": {
+            "$ref": "#/components/schemas/orderShipmentCarrier"
+          },
+          "skus": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "6202"
+            ]
+          }
+        }
+      },
+      "orderShipmentCreated": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "order:shipment:created"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5a96f649b2439217d070f507"
+              },
+              "type": {
+                "type": "string",
+                "example": "order"
+              },
+              "data": {
+                "$ref": "#/components/schemas/orderShipmentCreatedData"
+              }
+            }
+          }
+        }
+      },
+      "orderShipmentDeliveredData": {
+        "type": "object",
+        "required": [
+          "shop_id",
+          "delivered_at",
+          "carrier",
+          "skus"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          },
+          "delivered_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "carrier": {
+            "$ref": "#/components/schemas/orderShipmentCarrier"
+          },
+          "skus": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "6202"
+            ]
+          }
+        }
+      },
+      "orderShipmentDelivered": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "order:shipment:delivered"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5a96f649b2439217d070f507"
+              },
+              "type": {
+                "type": "string",
+                "example": "order"
+              },
+              "data": {
+                "$ref": "#/components/schemas/orderShipmentDeliveredData"
+              }
+            }
+          }
+        }
+      },
+      "orderSentToProductionData": {
+        "type": "object",
+        "required": [
+          "shop_id"
+        ],
+        "properties": {
+          "shop_id": {
+            "type": "integer",
+            "example": 815256
+          }
+        }
+      },
+      "orderSentToProduction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "653b6be8-2ff7-4ab5-a7a6-6889a8b3bbf5"
+          },
+          "type": {
+            "type": "string",
+            "example": "order:sent-to-production"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-05-17 15:00:00+00:00"
+          },
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5a96f649b2439217d070f507"
+              },
+              "type": {
+                "type": "string",
+                "example": "order"
+              },
+              "data": {
+                "$ref": "#/components/schemas/orderSentToProductionData"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "shopsList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/shop"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "id": 5432,
+                    "title": "My new store",
+                    "sales_channel": "My Sales Channel"
+                  },
+                  {
+                    "id": 9876,
+                    "title": "My other new store",
+                    "sales_channel": "disconnected"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "error": {
+        "description": "Error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/errorResponse"
+            },
+            "examples": {
+              "Validation error": {
+                "value": {
+                  "status": "error",
+                  "code": 8203,
+                  "message": "Validation failed.",
+                  "errors": {
+                    "reason": "Image has low quality",
+                    "code": 8203
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "emptySuccess": {
+        "description": "Successful operation"
+      },
+      "variantsResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/variantsResponse"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": 3,
+                  "title": "DJ",
+                  "variants": [
+                    {
+                      "id": 17390,
+                      "title": "Heather Grey / XS",
+                      "options": {
+                        "color": "Heather Grey",
+                        "size": "XS"
+                      },
+                      "placeholders": [
+                        {
+                          "position": "back",
+                          "decoration_method": "dtf",
+                          "height": 3995,
+                          "width": 3153
+                        },
+                        {
+                          "position": "front",
+                          "decoration_method": "embroidery",
+                          "height": 3995,
+                          "width": 3153
+                        }
+                      ],
+                      "decoration_methods": [
+                        "dtf",
+                        "embroidery"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "printProvidersList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/printProviderSimple"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "id": 3,
+                    "title": "DJ",
+                    "decoration_methods": [
+                      "dtg",
+                      "embroidery"
+                    ]
+                  },
+                  {
+                    "id": 8,
+                    "title": "Fifth Sun",
+                    "decoration_methods": [
+                      "dtg"
+                    ]
+                  },
+                  {
+                    "id": 16,
+                    "title": "MyLocker",
+                    "decoration_methods": [
+                      "dtg"
+                    ]
+                  },
+                  {
+                    "id": 24,
+                    "title": "Inklocker",
+                    "decoration_methods": [
+                      "dtf",
+                      "dtg",
+                      "embroidery"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "shippingResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/shippingResponse"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "handling_time": {
+                    "value": 30,
+                    "unit": "day"
+                  },
+                  "profiles": [
+                    {
+                      "variant_ids": [
+                        42716,
+                        42717,
+                        42718
+                      ],
+                      "first_item": {
+                        "cost": 450,
+                        "currency": "USD"
+                      },
+                      "additional_items": {
+                        "cost": 0,
+                        "currency": "USD"
+                      },
+                      "countries": [
+                        "US"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "blueprintsList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/blueprint"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "id": 3,
+                    "title": "Kids Regular Fit Tee",
+                    "description": "Description goes here",
+                    "brand": "Delta",
+                    "model": "11736",
+                    "images": [
+                      "https://images.printify.com/5853fe7dce46f30f8327f5cd",
+                      "https://images.printify.com/5c487ee2a342bc9b8b2fc4d2"
+                    ]
+                  },
+                  {
+                    "id": 5,
+                    "title": "Men's Cotton Crew Tee",
+                    "description": "Description goes here",
+                    "brand": "Next Level",
+                    "model": "3600",
+                    "images": [
+                      "https://images.printify.com/5a2ffc81b8e7e3656268fb44",
+                      "https://images.printify.com/5cdc0126b97b6a00091b58f7"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "blueprint": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/blueprint"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": 3,
+                  "title": "Kids Regular Fit Tee",
+                  "description": "Description goes here",
+                  "brand": "Delta",
+                  "model": "11736",
+                  "images": [
+                    "https://images.printify.com/5853fe7dce46f30f8327f5cd",
+                    "https://images.printify.com/5c487ee2a342bc9b8b2fc4d2"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "printProvidersFullList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/printProvider"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "id": 1,
+                    "title": "SPOKE Custom Products",
+                    "location": {
+                      "address1": "89 Weirfield St",
+                      "address2": null,
+                      "city": "Brooklyn",
+                      "country": "US",
+                      "region": "NY",
+                      "zip": "11221-5120"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "printProviderFull": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/printProvider"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": 1,
+                  "title": "SPOKE Custom Products",
+                  "location": {
+                    "address1": "89 Weirfield St",
+                    "address2": null,
+                    "city": "Brooklyn",
+                    "country": "US",
+                    "region": "NY",
+                    "zip": "11221-5120"
+                  },
+                  "blueprints": [
+                    {
+                      "id": 265,
+                      "title": "Slim Iphone 8",
+                      "brand": "Case Mate",
+                      "model": "Slim Iphone 8",
+                      "images": [
+                        "https://images.printify.com/59b261c9b8e7e361c9147b1b.png"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "product": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/product"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5d39b159e7c48c000728c89f",
+                  "title": "Mug 11oz",
+                  "description": "Perfect for coffee, tea and hot chocolate...",
+                  "safety_information": "GPSR information: John Doe...",
+                  "tags": [
+                    "Home & Living",
+                    "Mugs",
+                    "11 oz"
+                  ],
+                  "options": [
+                    {
+                      "name": "Sizes",
+                      "type": "size",
+                      "values": [
+                        {
+                          "id": 1189,
+                          "title": "11oz"
+                        }
+                      ]
+                    }
+                  ],
+                  "variants": [
+                    {
+                      "id": 33719,
+                      "sku": "866366009",
+                      "cost": 516,
+                      "price": 860,
+                      "title": "11oz",
+                      "is_enabled": true
+                    }
+                  ],
+                  "images": [
+                    {
+                      "src": "https://images.printify.com/mockup/5d39b159e7c48c000728c89f/33719/145/mug-11oz.jpg",
+                      "variant_ids": [
+                        33719
+                      ],
+                      "position": "front"
+                    }
+                  ],
+                  "created_at": "2019-07-25 13:40:41+00:00",
+                  "updated_at": "2019-07-25 13:40:59+00:00",
+                  "visible": true,
+                  "blueprint_id": 68,
+                  "shop_id": 1337,
+                  "print_provider_id": 9,
+                  "print_areas": [
+                    {
+                      "variant_ids": [
+                        33719
+                      ],
+                      "placeholders": [
+                        {
+                          "position": "front",
+                          "images": [
+                            {
+                              "id": "5c7665205342af161e1cb26e",
+                              "name": "Test.png",
+                              "type": "image/png",
+                              "height": 5850,
+                              "width": 4350,
+                              "x": 0.5,
+                              "y": 0.5,
+                              "scale": 1.01,
+                              "angle": 0,
+                              "src": "https://image-storage.example.com/5d39b159e7c48c000728c89f"
+                            },
+                            {
+                              "id": "0bd183ab-7bd0-e327-8329-7f77ee2a3f51",
+                              "type": "text/svg",
+                              "height": 1,
+                              "width": 1,
+                              "x": 0.5,
+                              "y": 0.5000090815098948,
+                              "scale": 0.7444,
+                              "angle": 345,
+                              "font_family": "ABeeZee",
+                              "font_size": 200,
+                              "font_weight": 400,
+                              "font_color": "#ffffff",
+                              "font_style": "normal",
+                              "input_text": "Text example",
+                              "text_align": "left"
+                            }
+                          ]
+                        }
+                      ],
+                      "background": "#ffffff"
+                    }
+                  ],
+                  "views": [
+                    {
+                      "id": 34395,
+                      "label": "Front side",
+                      "position": "front",
+                      "files": [
+                        {
+                          "src": "https://images.printify.com/api/catalog/618e1792f80e2001a840687b.svg",
+                          "variant_ids": [
+                            33719
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "sales_channel_properties": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "productsList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/paginatedResponse"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/product"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "current_page": 1,
+                  "data": [
+                    {
+                      "id": "5d39b159e7c48c000728c89f",
+                      "title": "Mug 11oz",
+                      "description": "Perfect for coffee, tea and hot chocolate...",
+                      "safety_information": "GPSR information: John Doe...",
+                      "tags": [
+                        "Home & Living",
+                        "Mugs"
+                      ],
+                      "options": [
+                        {
+                          "name": "Sizes",
+                          "type": "size",
+                          "values": [
+                            {
+                              "id": 1189,
+                              "title": "11oz"
+                            }
+                          ]
+                        }
+                      ],
+                      "variants": [
+                        {
+                          "id": 33719,
+                          "sku": "866366009",
+                          "cost": 516,
+                          "price": 860,
+                          "title": "11oz",
+                          "is_enabled": true
+                        }
+                      ],
+                      "images": [
+                        {
+                          "src": "https://images.printify.com/mockup/5d39b159e7c48c000728c89f/33719/145/mug-11oz.jpg",
+                          "variant_ids": [
+                            33719
+                          ],
+                          "position": "front"
+                        }
+                      ],
+                      "created_at": "2019-07-25 13:40:41+00:00",
+                      "updated_at": "2019-07-25 13:40:59+00:00",
+                      "visible": true,
+                      "blueprint_id": 68,
+                      "shop_id": 1337,
+                      "print_provider_id": 9
+                    }
+                  ],
+                  "first_page_url": "/?page=1",
+                  "from": 1,
+                  "last_page": 22,
+                  "last_page_url": "/?page=22",
+                  "next_page_url": "/?page=2",
+                  "path": "/",
+                  "per_page": 1,
+                  "prev_page_url": null,
+                  "to": 1,
+                  "total": 22
+                }
+              }
+            }
+          }
+        }
+      },
+      "gpsrList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/gpsrInfo"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "title": "GPSR information",
+                    "text": "John Doe, test@example.com, 123 Main St, Apt 1, New York, NY, 10001, US"
+                  },
+                  {
+                    "title": "Product information",
+                    "text": "Gildan, 5000, 2 year warranty in EU and UK as per Directive 1999/44/EC"
+                  },
+                  {
+                    "title": "Warnings, Hazzard",
+                    "text": "No warranty, US"
+                  },
+                  {
+                    "title": "Care instructions",
+                    "text": "Machine wash: warm (max 40C or 105F), Non-chlorine: bleach as needed, Tumble dry: medium, Do not iron, Do not dryclean"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "ordersList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/paginatedResponse"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/order"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "current_page": 1,
+                  "data": [
+                    {
+                      "id": "5a6e03bd2f7d8055768923c8",
+                      "app_order_id": "215014.44",
+                      "address_to": {
+                        "first_name": "Jane",
+                        "last_name": "Smith",
+                        "region": "",
+                        "address1": "ExampleBaan 121",
+                        "city": "Retie",
+                        "zip": "2470",
+                        "email": "example@msn.com",
+                        "phone": "0574 69 21 90",
+                        "country": "BE",
+                        "company": "MSN"
+                      },
+                      "line_items": [
+                        {
+                          "product_id": "5b05842f3921c9547531758d",
+                          "quantity": 1,
+                          "variant_id": 17887,
+                          "print_provider_id": 5,
+                          "cost": 1050,
+                          "shipping_cost": 400,
+                          "status": "fulfilled",
+                          "metadata": {
+                            "title": "18K gold plated Necklace",
+                            "price": 2200,
+                            "variant_label": "Golden indigocoin",
+                            "sku": "168699843",
+                            "country": "United States"
+                          },
+                          "sent_to_production_at": "2017-04-18 13:24:28+00:00",
+                          "fulfilled_at": "2017-04-18 13:24:28+00:00"
+                        }
+                      ],
+                      "metadata": {
+                        "order_type": "external",
+                        "shop_order_id": 1370762297,
+                        "shop_order_label": "1370762297",
+                        "shop_fulfilled_at": "2017-04-18 13:24:28+00:00"
+                      },
+                      "total_price": 2200,
+                      "total_shipping": 400,
+                      "total_tax": 0,
+                      "status": "fulfilled",
+                      "shipping_method": 1,
+                      "is_printify_express": false,
+                      "is_economy_shipping": false,
+                      "shipments": [
+                        {
+                          "carrier": "usps",
+                          "number": "94001116990045395649372",
+                          "url": "http://example.com/94001116990045395649372",
+                          "delivered_at": "2017-04-18 13:24:28+00:00"
+                        }
+                      ],
+                      "created_at": "2017-04-18 13:24:28+00:00",
+                      "sent_to_production_at": "2017-04-18 13:24:28+00:00",
+                      "fulfilled_at": "2017-04-18 13:24:28+00:00",
+                      "printify_connect": {
+                        "url": "https://example.com/printify_connect_hash",
+                        "id": "printify_connect_hash"
+                      }
+                    }
+                  ],
+                  "first_page_url": "/?page=1",
+                  "from": 1,
+                  "last_page": 22,
+                  "last_page_url": "/?page=22",
+                  "next_page_url": "/?page=2",
+                  "path": "/",
+                  "per_page": 1,
+                  "prev_page_url": null,
+                  "to": 1,
+                  "total": 22
+                }
+              }
+            }
+          }
+        }
+      },
+      "orderCreated": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/orderCreated"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5a96f649b2439217d070f507"
+                }
+              }
+            }
+          }
+        }
+      },
+      "order": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/order"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5a96f649b2439217d070f507",
+                  "app_order_id": "215014.44",
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "city": "Retie",
+                    "zip": "2470",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "company": "MSN"
+                  },
+                  "line_items": [
+                    {
+                      "product_id": "5b05842f3921c9547531758d",
+                      "quantity": 1,
+                      "variant_id": 17887,
+                      "print_provider_id": 5,
+                      "cost": 1050,
+                      "shipping_cost": 400,
+                      "status": "fulfilled",
+                      "metadata": {
+                        "title": "18K gold plated Necklace",
+                        "price": 2200,
+                        "variant_label": "Golden indigocoin",
+                        "sku": "168699843",
+                        "country": "United States",
+                        "external_id": "line-item-abc-001"
+                      },
+                      "sent_to_production_at": "2017-04-18 13:24:28+00:00",
+                      "fulfilled_at": "2017-04-18 13:24:28+00:00"
+                    }
+                  ],
+                  "metadata": {
+                    "order_type": "external",
+                    "shop_order_id": 1370762297,
+                    "shop_order_label": "1370762297",
+                    "shop_fulfilled_at": "2017-04-18 13:24:28+00:00"
+                  },
+                  "total_price": 2200,
+                  "total_shipping": 400,
+                  "total_tax": 0,
+                  "status": "fulfilled",
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "shipments": [
+                    {
+                      "carrier": "usps",
+                      "number": "94001116990045395649372",
+                      "url": "http://example.com/94001116990045395649372",
+                      "delivered_at": "2017-04-18 13:24:28+00:00"
+                    }
+                  ],
+                  "created_at": "2017-04-18 13:24:28+00:00",
+                  "sent_to_production_at": "2017-04-18 13:24:28+00:00",
+                  "fulfilled_at": "2017-04-18 13:24:28+00:00",
+                  "printify_connect": {
+                    "url": "https://example.com/printify_connect_hash",
+                    "id": "printify_connect_hash"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "orderIdResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/orderCreated"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5a96f649b2439217d070f507"
+                }
+              }
+            }
+          }
+        }
+      },
+      "shippingCosts": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/shippingCosts"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "standard": 1000,
+                  "express": 5000,
+                  "priority": 5000,
+                  "printify_express": 799,
+                  "economy": 399
+                }
+              }
+            }
+          }
+        }
+      },
+      "expressOrderResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/expressOrderResponse"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "data": [
+                    {
+                      "type": "order",
+                      "id": "5a96f649b2439217d070f508",
+                      "attributes": {
+                        "app_order_id": "215014.44",
+                        "fulfilment_type": "express",
+                        "line_items": [
+                          {
+                            "product_id": "5b05842f3921c9547531758d",
+                            "quantity": 1,
+                            "variant_id": 12359,
+                            "print_provider_id": 5,
+                            "cost": 2200,
+                            "shipping_cost": 799,
+                            "status": "pending",
+                            "metadata": {
+                              "title": "T-shirt",
+                              "price": 2200,
+                              "variant_label": "Blue / S",
+                              "sku": "168699843",
+                              "country": "United States"
+                            },
+                            "sent_to_production_at": "2023-10-18 13:24:28+00:00",
+                            "fulfilled_at": null
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "order",
+                      "id": "5a96f649b2439597d020a9b4",
+                      "attributes": {
+                        "fulfilment_type": "ordinary",
+                        "line_items": [
+                          {
+                            "product_id": "5b05842f3921c34764fa478bc",
+                            "quantity": 1,
+                            "variant_id": 17887,
+                            "print_provider_id": 5,
+                            "cost": 1050,
+                            "shipping_cost": 400,
+                            "status": "pending",
+                            "metadata": {
+                              "title": "Mug 11oz",
+                              "price": 1050,
+                              "variant_label": "11oz",
+                              "sku": "168699843",
+                              "country": "United States"
+                            },
+                            "sent_to_production_at": "2023-10-18 13:24:28+00:00",
+                            "fulfilled_at": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "uploadsList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/paginatedResponse"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/upload"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "current_page": 1,
+                  "data": [
+                    {
+                      "id": "5e16d66791287a0006e522b2",
+                      "file_name": "png-images-logo-1.jpg",
+                      "height": 5979,
+                      "width": 17045,
+                      "size": 1138575,
+                      "mime_type": "image/png",
+                      "preview_url": "https://example.com/image-storage/uuid1",
+                      "upload_time": "2020-01-09 07:29:43"
+                    }
+                  ],
+                  "first_page_url": "/?page=1",
+                  "from": 1,
+                  "last_page": 2,
+                  "last_page_url": "/?page=2",
+                  "next_page_url": "/?page=2",
+                  "path": "/",
+                  "per_page": 1,
+                  "prev_page_url": null,
+                  "to": 2,
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "upload": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/upload"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5941187eb8e7e37b3f0e62e5",
+                  "file_name": "image.png",
+                  "height": 200,
+                  "width": 400,
+                  "size": 1021,
+                  "mime_type": "image/png",
+                  "preview_url": "https://example.com/image-storage/uuid3",
+                  "upload_time": "2020-01-09 07:29:43"
+                }
+              }
+            }
+          }
+        }
+      },
+      "webhooksList": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/webhook"
+              }
+            },
+            "examples": {
+              "Successful operation": {
+                "value": [
+                  {
+                    "topic": "order:created",
+                    "url": "https://example.com/webhooks/order/updated",
+                    "shop_id": "1",
+                    "id": "5cb87a8cd490a2ccb256cec4"
+                  },
+                  {
+                    "topic": "order:updated",
+                    "url": "https://example.com/webhooks/order/updated",
+                    "shop_id": "1",
+                    "id": "5cb87a8cd490a2ccb256cec5"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "webhook": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/webhook"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "topic": "order:created",
+                  "url": "https://example.com/webhooks/order/created",
+                  "shop_id": "1",
+                  "id": "5cb87a8cd490a2ccb256cec4"
+                }
+              }
+            }
+          }
+        }
+      },
+      "webhookDeleted": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/webhookDeleted"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "id": "5cb87a8cd490a2ccb256cec4"
+                }
+              }
+            }
+          }
+        }
+      },
+      "v2ShippingResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/v2ShippingResponse"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "data": [
+                    {
+                      "type": "shipping_method",
+                      "id": "1",
+                      "attributes": {
+                        "name": "standard"
+                      }
+                    },
+                    {
+                      "type": "shipping_method",
+                      "id": "2",
+                      "attributes": {
+                        "name": "priority"
+                      }
+                    },
+                    {
+                      "type": "shipping_method",
+                      "id": "3",
+                      "attributes": {
+                        "name": "express"
+                      }
+                    },
+                    {
+                      "type": "shipping_method",
+                      "id": "4",
+                      "attributes": {
+                        "name": "economy"
+                      }
+                    }
+                  ],
+                  "links": {
+                    "standard": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/standard.json",
+                    "priority": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/priority.json",
+                    "express": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/express.json",
+                    "economy": "https://api.printify.com/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping/economy.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "v2ShippingStandardResponse": {
+        "description": "Successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/v2ShippingStandardResponse"
+            },
+            "examples": {
+              "Successful operation": {
+                "value": {
+                  "data": [
+                    {
+                      "type": "variant_shipping_standard_us",
+                      "id": "23494",
+                      "attributes": {
+                        "shippingType": "standard",
+                        "country": {
+                          "code": "US"
+                        },
+                        "variantId": 23494,
+                        "shippingPlanId": "65a7c0825b50fcd56a018e02",
+                        "handlingTime": {
+                          "from": 4,
+                          "to": 8
+                        },
+                        "shippingCost": {
+                          "firstItem": {
+                            "amount": 399,
+                            "currency": "USD"
+                          },
+                          "additionalItems": {
+                            "amount": 219,
+                            "currency": "USD"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "successfulOperation": {
+        "description": "Successful operation",
+        "content": {
+          "application/octet-stream": {
+            "examples": {
+              "Successful operation": {
+                "value": "\"schema type not provided\""
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "shop_id": {
+        "name": "shop_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "blueprint_id": {
+        "name": "blueprint_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "print_provider_id": {
+        "name": "print_provider_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "show-out-of-stock": {
+        "name": "show-out-of-stock ",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "0"
+        },
+        "description": "Depending on the value, it shows all variants or only those not out of stock. Without passing this query param, the list will contain only those variants in stock.\n0 - show only variants that are in stock.\n1 - also show variants out of stock (all variants)."
+      },
+      "product_id": {
+        "name": "product_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limit_max_50": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Results per page\n(default: 10, maximum: 50)"
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Paginate through list of results "
+      },
+      "limit_max_10": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": ""
+        },
+        "description": "Results per page\n(default: 10, maximum: 10)"
+      },
+      "page_with_example": {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": ""
+        },
+        "description": "Paginate through list of results "
+      },
+      "status": {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": " Filter results by order status "
+      },
+      "sku": {
+        "name": "sku",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": " Filter results by product SKU - response will contain only those orders that have at least one product with passed SKU "
+      },
+      "order_id": {
+        "name": "order_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limit_max_100": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Results per page\n(default: 10, maximum: 100)"
+      },
+      "image_id": {
+        "name": "image_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "webhook_id": {
+        "name": "webhook_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "host": {
+        "name": "host",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "{{webhook_host}}"
+        },
+        "description": "Host works as a safeguard: the deletion will only be performed if the host matches the webhook's host"
+      }
+    },
+    "requestBodies": {
+      "updateProduct": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/updateProductRequest"
+            },
+            "examples": {
+              "Update a product": {
+                "value": {
+                  "title": "Product",
+                  "description": "Good product",
+                  "variants": [
+                    {
+                      "id": 45740,
+                      "price": 400,
+                      "is_enabled": true
+                    }
+                  ],
+                  "print_areas": [
+                    {
+                      "variant_ids": [
+                        45740
+                      ],
+                      "placeholders": [
+                        {
+                          "position": "front",
+                          "images": [
+                            {
+                              "id": "5d15ca551163cde90d7b2203",
+                              "x": 0.5,
+                              "y": 0.5,
+                              "scale": 1,
+                              "angle": 0
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "createProduct": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/createProductRequest"
+            },
+            "examples": {
+              "Create a new product": {
+                "value": {
+                  "title": "Product",
+                  "description": "Good product",
+                  "safety_information": "GPSR information: John Doe, test@example.com, 123 Main St, Apt 1, New York, NY, 10001, US",
+                  "blueprint_id": 384,
+                  "print_provider_id": 1,
+                  "variants": [
+                    {
+                      "id": 45740,
+                      "price": 400,
+                      "is_enabled": true
+                    },
+                    {
+                      "id": 45742,
+                      "price": 400,
+                      "is_enabled": true
+                    },
+                    {
+                      "id": 45744,
+                      "price": 400,
+                      "is_enabled": false
+                    },
+                    {
+                      "id": 45746,
+                      "price": 400,
+                      "is_enabled": false
+                    }
+                  ],
+                  "print_areas": [
+                    {
+                      "variant_ids": [
+                        45740,
+                        45742,
+                        45744,
+                        45746
+                      ],
+                      "placeholders": [
+                        {
+                          "position": "front",
+                          "images": [
+                            {
+                              "id": "5d15ca551163cde90d7b2203",
+                              "x": 0.5,
+                              "y": 0.5,
+                              "scale": 1,
+                              "angle": 0,
+                              "pattern": {
+                                "spacing_x": 1,
+                                "spacing_y": 2,
+                                "scale": 3,
+                                "offset": 4
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "productPublishStatusSucceeded": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/publishingSucceededRequest"
+            },
+            "examples": {
+              "Set product publish status to succeeded": {
+                "value": {
+                  "external": {
+                    "id": "5941187eb8e7e37b3f0e62e5",
+                    "handle": "https://example.com/path/to/product"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "productPublishStatusFailed": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/publishingFailedRequest"
+            },
+            "examples": {
+              "Set product publish status to failed": {
+                "value": {
+                  "reason": "Request timed out"
+                }
+              }
+            }
+          }
+        }
+      },
+      "publishProduct": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/publishRequest"
+            },
+            "examples": {
+              "Publish a product": {
+                "value": {
+                  "title": true,
+                  "description": true,
+                  "images": true,
+                  "variants": true,
+                  "tags": true,
+                  "keyFeatures": true,
+                  "shipping_template": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "submitOrder": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/submitOrderRequest"
+            },
+            "examples": {
+              "Submit an order": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e4a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "product_id": "5bfd0b66a342bcc9b5563216",
+                      "variant_id": 17887,
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    }
+                  ],
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              },
+              "Submit an order with simple print areas": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e5a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "print_provider_id": 5,
+                      "blueprint_id": 9,
+                      "variant_id": 17887,
+                      "print_areas": {
+                        "front": "https://images.example.com/image.png"
+                      },
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    }
+                  ],
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              },
+              "Submit an order with advanced print areas": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e5a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "print_provider_id": 5,
+                      "blueprint_id": 9,
+                      "variant_id": 17887,
+                      "print_areas": {
+                        "front": [
+                          {
+                            "src": "https://images.example.com/image.png",
+                            "scale": 0.15,
+                            "x": 0.8,
+                            "y": 0.34,
+                            "angle": 0.34
+                          },
+                          {
+                            "src": "https://images.example.com/image.png",
+                            "scale": 1,
+                            "x": 0.5,
+                            "y": 0.5,
+                            "angle": 1
+                          }
+                        ]
+                      },
+                      "quantity": 1
+                    }
+                  ],
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              },
+              "Submit an order with SKU": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e6a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "sku": "MY-SKU",
+                      "quantity": 1
+                    }
+                  ],
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              },
+              "Submit an order with print details": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e5a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "print_provider_id": 5,
+                      "blueprint_id": 9,
+                      "variant_id": 17887,
+                      "print_areas": {
+                        "front": "https://images.example.com/image.png"
+                      },
+                      "print_details": {
+                        "print_on_side": "mirror"
+                      },
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    }
+                  ],
+                  "shipping_method": 1,
+                  "is_printify_express": false,
+                  "is_economy_shipping": false,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "calculateShipping": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/calculateShippingRequest"
+            },
+            "examples": {
+              "Calculate the shipping cost of an order": {
+                "value": {
+                  "line_items": [
+                    {
+                      "product_id": "5bfd0b66a342bcc9b5563216",
+                      "variant_id": 17887,
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    },
+                    {
+                      "print_provider_id": 5,
+                      "blueprint_id": 9,
+                      "variant_id": 17887,
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    },
+                    {
+                      "sku": "MY-SKU",
+                      "quantity": 1,
+                      "external_id": "line-item-abc-001"
+                    }
+                  ],
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@msn.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "submitExpressOrder": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/expressOrderRequest"
+            },
+            "examples": {
+              "Submit a Printify Express order": {
+                "value": {
+                  "external_id": "2750e210-39bb-11e9-a503-452618153e4a",
+                  "label": "00012",
+                  "line_items": [
+                    {
+                      "product_id": "5b05842f3921c9547531758d",
+                      "variant_id": 12359,
+                      "quantity": 1
+                    },
+                    {
+                      "product_id": "5b05842f3921c34764fa478bc",
+                      "variant_id": 17887,
+                      "quantity": 1
+                    }
+                  ],
+                  "shipping_method": 3,
+                  "send_shipping_notification": false,
+                  "address_to": {
+                    "first_name": "John",
+                    "last_name": "Smith",
+                    "email": "example@example.com",
+                    "phone": "0574 69 21 90",
+                    "country": "BE",
+                    "region": "",
+                    "address1": "ExampleBaan 121",
+                    "address2": "45",
+                    "city": "Retie",
+                    "zip": "2470"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "uploadImage": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/uploadImageRequest"
+            },
+            "examples": {
+              "Upload an image from URL": {
+                "value": {
+                  "file_name": "1x1-ff00007f.png",
+                  "url": "http://png-pixel.com/1x1-ff00007f.png"
+                }
+              },
+              "Upload an image from base64": {
+                "value": {
+                  "file_name": "image.png",
+                  "contents": "base-64-encoded-content"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createWebhook": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string",
+                  "example": "order:created"
+                },
+                "url": {
+                  "type": "string",
+                  "example": "https://example.com/webhooks/order/created"
+                }
+              }
+            },
+            "examples": {
+              "Create a new webhook": {
+                "value": {
+                  "topic": "order:created",
+                  "url": "https://example.com/webhooks/order/created"
+                }
+              }
+            }
+          }
+        }
+      },
+      "modifyWebhook": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/modifyWebhookRequest"
+            },
+            "examples": {
+              "Modify a webhook": {
+                "value": {
+                  "url": "https://example.com/callback/order/created"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

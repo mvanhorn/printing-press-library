@@ -1,0 +1,235 @@
+name: amazon-orders
+display_name: Amazon Orders
+description: "Walk and explore your Amazon order history — orders, items, shipments, tracking, transactions, gift cards. Reverse-engineered access using your logged-in browser session because Amazon publishes no buyer API."
+cli_description: "Sync your Amazon order history into a local SQLite store, then ask cross-cutting questions offline: which deliveries are slipping, what did I spend last quarter, when did I order that thing, where is my stuff right now."
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: standard
+website_url: "https://www.amazon.com"
+category: commerce
+base_url: "https://www.amazon.com"
+
+auth:
+  type: cookie
+  header: Cookie
+  in: cookie
+  cookie_domain: ".amazon.com"
+  cookies:
+    - "session-id"
+    - "session-token"
+    - "ubid-main"
+    - "x-main"
+    - "lc-main"
+    - "i18n-prefs"
+  env_vars:
+    - AMAZON_COOKIES
+  title: Amazon buyer session
+  description: |
+    Amazon does not publish a buyer-side API for order history. This CLI imports
+    cookies from your logged-in Chrome / Firefox / Safari / Brave browser session,
+    then makes authenticated HTTPS GETs to the same HTML pages you see on
+    amazon.com. Log in to amazon.com in your browser, then run:
+
+      amazon-orders-pp-cli auth login --chrome
+
+    Cookies live under the .amazon.com domain. The CLI persists them locally and
+    refreshes the session-id cookie automatically when amazon.com rotates it.
+  requires_browser_session: true
+  browser_session_reason: "Amazon's order history, order details, ship-track, transactions, and gift-card pages are gated behind a logged-in buyer session. Cookie-based auth only — no API key, no OAuth."
+  browser_session_validation_path: "/gp/your-account/order-history"
+  browser_session_validation_method: GET
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+
+config:
+  format: toml
+  path: "~/.config/amazon-orders-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+mcp:
+  transport: [stdio]
+
+resources:
+  orders:
+    description: "Your buyer-side order history listings and per-order detail pages."
+    endpoints:
+      list:
+        method: GET
+        path: "/your-orders/orders"
+        description: "Fetch one page of your order history. Use timeFilter (year-2026, last30days, months-3) and startIndex to paginate."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: timeFilter
+            type: string
+            required: false
+            default: "months-3"
+            description: "Time window: year-YYYY, last30days, months-3, months-6, archived."
+          - name: startIndex
+            type: int
+            required: false
+            default: 0
+            description: "0-indexed offset into the order list (Amazon serves ~10 orders per page)."
+        response:
+          type: object
+          item: OrderListPage
+
+      get:
+        method: GET
+        path: "/your-orders/order-details"
+        description: "Full detail for a single order: items, ASINs, prices, shipments, payment method, ship-to address, totals."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: orderID
+            type: string
+            required: true
+            positional: true
+            description: "Amazon order ID, format XXX-XXXXXXX-XXXXXXX (e.g. 111-1111111-1111111)."
+        response:
+          type: object
+          item: OrderDetailPage
+
+      invoice:
+        method: GET
+        path: "/gp/css/summary/print.html"
+        description: "Printable invoice for an order (HTML), useful for VAT/expense reconciliation."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: orderID
+            type: string
+            required: true
+            positional: true
+            description: "Amazon order ID."
+        response:
+          type: object
+          item: InvoicePage
+
+  shipments:
+    description: "Per-package tracking details."
+    endpoints:
+      track:
+        method: GET
+        path: "/gp/your-account/ship-track"
+        description: "Tracking detail for a single shipment: carrier, tracking number, status, ETA, delivery confirmation."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: orderId
+            type: string
+            required: true
+            description: "Amazon order ID."
+          - name: shipmentId
+            type: string
+            required: false
+            description: "Amazon-internal shipment ID; required for multi-shipment orders."
+          - name: itemId
+            type: string
+            required: false
+            description: "Optional: scope tracking to a single line item."
+          - name: packageIndex
+            type: int
+            required: false
+            description: "0-indexed package number within the shipment (default 0)."
+        response:
+          type: object
+          item: ShipTrackPage
+
+  transactions:
+    description: "Charges and refunds across all orders, recurring services, and Prime."
+    endpoints:
+      list:
+        method: GET
+        path: "/cpe/yourpayments/transactions"
+        description: "First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when applicable) the linked order ID."
+        response_format: html
+        html_extract:
+          mode: page
+        params: []
+        response:
+          type: object
+          item: TransactionsPage
+
+  gift_cards:
+    description: "Gift card balance and activity history."
+    endpoints:
+      balance:
+        method: GET
+        path: "/gc/balance"
+        description: "Current gift card balance plus the activity log: amounts, kinds (added/applied/refund), dates, linked order IDs."
+        response_format: html
+        html_extract:
+          mode: page
+        params: []
+        response:
+          type: object
+          item: GiftCardPage
+
+extra_commands:
+  - name: sync
+    description: "Sync order history into the local store. Walks the listings page-by-page and (if --full-details) fetches each order's detail page. Uses the local cache to skip already-fetched orders."
+  - name: orders
+    description: "List, search, and filter orders from the local store."
+  - name: order
+    args: "<order-id>"
+    description: "Show full detail for one order (items, shipments, payment, totals). Falls through to a live fetch if the order isn't in the local store."
+  - name: items
+    description: "Browse items across orders by ASIN, title, seller, or price band. FTS5-backed."
+  - name: shipments
+    description: "Show shipments — in-transit, delivered, late. Joins orders + shipments + tracking."
+  - name: track
+    args: "<order-id>"
+    description: "Live tracking for one order's shipments. Pulls fresh ETA / status / carrier."
+  - name: where-is-my-stuff
+    description: "All in-flight shipments with their current status and ETA. The 'radar' view across your active orders."
+  - name: arriving-soon
+    description: "Shipments arriving in the next N days (default 7). Sort by ETA."
+  - name: late
+    description: "Shipments past their estimated delivery date. Pulled from the join of historical estimates vs current status."
+  - name: delivery-slips
+    description: "Orders where the actual delivery date slipped >N days from the original estimate (default 3). Detects which carriers / sellers are unreliable."
+  - name: spend
+    description: "Spending rollup by month / year / category / payment method. Slices the local store, no live calls."
+  - name: top-items
+    description: "Most-ordered items by frequency or by total spend. ASIN-level rollup."
+  - name: returns
+    description: "Items you have returned. Pulled from order summaries + transactions cross-reference."
+  - name: subscribe-and-save
+    description: "Recurring Subscribe & Save items detected from order history (heuristic: same ASIN ordered on a regular cadence)."
+  - name: find
+    args: "<query>"
+    description: "FTS5 search across orders + items + sellers. Answers 'when did I order that thing'."
+  - name: transactions
+    description: "Charges and refunds from the transactions page, joined to orders where possible."
+  - name: gift-cards
+    description: "Gift card balance + activity log."
+  - name: invoice
+    args: "<order-id>"
+    description: "Render or save an order invoice (HTML or markdown)."
+  - name: export
+    args: "<orders|items|shipments|transactions>"
+    description: "CSV export of any synced surface, columns aligned with what marcusquinn's MCP exposes for accounting tools."
+
+novel_commands:
+  - "where-is-my-stuff"
+  - "arriving-soon"
+  - "late"
+  - "delivery-slips"
+  - "spend"
+  - "top-items"
+  - "subscribe-and-save"
+  - "find"

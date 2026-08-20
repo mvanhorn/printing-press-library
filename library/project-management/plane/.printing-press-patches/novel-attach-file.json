@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "novel-attach-file",
+  "applied_at": "2026-06-11",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Hand-authored `attach-file <issue_id> <project_id> <file_path>` command that performs Plane's full three-step work-item attachment flow in one call, wired into root.go.",
+  "reason": "Plane's attachment flow is three round-trips: (1) POST .../issue-attachments/ to presign, returning an asset id + an S3/MinIO presigned POST; (2) POST the raw file bytes to that storage endpoint; (3) PATCH .../issue-attachments/{asset}/ with {is_uploaded:true}. The generated CLI exposes only steps 1 and 3 (create-work-item-attachment / upload-work-item-attachment); step 2 is a raw storage POST the press cannot model, so a generated CLI alone can describe an attachment but never upload a file. This command does all three. Honors the same --slug / PLANE_SLUG axis as the other novel commands (writes TemplateVars[slug] via applyClientSlug), so the workspace-relative path resolves against the reprinted client's /api/v1/workspaces/{slug} BaseURL.",
+  "files": ["internal/cli/attach_file_novel.go", "internal/cli/root.go"],
+  "patch_tags": [
+    "PATCH(novel) in internal/cli/root.go: AddCommand(newAttachFileCmd) next to relations/module.",
+    "PATCH(novel) internal/cli/attach_file_novel.go: newAttachFileCmd + uploadPresignedFile (multipart presigned POST; form fields first, file part last, no per-part Content-Type so the presign policy's pinned Content-Type is not broken)."
+  ],
+  "novel_files": ["internal/cli/attach_file_novel.go"],
+  "validated_outcome": "go build ./... + go vet ./internal/cli clean; go test ./internal/... green. Installed binary: attach-file --dry-run on the default workspace emits POST .../workspaces/doctor-school/projects/{p}/issues/{i}/issue-attachments/ with the correct {name,size,type} presign body; --slug bbm retargets to .../workspaces/bbm/...; both attach-file and the workspace-targeting commands now coexist in one binary (regression where the 06-10 workspaces build had dropped attach-file is fixed). Originally built + live-verified end-to-end on plane.bbm.academy 2026-06-04 (file lands, is_uploaded=true) in the dogfood tree before being ported here."
+}

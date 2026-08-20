@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "eu-tenders-pp-mcp",
+  "display_name": "EU Tenders",
+  "version": "4.0.6",
+  "description": "EU public procurement notices as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/eu-tenders-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/eu-tenders-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "api_name": "eu-tenders"
+}

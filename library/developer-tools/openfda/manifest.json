@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "openfda-pp-mcp",
+  "display_name": "OpenFDA",
+  "version": "4.2.0",
+  "description": "OpenFDA API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openfda-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openfda-pp-mcp",
+      "args": [],
+      "env": {
+        "FDA_API_KEY": "${user_config.fda_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fda_api_key": {
+      "type": "string",
+      "title": "FDA_API_KEY",
+      "description": "Optional. Without key: 40 req/min, 1K/day. With key: 240 req/min, 120K/day. Get a free key at https://open.fda.gov/apis/authentication/",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

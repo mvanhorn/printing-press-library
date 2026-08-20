@@ -1,0 +1,51 @@
+version: 2
+project_name: semrush-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: semrush-pp-cli
+    main: ./cmd/semrush-pp-cli
+    binary: semrush-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/semrush/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: semrush-pp-mcp
+    main: ./cmd/semrush-pp-mcp
+    binary: semrush-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: semrush-pp-cli
+    repository:
+      owner: charles-garrison
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has."
+    install: |
+      bin.install "semrush-pp-cli"
+      bin.install "semrush-pp-mcp"

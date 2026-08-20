@@ -1,0 +1,127 @@
+{
+  "generated_at": "2026-05-27T03:15:00Z",
+  "official": [
+    {
+      "name": "Robinhood Crypto Trading API documentation",
+      "url": "https://docs.robinhood.com/crypto/trading/",
+      "surface": "crypto",
+      "coverage": [
+        "Ed25519 request signing",
+        "x-api-key, x-signature, x-timestamp headers",
+        "v1 and v2 crypto accounts",
+        "trading pairs",
+        "holdings",
+        "best bid/ask",
+        "estimated price",
+        "orders",
+        "order cancellation"
+      ],
+      "mutation": "yes"
+    },
+    {
+      "name": "Robinhood Crypto Trading API support article",
+      "url": "https://robinhood.com/us/en/support/articles/crypto-api/",
+      "surface": "crypto",
+      "coverage": [
+        "credential creation",
+        "US availability",
+        "API action permissions",
+        "v1 vs v2 order behavior",
+        "fee-tier notes"
+      ],
+      "mutation": "yes"
+    },
+    {
+      "name": "Robinhood Crypto Trading API announcement",
+      "url": "https://robinhood.com/us/en/newsroom/robinhood-crypto-trading-api",
+      "surface": "crypto",
+      "coverage": [
+        "public launch context",
+        "market data",
+        "portfolio/account information",
+        "programmatic crypto orders"
+      ],
+      "mutation": "yes"
+    }
+  ],
+  "community": [
+    {
+      "name": "jmfernandes/robin_stocks",
+      "url": "https://github.com/jmfernandes/robin_stocks",
+      "surface": "brokerage",
+      "coverage": [
+        "stocks",
+        "options",
+        "profiles/accounts",
+        "orders",
+        "markets",
+        "watchlists",
+        "documents"
+      ],
+      "mutation": "yes"
+    },
+    {
+      "name": "robin_stocks documentation",
+      "url": "https://robin-stocks.readthedocs.io/",
+      "surface": "brokerage",
+      "coverage": [
+        "account information",
+        "positions",
+        "orders",
+        "options",
+        "market data"
+      ],
+      "mutation": "yes"
+    },
+    {
+      "name": "rhx npm package",
+      "url": "https://www.npmjs.com/package/rhx",
+      "surface": "brokerage",
+      "coverage": [
+        "Go-native Robinhood CLI signal",
+        "current public package activity"
+      ],
+      "mutation": "unknown"
+    },
+    {
+      "name": "@opentabs-dev/opentabs-plugin-robinhood npm package",
+      "url": "https://www.npmjs.com/package/@opentabs-dev/opentabs-plugin-robinhood",
+      "surface": "brokerage",
+      "coverage": [
+        "agent/plugin Robinhood integration signal"
+      ],
+      "mutation": "unknown"
+    },
+    {
+      "name": "robinhood-for-agents npm package",
+      "url": "https://www.npmjs.com/package/robinhood-for-agents",
+      "surface": "brokerage",
+      "coverage": [
+        "agent-oriented Robinhood integration signal"
+      ],
+      "mutation": "unknown"
+    }
+  ],
+  "browser_evidence": [
+    {
+      "name": "Authenticated CDP deep capture",
+      "url": "api-map/browser-cdp-routes-2026-05-27.json",
+      "surface": "brokerage",
+      "coverage": [
+        "stock detail pages",
+        "options page",
+        "home/account pages",
+        "history",
+        "settings",
+        "security",
+        "notifications",
+        "documents",
+        "statements",
+        "transfers",
+        "crypto detail",
+        "markets"
+      ],
+      "mutation": "yes"
+    }
+  ]
+}

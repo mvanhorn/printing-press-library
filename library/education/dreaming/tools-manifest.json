@@ -1,0 +1,197 @@
+{
+  "api_name": "dreaming",
+  "base_url": "https://app.dreaming.com/.netlify/functions",
+  "description": "Offline-first CLI for the Dreaming comprehensible-input language app (Dreaming Spanish / French). Tracks hours, the L1-L7 fluency roadmap, and the leveled video catalog via Dreaming's internal Netlify Functions API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "DREAMING_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DREAMING_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Bearer token from app.dreaming.com localStorage 'token' or via 'auth login'."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "day-watched-time_list",
+      "description": "List per-day on-platform watch time. Optional: date. Returns array of DayWatchedTime.",
+      "method": "GET",
+      "path": "/dayWatchedTime",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional single day (YYYY-MM-DD); omit for full series"
+        }
+      ]
+    },
+    {
+      "name": "external-time_add",
+      "description": "Log an external input-time entry. Required: date, timeSeconds. Optional: language (default: es), description, type (default: watching). Returns the new ExternalTime.",
+      "method": "POST",
+      "path": "/externalTime",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "timeSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Time seconds",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "external-time_delete",
+      "description": "Delete an external input-time entry by id. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/externalTime",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "External-time entry _id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "external-time_list",
+      "description": "List your external (outside-platform) input-time log entries. Optional: language (default: es). Returns array of ExternalTime.",
+      "method": "GET",
+      "path": "/externalTime",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Catalog/log language (es or fr)"
+        }
+      ]
+    },
+    {
+      "name": "inspect-external-video_inspect_external_video",
+      "description": "Resolve a YouTube URL into Dreaming's external-video metadata for external-time logging. Required: videoUrl (full YouTube URL). Returns the resolved video object as Dreaming reports it (the spec leaves the shape untyped). Use this before external-time_add to identify a YouTube video you watched outside the platform.",
+      "method": "GET",
+      "path": "/inspectExternalVideo",
+      "params": [
+        {
+          "name": "videoUrl",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube video URL to resolve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlist_list",
+      "description": "List your watched-video playlist. Returns array of PlaylistEntry.",
+      "method": "GET",
+      "path": "/playlist",
+      "params": []
+    },
+    {
+      "name": "sign-in_sign_in",
+      "description": "Exchange email/password for a bearer token. Required: email, password. Returns the new SignInResponse. (public)",
+      "method": "POST",
+      "path": "/signIn",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get your account stats (hours, daily goal, subscription). Optional: timezone. Returns the User.",
+      "method": "GET",
+      "path": "/user",
+      "params": [
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone (e.g. America/New_York) for day boundaries"
+        }
+      ]
+    },
+    {
+      "name": "video_get",
+      "description": "Get a single video's metadata, captions, and stream sources. Required: id. Returns the VideoDetail.",
+      "method": "GET",
+      "path": "/video",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "24-hex video id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "videos_list",
+      "description": "List the video catalog. Optional: language (default: es). Returns array of Video.",
+      "method": "GET",
+      "path": "/videos",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    }
+  ]
+}

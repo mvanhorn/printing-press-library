@@ -1,0 +1,38 @@
+{
+  "acquired": true,
+  "acquired_at": "2026-05-31T14:23:47.241136-04:00",
+  "blocked": false,
+  "cli": "erank-pp-cli",
+  "lock_file": "/Users/smacdonald/printing-press/.locks/erank-pp-cli.lock",
+  "scope": "erank-cli-7b28418c"
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "generate",
+  "updated": true
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "generate",
+  "updated": true
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "shipcheck",
+  "updated": true
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "shipcheck",
+  "updated": true
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "shipcheck",
+  "updated": true
+}
+{
+  "cli": "erank-pp-cli",
+  "phase": "shipcheck",
+  "updated": true
+}

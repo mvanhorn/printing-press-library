@@ -1,0 +1,179 @@
+{
+  "api_name": "stackadapt",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "stackadapt/pa-typescript-sdk",
+      "url": "https://github.com/StackAdapt",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-30T18:55:09Z",
+  "novel_features": [
+    {
+      "name": "Pacing observatory",
+      "command": "pacing",
+      "description": "See which campaigns are under- or over-pacing against their budget, not just current spend.",
+      "rationale": "Joins each campaign's budget with its delivery spend over time to compute pace, which the dashboard and warehouse connectors do not do in one call.",
+      "example": "stackadapt-pp-cli pacing --advertiser adv_123 --agent",
+      "why_it_matters": "Reach for this to catch campaigns that will overspend or underdeliver before the budget cycle ends.",
+      "group": "Pacing \u0026 delivery observatory"
+    },
+    {
+      "name": "Delivery drift",
+      "command": "delivery-drift",
+      "description": "Track CTR, CPM, and spend drift week-over-week for a campaign and flag when performance degrades.",
+      "rationale": "Requires persisted per-window delivery history that no single GraphQL call returns at once.",
+      "example": "stackadapt-pp-cli delivery-drift --advertiser adv_123 --days 7 --agent",
+      "why_it_matters": "Reach for this to catch a slowly degrading campaign before it wastes budget.",
+      "group": "Pacing \u0026 delivery observatory"
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Rank the highest-spend campaigns by worst ROAS or CPA, with a reason column.",
+      "rationale": "Local join across campaigns and delivery to surface where budget is wasted.",
+      "example": "stackadapt-pp-cli bottleneck --advertiser adv_123 --agent",
+      "why_it_matters": "Reach for this to find where ad budget is being wasted.",
+      "group": "Audience \u0026 efficiency"
+    },
+    {
+      "name": "Stale campaigns",
+      "command": "stale-campaigns",
+      "description": "Find active campaigns with zero delivery in the last N days.",
+      "rationale": "Knowing a campaign delivered nothing requires persisted delivery history.",
+      "example": "stackadapt-pp-cli stale-campaigns --days 14 --agent",
+      "why_it_matters": "Reach for this to find live-but-not-delivering campaigns.",
+      "group": "Audience \u0026 efficiency"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Pacing observatory",
+      "command": "pacing",
+      "description": "See which campaigns are under- or over-pacing against their budget, not just current spend.",
+      "rationale": "Joins each campaign's budget with its delivery spend over time to compute pace, which the dashboard and warehouse connectors do not do in one call.",
+      "example": "stackadapt-pp-cli pacing --advertiser adv_123 --agent",
+      "why_it_matters": "Reach for this to catch campaigns that will overspend or underdeliver before the budget cycle ends.",
+      "group": "Pacing \u0026 delivery observatory"
+    },
+    {
+      "name": "Delivery drift",
+      "command": "delivery-drift",
+      "description": "Track CTR, CPM, and spend drift week-over-week for a campaign and flag when performance degrades.",
+      "rationale": "Requires persisted per-window delivery history that no single GraphQL call returns at once.",
+      "example": "stackadapt-pp-cli delivery-drift --advertiser adv_123 --days 7 --agent",
+      "why_it_matters": "Reach for this to catch a slowly degrading campaign before it wastes budget.",
+      "group": "Pacing \u0026 delivery observatory"
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Rank the highest-spend campaigns by worst ROAS or CPA, with a reason column.",
+      "rationale": "Local join across campaigns and delivery to surface where budget is wasted.",
+      "example": "stackadapt-pp-cli bottleneck --advertiser adv_123 --agent",
+      "why_it_matters": "Reach for this to find where ad budget is being wasted.",
+      "group": "Audience \u0026 efficiency"
+    },
+    {
+      "name": "Stale campaigns",
+      "command": "stale-campaigns",
+      "description": "Find active campaigns with zero delivery in the last N days.",
+      "rationale": "Knowing a campaign delivered nothing requires persisted delivery history.",
+      "example": "stackadapt-pp-cli stale-campaigns --days 14 --agent",
+      "why_it_matters": "Reach for this to find live-but-not-delivering campaigns.",
+      "group": "Audience \u0026 efficiency"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "STACKADAPT_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "StackAdapt",
+    "headline": "The first agent-native StackAdapt CLI: pacing, delivery-drift, and budget-waste analysis the dashboard and warehouse connectors can't answer in one call.",
+    "value_prop": "StackAdapt is a programmatic advertising platform. This read-only CLI queries your advertisers, campaigns, ads, audiences, and delivery reporting straight from the StackAdapt GraphQL API and answers questions the dashboard shows one screen at a time and the warehouse connectors only dump raw rows for: which campaigns are under-pacing, whose CTR has drifted, where budget is being wasted. It does not change anything in StackAdapt (read-only); it tells you what your campaigns are doing.",
+    "auth_narrative": "This CLI uses the StackAdapt GraphQL API, which needs a GraphQL API token (the legacy REST key will not work). To get set up:\n\n1. Ask your StackAdapt account manager for a GraphQL API token if you do not have one.\n2. Export it so the CLI can read it:\n   `export STACKADAPT_API_TOKEN=your-token`\n3. Run `stackadapt-pp-cli doctor` to confirm it connects.\n\nThe token is sent as `Authorization: Bearer \u003ctoken\u003e`. The CLI is read-only and never modifies your campaigns.",
+    "quickstart": [
+      {
+        "command": "stackadapt-pp-cli doctor --dry-run",
+        "comment": "Confirms the CLI is installed and shows what a health check verifies (no token needed)."
+      },
+      {
+        "command": "stackadapt-pp-cli advertisers list",
+        "comment": "Lists your advertisers — the top of the hierarchy and your starting point."
+      },
+      {
+        "command": "stackadapt-pp-cli campaigns list --agent",
+        "comment": "List campaigns with status and budget metadata."
+      },
+      {
+        "command": "stackadapt-pp-cli pacing --agent",
+        "comment": "The headline answer: which campaigns are under- or over-pacing against budget."
+      },
+      {
+        "command": "stackadapt-pp-cli bottleneck --agent",
+        "comment": "Where your ad budget is being wasted — highest spend, worst performance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor fails with 'unauthorized' or 'invalid token'",
+        "fix": "Make sure STACKADAPT_API_TOKEN is a GraphQL API token (not a legacy REST key); request one from your StackAdapt account manager."
+      },
+      {
+        "symptom": "advertisers list returns empty",
+        "fix": "Your token may be scoped to a different account; run `stackadapt-pp-cli account` to see what it can access."
+      },
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "StackAdapt rate-limits the API; the CLI backs off and retries — re-run after a moment or narrow the date window."
+      }
+    ],
+    "when_to_use": "Use this CLI to analyze StackAdapt campaigns you already run: check pacing against budget, find under-performing or non-delivering campaigns, spot CTR/spend drift, and pull delivery reports. It is the right tool for read-only reporting and analysis, especially for agents and scripts that want JSON output and a local cache.",
+    "anti_triggers": [
+      "Creating, editing, pausing, or deleting campaigns, ads, or segments — this CLI is read-only; use the StackAdapt UI or the official SDK.",
+      "Uploading audiences or creatives — out of scope.",
+      "Real-time bidding or pixel firing — not what this CLI does."
+    ],
+    "recipes": [
+      {
+        "title": "Find under-pacing campaigns",
+        "command": "stackadapt-pp-cli pacing --advertiser adv_123 --agent",
+        "explanation": "Returns each campaign's pace (actual vs expected spend) so you can fix budget delivery before the cycle ends."
+      },
+      {
+        "title": "Catch a degrading campaign",
+        "command": "stackadapt-pp-cli delivery-drift --advertiser adv_123 --days 7 --agent",
+        "explanation": "Shows CTR/CPM/spend drift week-over-week and flags when performance slips."
+      },
+      {
+        "title": "Trim a verbose report for an agent",
+        "command": "stackadapt-pp-cli report campaign-delivery --days 30 --agent --select records.campaign_name,records.metrics.cost,records.metrics.ctr",
+        "explanation": "Delivery reports are large; --select with dotted paths returns only the fields an agent needs, saving context."
+      },
+      {
+        "title": "Find where budget is wasted",
+        "command": "stackadapt-pp-cli bottleneck --advertiser adv_123 --agent",
+        "explanation": "Ranks high-spend campaigns by worst ROAS/CPA with a reason column."
+      }
+    ],
+    "trigger_phrases": [
+      "check my stackadapt campaigns",
+      "which campaigns are underpacing",
+      "are my stackadapt campaigns on budget",
+      "where is my ad budget being wasted",
+      "stackadapt campaign performance",
+      "use stackadapt",
+      "run stackadapt"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "dir": "<HOME>/printing-press/.runstate/cli-printing-press-26830562/runs/20260508-133559/working/myfitnesspal-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

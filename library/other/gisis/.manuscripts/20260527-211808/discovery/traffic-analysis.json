@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "api_name": "gisis",
+  "spec_path": "../research/gisis-spec.yaml",
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "evidence": "Anonymous GET /Public/SHIPS/* returns HTTP 200 with WebLogin form body. Login flow has Cloudflare Turnstile (hfTurnstileToken). Authenticated cookie session captured via HAR shows direct GET access to /Public/SHIPS/ShipDetails.aspx?IMONumber=... once cookies present.",
+    "probe_classification": "Login wall + Turnstile-gated; cookie-replay viable after one-time interactive login via press-auth companion (controlled Chrome)."
+  },
+  "observed_hosts": [
+    "gisis.imo.org",
+    "webaccounts.imo.org"
+  ],
+  "endpoint_clusters": [
+    {
+      "path_pattern": "/Public/SHIPS/ShipDetails.aspx",
+      "methods": ["GET"],
+      "observed_auth": ["cookie"],
+      "samples_observed": 1,
+      "notes": "Detail page; query string IMONumber=<imo>. Returns HTML particulars page."
+    },
+    {
+      "path_pattern": "/Public/SHIPS/Default.aspx",
+      "methods": ["GET", "POST"],
+      "observed_auth": ["cookie"],
+      "samples_observed": 5,
+      "notes": "Search form landing. POST is ASP.NET __VIEWSTATE postback for name-search and grid interactions; v1 only uses GET for session-liveness ping."
+    }
+  ],
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "gisis.imo.org",
+    "login_url": "https://webaccounts.imo.org/Login.aspx?App=GISISPublic",
+    "challenge": "cloudflare_turnstile",
+    "notes": "Programmatic login blocked by Turnstile. Use press-auth companion for one-time controlled-Chrome capture."
+  }
+}

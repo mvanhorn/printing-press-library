@@ -1,398 +1,186 @@
-// Package tabelog scrapes Tabelog's English restaurant pages
-// (https://tabelog.com/en/...). Per-restaurant pages embed schema.org
-// Restaurant JSON-LD (name, address, geo, AggregateRating); we prefer parsing
-// those blocks over walking the DOM.
+// Package tabelog is the Stage-2 source client for tabelog.com (Japan's
+// dominant restaurant review aggregator). Anti-bot mitigation: polite
+// browser UA + 1.5s minimum interval between requests.
+//
+// LookupByName uses Tabelog's keyword search URL; HTML parsing extracts
+// listing anchors + titles. CheckClosed reads the listing detail page
+// and runs closedsignal.CheckTabelogHTML.
 package tabelog
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/closedsignal"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/httperr"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 )
 
 const (
-	defaultBaseURL   = "https://tabelog.com"
-	defaultUserAgent = "wanderlust-goat-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
-	defaultTimeout   = 10 * time.Second
-
-	// MinHighQualityRating is the Tabelog rating floor for "high-quality"
-	// callers. Anything at or above this score is kept; everything below is
-	// dropped from RestaurantsByPrefecture's filtered list.
-	MinHighQualityRating = 3.5
+	defaultBase     = "https://tabelog.com"
+	defaultUA       = "wanderlust-goat-pp-cli/0.2 (+https://github.com/joeheitzeberg/wanderlust-goat)"
+	defaultInterval = 1500 * time.Millisecond
 )
 
-// Restaurant is a flattened Tabelog entry. NameLocal preserves the Japanese
-// title when the page emits both English and Japanese names.
-type Restaurant struct {
-	Name        string  `json:"name"`
-	NameLocal   string  `json:"name_local,omitempty"`
-	URL         string  `json:"url"`
-	Address     string  `json:"address"`
-	Rating      float64 `json:"rating"`
-	RatingCount int     `json:"rating_count"`
-	Lat         float64 `json:"lat,omitempty"`
-	Lng         float64 `json:"lng,omitempty"`
-	Cuisine     string  `json:"cuisine,omitempty"`
-	PriceRange  string  `json:"price_range,omitempty"`
-}
-
-// Client is a no-auth Tabelog scraper.
+// Client is the Tabelog client.
 type Client struct {
-	BaseURL    string
-	HTTPClient *http.Client
-	UserAgent  string
+	base       string
+	ua         string
+	interval   time.Duration
+	httpClient *http.Client
+
+	mu       sync.Mutex
+	lastCall time.Time
 }
 
-// New constructs a Client.
-func New(httpClient *http.Client, ua string) *Client {
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: defaultTimeout}
-	}
-	if ua == "" {
-		ua = defaultUserAgent
-	}
+// NewClient returns a default Tabelog client.
+func NewClient() *Client {
 	return &Client{
-		BaseURL:    defaultBaseURL,
-		HTTPClient: httpClient,
-		UserAgent:  ua,
+		base:       defaultBase,
+		ua:         defaultUA,
+		interval:   defaultInterval,
+		httpClient: &http.Client{Timeout: 12 * time.Second},
 	}
 }
 
-func (c *Client) get(ctx context.Context, full string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, full, nil)
+// NewClientWithBase is for tests. interval is also test-configurable.
+func NewClientWithBase(base string, interval time.Duration) *Client {
+	return &Client{
+		base:       strings.TrimRight(base, "/"),
+		ua:         defaultUA,
+		interval:   interval,
+		httpClient: &http.Client{Timeout: 8 * time.Second},
+	}
+}
+
+// Slug implements sourcetypes.Client.
+func (c *Client) Slug() string { return "tabelog" }
+
+// Locale implements sourcetypes.Client.
+func (c *Client) Locale() string { return "ja" }
+
+// IsStub implements sourcetypes.Client.
+func (c *Client) IsStub() bool { return false }
+
+// throttle sleeps if needed to respect the per-instance interval. Cheap;
+// no goroutines needed because per-source fanout already runs each
+// source in its own goroutine.
+func (c *Client) throttle() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	since := time.Since(c.lastCall)
+	if since < c.interval {
+		time.Sleep(c.interval - since)
+	}
+	c.lastCall = time.Now()
+}
+
+// listingAnchor matches Tabelog listing card links: <a href="/<area>/A.../<rstId>/" class="list-rst__rst-name-target">Name</a>
+var listingAnchor = regexp.MustCompile(`<a[^>]+href="(/[^"\s]+/[A-Z][0-9]+/[A-Z][0-9]+/[0-9]+/?)"[^>]*class="[^"]*list-rst__rst-name-target[^"]*"[^>]*>([^<]+)</a>`)
+
+// fallbackTitleAnchor matches restaurant detail anchors when listing-card
+// markup isn't present (search-result fallback).
+var fallbackTitleAnchor = regexp.MustCompile(`<a[^>]+href="(/[^"\s]+/[0-9]+/?)"[^>]*>\s*([^\s<][^<]{1,80})\s*</a>`)
+
+// LookupByName implements sourcetypes.Client.
+func (c *Client) LookupByName(ctx context.Context, name, city string, maxResults int) ([]sourcetypes.Hit, error) {
+	if maxResults <= 0 || maxResults > 20 {
+		maxResults = 5
+	}
+	q := strings.TrimSpace(name)
+	if city != "" {
+		q = q + " " + strings.TrimSpace(city)
+	}
+	if q == "" {
+		return nil, fmt.Errorf("tabelog.LookupByName: empty query")
+	}
+	// Use the English-language listing path: the Japanese path returns the
+	// same restaurants but with markup our regex parser doesn't match.
+	u := fmt.Sprintf("%s/en/rstLst/?sw=%s", c.base, url.QueryEscape(q))
+
+	body, err := c.fetch(ctx, u)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Accept", "text/html,application/xhtml+xml")
-	req.Header.Set("Accept-Language", "en;q=0.9,ja;q=0.8")
+	hits := extractTabelogHits(body, c.base, maxResults)
+	return hits, nil
+}
 
-	resp, err := c.HTTPClient.Do(req)
+func extractTabelogHits(body, base string, maxResults int) []sourcetypes.Hit {
+	var hits []sourcetypes.Hit
+	matches := listingAnchor.FindAllStringSubmatch(body, -1)
+	if len(matches) == 0 {
+		matches = fallbackTitleAnchor.FindAllStringSubmatch(body, -1)
+	}
+	seen := map[string]bool{}
+	for _, m := range matches {
+		if len(hits) >= maxResults {
+			break
+		}
+		href := m[1]
+		title := strings.TrimSpace(m[2])
+		if title == "" {
+			continue
+		}
+		full := href
+		if strings.HasPrefix(href, "/") {
+			full = base + href
+		}
+		if seen[full] {
+			continue
+		}
+		seen[full] = true
+		hits = append(hits, sourcetypes.Hit{
+			Source: "tabelog",
+			URL:    full,
+			Title:  title,
+			Locale: "ja",
+		})
+	}
+	return hits
+}
+
+// CheckClosed fetches the listing detail page and runs the Tabelog-specific
+// closed-keyword detector. Errors fetching are returned as Open verdicts
+// (no signal, not a closure).
+func (c *Client) CheckClosed(ctx context.Context, hit sourcetypes.Hit) closedsignal.Verdict {
+	if hit.URL == "" {
+		return closedsignal.Open
+	}
+	body, err := c.fetch(ctx, hit.URL)
 	if err != nil {
-		return nil, fmt.Errorf("tabelog request: %w", err)
+		return closedsignal.Open
+	}
+	return closedsignal.CheckTabelogHTML(body)
+}
+
+func (c *Client) fetch(ctx context.Context, u string) (string, error) {
+	c.throttle()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("User-Agent", c.ua)
+	req.Header.Set("Accept", "text/html,application/xhtml+xml")
+	req.Header.Set("Accept-Language", "ja,en;q=0.5")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("tabelog GET %s: %w", u, err)
 	}
 	defer resp.Body.Close()
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("tabelog read body: %w", err)
+		return "", fmt.Errorf("tabelog GET %s: read body: %w", u, err)
 	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s returned %d", full, resp.StatusCode)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("tabelog GET %s: HTTP %d: %s", u, resp.StatusCode, httperr.Snippet(body))
 	}
-	return body, nil
-}
-
-// RestaurantsByPrefecture fetches a Tabelog listing for a prefecture +
-// optional cuisine slug and returns only restaurants whose rating meets the
-// MinHighQualityRating bar (>= 3.5). Empty cuisineSlug fetches the prefecture
-// landing page.
-func (c *Client) RestaurantsByPrefecture(ctx context.Context, prefectureSlug, cuisineSlug string) ([]Restaurant, error) {
-	if strings.TrimSpace(prefectureSlug) == "" {
-		return nil, fmt.Errorf("tabelog: empty prefecture slug")
-	}
-	base := strings.TrimRight(c.BaseURL, "/")
-	var full string
-	if strings.TrimSpace(cuisineSlug) == "" {
-		full = fmt.Sprintf("%s/en/%s/", base, prefectureSlug)
-	} else {
-		full = fmt.Sprintf("%s/en/%s/cuisine/%s/", base, prefectureSlug, cuisineSlug)
-	}
-	body, err := c.get(ctx, full)
-	if err != nil {
-		return nil, err
-	}
-	cards := parseListingCards(string(body))
-	out := make([]Restaurant, 0, len(cards))
-	for _, r := range cards {
-		if r.Rating > 0 && r.Rating < MinHighQualityRating {
-			continue
-		}
-		out = append(out, r)
-	}
-	return out, nil
-}
-
-// Restaurant fetches a single Tabelog restaurant page and decodes JSON-LD.
-func (c *Client) Restaurant(ctx context.Context, fullURL string) (*Restaurant, error) {
-	if strings.TrimSpace(fullURL) == "" {
-		return nil, fmt.Errorf("tabelog: empty url")
-	}
-	body, err := c.get(ctx, fullURL)
-	if err != nil {
-		return nil, err
-	}
-	r := parseRestaurantPage(string(body))
-	if r.URL == "" {
-		r.URL = fullURL
-	}
-	return r, nil
-}
-
-var (
-	jsonLDRe = regexp.MustCompile(`(?is)<script[^>]+type=["']application/ld\+json["'][^>]*>([\s\S]+?)</script>`)
-
-	// Card on a listing page: <a class="…list-rst__rst-name-target…" href="…">Name</a>.
-	cardLinkRe = regexp.MustCompile(`(?is)<a[^>]+class=["'][^"']*list-rst__rst-name-target[^"']*["'][^>]+href=["']([^"']+)["'][^>]*>([\s\S]+?)</a>`)
-
-	// Rating per card: <span class="…list-rst__rating-val…">3.62</span>.
-	cardRatingRe = regexp.MustCompile(`(?is)<span[^>]+class=["'][^"']*list-rst__rating-val[^"']*["'][^>]*>([\s\S]+?)</span>`)
-
-	// Address per card: <p class="…list-rst__area-genre…">Tokyo / Sushi</p>.
-	cardAreaRe = regexp.MustCompile(`(?is)<(?:p|span)[^>]+class=["'][^"']*list-rst__area-genre[^"']*["'][^>]*>([\s\S]+?)</(?:p|span)>`)
-
-	// Wrapper that pairs the link with its sibling rating/area in the same row.
-	rowRe = regexp.MustCompile(`(?is)<li[^>]+class=["'][^"']*list-rst[^"']*["'][^>]*>([\s\S]+?)</li>`)
-
-	tagStripRe   = regexp.MustCompile(`<[^>]+>`)
-	whitespaceRe = regexp.MustCompile(`\s+`)
-)
-
-func parseListingCards(html string) []Restaurant {
-	out := make([]Restaurant, 0, 16)
-	for _, m := range rowRe.FindAllStringSubmatch(html, -1) {
-		row := m[1]
-		var r Restaurant
-		if lm := cardLinkRe.FindStringSubmatch(row); len(lm) == 3 {
-			r.URL = strings.TrimSpace(lm[1])
-			r.Name = stripAndCollapse(lm[2])
-		}
-		if r.Name == "" || r.URL == "" {
-			continue
-		}
-		if rm := cardRatingRe.FindStringSubmatch(row); len(rm) == 2 {
-			r.Rating = parseFloatLoose(stripAndCollapse(rm[1]))
-		}
-		if am := cardAreaRe.FindStringSubmatch(row); len(am) == 2 {
-			area := stripAndCollapse(am[1])
-			// Tabelog's list-rst__area-genre is "Area / Cuisine".
-			if i := strings.Index(area, "/"); i >= 0 {
-				r.Address = strings.TrimSpace(area[:i])
-				r.Cuisine = strings.TrimSpace(area[i+1:])
-			} else {
-				r.Address = area
-			}
-		}
-		out = append(out, r)
-	}
-	return out
-}
-
-// jsonLDRestaurant is the permissive view we apply to every JSON-LD block; we
-// cherry-pick whichever block is the Restaurant.
-type jsonLDRestaurant struct {
-	Type            any             `json:"@type"`
-	Name            string          `json:"name"`
-	AlternateName   any             `json:"alternateName"`
-	URL             string          `json:"url"`
-	Address         json.RawMessage `json:"address"`
-	PriceRange      string          `json:"priceRange"`
-	ServesCuisine   any             `json:"servesCuisine"`
-	AggregateRating *struct {
-		RatingValue any `json:"ratingValue"`
-		ReviewCount any `json:"reviewCount"`
-		RatingCount any `json:"ratingCount"`
-	} `json:"aggregateRating"`
-	Geo *struct {
-		Latitude  any `json:"latitude"`
-		Longitude any `json:"longitude"`
-	} `json:"geo"`
-}
-
-type postalAddress struct {
-	StreetAddress   string `json:"streetAddress"`
-	AddressLocality string `json:"addressLocality"`
-	AddressRegion   string `json:"addressRegion"`
-	PostalCode      string `json:"postalCode"`
-}
-
-func parseRestaurantPage(html string) *Restaurant {
-	r := &Restaurant{}
-
-	for _, m := range jsonLDRe.FindAllStringSubmatch(html, -1) {
-		raw := strings.TrimSpace(m[1])
-		var v any
-		if err := json.Unmarshal([]byte(raw), &v); err != nil {
-			continue
-		}
-		for _, b := range flattenJSONLD(v) {
-			if !typeMatches(b["@type"], "Restaurant", "FoodEstablishment", "LocalBusiness") {
-				continue
-			}
-			raw2, _ := json.Marshal(b)
-			var jr jsonLDRestaurant
-			if err := json.Unmarshal(raw2, &jr); err != nil {
-				continue
-			}
-			if r.Name == "" {
-				r.Name = jr.Name
-			}
-			if r.NameLocal == "" {
-				r.NameLocal = stringOrFirst(jr.AlternateName)
-			}
-			if r.URL == "" {
-				r.URL = jr.URL
-			}
-			if r.Address == "" {
-				r.Address = decodeAddress(jr.Address)
-			}
-			if r.PriceRange == "" {
-				r.PriceRange = jr.PriceRange
-			}
-			if r.Cuisine == "" {
-				r.Cuisine = stringOrFirst(jr.ServesCuisine)
-			}
-			if jr.AggregateRating != nil {
-				if r.Rating == 0 {
-					r.Rating = numberAsFloat(jr.AggregateRating.RatingValue)
-				}
-				if r.RatingCount == 0 {
-					if c := numberAsInt(jr.AggregateRating.ReviewCount); c > 0 {
-						r.RatingCount = c
-					} else {
-						r.RatingCount = numberAsInt(jr.AggregateRating.RatingCount)
-					}
-				}
-			}
-			if jr.Geo != nil {
-				if r.Lat == 0 {
-					r.Lat = numberAsFloat(jr.Geo.Latitude)
-				}
-				if r.Lng == 0 {
-					r.Lng = numberAsFloat(jr.Geo.Longitude)
-				}
-			}
-		}
-	}
-	return r
-}
-
-func flattenJSONLD(v any) []map[string]any {
-	switch tv := v.(type) {
-	case map[string]any:
-		if g, ok := tv["@graph"].([]any); ok {
-			out := make([]map[string]any, 0, len(g))
-			for _, sub := range g {
-				out = append(out, flattenJSONLD(sub)...)
-			}
-			return out
-		}
-		return []map[string]any{tv}
-	case []any:
-		var out []map[string]any
-		for _, sub := range tv {
-			out = append(out, flattenJSONLD(sub)...)
-		}
-		return out
-	}
-	return nil
-}
-
-func typeMatches(got any, wanted ...string) bool {
-	is := func(s string) bool {
-		for _, w := range wanted {
-			if strings.EqualFold(s, w) {
-				return true
-			}
-		}
-		return false
-	}
-	switch tv := got.(type) {
-	case string:
-		return is(tv)
-	case []any:
-		for _, x := range tv {
-			if s, ok := x.(string); ok && is(s) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func decodeAddress(raw json.RawMessage) string {
-	if len(raw) == 0 {
-		return ""
-	}
-	var s string
-	if err := json.Unmarshal(raw, &s); err == nil {
-		return s
-	}
-	var p postalAddress
-	if err := json.Unmarshal(raw, &p); err == nil {
-		parts := []string{}
-		for _, x := range []string{p.StreetAddress, p.AddressLocality, p.AddressRegion, p.PostalCode} {
-			if x != "" {
-				parts = append(parts, x)
-			}
-		}
-		return strings.Join(parts, ", ")
-	}
-	return ""
-}
-
-func stringOrFirst(v any) string {
-	switch tv := v.(type) {
-	case string:
-		return tv
-	case []any:
-		if len(tv) > 0 {
-			if s, ok := tv[0].(string); ok {
-				return s
-			}
-		}
-	}
-	return ""
-}
-
-func numberAsFloat(v any) float64 {
-	switch tv := v.(type) {
-	case float64:
-		return tv
-	case string:
-		f, err := strconv.ParseFloat(strings.TrimSpace(tv), 64)
-		if err == nil {
-			return f
-		}
-	}
-	return 0
-}
-
-func numberAsInt(v any) int {
-	switch tv := v.(type) {
-	case float64:
-		return int(tv)
-	case string:
-		// Tabelog occasionally emits "1,234" — strip thousands separators.
-		s := strings.ReplaceAll(strings.TrimSpace(tv), ",", "")
-		i, err := strconv.Atoi(s)
-		if err == nil {
-			return i
-		}
-	}
-	return 0
-}
-
-func parseFloatLoose(s string) float64 {
-	s = strings.TrimSpace(s)
-	if s == "" || s == "-" {
-		return 0
-	}
-	f, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0
-	}
-	return f
-}
-
-func stripAndCollapse(s string) string {
-	s = tagStripRe.ReplaceAllString(s, " ")
-	s = whitespaceRe.ReplaceAllString(s, " ")
-	return strings.TrimSpace(s)
+	return string(body), nil
 }

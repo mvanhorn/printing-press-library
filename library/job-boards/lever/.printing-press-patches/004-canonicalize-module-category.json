@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "lever-canonicalize-module-category",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Canonicalized module path and category for the library/job-boards/lever staging target.",
+  "reason": "The print used module 'lever-pp-cli' and category 'other'. Published library packages carry the full module path github.com/mvanhorn/printing-press-library/library/job-boards/<slug> and category 'job-boards' (greenhouse convention). Updated go.mod, all 52 internal import sites, .printing-press.json, and the go install paths in README.md and SKILL.md.",
+  "files": [
+    "go.mod",
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "52 .go files (import path rename)"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass with the canonical module path.",
+  "upstream_issue": null
+}

@@ -1,0 +1,2100 @@
+{
+  "api_name": "prediction-goat",
+  "base_url": "https://gamma-api.polymarket.com",
+  "description": "REST API specification for public endpoints used by the Markets service.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "comments_get-by-id",
+      "description": "Get comments by comment id. Required: id. Optional: get_positions. Returns array of Comment.",
+      "method": "GET",
+      "path": "/comments/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "get_positions",
+          "type": "bool",
+          "location": "query",
+          "description": "Get positions"
+        }
+      ]
+    },
+    {
+      "name": "comments_get-by-user-address",
+      "description": "Get comments by user address. Required: user_address. Optional: limit, offset, order (plus 1 more). Returns array of Comment.",
+      "method": "GET",
+      "path": "/comments/user_address/{user_address}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user_address",
+          "type": "string",
+          "location": "path",
+          "description": "User address",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments. Optional: limit, offset, order (plus 5 more). Returns array of Comment.",
+      "method": "GET",
+      "path": "/comments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "parent_entity_type",
+          "type": "string",
+          "location": "query",
+          "description": "Parent entity type"
+        },
+        {
+          "name": "parent_entity_id",
+          "type": "int",
+          "location": "query",
+          "description": "Parent entity id"
+        },
+        {
+          "name": "get_positions",
+          "type": "bool",
+          "location": "query",
+          "description": "Get positions"
+        },
+        {
+          "name": "holders_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Holders only"
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Get event by id. Required: id. Optional: include_chat, include_template. Returns the Event.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        }
+      ]
+    },
+    {
+      "name": "events_get-by-slug",
+      "description": "Get event by slug. Required: slug. Optional: include_chat, include_template. Returns the Event.",
+      "method": "GET",
+      "path": "/events/slug/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        }
+      ]
+    },
+    {
+      "name": "events_get-creator",
+      "description": "Get event creator by id. Required: id. Returns the EventCreator.",
+      "method": "GET",
+      "path": "/events/creators/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events. Optional: limit, offset, order (plus 23 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Tag id"
+        },
+        {
+          "name": "exclude_tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Exclude tag id"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "tag_slug",
+          "type": "string",
+          "location": "query",
+          "description": "Tag slug"
+        },
+        {
+          "name": "related_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Related tags"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Active"
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Archived"
+        },
+        {
+          "name": "featured",
+          "type": "bool",
+          "location": "query",
+          "description": "Featured"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "query",
+          "description": "Cyom"
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        },
+        {
+          "name": "recurrence",
+          "type": "string",
+          "location": "query",
+          "description": "Recurrence"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Closed"
+        },
+        {
+          "name": "liquidity_min",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity min"
+        },
+        {
+          "name": "liquidity_max",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity max"
+        },
+        {
+          "name": "volume_min",
+          "type": "float",
+          "location": "query",
+          "description": "Volume min"
+        },
+        {
+          "name": "volume_max",
+          "type": "float",
+          "location": "query",
+          "description": "Volume max"
+        },
+        {
+          "name": "start_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "Start date min"
+        },
+        {
+          "name": "start_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "Start date max"
+        },
+        {
+          "name": "end_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "End date min"
+        },
+        {
+          "name": "end_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "End date max"
+        }
+      ]
+    },
+    {
+      "name": "events_list-creators",
+      "description": "List event creators. Optional: limit, offset, order (plus 3 more). Returns array of EventCreator.",
+      "method": "GET",
+      "path": "/events/creators",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "creator_name",
+          "type": "string",
+          "location": "query",
+          "description": "Creator name"
+        },
+        {
+          "name": "creator_handle",
+          "type": "string",
+          "location": "query",
+          "description": "Creator handle"
+        }
+      ]
+    },
+    {
+      "name": "events_list-keyset",
+      "description": "Returns events using cursor-based (keyset) pagination for stable, efficient paging through large result sets. Use `next_cursor` from each response as `after_cursor` in the next request. The `offset` parameter is explicitly rejected; use `after_cursor` instead. Optional: limit (default: 20), order, ascending (default: true) (plus 38 more).",
+      "method": "GET",
+      "path": "/events/keyset",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return (max 500)"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of JSON field names to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort direction. Only used when order is set."
+        },
+        {
+          "name": "after_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor token from a previous response's next_cursor"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Not allowed. Returns 422 if provided."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Closed"
+        },
+        {
+          "name": "live",
+          "type": "bool",
+          "location": "query",
+          "description": "Live"
+        },
+        {
+          "name": "featured",
+          "type": "bool",
+          "location": "query",
+          "description": "Featured"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "query",
+          "description": "Cyom"
+        },
+        {
+          "name": "title_search",
+          "type": "string",
+          "location": "query",
+          "description": "Title search"
+        },
+        {
+          "name": "liquidity_min",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity min"
+        },
+        {
+          "name": "liquidity_max",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity max"
+        },
+        {
+          "name": "volume_min",
+          "type": "float",
+          "location": "query",
+          "description": "Volume min"
+        },
+        {
+          "name": "volume_max",
+          "type": "float",
+          "location": "query",
+          "description": "Volume max"
+        },
+        {
+          "name": "start_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "Start date min"
+        },
+        {
+          "name": "start_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "Start date max"
+        },
+        {
+          "name": "end_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "End date min"
+        },
+        {
+          "name": "end_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "End date max"
+        },
+        {
+          "name": "start_time_min",
+          "type": "string",
+          "location": "query",
+          "description": "Start time min"
+        },
+        {
+          "name": "start_time_max",
+          "type": "string",
+          "location": "query",
+          "description": "Start time max"
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        },
+        {
+          "name": "tag_slug",
+          "type": "string",
+          "location": "query",
+          "description": "Tag slug"
+        },
+        {
+          "name": "exclude_tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag IDs to exclude. Cannot overlap with tag_id."
+        },
+        {
+          "name": "related_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Related tags"
+        },
+        {
+          "name": "tag_match",
+          "type": "string",
+          "location": "query",
+          "description": "Tag match"
+        },
+        {
+          "name": "series_id",
+          "type": "array",
+          "location": "query",
+          "description": "Series id"
+        },
+        {
+          "name": "game_id",
+          "type": "array",
+          "location": "query",
+          "description": "Game id"
+        },
+        {
+          "name": "event_date",
+          "type": "string",
+          "location": "query",
+          "description": "Event date"
+        },
+        {
+          "name": "event_week",
+          "type": "int",
+          "location": "query",
+          "description": "Event week"
+        },
+        {
+          "name": "featured_order",
+          "type": "bool",
+          "location": "query",
+          "description": "Featured order"
+        },
+        {
+          "name": "recurrence",
+          "type": "string",
+          "location": "query",
+          "description": "Recurrence"
+        },
+        {
+          "name": "created_by",
+          "type": "array",
+          "location": "query",
+          "description": "Created by"
+        },
+        {
+          "name": "parent_event_id",
+          "type": "int",
+          "location": "query",
+          "description": "Parent event id"
+        },
+        {
+          "name": "include_children",
+          "type": "bool",
+          "location": "query",
+          "description": "Include children"
+        },
+        {
+          "name": "partner_slug",
+          "type": "string",
+          "location": "query",
+          "description": "When set, external_partners are attached to matching events"
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes Chats and Series.Chats relations"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes Templates relation"
+        },
+        {
+          "name": "include_best_lines",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes BestLines relation"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        }
+      ]
+    },
+    {
+      "name": "events_list-pagination",
+      "description": "List events (paginated). Optional: limit, offset, order (plus 4 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/events/pagination",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        },
+        {
+          "name": "recurrence",
+          "type": "string",
+          "location": "query",
+          "description": "Recurrence"
+        }
+      ]
+    },
+    {
+      "name": "events_list-sport-results",
+      "description": "List sport events results. Optional: limit, offset, order (plus 1 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/events/results",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        }
+      ]
+    },
+    {
+      "name": "events_comments_get-event-count",
+      "description": "Get event comment count. Required: id. Returns the Count.",
+      "method": "GET",
+      "path": "/events/{id}/comments/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_tags_get-event",
+      "description": "Get event tags. Required: id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/events/{id}/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_tweet-count_get-event",
+      "description": "Get event tweet count. Required: id. Returns the EventTweetCount.",
+      "method": "GET",
+      "path": "/events/{id}/tweet-count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_get",
+      "description": "Get market by id. Required: id. Optional: include_tag. Returns the Market.",
+      "method": "GET",
+      "path": "/markets/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_tag",
+          "type": "bool",
+          "location": "query",
+          "description": "Include tag"
+        }
+      ]
+    },
+    {
+      "name": "markets_get-abridged",
+      "description": "Query abridged markets by information filters. Optional: clobTokenIds, closed, conditionIds (plus 20 more). Returns array of Market.",
+      "method": "POST",
+      "path": "/markets/abridged",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "clobTokenIds",
+          "type": "array",
+          "location": "body",
+          "description": "Clob token ids"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "body",
+          "description": "Closed"
+        },
+        {
+          "name": "conditionIds",
+          "type": "array",
+          "location": "body",
+          "description": "Condition ids"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "body",
+          "description": "Cyom"
+        },
+        {
+          "name": "endDateMax",
+          "type": "string",
+          "location": "body",
+          "description": "End date max"
+        },
+        {
+          "name": "endDateMin",
+          "type": "string",
+          "location": "body",
+          "description": "End date min"
+        },
+        {
+          "name": "gameId",
+          "type": "string",
+          "location": "body",
+          "description": "Game id"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "includeTags",
+          "type": "bool",
+          "location": "body",
+          "description": "Include tags"
+        },
+        {
+          "name": "liquidityNumMax",
+          "type": "float",
+          "location": "body",
+          "description": "Liquidity num max"
+        },
+        {
+          "name": "liquidityNumMin",
+          "type": "float",
+          "location": "body",
+          "description": "Liquidity num min"
+        },
+        {
+          "name": "marketMakerAddress",
+          "type": "array",
+          "location": "body",
+          "description": "Market maker address"
+        },
+        {
+          "name": "questionIds",
+          "type": "array",
+          "location": "body",
+          "description": "Question ids"
+        },
+        {
+          "name": "relatedTags",
+          "type": "bool",
+          "location": "body",
+          "description": "Related tags"
+        },
+        {
+          "name": "rewardsMinSize",
+          "type": "float",
+          "location": "body",
+          "description": "Rewards min size"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "body",
+          "description": "Slug"
+        },
+        {
+          "name": "sportsMarketTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Sports market types"
+        },
+        {
+          "name": "startDateMax",
+          "type": "string",
+          "location": "body",
+          "description": "Start date max"
+        },
+        {
+          "name": "startDateMin",
+          "type": "string",
+          "location": "body",
+          "description": "Start date min"
+        },
+        {
+          "name": "tagId",
+          "type": "int",
+          "location": "body",
+          "description": "Tag id"
+        },
+        {
+          "name": "umaResolutionStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Uma resolution status"
+        },
+        {
+          "name": "volumeNumMax",
+          "type": "float",
+          "location": "body",
+          "description": "Volume num max"
+        },
+        {
+          "name": "volumeNumMin",
+          "type": "float",
+          "location": "body",
+          "description": "Volume num min"
+        }
+      ]
+    },
+    {
+      "name": "markets_get-by-slug",
+      "description": "Get market by slug. Required: slug. Optional: include_tag. Returns the Market.",
+      "method": "GET",
+      "path": "/markets/slug/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "include_tag",
+          "type": "bool",
+          "location": "query",
+          "description": "Include tag"
+        }
+      ]
+    },
+    {
+      "name": "markets_get-information",
+      "description": "Query markets by information filters. Optional: clobTokenIds, closed, conditionIds (plus 20 more). Returns array of Market.",
+      "method": "POST",
+      "path": "/markets/information",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "clobTokenIds",
+          "type": "array",
+          "location": "body",
+          "description": "Clob token ids"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "body",
+          "description": "Closed"
+        },
+        {
+          "name": "conditionIds",
+          "type": "array",
+          "location": "body",
+          "description": "Condition ids"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "body",
+          "description": "Cyom"
+        },
+        {
+          "name": "endDateMax",
+          "type": "string",
+          "location": "body",
+          "description": "End date max"
+        },
+        {
+          "name": "endDateMin",
+          "type": "string",
+          "location": "body",
+          "description": "End date min"
+        },
+        {
+          "name": "gameId",
+          "type": "string",
+          "location": "body",
+          "description": "Game id"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "includeTags",
+          "type": "bool",
+          "location": "body",
+          "description": "Include tags"
+        },
+        {
+          "name": "liquidityNumMax",
+          "type": "float",
+          "location": "body",
+          "description": "Liquidity num max"
+        },
+        {
+          "name": "liquidityNumMin",
+          "type": "float",
+          "location": "body",
+          "description": "Liquidity num min"
+        },
+        {
+          "name": "marketMakerAddress",
+          "type": "array",
+          "location": "body",
+          "description": "Market maker address"
+        },
+        {
+          "name": "questionIds",
+          "type": "array",
+          "location": "body",
+          "description": "Question ids"
+        },
+        {
+          "name": "relatedTags",
+          "type": "bool",
+          "location": "body",
+          "description": "Related tags"
+        },
+        {
+          "name": "rewardsMinSize",
+          "type": "float",
+          "location": "body",
+          "description": "Rewards min size"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "body",
+          "description": "Slug"
+        },
+        {
+          "name": "sportsMarketTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Sports market types"
+        },
+        {
+          "name": "startDateMax",
+          "type": "string",
+          "location": "body",
+          "description": "Start date max"
+        },
+        {
+          "name": "startDateMin",
+          "type": "string",
+          "location": "body",
+          "description": "Start date min"
+        },
+        {
+          "name": "tagId",
+          "type": "int",
+          "location": "body",
+          "description": "Tag id"
+        },
+        {
+          "name": "umaResolutionStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Uma resolution status"
+        },
+        {
+          "name": "volumeNumMax",
+          "type": "float",
+          "location": "body",
+          "description": "Volume num max"
+        },
+        {
+          "name": "volumeNumMin",
+          "type": "float",
+          "location": "body",
+          "description": "Volume num min"
+        }
+      ]
+    },
+    {
+      "name": "markets_list",
+      "description": "List markets. Optional: limit, offset, order (plus 24 more). Returns array of Market.",
+      "method": "GET",
+      "path": "/markets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "clob_token_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Clob token ids"
+        },
+        {
+          "name": "condition_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Condition ids"
+        },
+        {
+          "name": "market_maker_address",
+          "type": "array",
+          "location": "query",
+          "description": "Market maker address"
+        },
+        {
+          "name": "liquidity_num_min",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity num min"
+        },
+        {
+          "name": "liquidity_num_max",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity num max"
+        },
+        {
+          "name": "volume_num_min",
+          "type": "float",
+          "location": "query",
+          "description": "Volume num min"
+        },
+        {
+          "name": "volume_num_max",
+          "type": "float",
+          "location": "query",
+          "description": "Volume num max"
+        },
+        {
+          "name": "start_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "Start date min"
+        },
+        {
+          "name": "start_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "Start date max"
+        },
+        {
+          "name": "end_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "End date min"
+        },
+        {
+          "name": "end_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "End date max"
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Tag id"
+        },
+        {
+          "name": "related_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Related tags"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "query",
+          "description": "Cyom"
+        },
+        {
+          "name": "uma_resolution_status",
+          "type": "string",
+          "location": "query",
+          "description": "Uma resolution status"
+        },
+        {
+          "name": "game_id",
+          "type": "string",
+          "location": "query",
+          "description": "Game id"
+        },
+        {
+          "name": "sports_market_types",
+          "type": "array",
+          "location": "query",
+          "description": "Sports market types"
+        },
+        {
+          "name": "rewards_min_size",
+          "type": "float",
+          "location": "query",
+          "description": "Rewards min size"
+        },
+        {
+          "name": "question_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Question ids"
+        },
+        {
+          "name": "include_tag",
+          "type": "bool",
+          "location": "query",
+          "description": "Include tag"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Closed"
+        }
+      ]
+    },
+    {
+      "name": "markets_list-keyset",
+      "description": "Returns markets using cursor-based (keyset) pagination for stable, efficient paging through large result sets. Use `next_cursor` from each response as `after_cursor` in the next request. The `offset` parameter is explicitly rejected; use `after_cursor` instead. Optional: limit (default: 20), order, ascending (default: true) (plus 28 more).",
+      "method": "GET",
+      "path": "/markets/keyset",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return (max 100)"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of JSON field names to order by, e.g. volume_num,liquidity_num"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort direction. Only used when order is set."
+        },
+        {
+          "name": "after_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor token from a previous response's next_cursor"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Not allowed. Returns 422 if provided."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Closed"
+        },
+        {
+          "name": "decimalized",
+          "type": "bool",
+          "location": "query",
+          "description": "Decimalized"
+        },
+        {
+          "name": "clob_token_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Clob token ids"
+        },
+        {
+          "name": "condition_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Condition ids"
+        },
+        {
+          "name": "question_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Question ids"
+        },
+        {
+          "name": "market_maker_address",
+          "type": "array",
+          "location": "query",
+          "description": "Market maker address"
+        },
+        {
+          "name": "liquidity_num_min",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity num min"
+        },
+        {
+          "name": "liquidity_num_max",
+          "type": "float",
+          "location": "query",
+          "description": "Liquidity num max"
+        },
+        {
+          "name": "volume_num_min",
+          "type": "float",
+          "location": "query",
+          "description": "Volume num min"
+        },
+        {
+          "name": "volume_num_max",
+          "type": "float",
+          "location": "query",
+          "description": "Volume num max"
+        },
+        {
+          "name": "start_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "Start date min"
+        },
+        {
+          "name": "start_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "Start date max"
+        },
+        {
+          "name": "end_date_min",
+          "type": "string",
+          "location": "query",
+          "description": "End date min"
+        },
+        {
+          "name": "end_date_max",
+          "type": "string",
+          "location": "query",
+          "description": "End date max"
+        },
+        {
+          "name": "tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Tag id"
+        },
+        {
+          "name": "related_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Related tags"
+        },
+        {
+          "name": "tag_match",
+          "type": "string",
+          "location": "query",
+          "description": "Tag match"
+        },
+        {
+          "name": "cyom",
+          "type": "bool",
+          "location": "query",
+          "description": "Cyom"
+        },
+        {
+          "name": "rfq_enabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Rfq enabled"
+        },
+        {
+          "name": "uma_resolution_status",
+          "type": "string",
+          "location": "query",
+          "description": "Uma resolution status"
+        },
+        {
+          "name": "game_id",
+          "type": "string",
+          "location": "query",
+          "description": "Game id"
+        },
+        {
+          "name": "sports_market_types",
+          "type": "array",
+          "location": "query",
+          "description": "Sports market types"
+        },
+        {
+          "name": "include_tag",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes Tags relation on each market"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        }
+      ]
+    },
+    {
+      "name": "markets_description_get-market",
+      "description": "Get market description by id. Required: id. Returns the MarketDescription.",
+      "method": "GET",
+      "path": "/markets/{id}/description",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_tags_get-market",
+      "description": "Get market tags by id. Required: id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/markets/{id}/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profiles_get-public-by-user-address",
+      "description": "Get public profile by user address. Required: user_address. Returns the Profile.",
+      "method": "GET",
+      "path": "/profiles/user_address/{user_address}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user_address",
+          "type": "string",
+          "location": "path",
+          "description": "User address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public-profile_get",
+      "description": "Get public profile by wallet address. Required: address. Returns the PublicProfileResponse.",
+      "method": "GET",
+      "path": "/public-profile",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "The wallet address (proxy wallet or user address)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public-search_public_search",
+      "description": "Search markets, events, and profiles. Required: q. Optional: cache, events_status, limit_per_type (plus 10 more). Returns the Search.",
+      "method": "GET",
+      "path": "/public-search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "cache",
+          "type": "bool",
+          "location": "query",
+          "description": "Cache"
+        },
+        {
+          "name": "events_status",
+          "type": "string",
+          "location": "query",
+          "description": "Events status"
+        },
+        {
+          "name": "limit_per_type",
+          "type": "int",
+          "location": "query",
+          "description": "Limit per type"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "events_tag",
+          "type": "array",
+          "location": "query",
+          "description": "Events tag"
+        },
+        {
+          "name": "keep_closed_markets",
+          "type": "int",
+          "location": "query",
+          "description": "Keep closed markets"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "search_tags",
+          "type": "bool",
+          "location": "query",
+          "description": "Search tags"
+        },
+        {
+          "name": "search_profiles",
+          "type": "bool",
+          "location": "query",
+          "description": "Search profiles"
+        },
+        {
+          "name": "recurrence",
+          "type": "string",
+          "location": "query",
+          "description": "Recurrence"
+        },
+        {
+          "name": "exclude_tag_id",
+          "type": "array",
+          "location": "query",
+          "description": "Exclude tag id"
+        },
+        {
+          "name": "optimized",
+          "type": "bool",
+          "location": "query",
+          "description": "Optimized"
+        }
+      ]
+    },
+    {
+      "name": "series_get",
+      "description": "Get series by id. Required: id. Optional: include_chat. Returns the Series.",
+      "method": "GET",
+      "path": "/series/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        }
+      ]
+    },
+    {
+      "name": "series_list",
+      "description": "List series. Optional: limit, offset, order (plus 8 more). Returns array of Series.",
+      "method": "GET",
+      "path": "/series",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "slug",
+          "type": "array",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "categories_ids",
+          "type": "array",
+          "location": "query",
+          "description": "Categories ids"
+        },
+        {
+          "name": "categories_labels",
+          "type": "array",
+          "location": "query",
+          "description": "Categories labels"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Closed"
+        },
+        {
+          "name": "include_chat",
+          "type": "bool",
+          "location": "query",
+          "description": "Include chat"
+        },
+        {
+          "name": "recurrence",
+          "type": "string",
+          "location": "query",
+          "description": "Recurrence"
+        },
+        {
+          "name": "exclude_events",
+          "type": "bool",
+          "location": "query",
+          "description": "Exclude events"
+        }
+      ]
+    },
+    {
+      "name": "series_comments_get-series-count",
+      "description": "Get series comment count. Required: id. Returns the Count.",
+      "method": "GET",
+      "path": "/series/{id}/comments/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "series-summary_get-by-id",
+      "description": "Get series summary by id. Required: id. Returns the SeriesSummary.",
+      "method": "GET",
+      "path": "/series-summary/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "series-summary_get-by-slug",
+      "description": "Get series summary by slug. Required: slug. Returns the SeriesSummary.",
+      "method": "GET",
+      "path": "/series-summary/slug/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sports_get-market-types",
+      "description": "Get valid sports market types. Returns the SportsMarketTypesResponse.",
+      "method": "GET",
+      "path": "/sports/market-types",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sports_get-metadata",
+      "description": "Get sports metadata information. Returns array of SportsMetadata.",
+      "method": "GET",
+      "path": "/sports",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "status_get-gamma",
+      "description": "Health check for the Polymarket Gamma API. No parameters. Returns the literal string 'OK' (text/plain) when the upstream is reachable, or a non-2xx HTTP error when it is not. Prefer this over running a full sync to verify Polymarket connectivity from an agent context.",
+      "method": "GET",
+      "path": "/status",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tags_get",
+      "description": "Get tag by id. Required: id. Optional: include_template. Returns the Tag.",
+      "method": "GET",
+      "path": "/tags/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        }
+      ]
+    },
+    {
+      "name": "tags_get-by-slug",
+      "description": "Get tag by slug. Required: slug. Optional: include_template. Returns the Tag.",
+      "method": "GET",
+      "path": "/tags/slug/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        }
+      ]
+    },
+    {
+      "name": "tags_get-related-by-slug",
+      "description": "Get related tags (relationships) by tag slug. Required: slug. Optional: omit_empty, status. Returns array of RelatedTag.",
+      "method": "GET",
+      "path": "/tags/slug/{slug}/related-tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "omit_empty",
+          "type": "bool",
+          "location": "query",
+          "description": "Omit empty"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "tags_get-related-to-atag-by-slug",
+      "description": "Get tags related to a tag slug. Required: slug. Optional: omit_empty, status. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/slug/{slug}/related-tags/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "omit_empty",
+          "type": "bool",
+          "location": "query",
+          "description": "Omit empty"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List tags. Optional: limit, offset, order (plus 3 more). Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "include_template",
+          "type": "bool",
+          "location": "query",
+          "description": "Include template"
+        },
+        {
+          "name": "is_carousel",
+          "type": "bool",
+          "location": "query",
+          "description": "Is carousel"
+        }
+      ]
+    },
+    {
+      "name": "tags_related-tags_get-by-id",
+      "description": "Get related tags (relationships) by tag id. Required: id. Optional: omit_empty, status. Returns array of RelatedTag.",
+      "method": "GET",
+      "path": "/tags/{id}/related-tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "omit_empty",
+          "type": "bool",
+          "location": "query",
+          "description": "Omit empty"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "tags_related-tags_get-tags-related-to-atag-by-id",
+      "description": "Get tags related to a tag id. Required: id. Optional: omit_empty, status. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/{id}/related-tags/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "omit_empty",
+          "type": "bool",
+          "location": "query",
+          "description": "Omit empty"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get team by id. Required: id. Returns the Team.",
+      "method": "GET",
+      "path": "/teams/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams. Optional: limit, offset, order (plus 4 more). Returns array of Team.",
+      "method": "GET",
+      "path": "/teams",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to order by"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Ascending"
+        },
+        {
+          "name": "league",
+          "type": "array",
+          "location": "query",
+          "description": "League"
+        },
+        {
+          "name": "name",
+          "type": "array",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "abbreviation",
+          "type": "array",
+          "location": "query",
+          "description": "Abbreviation"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+Root:
+  get:
+    tags: 
+      - Verified
+    summary: Get the latest things verified
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: An array of thing objects
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/verified_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

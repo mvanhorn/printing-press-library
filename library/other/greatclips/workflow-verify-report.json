@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/mvanhorn/printing-press/library/greatclips",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

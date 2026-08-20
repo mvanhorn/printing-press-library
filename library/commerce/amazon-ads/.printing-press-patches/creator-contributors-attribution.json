@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "creator-contributors-attribution",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Bring attribution surfaces to the canonical creator + contributors shape via `tools/sweep-canonical -attribution-only`.",
+  "reason": "The published library now uses a permanent `creator: {handle, name}` block in `.printing-press.json` plus `Copyright YYYY <name> and contributors.` headers, with a NOTICE `Created by` block and a `Created by` README byline. The sweep also adds `amazon-ads` to the curated `cliAuthorByAPIName` map so future sweeps see the canonical author display name without consulting the operator's git config.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "cmd/amazon-ads-pp-cli/main.go",
+    "cmd/amazon-ads-pp-mcp/main.go",
+    "internal/**/*.go"
+  ],
+  "validated_outcome": "Re-running `SWEEP_OWNER_NAME=\"Cathryn Lavery\" go run ./tools/sweep-canonical -attribution-only` reports amazon-ads as already up-to-date (idempotent)."
+}

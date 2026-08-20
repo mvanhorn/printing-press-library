@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "servicetitan-pricebook",
+  "run_id": "20260514-073613",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 128,
+  "tests_passed": 128,
+  "tests_skipped": 162,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

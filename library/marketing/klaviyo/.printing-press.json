@@ -5,14 +5,20 @@
   "api_name": "klaviyo",
   "display_name": "Klaviyo",
   "cli_name": "klaviyo-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://raw.githubusercontent.com/klaviyo/openapi/3fb87e6042183f6c790c60f2473e4c254efe81b3/openapi/stable.json",
   "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-klaviyo-b1952ca2/runs/20260502T175749Z-699b4af1/specs/klaviyo-stable.preprocessed.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:be7778d9d5729d95e84464a8792e349f80da3235dc398d505eabacff63c11191",
   "catalog_entry": "klaviyo",
   "category": "marketing",
-  "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
+  "description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation.",
   "mcp_binary": "klaviyo-pp-mcp",
   "mcp_tool_count": 308,
   "mcp_public_tool_count": 11,
@@ -68,5 +74,6 @@
       "command": "plan qa-gate",
       "description": "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags."
     }
-  ]
+  ],
+  "catalog_description": "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation."
 }

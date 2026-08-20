@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "pointhound-pp-mcp",
+  "display_name": "Pointhound",
+  "version": "4.4.0",
+  "description": "Pointhound API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pointhound-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pointhound-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

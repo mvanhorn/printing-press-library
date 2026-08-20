@@ -14,9 +14,9 @@ import (
 )
 
 var screenshotCmd = &cobra.Command{
-	Use:   "screenshot [output]",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Capture a screenshot of a window, app, display, or region",
+	Use:         "screenshot [output]",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Capture a screenshot of a window, app, display, or region",
 	Long: `Take a single-frame screenshot of a macOS window, application, display, or region.
 Supports PNG and JPG output formats.`,
 	Example: `  # Screenshot an app's frontmost window

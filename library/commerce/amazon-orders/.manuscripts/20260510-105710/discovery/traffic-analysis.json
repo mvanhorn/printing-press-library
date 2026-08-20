@@ -1,0 +1,44 @@
+{
+  "version": "1",
+  "auth": {},
+  "candidate_commands": [],
+  "endpoint_clusters": [],
+  "protocols": [
+    {
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "content_type": "text/html",
+          "entry_index": 1,
+          "host": "www.amazon.com",
+          "method": "GET",
+          "path": "/your-orders/orders",
+          "reason": "Server-rendered HTML pages with cookie auth; no specialized protocol markers",
+          "status": 200
+        }
+      ],
+      "label": "html_cookie"
+    }
+  ],
+  "reachability": {
+    "confidence": 0.95,
+    "mode": "standard_http",
+    "reasons": [
+      "probe-reachability returned 200 (or 401 when unauthenticated) over plain stdlib HTTP",
+      "no browser-only reachability signals observed",
+      "no clearance cookie required"
+    ]
+  },
+  "request_sequences": [],
+  "summary": {
+    "api_entry_count": 6,
+    "entry_count": 6,
+    "host_distribution": {
+      "www.amazon.com": 6
+    },
+    "noise_entry_count": 0,
+    "target_url": "https://www.amazon.com/gp/your-account/order-history",
+    "time_end": "2026-05-10T18:00:00Z",
+    "time_start": "2026-05-10T17:55:00Z"
+  }
+}

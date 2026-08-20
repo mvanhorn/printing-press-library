@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "supermemory-admin-pp-mcp",
+  "display_name": "Supermemory",
+  "version": "0.0.0",
+  "description": "The Memory API for the AI era",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/supermemory-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/supermemory-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "SUPERMEMORY_ADMIN_TOKEN": "${user_config.supermemory_admin_token}",
+        "SUPERMEMORY_ADMIN_PROJECT": "${user_config.supermemory_admin_project}"
+      }
+    }
+  },
+  "user_config": {
+    "supermemory_admin_token": {
+      "type": "string",
+      "title": "SUPERMEMORY_ADMIN_TOKEN",
+      "description": "Sets SUPERMEMORY_ADMIN_TOKEN for the Supermemory MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "supermemory_admin_project": {
+      "type": "string",
+      "title": "SUPERMEMORY_ADMIN_PROJECT",
+      "description": "Optional Supermemory project id. When set, requests include x-sm-project to scope operations.",
+      "sensitive": false,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

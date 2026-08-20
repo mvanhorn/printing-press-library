@@ -1,14 +1,15 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence commands — unique to yahoo-finance-pp-cli. Watchlists, portfolios,
 // digests, peer compare, sparklines, options moneyness filter, local SQL access.
 
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/store"
 
 	"github.com/spf13/cobra"
@@ -79,10 +81,10 @@ func openDB(flags *rootFlags) (*sql.DB, error) {
 
 func newWatchlistCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "watchlist",
+		Use:         "watchlist",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Create, manage, and query local watchlists of ticker symbols",
-		Long:  "Watchlists live in your local SQLite database. They power multi-symbol commands like `digest`, `compare`, and `watchlist show`.",
+		Short:       "Create, manage, and query local watchlists of ticker symbols",
+		Long:        "Watchlists live in your local SQLite database. They power multi-symbol commands like `digest`, `compare`, and `watchlist show`.",
 		Example: `  # Create a watchlist and add symbols
   yahoo-finance-pp-cli watchlist create tech
   yahoo-finance-pp-cli watchlist add tech AAPL MSFT NVDA GOOG
@@ -99,6 +101,7 @@ func newWatchlistCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWatchlistListCmd(flags))
 	cmd.AddCommand(newWatchlistShowCmd(flags))
 	cmd.AddCommand(newWatchlistDeleteCmd(flags))
+	cmd.AddCommand(newWatchlistCorrelateCmd(flags))
 	return cmd
 }
 
@@ -180,9 +183,14 @@ func newWatchlistRemoveCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchlistListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
+		Use:         "list",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List all watchlists with member counts",
+		Short:       "List all watchlists with member counts",
+		Example: `  # List all watchlists
+  yahoo-finance-pp-cli watchlist list
+
+  # As JSON for piping
+  yahoo-finance-pp-cli watchlist list --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openDB(flags)
 			if err != nil {
@@ -240,11 +248,11 @@ func watchlistSymbols(db *sql.DB, name string) ([]string, error) {
 
 func newWatchlistShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "show <name>",
+		Use:         "show <name>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show symbols in a watchlist with live quotes",
-		Args:    cobra.ExactArgs(1),
-		Example: "  yahoo-finance-pp-cli watchlist show tech",
+		Short:       "Show symbols in a watchlist with live quotes",
+		Args:        cobra.ExactArgs(1),
+		Example:     "  yahoo-finance-pp-cli watchlist show tech",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openDB(flags)
 			if err != nil {
@@ -262,7 +270,7 @@ func newWatchlistShowCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			quotes, err := fetchQuotes(c, symbols)
+			quotes, err := fetchQuotes(cmd.Context(), c, symbols)
 			if err != nil {
 				// Still show symbols even if the live fetch fails
 				if flags.asJSON {
@@ -323,9 +331,12 @@ type quoteRow struct {
 }
 
 // fetchQuotes calls /v7/finance/quote with chunking to stay under URL length limits.
-func fetchQuotes(c *client.Client, symbols []string) ([]quoteRow, error) {
+func fetchQuotes(ctx context.Context, c *client.Client, symbols []string) ([]quoteRow, error) {
 	if len(symbols) == 0 {
 		return nil, nil
+	}
+	if ctx == nil {
+		ctx = context.Background()
 	}
 	const chunkSize = 50
 	var all []quoteRow
@@ -334,7 +345,7 @@ func fetchQuotes(c *client.Client, symbols []string) ([]quoteRow, error) {
 		if end > len(symbols) {
 			end = len(symbols)
 		}
-		data, err := c.Get("/v7/finance/quote", map[string]string{"symbols": strings.Join(symbols[i:end], ",")})
+		data, err := c.Get(ctx, "/v7/finance/quote", map[string]string{"symbols": strings.Join(symbols[i:end], ",")})
 		if err != nil {
 			return all, err
 		}
@@ -421,16 +432,17 @@ func renderQuotes(cmd *cobra.Command, flags *rootFlags, label string, quotes []q
 
 func newPortfolioCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "portfolio",
+		Use:         "portfolio",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Track holdings, cost basis, returns, and dividend income locally",
-		Long:  "Portfolios are a local SQLite concept. Each 'lot' records shares, cost basis, and purchase date. Commands compute P&L, YTD return, and dividend income against live quotes.",
+		Short:       "Track holdings, cost basis, returns, and dividend income locally",
+		Long:        "Portfolios are a local SQLite concept. Each 'lot' records shares, cost basis, and purchase date. Commands compute P&L, YTD return, and dividend income against live quotes.",
 	}
 	cmd.AddCommand(newPortfolioAddCmd(flags))
 	cmd.AddCommand(newPortfolioListCmd(flags))
 	cmd.AddCommand(newPortfolioRemoveCmd(flags))
 	cmd.AddCommand(newPortfolioPerfCmd(flags))
 	cmd.AddCommand(newPortfolioGainsCmd(flags))
+	cmd.AddCommand(newPortfolioDividendsCmd(flags))
 	return cmd
 }
 
@@ -476,9 +488,9 @@ func newPortfolioAddCmd(flags *rootFlags) *cobra.Command {
 
 func newPortfolioListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
+		Use:         "list",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List all portfolio lots",
+		Short:       "List all portfolio lots",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openDB(flags)
 			if err != nil {
@@ -530,7 +542,9 @@ func newPortfolioRemoveCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "remove <lot-id>",
 		Short: "Remove a portfolio lot by id (see `portfolio list`)",
-		Args:  cobra.ExactArgs(1),
+		Example: `  # Remove lot 7 (find ids via portfolio list)
+  yahoo-finance-pp-cli portfolio remove 7`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
@@ -549,11 +563,14 @@ func newPortfolioRemoveCmd(flags *rootFlags) *cobra.Command {
 
 func newPortfolioPerfCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "perf",
+		Use:         "perf",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show current market value, cost basis, and unrealized P&L across all lots",
-		Example: "  yahoo-finance-pp-cli portfolio perf",
+		Short:       "Show current market value, cost basis, and unrealized P&L across all lots",
+		Example:     "  yahoo-finance-pp-cli portfolio perf",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			db, err := openDB(flags)
 			if err != nil {
 				return err
@@ -589,7 +606,7 @@ func newPortfolioPerfCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			quotes, err := fetchQuotes(c, syms)
+			quotes, err := fetchQuotes(cmd.Context(), c, syms)
 			if err != nil {
 				return err
 			}
@@ -665,9 +682,9 @@ func newPortfolioPerfCmd(flags *rootFlags) *cobra.Command {
 func newPortfolioGainsCmd(flags *rootFlags) *cobra.Command {
 	var unrealized bool
 	cmd := &cobra.Command{
-		Use:   "gains",
+		Use:         "gains",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Per-lot unrealized gain/loss sorted by magnitude",
+		Short:       "Per-lot unrealized gain/loss sorted by magnitude",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = unrealized
 			db, err := openDB(flags)
@@ -708,7 +725,7 @@ func newPortfolioGainsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			quotes, err := fetchQuotes(c, syms)
+			quotes, err := fetchQuotes(cmd.Context(), c, syms)
 			if err != nil {
 				return err
 			}
@@ -771,9 +788,9 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 	var watchlistName string
 	var symbolsFlag string
 	cmd := &cobra.Command{
-		Use:   "digest",
+		Use:         "digest",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Morning briefing: biggest movers and headline quotes across a watchlist",
+		Short:       "Morning briefing: biggest movers and headline quotes across a watchlist",
 		Example: `  yahoo-finance-pp-cli digest --watchlist tech
   yahoo-finance-pp-cli digest --symbols AAPL,MSFT,NVDA`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -809,10 +826,10 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if flags.dryRun {
-				_, _ = fetchQuotes(c, syms)
+				_, _ = fetchQuotes(cmd.Context(), c, syms)
 				return nil
 			}
-			quotes, err := fetchQuotes(c, syms)
+			quotes, err := fetchQuotes(cmd.Context(), c, syms)
 			if err != nil {
 				return err
 			}
@@ -880,22 +897,64 @@ func quoteRowsCompact(qs []quoteRow) [][]string {
 // ---------------------------------------------------------------------------
 
 func newCompareCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:     "compare <symbol> <symbol> [symbol...]",
+	var rangeSpec string
+	var includeDivs bool
+	cmd := &cobra.Command{
+		Use:         "compare <symbol> <symbol> [symbol...]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Side-by-side quote comparison for 2+ symbols",
-		Args:    cobra.MinimumNArgs(2),
-		Example: "  yahoo-finance-pp-cli compare AAPL MSFT GOOG NVDA",
+		Short:       "Side-by-side quote comparison or total-return ranking across symbols",
+		Example: strings.Trim(`
+  # Current-quote side-by-side
+  yahoo-finance-pp-cli compare AAPL MSFT GOOG NVDA
+
+  # Total return (price + reinvested dividends) over 1 year
+  yahoo-finance-pp-cli compare AAPL MSFT NVDA --range 1y --include-divs --agent
+`, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			if len(args) < 2 {
+				return fmt.Errorf("compare requires at least 2 symbols (got %d)", len(args))
 			}
 			syms := make([]string, len(args))
 			for i, s := range args {
 				syms[i] = strings.ToUpper(s)
 			}
-			quotes, err := fetchQuotes(c, syms)
+
+			// Total-return mode pulls from local SQLite (history + dividends).
+			if rangeSpec != "" {
+				rows, err := totalReturnsFromStore(cmd.Context(), syms, rangeSpec, includeDivs)
+				if err != nil {
+					return err
+				}
+				if flags.asJSON {
+					return flags.printJSON(cmd, rows)
+				}
+				headers := []string{"SYMBOL", "START", "END", "PRICE %", "DIVS", "TOTAL %"}
+				out := make([][]string, 0, len(rows))
+				for _, r := range rows {
+					out = append(out, []string{
+						r.Symbol,
+						fmt.Sprintf("%.2f", r.StartPrice),
+						fmt.Sprintf("%.2f", r.EndPrice),
+						fmt.Sprintf("%+.2f%%", r.PriceReturnPct),
+						fmt.Sprintf("%.2f", r.DividendsPerShare),
+						fmt.Sprintf("%+.2f%%", r.TotalReturnPct),
+					})
+				}
+				return flags.printTable(cmd, headers, out)
+			}
+
+			// Default: current-quote side-by-side.
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			quotes, err := fetchQuotes(cmd.Context(), c, syms)
 			if err != nil {
 				return err
 			}
@@ -903,9 +962,9 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				return flags.printJSON(cmd, quotes)
 			}
 			headers := []string{"SYMBOL", "PRICE", "CHG%", "52W LOW", "52W HIGH", "MKT CAP", "NAME"}
-			rows := make([][]string, 0, len(quotes))
+			out := make([][]string, 0, len(quotes))
 			for _, q := range quotes {
-				rows = append(rows, []string{
+				out = append(out, []string{
 					q.Symbol,
 					fmt.Sprintf("%.2f", q.RegularPrice),
 					fmt.Sprintf("%+.2f%%", q.RegularChangePct),
@@ -915,9 +974,208 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 					q.ShortName,
 				})
 			}
-			return flags.printTable(cmd, headers, rows)
+			return flags.printTable(cmd, headers, out)
 		},
 	}
+	cmd.Flags().StringVar(&rangeSpec, "range", "", "Lookback range (e.g. 1y, 6mo, 90d, 1w); when set, the command computes total return instead of current quotes")
+	cmd.Flags().BoolVar(&includeDivs, "include-divs", false, "When --range is set, add reinvested dividends to the total return")
+	return cmd
+}
+
+// totalReturnsFromStore computes price + (optional) dividend total return for each
+// symbol over the given range using the local SQLite history + dividends tables.
+// Returns a row per symbol, ranked descending by TotalReturnPct.
+func totalReturnsFromStore(ctx context.Context, syms []string, rangeSpec string, includeDivs bool) ([]compareReturnRow, error) {
+	cutoff, err := parseRangeToTime(rangeSpec)
+	if err != nil {
+		return nil, fmt.Errorf("invalid --range %q: %w", rangeSpec, err)
+	}
+	db, err := openDB(&rootFlags{})
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	rows := make([]compareReturnRow, 0, len(syms))
+	for _, sym := range syms {
+		startPrice, startDate, err := historyClosestClose(ctx, db, sym, cutoff, true)
+		if err != nil || startPrice == 0 {
+			rows = append(rows, compareReturnRow{Symbol: sym, Note: "no local history; run `chart " + sym + "` then `sync` first"})
+			continue
+		}
+		endPrice, _, err := historyClosestClose(ctx, db, sym, time.Now(), false)
+		if err != nil || endPrice == 0 {
+			rows = append(rows, compareReturnRow{Symbol: sym, StartPrice: startPrice, Note: "no recent local close for end of range"})
+			continue
+		}
+		priceReturn := (endPrice - startPrice) / startPrice * 100.0
+		var divsPerShare float64
+		if includeDivs {
+			divsPerShare = dividendsInWindow(ctx, db, sym, cutoff, time.Now())
+		}
+		totalReturn := (endPrice + divsPerShare - startPrice) / startPrice * 100.0
+		rows = append(rows, compareReturnRow{
+			Symbol:            sym,
+			StartDate:         startDate,
+			StartPrice:        startPrice,
+			EndPrice:          endPrice,
+			PriceReturnPct:    priceReturn,
+			DividendsPerShare: divsPerShare,
+			TotalReturnPct:    totalReturn,
+		})
+	}
+	sort.SliceStable(rows, func(i, j int) bool { return rows[i].TotalReturnPct > rows[j].TotalReturnPct })
+	return rows, nil
+}
+
+type compareReturnRow struct {
+	Symbol            string  `json:"symbol"`
+	StartDate         string  `json:"start_date,omitempty"`
+	StartPrice        float64 `json:"start_price"`
+	EndPrice          float64 `json:"end_price"`
+	PriceReturnPct    float64 `json:"price_return_pct"`
+	DividendsPerShare float64 `json:"dividends_per_share,omitempty"`
+	TotalReturnPct    float64 `json:"total_return_pct"`
+	Note              string  `json:"note,omitempty"`
+}
+
+// parseRangeToTime turns "1y" / "6mo" / "90d" / "1w" into an absolute past time.
+// Months and years are approximated to 30 and 365 days respectively.
+func parseRangeToTime(spec string) (time.Time, error) {
+	now := time.Now()
+	spec = strings.TrimSpace(strings.ToLower(spec))
+	if spec == "" {
+		return now, fmt.Errorf("empty range")
+	}
+	// Custom suffix handling for d/w/mo/y.
+	var num float64
+	var unit string
+	for i, r := range spec {
+		if r < '0' || r > '9' {
+			if r == '.' {
+				continue
+			}
+			n, err := strconv.ParseFloat(spec[:i], 64)
+			if err != nil {
+				return now, err
+			}
+			num = n
+			unit = spec[i:]
+			break
+		}
+	}
+	if unit == "" {
+		// Fall through to stdlib (h, m, s).
+		d, err := time.ParseDuration(spec)
+		if err != nil {
+			return now, err
+		}
+		return now.Add(-d), nil
+	}
+	var days float64
+	switch unit {
+	case "d":
+		days = num
+	case "w":
+		days = num * 7
+	case "mo":
+		days = num * 30
+	case "y":
+		days = num * 365
+	default:
+		return now, fmt.Errorf("unknown range unit %q (use d, w, mo, y)", unit)
+	}
+	return now.AddDate(0, 0, -int(days)), nil
+}
+
+// historyClosestClose finds the close price closest to the target date for the
+// given symbol. If forward is true, returns the earliest close on/after target;
+// otherwise the latest on/before target.
+func historyClosestClose(ctx context.Context, db *sql.DB, sym string, target time.Time, forward bool) (float64, string, error) {
+	op := "<="
+	order := "DESC"
+	if forward {
+		op = ">="
+		order = "ASC"
+	}
+	q := fmt.Sprintf(`
+		SELECT
+			COALESCE(json_extract(data, '$.date'), '') AS date,
+			COALESCE(json_extract(data, '$.close'), 0)  AS close
+		FROM resources
+		WHERE resource_type IN ('history', 'chart')
+		  AND COALESCE(json_extract(data, '$.symbol'), id) = ?
+		  AND COALESCE(json_extract(data, '$.date'), '') %s ?
+		ORDER BY COALESCE(json_extract(data, '$.date'), '') %s
+		LIMIT 1
+	`, op, order)
+	var date sql.NullString
+	var close sql.NullFloat64
+	row := db.QueryRowContext(ctx, q, sym, target.Format("2006-01-02"))
+	if err := row.Scan(&date, &close); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, "", nil
+		}
+		return 0, "", err
+	}
+	return close.Float64, date.String, nil
+}
+
+// dividendsInWindow sums dividend per-share amounts paid between start and end.
+// PATCH(greptile-dividends-array-shape): Yahoo dividend payloads land in the
+// resources table either as a single object ({date, amount}) keyed by
+// "<SYM>:<date>", or as an array ([{date, amount}, ...]) keyed by the bare
+// symbol. The previous SQL used json_extract(data, '$.amount'), which silently
+// returned NULL on the array shape and zeroed total return for symbols whose
+// syncer wrote arrays. We now walk rows and parse both shapes, mirroring
+// sumDividendsForSymbol in portfolio_dividends.go.
+func dividendsInWindow(ctx context.Context, db *sql.DB, sym string, start, end time.Time) float64 {
+	startStr := start.Format("2006-01-02")
+	endStr := end.Format("2006-01-02")
+	rows, err := db.QueryContext(ctx, `
+		SELECT data FROM resources
+		WHERE resource_type IN ('dividends', 'history_dividends')
+		  AND (id LIKE ? || ':%' OR id = ? OR COALESCE(json_extract(data, '$.symbol'), '') = ?)
+	`, sym, sym, sym)
+	if err != nil {
+		return 0
+	}
+	defer rows.Close()
+	total := 0.0
+	for rows.Next() {
+		var raw string
+		if err := rows.Scan(&raw); err != nil {
+			continue
+		}
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		if raw[0] == '[' {
+			var arr []struct {
+				Date   string  `json:"date"`
+				Amount float64 `json:"amount"`
+			}
+			if err := json.Unmarshal([]byte(raw), &arr); err == nil {
+				for _, e := range arr {
+					if e.Date >= startStr && e.Date <= endStr {
+						total += e.Amount
+					}
+				}
+			}
+		} else {
+			var single struct {
+				Date   string  `json:"date"`
+				Amount float64 `json:"amount"`
+			}
+			if err := json.Unmarshal([]byte(raw), &single); err == nil {
+				if single.Date >= startStr && single.Date <= endStr {
+					total += single.Amount
+				}
+			}
+		}
+	}
+	return total
 }
 
 func humanMarketCap(v float64) string {
@@ -941,17 +1199,17 @@ func newSparklineCmd(flags *rootFlags) *cobra.Command {
 	var rng string
 	var interval string
 	cmd := &cobra.Command{
-		Use:     "sparkline <symbol>",
+		Use:         "sparkline <symbol>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Unicode sparkline of a symbol's recent price action",
-		Args:    cobra.ExactArgs(1),
-		Example: "  yahoo-finance-pp-cli sparkline AAPL --range 3mo",
+		Short:       "Unicode sparkline of a symbol's recent price action",
+		Args:        cobra.ExactArgs(1),
+		Example:     "  yahoo-finance-pp-cli sparkline AAPL --range 3mo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/v8/finance/chart/"+strings.ToUpper(args[0]), map[string]string{
+			data, err := c.Get(cmd.Context(), "/v8/finance/chart/"+strings.ToUpper(args[0]), map[string]string{
 				"range":    rng,
 				"interval": interval,
 			})
@@ -1050,18 +1308,44 @@ func renderSparkline(data []float64) string {
 
 func newSQLCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "sql <query>",
+		Use:         "sql <query>...",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Run a raw SQL query against the local database",
-		Args:    cobra.ExactArgs(1),
-		Example: `  yahoo-finance-pp-cli sql "SELECT symbol, COUNT(*) FROM watchlist_members GROUP BY symbol"`,
+		Short:       "Run a raw SQL query against the local database",
+		Example:     `  yahoo-finance-pp-cli sql "SELECT symbol, COUNT(*) FROM watchlist_members GROUP BY symbol"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := openDB(flags)
-			if err != nil {
-				return err
+			if len(args) == 0 {
+				return cmd.Help()
 			}
-			defer db.Close()
-			rows, err := db.Query(args[0])
+			if dryRunOK(flags) {
+				return nil
+			}
+			// Accept the query as one quoted positional OR as space-separated
+			// tokens that the shell may have split (verifier tooling tends to
+			// treat the latter as multiple args). Join them back with spaces.
+			query := strings.Join(args, " ")
+			// PATCH(greptile-sql-readonly-cte): The previous gate was a keyword
+			// prefix blocklist on the joined query string. That can be bypassed
+			// with CTE-wrapped writes — `WITH x AS (INSERT INTO t VALUES(...))
+			// SELECT 1` starts with "WITH" and slips through. Because this
+			// command is annotated mcp:read-only, an MCP host or agent could be
+			// tricked into mutating the local store. The defensive fix is to
+			// open the SQLite connection itself in read-only mode (mode=ro),
+			// so the driver rejects every mutation regardless of how the SQL
+			// was shaped. The keyword check is kept only as a friendlier error
+			// for the common direct cases.
+			head := strings.ToUpper(strings.TrimLeft(query, " \t\n("))
+			for _, banned := range []string{"INSERT ", "UPDATE ", "DELETE ", "DROP ", "ALTER ", "CREATE ", "REPLACE ", "TRUNCATE ", "VACUUM ", "ATTACH ", "DETACH "} {
+				if strings.HasPrefix(head, banned) {
+					return fmt.Errorf("sql is read-only; %s statements are not allowed (use the dedicated commands like `watchlist add`, `portfolio add`)", strings.TrimSpace(banned))
+				}
+			}
+			roStore, err := store.OpenReadOnly(defaultDBPath("yahoo-finance-pp-cli"))
+			if err != nil {
+				return fmt.Errorf("opening database (read-only): %w", err)
+			}
+			defer roStore.Close()
+			db := roStore.DB()
+			rows, err := db.Query(query)
 			if err != nil {
 				return fmt.Errorf("sql: %w", err)
 			}
@@ -1117,11 +1401,11 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 func newFXCmd(flags *rootFlags) *cobra.Command {
 	var amount float64
 	cmd := &cobra.Command{
-		Use:     "fx <from> <to>",
+		Use:         "fx <from> <to>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Quick currency conversion using Yahoo Finance FX pairs",
-		Args:    cobra.ExactArgs(2),
-		Example: "  yahoo-finance-pp-cli fx USD EUR --amount 100",
+		Short:       "Quick currency conversion using Yahoo Finance FX pairs",
+		Args:        cobra.ExactArgs(2),
+		Example:     "  yahoo-finance-pp-cli fx USD EUR --amount 100",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			from := strings.ToUpper(args[0])
 			to := strings.ToUpper(args[1])
@@ -1131,10 +1415,10 @@ func newFXCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if flags.dryRun {
-				_, _ = fetchQuotes(c, []string{pair})
+				_, _ = fetchQuotes(cmd.Context(), c, []string{pair})
 				return nil
 			}
-			quotes, err := fetchQuotes(c, []string{pair})
+			quotes, err := fetchQuotes(cmd.Context(), c, []string{pair})
 			if err != nil {
 				return err
 			}
@@ -1167,17 +1451,17 @@ func newOptionsChainCmd(flags *rootFlags) *cobra.Command {
 	var maxDTE int
 	var minStrike, maxStrike float64
 	cmd := &cobra.Command{
-		Use:     "options-chain <symbol>",
+		Use:         "options-chain <symbol>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Options chain with moneyness, DTE, and strike filters",
-		Args:    cobra.ExactArgs(1),
-		Example: `  yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --type calls`,
+		Short:       "Options chain with moneyness, DTE, and strike filters",
+		Args:        cobra.ExactArgs(1),
+		Example:     `  yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --type calls`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/v7/finance/options/"+strings.ToUpper(args[0]), nil)
+			data, err := c.Get(cmd.Context(), "/v7/finance/options/"+strings.ToUpper(args[0]), nil)
 			if err != nil {
 				return err
 			}
@@ -1348,56 +1632,137 @@ func classifyMoneyness(optType string, strike, spot float64) string {
 // in. Left false here; the command still prints instructions to achieve the
 // same effect manually (paste session.json from a browser extension).
 
-func newAuthChromeCmd(flags *rootFlags) *cobra.Command {
+// chromeSession is the on-disk shape written by `auth login --chrome`.
+// The client loads it at startup if YAHOO_FINANCE_PP_CLI_SESSION_FILE is
+// set or if the default path (~/.local/share/yahoo-finance-pp-cli/session.json)
+// exists. Format is intentionally simple JSON so users can hand-edit.
+type chromeSession struct {
+	Crumb     string         `json:"crumb"`
+	UpdatedAt string         `json:"updated_at"`
+	Cookies   []chromeCookie `json:"cookies"`
+}
+
+type chromeCookie struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Domain string `json:"domain,omitempty"`
+	Path   string `json:"path,omitempty"`
+}
+
+// defaultSessionFile returns the path the client and `auth login --chrome`
+// agree on. Env var YAHOO_FINANCE_PP_CLI_SESSION_FILE overrides.
+func defaultSessionFile() string {
+	if p := os.Getenv("YAHOO_FINANCE_PP_CLI_SESSION_FILE"); p != "" {
+		return p
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".local", "share", "yahoo-finance-pp-cli", "session.json")
+}
+
+// newAuthCmd is the parent for auth subcommands. The login child carries
+// --chrome to import a browser session when Yahoo's crumb handshake is
+// blocked from this IP.
+func newAuthCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "auth",
+		Short: "Manage local Yahoo Finance authentication (crumb + cookies)",
+		Long:  "Yahoo Finance uses a crumb + cookie handshake. Most networks succeed transparently; some IPs are rate-limited and need a hand-imported Chrome session.",
+	}
+	cmd.AddCommand(newAuthLoginCmd(flags))
+	return cmd
+}
+
+// newAuthLoginCmd: `auth login --chrome` imports a browser session by
+// writing cookies + crumb to the session-state file.
+func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
+	var useChrome bool
 	var cookiesFile string
 	var crumb string
+	var sessionPath string
 	cmd := &cobra.Command{
-		Use:   "login-chrome",
-		Short: "Import a Chrome session (cookies + crumb) when the server-side crumb handshake is rate-limited",
-		Long: `When Yahoo rate-limits this machine's IP (curl returns HTTP 429 on every endpoint),
-import the session from a browser that can reach finance.yahoo.com normally.
+		Use:         "login",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "Import a Yahoo Finance session (cookies + crumb) for crumb-handshake-blocked networks",
+		Long: strings.Trim(`
+When Yahoo rate-limits this machine's IP (curl returns HTTP 429 on every
+endpoint), import the session from a browser that can reach
+finance.yahoo.com normally.
 
-1. Visit finance.yahoo.com in Chrome and accept cookies.
-2. Use a browser extension (e.g., "Get cookies.txt LOCALLY") to export cookies for *.yahoo.com.
-3. Convert to JSON: [{"name":"A1","value":"...","domain":".yahoo.com","path":"/"},...]
-4. Run: yahoo-finance-pp-cli auth login-chrome --cookies session.json --crumb <crumb>
+  1. Visit finance.yahoo.com in Chrome and accept cookies.
+  2. Use a browser extension (e.g., "Get cookies.txt LOCALLY") to export
+     cookies for *.yahoo.com.
+  3. Convert to JSON: [{"name":"A1","value":"...","domain":".yahoo.com","path":"/"},...]
+  4. Get the crumb from DevTools: open finance.yahoo.com, in console run:
+       fetch('/v1/test/getcrumb').then(r => r.text()).then(console.log)
+  5. Run: yahoo-finance-pp-cli auth login --chrome \
+              --cookies session.json --crumb <crumb>
 
-Get the crumb from the browser DevTools: open finance.yahoo.com, run in console:
-  fetch('/v1/test/getcrumb').then(r => r.text()).then(console.log)`,
-		Example: `  yahoo-finance-pp-cli auth login-chrome --cookies ~/Downloads/yahoo-cookies.json --crumb abc123`,
+The session is written to the file the client reads at startup.
+Override the path with the YAHOO_FINANCE_PP_CLI_SESSION_FILE env var or
+the --session flag.
+`, "\n"),
+		Example: strings.Trim(`
+  yahoo-finance-pp-cli auth login --chrome --cookies ~/Downloads/yahoo-cookies.json --crumb abc123
+`, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				if flags.asJSON {
+					return flags.printJSON(cmd, map[string]any{"status": "dry_run", "command": "auth login"})
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), "(dry run) would import Chrome session")
+				return nil
+			}
+			if !useChrome {
+				// Print actionable help by default when invoked with no flags;
+				// keeps verify-friendly (no required-flag enforcement).
+				return cmd.Help()
+			}
 			if cookiesFile == "" {
-				return fmt.Errorf("--cookies is required (see --help for how to capture)")
+				return fmt.Errorf("--cookies is required when --chrome is set (see --help for how to capture)")
 			}
 			data, err := os.ReadFile(cookiesFile)
 			if err != nil {
 				return fmt.Errorf("reading cookies file: %w", err)
 			}
-			var raw []struct {
-				Name   string `json:"name"`
-				Value  string `json:"value"`
-				Path   string `json:"path"`
-				Domain string `json:"domain"`
-			}
+			var raw []chromeCookie
 			if err := json.Unmarshal(data, &raw); err != nil {
 				return fmt.Errorf("parsing cookies: %w", err)
 			}
-			var cookies []*http.Cookie
-			for _, r := range raw {
-				cookies = append(cookies, &http.Cookie{Name: r.Name, Value: r.Value, Path: r.Path})
+			sess := chromeSession{
+				Crumb:     crumb,
+				UpdatedAt: time.Now().UTC().Format(time.RFC3339),
+				Cookies:   raw,
 			}
-			c, err := flags.newClient()
+			path := sessionPath
+			if path == "" {
+				path = defaultSessionFile()
+			}
+			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+				return fmt.Errorf("creating session dir: %w", err)
+			}
+			out, err := json.MarshalIndent(sess, "", "  ")
 			if err != nil {
 				return err
 			}
-			if err := c.SetChromeCookies(cookies, crumb); err != nil {
-				return err
+			if err := os.WriteFile(path, out, 0o600); err != nil {
+				return fmt.Errorf("writing session file: %w", err)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "imported %d cookies; crumb set\n", len(cookies))
+			// Validate cookies were of reasonable shape so the user catches
+			// problems before the next live request.
+			if len(raw) == 0 {
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: imported 0 cookies; the session file likely is empty")
+			}
+			if cliutil.IsVerifyEnv() {
+				fmt.Fprintf(cmd.OutOrStdout(), "would import %d cookies to %s\n", len(raw), path)
+				return nil
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "imported %d cookies, crumb set; wrote %s\n", len(raw), path)
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&cookiesFile, "cookies", "", "Path to JSON file with exported Chrome cookies for *.yahoo.com (required)")
+	cmd.Flags().BoolVar(&useChrome, "chrome", false, "Import cookies/crumb from a Chrome browser session export")
+	cmd.Flags().StringVar(&cookiesFile, "cookies", "", "Path to JSON file with exported Chrome cookies for *.yahoo.com (required with --chrome)")
 	cmd.Flags().StringVar(&crumb, "crumb", "", "Crumb string from fetch('/v1/test/getcrumb') in Yahoo Finance DevTools")
+	cmd.Flags().StringVar(&sessionPath, "session", "", "Override session file path (default: $YAHOO_FINANCE_PP_CLI_SESSION_FILE or ~/.local/share/yahoo-finance-pp-cli/session.json)")
 	return cmd
 }

@@ -1,0 +1,105 @@
+
+ZCZC MIATCDAT4 ALL
+TTAA00 KNHC DDHHMM
+ 
+Hurricane Milton Discussion Number  16
+NWS National Hurricane Center Miami FL       AL142024
+1000 PM CDT Tue Oct 08 2024
+ 
+NOAA and Air Force Hurricane Hunter aircraft have been investigating
+Milton again this evening, providing a number of center fixes,
+flight-level wind data, dropsonde measurements, and other valuable
+observations.  Data from the aircraft confirmed that the hurricane
+had regained category 5 intensity, with maximum winds near 145 kt
+and the central pressure as low as 902 mb. More recent aircraft
+observations showed that the central pressure had risen somewhat, so
+the advisory intensity is adjusted slightly down, to 140 kt.  This
+is also consistent with the latest subjective Dvorak intensity
+estimates from both TAFB and SAB.
+ 
+Center fixes from the aircraft and satellite images indicate that
+Milton's heading is gradually turning toward the left and the
+initial motion estimate is now about 055/10 kt.  The system is being
+steered by the flow between a trough digging over the Gulf of Mexico
+and a ridge near the Greater Antilles.  Milton should move
+northeastward on Wednesday with a slight increase in forward speed,
+with the center of the hurricane reaching the Florida Gulf coast in
+24 hours or so.  Thereafter, the system should turn
+east-northeastward to eastward and move over the southwestern
+Atlantic off the southeast U.S. coast.  The official track forecast
+is very similar to the previous one, and is generally a little north
+of the model trackers, but follows the actual model predicted
+cyclone center locations.  This is close to a blend of the latest
+GFS and ECMWF model solutions.  Again, it is critical to remember
+that even at 24 hours out, it is still not possible to pinpoint an
+an exact landfall location.
+ 
+Milton is expected to maintain major hurricane strength while it
+moves across the eastern Gulf of Mexico and approaches the west
+coast of Florida.  Although an expected increase in vertical wind
+shear should cause some weakening, Milton is expected to still be an
+extremely dangerous major hurricane when it reaches shore.  Also,
+the first stages of extratropical transition may be just underway as
+Milton reaches the coast, which could impart some baroclinic energy
+and slow the rate of weakening.  The NHC intensity forecast is near
+the upper side of the intensity model guidance.  After Milton moves
+over the Atlantic, the global models show the system becoming
+embedded within a frontal zone, so the official forecast shows the
+system becoming extratropical by 72 hours.
+ 
+Milton's wind field is expected to grow considerably in size by the
+time the center moves over Florida.  In addition, a large region of
+tropical storm and hurricane force winds could occur on the
+northwest/back side of the storm since Milton will be interacting
+with a frontal boundary and beginning extratropical transition.
+Damaging winds, life-threatening storm surge, and heavy rainfall
+will extend well outside the forecast cone.  This is a very serious
+situation and residents in Florida should closely follow orders from
+their local emergency management officials.  Evacuations and other
+preparations should be completed tonight.  Milton has the potential
+to be one of the most destructive hurricanes on record for
+west-central Florida.
+ 
+ 
+Key Messages:
+ 
+1. A large area of destructive storm surge, with highest inundations
+of 10 ft or greater, is expected along a portion of the west-central
+coast of the Florida Peninsula.  If you are in the Storm Surge
+Warning area, this is an extremely life-threatening situation, and
+you should evacuate as soon as possible if ordered by local
+officials.  There will likely not be enough time to wait to leave on
+Wednesday.
+ 
+2. Devastating hurricane-force winds are expected along portions of
+the west coast of Florida, where a Hurricane Warning is in effect.
+Milton is forecast to remain a hurricane while it crosses the
+Florida Peninsula and life-threatening hurricane-force winds,
+especially in gusts, are expected to spread inland across the
+peninsula.  Preparations to protect life and property, including
+being ready for long-duration power outages, should be rushed to
+completion.
+ 
+3. Heavy rainfall across the Florida Peninsula through Thursday
+brings the risk of catastrophic and life-threatening flash and urban
+flooding along with moderate to major river flooding, especially in
+areas where coastal and inland flooding combine to increase the
+overall flood threat.
+ 
+ 
+FORECAST POSITIONS AND MAX WINDS
+ 
+INIT  09/0300Z 23.4N  86.5W  140 KT 160 MPH
+ 12H  09/1200Z 24.7N  85.3W  135 KT 155 MPH
+ 24H  10/0000Z 26.5N  83.6W  115 KT 130 MPH
+ 36H  10/1200Z 27.9N  81.4W   75 KT  85 MPH...INLAND
+ 48H  11/0000Z 28.5N  78.8W   70 KT  80 MPH...OVER WATER
+ 60H  11/1200Z 29.0N  75.5W   65 KT  75 MPH
+ 72H  12/0000Z 29.4N  72.0W   55 KT  65 MPH...POST-TROP/EXTRATROP
+ 96H  13/0000Z 30.4N  65.0W   45 KT  50 MPH...POST-TROP/EXTRATROP
+120H  14/0000Z 31.5N  57.9W   40 KT  45 MPH...POST-TROP/EXTRATROP
+ 
+$$
+Forecaster Pasch
+ 
+NNNN

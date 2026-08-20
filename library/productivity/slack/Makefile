@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/slack-pp-cli ./cmd/slack-pp-cli
+	go build -o bin/slack-pp-cli$(BIN_EXT) ./cmd/slack-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/slack-pp-mcp ./cmd/slack-pp-mcp
+	go build -o bin/slack-pp-mcp$(BIN_EXT) ./cmd/slack-pp-mcp
 
 install-mcp:
 	go install ./cmd/slack-pp-mcp

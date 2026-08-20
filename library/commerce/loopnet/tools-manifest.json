@@ -1,0 +1,59 @@
+{
+  "api_name": "loopnet",
+  "base_url": "https://www.loopnet.com",
+  "description": "LoopNet commercial real estate marketplace — search inventory and pull listing detail from server-rendered pages with embedded schema.org JSON-LD.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "inventory_listings",
+      "description": "Search LoopNet listings for a location, property type, and sale-or-lease. Returns a server-rendered results page carrying a schema.org CollectionPage JSON-LD block with one RealEstateListing per result. Required: property_type, location, listing_type.",
+      "method": "GET",
+      "path": "/search/{property_type}/{location}/{listing_type}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "property_type",
+          "type": "string",
+          "location": "path",
+          "description": "Property type slug (office-buildings, retail, industrial-properties, multifamily, land, hospitality, health-care, special-purpose, or commercial-real-estate for all).",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Location slug (city-state like 'los-angeles-ca', a state like 'ma', or a 5-digit zip).",
+          "required": true
+        },
+        {
+          "name": "listing_type",
+          "type": "string",
+          "location": "path",
+          "description": "Listing type — for-sale or for-lease.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "property_detail",
+      "description": "Fetch one LoopNet listing's detail page. The page carries a schema.org RealEstateListing/Product JSON-LD block plus a property-facts table (price, cap rate, building class, zoning, year built, parcel numbers, tax assessments). Required: id. Returns the html.",
+      "method": "GET",
+      "path": "/Listing/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "LoopNet listing id (the numeric id at the end of a /Listing/ URL, e.g. 38523625).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+actor: apify/youtube-scraper
+title: [title]
+url: [url, videoUrl]
+body: [description, text]
+author: [channelName, channel.name, author]
+published_at: [date, publishedAt, uploadDate]
+engagement: [viewCount, likes, likeCount, commentsCount]

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "site": "mobalytics.gg",
+  "reachability": {
+    "mode": "standard_http",
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": false
+  },
+  "primary_endpoints": [
+    {"name": "ddragon-versions", "url": "https://ddragon.leagueoflegends.com/api/versions.json", "method": "GET", "auth": "none"},
+    {"name": "ddragon-champion-list", "url": "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json", "method": "GET", "auth": "none"},
+    {"name": "ddragon-champion-detail", "url": "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion/{name}.json", "method": "GET", "auth": "none"},
+    {"name": "ddragon-items", "url": "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/item.json", "method": "GET", "auth": "none"},
+    {"name": "ddragon-runes", "url": "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/runesReforged.json", "method": "GET", "auth": "none"},
+    {"name": "ddragon-summoner", "url": "https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/summoner.json", "method": "GET", "auth": "none"},
+    {"name": "mobalytics-lol-dynamic", "url": "https://mobalytics.gg/api/lol/graphql/v1/query", "method": "POST", "auth": "none", "format": "graphql"},
+    {"name": "mobalytics-lol-static", "url": "https://mobalytics.gg/api/league/gql/static/v1", "method": "POST", "auth": "none", "format": "graphql"}
+  ],
+  "endpoint_clusters": [
+    {"name":"ddragon","host":"ddragon.leagueoflegends.com","count":6,"observed_auth":[],"description":"Riot's public static asset CDN. Plain HTTP, no auth, fully reliable."},
+    {"name":"mobalytics-lol","host":"mobalytics.gg","count":80,"observed_auth":[],"description":"Mobalytics LoL GraphQL endpoints. 86 ops extracted from JS bundles; phase 3 hand-built."}
+  ],
+  "graphql_operations_count": 86,
+  "graphql_operations_file": "graphql-operations.json",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+  "notes": "Mobalytics is fully SSR. Client-side data fetches do not occur on champion pages. GraphQL queries discovered from JS bundle (chunks)."
+}

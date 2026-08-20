@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T19:39:37.239773Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "printify",
+  "display_name": "Printify",
+  "cli_name": "printify-pp-cli",
+  "creator": {
+    "handle": "horknfbr",
+    "name": "horknfbr"
+  },
+  "owner": "horknfbr",
+  "printer": "horknfbr",
+  "printer_name": "horknfbr",
+  "spec_path": "https://developers.printify.com/openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:376214ac98ff73773f8c3438b20783a25013d14be2bf9a27b8e515ffa9486914",
+  "run_id": "20260524-134133",
+  "category": "commerce",
+  "description": "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing.",
+  "mcp_binary": "printify-pp-mcp",
+  "mcp_tool_count": 40,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRINTIFY_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Personalization Coverage Audit",
+      "command": "personalization-audit",
+      "description": "Audit a product for documented personalization placeholder fields, missing text/image setup, and unsupported browser-only gaps."
+    },
+    {
+      "name": "Placement Matrix",
+      "command": "placement-matrix",
+      "description": "Show variant, print-area, placeholder, uploaded image, x/y/scale/angle, and missing-placement rows for a product."
+    },
+    {
+      "name": "Catalog Margin Matrix",
+      "command": "catalog-margin-matrix",
+      "description": "Join catalog variants and shipping data to estimate per-variant cost and margin at a target retail price."
+    },
+    {
+      "name": "Product Manifest Drift",
+      "command": "product-drift",
+      "description": "Compare an intended product manifest against the current Printify product payload after create or update."
+    },
+    {
+      "name": "Personalized Batch Manifest Compiler",
+      "command": "personalization-batch",
+      "description": "Expand a reusable product manifest and CSV rows into per-product manifests using documented image and text placeholder fields."
+    },
+    {
+      "name": "Asset Reuse Map",
+      "command": "asset-reuse",
+      "description": "List uploaded images, where each is used, unused uploads, and products sharing the same artwork."
+    },
+    {
+      "name": "Fulfillment Risk Scan",
+      "command": "fulfillment-risk",
+      "description": "Flag open orders tied to risky product, variant, publish, or shipment states."
+    }
+  ]
+}

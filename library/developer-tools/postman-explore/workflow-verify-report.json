@@ -1,7 +1,7 @@
 {
   "dir": "/Users/tmchow/printing-press/.runstate/parsed-exploring-penguin-5c956a6b/runs/20260429-230407/working/postman-explore-pp-cli",
   "workflows": null,
-  "verdict": "workflow-pass",
+  "verdict": "workflow-skipped",
   "issues": [
     "no workflow manifest found, skipping"
   ]

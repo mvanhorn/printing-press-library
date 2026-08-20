@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "structural-shipcheck",
+  "api_name": "costco",
+  "run_id": "20260624-120327-512a630c",
+  "verdict": "WARN",
+  "dead_functions": {
+    "total": 45,
+    "dead": 0
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "issues": [
+    "sync uses generic Upsert only"
+  ],
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "notes": "WARN from advisory: sync uses generic Upsert (idempotent by design, not a correctness issue). Dead code: 0 functions, 0 flags after cleanup. All structural checks pass."
+}

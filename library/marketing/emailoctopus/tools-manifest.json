@@ -1,0 +1,660 @@
+{
+  "api_name": "emailoctopus",
+  "base_url": "https://api.emailoctopus.com",
+  "description": "# Introduction\n\nThe EmailOctopus API allows you to manage resources and perform actions within the platform programmatically. You'll need to \u003ca href=\"https://emailoctopus.com/account/sign-up\" target=\"_blank\"\u003ecreate an account\u003c/a\u003e before using the API, if you don't already have one.\n\nThe API is designed around \u003ca href=\"https://en.wikipedia.org/wiki/REST\" target=\"_blank\"\u003eREST\u003c/a\u003e principles. It has a predictable URL structure based on resources, accepts \u003ca href=\"https://www.json.org/json-en.html\" target=\"_blank\"\u003eJSON-encoded\u003c/a\u003e request bodies, returns JSON-encoded responses and uses standard HTTP response codes, authentication and verbs.\n\nThe base URL for the API is https://api.emailoctopus.com.\n\n# Authentication\nTo use the API, you'll need to generate an API key. You can do this in your \u003ca href=\"https://emailoctopus.com/developer/api-keys\" target=\"_blank\"\u003eaccount settings\u003c/a\u003e. If you have an API key created prior to the release of API v2 (labelled 'legacy') you'll need to generate a new API key. New API keys are compatible with all versions of the API.\n\nThe API uses bearer authentication to authenticate requests. Authenticate your request by including the following header:\n```\nAuthorization: Bearer {token}\n```\n\nFor example, using curl:\n```\ncurl https://api.emailoctopus.com/lists/ -H \"Authorization: Bearer {token}\"\n```\n\nIf you see a JSON-formatted response with your list details, that's great! That means you can connect to the API, and your authentication token works.\n\nIf you encounter a JSON error response, refer to the `type` field for a link to detailed documentation. For non-JSON errors, the request likely didn't reach the server. In that case, double-check the URL and verify that your request is correctly formatted.\n\n# Rate limiting\nRequests to the API are subject to a rate limit, which is implemented using the \u003ca href=\"https://en.wikipedia.org/wiki/Token_bucket\" target=\"_blank\"\u003etoken bucket algorithm\u003c/a\u003e. Each request consumes one token and your bucket holds up to 100 tokens. Tokens are replenished at a rate of 10 per second. To check your remaining tokens, refer to the `X-RateLimiting-Remaining` header in the response.\n\nThis system enables a steady request rate of up to 10 per second or a burst of up to 100 requests in a single instance if needed.\n\nIf your account exceeds the rate limit, the request will return a [429 HTTP status code](https://emailoctopus.com/api-documentation/v2#too-many-requests).\n\n# Pagination\nWhen you request a collection of entities, such as contacts belonging to a list, the data will be paginated rather than returned all at once. Each response will contain a maximum of 100 results in the `data` attribute.\n\nPagination information is included in the response `paging` attribute. This data will contain `next` attributes, with a URL and a `starting_after` cursor. The cursor serves as a link to the next page. You can use the cursor as a `starting_after` query string parameter to navigate to the next page or follow the provided URL in the JSON structure.\n\nHere's an example of what the `paging` attribute looks like:\n```\n\"paging\": {\n    \"next\": {\n        \"url\": \"https://api.emailoctopus.com/lists/{list_id}/contacts?starting_after=WyIyMDI0LTEyLTA3VDE1OjAzOjAxKzAwOjAwIiwiNDYzN2RmYTAtYjZmMC0xMWVmLWFjZDYtZjU5YjA4MDFlMjBkIl0\u0026limit=100\",\n        \"starting_after\": \"WyIyMDI0LTEyLTA3VDE1OjAzOjAxKzAwOjAwIiwiNDYzN2RmYTAtYjZmMC0xMWVmLWFjZDYtZjU5YjA4MDFlMjBkIl0\"\n    }\n }\n```\nYou can add the cursor to your request URL by including the `starting_after` query string parameter, like this:\n```\nhttps://api.emailoctopus.com/lists/{list_id}/contacts?starting_after=WyIyMDI0LTEyLTA3VDE1OjAzOjAxKzAwOjAwIiwiNDYzN2RmYTAtYjZmMC0xMWVmLWFjZDYtZjU5YjA4MDFlMjBkIl0\n```\n\nThe cursor should always be provided exactly as it was returned in a previous request. Avoid deconstructing the cursor and relying on any data inside it, as the implementation of the cursor is subject to change.\n\n# Errors\nError are returned in a standardised format following \u003ca href=\"https://datatracker.ietf.org/doc/html/rfc7807\" target=\"_blank\"\u003eRFC 7807\u003c/a\u003e. For example:\n\n```\n{\n    \"title\": \"An error occurred.\",\n    \"detail\": \"Bad request.\",\n    \"status\": 400,\n    \"type\": \"https://emailoctopus.com/api-documentation/v2#bad-request\"\n}\n```\n\nYou can use the `type` value to navigate to the documentation for more details about the specific error.\n\nYou may also encounter validation errors, which will return a 422 HTTP status code and a payload formatted according to \u003ca href=\"https://www.rfc-editor.org/rfc/rfc9457.html\" target=\"_blank\"\u003eRFC 9457\u003c/a\u003e.\n```\n{\n    \"title\": \"An error occurred.\",\n    \"detail\": \"Unprocessable content.\",\n    \"status\": 422,\n    \"errors\": [\n         {\n            \"detail\": \"This value should not be blank.\",\n            \"pointer\": \"/email_address\"\n         }\n    ],\n    \"type\": \"https://emailoctopus.com/api-documentation/v2#unprocessable-content\"\n}\n```\n\nIn the following sections, you can find more information about each type of error.\n\n## access-denied\nYou do not have permission to access the requested entity, such as trying to get the contacts in a list belonging to another account.\n\nCheck that the API key you're using belongs to the account you're trying to access data in. You can verify this by navigating to the account's \u003ca href=\"https://emailoctopus.com/developer/api-keys\" target=\"_blank\"\u003eAPI keys\u003c/a\u003e and checking there's a key ending in the same four characters.\n\n## already-exists\nYou are attempting to create an entity that already exists, such as creating a tag on a list that already contains that tag, or adding a contact to a list that already includes that contact.\n\nYou can fix this by checking if the entity already exists before you attempt to create it. Or you may wish to handle the error gracefully in your code and update the existing resource when a duplicate is spotted.\n\nSome endpoints, such as the [create or update contact](#tag/Contact/operation/api_lists_list_idcontacts_put) endpoint, support an *upsert* operation. An upsert allows you to either update the entity if it exists or create a new one if it doesn't. Consider using this feature where applicable.\n\n## bad-request\nThe request body is not in the format expected. Check that the request body is valid JSON.\n\n## conflict\nThis request conflicts with the system state. \u003ca href=\"https://help.emailoctopus.com/category/20-getting-in-touch\" target=\"_blank\"\u003eGet in touch\u003c/a\u003e if you require further assistance.\n\n## internal-error\nThis error is returned when the API encounters an unexpected condition or an internal issue on the server. If you receive this error, it is probably not an issue with your request.\n\nIn some cases, retrying the request after some time may resolve the issue. We'll always be notified of the error via our internal tracking tools, but if the problem persists, \u003ca href=\"https://help.emailoctopus.com/category/20-getting-in-touch\" target=\"_blank\"\u003eget in touch\u003c/a\u003e with details about the error and we'll investigate.\n\n## not-found\nThe resource you're trying to access or modify could not be found. This error is typically caused by using an invalid or incorrect identifier, such as a list ID or contact ID that doesn't exist in your account.\n\nDouble-check the resource identifiers you're using in your request, and ensure they match the actual resources in your EmailOctopus account.\n\n## out-of-limits\nExecuting this operation would cause you to exceed your plan limits. See our \u003ca href=\"https://emailoctopus.com/pricing#comparison\" target=\"_blank\"\u003epricing comparison\u003c/a\u003e for further details on these limits.\n\n## unauthorized\nThe API key provided in the request is either invalid or missing. Ensure that you're using the correct API key and that it is included in the request header as shown in the [authentication section](/api-documentation/v2#section/Authentication).\n\n## unprocessable-content\nThe JSON payload in your request body doesn't meet the required criteria. Check the errors attribute for details on the specific issues. It will include a pointer to the problematic attribute and an error description.\n\n## unsupported-media-type\nWhen making requests that require a JSON payload in the body, you must specify a `Content-Type` of `application/json`.\n\n## too-many-requests\nYour account has exceeded the rate limit. You can use the `X-RateLimit-Retry-After` header to determine when to make another request. See the [rate limiting section](/api-documentation/v2#section/Rate-limiting) section for further details.\n\n## method-not-allowed\nThe HTTP method used in your request is not supported for the endpoint you are trying to access. For example, attempting to use a POST method on an endpoint that only supports GET.\n\nCheck the API documentation for the correct methods allowed for each endpoint. Ensure your request uses one of the supported methods (e.g., GET, POST, PUT, DELETE) for the specific operation you want to perform.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "EMAILOCTOPUS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EMAILOCTOPUS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://api.emailoctopus.com/developer/api-keys/create"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "automations_queue_automations-automation-idqueue-post",
+      "description": "Start an automation for a specific contact. The automation must have the **Started via API** trigger type. A contact can only trigger an automation once, unless you've enabled **Allow contacts to repeat** in the automation's settings. Required: automation_id, contact_id.",
+      "method": "POST",
+      "path": "/automations/{automation_id}/queue",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the contact, or an MD5 hash of the lowercase version of the contact's email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Get all campaigns. Optional: limit (default: 100), starting_after. Returns array of CampaignGet.",
+      "method": "GET",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of results per page."
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor that points to the end of the page."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_id-get",
+      "description": "Get campaign. Required: campaign_id. Returns the CampaignGet.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_reports_campaigns-campaign-idreports-get",
+      "description": "Campaign contact reports. Required: campaign_id, status. Optional: limit (default: 100), starting_after. Returns array of ReportsCampaignsCampaignIdreportsGetItem.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/reports",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of results per page."
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor that points to the end of the page."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "The status of the report.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_reports_campaigns-campaign-idreportslinks-get",
+      "description": "Campaign links report. Required: campaign_id. Returns array of ReportsCampaignsCampaignIdreportslinksGetItem.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/reports/links",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_reports_campaigns-campaign-idreportssummary-get",
+      "description": "Campaign summary report. Required: campaign_id. Returns the CampaignSummaryReport.",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/reports/summary",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_get",
+      "description": "Get all lists. Optional: limit (default: 100), starting_after. Returns array of ListGet.",
+      "method": "GET",
+      "path": "/lists",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of results per page."
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor that points to the end of the page."
+        }
+      ]
+    },
+    {
+      "name": "lists_id-delete",
+      "description": "Delete a list. Required: list_id. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_id-get",
+      "description": "Get list. Required: list_id. Returns the ListGet.",
+      "method": "GET",
+      "path": "/lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_id-put",
+      "description": "Update list. Required: list_id, name. Returns the updated ListGet.",
+      "method": "PUT",
+      "path": "/lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_post",
+      "description": "Create list. Required: name. Returns the new ListGet.",
+      "method": "POST",
+      "path": "/lists",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-get",
+      "description": "Get contacts. Required: list_id. Optional: limit (default: 100), starting_after, tag (plus 5 more). Returns array of ListContactGet.",
+      "method": "GET",
+      "path": "/lists/{list_id}/contacts",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of results per page."
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor that points to the end of the page."
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "The tag associated with the contact."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "The status of the contact."
+        },
+        {
+          "name": "created_at.lte",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by creation date - less than or equal to. ISO 8601 date format."
+        },
+        {
+          "name": "created_at.gte",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by creation date - greater than or equal to. ISO 8601 date format."
+        },
+        {
+          "name": "last_updated_at.lte",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by update date - less than or equal to. ISO 8601 date format."
+        },
+        {
+          "name": "last_updated_at.gte",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by update date - greater than or equal to. ISO 8601 date format."
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-id-delete",
+      "description": "Delete contact. Required: list_id, contact_id. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{list_id}/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the contact, or an MD5 hash of the lowercase version of the contact's email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-id-get",
+      "description": "Get contact. Required: list_id, contact_id. Returns the ListContactGet.",
+      "method": "GET",
+      "path": "/lists/{list_id}/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the contact, or an MD5 hash of the lowercase version of the contact's email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-id-put",
+      "description": "Update contact. Required: list_id, contact_id. Optional: email_address, fields, status (plus 1 more). Returns the updated ListContactGet.",
+      "method": "PUT",
+      "path": "/lists/{list_id}/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the contact, or an MD5 hash of the lowercase version of the contact's email address.",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the contact."
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing key/value pairs of field values, using the field's tag as the key."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the contact."
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing key/value pairs, where the key is the tag name and the value is true to add the tag or false to remove it. Tags that are not referenced in the object will not be updated."
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-post",
+      "description": "Create contact. Required: list_id, email_address. Optional: fields, status, tags. Returns the new ListContactGet.",
+      "method": "POST",
+      "path": "/lists/{list_id}/contacts",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the contact.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing key/value pairs of field values, using the field's tag as the key."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the contact."
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "An array of tags associated with the contact."
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontacts-put",
+      "description": "This is an *upsert* endpoint. If the contact does not exist, it will be created. If the contact already exists, it will be updated. Required: list_id, email_address. Optional: fields, status, tags. Returns the updated ListContactGet.",
+      "method": "PUT",
+      "path": "/lists/{list_id}/contacts",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the contact.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing key/value pairs of field values, using the field's tag as the key."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the contact."
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing key/value pairs, where the key is the tag name and the value is true to add the tag or false to remove it. Tags that are not referenced in the object will not be updated."
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts_lists-list-idcontactsbatch-put",
+      "description": "Update multiple list contacts. Required: list_id. Optional: contacts. Returns the updated ContactsListsListIdcontactsbatchPutResponse.",
+      "method": "PUT",
+      "path": "/lists/{list_id}/contacts/batch",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "contacts",
+          "type": "array",
+          "location": "body",
+          "description": "Contacts"
+        }
+      ]
+    },
+    {
+      "name": "lists_fields_lists-list-idfields-post",
+      "description": "Create field. Required: list_id.",
+      "method": "POST",
+      "path": "/lists/{list_id}/fields",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_fields_lists-list-idfields-tag-delete",
+      "description": "Delete field. Required: list_id, tag. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{list_id}/fields/{tag}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "A unique identifier for a field.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_fields_lists-list-idfields-tag-put",
+      "description": "Update field. Required: list_id, tag, label, type. Optional: fallback.",
+      "method": "PUT",
+      "path": "/lists/{list_id}/fields/{tag}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "A unique identifier for a field.",
+          "required": true
+        },
+        {
+          "name": "fallback",
+          "type": "string",
+          "location": "body",
+          "description": "A default value for the field, used in campaigns when there is no other value available."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "A human readable label for the field.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of the field.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_tags_lists-list-idtags-delete",
+      "description": "Delete tag. Required: list_id, tag. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{list_id}/tags/{tag}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "A unique identifier for a field.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_tags_lists-list-idtags-get",
+      "description": "Get all tags. Required: list_id. Optional: limit (default: 100), starting_after. Returns array of ListTag.",
+      "method": "GET",
+      "path": "/lists/{list_id}/tags",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of results per page."
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor that points to the end of the page."
+        }
+      ]
+    },
+    {
+      "name": "lists_tags_lists-list-idtags-post",
+      "description": "Create tag. Required: list_id. Optional: tag. Returns the new ListTag.",
+      "method": "POST",
+      "path": "/lists/{list_id}/tags",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the tag."
+        }
+      ]
+    },
+    {
+      "name": "lists_tags_lists-list-idtags-put",
+      "description": "Update tag. Required: list_id, tag. Returns the updated ListTag.",
+      "method": "PUT",
+      "path": "/lists/{list_id}/tags/{tag}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the list.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "A unique identifier for a field.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

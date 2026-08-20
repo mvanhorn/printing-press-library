@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "api_name": "podcast-goat",
+  "run_id": "20260517-103310",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "composed",
+    "api_key_available": false,
+    "browser_session_available": false,
+    "demo_key_used": "spoken.md pt_demo"
+  },
+  "tests": [
+    {"command": "episode get dwarkesh-url --md", "kind": "live-fetch-free", "status": "pass", "notes": "Dwarkesh dario-amodei-2 fetched, canonical markdown produced, cached"},
+    {"command": "source list --json", "kind": "structural", "status": "pass", "notes": "All 11 sources returned in canonical order"},
+    {"command": "episode get youtube-url --explain --dry-run", "kind": "dispatch-trace", "status": "pass", "notes": "Tier walk shown; 4 cookie skips + 2 free skips + 1 match on youtube"},
+    {"command": "magic 'intelligence' --limit 2", "kind": "transcendence", "status": "pass", "notes": "Bundle file written to expected path"},
+    {"command": "episode quote 'agents' -C 1 --json", "kind": "fts5-grep", "status": "pass", "notes": "Returns matched segments with speaker context"},
+    {"command": "speakers list --json", "kind": "sql-aggregate", "status": "pass", "notes": "Distinct speakers aggregated across cache with show counts"},
+    {"command": "doctor", "kind": "health", "status": "pass", "notes": "Reports auth/env state clearly; exit 0; informational FAILs on missing keys"},
+    {"command": "podcast-goat-pp-mcp initialize", "kind": "mcp-boot", "status": "pass", "notes": "MCP server boots, responds to JSON-RPC initialize with proper protocol version and capabilities"}
+  ],
+  "deferred_paths": [
+    {"path": "cookie publisher transcript HTML parsers", "sources": ["huberman", "acquired", "founders", "peterattia"], "reason": "first-time HTML capture requires user-side auth login --chrome to capture; deferred to v0.2"},
+    {"path": "spotify transcript-read-along parser", "source": "spotify", "reason": "first-time capture from Spotify Premium session required; deferred to v0.2"},
+    {"path": "bilingual zh-Hans/en aligner", "source": "youtube", "reason": "flag wired with deferral error; full alignment ships v0.2"},
+    {"path": "whisperapi audio extraction pipeline", "source": "whisperapi", "reason": "provider key checks live; audio pipeline ships v0.2"}
+  ],
+  "ran_at": "2026-05-17T19:15:30Z"
+}

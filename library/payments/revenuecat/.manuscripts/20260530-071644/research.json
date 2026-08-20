@@ -1,0 +1,236 @@
+{
+  "api_name": "revenuecat",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-30T07:18:02Z",
+  "novel_features": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time MRR, ARR, active subscriptions, trials, and revenue in your chosen currency, with deltas against your last snapshot.",
+      "rationale": "Persists each run to a local snapshots table and diffs against the prior row, producing a current-moment-plus-delta view no single dashboard screen composes.",
+      "example": "revenuecat-pp-cli revenue-snapshot --currency USD --agent",
+      "why_it_matters": "Reach for this when an agent or operator asks 'where's revenue right now and how did it move since last check' in one call.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "MRR over time with new / expansion / contraction / churn movement decomposition and week-over-week deltas.",
+      "rationale": "Joins the mrr and mrr_movement chart series locally into one movement table the charts endpoint returns only separately.",
+      "example": "revenuecat-pp-cli mrr-trend --period week --limit 12 --agent",
+      "why_it_matters": "Reach for this to explain why MRR moved, not just that it moved.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Which subscriptions flipped to billing-issue, grace, expired, or cancelled in a window, with per-subscription dollar exposure.",
+      "rationale": "Joins the churn chart against the locally synced subscriptions mirror — a cross-source join the dashboard can't compose.",
+      "example": "revenuecat-pp-cli churn-watch --since 7d --agent",
+      "why_it_matters": "Reach for this when you need who churned and how much MRR they took, not just the churn rate line.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Subscriptions still in grace or billing-issue state joined with their unpaid invoices, ranked by recoverable amount.",
+      "rationale": "Local join of subscription status against invoices surfaces the recoverable window before it becomes churn.",
+      "example": "revenuecat-pp-cli dunning-alert --agent",
+      "why_it_matters": "Reach for this to act on failed billing while the revenue is still recoverable.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Entitlement rollup",
+      "command": "entitlement-rollup",
+      "description": "Per-entitlement active-customer counts and product attachments, flagging customers whose entitlement state disagrees with their subscription state.",
+      "rationale": "Three-way local join of project entitlements, per-customer active entitlements, and subscription status that no single API call returns.",
+      "example": "revenuecat-pp-cli entitlement-rollup --flag-disagreements --agent",
+      "why_it_matters": "Reach for this to catch silent entitlement desync (a dropped webhook, a refund that didn't cascade) across the whole customer base.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Traces a subscription or purchase through its transactions, refund history, and resulting entitlement loss; --apply issues the refund.",
+      "rationale": "Walks subscription to transactions to refund to entitlement fallout from the local mirror, with an opt-in live refund action.",
+      "example": "revenuecat-pp-cli refund-cascade sub1a2b3c4d --agent",
+      "why_it_matters": "Reach for this to understand or execute a refund and see exactly which entitlements the customer loses.",
+      "group": "Operations"
+    },
+    {
+      "name": "Trial funnel",
+      "command": "trial-funnel",
+      "description": "New trials to conversion-to-paying funnel with stage-to-stage drop-off.",
+      "rationale": "Joins the trials_new and conversion_to_paying chart series into one funnel the charts endpoint returns only as separate series.",
+      "example": "revenuecat-pp-cli trial-funnel --since 30d --agent",
+      "why_it_matters": "Reach for this to see where trials leak before they convert.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Lists configured webhook integrations grouped by destination host, flagging duplicate or stale destinations.",
+      "rationale": "Local grouping of the webhooks mirror by destination surfaces config drift the dashboard list view doesn't.",
+      "example": "revenuecat-pp-cli webhook-audit --agent",
+      "why_it_matters": "Reach for this to confirm webhook delivery config before a dropped event silently desyncs entitlements.",
+      "group": "Operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time MRR, ARR, active subscriptions, trials, and revenue in your chosen currency, with deltas against your last snapshot.",
+      "rationale": "Persists each run to a local snapshots table and diffs against the prior row, producing a current-moment-plus-delta view no single dashboard screen composes.",
+      "example": "revenuecat-pp-cli revenue-snapshot --currency USD --agent",
+      "why_it_matters": "Reach for this when an agent or operator asks 'where's revenue right now and how did it move since last check' in one call.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "MRR over time with new / expansion / contraction / churn movement decomposition and week-over-week deltas.",
+      "rationale": "Joins the mrr and mrr_movement chart series locally into one movement table the charts endpoint returns only separately.",
+      "example": "revenuecat-pp-cli mrr-trend --period week --limit 12 --agent",
+      "why_it_matters": "Reach for this to explain why MRR moved, not just that it moved.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Which subscriptions flipped to billing-issue, grace, expired, or cancelled in a window, with per-subscription dollar exposure.",
+      "rationale": "Joins the churn chart against the locally synced subscriptions mirror — a cross-source join the dashboard can't compose.",
+      "example": "revenuecat-pp-cli churn-watch --since 7d --agent",
+      "why_it_matters": "Reach for this when you need who churned and how much MRR they took, not just the churn rate line.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Subscriptions still in grace or billing-issue state joined with their unpaid invoices, ranked by recoverable amount.",
+      "rationale": "Local join of subscription status against invoices surfaces the recoverable window before it becomes churn.",
+      "example": "revenuecat-pp-cli dunning-alert --agent",
+      "why_it_matters": "Reach for this to act on failed billing while the revenue is still recoverable.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Entitlement rollup",
+      "command": "entitlement-rollup",
+      "description": "Per-entitlement active-customer counts and product attachments, flagging customers whose entitlement state disagrees with their subscription state.",
+      "rationale": "Three-way local join of project entitlements, per-customer active entitlements, and subscription status that no single API call returns.",
+      "example": "revenuecat-pp-cli entitlement-rollup --flag-disagreements --agent",
+      "why_it_matters": "Reach for this to catch silent entitlement desync (a dropped webhook, a refund that didn't cascade) across the whole customer base.",
+      "group": "Retention \u0026 risk"
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Traces a subscription or purchase through its transactions, refund history, and resulting entitlement loss; --apply issues the refund.",
+      "rationale": "Walks subscription to transactions to refund to entitlement fallout from the local mirror, with an opt-in live refund action.",
+      "example": "revenuecat-pp-cli refund-cascade sub1a2b3c4d --agent",
+      "why_it_matters": "Reach for this to understand or execute a refund and see exactly which entitlements the customer loses.",
+      "group": "Operations"
+    },
+    {
+      "name": "Trial funnel",
+      "command": "trial-funnel",
+      "description": "New trials to conversion-to-paying funnel with stage-to-stage drop-off.",
+      "rationale": "Joins the trials_new and conversion_to_paying chart series into one funnel the charts endpoint returns only as separate series.",
+      "example": "revenuecat-pp-cli trial-funnel --since 30d --agent",
+      "why_it_matters": "Reach for this to see where trials leak before they convert.",
+      "group": "Revenue intelligence"
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Lists configured webhook integrations grouped by destination host, flagging duplicate or stale destinations.",
+      "rationale": "Local grouping of the webhooks mirror by destination surfaces config drift the dashboard list view doesn't.",
+      "example": "revenuecat-pp-cli webhook-audit --agent",
+      "why_it_matters": "Reach for this to confirm webhook delivery config before a dropped event silently desyncs entitlements.",
+      "group": "Operations"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "REVENUECAT_API_KEY"
+  },
+  "narrative": {
+    "display_name": "RevenueCat",
+    "headline": "Every RevenueCat v2 endpoint, plus a local database, offline search, and revenue/churn/refund intelligence the dashboard charts can't compose.",
+    "value_prop": "Drive the full RevenueCat Developer API v2 from the shell or an agent: customers, subscriptions, entitlements, products, offerings, purchases, invoices, and charts. On top of the typed endpoint surface it adds a local SQLite mirror and novel commands — revenue-snapshot with run-over-run diffs, mrr-trend with movement decomposition, churn-watch with dollar exposure, dunning-alert, entitlement-rollup, refund-cascade, and trial-funnel — that join synced data in ways no single API call returns.",
+    "auth_narrative": "RevenueCat v2 uses a server-side Secret API key sent as 'Authorization: Bearer \u003ckey\u003e'. Create one in the RevenueCat dashboard under Project Settings -\u003e API Keys -\u003e Secret API keys (a read-only key is enough for every read command). This is distinct from the public SDK keys. Set REVENUECAT_API_KEY and REVENUECAT_PROJECT_ID in your environment; run 'revenuecat-pp-cli doctor' to confirm both resolve against your project.",
+    "quickstart": [
+      {
+        "command": "revenuecat-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the binary and config wiring without calling the API."
+      },
+      {
+        "command": "revenuecat-pp-cli sync --resources customers,subscriptions,entitlements",
+        "comment": "Pull the core entities into the local store so offline and join commands work."
+      },
+      {
+        "command": "revenuecat-pp-cli revenue-snapshot --currency USD",
+        "comment": "Current MRR/ARR/actives/revenue with deltas vs your last snapshot."
+      },
+      {
+        "command": "revenuecat-pp-cli churn-watch --since 7d --agent",
+        "comment": "Who churned this week and the dollar exposure, as agent-native JSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports the API key is missing or invalid",
+        "fix": "Set REVENUECAT_API_KEY to a v2 Secret key (starts with sk_) from Project Settings -\u003e API Keys; the public SDK keys will not work."
+      },
+      {
+        "symptom": "Commands return a project-not-found or 404 error",
+        "fix": "Set REVENUECAT_PROJECT_ID to your project id, or pass --project \u003cid\u003e; every v2 endpoint is project-scoped."
+      },
+      {
+        "symptom": "HTTP 429 rate-limit errors during sync or fan-out",
+        "fix": "RevenueCat rate-limits per domain; re-run sync with a smaller --resources set or let the built-in adaptive limiter back off."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need programmatic or agent-driven visibility into RevenueCat mobile subscription state: revenue and MRR/ARR snapshots, churn and dunning analysis, entitlement reconciliation, refund tracing, and webhook config audits. It is the mobile-rail companion to a Lemon Squeezy CLI for the web rail.",
+    "anti_triggers": [
+      "Do not use this CLI for the in-app purchase flow itself; that is the RevenueCat mobile SDK, not the server API.",
+      "Do not use this CLI for browsing RevenueCat blog posts, docs, or State-of-Subscription reports; that is the marketing site, not the Developer API.",
+      "Do not use this CLI for v1-only operations that v2 does not yet cover; fall back to the v1 API for those."
+    ],
+    "recipes": [
+      {
+        "title": "Morning standup revenue line",
+        "command": "revenuecat-pp-cli revenue-snapshot --currency USD --agent --select mrr,active_subscriptions,mrr_delta",
+        "explanation": "One pasteable line of MRR, active subs, and the change since the last snapshot."
+      },
+      {
+        "title": "Recoverable failed billing",
+        "command": "revenuecat-pp-cli dunning-alert --agent",
+        "explanation": "Subscriptions still in grace or billing-issue joined with unpaid invoices, ranked by what you can still recover."
+      },
+      {
+        "title": "Find entitlement desync",
+        "command": "revenuecat-pp-cli entitlement-rollup --flag-disagreements --agent",
+        "explanation": "Surfaces customers whose entitlement state disagrees with their subscription state across the whole base."
+      },
+      {
+        "title": "Trace a refund's fallout",
+        "command": "revenuecat-pp-cli refund-cascade sub1a2b3c4d --agent",
+        "explanation": "Shows the transactions, refund history, and entitlements a customer loses before you issue the refund."
+      }
+    ],
+    "trigger_phrases": [
+      "what's my MRR",
+      "revenue snapshot",
+      "who churned this week",
+      "show failed billing",
+      "find entitlement desync",
+      "trace this refund",
+      "use revenuecat",
+      "run revenuecat"
+    ]
+  }
+}

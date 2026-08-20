@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ordertogo-fix-orders-list-endpoint-and-jwt-header",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Use the real order-history list endpoint and inject required Authorization and __requestid headers.",
+  "reason": "orders list used the per-order SHOW endpoint with an empty body and all /api/* calls lacked the _fbtoken Authorization header and POST idempotency header required by the web client.",
+  "files": [
+    "internal/cli/orders_list.go",
+    "internal/cli/sync.go",
+    "internal/client/client.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "ordertogo-pp-cli orders list returned 58 real orders and sync --orders ingested the same 58 rows, matching the live history page for the test account."
+}

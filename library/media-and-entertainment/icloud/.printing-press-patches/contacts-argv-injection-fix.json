@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "contacts-argv-injection-fix",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "create/update/delete commands switched from fmt.Sprintf(%q) script interpolation to on-run-argv AppleScript; UpsertOne tx.Exec errors are now propagated; update cache refresh includes MiddleName.",
+  "reason": "Greptile PR #872 flagged three blocking issues: (1) %q produces Go escape sequences (\\n, \\\") that AppleScript parses differently — a double-quote in user-supplied data terminates the string literal and can inject arbitrary AppleScript code. Fix: three contactCreate/Update/DeleteScript constants use 'on run argv / end run'; values are passed as separate process args after '--' and never seen by the AppleScript lexer. (2) UpsertOne swallowed all tx.Exec errors, so a constraint violation or disk-full condition committed a partially-written record silently. Fix: every tx.Exec error is checked and returned. (3) The update command's local cache refresh was missing existing.MiddleName = middle, so the middle name was written to Contacts.app but stale in the SQLite cache until the next full sync.",
+  "files": [
+    "internal/cli/contacts.go",
+    "internal/cli/contacts_db.go"
+  ]
+}

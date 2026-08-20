@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "mcp-numeric-param-scientific-notation",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "MCP path/query params no longer render large integer IDs in scientific notation (get-friend 1925035 was building /get_friend/1.925035e+06 and 403ing).",
+  "reason": "makeAPIHandler stringified MCP arguments with fmt.Sprintf(\"%v\", v). JSON numbers arrive as float64, and %v prints a large integer-valued float in scientific notation, so a numeric path id (id 1925035 -> 1.925035e+06) or numeric query filter (group_id/friend_id/limit/offset) was corrupted — get-friend/get-expense/get-group/get-user and the delete/update endpoints all break for real Splitwise IDs (>1e6). Added formatMCPParamValue which uses strconv.FormatFloat('f', -1) for float64 (minimal decimal, no exponent) and falls back to %v otherwise. Fixing the path also resolved the 403 (it was Splitwise rejecting the malformed id, not a permission restriction).",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/format_param_test.go"
+  ],
+  "validated_outcome": "TestFormatMCPParamValue pins 1925035.0->\"1925035\", 28.48->\"28.48\"; driving the live get-friend_get tool with id=1925035 now returns the friend (path /get_friend/1925035). gofmt/build/vet/test, govulncheck, verify-skill pass.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator fix: command_endpoint MCP handler template (makeAPIHandler) must format numeric path/query params without scientific notation.",
+      "reason": "Generator-shaped — tools.go is generated DO-NOT-EDIT; every printed CLI whose API has numeric path/query params (IDs, limits, offsets) over ~1e6 is affected. The %v-on-float64 should be FormatFloat('f') in the template. Filed as a cli-printing-press retro."
+    }
+  ]
+}

@@ -1,0 +1,375 @@
+{
+  "api_name": "etherpad",
+  "base_url": "{{ETHERPAD_URL}}/api/1.3.1",
+  "description": "Etherpad is a real-time collaborative editor.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ETHERPAD_OPENID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ETHERPAD_OPENID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": false
+      }
+    ]
+  },
+  "tools": [
+    {
+      "name": "create-group",
+      "description": "creates a new group",
+      "method": "POST",
+      "path": "/createGroup",
+      "params": []
+    },
+    {
+      "name": "create-group-if-not-exists-for",
+      "description": "this functions helps you to map your application group ids to Etherpad group ids",
+      "method": "POST",
+      "path": "/createGroupIfNotExistsFor",
+      "params": []
+    },
+    {
+      "name": "delete-group",
+      "description": "deletes a group",
+      "method": "POST",
+      "path": "/deleteGroup",
+      "params": []
+    },
+    {
+      "name": "list-pads",
+      "description": "returns all pads of this group",
+      "method": "POST",
+      "path": "/listPads",
+      "params": []
+    },
+    {
+      "name": "create-pad",
+      "description": "creates a new (non-group) pad",
+      "method": "POST",
+      "path": "/createPad",
+      "params": []
+    },
+    {
+      "name": "create-group-pad",
+      "description": "creates a new pad in this group",
+      "method": "POST",
+      "path": "/createGroupPad",
+      "params": []
+    },
+    {
+      "name": "create-author",
+      "description": "creates a new author",
+      "method": "POST",
+      "path": "/createAuthor",
+      "params": []
+    },
+    {
+      "name": "create-author-if-not-exists-for",
+      "description": "this functions helps you to map your application author ids to Etherpad author ids",
+      "method": "POST",
+      "path": "/createAuthorIfNotExistsFor",
+      "params": []
+    },
+    {
+      "name": "list-pads-of-author",
+      "description": "returns an array of all pads this author contributed to",
+      "method": "POST",
+      "path": "/listPadsOfAuthor",
+      "params": []
+    },
+    {
+      "name": "create-session",
+      "description": "creates a new session. validUntil is an unix timestamp in seconds",
+      "method": "POST",
+      "path": "/createSession",
+      "params": []
+    },
+    {
+      "name": "delete-session",
+      "description": "deletes a session",
+      "method": "POST",
+      "path": "/deleteSession",
+      "params": []
+    },
+    {
+      "name": "get-session-info",
+      "description": "returns information about a session",
+      "method": "POST",
+      "path": "/getSessionInfo",
+      "params": []
+    },
+    {
+      "name": "list-sessions-of-group",
+      "description": "returns all sessions of a group",
+      "method": "POST",
+      "path": "/listSessionsOfGroup",
+      "params": []
+    },
+    {
+      "name": "list-sessions-of-author",
+      "description": "returns all sessions of an author",
+      "method": "POST",
+      "path": "/listSessionsOfAuthor",
+      "params": []
+    },
+    {
+      "name": "get-text",
+      "description": "returns the text of a pad",
+      "method": "POST",
+      "path": "/getText",
+      "params": []
+    },
+    {
+      "name": "set-text",
+      "description": "sets the text of a pad",
+      "method": "POST",
+      "path": "/setText",
+      "params": []
+    },
+    {
+      "name": "get-html",
+      "description": "returns the text of a pad formatted as HTML",
+      "method": "POST",
+      "path": "/getHTML",
+      "params": []
+    },
+    {
+      "name": "set-html",
+      "description": "sets the text of a pad with HTML",
+      "method": "POST",
+      "path": "/setHTML",
+      "params": []
+    },
+    {
+      "name": "get-revisions-count",
+      "description": "returns the number of revisions of this pad",
+      "method": "POST",
+      "path": "/getRevisionsCount",
+      "params": []
+    },
+    {
+      "name": "get-last-edited",
+      "description": "returns the timestamp of the last revision of the pad",
+      "method": "POST",
+      "path": "/getLastEdited",
+      "params": []
+    },
+    {
+      "name": "delete-pad",
+      "description": "deletes a pad",
+      "method": "POST",
+      "path": "/deletePad",
+      "params": []
+    },
+    {
+      "name": "get-read-only-id",
+      "description": "returns the read only link of a pad",
+      "method": "POST",
+      "path": "/getReadOnlyID",
+      "params": []
+    },
+    {
+      "name": "set-public-status",
+      "description": "sets a boolean for the public status of a pad",
+      "method": "POST",
+      "path": "/setPublicStatus",
+      "params": []
+    },
+    {
+      "name": "get-public-status",
+      "description": "return true of false",
+      "method": "POST",
+      "path": "/getPublicStatus",
+      "params": []
+    },
+    {
+      "name": "list-authors-of-pad",
+      "description": "returns an array of authors who contributed to this pad",
+      "method": "POST",
+      "path": "/listAuthorsOfPad",
+      "params": []
+    },
+    {
+      "name": "pad-users-count",
+      "description": "returns the number of user that are currently editing this pad",
+      "method": "POST",
+      "path": "/padUsersCount",
+      "params": []
+    },
+    {
+      "name": "get-author-name",
+      "description": "Returns the Author Name of the author",
+      "method": "POST",
+      "path": "/getAuthorName",
+      "params": []
+    },
+    {
+      "name": "pad-users",
+      "description": "returns the list of users that are currently editing this pad",
+      "method": "POST",
+      "path": "/padUsers",
+      "params": []
+    },
+    {
+      "name": "send-clients-message",
+      "description": "sends a custom message of type msg to the pad",
+      "method": "POST",
+      "path": "/sendClientsMessage",
+      "params": []
+    },
+    {
+      "name": "list-all-groups",
+      "description": "returns the IDs of all groups on this server",
+      "method": "POST",
+      "path": "/listAllGroups",
+      "params": []
+    },
+    {
+      "name": "check-token",
+      "description": "returns ok when the current API token is valid",
+      "method": "POST",
+      "path": "/checkToken",
+      "params": []
+    },
+    {
+      "name": "list-all-pads",
+      "description": "list all the pads",
+      "method": "POST",
+      "path": "/listAllPads",
+      "params": []
+    },
+    {
+      "name": "create-diff-html",
+      "description": "returns an HTML diff between two revisions of a pad",
+      "method": "POST",
+      "path": "/createDiffHTML",
+      "params": []
+    },
+    {
+      "name": "get-chat-history",
+      "description": "returns the chat history",
+      "method": "POST",
+      "path": "/getChatHistory",
+      "params": []
+    },
+    {
+      "name": "get-chat-head",
+      "description": "returns the chatHead (chat-message) of the pad",
+      "method": "POST",
+      "path": "/getChatHead",
+      "params": []
+    },
+    {
+      "name": "get-attribute-pool",
+      "description": "returns the attribute pool of a pad",
+      "method": "POST",
+      "path": "/getAttributePool",
+      "params": []
+    },
+    {
+      "name": "get-revision-changeset",
+      "description": "returns the changeset at a given revision of a pad",
+      "method": "POST",
+      "path": "/getRevisionChangeset",
+      "params": []
+    },
+    {
+      "name": "copy-pad",
+      "description": "copies a pad with full history and chat",
+      "method": "POST",
+      "path": "/copyPad",
+      "params": []
+    },
+    {
+      "name": "move-pad",
+      "description": "moves a pad — copy then delete the original",
+      "method": "POST",
+      "path": "/movePad",
+      "params": []
+    },
+    {
+      "name": "get-pad-id",
+      "description": "returns the read-write pad ID for a given read-only pad ID",
+      "method": "POST",
+      "path": "/getPadID",
+      "params": []
+    },
+    {
+      "name": "get-saved-revisions-count",
+      "description": "returns the number of saved revisions of a pad",
+      "method": "POST",
+      "path": "/getSavedRevisionsCount",
+      "params": []
+    },
+    {
+      "name": "list-saved-revisions",
+      "description": "returns the list of saved revisions of a pad",
+      "method": "POST",
+      "path": "/listSavedRevisions",
+      "params": []
+    },
+    {
+      "name": "save-revision",
+      "description": "saves a revision of a pad",
+      "method": "POST",
+      "path": "/saveRevision",
+      "params": []
+    },
+    {
+      "name": "restore-revision",
+      "description": "restores a pad to a specific revision",
+      "method": "POST",
+      "path": "/restoreRevision",
+      "params": []
+    },
+    {
+      "name": "append-chat-message",
+      "description": "appends a chat message",
+      "method": "POST",
+      "path": "/appendChatMessage",
+      "params": []
+    },
+    {
+      "name": "append-text",
+      "description": "appends text to a pad",
+      "method": "POST",
+      "path": "/appendText",
+      "params": []
+    },
+    {
+      "name": "get-stats",
+      "description": "returns server-wide statistics",
+      "method": "POST",
+      "path": "/getStats",
+      "params": []
+    },
+    {
+      "name": "copy-pad-without-history",
+      "description": "copies a pad without history or chat",
+      "method": "POST",
+      "path": "/copyPadWithoutHistory",
+      "params": []
+    },
+    {
+      "name": "compact-pad",
+      "description": "compacts a pad's revision history, keeping recent revisions only",
+      "method": "POST",
+      "path": "/compactPad",
+      "params": []
+    },
+    {
+      "name": "anonymize-author",
+      "description": "anonymizes an author across all their edits",
+      "method": "POST",
+      "path": "/anonymizeAuthor",
+      "params": []
+    }
+  ]
+}

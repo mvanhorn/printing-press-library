@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "render",
+  "run_id": "20260509-092314",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

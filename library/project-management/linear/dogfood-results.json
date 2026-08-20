@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/tmchow/printing-press/library/linear",
-  "verdict": "WARN",
+  "dir": "\u003ccli-dir\u003e/linear",
+  "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -18,30 +18,31 @@
     "detail": "spec not provided; browser-session auth check skipped"
   },
   "dead_flags": {
-    "total": 19,
+    "total": 23,
     "dead": 0
   },
   "dead_functions": {
-    "total": 50,
+    "total": 57,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
     "domain_tables": 2,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
   },
   "example_check": {
-    "tested": 0,
-    "with_examples": 0,
-    "valid_examples": 0,
-    "skipped": true,
-    "detail": "could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"linear-pp-cli\""
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 87,
-      "registered": 87
+      "defined": 78,
+      "registered": 78
     },
     "config_consistency": {
       "consistent": true
@@ -54,8 +55,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 12,
-    "found": 12
+    "planned": 13,
+    "found": 13
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -63,23 +64,21 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 12,
-    "exempted_via_store": 10
+    "checked": 13,
+    "exempted_via_store": 11
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 76
+    "checked": 66
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 76
+    "checked": 66
   },
-  "issues": [
-    "example check skipped: could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"linear-pp-cli\""
-  ]
+  "issues": null
 }

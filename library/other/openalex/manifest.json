@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "openalex-pp-mcp",
+  "display_name": "Openalex",
+  "version": "4.2.2",
+  "description": "Openalex API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openalex-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openalex-pp-mcp",
+      "args": [],
+      "env": {
+        "OPENALEX_API_KEY": "${user_config.openalex_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "openalex_api_key": {
+      "type": "string",
+      "title": "OPENALEX_API_KEY",
+      "description": "Sets OPENALEX_API_KEY for the Openalex MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,495 @@
+{
+  "api_name": "conductor",
+  "base_url": "https://api.conductor.build",
+  "description": "Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "visible",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "CONDUCTOR_API_KEY",
+      "CONDUCTOR_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CONDUCTOR_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "CONDUCTOR_BEARER_AUTH",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "me_get",
+      "description": "Get authenticated identity. Returns the MeGetResponse.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "messages_get",
+      "description": "Get a message. Required: messageId. Returns the MessagesGetResponse.",
+      "method": "GET",
+      "path": "/v0/messages/{messageId}",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get a project. Required: projectId. Returns the ProjectsGetResponse.",
+      "method": "GET",
+      "path": "/v0/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List projects. Optional: limit, offset. Returns array of ProjectsListItem.",
+      "method": "GET",
+      "path": "/v0/projects",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "projects_workspaces_list",
+      "description": "List project workspaces. Required: projectId. Optional: limit, offset, channel. Returns array of WorkspacesListItem.",
+      "method": "GET",
+      "path": "/v0/projects/{projectId}/workspaces",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roundhouse-public-sql_query",
+      "description": "Runs a single read-only SQL SELECT statement over your organization's session transcripts and returns the matching rows. Queries may ONLY read from the view session_transcripts_view; every other table, view, and function is off-limits. Query it like a table, e.g. SELECT ... FROM session_transcripts_view. Its columns are: - session_id (text): ID of the session (chat). - workspace_id (text): ID of the workspace the session belongs to. - transcript (text): concise plain-text transcript of the session's conversation. - session_title (text, nullable): title of the session. - agent_type (text, nullable): agent that ran the session, e.g. 'claude' or 'codex'. - model (text, nullable): model the session used. - workspace_name (text, nullable): display name of the workspace. - workspace_state (text): workspace lifecycle state, e.g. 'ready' or 'archived'. - repo_url (text): git remote URL of the workspace's repository. - session_created_at (timestamptz): when the session was created. - transcript_updated_at (timestamptz): when the transcript last changed. Limits: at most 500 rows are returned (the response sets truncated: true when the query matched more), statements time out after 5 seconds, and the query text may be at most 10000 characters. The statement must be a single query: semicolon-chained statements, writes, U\u0026 Unicode-escape syntax, and queries containing the text set_config anywhere (even inside a search string) are rejected. Errors come back as 400s carrying the Postgres error message. Example queries: - Search transcripts: SELECT session_id, session_title, workspace_name FROM session_transcripts_view WHERE transcript ILIKE '%database migration%' ORDER BY transcript_updated_at DESC LIMIT 20 - Recent sessions in live workspaces: SELECT session_title, workspace_name, transcript_updated_at FROM session_transcripts_view WHERE workspace_state = 'ready' ORDER BY transcript_updated_at DESC LIMIT 50. Required: query.",
+      "method": "POST",
+      "path": "/v0/sql",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_create",
+      "description": "Creates a session in an existing workspace. If the workspace is still initializing, the session is accepted immediately and initialized in the workspace when its first message is delivered. Accepted model ids by agent — claude: fable-5, opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m, sonnet-5-1m, sonnet-4-6-1m, sonnet, haiku; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Accepted effort levels by agent — claude: low, medium, high, xhigh, max; codex: none, low, medium, high, xhigh, max, ultra; codex max requires a GPT-5.6 model, and ultra requires GPT-5.6 Sol or Terra. Omit effort to use the agent's default — claude: high; codex: high. Models accepting fastMode by agent — claude: opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Omit fastMode (or send false) for other models. Required: agent, workspaceId. Optional: channel, effort, fastMode (plus 3 more). Returns the new SessionsCreateResponse.",
+      "method": "POST",
+      "path": "/v0/sessions",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "body",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "effort",
+          "type": "string",
+          "location": "body",
+          "description": "Effort"
+        },
+        {
+          "name": "fastMode",
+          "type": "bool",
+          "location": "body",
+          "description": "Fast mode"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "body",
+          "description": "Session id"
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_get",
+      "description": "Get a session. Required: sessionId. Optional: channel. Returns the SessionsGetResponse.",
+      "method": "GET",
+      "path": "/v0/sessions/{sessionId}",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_archive_session",
+      "description": "Archive a session, like closing its chat tab: it leaves session lists, its running agent is stopped, and its queued messages are dropped. Sending a new message to an archived session reopens it. Idempotent; the session remains readable by id. Required: sessionId. Returns the new ArchiveSessionResponse.",
+      "method": "POST",
+      "path": "/v0/sessions/{sessionId}/archive",
+      "params": [
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_cancel_session",
+      "description": "Stop the agent's in-progress turn and drop any not-yet-delivered queued messages for the session. Idempotent: a no-op when the agent is already idle. Preserves the workspace and session history. Cancellation completes asynchronously — poll the session status endpoint until idle to confirm. Required: sessionId. Returns the new CancelSessionResponse.",
+      "method": "POST",
+      "path": "/v0/sessions/{sessionId}/cancel",
+      "params": [
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_messages_create",
+      "description": "Create a message. Required: sessionId, message. Optional: messageId. Returns the new MessagesCreateResponse.",
+      "method": "POST",
+      "path": "/v0/sessions/{sessionId}/messages",
+      "params": [
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "body",
+          "description": "Message id"
+        }
+      ]
+    },
+    {
+      "name": "sessions_messages_list",
+      "description": "List a session's transcript messages. Page with limit/offset, or pass after=\u003cmessageId\u003e to fetch only messages after a known message (ascending sessionIndex order) for incremental polling. after and offset cannot be combined. Required: sessionId. Optional: limit, offset, after. Returns array of MessagesListItem.",
+      "method": "GET",
+      "path": "/v0/sessions/{sessionId}/messages",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return only messages after this message id (exclusive), in ascending sessionIndex order. Cannot be combined with offset."
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_rename_session",
+      "description": "Rename a session. Required: sessionId, name. Optional: channel. Returns the new RenameSessionResponse.",
+      "method": "POST",
+      "path": "/v0/sessions/{sessionId}/rename",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_status_get",
+      "description": "Get session status. Required: sessionId. Returns the StatusGetResponse.",
+      "method": "GET",
+      "path": "/v0/sessions/{sessionId}/status",
+      "params": [
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "path",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create",
+      "description": "Creates a cloud workspace and first session, and returns a deep link that opens the workspace in the Conductor desktop app. Pass either projectId or repositoryUrl. With an organization API key, the workspace launches on the organization's machine; the machine must include the repository. Accepted model ids by agent — claude: fable-5, opus-5-1m, opus-4-8-1m, opus-4-8, opus-4-7-1m, opus-4-7, opus-1m, opus, opus-4-6-1m, sonnet-5-1m, sonnet-4-6-1m, sonnet, haiku; codex: gpt-5.5, gpt-5.4, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.3-codex-spark, gpt-5.3-codex, gpt-5.2-codex; cursor: auto, composer-2.5, grok-4.5. Accepted effort levels by agent — claude: low, medium, high, xhigh, max; codex: none, low, medium, high, xhigh, max, ultra; codex max requires a GPT-5.6 model, and ultra requires GPT-5.6 Sol or Terra. Omit effort to use the agent's default — claude: high; codex: high. Optional: channel.",
+      "method": "POST",
+      "path": "/v0/workspaces",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get",
+      "description": "Get a workspace. Required: workspaceId. Optional: channel. Returns the WorkspacesGetResponse.",
+      "method": "GET",
+      "path": "/v0/workspaces/{workspaceId}",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_archive_workspace",
+      "description": "Stop the workspace and hide it in the app. Idempotent; the workspace can be restored later. Required: workspaceId. Returns the new ArchiveWorkspaceResponse.",
+      "method": "POST",
+      "path": "/v0/workspaces/{workspaceId}/archive",
+      "params": [
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_rename_workspace",
+      "description": "Rename a workspace. Required: workspaceId, name. Optional: channel. Returns the new RenameWorkspaceResponse.",
+      "method": "POST",
+      "path": "/v0/workspaces/{workspaceId}/rename",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_sessions_list",
+      "description": "List workspace sessions. Required: workspaceId. Optional: limit, offset, channel. Returns array of SessionsListItem.",
+      "method": "GET",
+      "path": "/v0/workspaces/{workspaceId}/sessions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Desktop-app channel the returned deepLink should open."
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_sleep_workspace",
+      "description": "Put the workspace to sleep. Idempotent for sleeping workspaces. Required: workspaceId. Returns the new SleepWorkspaceResponse.",
+      "method": "POST",
+      "path": "/v0/workspaces/{workspaceId}/sleep",
+      "params": [
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_status_get",
+      "description": "Get workspace status. Required: workspaceId. Returns the StatusGetResponse.",
+      "method": "GET",
+      "path": "/v0/workspaces/{workspaceId}/status",
+      "params": [
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "api_name": "elevenlabs",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "elevenlabs-python",
+      "url": "https://github.com/elevenlabs/elevenlabs-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "elevenlabs-js",
+      "url": "https://github.com/elevenlabs/elevenlabs-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "SDKs expose primitives but leave agents to resolve voice IDs, choose models, and handle binary audio responses.",
+    "The endpoint mirror is complete but raw TTS and dialogue commands are not the most efficient agent workflow."
+  ],
+  "patterns": [
+    "Keep endpoint mirrors exact and add thin workflow commands only where they reduce repeated API choreography.",
+    "Return JSON manifests for generated files so agents can reason about audio artifacts without parsing binary stdout."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T15:25:16Z",
+  "novel_features": [
+    {
+      "name": "Voice Discovery",
+      "command": "voice discover",
+      "description": "Search owned and shared ElevenLabs voices through one compact, JSON-first command.",
+      "rationale": "It unifies the v2 owned-voice and shared-voice read surfaces without inventing voice metadata.",
+      "example": "elevenlabs-pp-cli voice discover --source all --limit 5 --agent",
+      "why_it_matters": "Agents can pick a voice before generation without paging through incompatible raw endpoints.",
+      "group": "Agent audio planning"
+    },
+    {
+      "name": "TTS Resolution",
+      "command": "tts resolve",
+      "description": "Resolve a voice, model, output format, default settings, and subscription context before rendering.",
+      "rationale": "It calls the real models, voice settings, and subscription endpoints to preflight a render plan.",
+      "example": "elevenlabs-pp-cli tts resolve --voice JBFqnCBsd6RMkjVDRZzb --model auto --agent",
+      "why_it_matters": "Agents can validate generation choices cheaply before spending quota on audio.",
+      "group": "Agent audio planning"
+    },
+    {
+      "name": "TTS Render Manifest",
+      "command": "tts render",
+      "description": "Render text to an audio file and print a structured manifest with file path, byte count, model, and voice.",
+      "rationale": "It calls the real text-to-speech endpoint while avoiding speaker playback and binary stdout by default.",
+      "example": "elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent",
+      "why_it_matters": "Agents get a durable audio artifact plus machine-readable metadata in one step.",
+      "group": "Audio artifact workflows"
+    },
+    {
+      "name": "Dialogue Cast",
+      "command": "dialogue cast",
+      "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio.",
+      "rationale": "It calls the real text-to-dialogue endpoint after converting agent-friendly speaker lines into ElevenLabs inputs.",
+      "example": "elevenlabs-pp-cli dialogue cast --line narrator='Welcome.' --cast narrator=JBFqnCBsd6RMkjVDRZzb --out dialogue.mp3 --agent",
+      "why_it_matters": "Agents can generate multi-speaker dialogue from scripts without manually constructing JSON voice-id payloads.",
+      "group": "Audio artifact workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Voice Discovery",
+      "command": "voice discover",
+      "description": "Search owned and shared ElevenLabs voices through one compact, JSON-first command.",
+      "rationale": "It unifies the v2 owned-voice and shared-voice read surfaces without inventing voice metadata.",
+      "example": "elevenlabs-pp-cli voice discover --source all --limit 5 --agent",
+      "why_it_matters": "Agents can pick a voice before generation without paging through incompatible raw endpoints.",
+      "group": "Agent audio planning"
+    },
+    {
+      "name": "TTS Resolution",
+      "command": "tts resolve",
+      "description": "Resolve a voice, model, output format, default settings, and subscription context before rendering.",
+      "rationale": "It calls the real models, voice settings, and subscription endpoints to preflight a render plan.",
+      "example": "elevenlabs-pp-cli tts resolve --voice JBFqnCBsd6RMkjVDRZzb --model auto --agent",
+      "why_it_matters": "Agents can validate generation choices cheaply before spending quota on audio.",
+      "group": "Agent audio planning"
+    },
+    {
+      "name": "TTS Render Manifest",
+      "command": "tts render",
+      "description": "Render text to an audio file and print a structured manifest with file path, byte count, model, and voice.",
+      "rationale": "It calls the real text-to-speech endpoint while avoiding speaker playback and binary stdout by default.",
+      "example": "elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent",
+      "why_it_matters": "Agents get a durable audio artifact plus machine-readable metadata in one step.",
+      "group": "Audio artifact workflows"
+    },
+    {
+      "name": "Dialogue Cast",
+      "command": "dialogue cast",
+      "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio.",
+      "rationale": "It calls the real text-to-dialogue endpoint after converting agent-friendly speaker lines into ElevenLabs inputs.",
+      "example": "elevenlabs-pp-cli dialogue cast --line narrator='Welcome.' --cast narrator=JBFqnCBsd6RMkjVDRZzb --out dialogue.mp3 --agent",
+      "why_it_matters": "Agents can generate multi-speaker dialogue from scripts without manually constructing JSON voice-id payloads.",
+      "group": "Audio artifact workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "ElevenLabs",
+    "headline": "Generate, inspect, and manage ElevenLabs audio workflows from a CLI that is friendly to both humans and agents.",
+    "value_prop": "This CLI prints the official ElevenLabs API surface and adds workflow commands for voice selection, TTS, and dialogue generation. Agents can keep binary audio in files while receiving JSON manifests for follow-up work.",
+    "auth_narrative": "Set ELEVENLABS_API_KEY or run the auth setup command; the key is sent as the xi-api-key header.",
+    "quickstart": [
+      {
+        "command": "elevenlabs-pp-cli models --agent",
+        "comment": "Check available models."
+      },
+      {
+        "command": "elevenlabs-pp-cli voice discover --source all --limit 5 --agent",
+        "comment": "Find voices before generating audio."
+      },
+      {
+        "command": "elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent",
+        "comment": "Generate audio and get a JSON manifest."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or authentication failed",
+        "fix": "Set ELEVENLABS_API_KEY or rerun auth setup, then run elevenlabs-pp-cli doctor."
+      },
+      {
+        "symptom": "Binary response cannot be rendered as structured output",
+        "fix": "Use tts render or --deliver file:\u003cpath\u003e for raw audio endpoints."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to plan, generate, transcribe, dub, isolate, or manage ElevenLabs audio without writing SDK glue. Prefer the workflow commands for TTS and dialogue artifacts, and use the generated endpoint commands for full API coverage.",
+    "recipes": [
+      {
+        "title": "Render TTS to a file",
+        "command": "elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent",
+        "explanation": "Creates audio and prints a compact manifest."
+      },
+      {
+        "title": "Discover available voices",
+        "command": "elevenlabs-pp-cli voice discover --source all --limit 5 --agent",
+        "explanation": "Lists candidate voices across owned and shared catalogs."
+      }
+    ],
+    "trigger_phrases": [
+      "generate speech with ElevenLabs",
+      "find an ElevenLabs voice",
+      "create dialogue audio",
+      "manage ElevenLabs voices"
+    ]
+  }
+}

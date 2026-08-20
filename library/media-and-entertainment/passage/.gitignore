@@ -1,0 +1,17 @@
+# Compiled binaries / MCP bundles — never in a source repo
+/passage-pp-cli
+/passage-pp-mcp
+/passage
+/bin/
+/build/
+/dist/
+
+# Run/report artifacts (regenerated on build)
+/dogfood-results.json
+/workflow-verify-report.json
+/apify-actor-audit-report.json
+
+# OS / editor
+.DS_Store
+*.swp
+*~

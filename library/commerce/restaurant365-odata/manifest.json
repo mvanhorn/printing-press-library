@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "restaurant365-odata-pp-mcp",
+  "display_name": "Restaurant365 OData Connector",
+  "version": "4.18.1",
+  "description": "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/restaurant365-odata-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/restaurant365-odata-pp-mcp",
+      "args": [],
+      "env": {
+        "RESTAURANT365_ODATA_PASSWORD": "${user_config.restaurant365_odata_password}",
+        "RESTAURANT365_ODATA_USERNAME": "${user_config.restaurant365_odata_username}"
+      }
+    }
+  },
+  "user_config": {
+    "restaurant365_odata_password": {
+      "type": "string",
+      "title": "RESTAURANT365_ODATA_PASSWORD",
+      "description": "Sets RESTAURANT365_ODATA_PASSWORD for the Restaurant365 OData Connector MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "restaurant365_odata_username": {
+      "type": "string",
+      "title": "RESTAURANT365_ODATA_USERNAME",
+      "description": "Sets RESTAURANT365_ODATA_USERNAME for the Restaurant365 OData Connector MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

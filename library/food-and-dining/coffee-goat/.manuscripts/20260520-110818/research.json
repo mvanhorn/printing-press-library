@@ -1,0 +1,598 @@
+{
+  "api_name": "coffee-goat",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Beanconqueror",
+      "url": "https://github.com/graphefruit/Beanconqueror",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Brewlog",
+      "url": "https://github.com/jnsgruk/brewlog",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Artisan",
+      "url": "https://github.com/artisan-roaster-scope/artisan",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T18:45:00Z",
+  "novel_features": [
+    {
+      "name": "The God cup recommender",
+      "command": "god-cup",
+      "description": "Integrates your shelf, brew history, Coffee Review scores, Hoffmann/Hedrick coverage, and champion recipes to produce one brew-now pick and one buy-next pick.",
+      "rationale": "Five-table local join (beans + brews + reviews + youtube_reviews + champion_recipes) producing a deterministic weighted score — only possible because every signal source is in one local store.",
+      "example": "coffee-goat god-cup --method espresso --agent",
+      "why_it_matters": "Pick this as the headline 'what should I do next' question; integrates every signal source into one answer.",
+      "group": "The God cup"
+    },
+    {
+      "name": "Cross-roaster FTS search",
+      "command": "search",
+      "description": "Search every elite specialty roaster's catalog at once — Ethiopian naturals across the curated shelf in one query.",
+      "rationale": "Requires synced cross-roaster corpus + FTS5 index that no single roaster's site can provide.",
+      "example": "coffee-goat search \"ethiopia natural\" --in-stock --price-lt 2500 --agent",
+      "why_it_matters": "Pick this when an agent needs a cross-source, structured product query rather than visiting many storefronts.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Persisted query diff feed",
+      "command": "watch",
+      "description": "Saved search emits only new matches on each sync — silent when nothing changed, cron-safe.",
+      "rationale": "Requires sync-anchored diff over cross-roaster corpus.",
+      "example": "coffee-goat watch save bermudez \"diego bermudez gesha\" --agent",
+      "why_it_matters": "Pick this when a user wants to be alerted the moment a specific producer or origin appears anywhere.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Closest twin across roasters",
+      "command": "twin",
+      "description": "Given a bean you loved, find the closest current match across the curated shelf via origin/varietal/process/altitude/descriptor similarity.",
+      "rationale": "Requires the entire cross-roaster corpus and a similarity engine over structured attributes.",
+      "example": "coffee-goat twin sey-banko-gotiti --top 5 --agent",
+      "why_it_matters": "Pick this to replace a sold-out favorite without manually scanning every other roaster.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Multi-bean compare",
+      "command": "compare",
+      "description": "Side-by-side bean table with origin/process/altitude/$/oz/score deltas; works across roasters.",
+      "rationale": "Requires the cross-roaster table + Coffee Review join.",
+      "example": "coffee-goat compare sey-banko-gotiti glitch-yirgacheffe --agent",
+      "why_it_matters": "Pick this when choosing between candidates from different roasters with structured deltas.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Producer tracking across roasters",
+      "command": "producer",
+      "description": "Track a producer or farm (Diego Bermudez, Wush Wush, El Paraiso) across every roaster sync — multi-year lineage view.",
+      "rationale": "Requires producer field extraction from body_html across roasters + cross-roaster join.",
+      "example": "coffee-goat producer \"Diego Bermudez\" --min-roasters 3 --agent",
+      "why_it_matters": "Pick this to compare different roasters' interpretations of one producer or to track lot evolution.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "FX-normalized landed cost",
+      "command": "fx",
+      "description": "Live ECB FX rates normalize $/oz across continents; curated shipping table adds ship-to landed cost.",
+      "rationale": "Requires daily FX fetch + per-roaster shipping reference that no roaster site exposes.",
+      "example": "coffee-goat fx tim-wendelboe-finca-el-paraiso --target USD --to us-domestic --agent",
+      "why_it_matters": "Pick this before ordering from JP/DK/UK/DE roasters to compare true landed cost.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Bayesian dial-in recommender",
+      "command": "dial-in",
+      "description": "Suggest grind/dose/yield/time for a new bean using your brew history of similar beans (origin/process/varietal/altitude clusters).",
+      "rationale": "Requires joining your personal brew log against the global product corpus.",
+      "example": "coffee-goat dial-in sey-banko-gotiti --method espresso --agent",
+      "why_it_matters": "Pick this to start with a confidence-banded recipe instead of burning beans on cold-start dial-ins.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Cellar with freshness windows",
+      "command": "shelf",
+      "description": "What's on your shelf today, sorted by freshness with per-method peak windows (espresso 8–21d, filter 5–28d).",
+      "rationale": "Requires roast-date + per-method freshness curve overlay that incumbents don't compute.",
+      "example": "coffee-goat shelf --method v60 --agent",
+      "why_it_matters": "Pick this to answer 'what should I open next' with hard freshness rules.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Recommend what to drink next",
+      "command": "whats-next",
+      "description": "Joins shelf freshness × dial-in confidence × user palate signature to pick one bag from your shelf for tomorrow morning.",
+      "rationale": "Requires the local join across beans + brews + freshness model that no single API answers.",
+      "example": "coffee-goat whats-next --method v60 --agent",
+      "why_it_matters": "Pick this when the household agent needs one deterministic 'brew this' answer at dawn.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Brew-rating drift diagnostic",
+      "command": "drift",
+      "description": "Detect grinder/water/technique drift via fixed-effects OLS on rating-vs-day across multiple beans; partitions variance by method.",
+      "rationale": "Requires longitudinal brew log + statistical model.",
+      "example": "coffee-goat drift --method espresso --agent",
+      "why_it_matters": "Pick this when ratings slide across unrelated beans — the CLI tells you it's your hardware, not the coffee.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Refill plan with ranked replacements",
+      "command": "refill-plan",
+      "description": "Combines consumption rate from your brews + shelf depletion + cross-roaster twin similarity to recommend 3 replacement picks.",
+      "rationale": "Requires personal brew-log analytics joined with cross-roaster product corpus.",
+      "example": "coffee-goat refill-plan --agent",
+      "why_it_matters": "Pick this to never run out of coffee and always restock toward your taste profile.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Blind cupping with palate calibration",
+      "command": "blind-cup",
+      "description": "Blind cupping session with hashed cup IDs; reveal at end and report Spearman correlation against Coffee Review's scores.",
+      "rationale": "Requires the SCA cupping form + synced Coffee Review corpus.",
+      "example": "coffee-goat blind-cup --agent",
+      "why_it_matters": "Pick this to quantify how your palate maps to published scores over time.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Personal palate map",
+      "command": "palate-map",
+      "description": "Aggregate your 8+ rated brews into an origin/process/varietal weight signature, then rank current shelf and restock candidates by signature match.",
+      "rationale": "Per-user descriptor signature learned from `brews ⋈ roaster_products`; no incumbent computes per-user palate weights.",
+      "example": "coffee-goat palate-map --agent",
+      "why_it_matters": "Pick this to see what flavor profile you actually prefer (vs what you claim), and rank everything by it.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Bag lifecycle",
+      "command": "bag-life",
+      "description": "For one bag, plot daily ratings vs days-since-roast and call peak / decline / dead.",
+      "rationale": "Personal rating curve overlaid on freshness model; runs on the user's local store.",
+      "example": "coffee-goat bag-life onyx-geometry --agent",
+      "why_it_matters": "Pick this to decide whether a struggling shot is the bag dying or your technique slipping.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Friend-pick (palate sharing)",
+      "command": "friend-pick",
+      "description": "Recommend a bag for a friend whose palate profile you've imported — pick from your shelf or current market, ranked against their descriptor signature instead of yours.",
+      "rationale": "Joins imported friend `palate_profile` with cross-roaster corpus + your brews; uses portable palate-export/import for sharing.",
+      "example": "coffee-goat friend-pick pick maya --from market --top 3 --agent",
+      "why_it_matters": "Pick this when an agent needs to recommend a gift bag or birthday-coffee pick that fits someone else's documented palate.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "SCA Flavor Wheel mapping",
+      "command": "flavor-wheel",
+      "description": "Maps your brew ratings onto the official SCA Coffee Tasters' Flavor Wheel hierarchy (fruity → berry → blackberry, floral → tea-like → black tea, etc.) and shows which sections you actually prefer.",
+      "rationale": "Aggregates `brews.rating × roaster_products.descriptors` against a curated SCA-wheel taxonomy (`// pp:novel-static-reference`); complements palate-map (which works by origin/process/varietal).",
+      "example": "coffee-goat flavor-wheel --agent --select preferred,avoided,sparse_coverage",
+      "why_it_matters": "Pick this when the user wants to get clearer on what flavor families they actually like vs claim to like, against the canonical specialty-coffee taxonomy.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Creator review lookup",
+      "command": "creator-review",
+      "description": "Find every Hoffmann or Hedrick clip that mentions a bean or roaster, with transcript excerpt and timestamp.",
+      "rationale": "Requires the local `youtube_reviews` table populated via youtube-pp-cli; no incumbent indexes creators against bags.",
+      "example": "coffee-goat creator-review sey-banko-gotiti --agent",
+      "why_it_matters": "Pick this when the user remembers Hoffmann or Hedrick talking about a bag and wants the exact clip in 30 seconds, not a 20-minute rewatch.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript-search",
+      "description": "Local FTS5 search across all synced Hoffmann + Hedrick transcripts with timestamp + video link.",
+      "rationale": "FTS over `youtube_reviews(transcript_excerpt, video_title)`; impossible on YouTube's native UI.",
+      "example": "coffee-goat transcript-search \"flow profiling\" --agent --select results.video_title,results.timestamp,results.excerpt",
+      "why_it_matters": "Pick this when an agent needs the exact clip where a creator said X.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Personal brew log + cellar",
+      "command": "brews",
+      "description": "Brew log (log/list/show/delete) and local cellar (cellar add/list/show/update/remove) — the input feed for every personal-history command.",
+      "rationale": "Local SQLite-backed log; required by every analytics command and the cupping-to-brew bridge.",
+      "example": "coffee-goat brews log --bean 3 --method v60 --dose-g 18 --yield-g 300 --time-s 180 --rating 8",
+      "why_it_matters": "Pick this to start building the personal-history signal that powers dial-in, drift, palate-map, predict-rating, and whats-next.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Curated V60 recipe library",
+      "command": "recipe-replay",
+      "description": "Hardcoded library of 10 canonical V60 recipes (Hoffmann 2018/2023, Tetsu 4:6 light/dark, Lance Pulse, WBrC 2020-2024 champions) with structured 5-tuple + technique markdown.",
+      "rationale": "Static-reference data marked pp:novel-static-reference; no API has a structured cross-creator champion-recipe corpus.",
+      "example": "coffee-goat recipe-replay apply hoffmann-ultimate-2023 sey/banko-gotiti --dose 18 --log",
+      "why_it_matters": "Pick this to bridge from theoretical champion routines to your specific bean — match scores by bean features, apply scales dose+water, --log pre-fills a brews row.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Coffee spend + cost-per-cup",
+      "command": "budget",
+      "description": "Dose-grams attribution (dose_g / bag_size_g × bag_price). YTD + projection range (linear + trailing-3-mo × 12). Pivot --by month|roaster|bag|method. --include-shipping uses fx's curated table.",
+      "rationale": "Requires joining brews × beans × roaster_products with fx for currency. Skip-and-warn on missing data.",
+      "example": "coffee-goat budget --by bag --agent",
+      "why_it_matters": "Pick this to answer 'am I overspending vs last quarter?' or 'which bag was actually expensive per-cup?' — money axis nothing else touches.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Origin coverage + gap-filler",
+      "command": "coffee-map",
+      "description": "Country-primary coverage with tiered depth labels (unexplored/tasted/explored/deep). Synced corpus default; --world adds curated specialty origins. --fill suggests bags inline; `coffee-map fill` ranks across all gaps by CR score + process tiebreak.",
+      "rationale": "Requires curated origin-string→country canonicalization (pp:novel-static-reference) plus brew-history aggregation.",
+      "example": "coffee-goat coffee-map --fill --agent",
+      "why_it_matters": "Pick this to discover gaps in your origin coverage ('you've never had a Burundi') and get a concrete bag to close each gap.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "K-NN twin prediction + back-test",
+      "command": "predict-rating",
+      "description": "Predicts YOUR rating for a (bean, method) pair via K=5 nearest twins from your brew log. Subcommand split: `predict-rating [bean]` and `predict-rating cellar` write to predicted_ratings; `predict-rating calibration` is mcp:read-only and reports MAE+bias sliced by method/origin/process.",
+      "rationale": "Reuses twin similarity scoring against logged brews; persists predictions for honest ex-ante back-test (scored against first brew after prediction timestamp).",
+      "example": "coffee-goat predict-rating sey/banko-gotiti --method v60 --agent",
+      "why_it_matters": "Pick this before buying a new bag to estimate how you'll rate it, and run calibration periodically to see if the model over-predicts naturals or under-predicts darks.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "SCA cupping sessions",
+      "command": "cupping",
+      "description": "Full 10-attribute SCA form, multi-cupper sessions (auto-creates palate_profiles), open default + --blind slot labels. 7 verbs: start/score/finalize/abandon/show/list/log. Finalize bridges cupper=self scores to the brews table as method='cupping'.",
+      "rationale": "3 new tables (cupping_sessions, cupping_session_beans, cupping_scores) with auto-migration; bridge ensures cupping scores enrich every personal-history analytic.",
+      "example": "coffee-goat cupping start --name \"Sat AM\" --bean sey/banko-gotiti --bean april/ethiopia-natural",
+      "why_it_matters": "Pick this to run a structured tasting (solo or multi-cupper, open or blind) and have the scores flow into drift/palate-map/predict-rating automatically.",
+      "group": "Personal-history analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "The God cup recommender",
+      "command": "god-cup",
+      "description": "Integrates your shelf, brew history, Coffee Review scores, Hoffmann/Hedrick coverage, and champion recipes to produce one brew-now pick and one buy-next pick.",
+      "rationale": "Five-table local join (beans + brews + reviews + youtube_reviews + champion_recipes) producing a deterministic weighted score — only possible because every signal source is in one local store.",
+      "example": "coffee-goat god-cup --method espresso --agent",
+      "why_it_matters": "Pick this as the headline 'what should I do next' question; integrates every signal source into one answer.",
+      "group": "The God cup"
+    },
+    {
+      "name": "Cross-roaster FTS search",
+      "command": "search",
+      "description": "Search every elite specialty roaster's catalog at once — Ethiopian naturals across the curated shelf in one query.",
+      "rationale": "Requires synced cross-roaster corpus + FTS5 index that no single roaster's site can provide.",
+      "example": "coffee-goat search \"ethiopia natural\" --in-stock --price-lt 2500 --agent",
+      "why_it_matters": "Pick this when an agent needs a cross-source, structured product query rather than visiting many storefronts.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Persisted query diff feed",
+      "command": "watch",
+      "description": "Saved search emits only new matches on each sync — silent when nothing changed, cron-safe.",
+      "rationale": "Requires sync-anchored diff over cross-roaster corpus.",
+      "example": "coffee-goat watch save bermudez \"diego bermudez gesha\" --agent",
+      "why_it_matters": "Pick this when a user wants to be alerted the moment a specific producer or origin appears anywhere.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Closest twin across roasters",
+      "command": "twin",
+      "description": "Given a bean you loved, find the closest current match across the curated shelf via origin/varietal/process/altitude/descriptor similarity.",
+      "rationale": "Requires the entire cross-roaster corpus and a similarity engine over structured attributes.",
+      "example": "coffee-goat twin sey-banko-gotiti --top 5 --agent",
+      "why_it_matters": "Pick this to replace a sold-out favorite without manually scanning every other roaster.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Multi-bean compare",
+      "command": "compare",
+      "description": "Side-by-side bean table with origin/process/altitude/$/oz/score deltas; works across roasters.",
+      "rationale": "Requires the cross-roaster table + Coffee Review join.",
+      "example": "coffee-goat compare sey-banko-gotiti glitch-yirgacheffe --agent",
+      "why_it_matters": "Pick this when choosing between candidates from different roasters with structured deltas.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Producer tracking across roasters",
+      "command": "producer",
+      "description": "Track a producer or farm (Diego Bermudez, Wush Wush, El Paraiso) across every roaster sync — multi-year lineage view.",
+      "rationale": "Requires producer field extraction from body_html across roasters + cross-roaster join.",
+      "example": "coffee-goat producer \"Diego Bermudez\" --min-roasters 3 --agent",
+      "why_it_matters": "Pick this to compare different roasters' interpretations of one producer or to track lot evolution.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "FX-normalized landed cost",
+      "command": "fx",
+      "description": "Live ECB FX rates normalize $/oz across continents; curated shipping table adds ship-to landed cost.",
+      "rationale": "Requires daily FX fetch + per-roaster shipping reference that no roaster site exposes.",
+      "example": "coffee-goat fx tim-wendelboe-finca-el-paraiso --target USD --to us-domestic --agent",
+      "why_it_matters": "Pick this before ordering from JP/DK/UK/DE roasters to compare true landed cost.",
+      "group": "Cross-source corpus"
+    },
+    {
+      "name": "Bayesian dial-in recommender",
+      "command": "dial-in",
+      "description": "Suggest grind/dose/yield/time for a new bean using your brew history of similar beans (origin/process/varietal/altitude clusters).",
+      "rationale": "Requires joining your personal brew log against the global product corpus.",
+      "example": "coffee-goat dial-in sey-banko-gotiti --method espresso --agent",
+      "why_it_matters": "Pick this to start with a confidence-banded recipe instead of burning beans on cold-start dial-ins.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Cellar with freshness windows",
+      "command": "shelf",
+      "description": "What's on your shelf today, sorted by freshness with per-method peak windows (espresso 8–21d, filter 5–28d).",
+      "rationale": "Requires roast-date + per-method freshness curve overlay that incumbents don't compute.",
+      "example": "coffee-goat shelf --method v60 --agent",
+      "why_it_matters": "Pick this to answer 'what should I open next' with hard freshness rules.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Recommend what to drink next",
+      "command": "whats-next",
+      "description": "Joins shelf freshness × dial-in confidence × user palate signature to pick one bag from your shelf for tomorrow morning.",
+      "rationale": "Requires the local join across beans + brews + freshness model that no single API answers.",
+      "example": "coffee-goat whats-next --method v60 --agent",
+      "why_it_matters": "Pick this when the household agent needs one deterministic 'brew this' answer at dawn.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Brew-rating drift diagnostic",
+      "command": "drift",
+      "description": "Detect grinder/water/technique drift via fixed-effects OLS on rating-vs-day across multiple beans; partitions variance by method.",
+      "rationale": "Requires longitudinal brew log + statistical model.",
+      "example": "coffee-goat drift --method espresso --agent",
+      "why_it_matters": "Pick this when ratings slide across unrelated beans — the CLI tells you it's your hardware, not the coffee.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Refill plan with ranked replacements",
+      "command": "refill-plan",
+      "description": "Combines consumption rate from your brews + shelf depletion + cross-roaster twin similarity to recommend 3 replacement picks.",
+      "rationale": "Requires personal brew-log analytics joined with cross-roaster product corpus.",
+      "example": "coffee-goat refill-plan --agent",
+      "why_it_matters": "Pick this to never run out of coffee and always restock toward your taste profile.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Blind cupping with palate calibration",
+      "command": "blind-cup",
+      "description": "Blind cupping session with hashed cup IDs; reveal at end and report Spearman correlation against Coffee Review's scores.",
+      "rationale": "Requires the SCA cupping form + synced Coffee Review corpus.",
+      "example": "coffee-goat blind-cup --agent",
+      "why_it_matters": "Pick this to quantify how your palate maps to published scores over time.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Personal palate map",
+      "command": "palate-map",
+      "description": "Aggregate your 8+ rated brews into an origin/process/varietal weight signature, then rank current shelf and restock candidates by signature match.",
+      "rationale": "Per-user descriptor signature learned from `brews ⋈ roaster_products`; no incumbent computes per-user palate weights.",
+      "example": "coffee-goat palate-map --agent",
+      "why_it_matters": "Pick this to see what flavor profile you actually prefer (vs what you claim), and rank everything by it.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Bag lifecycle",
+      "command": "bag-life",
+      "description": "For one bag, plot daily ratings vs days-since-roast and call peak / decline / dead.",
+      "rationale": "Personal rating curve overlaid on freshness model; runs on the user's local store.",
+      "example": "coffee-goat bag-life onyx-geometry --agent",
+      "why_it_matters": "Pick this to decide whether a struggling shot is the bag dying or your technique slipping.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Friend-pick (palate sharing)",
+      "command": "friend-pick",
+      "description": "Recommend a bag for a friend whose palate profile you've imported — pick from your shelf or current market, ranked against their descriptor signature instead of yours.",
+      "rationale": "Joins imported friend `palate_profile` with cross-roaster corpus + your brews; uses portable palate-export/import for sharing.",
+      "example": "coffee-goat friend-pick pick maya --from market --top 3 --agent",
+      "why_it_matters": "Pick this when an agent needs to recommend a gift bag or birthday-coffee pick that fits someone else's documented palate.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "SCA Flavor Wheel mapping",
+      "command": "flavor-wheel",
+      "description": "Maps your brew ratings onto the official SCA Coffee Tasters' Flavor Wheel hierarchy (fruity → berry → blackberry, floral → tea-like → black tea, etc.) and shows which sections you actually prefer.",
+      "rationale": "Aggregates `brews.rating × roaster_products.descriptors` against a curated SCA-wheel taxonomy (`// pp:novel-static-reference`); complements palate-map (which works by origin/process/varietal).",
+      "example": "coffee-goat flavor-wheel --agent --select preferred,avoided,sparse_coverage",
+      "why_it_matters": "Pick this when the user wants to get clearer on what flavor families they actually like vs claim to like, against the canonical specialty-coffee taxonomy.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Creator review lookup",
+      "command": "creator-review",
+      "description": "Find every Hoffmann or Hedrick clip that mentions a bean or roaster, with transcript excerpt and timestamp.",
+      "rationale": "Requires the local `youtube_reviews` table populated via youtube-pp-cli; no incumbent indexes creators against bags.",
+      "example": "coffee-goat creator-review sey-banko-gotiti --agent",
+      "why_it_matters": "Pick this when the user remembers Hoffmann or Hedrick talking about a bag and wants the exact clip in 30 seconds, not a 20-minute rewatch.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript-search",
+      "description": "Local FTS5 search across all synced Hoffmann + Hedrick transcripts with timestamp + video link.",
+      "rationale": "FTS over `youtube_reviews(transcript_excerpt, video_title)`; impossible on YouTube's native UI.",
+      "example": "coffee-goat transcript-search \"flow profiling\" --agent --select results.video_title,results.timestamp,results.excerpt",
+      "why_it_matters": "Pick this when an agent needs the exact clip where a creator said X.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Personal brew log + cellar",
+      "command": "brews",
+      "description": "Brew log (log/list/show/delete) and local cellar (cellar add/list/show/update/remove) — the input feed for every personal-history command.",
+      "rationale": "Local SQLite-backed log; required by every analytics command and the cupping-to-brew bridge.",
+      "example": "coffee-goat brews log --bean 3 --method v60 --dose-g 18 --yield-g 300 --time-s 180 --rating 8",
+      "why_it_matters": "Pick this to start building the personal-history signal that powers dial-in, drift, palate-map, predict-rating, and whats-next.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Curated V60 recipe library",
+      "command": "recipe-replay",
+      "description": "Hardcoded library of 10 canonical V60 recipes (Hoffmann 2018/2023, Tetsu 4:6 light/dark, Lance Pulse, WBrC 2020-2024 champions) with structured 5-tuple + technique markdown.",
+      "rationale": "Static-reference data marked pp:novel-static-reference; no API has a structured cross-creator champion-recipe corpus.",
+      "example": "coffee-goat recipe-replay apply hoffmann-ultimate-2023 sey/banko-gotiti --dose 18 --log",
+      "why_it_matters": "Pick this to bridge from theoretical champion routines to your specific bean — match scores by bean features, apply scales dose+water, --log pre-fills a brews row.",
+      "group": "Editorial signal"
+    },
+    {
+      "name": "Coffee spend + cost-per-cup",
+      "command": "budget",
+      "description": "Dose-grams attribution (dose_g / bag_size_g × bag_price). YTD + projection range (linear + trailing-3-mo × 12). Pivot --by month|roaster|bag|method. --include-shipping uses fx's curated table.",
+      "rationale": "Requires joining brews × beans × roaster_products with fx for currency. Skip-and-warn on missing data.",
+      "example": "coffee-goat budget --by bag --agent",
+      "why_it_matters": "Pick this to answer 'am I overspending vs last quarter?' or 'which bag was actually expensive per-cup?' — money axis nothing else touches.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "Origin coverage + gap-filler",
+      "command": "coffee-map",
+      "description": "Country-primary coverage with tiered depth labels (unexplored/tasted/explored/deep). Synced corpus default; --world adds curated specialty origins. --fill suggests bags inline; `coffee-map fill` ranks across all gaps by CR score + process tiebreak.",
+      "rationale": "Requires curated origin-string→country canonicalization (pp:novel-static-reference) plus brew-history aggregation.",
+      "example": "coffee-goat coffee-map --fill --agent",
+      "why_it_matters": "Pick this to discover gaps in your origin coverage ('you've never had a Burundi') and get a concrete bag to close each gap.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "K-NN twin prediction + back-test",
+      "command": "predict-rating",
+      "description": "Predicts YOUR rating for a (bean, method) pair via K=5 nearest twins from your brew log. Subcommand split: `predict-rating [bean]` and `predict-rating cellar` write to predicted_ratings; `predict-rating calibration` is mcp:read-only and reports MAE+bias sliced by method/origin/process.",
+      "rationale": "Reuses twin similarity scoring against logged brews; persists predictions for honest ex-ante back-test (scored against first brew after prediction timestamp).",
+      "example": "coffee-goat predict-rating sey/banko-gotiti --method v60 --agent",
+      "why_it_matters": "Pick this before buying a new bag to estimate how you'll rate it, and run calibration periodically to see if the model over-predicts naturals or under-predicts darks.",
+      "group": "Personal-history analytics"
+    },
+    {
+      "name": "SCA cupping sessions",
+      "command": "cupping",
+      "description": "Full 10-attribute SCA form, multi-cupper sessions (auto-creates palate_profiles), open default + --blind slot labels. 7 verbs: start/score/finalize/abandon/show/list/log. Finalize bridges cupper=self scores to the brews table as method='cupping'.",
+      "rationale": "3 new tables (cupping_sessions, cupping_session_beans, cupping_scores) with auto-migration; bridge ensures cupping scores enrich every personal-history analytic.",
+      "example": "coffee-goat cupping start --name \"Sat AM\" --bean sey/banko-gotiti --bean april/ethiopia-natural",
+      "why_it_matters": "Pick this to run a structured tasting (solo or multi-cupper, open or blind) and have the scores flow into drift/palate-map/predict-rating automatically.",
+      "group": "Personal-history analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Coffee GOAT",
+    "headline": "The third-wave coffee terminal — every elite roaster, every YouTube creator review, your brews, and the God cup.",
+    "value_prop": "coffee-goat aggregates the global specialty-coffee shelf via Shopify-backed roaster storefronts, Coffee Review scores, and James Hoffmann + Lance Hedrick YouTube transcripts (via the youtube-pp-cli sibling) into one no-auth local SQLite corpus — then joins it with your personal brew log. Cross-roaster search, restock watch, closest-twin replacement, creator-clip lookup, SCA flavor-wheel palate mapping, friend-pick recommendations, and the eponymous `god-cup` recommender that integrates shelf freshness + brew history + Coffee Review + creator coverage into one brew-now and one buy-next pick. (Champion recipes, cafe finder, drift diagnostics, and 11 other commands documented in the absorb manifest are Phase 3 follow-up.)",
+    "auth_narrative": "No API key required. All shipped sources are no-auth: roaster storefronts via public /products.json, Coffee Review WP REST, and YouTube transcripts via the youtube-pp-cli sibling (timedtext endpoint). Optional: `OPENROUTER_API_KEY` enables bean-bag photo scanning if/when the scan command is wired up. youtube-pp-cli must be on PATH for creator features; run `coffee-goat doctor` to verify.",
+    "quickstart": [
+      {
+        "command": "coffee-goat doctor",
+        "comment": "Confirm youtube-pp-cli is on PATH and the representative roaster (Onyx) is reachable"
+      },
+      {
+        "command": "coffee-goat sync",
+        "comment": "Pull catalogs from Shopify roasters, Coffee Review, and the Hoffmann + Hedrick YouTube channels into the local store"
+      },
+      {
+        "command": "coffee-goat search \"ethiopia natural\" --in-stock --price-lt 2500 --agent",
+        "comment": "Cross-roaster origin/process search — every Ethiopian natural under $25 ($25.00 = 2500 cents) across the global shelf"
+      },
+      {
+        "command": "coffee-goat twin sey-banko-gotiti --top 5 --agent",
+        "comment": "Find the closest current match across roasters for a bean you loved (use any synced roaster_products handle)"
+      },
+      {
+        "command": "coffee-goat creator-review onyx --agent",
+        "comment": "Show every Hoffmann/Hedrick clip mentioning Onyx with transcript excerpts"
+      },
+      {
+        "command": "coffee-goat god-cup --method espresso --agent",
+        "comment": "Integrates shelf + brews + Coffee Review + creator transcripts into one brew-now and one buy-next pick (works against fixture data; cellar/brew CLI is Phase 3 follow-up)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor says \"youtube-pp-cli not found on PATH\"",
+        "fix": "Install youtube-pp-cli from the printing-press public library, then rerun `coffee-goat doctor`. Creator features (creator-review, god-cup) are degraded but not broken without it — sync just skips the YouTube source with a warning."
+      },
+      {
+        "symptom": "sync returns 0 products for a roaster",
+        "fix": "Run `coffee-goat sync --source shopify --roaster \u003cslug\u003e` to scope to one roaster; the registry handles known corrections for Leaves and Friedhats (their canonical hostnames)."
+      },
+      {
+        "symptom": "search returns nothing after sync",
+        "fix": "Confirm `coffee-goat sync` exited 0 and reported items for at least one source. Then try a broader query like `coffee-goat search ethiopia` to rule out FTS5 tokenizer edge cases."
+      },
+      {
+        "symptom": "twin returns very low similarity scores",
+        "fix": "Synced descriptor coverage varies by roaster. Tag and origin fields drive most of the similarity; sparse descriptor coverage on a roaster will reduce twin precision for its bags."
+      },
+      {
+        "symptom": "creator-review returns no clips for a bag you remember being mentioned",
+        "fix": "Bean-mention extraction is regex match against the registered roaster slug/name set. If the creator referred to the roaster by a non-canonical name, the regex misses it. Re-run `coffee-goat sync --source youtube` after updating registry names."
+      },
+      {
+        "symptom": "flavor-wheel shows mostly empty wheel sections",
+        "fix": "flavor-wheel needs at least 8 rated brews to populate the SCA wheel meaningfully. Personal brew-log CLI (`brews log`) is Phase 3 follow-up; for now seed via SQL: `INSERT INTO brews(bean_id, rating, descriptors_json) VALUES (...)`."
+      },
+      {
+        "symptom": "friend-pick says \"no palate profile found\"",
+        "fix": "Run `coffee-goat friend-pick palate-export \u003cyour-name\u003e --out you.json` on your machine and have your friend run the same; exchange JSONs and import via `coffee-goat friend-pick palate-import friend.json`."
+      }
+    ],
+    "when_to_use": "Use coffee-goat when an agent needs to compare or recommend specialty coffee across many roasters at once, when answering 'what should I drink next' or 'what should I buy next' from a user's logged cellar, when finding YouTube creator coverage of a specific bag in seconds instead of rewatching a 20-minute video, when matching champion recipes to currently-buyable beans, when mapping a user's palate onto the SCA flavor wheel, when picking a gift bag for a friend whose palate profile is imported, when finding cafes near a location, or when diagnosing whether a user's recent low ratings are bean quality or equipment drift. Do NOT use it for ordering — coffee-goat is read-only across upstream sources. Do NOT use it to find which beans a cafe serves — no public no-auth source links cafes to beans.",
+    "recipes": [
+      {
+        "title": "The God cup — one brew, one buy",
+        "command": "coffee-goat god-cup --method v60 --agent --select brew_pick.bean,brew_pick.score,brew_pick.rationale,buy_pick.product,buy_pick.roaster,buy_pick.rationale",
+        "explanation": "The eponymous command. Integrates shelf freshness, brew history, Coffee Review scores, and creator coverage into one brew-now pick and one buy-next pick. The --select narrows to the agent-relevant fields when the response is deep."
+      },
+      {
+        "title": "Did Hoffmann or Hedrick ever review this bag",
+        "command": "coffee-goat creator-review sey-banko-gotiti --agent --select results.creator,results.video_title,results.timestamp,results.transcript_excerpt",
+        "explanation": "Returns every clip that mentions the bag, with timestamp and a snippet — answers in 30 seconds what would otherwise be a 20-minute rewatch."
+      },
+      {
+        "title": "Restock alert across roasters",
+        "command": "coffee-goat watch save kenyas \"kenya\" --agent",
+        "explanation": "Save a cross-roaster query; on subsequent runs `coffee-goat watch run kenyas` emits only new matches since last sync."
+      },
+      {
+        "title": "Map your palate onto the SCA Flavor Wheel",
+        "command": "coffee-goat flavor-wheel --agent --select preferred,avoided,sparse_coverage",
+        "explanation": "Aggregates your rated brews against the official SCA Coffee Tasters Flavor Wheel hierarchy — shows which flavor families you actually like."
+      },
+      {
+        "title": "Recommend a bag for a friend whose palate you have",
+        "command": "coffee-goat friend-pick pick anne --from market --top 3 --agent",
+        "explanation": "Import a friend palate via `coffee-goat friend-pick palate-import friend.json`; pick recommends bags matching their descriptor signature, not yours."
+      }
+    ],
+    "trigger_phrases": [
+      "did hoffmann review this bag",
+      "any new ethiopian naturals",
+      "the god cup",
+      "find a bean like the one I loved",
+      "show me my flavor wheel",
+      "what flavors do I actually like",
+      "recommend a bag for my friend",
+      "use coffee-goat",
+      "run coffee-goat"
+    ]
+  }
+}

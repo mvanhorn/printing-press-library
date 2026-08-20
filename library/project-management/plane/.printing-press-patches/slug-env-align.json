@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "slug-env-align",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Source the workspace slug in the novel commands from PLANE_SLUG / Config.TemplateVars[\"slug\"] instead of the pre-reprint PLANE_WORKSPACE_SLUG / Config.WorkspaceSlug.",
+  "reason": "The reprinted client resolves the {slug} endpoint template var from PLANE_SLUG (internal/client/url.go) into Config.TemplateVars; aligning the hand-written commands to the same env var means one PLANE_SLUG drives both generated sync and the novel relations/module commands, so the auto-enrichment hook finds a slug during a wrapped sync.",
+  "files": [
+    "internal/cli/relations.go",
+    "internal/cli/modules_novel.go"
+  ],
+  "validated_outcome": "With PLANE_SLUG exported, the wrapped sync's module enrichment resolves the slug and fires; without the alignment it would silently no-op (the generated client uses PLANE_SLUG, not PLANE_WORKSPACE_SLUG)."
+}

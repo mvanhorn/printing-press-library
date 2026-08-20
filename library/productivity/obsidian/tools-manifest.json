@@ -1,0 +1,13 @@
+{
+  "api_name": "obsidian",
+  "base_url": "subprocess://obsidian",
+  "description": "Read-only Obsidian vault analytics CLI wrapping the official `obsidian` binary (v1.12+) via subprocess, with a local SQLite mirror for offline compound analytics.",
+  "mcp_ready": "full",
+  "http_transport": "subprocess",
+  "auth": {
+    "type": "none",
+    "env_vars": []
+  },
+  "required_headers": [],
+  "tools": []
+}

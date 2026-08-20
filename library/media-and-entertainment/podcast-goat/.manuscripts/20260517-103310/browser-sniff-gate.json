@@ -1,0 +1,115 @@
+{
+  "run_id": "20260517-103310",
+  "sources": [
+    {
+      "source_name": "member.huberman",
+      "decision": "pre-approved",
+      "reason": "User brief explicitly names Supercast cookie via `auth login --chrome --service huberman` as source #1; pre-approves capturing authenticated transcript HTML; Chrome attach is the documented mechanism.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "cookie",
+      "primary_host": "www.hubermanlab.com",
+      "transcript_runtime": "browser-sniffed authenticated HTML, replayable via stored cookie + direct HTTP",
+      "notes": "Live capture deferred to first `auth login --chrome --service huberman` invocation; HTML shape captured from member-rendered Supercast template at that time."
+    },
+    {
+      "source_name": "member.acquired",
+      "decision": "pre-approved",
+      "reason": "User brief names Memberstack cookie via `auth login --chrome --service acquired` as source #2. Public episode page confirmed Webflow with member-gated transcript rich-text (CSS classes `transcript .episode-rich-text`, `display-none w-condition-invisible`).",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "cookie",
+      "primary_host": "www.acquired.fm",
+      "transcript_runtime": "browser-sniffed authenticated HTML, replayable via stored cookie",
+      "notes": "Webflow rich-text with H3 chapter markers; live capture at auth login time."
+    },
+    {
+      "source_name": "member.founders",
+      "decision": "pre-approved",
+      "reason": "User brief names founderspodcast.com member cookie as source #3.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "cookie",
+      "primary_host": "www.founderspodcast.com",
+      "transcript_runtime": "browser-sniffed authenticated HTML, replayable via stored cookie",
+      "notes": "Founders is David Senra's solo show; transcripts are typically the show's deep-research summaries. Live capture at auth login time."
+    },
+    {
+      "source_name": "member.peterattia",
+      "decision": "pre-approved",
+      "reason": "User brief names peterattiamd.com member cookie as source #4 for show-notes + transcript HTML.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "cookie",
+      "primary_host": "peterattiamd.com",
+      "transcript_runtime": "browser-sniffed authenticated HTML, replayable via stored cookie",
+      "notes": "Premium subscriber content; live capture at auth login time."
+    },
+    {
+      "source_name": "dwarkesh",
+      "decision": "approved",
+      "reason": "User brief names dwarkesh.com Substack `/p/<slug>` as primary free path #5. Verified via direct curl 2026-05-17: 200 OK, 693KB HTML, inline `<strong>Andrej Karpathy</strong>` / `<strong>Dwarkesh Patel</strong>` speaker labels, 9 H2 section markers with `(HH:MM:SS)` timestamps. No bot protection. RSS feed at /feed has 20 items, no podcast:transcript tags (transcript ships inline in /p/ HTML).",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "none",
+      "primary_host": "www.dwarkesh.com",
+      "transcript_runtime": "direct HTTP, replayable",
+      "notes": "Substack-hosted; inline `<strong>Speaker</strong>` labels with H2 timestamps. HTML scrape via Surf-compatible direct HTTP, no challenge."
+    },
+    {
+      "source_name": "rss",
+      "decision": "approved",
+      "reason": "User brief names Podcasting 2.0 `<podcast:transcript>` namespace tag as source #6. Spec verified at podcasting2.org: required attributes url+type, MIME types text/vtt, application/x-subrip, text/html, application/json, text/plain. Probed two reference feeds (Dwarkesh and Huberman public RSS) \u2014 neither advertises podcast:transcript (Huberman has no podcast: namespace at all, Dwarkesh has 20 items with 0 transcript tags). Source remains valuable for the long-tail indie podcasts that do advertise transcripts.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "none",
+      "primary_host": "*",
+      "transcript_runtime": "direct HTTP fetch of transcript URL from RSS, MIME-routed parser",
+      "notes": "Coverage for the 6 target shows is low (most don't advertise it); but source is cheap to implement and high-leverage for shows that do."
+    },
+    {
+      "source_name": "youtube",
+      "decision": "approved",
+      "reason": "User brief names yt-dlp subprocess as source #7 with `--write-auto-subs --sub-langs zh-Hans,en --skip-download` for Xiaojun Chinese + auto-translate. yt-dlp 2026.03.17 confirmed installed locally. Pattern is production-tested via last30days-skill/scripts/lib/youtube_yt.py (per `reference_remotion_mastery_workspace` / `last30days-skill` memory).",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "none",
+      "primary_host": "youtube.com",
+      "transcript_runtime": "yt-dlp subprocess, parse VTT auto-subs",
+      "notes": "Covers Xiaojun (zh-Hans + en translate), Huberman free path (every episode on YouTube), Acquired free path, generic YouTube. Subprocess install required on user machine; doctor command must check."
+    },
+    {
+      "source_name": "spotify",
+      "decision": "approved",
+      "reason": "User added mid-run 2026-05-17. Spotify Premium ($11.99/mo) covers most non-member podcast content via auto-generated transcripts. Web app fetches transcripts via internal endpoint (~spclient.wg.spotify.com/transcript-read-along) using user's logged-in cookie + derived Bearer token. ToS-grey but user-side risk only (mirrors the 4 member publishers).",
+      "asked_at": "2026-05-17T17:55:00Z",
+      "auth_mode": "cookie",
+      "primary_host": "open.spotify.com",
+      "transcript_runtime": "Spotify Premium cookie capture (via `auth login --chrome --service spotify`) + replay against internal transcript endpoint",
+      "notes": "v0.1 ships the metadata slot, dispatcher route, and `auth login` integration; the HTML/JSON transcript parser ships in v0.2 because the endpoint shape requires first-time capture from a Premium-subscriber session. The endpoint has been refactored historically and is less stable than Substack HTML; we'll calibrate the parser against captured traffic. Expected coverage uplift: ~3-4 of the 6 target shows move from 'partial' to 'covered' for FREE episodes once Spotify is implemented."
+    },
+    {
+      "source_name": "spoken",
+      "decision": "approved",
+      "reason": "User brief names spoken.md as paid universal path #8. Full API contract verified 2026-05-17 via spoken.md/: `GET https://spoken.md/search?q=`, `GET https://spoken.md/transcripts/{id}`, `x-api-key: pt_demo` demo key works without signup, Content-Type text/markdown, X-Credits-Charged + X-Credits-Remaining headers, output uses canonical `**Speaker** (MM:SS)` markdown. Pricing $0.08-0.15/transcript.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "api_key",
+      "primary_host": "spoken.md",
+      "transcript_runtime": "direct HTTP, returns canonical markdown \u2014 no normalization needed",
+      "notes": "Smallest+highest-leverage paid adapter. Demo key reaches public episodes; production key for power user."
+    },
+    {
+      "source_name": "taddy",
+      "decision": "approved",
+      "reason": "User brief names Taddy GraphQL bulk path as source #9. Endpoint shape verified via taddy.org/developers: GraphQL, X-USER-ID + X-API-KEY headers, `getEpisodeTranscript(uuid)` returns `[{id, text, speaker, startTimecode, endTimecode}]`. Free tier covers podcast-provided transcripts only (<1% of podcasts); paid tier Pro $40/mo for 100 transcripts.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "api_key",
+      "primary_host": "api.taddy.org",
+      "transcript_runtime": "direct HTTP GraphQL POST",
+      "notes": "Lower priority than spoken.md but valuable for bulk feed-sync use cases."
+    },
+    {
+      "source_name": "whisperapi",
+      "decision": "approved",
+      "reason": "User brief names per-minute audio transcription #10 via OpenAI / Deepgram / ElevenLabs (ElevenLabs Scribe preferred for diarization + $0.004/min). Provider-pluggable. Last-resort fallback when no other source has the transcript.",
+      "asked_at": "2026-05-17T17:33:30Z",
+      "auth_mode": "api_key",
+      "primary_host": "api.openai.com|api.deepgram.com|api.elevenlabs.io",
+      "transcript_runtime": "yt-dlp audio extract -> provider upload -> diarized transcript",
+      "notes": "Highest cost; behind --provider whisper or --auto-paid. No keys set on this machine currently \u2014 Phase 5 will smoke this only if user provides one."
+    }
+  ]
+}

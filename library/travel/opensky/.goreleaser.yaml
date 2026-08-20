@@ -1,0 +1,51 @@
+version: 2
+project_name: opensky-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: opensky-pp-cli
+    main: ./cmd/opensky-pp-cli
+    binary: opensky-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X opensky-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: opensky-pp-mcp
+    main: ./cmd/opensky-pp-mcp
+    binary: opensky-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: opensky-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/opensky-pp-cli"
+    description: "Public OpenSky Network API (https://opensky-network.org/api)."
+    install: |
+      bin.install "opensky-pp-cli"
+      bin.install "opensky-pp-mcp"

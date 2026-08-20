@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "novel-workspaces",
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Make workspace targeting a first-class, separately-configured axis: a persistent --workspace/-w flag (top precedence), a persisted default_workspace + [[workspaces]] registry in config, hand-written init + workspaces add|use|list|current onboarding commands with an access probe, and a doctor nudge (no-workspace INFO + literal-slug base_url WARN migration).",
+  "reason": "Plane's public REST API is strictly workspace-scoped and cannot enumerate a user's workspaces by API key (/api/v1/workspaces/ -> 404; the app's /api/users/me/workspaces/ rejects the key), so the slug is user-supplied. The reprinted client resolves the {slug} base-URL template var from PLANE_SLUG via Config.TemplateVars (see slug-env-align). Before this patch, a published install with a literal-slug base_url silently returned the wrong workspace; the flag/registry/probe make the slug explicit and validated, so distinct slugs produce distinct, correct URLs out-of-the-box. Builds on slug-env-align (same PLANE_SLUG axis).",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/root.go",
+    "internal/cli/doctor.go",
+    "internal/cli/workspaces_novel.go"
+  ],
+  "patch_tags": [
+    "PATCH(workspace-registry) in internal/config/config.go: WorkspaceEntry type, DefaultWorkspace + Workspaces fields, three-way slug precedence (PLANE_SLUG env > default_workspace > my-workspace sentinel, env+default both normalized), public Save() wrapper over private save().",
+    "PATCH(workspace-flag) in internal/cli/root.go: rootFlags.workspace field, persistent --workspace/-w flag, override of TemplateVars[\"slug\"] in newClient() after client.New (client holds the cfg pointer).",
+    "PATCH(novel) in internal/cli/root.go: AddCommand(newInitCmd) + AddCommand(newWorkspacesCmd).",
+    "PATCH(workspace-nudge) in internal/cli/doctor.go: workspaceDoctorVerdict helper, report[\"workspace\"] wiring after the cache report, {\"workspace\",\"Workspace\"} checkKeys row, and a `case strings.HasPrefix(s,\"WARN\")` arm in the indicator switch so WARN-prefixed verdicts render as WARN (not the default OK)."
+  ],
+  "novel_files": [
+    "internal/cli/workspaces_novel.go",
+    "internal/cli/workspaces_novel_test.go",
+    "internal/cli/workspace_flag_test.go",
+    "internal/config/config_workspace_test.go",
+    "internal/cli/doctor_workspace_test.go"
+  ],
+  "validated_outcome": "go vet + full test suite green. Live against plane.bbm.academy with a templated base_url: dry-run --workspace bbm vs --workspace doctor-school emit distinct /workspaces/<slug>/ URLs (core regression fixed); `init --host https://plane.bbm.academy --workspace bbm --workspace doctor-school` probed both and enrolled them with distinct workspace UUIDs (bbm 827e2e7f..., doctor-school 03a696ba...), writing a templated base_url; `members --workspace bbm` returns bbm's member (Anton) while the default returns doctor-school's 6 members — no false positive; `workspaces use no-such-workspace` fails loudly (probe HTTP 403, exit 4); doctor shows a clean Workspace check on a templated config and a yellow WARN base_url migration line when PLANE_BASE_URL pins a literal slug. `workspaces list --agent` emits snake_case slug/id (WorkspaceEntry carries json tags).",
+  "deferred_to_upstream": [
+    {
+      "feature": "Self-hosted `workspaces discover --via-db` to enumerate a user's workspaces directly from the Plane Postgres instance.",
+      "reason": "The public API cannot list workspaces by key; only a DB-side query could enumerate them. Marked optional in the design spec and intentionally not implemented here — the slug stays user-supplied (from the browser URL)."
+    }
+  ]
+}

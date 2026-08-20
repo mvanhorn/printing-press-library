@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T17:09:55.484490075Z",
+  "printing_press_version": "4.18.0",
+  "api_name": "elezioni-sicilia",
+  "display_name": "Elezioni Sicilia",
+  "cli_name": "elezioni-sicilia-pp-cli",
+  "owner": "aborruso",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:8489e8dad50ac5dcc07ac81a7077a883915f507ab78e6c43f180f053e762bb62",
+  "run_id": "20260526-180400",
+  "category": "other",
+  "description": "Dati elettorali comunali siciliani da riga di comando — affluenza, candidati, liste, risultati in JSON o tabella.",
+  "mcp_binary": "elezioni-sicilia-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Confronto storico",
+      "command": "storico",
+      "description": "Confronta affluenza, voti e candidati di uno stesso comune in tutti gli anni disponibili (2009-2026)."
+    },
+    {
+      "name": "Riepilogo regionale",
+      "command": "riepilogo",
+      "description": "Mostra affluenza e stato scrutini per tutte le 9 province siciliane in un unico output strutturato."
+    },
+    {
+      "name": "Monitoraggio scrutini",
+      "command": "watch",
+      "description": "Polling periodico dello stato scrutini per tutti i comuni, con alert su avanzamento."
+    }
+  ]
+}

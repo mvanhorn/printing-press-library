@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T19:37:57.046072Z",
+  "printing_press_version": "4.18.0",
+  "api_name": "alltrails",
+  "display_name": "Alltrails Unofficial Seed",
+  "cli_name": "alltrails-pp-cli",
+  "creator": {
+    "handle": "zaydiscold",
+    "name": "zaydiscold"
+  },
+  "owner": "zaydiscold",
+  "printer": "zaydiscold",
+  "printer_name": "zaydiscold",
+  "spec_path": "alltrails-api-map.seed.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:540cf577e55e9d65b5ad9ecdba9c9f5dd773f994c8f3026d422dd64d997b512c",
+  "run_id": "20260526-193757",
+  "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract.",
+  "mcp_binary": "alltrails-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_or_cookie",
+  "auth_env_vars": [
+    "ALLTRAILS_ACCESS_TOKEN",
+    "ALLTRAILS_COOKIE",
+    "ALLTRAILS_CSRF_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Authenticated AllTrails browser and mobile route atlas",
+      "command": "alltrails list",
+      "description": "Expose evidence-labeled AllTrails trail, map, activity, account, community, and user route templates captured from authenticated browser/mobile surfaces rather than relying on a public API contract."
+    },
+    {
+      "name": "PP-gated AllTrails live-write planner",
+      "command": "alltrails create",
+      "description": "Model account-changing AllTrails requests with default dry-run behavior, explicit risk labels, and the ALLTRAILS_PP_ALLOW_WRITES=1 barrier before any PP-side live mutation."
+    },
+    {
+      "name": "Agent-readable AllTrails risk and auth surface",
+      "command": "agent-context",
+      "description": "Publish bearer/cookie auth requirements, MCP read/write risk metadata, and route annotations so agents can distinguish safe reads from live account mutations."
+    }
+  ]
+}

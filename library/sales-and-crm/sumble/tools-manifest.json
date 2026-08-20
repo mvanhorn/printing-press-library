@@ -1,0 +1,428 @@
+{
+  "api_name": "sumble",
+  "base_url": "https://api.sumble.com/v6",
+  "description": "Credit-aware Sumble v6 sales-intelligence CLI: technographics, people, jobs, with cost estimates, balance tracking, and a local cache so you never pay twice.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SUMBLE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUMBLE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "contact-lists_add",
+      "description": "Add people to a saved contact list by id (free). Required: list_id. Optional: person_ids. Returns the new ListAddResult.",
+      "method": "POST",
+      "path": "/contact-lists/{list_id}/people",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact list id",
+          "required": true
+        },
+        {
+          "name": "person_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sumble person ids to add"
+        }
+      ]
+    },
+    {
+      "name": "contact-lists_create",
+      "description": "Create a new contact list (free). Required: name. Returns the new ContactListSummary.",
+      "method": "POST",
+      "path": "/contact-lists",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-lists_get",
+      "description": "Get the people in a saved contact list (1 credit per person returned). Required: list_id. Returns array of Person.",
+      "method": "GET",
+      "path": "/contact-lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact list id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-lists_list",
+      "description": "List your saved contact lists (1 credit per list returned). Returns array of ContactListSummary.",
+      "method": "GET",
+      "path": "/contact-lists",
+      "params": []
+    },
+    {
+      "name": "organization-lists_add",
+      "description": "Add organizations to a saved list by id or slug (free). Required: list_id. Optional: organization_ids, organization_slugs. Returns the new ListAddResult.",
+      "method": "POST",
+      "path": "/organization-lists/{list_id}/organizations",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization list id",
+          "required": true
+        },
+        {
+          "name": "organization_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sumble organization ids to add"
+        },
+        {
+          "name": "organization_slugs",
+          "type": "array",
+          "location": "body",
+          "description": "Sumble organization slugs to add"
+        }
+      ]
+    },
+    {
+      "name": "organization-lists_create",
+      "description": "Create a new organization list (free). Required: name. Returns the new OrganizationListSummary.",
+      "method": "POST",
+      "path": "/organization-lists",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organization-lists_get",
+      "description": "Get the organizations in a saved list (1 credit per organization returned). Required: list_id. Returns array of Organization.",
+      "method": "GET",
+      "path": "/organization-lists/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization list id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organization-lists_list",
+      "description": "List your saved organization lists (1 credit per list returned). Returns array of OrganizationListSummary.",
+      "method": "GET",
+      "path": "/organization-lists",
+      "params": []
+    },
+    {
+      "name": "organizations_enrich",
+      "description": "Enrich one organization's technology stack with job/people/team signals (5 credits per technology found). Required: organization. Optional: filters. Returns array of EnrichedTechnology.",
+      "method": "POST",
+      "path": "/organizations/enrich",
+      "params": [
+        {
+          "name": "organization",
+          "type": "object",
+          "location": "body",
+          "description": "The organization to enrich — supply exactly one identifier",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Optional technology filters to scope the enrichment"
+        }
+      ]
+    },
+    {
+      "name": "organizations_find",
+      "description": "Find organizations matching technology/category/firmographic filters (5 credits per row returned). Required: filters. Optional: order_by_column, order_by_direction, include_entity_details (plus 2 more). Returns array of Organization.",
+      "method": "POST",
+      "path": "/organizations/find",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Match criteria — set technologies/categories/since for structured matching, or a natural-language query",
+          "required": true
+        },
+        {
+          "name": "order_by_column",
+          "type": "string",
+          "location": "body",
+          "description": "Sort column"
+        },
+        {
+          "name": "order_by_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction"
+        },
+        {
+          "name": "include_entity_details",
+          "type": "bool",
+          "location": "body",
+          "description": "Include matching tags/entities per row (raises per-row cost)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max organizations to return (1-200)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 10000)"
+        }
+      ]
+    },
+    {
+      "name": "organizations_intelligence-brief",
+      "description": "AI-generated intelligence brief for an organization (50 credits when complete; 202 while pending is free). Required: organization_id. Returns the IntelligenceBrief.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/intelligence-brief",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sumble organization id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_match",
+      "description": "Resolve up to 1000 company names/URLs/locations to Sumble organizations (1 credit per matched org; unmatched free). Required: organizations. Returns array of MatchResult.",
+      "method": "POST",
+      "path": "/organizations/match",
+      "params": [
+        {
+          "name": "organizations",
+          "type": "array",
+          "location": "body",
+          "description": "Companies to match, each {name,url,location}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_enrich",
+      "description": "Reveal a person's email (10 credits) and/or phone (80 credits); cached or unavailable reveals are free. Required: person_id. Optional: include_email, include_phone. Returns the new ContactInfo.",
+      "method": "POST",
+      "path": "/people/enrich",
+      "params": [
+        {
+          "name": "person_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sumble person id to enrich",
+          "required": true
+        },
+        {
+          "name": "include_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Reveal email addresses (10 credits on first reveal)"
+        },
+        {
+          "name": "include_phone",
+          "type": "bool",
+          "location": "body",
+          "description": "Reveal phone number (80 credits on first reveal)"
+        }
+      ]
+    },
+    {
+      "name": "people_find",
+      "description": "Find people at an organization by job function/level/country (1 credit per person). Required: organization, filters. Optional: limit, offset. Returns array of Person.",
+      "method": "POST",
+      "path": "/people/find",
+      "params": [
+        {
+          "name": "organization",
+          "type": "object",
+          "location": "body",
+          "description": "The organization to search within — supply exactly one identifier",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Persona criteria — structured facets or a natural-language query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max people to return (1-250)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 10000)"
+        }
+      ]
+    },
+    {
+      "name": "people_find-related-people",
+      "description": "Find people above/below a person in the org chart (1 credit per person). Required: person_id. Optional: limit, offset. Returns array of RelatedPerson.",
+      "method": "POST",
+      "path": "/people/find-related-people",
+      "params": [
+        {
+          "name": "person_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sumble person id to traverse from",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max related people (1-100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 10000)"
+        }
+      ]
+    },
+    {
+      "name": "postings_find",
+      "description": "Find job postings by technology/category/country (2 credits per job, 3 with descriptions). Required: filters. Optional: organization, include_descriptions, limit (plus 1 more). Returns array of Job.",
+      "method": "POST",
+      "path": "/jobs/find",
+      "params": [
+        {
+          "name": "organization",
+          "type": "object",
+          "location": "body",
+          "description": "Optional organization to scope the search — supply one identifier"
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Job match criteria — structured facets or a natural-language query",
+          "required": true
+        },
+        {
+          "name": "include_descriptions",
+          "type": "bool",
+          "location": "body",
+          "description": "Include full job descriptions (raises per-job cost to 3 credits)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max jobs to return (1-100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 10000)"
+        }
+      ]
+    },
+    {
+      "name": "postings_find-related-people",
+      "description": "Find people associated with a job posting (1 credit per person). Required: job_id. Optional: limit, offset. Returns array of Person.",
+      "method": "POST",
+      "path": "/jobs/find-related-people",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "body",
+          "description": "Job id to traverse from",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max people (1-100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (max 10000)"
+        }
+      ]
+    },
+    {
+      "name": "postings_get",
+      "description": "Get a single job posting with its full description (1 credit). Required: job_id. Returns the JobDetail.",
+      "method": "GET",
+      "path": "/jobs/{job_id}",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "technologies_find",
+      "description": "Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free). Required: query.",
+      "method": "POST",
+      "path": "/technologies/find",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Technology name to search for (e.g. kafka)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

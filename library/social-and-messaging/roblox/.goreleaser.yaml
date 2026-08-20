@@ -1,0 +1,51 @@
+version: 2
+project_name: roblox-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: roblox-pp-cli
+    main: ./cmd/roblox-pp-cli
+    binary: roblox-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: roblox-pp-mcp
+    main: ./cmd/roblox-pp-mcp
+    binary: roblox-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: roblox-pp-cli
+    repository:
+      owner: krmaynard
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Investigate Roblox's fragmented public web data from one agent-friendly CLI."
+    install: |
+      bin.install "roblox-pp-cli"
+      bin.install "roblox-pp-mcp"

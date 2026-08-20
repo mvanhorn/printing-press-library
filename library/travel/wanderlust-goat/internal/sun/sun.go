@@ -15,14 +15,14 @@ import (
 // Civil twilight is the standard "blue hour" boundary; golden hour starts
 // when the sun is 6° above the horizon descending in the evening or rising.
 type Times struct {
-	Sunrise          time.Time `json:"sunrise"`
-	Sunset           time.Time `json:"sunset"`
-	GoldenHourMorn   Window    `json:"golden_hour_morning"`
-	GoldenHourEve    Window    `json:"golden_hour_evening"`
-	BlueHourMorn     Window    `json:"blue_hour_morning"`
-	BlueHourEve      Window    `json:"blue_hour_evening"`
-	CivilDawn        time.Time `json:"civil_dawn"`
-	CivilDusk        time.Time `json:"civil_dusk"`
+	Sunrise        time.Time `json:"sunrise"`
+	Sunset         time.Time `json:"sunset"`
+	GoldenHourMorn Window    `json:"golden_hour_morning"`
+	GoldenHourEve  Window    `json:"golden_hour_evening"`
+	BlueHourMorn   Window    `json:"blue_hour_morning"`
+	BlueHourEve    Window    `json:"blue_hour_evening"`
+	CivilDawn      time.Time `json:"civil_dawn"`
+	CivilDusk      time.Time `json:"civil_dusk"`
 }
 
 // Window represents an open interval [Start, End].

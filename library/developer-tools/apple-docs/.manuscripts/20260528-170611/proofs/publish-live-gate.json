@@ -1,0 +1,1030 @@
+{
+  "dir": "/Users/jamcastr/printing-press/library/apple-docs",
+  "binary": "/Users/jamcastr/printing-press/library/apple-docs/apple-docs-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 61,
+  "passed": 61,
+  "failed": 0,
+  "skipped": 48,
+  "commands": [
+    "analytics",
+    "api",
+    "bundle",
+    "conformance",
+    "deprecation-cliff",
+    "doc get",
+    "doctor",
+    "feedback list",
+    "grep",
+    "import",
+    "index",
+    "port-to",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "snapshot diff",
+    "snapshot list",
+    "snapshot save",
+    "sync",
+    "tail",
+    "technologies",
+    "which",
+    "workflow archive",
+    "workflow status",
+    "wwdc symbols"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  apple-docs-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  apple-docs-pp-cli analytics --type messages\n\n  # Group by a field\n  apple-docs-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  apple-docs-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'apple-docs-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'apple-docs-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  apple-docs-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  apple-docs-pp-cli api\n\n  # Show methods for a specific interface\n  apple-docs-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'apple-docs-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bundle",
+      "kind": "help",
+      "args": [
+        "bundle",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Bundle a symbol's Markdown plus the Markdown of its depth-N See-Also references\ninto a single token-budgeted blob, ready to paste into an agent prompt.\n\nUse this command to get a self-contained Markdown context blob about a symbol\nplus its closest relatives, without doing N round-trips and N JSON parses.\n\nDo NOT use it for a single doc page; use 'doc get --markdown' instead. Do NOT\nuse it for sample-code projects; use 'sample-code list' instead.\n\nToken budget is approximated as chars/4. Pages whose render would push the\ntotal over --max-tokens are truncated, not silently dropped — the bundle stays\ndeterministic at any budget.\n\nUsage:\n  apple-docs-pp-cli bundle \u003csymbol\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli bundle swiftui/view/onappear --depth 1 --max-tokens 4000\n  apple-docs-pp-cli bundle foundation/url --depth 0 --max-tokens 2000\n\nFlags:\n      --depth int        How many hops of See-Also references to include (0..3) (default 1)\n  -h, --help             help for bundle\n      --max-tokens int   Approximate token budget (chars / 4); blob is truncated to fit (default 4000)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bundle",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [bundle] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "bundle",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [bundle] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "bundle",
+      "kind": "error_path",
+      "args": [
+        "bundle",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /tutorials/data/documentation/__printing_press_invalid__.json returned HTTP 404: \u003c!doctype html\u003e\u003chtml lang=\"en-US\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"\u003e\u003clink rel=\"icon\" href=\"/favicon.ico\"\u003e\u003clink rel=\"mask-icon\" href=\"/apple-logo.svg\" color=\"#333333\"\u003e\u003ctitle\u003eApple Developer Documentation\u003c/title\u003e\u003cscript\u003evar baseUrl = \"/tutorials/\"\u003c/script\u003e\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?families=SF+Pro,v3|SF+Mono,v1|SF+Pro+SC,v1|SF+Pro+JP,v1\" referrerpolicy=\"origin-when-cross-origin\"\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-vendors.c4b944f1.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-common.57e56870.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/index.6a35c2df.js\"\u003e\u003c/script\u003e\u003clink href=\"/tutorials/css/chunk-vendors.9385f3c3.css\" rel=\"stylesheet\"\u003e\u003clink href=\"/tutorials/css/index.6a972d82.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody data-color-scheme=\"auto\"\u003e\u003cdiv id=\"_omniture_top\"\u003e\u003cscript\u003evar s_account=\"awdappledeveloper\"\u003c/script\u003e\u003cscript src=\"/tutorials/js/analytics.js\"\u003e\u003c/script\u003e\u003c/div\u003e\u003cnoscript\u003e\u003cstyle\u003e.noscript{font-family:\"SF Pro Display\",\"SF Pro Icons\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:92px auto 140px auto;text-align:center;width:980px}.noscript-title{color:#111;font-size:48px;font-weight:600;letter-spacing:-.003em;line-height:1.08365;margin:0 auto 54px auto;width:502px}@media only screen and (max-width:1068px){.noscript{margin:90px auto 120px auto;width:692px}.noscript-title{font-size:40px;letter-spacing:0;line-height:1.1;margin:0 auto 45px auto;width:420px}}@media only screen and (max-width:735px){.noscript{margin:45px auto 60px auto;width:87.5%}.noscript-title{font-size:32px;letter-spacing:.004em;line-height:1.125;margin:0 auto 35px auto;max-width:330px;width:auto}}#loading-placeholder{display:none}\u003c/style\u003e\u003cdiv class=\"noscript\"\u003e\u003ch1 class=\"noscript-title\"\u003eThis page requires JavaScript.\u003c/h1\u003e\u003cp\u003ePlease turn on JavaScript in your browser and refresh the page to view its content.\u003c/p\u003e\u003c/div\u003e\u003c/noscript\u003e\u003cdiv id=\"app\"\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "help",
+      "args": [
+        "conformance",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For a protocol, return the concrete types that conform to it and the protocols\nit itself inherits from, by parsing the relationshipsSections block on the\nprotocol's DocC page.\n\nIf only the protocol slug is given (e.g. 'View'), --framework must be set so\nthe path can be resolved (e.g. swiftui/view).\n\nThe result is a structured list — kimsungwhee's get_related_apis returns\nuntyped See-Also; this returns typed conformsTo / inheritsFrom rows.\n\nUsage:\n  apple-docs-pp-cli conformance \u003cprotocol\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli conformance View --framework swiftui --agent\n  apple-docs-pp-cli conformance swiftui/animatable --json\n\nFlags:\n      --framework string   Framework slug; required when \u003cprotocol\u003e is a bare name (e.g. 'View')\n  -h, --help               help for conformance\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [conformance] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "conformance",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [conformance] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "conformance",
+      "kind": "error_path",
+      "args": [
+        "conformance",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  apple-docs-pp-cli conformance \u003cprotocol\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli conformance View --framework swiftui --agent\n  apple-docs-pp-cli conformance swiftui/animatable --json\n\nFlags:\n      --framework string   Framework slug; required when \u003cprotocol\u003e is a bare name (e.g. 'View')\n  -h, --help               help for conformance\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: --framework is required when \u003cprotocol\u003e is a bare slug\n"
+    },
+    {
+      "command": "deprecation-cliff",
+      "kind": "help",
+      "args": [
+        "deprecation-cliff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List every Apple API marked deprecated in a framework, optionally narrowed to a\nspecific platform version.\n\nWithout --version:  one HTTP call per --framework. Walks the framework index\n                    and lists every symbol with deprecated=true. Fast.\nWith --version:     additionally fetches each deprecated symbol's full doc page\n                    to read metadata.platforms[].deprecatedAt, and keeps only\n                    those whose deprecation version matches. Bounded by\n                    --max-fetches (default 100).\n\nUse this command for 'every symbol Apple deprecated in version N of platform\nX'. Do NOT use it for diffing two arbitrary snapshots; use 'snapshot diff'\ninstead. Do NOT use it to find a per-symbol replacement; use 'port-to' instead.\n\nUsage:\n  apple-docs-pp-cli deprecation-cliff [flags]\n\nExamples:\n  apple-docs-pp-cli deprecation-cliff --framework swiftui --agent\n  apple-docs-pp-cli deprecation-cliff --framework uikit --os iOS --version 18 --max-fetches 50\n\nFlags:\n      --framework string   Framework slug to scan (required)\n  -h, --help               help for deprecation-cliff\n      --limit int          Maximum results to return (0 = unlimited)\n      --max-fetches int    Max per-symbol page fetches when --version is set (bounded for cost) (default 100)\n      --os string          Platform name: iOS, macOS, watchOS, tvOS, visionOS. Required with --version.\n      --version string     Deprecation version (e.g. '18.0'). Required with --os; fetches per-symbol pages to verify.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deprecation-cliff",
+      "kind": "happy_path",
+      "args": [
+        "deprecation-cliff",
+        "--framework",
+        "swiftui",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"by_kind\":{\"case\":15,\"enum\":2,\"init\":75,\"method\":93,\"op\":1,\"property\":25,\"protocol\":3,\"struct\":22,\"subscript\":2,\"typealias\":2},\"framework\":\"swiftui\",\"index_deprecated_count\":240,\"match_count\":240,\"symbols\":[{\"path\":\"/documentation/swiftui/scene/onchange(of:perform:)\",\"title\":\"func onChange\\u003cV\\u003e(of: V, perform: (V) -\\u003e Void) -\\u003e some Scene\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/windowgroup/init(content:)\",\"title\":\"init(content: () -\\u003e Content)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(_:content:)\",\"title\":\"init(_:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(id:content:)\",\"title\":\"init(id: String, content: () -\\u003e Content)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(_:id:content:)\",\"title\":\"init(_:id:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowplacement/position/replacing(_:)\",\"title\":\"static func replacing(WindowProxy) -\\u003e WindowPlacement.Position\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/controlactivestate\",\"title\":\"ControlActiveState\",\"type\":\"enum\"},{\"path\":\"/documentation/swiftui/controlactivestate/key\",\"title\":\"case key\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/controlactivestate/active\",\"title\":\"case active\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/controlactivestate/inactive\",\"title\":\"case inactive\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/immersivespace/init(id:content:)\",\"title\":\"init(id:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:isactive:destination:)\",\"title\":\"init(_:isActive:destination:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(isactive:destination:label:)\",\"title\":\"init(isActive: Binding\\u003cBool\\u003e, destination: () -\\u003e Destination, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:tag:selection:destination:)\",\"title\":\"init(_:tag:selection:destination:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(tag:selection:destination:label:)\",\"title\":\"init\\u003cV\\u003e(tag: V, selection: Binding\\u003cV?\\u003e, destination: () -\\u003e Destination, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:isactive:label:)\",\"title\":\"init(destinationName: String, isActive: Binding\\u003cBool\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:tag:selection:label:)\",\"title\":\"init\\u003cV\\u003e(destinationName: String, tag: V, selection: Binding\\u003cV?\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:label:)\",\"title\":\"init(destinationName: String, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:destination:isactive:)\",\"title\":\"init(_:destination:isActive:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destination:isactive:label:)\",\"title\":\"init(destination: Destination, isActive: Binding\\u003cBool\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:destination:tag:selection:)\",\"title\":\"init(_:destination:tag:selection:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destination:tag:selection:label:)\",\"title\":\"init\\u003cV\\u003e(destination: Destination, tag: V, selection: Binding\\u003cV?\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/resetsectionorder(for:)\",\"title\":\"func resetSectionOrder(for: String)\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/subscript(sectionid:)\",\"title\":\"subscript(sectionID _: String) -\\u003e [String]?\",\"type\":\"subscript\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/subscript(sidebarvisibility:)\",\"title\":\"subscript(sidebarVisibility _: String) -\\u003e Visibility\",\"type\":\"subscript\"},{\"path\":\"/documentation/swiftui/navigationview\",\"title\":\"NavigationView\",\"type\":\"struct\"},{\"path\":\"/documentation/swiftui/navig…[truncated]"
+    },
+    {
+      "command": "deprecation-cliff",
+      "kind": "json_fidelity",
+      "args": [
+        "deprecation-cliff",
+        "--framework",
+        "swiftui",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"by_kind\":{\"case\":15,\"enum\":2,\"init\":75,\"method\":93,\"op\":1,\"property\":25,\"protocol\":3,\"struct\":22,\"subscript\":2,\"typealias\":2},\"framework\":\"swiftui\",\"index_deprecated_count\":240,\"match_count\":240,\"symbols\":[{\"path\":\"/documentation/swiftui/scene/onchange(of:perform:)\",\"title\":\"func onChange\\u003cV\\u003e(of: V, perform: (V) -\\u003e Void) -\\u003e some Scene\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/windowgroup/init(content:)\",\"title\":\"init(content: () -\\u003e Content)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(_:content:)\",\"title\":\"init(_:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(id:content:)\",\"title\":\"init(id: String, content: () -\\u003e Content)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowgroup/init(_:id:content:)\",\"title\":\"init(_:id:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/windowplacement/position/replacing(_:)\",\"title\":\"static func replacing(WindowProxy) -\\u003e WindowPlacement.Position\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/controlactivestate\",\"title\":\"ControlActiveState\",\"type\":\"enum\"},{\"path\":\"/documentation/swiftui/controlactivestate/key\",\"title\":\"case key\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/controlactivestate/active\",\"title\":\"case active\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/controlactivestate/inactive\",\"title\":\"case inactive\",\"type\":\"case\"},{\"path\":\"/documentation/swiftui/immersivespace/init(id:content:)\",\"title\":\"init(id:content:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:isactive:destination:)\",\"title\":\"init(_:isActive:destination:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(isactive:destination:label:)\",\"title\":\"init(isActive: Binding\\u003cBool\\u003e, destination: () -\\u003e Destination, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:tag:selection:destination:)\",\"title\":\"init(_:tag:selection:destination:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(tag:selection:destination:label:)\",\"title\":\"init\\u003cV\\u003e(tag: V, selection: Binding\\u003cV?\\u003e, destination: () -\\u003e Destination, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:isactive:label:)\",\"title\":\"init(destinationName: String, isActive: Binding\\u003cBool\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:tag:selection:label:)\",\"title\":\"init\\u003cV\\u003e(destinationName: String, tag: V, selection: Binding\\u003cV?\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destinationname:label:)\",\"title\":\"init(destinationName: String, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:destination:isactive:)\",\"title\":\"init(_:destination:isActive:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destination:isactive:label:)\",\"title\":\"init(destination: Destination, isActive: Binding\\u003cBool\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(_:destination:tag:selection:)\",\"title\":\"init(_:destination:tag:selection:)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/navigationlink/init(destination:tag:selection:label:)\",\"title\":\"init\\u003cV\\u003e(destination: Destination, tag: V, selection: Binding\\u003cV?\\u003e, label: () -\\u003e Label)\",\"type\":\"init\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/resetsectionorder(for:)\",\"title\":\"func resetSectionOrder(for: String)\",\"type\":\"method\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/subscript(sectionid:)\",\"title\":\"subscript(sectionID _: String) -\\u003e [String]?\",\"type\":\"subscript\"},{\"path\":\"/documentation/swiftui/tabviewcustomization/subscript(sidebarvisibility:)\",\"title\":\"subscript(sidebarVisibility _: String) -\\u003e Visibility\",\"type\":\"subscript\"},{\"path\":\"/documentation/swiftui/navigationview\",\"title\":\"NavigationView\",\"type\":\"struct\"},{\"path\":\"/documentation/swiftui/navig…[truncated]"
+    },
+    {
+      "command": "deprecation-cliff",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doc get",
+      "kind": "help",
+      "args": [
+        "doc",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a documentation page by path and return it in the format your tool\nactually wants.\n\nThe path is the lowercase-slashed identifier under /documentation/, e.g.\n'swiftui', 'swiftui/view', or 'swiftui/view/onappear(perform:)'.\n\nOutput modes (mutually exclusive):\n  --shape abstract    just title + abstract + identifier\n  --shape signature   title + abstract + identifier + declaration\n  --shape platforms   title + identifier + per-platform availability\n  --shape min         all four of the above\n  --markdown          full doc rendered as Markdown (sosumi-style)\n  (default)           full raw DocC JSON\n\nUse this command when an agent needs the minimal viable doc payload (abstract,\nsignature, platforms, or all three). Do NOT use it for the full rendered doc\npage; pass --shape min for a compact summary or 'bundle' for a multi-page\ncontext blob.\n\nUsage:\n  apple-docs-pp-cli doc get \u003cpath\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli doc get swiftui/view --shape signature --agent\n  apple-docs-pp-cli doc get foundation/url/init(string:) --shape min --json\n  apple-docs-pp-cli doc get uikit/uiview --markdown\n\nFlags:\n  -h, --help           help for get\n      --markdown       Render the doc as Markdown instead of JSON\n      --shape string   Project the doc page to a subset of fields: abstract|signature|platforms|min\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doc get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"path\" at depth 0"
+    },
+    {
+      "command": "doc get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"path\" at depth 0"
+    },
+    {
+      "command": "doc get",
+      "kind": "error_path",
+      "args": [
+        "doc",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /tutorials/data/documentation/__printing_press_invalid__.json returned HTTP 404: \u003c!doctype html\u003e\u003chtml lang=\"en-US\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"\u003e\u003clink rel=\"icon\" href=\"/favicon.ico\"\u003e\u003clink rel=\"mask-icon\" href=\"/apple-logo.svg\" color=\"#333333\"\u003e\u003ctitle\u003eApple Developer Documentation\u003c/title\u003e\u003cscript\u003evar baseUrl = \"/tutorials/\"\u003c/script\u003e\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?families=SF+Pro,v3|SF+Mono,v1|SF+Pro+SC,v1|SF+Pro+JP,v1\" referrerpolicy=\"origin-when-cross-origin\"\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-vendors.c4b944f1.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-common.57e56870.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/index.6a35c2df.js\"\u003e\u003c/script\u003e\u003clink href=\"/tutorials/css/chunk-vendors.9385f3c3.css\" rel=\"stylesheet\"\u003e\u003clink href=\"/tutorials/css/index.6a972d82.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody data-color-scheme=\"auto\"\u003e\u003cdiv id=\"_omniture_top\"\u003e\u003cscript\u003evar s_account=\"awdappledeveloper\"\u003c/script\u003e\u003cscript src=\"/tutorials/js/analytics.js\"\u003e\u003c/script\u003e\u003c/div\u003e\u003cnoscript\u003e\u003cstyle\u003e.noscript{font-family:\"SF Pro Display\",\"SF Pro Icons\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:92px auto 140px auto;text-align:center;width:980px}.noscript-title{color:#111;font-size:48px;font-weight:600;letter-spacing:-.003em;line-height:1.08365;margin:0 auto 54px auto;width:502px}@media only screen and (max-width:1068px){.noscript{margin:90px auto 120px auto;width:692px}.noscript-title{font-size:40px;letter-spacing:0;line-height:1.1;margin:0 auto 45px auto;width:420px}}@media only screen and (max-width:735px){.noscript{margin:45px auto 60px auto;width:87.5%}.noscript-title{font-size:32px;letter-spacing:.004em;line-height:1.125;margin:0 auto 35px auto;max-width:330px;width:auto}}#loading-placeholder{display:none}\u003c/style\u003e\u003cdiv class=\"noscript\"\u003e\u003ch1 class=\"noscript-title\"\u003eThis page requires JavaScript.\u003c/h1\u003e\u003cp\u003ePlease turn on JavaScript in your browser and refresh the page to view its content.\u003c/p\u003e\u003c/div\u003e\u003c/noscript\u003e\u003cdiv id=\"app\"\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  apple-docs-pp-cli doctor [flags]\n\nExamples:\n  apple-docs-pp-cli doctor\n  apple-docs-pp-cli doctor --json\n  apple-docs-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.config/apple-docs-pp-cli/config.toml\n  base_url: https://developer.apple.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.local/share/apple-docs-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 65536\n    stale_after: 168h0m0s\n    hint: sync_state is empty; run 'apple-docs-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://developer.apple.com\",\n  \"cache\": {\n    \"db_bytes\": 65536,\n    \"db_path\": \"/var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.local/share/apple-docs-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'apple-docs-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"168h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.config/apple-docs-pp-cli/config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  apple-docs-pp-cli feedback list [flags]\n\nExamples:\n  apple-docs-pp-cli feedback list\n  apple-docs-pp-cli feedback list --limit 5\n  apple-docs-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "grep",
+      "kind": "help",
+      "args": [
+        "grep",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search for symbol titles or paths matching a regex pattern across one or more\nApple framework indexes, with optional filters on:\n  --kind \u003ckind\u003e             keep only symbols whose index type matches (e.g.\n                            'method', 'protocol', 'struct', 'init', 'class',\n                            'instanceMethod', 'typeMethod', 'macro').\n  --has-platform \u003cname\u003e     keep only symbols whose path is in a framework that\n                            ships on the named platform. (Soft filter — Apple's\n                            index doesn't carry per-symbol platforms; this\n                            applies at the framework level.)\n  --deprecated              keep only symbols marked deprecated.\n  --framework \u003cslug\u003e        limit the scan to one framework slug (faster).\n\nUse this command to find symbols matching a pattern across every synced\nframework, with kind/platform/deprecation filters. Do NOT use it for plain\nkeyword search of doc titles and abstracts; use 'search' instead.\n\nUsage:\n  apple-docs-pp-cli grep \u003cpattern\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli grep '^on[A-Z]' --kind method --framework swiftui\n  apple-docs-pp-cli grep '@Observable' --kind macro --framework swiftui --agent\n  apple-docs-pp-cli grep '(?i)tableview' --framework uikit --deprecated\n\nFlags:\n      --deprecated                Match only symbols marked deprecated in the index\n      --framework string          Limit scan to one framework slug (faster); default scans a curated set\n      --has-platform string       Soft framework-level platform filter (visionOS, macOS, iOS, watchOS, tvOS)\n  -h, --help                      help for grep\n      --kind string               Filter by index type: method, protocol, struct, init, class, instanceMethod, typeMethod, macro, ...\n      --limit int                 Maximum matches to return (default 100)\n      --max-scan-frameworks int   Maximum framework indexes to download when --framework is not set (default 4)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "grep",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [grep] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "grep",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [grep] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "grep",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  apple-docs-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  apple-docs-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  apple-docs-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | apple-docs-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "index",
+      "kind": "help",
+      "args": [
+        "index",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a framework's full hierarchical index. Useful for offline FTS sync. Indexes are large (500KB–2MB).\n\nUsage:\n  apple-docs-pp-cli index \u003cframework\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli index example-value\n\nFlags:\n  -h, --help   help for index\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "index",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [index] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "index",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [index] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "index",
+      "kind": "error_path",
+      "args": [
+        "index",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /tutorials/data/index/__printing_press_invalid__.json returned HTTP 404: \u003c!doctype html\u003e\u003chtml lang=\"en-US\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"\u003e\u003clink rel=\"icon\" href=\"/favicon.ico\"\u003e\u003clink rel=\"mask-icon\" href=\"/apple-logo.svg\" color=\"#333333\"\u003e\u003ctitle\u003eApple Developer Documentation\u003c/title\u003e\u003cscript\u003evar baseUrl = \"/tutorials/\"\u003c/script\u003e\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?families=SF+Pro,v3|SF+Mono,v1|SF+Pro+SC,v1|SF+Pro+JP,v1\" referrerpolicy=\"origin-when-cross-origin\"\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-vendors.c4b944f1.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-common.57e56870.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/index.6a35c2df.js\"\u003e\u003c/script\u003e\u003clink href=\"/tutorials/css/chunk-vendors.9385f3c3.css\" rel=\"stylesheet\"\u003e\u003clink href=\"/tutorials/css/index.6a972d82.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody data-color-scheme=\"auto\"\u003e\u003cdiv id=\"_omniture_top\"\u003e\u003cscript\u003evar s_account=\"awdappledeveloper\"\u003c/script\u003e\u003cscript src=\"/tutorials/js/analytics.js\"\u003e\u003c/script\u003e\u003c/div\u003e\u003cnoscript\u003e\u003cstyle\u003e.noscript{font-family:\"SF Pro Display\",\"SF Pro Icons\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:92px auto 140px auto;text-align:center;width:980px}.noscript-title{color:#111;font-size:48px;font-weight:600;letter-spacing:-.003em;line-height:1.08365;margin:0 auto 54px auto;width:502px}@media only screen and (max-width:1068px){.noscript{margin:90px auto 120px auto;width:692px}.noscript-title{font-size:40px;letter-spacing:0;line-height:1.1;margin:0 auto 45px auto;width:420px}}@media only screen and (max-width:735px){.noscript{margin:45px auto 60px auto;width:87.5%}.noscript-title{font-size:32px;letter-spacing:.004em;line-height:1.125;margin:0 auto 35px auto;max-width:330px;width:auto}}#loading-placeholder{display:none}\u003c/style\u003e\u003cdiv class=\"noscript\"\u003e\u003ch1 class=\"noscript-title\"\u003eThis page requires JavaScript.\u003c/h1\u003e\u003cp\u003ePlease turn on JavaScript in your browser and refresh the page to view its content.\u003c/p\u003e\u003c/div\u003e\u003c/noscript\u003e\u003cdiv id=\"app\"\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "port-to",
+      "kind": "help",
+      "args": [
+        "port-to",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find the API that replaces an unavailable or deprecated symbol on a target\nplatform.\n\nIf the symbol IS already available on the target platform (and isn't\ndeprecated), the command says so and exits.\n\nOtherwise, it walks the symbol's See-Also references breadth-first, fetching\neach referenced page until landing on a symbol that:\n  - has metadata.platforms[] containing the target platform, and\n  - is not marked deprecated or unavailable on that platform.\n\nThe walk is bounded by --max-hops (default 12).\n\nUse this command to find the API that replaces an unavailable symbol on a\nspecific platform. Do NOT use it for general similar-API lookup unrelated to\nplatform availability; use 'doc similar' instead. Do NOT use it to enumerate\nall deprecated symbols in a framework; use 'deprecation-cliff' instead.\n\nUsage:\n  apple-docs-pp-cli port-to \u003cplatform\u003e \u003csymbol\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli port-to visionOS uikit/uitableview --agent\n  apple-docs-pp-cli port-to macOS uikit/uitouch\n\nFlags:\n  -h, --help           help for port-to\n      --max-hops int   Maximum See-Also pages to fetch while walking (default 12)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "port-to",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [port-to] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "port-to",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [port-to] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "port-to",
+      "kind": "error_path",
+      "args": [
+        "port-to",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  apple-docs-pp-cli port-to \u003cplatform\u003e \u003csymbol\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli port-to visionOS uikit/uitableview --agent\n  apple-docs-pp-cli port-to macOS uikit/uitouch\n\nFlags:\n  -h, --help           help for port-to\n      --max-hops int   Maximum See-Also pages to fetch while walking (default 12)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: \u003cplatform\u003e and \u003csymbol\u003e are required\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  apple-docs-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli profile delete my-defaults --yes\n  apple-docs-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  apple-docs-pp-cli profile list [flags]\n\nExamples:\n  apple-docs-pp-cli profile list\n  apple-docs-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  apple-docs-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  apple-docs-pp-cli profile save my-defaults --json --compact\n  apple-docs-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  apple-docs-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli profile show my-defaults\n  apple-docs-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  apple-docs-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli profile use my-defaults\n  apple-docs-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "snapshot diff",
+      "kind": "help",
+      "args": [
+        "snapshot",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Load two saved snapshots of a framework's index and classify every delta:\n  added       — path is in the 'to' snapshot but not the 'from'\n  removed     — path is in the 'from' snapshot but not the 'to'\n  deprecated  — path is in both, with deprecated=true only in 'to'\n  renamed*    — when --classify is set, a removed symbol whose path stem is\n                Levenshtein-close (\u003c= --rename-dist edits) to an added symbol\n                in the same parent directory is paired up as a likely rename.\n\nSnapshots must already exist on disk; create them with 'snapshot save'.\n\nUse this command for a structured added/removed/deprecated/renamed delta\nbetween two saved snapshots of one framework. Do NOT use it for the rolling\n'what's new since last sync' feed; use 'updates' instead. Do NOT use it for a\nsingle-version cliff report; use 'deprecation-cliff' instead.\n\nUsage:\n  apple-docs-pp-cli snapshot diff \u003cframework\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli snapshot diff swiftui --from 2025-06-09 --to 2026-05-28 --classify --agent\n\nFlags:\n      --classify          Pair removed/added symbols by path-stem proximity as 'renamed'\n      --from string       Source snapshot date (YYYY-MM-DD)\n  -h, --help              help for diff\n      --rename-dist int   Maximum Levenshtein edit distance for rename pairing (default 4)\n      --to string         Target snapshot date (YYYY-MM-DD)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "snapshot diff",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"framework\" at depth 0"
+    },
+    {
+      "command": "snapshot diff",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"framework\" at depth 0"
+    },
+    {
+      "command": "snapshot diff",
+      "kind": "error_path",
+      "args": [
+        "snapshot",
+        "diff",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  apple-docs-pp-cli snapshot diff \u003cframework\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli snapshot diff swiftui --from 2025-06-09 --to 2026-05-28 --classify --agent\n\nFlags:\n      --classify          Pair removed/added symbols by path-stem proximity as 'renamed'\n      --from string       Source snapshot date (YYYY-MM-DD)\n  -h, --help              help for diff\n      --rename-dist int   Maximum Levenshtein edit distance for rename pairing (default 4)\n      --to string         Target snapshot date (YYYY-MM-DD)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: \u003cframework\u003e, --from, and --to are required\n"
+    },
+    {
+      "command": "snapshot list",
+      "kind": "help",
+      "args": [
+        "snapshot",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved snapshots in ~/.cache/apple-docs-pp-cli/snapshots\n\nUsage:\n  apple-docs-pp-cli snapshot list [flags]\n\nExamples:\n  apple-docs-pp-cli snapshot list\n  apple-docs-pp-cli snapshot list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "snapshot list",
+      "kind": "happy_path",
+      "args": [
+        "snapshot",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"snapshots\": []\n}\n"
+    },
+    {
+      "command": "snapshot list",
+      "kind": "json_fidelity",
+      "args": [
+        "snapshot",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"snapshots\": []\n}\n"
+    },
+    {
+      "command": "snapshot list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "snapshot save",
+      "kind": "help",
+      "args": [
+        "snapshot",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch /tutorials/data/index/\u003cframework\u003e.json and save a dated copy to\n~/.cache/apple-docs-pp-cli/snapshots/\u003cframework\u003e-\u003cYYYY-MM-DD\u003e.json.\n\nRun this right before WWDC each year (or before any release you'll want to\ndiff against). Then run 'snapshot diff' to see what changed.\n\nUsage:\n  apple-docs-pp-cli snapshot save \u003cframework\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli snapshot save swiftui\n  apple-docs-pp-cli snapshot save foundation\n\nFlags:\n  -h, --help   help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "snapshot save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"framework\" at depth 0"
+    },
+    {
+      "command": "snapshot save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"framework\" at depth 0"
+    },
+    {
+      "command": "snapshot save",
+      "kind": "error_path",
+      "args": [
+        "snapshot",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /tutorials/data/index/__printing_press_invalid__.json returned HTTP 404: \u003c!doctype html\u003e\u003chtml lang=\"en-US\"\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"\u003e\u003clink rel=\"icon\" href=\"/favicon.ico\"\u003e\u003clink rel=\"mask-icon\" href=\"/apple-logo.svg\" color=\"#333333\"\u003e\u003ctitle\u003eApple Developer Documentation\u003c/title\u003e\u003cscript\u003evar baseUrl = \"/tutorials/\"\u003c/script\u003e\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?families=SF+Pro,v3|SF+Mono,v1|SF+Pro+SC,v1|SF+Pro+JP,v1\" referrerpolicy=\"origin-when-cross-origin\"\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-vendors.c4b944f1.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/chunk-common.57e56870.js\"\u003e\u003c/script\u003e\u003cscript defer=\"defer\" src=\"/tutorials/js/index.6a35c2df.js\"\u003e\u003c/script\u003e\u003clink href=\"/tutorials/css/chunk-vendors.9385f3c3.css\" rel=\"stylesheet\"\u003e\u003clink href=\"/tutorials/css/index.6a972d82.css\" rel=\"stylesheet\"\u003e\u003c/head\u003e\u003cbody data-color-scheme=\"auto\"\u003e\u003cdiv id=\"_omniture_top\"\u003e\u003cscript\u003evar s_account=\"awdappledeveloper\"\u003c/script\u003e\u003cscript src=\"/tutorials/js/analytics.js\"\u003e\u003c/script\u003e\u003c/div\u003e\u003cnoscript\u003e\u003cstyle\u003e.noscript{font-family:\"SF Pro Display\",\"SF Pro Icons\",\"Helvetica Neue\",Helvetica,Arial,sans-serif;margin:92px auto 140px auto;text-align:center;width:980px}.noscript-title{color:#111;font-size:48px;font-weight:600;letter-spacing:-.003em;line-height:1.08365;margin:0 auto 54px auto;width:502px}@media only screen and (max-width:1068px){.noscript{margin:90px auto 120px auto;width:692px}.noscript-title{font-size:40px;letter-spacing:0;line-height:1.1;margin:0 auto 45px auto;width:420px}}@media only screen and (max-width:735px){.noscript{margin:45px auto 60px auto;width:87.5%}.noscript-title{font-size:32px;letter-spacing:.004em;line-height:1.125;margin:0 auto 35px auto;max-width:330px;width:auto}}#loading-placeholder{display:none}\u003c/style\u003e\u003cdiv class=\"noscript\"\u003e\u003ch1 class=\"noscript-title\"\u003eThis page requires JavaScript.\u003c/h1\u003e\u003cp\u003ePlease turn on JavaScript in your browser and refresh the page to view its content.\u003c/p\u003e\u003c/div\u003e\u003c/noscript\u003e\u003cdiv id=\"app\"\u003e\u003c/div\u003e\u003c/body\u003e\u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  apple-docs-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  apple-docs-pp-cli sync\n\n  # Sync specific resources only\n  apple-docs-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  apple-docs-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  apple-docs-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  apple-docs-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  apple-docs-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/apple-docs-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config stri…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  apple-docs-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  apple-docs-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  apple-docs-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  apple-docs-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml xmlns=\"https://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"\u003e\n\u003chead\u003e\n\t\n\u003cmeta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /\u003e\n\u003cmeta name=\"Author\" content=\"Apple Inc.\" /\u003e\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\" /\u003e\n\u003clink rel=\"shortcut icon\" href=\"/favicon.ico?40232615030\" /\u003e\n\u003clink rel=\"icon\" href=\"/favicon.ico?40232615030\" /\u003e\n\u003clink rel=\"mask-icon\" href=\"/apple-logo.svg?41232615030\" color=\"#333333\"\u003e\n\n\u003clink rel=\"stylesheet\" href=\"/pagenotfound/styles/page-not-found.min.css?39232615030\" type=\"text/css\"\u003e\n\u003clink rel=\"stylesheet\" href=\"/assets/styles/global.dist.css?51172657083\" type=\"text/css\" /\u003e\n\n\u003cscript src=\"/assets/scripts/lib/jquery/jquery-3.6.0.min.js?45232608030\"\u003e\u003c/script\u003e\n\u003cscript src=\"/assets/scripts/settings.js?45232608030\"\u003e\u003c/script\u003e\n\u003cscript src=\"/assets/scripts/language-locales.js?45232608030\"\u003e\u003c/script\u003e\n\u003cscript src=\"/assets/scripts/DeveloperBreadcrumbs.js?45232608030\"\u003e\u003c/script\u003e\n\t\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?family=SF+Pro\u0026v=1\" type=\"text/css\" /\u003e\n\u003clink rel=\"stylesheet\" href=\"https://www.apple.com/wss/fonts?family=SF+Pro+Icons\u0026v=1\" type=\"text/css\" /\u003e\n\n\t\u003ctitle\u003ePage Not Found - Apple Developer\u003c/title\u003e\n\t\u003cmeta name=\"omni_page\" content=\"404:/__printing_press_invalid__\" /\u003e\n\t\u003cmeta name=\"Description\" content=\"The page you requested does not exist.\"\u003e\n\t\u003c/head\u003e\n\t\u003cbody class=\"status-page\"\u003e\n\t\u003cscript\u003e\n\t// Execute immediately to avoid UI flash\n\t(function () {\n\t\t// Prevent React dev mode from running this multiple times\n\t\tif (window.__didRunColorThemeScript) {\n\t\t\treturn;\n\t\t}\n\t\twindow.__didRunColorThemeScript = true;\n\n\t\tconst prefersDark = window.matchMedia(\"(prefers-color-scheme: dark)\").matches;\n\t\tconst body = document.body;\n\n\t\t// If theme-dark or theme-light is already applied, do nothing and lock it\n\t\tif (body.classList.contains(\"theme-dark\") || body.classList.contains(\"theme-light\")) {\n\n\t\t\t// Set the data-color-scheme attribute based on the existing theme\n\t\t\tbody.setAttribute('data-color-scheme', body.classList.contains(\"theme-dark\") ? \"dark\" : \"light\");\n\n\t\t\t// Prevent future modifications\n\t\t\twindow.__disableColorScheme = true;\n\n\t\t\t// Hide the color picker immediately\n\t\t\tconst style = document.createElement('style');\n\t\t\tstyle.textContent = '.color-scheme-toggle { display: none !important; }';\n\t\t\tdocument.head.appendChild(style);\n\n\t\t\treturn;\n\t\t}\n\n\t\t// Otherwise, set theme normally based on user settings or system preference\n\t\tif (window.Settings \u0026\u0026 window.Settings.preferredColorScheme) {\n\t\t\tconst colorTheme = (window.Settings.preferredColorScheme === 'auto') \u0026\u0026 !prefersDark ? 'light'\n\t\t\t\t: (window.Settings.preferredColorScheme === 'light') ? 'light' : 'dark';\n\t\t\tbody.setAttribute('data-color-scheme', colorTheme);\n\t\t\tcolorTheme === \"dark\" ? body.classList.add(\"theme-dark\") : body.classList.add(\"theme-light\");\n\t\t} else {\n\t\t\tconst colorTheme = prefersDark ? 'dark' : 'light';\n\t\t\tbody.setAttribute('data-color-scheme', colorTheme);\n\t\t\tprefersDark ? body.classList.add(\"theme-dark\") : body.classList.add(\"theme-light\");\n\t\t}\n\t})();\n\u003c/script\u003e\n\n\n\u003clink rel=\"stylesheet\" href=\"/assets/styles/suggest-lang.css?54232608030\" type=\"text/css\" /\u003e\n\u003cdiv id=\"suggest-lang\" class=\"ribbon hide\" lang=\"en\"\u003e\n\t\u003cdiv class=\"ribbon-content-wrapper\"\u003e\n\t\t\u003cdiv class=\"ribbon-content row\"\u003e\n\t\t\t\u003cdiv class=\"column large-12 large-centered\"\u003e\n\t\t\t\t\u003cp\u003e\u003ca href=\"#\" id=\"suggest-link\" class=\"ribbon-link more\"\u003eView in English\u003c/a\u003e\u003c/p\u003e\n\t\t\t\t\u003cbutton id=\"suggest-closer\" class=\"icon icon-after icon-reset\" aria-label=\"Dismiss language suggestion\" tabindex=\"0\"\u003e\u003c/button\u003e\n\t\t\t\u003c/div\u003e\n\t\t\u003c/div\u003e\n\t\u003c/div\u003e\n\u003c/div\u003e\n\u003cscript src=\"/assets/scripts/suggest-lang.js?03162626057\"\u003e\u003c/script\u003e\n\u003clink rel=\"stylesheet\" href=\"/assets/styles/globalnav.css?48212635068\" type=\"text/css\" /\u003e\n\u003cnav id=\"globalnav\" lang=\"en-US\" dir=\"ltr\" aria-label=\"Global\" class=\"globalnav js\" style=\"--r-globalnav-text-zoom-scale: 1;\"\u003e\n\t\u003cdiv class=\"globalnav-content\"\u003e\n\t\t\u003cdiv class=\"globalnav-…[truncated]"
+    },
+    {
+      "command": "technologies",
+      "kind": "help",
+      "args": [
+        "technologies",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the master technologies index — every Apple framework, grouped by topic.\n\nUsage:\n  apple-docs-pp-cli technologies [flags]\n\nExamples:\n  apple-docs-pp-cli technologies\n\nFlags:\n  -h, --help   help for technologies\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "technologies",
+      "kind": "happy_path",
+      "args": [
+        "technologies"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"freshness\":{\"decision\":\"stale-api\",\"elapsed_ms\":227,\"error\":\"technologies: missing id for technologies\",\"ran\":true,\"reason\":\"refresh_failed\",\"resources\":[\"technologies\"],\"source\":\"auto\"},\"source\":\"live\"},\"results\":{\"diffAvailability\":{\"beta\":{\"change\":\"modified\",\"platform\":\"Apple Pay Web Merchant Registration API\",\"versions\":[\"1.0 beta 1\",\"1.0\"]},\"major\":{\"change\":\"modified\",\"platform\":\"Apple News API\",\"versions\":[\"2.0.0\",\"2.2.2\"]},\"minor\":{\"change\":\"modified\",\"platform\":\"Apple News API\",\"versions\":[\"2.2.1\",\"2.2.2\"]}},\"hierarchy\":{\"homepageNavigation\":[{\"reference\":\"doc://com.apple.welcome-experience-documentation/documentation\"},{\"reference\":\"doc://com.apple.welcome-experience-documentation/documentation/technologies\"}]},\"identifier\":{\"interfaceLanguage\":\"swift\",\"url\":\"doc://com.apple.welcome-experience-documentation/documentation/technologies\"},\"kind\":\"technologies\",\"legalNotices\":{\"copyright\":\"Copyright \u0026copy; 2026 Apple Inc. All rights reserved.\",\"privacyPolicy\":\"https://www.apple.com/privacy/privacy-policy\",\"termsOfUse\":\"https://www.apple.com/legal/internet-services/terms/site.html\"},\"metadata\":{\"defaultSuggestedTags\":[\"App Frameworks\",\"App Services\",\"Design\",\"Developer Tools\",\"Graphics and Games\",\"Media\",\"System\",\"Web\"],\"role\":\"overview\",\"title\":\"Technologies\"},\"references\":{\"Accessibility-PageImage-card.png\":{\"alt\":\"An illustration that shows three people: someone with low vision walking with the assistance of a guide dog while using an iPhone and AirPods; a person in a wheelchair using an iPhone; and a person wearing a hearing aid and a camping backpack while walking and using an iPhone.\",\"identifier\":\"Accessibility-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/58ba057403d290c417dcab9459363fb3/Accessibility-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/e897626aef68f2e6ecf21fb802bd39c6/Accessibility-PageImage-card%402x.png\"}]},\"ActivityKit-PageImage-card.png\":{\"alt\":\"[A hero image of the ActivityKit framework.]\",\"identifier\":\"ActivityKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/2809f67730f457afbeb77d866e20466e/ActivityKit-PageImage-card%402x.png\"},{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/5cbca6adfca53a5472c0c9f4b7395c3e/ActivityKit-PageImage-card~dark%402x.png\"}]},\"Combine-PageImage-card.png\":{\"alt\":\"The Swift language logo, overlaid by a graph of interconnected lines and points.\",\"identifier\":\"Combine-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/8df9b2bdcd94118827dd29f28f3915d7/Combine-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/ba2aa5f2e9d9ae5b196c642a6cf121dd/Combine-PageImage-card%402x.png\"}]},\"FSKit-PageImage-card.png\":{\"alt\":\"A grid of document icons, standing upright, viewed from an isometric angle. The icons use different shades of blue to create a gradient effect.\",\"identifier\":\"FSKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/3a8d399b20fcca9d09acf5d67f8342f6/FSKit-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/5df0ee9d256bb7c1195c1e2b77ce00b6/FSKit-PageImage-card%402x.png\"}]},\"FinanceKit-PageImage-card.png\":{\"alt\":\"Image of FinanceKit logo card.\",\"identifier\":\"FinanceKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/0120ff241bb89f472038d3dc57d31582/FinanceKit-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/dd6372549935039ba3e5f8f0b521dd52/FinanceKit-PageImage-card%402x.png\"}]},\"RCPro-Icon-MacOS.png\":{\"alt\":\"The Reality Composer Pro icon, which contains a gray box with yellow lines …[truncated]"
+    },
+    {
+      "command": "technologies",
+      "kind": "json_fidelity",
+      "args": [
+        "technologies",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"freshness\":{\"decision\":\"stale-api\",\"elapsed_ms\":648,\"error\":\"technologies: missing id for technologies\",\"ran\":true,\"reason\":\"refresh_failed\",\"resources\":[\"technologies\"],\"source\":\"auto\"},\"source\":\"live\"},\"results\":{\"diffAvailability\":{\"beta\":{\"change\":\"modified\",\"platform\":\"Apple Pay Web Merchant Registration API\",\"versions\":[\"1.0 beta 1\",\"1.0\"]},\"major\":{\"change\":\"modified\",\"platform\":\"Apple News API\",\"versions\":[\"2.0.0\",\"2.2.2\"]},\"minor\":{\"change\":\"modified\",\"platform\":\"Apple News API\",\"versions\":[\"2.2.1\",\"2.2.2\"]}},\"hierarchy\":{\"homepageNavigation\":[{\"reference\":\"doc://com.apple.welcome-experience-documentation/documentation\"},{\"reference\":\"doc://com.apple.welcome-experience-documentation/documentation/technologies\"}]},\"identifier\":{\"interfaceLanguage\":\"swift\",\"url\":\"doc://com.apple.welcome-experience-documentation/documentation/technologies\"},\"kind\":\"technologies\",\"legalNotices\":{\"copyright\":\"Copyright \u0026copy; 2026 Apple Inc. All rights reserved.\",\"privacyPolicy\":\"https://www.apple.com/privacy/privacy-policy\",\"termsOfUse\":\"https://www.apple.com/legal/internet-services/terms/site.html\"},\"metadata\":{\"defaultSuggestedTags\":[\"App Frameworks\",\"App Services\",\"Design\",\"Developer Tools\",\"Graphics and Games\",\"Media\",\"System\",\"Web\"],\"role\":\"overview\",\"title\":\"Technologies\"},\"references\":{\"Accessibility-PageImage-card.png\":{\"alt\":\"An illustration that shows three people: someone with low vision walking with the assistance of a guide dog while using an iPhone and AirPods; a person in a wheelchair using an iPhone; and a person wearing a hearing aid and a camping backpack while walking and using an iPhone.\",\"identifier\":\"Accessibility-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/58ba057403d290c417dcab9459363fb3/Accessibility-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/e897626aef68f2e6ecf21fb802bd39c6/Accessibility-PageImage-card%402x.png\"}]},\"ActivityKit-PageImage-card.png\":{\"alt\":\"[A hero image of the ActivityKit framework.]\",\"identifier\":\"ActivityKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/2809f67730f457afbeb77d866e20466e/ActivityKit-PageImage-card%402x.png\"},{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/5cbca6adfca53a5472c0c9f4b7395c3e/ActivityKit-PageImage-card~dark%402x.png\"}]},\"Combine-PageImage-card.png\":{\"alt\":\"The Swift language logo, overlaid by a graph of interconnected lines and points.\",\"identifier\":\"Combine-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/8df9b2bdcd94118827dd29f28f3915d7/Combine-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/ba2aa5f2e9d9ae5b196c642a6cf121dd/Combine-PageImage-card%402x.png\"}]},\"FSKit-PageImage-card.png\":{\"alt\":\"A grid of document icons, standing upright, viewed from an isometric angle. The icons use different shades of blue to create a gradient effect.\",\"identifier\":\"FSKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/3a8d399b20fcca9d09acf5d67f8342f6/FSKit-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/5df0ee9d256bb7c1195c1e2b77ce00b6/FSKit-PageImage-card%402x.png\"}]},\"FinanceKit-PageImage-card.png\":{\"alt\":\"Image of FinanceKit logo card.\",\"identifier\":\"FinanceKit-PageImage-card.png\",\"type\":\"image\",\"variants\":[{\"traits\":[\"2x\",\"dark\"],\"url\":\"https://docs-assets.developer.apple.com/published/0120ff241bb89f472038d3dc57d31582/FinanceKit-PageImage-card~dark%402x.png\"},{\"traits\":[\"2x\",\"light\"],\"url\":\"https://docs-assets.developer.apple.com/published/dd6372549935039ba3e5f8f0b521dd52/FinanceKit-PageImage-card%402x.png\"}]},\"RCPro-Icon-MacOS.png\":{\"alt\":\"The Reality Composer Pro icon, which contains a gray box with yellow lines …[truncated]"
+    },
+    {
+      "command": "technologies",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  apple-docs-pp-cli which [query] [flags]\n\nExamples:\n  apple-docs-pp-cli which \"stale tickets\"\n  apple-docs-pp-cli which \"bottleneck\"\n  apple-docs-pp-cli which --limit 1 \"send message\"\n  apple-docs-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  apple-docs-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  apple-docs-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  apple-docs-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/apple-docs-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"technologies\"}\n{\"event\":\"sync_error\",\"resource\":\"technologies\",\"error\":\"missing id for technologies\"}\nArchived 0 items across 1 resources to /var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.local/share/apple-docs-pp-cli/data.db\n  technologies: error: missing id for technologies\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/s2/nt1qwn757gg8zd5w6ymgg6ph0000gn/T/printing-press-subprocess-1821507043/.local/share/apple-docs-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-28T19:19:29Z\",\n  \"total_items\": 0\n}\n{\"event\":\"sync_start\",\"resource\":\"technologies\"}\n{\"event\":\"sync_error\",\"resource\":\"technologies\",\"error\":\"missing id for technologies\"}\n  technologies: error: missing id for technologies\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  apple-docs-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  apple-docs-pp-cli workflow status\n\n  # Show status as JSON\n  apple-docs-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "wwdc symbols",
+      "kind": "help",
+      "args": [
+        "wwdc",
+        "symbols",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For a WWDC session identifier (e.g. 'wwdc2024-10169' or 'wwdc24-10169'), walk\nthe framework index and check each leaf doc page's references{} for a video\nreference whose URL or identifier matches the session ID. Return the symbols\nthat cite the session.\n\nWithout --framework the scan defaults to 'swiftui'. Use --framework to switch.\nThe scan is bounded by --max-scan-pages (default 80).\n\nUse this command to enumerate every symbol whose doc page cites a given WWDC\nsession. Do NOT use it for keyword search across WWDC titles/abstracts; use\n'wwdc search' instead.\n\nUsage:\n  apple-docs-pp-cli wwdc symbols \u003csession-id\u003e [flags]\n\nExamples:\n  apple-docs-pp-cli wwdc symbols wwdc2024-10169 --framework swiftui --agent\n\nFlags:\n      --framework string     Framework slug to scan (default \"swiftui\")\n  -h, --help                 help for symbols\n      --max-scan-pages int   Maximum framework pages to fetch while scanning (default 80)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'apple-docs-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "wwdc symbols",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"session-id\""
+    },
+    {
+      "command": "wwdc symbols",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"session-id\""
+    },
+    {
+      "command": "wwdc symbols",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    }
+  ],
+  "ran_at": "2026-05-28T19:17:22.378529Z"
+}

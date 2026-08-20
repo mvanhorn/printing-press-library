@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-16T09:31:56.426009Z",
+  "cli_dir": "\u003ccli-dir\u003e/medium",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-16T09:22:15.109825Z"
+  }
+}

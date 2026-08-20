@@ -1,0 +1,219 @@
+{
+  "api_name": "bonusly",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "mcp-bonusly",
+      "url": "https://github.com/ajramos/mcp-bonusly",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-10T22:54:26Z",
+  "novel_features": [
+    {
+      "name": "Recognition Budget Audit",
+      "command": "recognition audit",
+      "description": "See whether your team's recognition spend is on pace with its monthly budget, broken down by department -- the report Bonusly normally reserves for admins.",
+      "rationale": "Requires joining synced recognition totals against department headcounts locally; the admin-only Participation Report does this server-side but needs a scope this CLI's user doesn't have.",
+      "example": "bonusly-pp-cli recognition audit --dept engineering --agent",
+      "why_it_matters": "Reach for this when a team lead wants pacing/budget visibility without admin access, instead of manually tallying the web feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Personal Recognition Search",
+      "command": "recognition search-mine",
+      "description": "Search your own given and received recognition offline, without scrolling the public company feed. Requires one live lookup to confirm your identity (no local fallback); not yet verified against a real API response in this build.",
+      "rationale": "Requires a local FTS5 index scoped to just your own rows, synced once and searchable with zero further network calls.",
+      "example": "bonusly-pp-cli recognition search-mine \"migration project\" --agent",
+      "why_it_matters": "Use this for self-review prep or recalling why you were recognized -- the company-wide feed search returns everyone's posts, not just yours.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Points Burn-Rate Forecast",
+      "command": "balance history",
+      "description": "Track your giving-allowance burn rate over time and see forfeiture coming before the monthly reset, not after.",
+      "rationale": "Bonusly's balance endpoint only ever returns a single point-in-time snapshot; this CLI snapshots it on every sync to build the history the API itself doesn't expose.",
+      "example": "bonusly-pp-cli balance history --agent",
+      "why_it_matters": "Check this a few days before month-end to see if points are about to be forfeited.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Neglected-Teammate Finder",
+      "command": "recognition gap",
+      "description": "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build.",
+      "rationale": "Joins the org-chart direct-reports endpoint against your own recognition-given history locally; the admin equivalent (adminUsersLastRecognized) needs a scope this CLI's user doesn't have.",
+      "example": "bonusly-pp-cli recognition gap --manager me --days 30 --agent",
+      "why_it_matters": "Use before 1:1s or sprint retros to catch teammates who've gone unrecognized.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Company Values Trend Audit",
+      "command": "recognition values",
+      "description": "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed.",
+      "rationale": "Aggregates hashtag frequency across the synced feed, scoped by department headcount; no live endpoint returns this pre-aggregated.",
+      "example": "bonusly-pp-cli recognition values --dept engineering --agent",
+      "why_it_matters": "Use this for a culture pulse-check across a team or the whole company.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Redemption Spend Forecast",
+      "command": "redemptions forecast",
+      "description": "Project your reward-redemption spend from your own history -- a simple trend line, not a black box.",
+      "rationale": "Projects from your own local redemption history, which only grows more accurate the longer sync has run.",
+      "example": "bonusly-pp-cli redemptions forecast --agent",
+      "why_it_matters": "Use this to sanity-check whether your redeemable balance will cover a reward you're eyeing.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recognition Budget Audit",
+      "command": "recognition audit",
+      "description": "See whether your team's recognition spend is on pace with its monthly budget, broken down by department -- the report Bonusly normally reserves for admins.",
+      "rationale": "Requires joining synced recognition totals against department headcounts locally; the admin-only Participation Report does this server-side but needs a scope this CLI's user doesn't have.",
+      "example": "bonusly-pp-cli recognition audit --dept engineering --agent",
+      "why_it_matters": "Reach for this when a team lead wants pacing/budget visibility without admin access, instead of manually tallying the web feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Personal Recognition Search",
+      "command": "recognition search-mine",
+      "description": "Search your own given and received recognition offline, without scrolling the public company feed. Requires one live lookup to confirm your identity (no local fallback); not yet verified against a real API response in this build.",
+      "rationale": "Requires a local FTS5 index scoped to just your own rows, synced once and searchable with zero further network calls.",
+      "example": "bonusly-pp-cli recognition search-mine \"migration project\" --agent",
+      "why_it_matters": "Use this for self-review prep or recalling why you were recognized -- the company-wide feed search returns everyone's posts, not just yours.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Points Burn-Rate Forecast",
+      "command": "balance history",
+      "description": "Track your giving-allowance burn rate over time and see forfeiture coming before the monthly reset, not after.",
+      "rationale": "Bonusly's balance endpoint only ever returns a single point-in-time snapshot; this CLI snapshots it on every sync to build the history the API itself doesn't expose.",
+      "example": "bonusly-pp-cli balance history --agent",
+      "why_it_matters": "Check this a few days before month-end to see if points are about to be forfeited.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Neglected-Teammate Finder",
+      "command": "recognition gap",
+      "description": "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build.",
+      "rationale": "Joins the org-chart direct-reports endpoint against your own recognition-given history locally; the admin equivalent (adminUsersLastRecognized) needs a scope this CLI's user doesn't have.",
+      "example": "bonusly-pp-cli recognition gap --manager me --days 30 --agent",
+      "why_it_matters": "Use before 1:1s or sprint retros to catch teammates who've gone unrecognized.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Company Values Trend Audit",
+      "command": "recognition values",
+      "description": "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed.",
+      "rationale": "Aggregates hashtag frequency across the synced feed, scoped by department headcount; no live endpoint returns this pre-aggregated.",
+      "example": "bonusly-pp-cli recognition values --dept engineering --agent",
+      "why_it_matters": "Use this for a culture pulse-check across a team or the whole company.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Redemption Spend Forecast",
+      "command": "redemptions forecast",
+      "description": "Project your reward-redemption spend from your own history -- a simple trend line, not a black box.",
+      "rationale": "Projects from your own local redemption history, which only grows more accurate the longer sync has run.",
+      "example": "bonusly-pp-cli redemptions forecast --agent",
+      "why_it_matters": "Use this to sanity-check whether your redeemable balance will cover a reward you're eyeing.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "BONUSLY_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Bonusly",
+    "headline": "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.",
+    "value_prop": "Bonusly's own Analytics API and admin reports compute participation, spend, and recognition-equity insights, but they require an admin scope most employees don't have. This CLI mirrors exactly the data a regular employee CAN read -- the company feed, org chart, your own balance and redemptions -- into a local SQLite database, then computes that same category of insight offline: budget pacing, burn-rate forecasting, neglected-teammate detection, and company-values trends. No admin access required, and it works when you're offline.",
+    "auth_narrative": "Bonusly authenticates with a Personal Access Token (PAT), not OAuth. Any employee can mint one from their own Settings -\u003e Services page (not the admin-only Company -\u003e Integrations -\u003e API \u0026 Tokens page) -- pick only the scopes this CLI needs (user:read, recognition:read, recognition:write, awards:read, rewards:read; admin scopes won't even be offered to a non-admin account). Tokens expire after up to 365 days with email reminders 30 and 7 days out.",
+    "quickstart": [
+      {
+        "command": "bonusly-pp-cli doctor --dry-run",
+        "comment": "Health check -- works before you've set an auth token"
+      },
+      {
+        "command": "bonusly-pp-cli sync --resources recognition,users,departments",
+        "comment": "Mirror the company feed, org chart, and department headcounts locally"
+      },
+      {
+        "command": "bonusly-pp-cli recognition feed --hashtag teamwork --agent",
+        "comment": "Browse the synced company feed filtered by hashtag"
+      },
+      {
+        "command": "bonusly-pp-cli balance --agent",
+        "comment": "Check your current giving/redeemable balance"
+      },
+      {
+        "command": "bonusly-pp-cli recognition gap --manager me --days 30 --agent",
+        "comment": "Find direct reports you haven't recognized in the last 30 days"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Bad or missing access token",
+        "fix": "Mint a personal token at bonus.ly -\u003e Settings -\u003e Services, then set BONUSLY_API_TOKEN (or run `bonusly-pp-cli auth set-token`)."
+      },
+      {
+        "symptom": "403 Forbidden on an admin-shaped command",
+        "fix": "That endpoint needs an *:administer scope your personal token can't carry -- expected for a non-admin account, not a bug."
+      },
+      {
+        "symptom": "429 rate limited",
+        "fix": "Bonusly publishes no rate-limit numbers; the CLI's client applies adaptive backoff automatically -- just retry."
+      },
+      {
+        "symptom": "recognition gap or audit commands return empty",
+        "fix": "Run `sync --resources recognition,users` first -- these commands read the local mirror, not the live API."
+      }
+    ],
+    "when_to_use": "Use this CLI when a Bonusly user without admin access wants participation, equity, or spend insight that Bonusly's own UI reserves for admin reports, or wants to search/analyze their own recognition history offline.",
+    "anti_triggers": [
+      "Do not use this for company-wide admin reporting (participation report, spend totals, redemption approvals) -- those need an admin-scoped token this CLI does not support.",
+      "Do not use this to detect deleted recognitions retroactively -- the non-admin feed has no tombstone/deletion signal, only the admin-gated Analytics API does.",
+      "Do not use this for real-time notifications or a live dashboard -- it's a CLI with a local mirror, not a background service."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a noisy feed response to just the fields you need",
+        "command": "bonusly-pp-cli recognition feed --hashtag teamwork --agent --select recognitions.giver.display_name,recognitions.receivers.display_name,recognitions.amount",
+        "explanation": "The feed returns giver/receiver/hashtag/reason/amount per row; --select keeps only the fields an agent actually needs instead of the full nested payload."
+      },
+      {
+        "title": "Check budget pacing before month-end",
+        "command": "bonusly-pp-cli recognition audit --dept engineering --agent",
+        "explanation": "Joins the synced feed against department headcount to show spend-vs-budget offline."
+      },
+      {
+        "title": "Catch a neglected direct report before a 1:1",
+        "command": "bonusly-pp-cli recognition gap --manager me --days 30 --agent",
+        "explanation": "Flags direct reports you haven't recognized in the last N days by joining the org tree against your own giving history."
+      },
+      {
+        "title": "Forecast when your monthly allowance will forfeit",
+        "command": "bonusly-pp-cli balance history --agent",
+        "explanation": "Diffs locally-snapshotted balance history to project burn rate against the monthly reset."
+      }
+    ],
+    "trigger_phrases": [
+      "give someone bonusly recognition",
+      "check my bonusly points balance",
+      "who have I not recognized on my team",
+      "search my bonusly recognition history",
+      "bonusly budget pacing for my team",
+      "use bonusly",
+      "run bonusly"
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/schema/server-card.json",
+  "serverInfo": {
+    "name": "Nylas MCP Server",
+    "title": "Nylas",
+    "description": "Typed tools for email, calendar, and contacts across Gmail, Outlook, Exchange, and any IMAP provider. Works with any MCP-compatible client (Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, Codex CLI).",
+    "vendor": "Nylas, Inc.",
+    "homepage": "https://developer.nylas.com/docs/dev-guide/mcp/",
+    "documentation": "https://developer.nylas.com/docs/dev-guide/mcp/",
+    "version": "1.0.0"
+  },
+  "transport": {
+    "type": "streamable-http",
+    "url": "https://mcp.us.nylas.com",
+    "endpoints": [
+      {
+        "region": "us",
+        "url": "https://mcp.us.nylas.com"
+      },
+      {
+        "region": "eu",
+        "url": "https://mcp.eu.nylas.com"
+      }
+    ]
+  },
+  "authentication": {
+    "type": "bearer",
+    "header": "Authorization",
+    "scheme": "Bearer",
+    "description": "Use a Nylas API key as the Bearer token. The same key used for direct Nylas API calls.",
+    "obtainedFrom": "https://dashboard-v3.nylas.com/"
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    }
+  },
+  "tools": [
+    {
+      "name": "list_messages",
+      "description": "List and search email messages"
+    },
+    { "name": "list_threads", "description": "List and search email threads" },
+    { "name": "create_draft", "description": "Create a draft email" },
+    { "name": "update_draft", "description": "Edit an existing draft" },
+    {
+      "name": "confirm_send_draft",
+      "description": "Required before sending a draft (safety confirmation)"
+    },
+    { "name": "send_draft", "description": "Send a previously created draft" },
+    {
+      "name": "confirm_send_message",
+      "description": "Required before sending a message (safety confirmation)"
+    },
+    { "name": "send_message", "description": "Send an email directly" },
+    { "name": "get_folder_by_id", "description": "Get folder details" },
+    { "name": "list_calendars", "description": "List all calendars" },
+    { "name": "list_events", "description": "List events in a calendar" },
+    { "name": "create_event", "description": "Create a calendar event" },
+    { "name": "update_event", "description": "Update an existing event" },
+    {
+      "name": "availability",
+      "description": "Check availability across users"
+    },
+    { "name": "get_grant", "description": "Look up a grant by email address" },
+    { "name": "current_time", "description": "Get current Unix timestamp" },
+    {
+      "name": "epoch_to_datetime",
+      "description": "Convert Unix timestamp to human-readable date"
+    }
+  ],
+  "safety": {
+    "requiresConfirmation": ["send_message", "send_draft"],
+    "notes": "send_message and send_draft require a preceding call to confirm_send_message or confirm_send_draft. This two-step flow prevents the agent from sending emails without explicit user confirmation."
+  }
+}

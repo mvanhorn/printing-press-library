@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-compact-fetch-failures-sidecar",
+  "applied_at": "2026-08-09",
+  "base_run_id": "20260808-150822-3ff3183d",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add fetch_failures (and FetchFailures) to envelopeMetadataArrayKeys so the novel commands' partial-failure sidecar never counts as a competing payload array in compact mode.",
+  "reason": "Extends scrape-creators-compact-payload-array: resolveVerboseObjectFields keeps a blocked key (comments) only when no other non-empty array-of-objects competes for 'the payload'. The novel fan-out commands (comments thread/sweep) emit a fetch_failures array-of-objects bookkeeping sidecar next to comments; it was not listed in envelopeMetadataArrayKeys (only errors/warnings), so a single failed reply fetch made --agent/--compact strip the entire paid comments payload - the exact paid-call-no-data loss the base patch exists to prevent. Durable rule for reprints: any partial-failure bookkeeping array the CLI itself synthesizes is envelope metadata, never a domain collection.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/amend_compact_comments_test.go"
+  ],
+  "validated_outcome": "TestCompactKeepsCommentsDespiteFetchFailures pins the case: a thread envelope with a non-empty fetch_failures sidecar keeps both comments under compactFields. Found by ce-code-review run 20260808-165614-46b8c9c8 (agent-native lens), validated by independent inspection.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4043"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "publish-module-path",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Rewrite the local generated module path to the public-library module path and remove generated binary payloads.",
+  "reason": "Published library CLIs use github.com/mvanhorn/printing-press-library/library/<category>/<slug> as their Go module path, and binary payloads under build/ are not publishable source artifacts.",
+  "files": [
+    "go.mod",
+    ".goreleaser.yaml",
+    "cmd/",
+    "internal/"
+  ],
+  "validated_outcome": "go test ./... passes after the import rewrite; no files remain under build/; simulated publish-package, binary-payload, and supply-chain verifiers pass."
+}

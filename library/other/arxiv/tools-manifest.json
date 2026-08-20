@@ -1,0 +1,58 @@
+{
+  "api_name": "arxiv",
+  "base_url": "https://export.arxiv.org",
+  "description": "Public Atom API for searching and fetching arXiv e-print metadata.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "query_papers",
+      "description": "Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries. Optional: search_query, id_list, start (default: 0) (plus 3 more).",
+      "method": "GET",
+      "path": "/api/query",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search_query",
+          "type": "string",
+          "location": "query",
+          "description": "Search expression such as all:electron, ti:'large language model', au:'smith', or cat:cs.AI."
+        },
+        {
+          "name": "id_list",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-delimited arXiv IDs to fetch, such as 1706.03762 or 1706.03762v7."
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based result offset."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return. arXiv asks clients to make no more than one request every three seconds and avoid large requests."
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field for search results."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for search results."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "supabase-pp-mcp",
+  "display_name": "Supabase",
+  "version": "4.5.1",
+  "description": "Supabase API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/supabase-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/supabase-pp-mcp",
+      "args": [],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${user_config.supabase_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "supabase_access_token": {
+      "type": "string",
+      "title": "SUPABASE_ACCESS_TOKEN",
+      "description": "Sets SUPABASE_ACCESS_TOKEN for the Supabase MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

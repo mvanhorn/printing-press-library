@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sumble-pp-mcp",
+  "display_name": "Sumble",
+  "version": "4.11.0",
+  "description": "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed call, a running balance, a budget guard, and a local SQLite cache so you never pay twice.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sumble-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sumble-pp-mcp",
+      "args": [],
+      "env": {
+        "SUMBLE_API_KEY": "${user_config.sumble_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "sumble_api_key": {
+      "type": "string",
+      "title": "SUMBLE_API_KEY",
+      "description": "Sets SUMBLE_API_KEY for the Sumble MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

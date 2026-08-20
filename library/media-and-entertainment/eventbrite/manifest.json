@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "eventbrite-pp-mcp",
+  "display_name": "Eventbrite",
+  "version": "4.12.0",
+  "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/eventbrite-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/eventbrite-pp-mcp",
+      "args": [],
+      "env": {
+        "EVENTBRITE_API_KEY": "${user_config.eventbrite_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "eventbrite_api_key": {
+      "type": "string",
+      "title": "EVENTBRITE_API_KEY",
+      "description": "Sets EVENTBRITE_API_KEY for the Eventbrite MCP server. Get a credential from https://www.eventbrite.com/platform/api-keys.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

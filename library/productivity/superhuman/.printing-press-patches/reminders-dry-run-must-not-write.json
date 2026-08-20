@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "reminders-dry-run-must-not-write",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "reminders create + reminders cancel now skip the userdata.write call when --dry-run is set; the prior code only decorated the response envelope after the write had already executed.",
+  "reason": "Greptile P1 round-3 on PR #595: flags.dryRun was checked AFTER c.Post(path, body), so the snooze (create) or unreminder (cancel) write had already fired by the time the dry-run flag was honored. Gated the userdata.write call on !flags.dryRun and synthesize a {dry_run, path, method, planned_body, would_send_write} preview when dry-run is set. The userdata.read call earlier in reminders create stays live because it is a read-shaped POST and lets the preview include the real messageIds the write would have used.",
+  "files": [
+    "internal/cli/reminders_create.go",
+    "internal/cli/reminders_cancel.go"
+  ],
+  "validated_outcome": "go build / go vet / 566 tests / 17 packages green; verify-skill clean."
+}

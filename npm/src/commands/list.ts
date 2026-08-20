@@ -1,5 +1,13 @@
 import { commandOnPath, execFileRunner, type Runner } from "../process.js";
-import { cliBinaryName, DEFAULT_REGISTRY_URL, fetchRegistry, type Registry } from "../registry.js";
+import {
+  cliBinaryName,
+  DEFAULT_REGISTRY_URL,
+  fetchRegistry,
+  type Registry,
+  type RegistryEntry,
+} from "../registry.js";
+import { renderCatalogEntries, renderInstalledEntries } from "../format.js";
+import { commandPrefixForInvocation } from "../constants.js";
 
 interface ListDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
@@ -7,6 +15,7 @@ interface ListDeps {
   runner: Runner;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
+  commandPrefix: string;
 }
 
 interface InstalledEntry {
@@ -23,6 +32,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     runner: execFileRunner,
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
+    commandPrefix: commandPrefixForInvocation(),
     ...overrides,
   };
 
@@ -34,8 +44,27 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     }
 
     const registry = await deps.fetchRegistry(options.registryUrl);
+    if (!options.installed) {
+      const entries = filterCatalogEntries(registry.entries, options.category);
+      if (options.json) {
+        deps.stdout(JSON.stringify(entries, null, 2));
+        return 0;
+      }
+
+      if (entries.length === 0) {
+        const suffix = options.category ? ` in category "${options.category}"` : "";
+        deps.stdout(`No Printing Press CLIs found${suffix}.`);
+        return 0;
+      }
+
+      for (const line of renderCatalogEntries(entries, deps.commandPrefix)) {
+        deps.stdout(line);
+      }
+      return 0;
+    }
+
     const installed: InstalledEntry[] = [];
-    for (const entry of registry.entries) {
+    for (const entry of filterCatalogEntries(registry.entries, options.category)) {
       const binary = cliBinaryName(entry);
       const binaryPath = await deps.commandOnPath(binary);
       if (!binaryPath) {
@@ -51,13 +80,13 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     }
 
     if (installed.length === 0) {
-      deps.stdout("No Printing Press CLIs installed. Try `printing-press search <query>` or `printing-press install <name>`.");
+      const suffix = options.category ? ` in category "${options.category}"` : "";
+      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`${deps.commandPrefix} search <query>\` or \`${deps.commandPrefix} install <name>\`.`);
       return 0;
     }
 
-    deps.stdout(["Name", "Binary", "Version", "Description"].join("\t"));
-    for (const entry of installed) {
-      deps.stdout([entry.name, entry.binary, entry.version, entry.description].join("\t"));
+    for (const line of renderInstalledEntries(installed)) {
+      deps.stdout(line);
     }
     return 0;
   };
@@ -65,12 +94,26 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
 
 export const listCommand = createListCommand();
 
-function parseListArgs(args: string[]): { json: boolean; registryUrl: string } | { error: string } {
-  const options = { json: false, registryUrl: DEFAULT_REGISTRY_URL };
+function parseListArgs(args: string[]):
+  | { json: boolean; installed: boolean; category?: string; registryUrl: string }
+  | { error: string } {
+  const options: { json: boolean; installed: boolean; category?: string; registryUrl: string } = {
+    json: false,
+    installed: false,
+    registryUrl: DEFAULT_REGISTRY_URL,
+  };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
     if (arg === "--json") {
       options.json = true;
+    } else if (arg === "--installed") {
+      options.installed = true;
+    } else if (arg === "--category") {
+      const category = args[++i];
+      if (!category) {
+        return { error: "Missing value for --category" };
+      }
+      options.category = category;
     } else if (arg === "--registry-url") {
       const registryUrl = args[++i];
       if (!registryUrl) {
@@ -82,6 +125,13 @@ function parseListArgs(args: string[]): { json: boolean; registryUrl: string } |
     }
   }
   return options;
+}
+
+function filterCatalogEntries(entries: RegistryEntry[], category?: string): RegistryEntry[] {
+  const filtered = category
+    ? entries.filter((entry) => entry.category.toLowerCase() === category.toLowerCase())
+    : entries;
+  return [...filtered].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 }
 
 async function binaryVersion(binary: string, runner: Runner): Promise<string> {

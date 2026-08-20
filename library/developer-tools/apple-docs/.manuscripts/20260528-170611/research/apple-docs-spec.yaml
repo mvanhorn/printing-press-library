@@ -1,0 +1,129 @@
+name: apple-docs
+description: "Browse and search Apple's developer documentation (DocC JSON) — Swift, SwiftUI, Foundation, every Apple framework, plus deprecation analysis and Markdown emission."
+version: "0.1.0"
+base_url: "https://developer.apple.com"
+health_check_path: "/tutorials/data/documentation/swift.json"
+cli_description: "The fastest way to read Apple's developer docs from your terminal — offline FTS, deprecation cliff reports, and an MCP server in one Go binary."
+category: developer-tools
+
+required_headers:
+  - name: User-Agent
+    value: "apple-docs-pp-cli (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/apple-docs-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 168h        # 7 days — Apple updates docs at WWDC and dot-releases; weekly refresh is plenty for most users
+
+resources:
+  technologies:
+    description: "List every Apple framework and technology (Swift, SwiftUI, UIKit, etc.)"
+    endpoints:
+      list:
+        method: GET
+        path: "/tutorials/data/documentation/technologies.json"
+        description: "Fetch the master technologies index — every Apple framework, grouped by topic."
+        response:
+          type: object
+          item: TechnologiesIndex
+
+  doc:
+    description: "Fetch any documentation page (framework root, symbol, method, article) by path"
+    endpoints:
+      get:
+        method: GET
+        path: "/tutorials/data/documentation/{path}.json"
+        description: "Fetch a specific doc page by path. The path is the lowercase-slashed identifier under /documentation/, e.g., 'swiftui', 'swiftui/view', or 'swiftui/view/onappear(perform:)'."
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Doc path under /documentation/ (e.g. 'swiftui/view/onappear(perform:)')."
+        response:
+          type: object
+          item: DocPage
+
+  index:
+    description: "Fetch the full structured index of a framework (every symbol, in tree form)"
+    endpoints:
+      get:
+        method: GET
+        path: "/tutorials/data/index/{framework}.json"
+        description: "Fetch a framework's full hierarchical index. Useful for offline FTS sync. Indexes are large (500KB–2MB)."
+        params:
+          - name: framework
+            type: string
+            required: true
+            positional: true
+            description: "Framework slug (lowercase, e.g. 'swiftui', 'foundation', 'uikit')."
+        response:
+          type: object
+          item: FrameworkIndex
+
+types:
+  TechnologiesIndex:
+    fields:
+      - name: identifier
+        type: string
+      - name: kind
+        type: string
+      - name: schemaVersion
+        type: string
+      - name: metadata
+        type: string
+      - name: sections
+        type: string
+      - name: references
+        type: string
+
+  DocPage:
+    fields:
+      - name: identifier
+        type: string
+        description: "doc:// URL of this page (e.g. doc://com.apple.SwiftUI/documentation/SwiftUI/View)"
+      - name: kind
+        type: string
+        description: "Top-level kind (symbol, article, sampleCode, etc.)"
+      - name: schemaVersion
+        type: string
+      - name: metadata
+        type: string
+        description: "Title, role, symbolKind, modules, platforms[]"
+      - name: abstract
+        type: string
+        description: "Short description rendered as inline elements"
+      - name: hierarchy
+        type: string
+        description: "Breadcrumb hierarchy.paths"
+      - name: primaryContentSections
+        type: string
+        description: "Declaration fragments, parameters, return value, discussion"
+      - name: topicSections
+        type: string
+        description: "Grouped child symbols/articles with anchors"
+      - name: references
+        type: string
+        description: "Map of doc:// identifier → reference (title, kind, role, url, abstract)"
+      - name: variants
+        type: string
+      - name: sections
+        type: string
+      - name: legalNotices
+        type: string
+
+  FrameworkIndex:
+    fields:
+      - name: interfaceLanguages
+        type: string
+        description: "Tree of all symbols in the framework, keyed by interface language (swift, occ, data)"
+      - name: schemaVersion
+        type: string
+      - name: includedArchiveIdentifiers
+        type: string

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "store-migrate-early-return",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Skip the migration write transaction when PRAGMA user_version already equals StoreSchemaVersion.",
+  "reason": "Every Open was acquiring the SQLite write lock and re-executing all schemaV1 DDL plus a user_version stamp, blocking concurrent readers for no schema change.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

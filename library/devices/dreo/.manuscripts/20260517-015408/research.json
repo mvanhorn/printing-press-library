@@ -1,0 +1,285 @@
+{
+  "api_name": "dreo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "hass-dreo",
+      "url": "https://github.com/JeffSteinbok/hass-dreo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "homebridge-dreo",
+      "url": "https://github.com/zyonse/homebridge-dreo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hass-dreoverse",
+      "url": "https://github.com/dreo-team/hass-dreoverse",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pydreo-client",
+      "url": "https://github.com/dreo-team/pydreo-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T09:00:52Z",
+  "novel_features": [
+    {
+      "name": "Bulk fan-out control",
+      "command": "bulk",
+      "description": "Power, mode, or speed across every device matching a type/room filter in one command.",
+      "rationale": "Only possible because the CLI keeps a local devices table and can multiplex WebSocket control frames in parallel; reference clients are HA-resident and have no bulk surface.",
+      "example": "dreo-pp-cli bulk --action off --type tower-fan --dry-run",
+      "why_it_matters": "Replaces the #1 user pain — tapping each device in the Dreo app at bedtime — with one cron-callable line.",
+      "group": "Multi-device control"
+    },
+    {
+      "name": "Whole-house sensor snapshot",
+      "command": "sensors",
+      "description": "Aggregated temperature, humidity, and PM2.5 across every sensor-bearing device in one ranked table.",
+      "rationale": "No single Dreo endpoint returns aggregated sensors; this fans out per device and composes locally.",
+      "example": "dreo-pp-cli sensors --json",
+      "why_it_matters": "Answers the agent question 'what's the air quality across my house?' in one tool call.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Live WebSocket state stream",
+      "command": "watch",
+      "description": "Tail-f for Dreo device state — every WebSocket update as a JSON line on stdout.",
+      "rationale": "Reference clients bury the WebSocket inside Python/TypeScript modules; no existing tool exposes raw state frames for debugging.",
+      "example": "dreo-pp-cli watch --all --json",
+      "why_it_matters": "Enables automation debugging without running Home Assistant, and feeds agent stream-processing pipelines.",
+      "group": "Realtime observability"
+    },
+    {
+      "name": "Sensor timeseries history",
+      "command": "sensors record",
+      "description": "Persist WebSocket state events to a local sensor_readings table and query temperature/humidity/PM2.5 over arbitrary time windows.",
+      "rationale": "No other Dreo tool keeps history; built on the cross-source local store the press provides.",
+      "example": "dreo-pp-cli sensors query --metric temperature --since 1h --json",
+      "why_it_matters": "Answers 'when did the bedroom fan last go to sleep mode' and similar historical questions agents and users actually ask.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Threshold and offline alerts",
+      "command": "alerts",
+      "description": "Report devices with low filter life, empty water tank, offline heartbeat, or sensor readings past a threshold.",
+      "rationale": "Joins cached devices + latest device_state; no equivalent in any reference client.",
+      "example": "dreo-pp-cli alerts --pm25-above 50 --json",
+      "why_it_matters": "Surfaces actionable problems (filter, water, dead devices) without manually inspecting each device.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Scene save and apply",
+      "command": "scene save",
+      "description": "Capture the current state across selected devices as a named scene and replay it later as parallel WebSocket frames.",
+      "rationale": "Local SQLite scene store + WS fan-out; replaces the Dreo app's brittle scene feature.",
+      "example": "dreo-pp-cli scene save bedtime --all \u0026\u0026 dreo-pp-cli scene apply bedtime --dry-run",
+      "why_it_matters": "Sam's nightly bedtime routine becomes one command; survives app updates.",
+      "group": "Multi-device control"
+    },
+    {
+      "name": "Per-room rollup",
+      "command": "rooms",
+      "description": "Group devices by room with on-count, average temperature, and average humidity per room.",
+      "rationale": "Cross-entity local join over cached devices + latest state; the by-room endpoint exists but does not aggregate.",
+      "example": "dreo-pp-cli rooms --json",
+      "why_it_matters": "Answers 'what's happening in my bedroom right now' in one query.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Local device search",
+      "command": "devices search",
+      "description": "Full-text search over cached device name, room, model, and serial.",
+      "rationale": "Generator-emitted FTS over local SQLite — works offline.",
+      "example": "dreo-pp-cli devices search Fan",
+      "why_it_matters": "Fast device lookup for scripts and agents without round-tripping the cloud.",
+      "group": "Cross-device intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk fan-out control",
+      "command": "bulk",
+      "description": "Power, mode, or speed across every device matching a type/room filter in one command.",
+      "rationale": "Only possible because the CLI keeps a local devices table and can multiplex WebSocket control frames in parallel; reference clients are HA-resident and have no bulk surface.",
+      "example": "dreo-pp-cli bulk --action off --type tower-fan --dry-run",
+      "why_it_matters": "Replaces the #1 user pain — tapping each device in the Dreo app at bedtime — with one cron-callable line.",
+      "group": "Multi-device control"
+    },
+    {
+      "name": "Whole-house sensor snapshot",
+      "command": "sensors",
+      "description": "Aggregated temperature, humidity, and PM2.5 across every sensor-bearing device in one ranked table.",
+      "rationale": "No single Dreo endpoint returns aggregated sensors; this fans out per device and composes locally.",
+      "example": "dreo-pp-cli sensors --json",
+      "why_it_matters": "Answers the agent question 'what's the air quality across my house?' in one tool call.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Live WebSocket state stream",
+      "command": "watch",
+      "description": "Tail-f for Dreo device state — every WebSocket update as a JSON line on stdout.",
+      "rationale": "Reference clients bury the WebSocket inside Python/TypeScript modules; no existing tool exposes raw state frames for debugging.",
+      "example": "dreo-pp-cli watch --all --json",
+      "why_it_matters": "Enables automation debugging without running Home Assistant, and feeds agent stream-processing pipelines.",
+      "group": "Realtime observability"
+    },
+    {
+      "name": "Sensor timeseries history",
+      "command": "sensors record",
+      "description": "Persist WebSocket state events to a local sensor_readings table and query temperature/humidity/PM2.5 over arbitrary time windows.",
+      "rationale": "No other Dreo tool keeps history; built on the cross-source local store the press provides.",
+      "example": "dreo-pp-cli sensors query --metric temperature --since 1h --json",
+      "why_it_matters": "Answers 'when did the bedroom fan last go to sleep mode' and similar historical questions agents and users actually ask.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Threshold and offline alerts",
+      "command": "alerts",
+      "description": "Report devices with low filter life, empty water tank, offline heartbeat, or sensor readings past a threshold.",
+      "rationale": "Joins cached devices + latest device_state; no equivalent in any reference client.",
+      "example": "dreo-pp-cli alerts --pm25-above 50 --json",
+      "why_it_matters": "Surfaces actionable problems (filter, water, dead devices) without manually inspecting each device.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Scene save and apply",
+      "command": "scene save",
+      "description": "Capture the current state across selected devices as a named scene and replay it later as parallel WebSocket frames.",
+      "rationale": "Local SQLite scene store + WS fan-out; replaces the Dreo app's brittle scene feature.",
+      "example": "dreo-pp-cli scene save bedtime --all \u0026\u0026 dreo-pp-cli scene apply bedtime --dry-run",
+      "why_it_matters": "Sam's nightly bedtime routine becomes one command; survives app updates.",
+      "group": "Multi-device control"
+    },
+    {
+      "name": "Per-room rollup",
+      "command": "rooms",
+      "description": "Group devices by room with on-count, average temperature, and average humidity per room.",
+      "rationale": "Cross-entity local join over cached devices + latest state; the by-room endpoint exists but does not aggregate.",
+      "example": "dreo-pp-cli rooms --json",
+      "why_it_matters": "Answers 'what's happening in my bedroom right now' in one query.",
+      "group": "Cross-device intelligence"
+    },
+    {
+      "name": "Local device search",
+      "command": "devices search",
+      "description": "Full-text search over cached device name, room, model, and serial.",
+      "rationale": "Generator-emitted FTS over local SQLite — works offline.",
+      "example": "dreo-pp-cli devices search Fan",
+      "why_it_matters": "Fast device lookup for scripts and agents without round-tripping the cloud.",
+      "group": "Cross-device intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Dreo",
+    "headline": "The only standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and a local history every other Dreo tool throws away.",
+    "value_prop": "Every existing Dreo client is bundled inside Home Assistant or Homebridge; this is the first general-purpose CLI. It speaks the same WebSocket control protocol the reverse-engineered clients use, plus it keeps a local SQLite cache so bulk fan-out, cross-device sensor snapshots, sensor history, scenes, and alerts work even when the cloud is slow.",
+    "auth_narrative": "Dreo has no public API. Authentication uses your Dreo account email and password (MD5-hashed) against the same OAuth endpoint the Dreo iOS app calls. Set DREO_USERNAME and DREO_PASSWORD; the CLI handles region discovery, token caching, and refresh on 401. No third-party developer account needed.",
+    "quickstart": [
+      {
+        "command": "dreo-pp-cli doctor",
+        "comment": "Verify credentials and login round-trip against the live API"
+      },
+      {
+        "command": "dreo-pp-cli devices list",
+        "comment": "See every device on your Dreo account with model, room, and online status"
+      },
+      {
+        "command": "dreo-pp-cli sensors --json",
+        "comment": "Whole-house temperature, humidity, and PM2.5 in one shot"
+      },
+      {
+        "command": "dreo-pp-cli bulk --action off --type tower-fan",
+        "comment": "Turn off every tower fan in one command — the bedtime ritual"
+      },
+      {
+        "command": "dreo-pp-cli watch --all",
+        "comment": "Live WebSocket state stream as JSON lines — the realtime debug surface no other Dreo tool exposes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports auth failure",
+        "fix": "Verify DREO_USERNAME and DREO_PASSWORD are exported; if you changed your password in the Dreo app, run dreo-pp-cli auth login again"
+      },
+      {
+        "symptom": "Empty device list",
+        "fix": "Run dreo-pp-cli devices list --live to bypass the local cache and fetch fresh from the cloud"
+      },
+      {
+        "symptom": "Commands return but device state does not change",
+        "fix": "Add --wait to the set/bulk command so the CLI confirms the WebSocket state echo before exiting"
+      },
+      {
+        "symptom": "Wrong region",
+        "fix": "Set DREO_REGION=eu (or us) to skip the region-discovery round-trip; the CLI auto-detects on first login"
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever an agent or script needs to read or control Dreo devices without Home Assistant in the loop. It is ideal for one-shot bulk commands (turn everything off at bedtime), whole-house sensor reads, live state streaming for automation debugging, and any cron-driven Dreo automation. The agent-callable MCP surface mirrors every Cobra command so AI agents can drive your home without a custom integration.",
+    "recipes": [
+      {
+        "title": "Bedtime bulk-off",
+        "command": "dreo-pp-cli bulk --action off --type tower-fan \u0026\u0026 dreo-pp-cli bulk --action off --type air-purifier",
+        "explanation": "One line replaces ten taps in the Dreo app; cron-friendly."
+      },
+      {
+        "title": "Whole-house sensor read (agent-friendly with --select)",
+        "command": "dreo-pp-cli sensors --json --select 'devices.name,devices.room,devices.temperature,devices.humidity,devices.pm25'",
+        "explanation": "Returns only the sensor columns an agent needs, dropping the verbose device metadata."
+      },
+      {
+        "title": "Capture a bedtime scene",
+        "command": "dreo-pp-cli scene save bedtime --all \u0026\u0026 dreo-pp-cli scene apply bedtime --dry-run",
+        "explanation": "Snapshot all device state under a named scene, then replay it any night."
+      },
+      {
+        "title": "Filter and water-tank alert sweep",
+        "command": "dreo-pp-cli alerts --json",
+        "explanation": "Reports purifiers with filter life \u003c 10% and humidifiers with empty water tanks across your whole account."
+      },
+      {
+        "title": "Sensor history query",
+        "command": "dreo-pp-cli sensors query --device Fan --metric temperature --since 24h --json",
+        "explanation": "Query the local sensor_readings table for the past 24 hours of temperature data — no other Dreo tool keeps history."
+      }
+    ],
+    "trigger_phrases": [
+      "turn off my fans",
+      "what's the temperature in my house",
+      "check air quality",
+      "bedtime mode",
+      "watch dreo devices",
+      "use dreo",
+      "run dreo"
+    ]
+  }
+}

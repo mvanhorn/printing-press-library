@@ -1,0 +1,330 @@
+{
+  "api_name": "podcast-goat",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "podscript",
+      "url": "https://github.com/timf34/podscript",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "summarize",
+      "url": "https://github.com/steipete/summarize",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youwhisper-cli",
+      "url": "https://github.com/FlyingFathead/youwhisper-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-transcript",
+      "url": "https://github.com/kiuckhuang/yt-transcript",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "faster-whisper-skill",
+      "url": "https://github.com/theplasmak/faster-whisper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-dlp",
+      "url": "https://github.com/yt-dlp/yt-dlp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "spoken.md (vendor)",
+      "url": "https://spoken.md/",
+      "language": "API",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Taddy podcast-api (vendor)",
+      "url": "https://taddy.org/developers/podcast-api/episode-transcripts",
+      "language": "API",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T17:35:00Z",
+  "novel_features": [
+    {
+      "name": "Topic bundle for one-shot agent runs",
+      "command": "magic",
+      "description": "Bundle top-N cached transcripts about a topic into one markdown file an agent can summarize in a single call.",
+      "rationale": "Requires a local FTS5 cross-source corpus and fixed-schema YAML frontmatter per episode — no remote API ships this shape.",
+      "example": "podcast-goat-pp-cli magic 'AI chip supply chain' --out ~/chip-supply-chain.md",
+      "why_it_matters": "Replaces the chip-supply-chain.fly.dev copy-paste workflow with one command. Reach for this when the agent needs cross-episode synthesis.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Dispatcher decision trace",
+      "command": "episode get --explain",
+      "description": "Dry-run shows which source tier will fire and why earlier tiers were skipped, with projected cost before any paid call.",
+      "rationale": "Requires knowledge of the cookie -\u003e free -\u003e paid chain plus local cookie state and budget state.",
+      "example": "podcast-goat-pp-cli episode get https://www.hubermanlab.com/episode/example --explain",
+      "why_it_matters": "Lets agents preview cost and source attribution before committing. Reach for this before any paid run.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Local quote grep with speaker context",
+      "command": "episode quote",
+      "description": "FTS5 phrase search returns the matched segment plus N surrounding segments preserving the canonical speaker shape and deeplink timestamp.",
+      "rationale": "Requires FTS5 over per-segment JSONL with segment-aware context windowing.",
+      "example": "podcast-goat-pp-cli episode quote 'pricing power' -C 3 --json",
+      "why_it_matters": "Grep your podcast memory in 5 seconds. Reach for this when you remember a half-citation and need the exact line back.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Cross-source content diff",
+      "command": "source compare",
+      "description": "For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence.",
+      "rationale": "Requires fanning out to 2+ adapters in the same dispatcher and structurally comparing normalized outputs.",
+      "example": "podcast-goat-pp-cli source compare https://www.acquired.fm/episodes/vanguard --json",
+      "why_it_matters": "Reveals when free sources are good enough vs when paid is needed. Reach for this before recommending an upstream source.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Bilingual zh-Hans + en aligned transcript",
+      "command": "episode get --bilingual",
+      "description": "yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn.",
+      "rationale": "Requires yt-dlp dual-language VTT plus segment alignment; no transcript CLI ships this.",
+      "example": "podcast-goat-pp-cli episode get 'https://www.youtube.com/watch?v=EXAMPLE' --bilingual zh-Hans,en",
+      "why_it_matters": "Makes Mandarin-only podcasts (e.g., Xiaojun) usable for English-reading agents in one step.",
+      "group": "Multilingual reach"
+    },
+    {
+      "name": "Per-service cookie freshness table",
+      "command": "auth services",
+      "description": "One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale.",
+      "rationale": "Requires local knowledge of stored cookies per publisher + per-publisher health probe.",
+      "example": "podcast-goat-pp-cli auth services --json",
+      "why_it_matters": "Cookies decay silently. Reach for this before a batch run to confirm member access still works.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Distinct-speaker corpus index",
+      "command": "speakers list",
+      "description": "Aggregate speaker names across the cached corpus with episode counts, optionally filtered by show.",
+      "rationale": "Requires SQL aggregation over per-segment JSONL across all cached episodes; impossible without local store.",
+      "example": "podcast-goat-pp-cli speakers list --show acquired --json",
+      "why_it_matters": "Answers 'what do I have on Senra/Buffett/Karpathy'. Reach for this when building a synthesis prompt.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Spend pivot by show + provider",
+      "command": "budget show --by-show",
+      "description": "Pivot spend.jsonl joined to episodes by URL; group by show, provider, month to attribute cost.",
+      "rationale": "Requires joining local spend log to local episode metadata; reveals cookie wins vs paid hits.",
+      "example": "podcast-goat-pp-cli budget show --by-show --since 30 --json",
+      "why_it_matters": "Shows which subscriptions are paying off and which shows still cost money. Reach for this monthly.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Topic bundle for one-shot agent runs",
+      "command": "magic",
+      "description": "Bundle top-N cached transcripts about a topic into one markdown file an agent can summarize in a single call.",
+      "rationale": "Requires a local FTS5 cross-source corpus and fixed-schema YAML frontmatter per episode — no remote API ships this shape.",
+      "example": "podcast-goat-pp-cli magic 'AI chip supply chain' --out ~/chip-supply-chain.md",
+      "why_it_matters": "Replaces the chip-supply-chain.fly.dev copy-paste workflow with one command. Reach for this when the agent needs cross-episode synthesis.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Dispatcher decision trace",
+      "command": "episode get --explain",
+      "description": "Dry-run shows which source tier will fire and why earlier tiers were skipped, with projected cost before any paid call.",
+      "rationale": "Requires knowledge of the cookie -\u003e free -\u003e paid chain plus local cookie state and budget state.",
+      "example": "podcast-goat-pp-cli episode get https://www.hubermanlab.com/episode/example --explain",
+      "why_it_matters": "Lets agents preview cost and source attribution before committing. Reach for this before any paid run.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Local quote grep with speaker context",
+      "command": "episode quote",
+      "description": "FTS5 phrase search returns the matched segment plus N surrounding segments preserving the canonical speaker shape and deeplink timestamp.",
+      "rationale": "Requires FTS5 over per-segment JSONL with segment-aware context windowing.",
+      "example": "podcast-goat-pp-cli episode quote 'pricing power' -C 3 --json",
+      "why_it_matters": "Grep your podcast memory in 5 seconds. Reach for this when you remember a half-citation and need the exact line back.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Cross-source content diff",
+      "command": "source compare",
+      "description": "For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence.",
+      "rationale": "Requires fanning out to 2+ adapters in the same dispatcher and structurally comparing normalized outputs.",
+      "example": "podcast-goat-pp-cli source compare https://www.acquired.fm/episodes/vanguard --json",
+      "why_it_matters": "Reveals when free sources are good enough vs when paid is needed. Reach for this before recommending an upstream source.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Bilingual zh-Hans + en aligned transcript",
+      "command": "episode get --bilingual",
+      "description": "yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn.",
+      "rationale": "Requires yt-dlp dual-language VTT plus segment alignment; no transcript CLI ships this.",
+      "example": "podcast-goat-pp-cli episode get 'https://www.youtube.com/watch?v=EXAMPLE' --bilingual zh-Hans,en",
+      "why_it_matters": "Makes Mandarin-only podcasts (e.g., Xiaojun) usable for English-reading agents in one step.",
+      "group": "Multilingual reach"
+    },
+    {
+      "name": "Per-service cookie freshness table",
+      "command": "auth services",
+      "description": "One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale.",
+      "rationale": "Requires local knowledge of stored cookies per publisher + per-publisher health probe.",
+      "example": "podcast-goat-pp-cli auth services --json",
+      "why_it_matters": "Cookies decay silently. Reach for this before a batch run to confirm member access still works.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Distinct-speaker corpus index",
+      "command": "speakers list",
+      "description": "Aggregate speaker names across the cached corpus with episode counts, optionally filtered by show.",
+      "rationale": "Requires SQL aggregation over per-segment JSONL across all cached episodes; impossible without local store.",
+      "example": "podcast-goat-pp-cli speakers list --show acquired --json",
+      "why_it_matters": "Answers 'what do I have on Senra/Buffett/Karpathy'. Reach for this when building a synthesis prompt.",
+      "group": "Cross-source corpus that compounds"
+    },
+    {
+      "name": "Spend pivot by show + provider",
+      "command": "budget show --by-show",
+      "description": "Pivot spend.jsonl joined to episodes by URL; group by show, provider, month to attribute cost.",
+      "rationale": "Requires joining local spend log to local episode metadata; reveals cookie wins vs paid hits.",
+      "example": "podcast-goat-pp-cli budget show --by-show --since 30 --json",
+      "why_it_matters": "Shows which subscriptions are paying off and which shows still cost money. Reach for this monthly.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Podcast GOAT",
+    "headline": "Pull long-form podcast transcripts as speaker-labeled markdown — cookie-first across the four major paid publishers, free everywhere else, paid only when nothing else works.",
+    "value_prop": "Built for agentic users who already pay for Huberman, Acquired, Founders, and Peter Attia and want to feed those transcripts into Claude or Hermes without copy-pasting. Walks a cookie -\u003e free -\u003e paid dispatch chain across 10 sources, normalizes everything to the same `**Speaker** (MM:SS)` markdown shape, caches to a local FTS5 store, and ships an MCP wrapper so agents can drive the whole thing.",
+    "auth_narrative": "Three auth surfaces, in cost order. (1) `auth login --chrome --service \u003chuberman|acquired|founders|peterattia\u003e` extracts your logged-in Chrome cookie once and stores it locally — the headline workflow. (2) Free sources (Dwarkesh Substack, Podcasting 2.0 RSS transcripts, yt-dlp auto-subs) need no auth. (3) Paid sources (spoken.md `SPOKEN_API_KEY`, Taddy `TADDY_API_KEY`+`TADDY_USER_ID`, audio providers like ElevenLabs/OpenAI/Deepgram) are scoped to commands you explicitly opt into with `--paid` or `--provider \u003cname\u003e`. spoken.md's `pt_demo` key works without signup.",
+    "quickstart": [
+      {
+        "command": "podcast-goat-pp-cli doctor",
+        "comment": "Confirm yt-dlp present, RSS reachability, cookie freshness"
+      },
+      {
+        "command": "podcast-goat-pp-cli episode get https://www.dwarkesh.com/p/andrej-karpathy",
+        "comment": "Free path; canonical markdown straight to cache"
+      },
+      {
+        "command": "podcast-goat-pp-cli auth login-service --service huberman",
+        "comment": "One-time cookie capture from your logged-in Chrome"
+      },
+      {
+        "command": "podcast-goat-pp-cli episode get https://www.hubermanlab.com/episode/\u003cyour-premium-slug\u003e",
+        "comment": "Cookie path; free because you subscribe"
+      },
+      {
+        "command": "podcast-goat-pp-cli magic 'AI chip supply chain' --out chips.md",
+        "comment": "Bundle cached transcripts into one prompt-shaped file"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`episode get` returns nothing on a member URL",
+        "fix": "Run `auth services` to confirm the service cookie isn't stale; re-run `auth login-service --service \u003cname\u003e` if so."
+      },
+      {
+        "symptom": "yt-dlp YouTube path fails with 'no subtitles'",
+        "fix": "Some YouTube videos have no auto-subs. Use `--provider whisper --provider-name elevenlabs` to transcribe from audio (requires `ELEVENLABS_API_KEY`)."
+      },
+      {
+        "symptom": "Paid fallback fires when you expected cookie hit",
+        "fix": "Run `episode get \u003curl\u003e --explain` to see the dispatcher trace — usually a cookie expiry or a URL host that doesn't match a known publisher."
+      },
+      {
+        "symptom": "Bilingual alignment looks off",
+        "fix": "yt-dlp auto-translate quality varies. Pass `--align greedy|exact` to switch alignment strategy; `exact` requires both tracks to have matching segment counts."
+      }
+    ],
+    "when_to_use": "Reach for podcast-goat when an agent needs to read or quote from a long-form podcast and you already subscribe to the show. The CLI walks your member cookies first, falls back to free YouTube/Substack/RSS sources, and only spends money on spoken.md or audio transcription when nothing free works. The MCP surface makes it the canonical podcast adapter for Claude Code agents — every command is an MCP tool, every read is annotated `mcp:read-only`.",
+    "recipes": [
+      {
+        "title": "Pull a Dwarkesh transcript and pipe it to an agent",
+        "command": "podcast-goat-pp-cli episode get https://www.dwarkesh.com/p/andrej-karpathy --md --out karpathy.md",
+        "explanation": "Free, fast, no auth. The transcript hits local cache; --out also writes the canonical markdown to disk so you can hand the file to any agent (claude, hermes, codex)."
+      },
+      {
+        "title": "Build a topic bundle for one-shot synthesis",
+        "command": "podcast-goat-pp-cli magic 'compounding' --limit 5 --out compounding.md",
+        "explanation": "FTS5 picks the top 5 cached episodes mentioning the topic and emits one file with per-episode YAML frontmatter (show, host, guests, date, source, cost) plus body. Drop the file into any agent."
+      },
+      {
+        "title": "Grep a half-remembered quote",
+        "command": "podcast-goat-pp-cli episode quote 'Rockefeller pricing power' -C 3 --json --select results.episode.url,results.segments",
+        "explanation": "Phrase search across the local corpus, returns the matched line plus 3 segments of speaker-tagged context. Reach for this instead of scrolling."
+      },
+      {
+        "title": "Diff free vs paid for the same episode",
+        "command": "podcast-goat-pp-cli source compare https://www.acquired.fm/episodes/vanguard --json",
+        "explanation": "Fans out to every adapter that can resolve the URL (cookie + YouTube auto-subs + spoken.md) and prints a markdown table comparing segment count, token count, and speaker diarization quality."
+      },
+      {
+        "title": "Check subscription value",
+        "command": "podcast-goat-pp-cli budget show --by-show --since 30",
+        "explanation": "Pivots spend.jsonl by show and provider. Use it to see which member cookies saved money and which shows cost actual dollars last month."
+      }
+    ],
+    "trigger_phrases": [
+      "pull this podcast transcript",
+      "get the transcript from this URL",
+      "summarize this Dwarkesh episode",
+      "what did Senra say about",
+      "bundle these episodes for me",
+      "grep my podcast cache",
+      "use podcast-goat",
+      "run podcast-goat"
+    ]
+  }
+}

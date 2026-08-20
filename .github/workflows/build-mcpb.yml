@@ -9,21 +9,20 @@ name: Build CLI release artifacts
 # so each push to main rebuilds and the URLs stay stable forever.
 #
 # Triggers:
-#   - workflow_dispatch (manual): rebuild a specific CLI or "all"
+#   - workflow_dispatch (manual): rebuild a specific CLI
 #   - push to main on library/** (excluding build/): rebuild affected CLIs
 #
 # Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
 # mvanhorn/cli-printing-press) so the bundle job can `go install` the
-# printing-press generator from a private repo. The build-cli job doesn't
+# cli-printing-press generator from a private repo. The build-cli job doesn't
 # need it — printed CLIs only depend on public Go modules.
 
 on:
   workflow_dispatch:
     inputs:
       cli:
-        description: 'CLI to rebuild as <category>/<slug>, or "all" for every CLI in the library'
-        required: false
-        default: ''
+        description: 'CLI to rebuild as <category>/<slug>'
+        required: true
   push:
     branches: [main]
     paths:
@@ -71,14 +70,20 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ -z "$INPUT_CLI" ] || [ "$INPUT_CLI" = "all" ]; then
-              affected=$(find library -mindepth 2 -maxdepth 2 -type d \
-                | sed 's|library/||' \
-                | sort -u \
-                | jq -R . | jq -s -c .)
-            else
-              affected=$(printf '%s' "$INPUT_CLI" | jq -R . | jq -s -c .)
+            if [ -z "$INPUT_CLI" ]; then
+              echo "::error::No CLI target provided. Specify a target with cli=<category>/<slug>, for example cli=media-and-entertainment/substack."
+              exit 1
             fi
+            if [ "$INPUT_CLI" = "all" ]; then
+              total=$(find library -mindepth 2 -maxdepth 2 -type d | wc -l | tr -d ' ')
+              echo "::error::Manual all-CLI rebuilds would expand to ${total} targets and exceed GitHub Actions' 256-combination matrix limit. Re-run with a specific CLI, for example cli=media-and-entertainment/substack."
+              exit 1
+            fi
+            if [ ! -d "library/$INPUT_CLI" ]; then
+              echo "::error::Unknown CLI target '${INPUT_CLI}'. Expected a path like media-and-entertainment/substack under library/."
+              exit 1
+            fi
+            affected=$(printf '%s' "$INPUT_CLI" | jq -R . | jq -s -c .)
           else
             # Push event: diff against parent commit. The all-zeros sentinel
             # appears for initial branch pushes; fall back to HEAD^ then to
@@ -151,7 +156,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version-file: .go-version
           # Public library is a monorepo with per-CLI go.mod under library/<cat>/<slug>/.
           # Point setup-go at this matrix entry's go.sum so its module cache is keyed
           # correctly. Without this, setup-go warns "Dependencies file is not found".
@@ -165,12 +170,12 @@ jobs:
             exit 1
           fi
           git config --global url."https://oauth2:${TOKEN}@github.com/".insteadOf "https://github.com/"
-      - name: Install printing-press
+      - name: Install cli-printing-press
         env:
           GOPRIVATE: github.com/mvanhorn/*
         run: |
-          go install github.com/mvanhorn/cli-printing-press/v3/cmd/printing-press@latest
-          printing-press --version
+          go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest
+          cli-printing-press --version
       - name: Bundle MCPB
         env:
           CLI_TARGET: ${{ matrix.target }}
@@ -194,7 +199,7 @@ jobs:
           fi
           out="${RUNNER_TEMP}/out/${slug}-pp-mcp-${os}-${arch}.mcpb"
           mkdir -p "$(dirname "$out")"
-          printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
+          cli-printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
           ls -lh "$out"
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v6
@@ -230,7 +235,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version-file: .go-version
           cache-dependency-path: library/${{ matrix.target }}/go.sum
       - name: Build CLI binary
         env:
@@ -242,6 +247,14 @@ jobs:
           os="${PLATFORM%/*}"
           arch="${PLATFORM#*/}"
           slug=$(basename "${CLI_TARGET}")
+          # cli_name is the authoritative binary name. Reading it from
+          # .printing-press.json keeps this step honest when a CLI's directory
+          # basename and cli_name diverge (e.g. an abbreviated slug paired
+          # with a longer spec-derived binary name). Falling back to the
+          # derived form preserves behavior for entries whose manifest
+          # predates this field. See PR #455 / issue #688 for the jira case
+          # this prevents.
+          cli_name=$(jq -er '.cli_name' "${cli_dir}/.printing-press.json" 2>/dev/null || printf '%s-pp-cli' "${slug}")
           echo "SLUG=${slug}" >> "$GITHUB_ENV"
           echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
           ext=""
@@ -256,7 +269,7 @@ jobs:
           # config the CLI ships with.
           GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
             go build -trimpath -ldflags='-s -w' \
-            -o "$out" "./cmd/${slug}-pp-cli"
+            -o "$out" "./cmd/${cli_name}"
           ls -lh "$out"
       - name: Upload CLI artifact
         uses: actions/upload-artifact@v6
@@ -379,6 +392,7 @@ jobs:
             echo "No artifacts to publish for ${SLUG}; skipping release."
             exit 0
           fi
+          # shellcheck disable=SC2016
           notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"

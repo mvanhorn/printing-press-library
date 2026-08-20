@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "chrome-history-archive-mcp-surface",
+  "applied_at": "2026-06-12T00:00:00Z",
+  "base_run_id": "20260524-023512",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Exposes the archive surface over MCP (archive_status read; archive_enable/archive_disable writes; sync.accumulate boolean) and reworks the sync-first SKILL steering; destructive clobber/reset/vacuum kept CLI-only.",
+  "reason": "An AQL discoverability eval found the archive was CLI-complete but MCP-incomplete (an MCP-only agent could read but not enable/refresh the archive), and the legibility eval found the SKILL's 'run sync first' steering caused a wasted, now-mutating sync reflex; both fixed and re-verified against a real agent.",
+  "files": [
+    "internal/mcp/server.go",
+    "internal/mcp/server_test.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

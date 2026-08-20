@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "squarespace-pp-mcp",
+  "display_name": "Squarespace",
+  "version": "1.0.0",
+  "description": "Squarespace Commerce API plus browser-backed account dashboard read tools as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/squarespace-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/squarespace-pp-mcp",
+      "args": [],
+      "env": {
+        "COMMERCE_AUTHORIZATION": "${user_config.commerce_authorization}",
+        "SQUARESPACE_ACCOUNT_COOKIE": "${user_config.squarespace_account_cookie}",
+        "SQUARESPACE_ACCOUNT_COOKIE_FILE": "${user_config.squarespace_account_cookie_file}"
+      }
+    }
+  },
+  "user_config": {
+    "commerce_authorization": {
+      "type": "string",
+      "title": "COMMERCE_AUTHORIZATION",
+      "description": "Squarespace Commerce API bearer token. Required for official Commerce API commands.",
+      "sensitive": true,
+      "required": false
+    },
+    "squarespace_account_cookie": {
+      "type": "string",
+      "title": "SQUARESPACE_ACCOUNT_COOKIE",
+      "description": "Browser Cookie header for account.squarespace.com. Required only for account dashboard commands.",
+      "sensitive": true,
+      "required": false
+    },
+    "squarespace_account_cookie_file": {
+      "type": "string",
+      "title": "SQUARESPACE_ACCOUNT_COOKIE_FILE",
+      "description": "Path to a file containing the browser Cookie header for account.squarespace.com. Alternative to SQUARESPACE_ACCOUNT_COOKIE.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

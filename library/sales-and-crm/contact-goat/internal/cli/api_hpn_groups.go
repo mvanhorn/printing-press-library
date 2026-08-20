@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // api_hpn_groups.go: `api hpn groups list` and `api hpn groups get`.
 // Both are free probes (no credit cost), so no budget gate or cost
@@ -17,9 +17,9 @@ import (
 
 func newAPIHpnGroupsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "groups",
+		Use:         "groups",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List or fetch Happenstance groups (free probe)",
+		Short:       "List or fetch Happenstance groups (free probe)",
 		Long: `Calls /v1/groups and /v1/groups/{id}. Groups are the named cohorts
 the user has access to (e.g. an alumni network or company list).
 Member names from a singular group fetch can be passed back into
@@ -32,10 +32,10 @@ Member names from a singular group fetch can be passed back into
 
 func newAPIHpnGroupsListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "list",
+		Use:         "list",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List all Happenstance groups the caller can access (free)",
-		Example: `  contact-goat-pp-cli api hpn groups list`,
+		Short:       "List all Happenstance groups the caller can access (free)",
+		Example:     `  contact-goat-pp-cli api hpn groups list`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newHappenstanceAPIClient()
 			if err != nil {
@@ -68,11 +68,11 @@ func newAPIHpnGroupsListCmd(flags *rootFlags) *cobra.Command {
 
 func newAPIHpnGroupsGetCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <group_id>",
+		Use:         "get <group_id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Get a single Happenstance group by id, including members (free)",
-		Example: `  contact-goat-pp-cli api hpn groups get grp_abc123`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "Get a single Happenstance group by id, including members (free)",
+		Example:     `  contact-goat-pp-cli api hpn groups get grp_abc123`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			groupID := strings.TrimSpace(args[0])
 			if groupID == "" {

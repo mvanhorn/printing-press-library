@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-default-sync-resources",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Made plain `sync` (no --resources flag) populate the local store by default.",
+  "reason": "defaultSyncResources() returned an empty slice even though \"schema\" is a registered syncable resource (knownSyncResourceNames() already includes it), making `sync` a silent no-op unless the user knew to pass --resources schema explicitly. Dogfood flagged this as a structural gap: store-dependent novel commands had no advertised default population path.",
+  "files": ["internal/cli/sync.go"],
+  "validated_outcome": "dogfood --live confirmed PASS after the fix; `sync` with no flags now populates the local store from /schema.",
+  "upstream_issue": ""
+}

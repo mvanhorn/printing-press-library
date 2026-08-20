@@ -1,0 +1,51 @@
+version: 2
+project_name: ucp-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ucp-pp-cli
+    main: ./cmd/ucp-pp-cli
+    binary: ucp-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ucp-pp-mcp
+    main: ./cmd/ucp-pp-mcp
+    binary: ucp-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ucp-pp-cli
+    repository:
+      owner: beetz12
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP"
+    install: |
+      bin.install "ucp-pp-cli"
+      bin.install "ucp-pp-mcp"

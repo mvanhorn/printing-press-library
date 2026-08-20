@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "api-transcript-hydrate",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Transcripts are fetched per-document over the internal API on the degraded path, and the work must be bounded, resumable, and stamped as API-owned.",
+  "reason": "Documents alone leave every transcript-dependent command returning empty on a migrated install, which reads as 'you had no transcripts' rather than 'these were never synced'. The transcript endpoint accepts a CLI-owned session, but there is no bulk form: a backfill is one rate-limited call per meeting, so a regen must keep the per-run budget, the newest-first ordering, and the fetch-state table that stops the CLI re-asking about meetings which genuinely have no recording. These transcripts must be written with API row ownership, not cache ownership, or the cross-source retention check compares against a phantom cache copy and can block a later genuine refresh.",
+  "validated_outcome": "A 40-document budget pulled 39 transcripts and 15773 segments against a live account, reported 923 remaining, and resumed correctly on the next run.",
+  "files": [
+    "internal/granola/api_transcripts.go",
+    "internal/granola/store_sync.go",
+    "internal/cli/sync_cache.go"
+  ]
+}

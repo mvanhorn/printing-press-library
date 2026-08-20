@@ -1,4 +1,4 @@
-// Copyright 2026 cathryn-lavery. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 // MCP exposes the same safe v1 read surface as the CLI; mutations stay disabled.
 
 package mcp

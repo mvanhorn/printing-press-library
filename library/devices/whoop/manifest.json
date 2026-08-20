@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "whoop-pp-mcp",
+  "display_name": "Whoop",
+  "version": "4.1.0",
+  "description": "Whoop API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/whoop-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/whoop-pp-mcp",
+      "args": [],
+      "env": {
+        "WHOOP_OAUTH": "${user_config.whoop_oauth}"
+      }
+    }
+  },
+  "user_config": {
+    "whoop_oauth": {
+      "type": "string",
+      "title": "WHOOP_OAUTH",
+      "description": "Sets WHOOP_OAUTH for the Whoop MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

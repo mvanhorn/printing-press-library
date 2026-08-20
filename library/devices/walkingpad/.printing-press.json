@@ -1,0 +1,46 @@
+{
+  "api_name": "walkingpad",
+  "category": "devices",
+  "cli_name": "walkingpad-pp-cli",
+  "contributors": [],
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "description": "Control a WalkingPad treadmill over Bluetooth LE: start and stop the belt, set speed, stream live telemetry, and record walks to a local history store.",
+  "generated_at": "2026-06-03T07:44:35.615906Z",
+  "min_binary_version": "4.0.0",
+  "novel_features": [
+    {
+      "name": "Local walk history",
+      "command": "today",
+      "description": "Keep a permanent local record of every walk — distance, steps, time — that survives the belt's power-cut memory loss."
+    },
+    {
+      "name": "Streak tracking",
+      "command": "streak",
+      "description": "See your current consecutive-day walking streak."
+    },
+    {
+      "name": "Daily trends",
+      "command": "trends",
+      "description": "Distance, steps, and active minutes per day over a window."
+    },
+    {
+      "name": "Calorie estimate",
+      "command": "calories",
+      "description": "Estimate calories burned from your body profile — the number the belt refuses to report."
+    },
+    {
+      "name": "Family-generic discovery",
+      "command": "scan",
+      "description": "Find any compatible WalkingPad by its BLE service, not its name."
+    }
+  ],
+  "owner_name": "Trevin Chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "printing_press_version": "4.20.0",
+  "run_id": "20260603-000413",
+  "schema_version": 1
+}

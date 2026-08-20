@@ -1,0 +1,51 @@
+version: 2
+project_name: azure-devops-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: azure-devops-pp-cli
+    main: ./cmd/azure-devops-pp-cli
+    binary: azure-devops-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/azure-devops/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: azure-devops-pp-mcp
+    main: ./cmd/azure-devops-pp-mcp
+    binary: azure-devops-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: azure-devops-pp-cli
+    repository:
+      owner: davbebawy
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The fastest Azure DevOps CLI — offline-first, agent-native"
+    install: |
+      bin.install "azure-devops-pp-cli"
+      bin.install "azure-devops-pp-mcp"

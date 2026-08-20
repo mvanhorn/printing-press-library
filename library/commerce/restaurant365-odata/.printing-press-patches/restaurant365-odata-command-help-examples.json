@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-odata-command-help-examples",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Add examples to custom Restaurant365 workflow command help.",
+  "reason": "Publish dogfood requires usable examples on custom commands, and these examples also show safe bounded R365 workflows.",
+  "files": [
+    "internal/cli/r365_odata.go",
+    "internal/cli/r365_odata_test.go"
+  ],
+  "validated_outcome": "Focused Go regression tests covered Examples sections for each custom Restaurant365 command."
+}

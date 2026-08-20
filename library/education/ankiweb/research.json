@@ -1,0 +1,292 @@
+{
+  "api_name": "ankiweb",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "shared download requires a client-minted signed token (op=sdd) not reproducible from captured traffic — ships as a documented stub",
+    "all /svc/ responses are protobuf, decoded by hand-written wire-format readers"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-25T22:35:00Z",
+  "novel_features": [
+    {
+      "name": "Approval-rate ranking",
+      "command": "shared rank",
+      "description": "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor, instead of the raw vote counts the website shows.",
+      "rationale": "Requires computing upvotes/(upvotes+downvotes) across the local catalog snapshot — a quality signal the AnkiWeb SPA never surfaces.",
+      "example": "ankiweb-pp-cli shared rank spanish --min-votes 20 --agent",
+      "why_it_matters": "Pick the highest-quality deck for a topic in one command instead of eyeballing vote counts deck by deck.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Audio/image coverage filter",
+      "command": "shared search",
+      "description": "Filter shared decks by whether they include audio or images, critical for language learners.",
+      "rationale": "Filters on the audio/images note-count fields decoded from the protobuf list response; the web UI exposes no such filter.",
+      "example": "ankiweb-pp-cli shared search japanese --has-audio --agent",
+      "why_it_matters": "Surface only media-rich decks when audio matters (language study) without opening each deck.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Side-by-side deck comparison",
+      "command": "compare",
+      "description": "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness.",
+      "rationale": "Joins multiple cached deck rows from the local store — there is no compare view on AnkiWeb or in any other tool.",
+      "example": "ankiweb-pp-cli compare 241428882 815543631 --agent",
+      "why_it_matters": "Decide between near-duplicate decks at a glance instead of flipping between tabs.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Freshness ranking",
+      "command": "shared fresh",
+      "description": "Rank or filter shared decks by last-modified date to surface actively maintained decks.",
+      "rationale": "Orders the local catalog by the decoded modified timestamp; the SPA only shows a date column you can't query.",
+      "example": "ankiweb-pp-cli shared fresh anatomy --since 2024-01-01 --agent",
+      "why_it_matters": "Avoid stale abandoned decks by finding the ones updated recently.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "New-deck drift watch",
+      "command": "watch",
+      "description": "Show shared decks that are new or changed for a search term since your last sync.",
+      "rationale": "Diffs the current catalog result against the last SQLite snapshot — impossible without a local persisted store.",
+      "example": "ankiweb-pp-cli watch spanish --since-last-sync --agent",
+      "why_it_matters": "Re-run a weekly topic search and see only what's new instead of re-scanning the whole list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owned-deck download drift",
+      "command": "drift",
+      "description": "Track download-count changes on the decks you've published, between syncs.",
+      "rationale": "Builds a local time series of your shared decks' download counts; AnkiWeb shows only the current number.",
+      "example": "ankiweb-pp-cli drift --agent",
+      "why_it_matters": "See whether your published decks are gaining traction over time without manual note-taking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Discovery briefing",
+      "command": "brief",
+      "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync.",
+      "rationale": "Mechanically composes the ranking, coverage, freshness, and drift primitives into a single agent-friendly summary.",
+      "example": "ankiweb-pp-cli brief spanish --agent",
+      "why_it_matters": "Get a complete read on a topic's deck landscape in one call instead of running four commands.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Add notes from the terminal",
+      "command": "notes add",
+      "description": "Add a note (card) to one of your decks straight from the terminal or an agent, with --dry-run preview and confirmation safety.",
+      "rationale": "Writes directly to your AnkiWeb collection via the editor service — no other tool adds cards to ankiweb.net (the rest wrap the desktop AnkiConnect add-on).",
+      "example": "ankiweb-pp-cli notes add \"Bonjour\" \"Hello\" --deck \"Words \u0026 phrases\" --tags french --yes",
+      "why_it_matters": "Let an agent turn generated Q\u0026A into real flashcards in your cloud collection without opening the desktop app.",
+      "group": "Write to your collection"
+    },
+    {
+      "name": "Search your own cards",
+      "command": "cards search",
+      "description": "Search the cards in your AnkiWeb collection from the terminal using AnkiWeb's search syntax, returning matching card ids and text snippets.",
+      "rationale": "Calls the personal card-search service (/svc/search/search) and decodes its protobuf — letting an agent query your collection without the desktop Browse window.",
+      "example": "ankiweb-pp-cli cards search \"deck:Spanish tag:verb\" --json",
+      "why_it_matters": "Find existing cards before adding duplicates, or pull a card id to act on.",
+      "group": "Write to your collection"
+    },
+    {
+      "name": "List note types and decks",
+      "command": "notetypes",
+      "description": "List the note types and decks available for adding, your defaults, and the default note type's field names.",
+      "rationale": "Surfaces the valid --type/--deck/--field values the add command accepts, decoded from the editor service.",
+      "example": "ankiweb-pp-cli notetypes --json",
+      "why_it_matters": "Discover what to pass to `notes add` before writing a note.",
+      "group": "Write to your collection"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Approval-rate ranking",
+      "command": "shared rank",
+      "description": "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor, instead of the raw vote counts the website shows.",
+      "rationale": "Requires computing upvotes/(upvotes+downvotes) across the local catalog snapshot — a quality signal the AnkiWeb SPA never surfaces.",
+      "example": "ankiweb-pp-cli shared rank spanish --min-votes 20 --agent",
+      "why_it_matters": "Pick the highest-quality deck for a topic in one command instead of eyeballing vote counts deck by deck.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Audio/image coverage filter",
+      "command": "shared search",
+      "description": "Filter shared decks by whether they include audio or images, critical for language learners.",
+      "rationale": "Filters on the audio/images note-count fields decoded from the protobuf list response; the web UI exposes no such filter.",
+      "example": "ankiweb-pp-cli shared search japanese --has-audio --agent",
+      "why_it_matters": "Surface only media-rich decks when audio matters (language study) without opening each deck.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Side-by-side deck comparison",
+      "command": "compare",
+      "description": "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness.",
+      "rationale": "Joins multiple cached deck rows from the local store — there is no compare view on AnkiWeb or in any other tool.",
+      "example": "ankiweb-pp-cli compare 241428882 815543631 --agent",
+      "why_it_matters": "Decide between near-duplicate decks at a glance instead of flipping between tabs.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "Freshness ranking",
+      "command": "shared fresh",
+      "description": "Rank or filter shared decks by last-modified date to surface actively maintained decks.",
+      "rationale": "Orders the local catalog by the decoded modified timestamp; the SPA only shows a date column you can't query.",
+      "example": "ankiweb-pp-cli shared fresh anatomy --since 2024-01-01 --agent",
+      "why_it_matters": "Avoid stale abandoned decks by finding the ones updated recently.",
+      "group": "Catalog intelligence the website can't do"
+    },
+    {
+      "name": "New-deck drift watch",
+      "command": "watch",
+      "description": "Show shared decks that are new or changed for a search term since your last sync.",
+      "rationale": "Diffs the current catalog result against the last SQLite snapshot — impossible without a local persisted store.",
+      "example": "ankiweb-pp-cli watch spanish --since-last-sync --agent",
+      "why_it_matters": "Re-run a weekly topic search and see only what's new instead of re-scanning the whole list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owned-deck download drift",
+      "command": "drift",
+      "description": "Track download-count changes on the decks you've published, between syncs.",
+      "rationale": "Builds a local time series of your shared decks' download counts; AnkiWeb shows only the current number.",
+      "example": "ankiweb-pp-cli drift --agent",
+      "why_it_matters": "See whether your published decks are gaining traction over time without manual note-taking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Discovery briefing",
+      "command": "brief",
+      "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync.",
+      "rationale": "Mechanically composes the ranking, coverage, freshness, and drift primitives into a single agent-friendly summary.",
+      "example": "ankiweb-pp-cli brief spanish --agent",
+      "why_it_matters": "Get a complete read on a topic's deck landscape in one call instead of running four commands.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Add notes from the terminal",
+      "command": "notes add",
+      "description": "Add a note (card) to one of your decks straight from the terminal or an agent, with --dry-run preview and confirmation safety.",
+      "rationale": "Writes directly to your AnkiWeb collection via the editor service — no other tool adds cards to ankiweb.net (the rest wrap the desktop AnkiConnect add-on).",
+      "example": "ankiweb-pp-cli notes add \"Bonjour\" \"Hello\" --deck \"Words \u0026 phrases\" --tags french --yes",
+      "why_it_matters": "Let an agent turn generated Q\u0026A into real flashcards in your cloud collection without opening the desktop app.",
+      "group": "Write to your collection"
+    },
+    {
+      "name": "Search your own cards",
+      "command": "cards search",
+      "description": "Search the cards in your AnkiWeb collection from the terminal using AnkiWeb's search syntax, returning matching card ids and text snippets.",
+      "rationale": "Calls the personal card-search service (/svc/search/search) and decodes its protobuf — letting an agent query your collection without the desktop Browse window.",
+      "example": "ankiweb-pp-cli cards search \"deck:Spanish tag:verb\" --json",
+      "why_it_matters": "Find existing cards before adding duplicates, or pull a card id to act on.",
+      "group": "Write to your collection"
+    },
+    {
+      "name": "List note types and decks",
+      "command": "notetypes",
+      "description": "List the note types and decks available for adding, your defaults, and the default note type's field names.",
+      "rationale": "Surfaces the valid --type/--deck/--field values the add command accepts, decoded from the editor service.",
+      "example": "ankiweb-pp-cli notetypes --json",
+      "why_it_matters": "Discover what to pass to `notes add` before writing a note.",
+      "group": "Write to your collection"
+    }
+  ],
+  "narrative": {
+    "display_name": "AnkiWeb",
+    "headline": "The only terminal-native way to search, rank, and download AnkiWeb shared decks, read and search your own cloud collection, and add new cards — with an offline catalog no other Anki tool has.",
+    "value_prop": "Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiweb.net. AnkiWeb CLI talks directly to the website's service layer, decodes its protobuf responses, and keeps a local SQLite catalog so you can rank decks by approval rate, filter by audio coverage, compare candidates, watch for new decks, search the cards already in your collection, and add notes straight to your cloud account.",
+    "auth_narrative": "AnkiWeb uses a session cookie, not an API key. Run `auth login --chrome` to import your logged-in ankiweb.net session, or set ANKIWEB_COOKIES. Public shared-deck search and info need no login.",
+    "quickstart": [
+      {
+        "command": "ankiweb-pp-cli shared search spanish",
+        "comment": "Search the public shared-deck catalog — no login needed."
+      },
+      {
+        "command": "ankiweb-pp-cli shared rank spanish --min-votes 20",
+        "comment": "Rank results by approval rate to find the best deck."
+      },
+      {
+        "command": "ankiweb-pp-cli shared info 241428882",
+        "comment": "See full detail and reviews for one deck."
+      },
+      {
+        "command": "ankiweb-pp-cli auth login --chrome",
+        "comment": "Import your ankiweb.net session for your own decks."
+      },
+      {
+        "command": "ankiweb-pp-cli decks list",
+        "comment": "List your cloud-synced decks and card counts."
+      },
+      {
+        "command": "ankiweb-pp-cli notes add \"Bonjour\" \"Hello\" --deck \"Words \u0026 phrases\" --dry-run",
+        "comment": "Preview adding a note (dry-run); drop --dry-run and add --yes to write it."
+      },
+      {
+        "command": "ankiweb-pp-cli cards search \"casa\"",
+        "comment": "Search the cards already in your collection."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "decks list returns 403 / not authenticated",
+        "fix": "Run `ankiweb-pp-cli auth login --chrome` to import your ankiweb.net session cookie, or set ANKIWEB_COOKIES."
+      },
+      {
+        "symptom": "shared download fails with a token error",
+        "fix": "Deck download requires a signed token AnkiWeb mints in-browser; this is a known limitation — download the deck from ankiweb.net directly for now."
+      },
+      {
+        "symptom": "search returns nothing",
+        "fix": "An empty search term returns no results; provide a keyword, e.g. `shared search spanish`."
+      }
+    ],
+    "when_to_use": "Reach for AnkiWeb CLI when you want to discover, evaluate, or track community shared decks from the terminal or an agent, list your cloud-synced decks, search the cards in your collection, or add new notes. For editing or deleting existing cards, reviewing/studying, or local desktop automation, use an AnkiConnect-based tool instead.",
+    "recipes": [
+      {
+        "title": "Find the best audio-rich Spanish deck",
+        "command": "ankiweb-pp-cli shared rank spanish --has-audio --min-votes 20 --agent --select decks.title,decks.approval,decks.notes",
+        "explanation": "Ranks audio-bearing Spanish decks by approval rate and narrows the JSON to just title, approval, and note count."
+      },
+      {
+        "title": "Compare three anatomy decks",
+        "command": "ankiweb-pp-cli compare 241428882 815543631 1713698257 --agent",
+        "explanation": "One table of approval rate, notes, audio/image coverage, and freshness across the three deck ids."
+      },
+      {
+        "title": "What anatomy decks are new this week",
+        "command": "ankiweb-pp-cli watch anatomy --since-last-sync --agent",
+        "explanation": "Diffs the current catalog against your last sync and lists only new or changed decks."
+      },
+      {
+        "title": "Topic briefing",
+        "command": "ankiweb-pp-cli brief japanese --agent",
+        "explanation": "Top decks by approval, audio coverage percentage, the freshest deck, and new-since-sync count in one digest."
+      },
+      {
+        "title": "Add a card to a deck",
+        "command": "ankiweb-pp-cli notes add --field Front=Bonjour --field Back=Hello --deck \"Words \u0026 phrases\" --tags french --yes",
+        "explanation": "Adds one note to your cloud collection. Run `notetypes` first to see valid deck/type/field names; use --dry-run to preview without writing."
+      },
+      {
+        "title": "Search your collection for a word",
+        "command": "ankiweb-pp-cli cards search \"casa\" --agent",
+        "explanation": "Searches your own cards via AnkiWeb's search syntax and returns matching card ids with text snippets."
+      }
+    ],
+    "trigger_phrases": [
+      "ankiweb shared decks",
+      "search anki decks",
+      "best anki deck for",
+      "download anki deck",
+      "my synced anki decks",
+      "add a card to my anki deck",
+      "add anki note",
+      "use ankiweb",
+      "run ankiweb",
+      "search my anki cards",
+      "find a card in my collection"
+    ]
+  }
+}

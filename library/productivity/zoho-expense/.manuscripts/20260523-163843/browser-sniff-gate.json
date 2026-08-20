@@ -1,0 +1,12 @@
+{
+  "run_id": "20260523-163843",
+  "sources": [
+    {
+      "source_name": "zoho-expense",
+      "decision": "skip-silent",
+      "reason": "spec-complete-from-docs",
+      "asked_at": "2026-05-23T16:38:43Z",
+      "notes": "Zoho Expense publishes complete REST API docs at https://www.zoho.com/expense/api/v1/ covering 35+ endpoints across 12 resources. No OpenAPI/Swagger published but docs are sufficient to author an internal YAML spec. No anti-bot protection on www.zohoapis.in. No client-rendering. No login wall on docs. Browser-sniff would add no new endpoint information."
+    }
+  ]
+}

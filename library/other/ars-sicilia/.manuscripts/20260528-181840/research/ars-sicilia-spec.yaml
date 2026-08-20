@@ -1,0 +1,760 @@
+name: ars-sicilia
+description: "CLI per il portale documentale dell'Assemblea Regionale Siciliana (dati.ars.sicilia.it): leggi, DDL, atti politici, lavori d'aula e di commissione."
+version: "0.1.0"
+base_url: "https://dati.ars.sicilia.it"
+spec_source: sniffed
+http_transport: standard
+health_check_path: "/home/cerca/help.jsp"
+
+required_headers:
+  - name: User-Agent
+    value: "ars-sicilia-pp-cli/0.1.0 (+https://github.com/aborruso/ars-trasparente)"
+  - name: Accept-Language
+    value: "it-IT,it;q=0.9"
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/ars-sicilia-pp-cli/config.toml"
+
+resources:
+  leggi:
+    description: "Leggi della Regione Siciliana (archivio 201): testo storico delle leggi regionali."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca leggi regionali per legislatura, anno, numero o testo."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura (es. 18 per XVIII)."
+          - name: anno
+            type: int
+            description: "Anno della legge."
+          - name: numero
+            type: int
+            description: "Numero della legge."
+          - name: testo
+            type: string
+            description: "Ricerca testuale libera."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati da scaricare."
+        response:
+          type: array
+          item: Legge
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc201-1.jsp"
+        description: "Scarica una singola legge regionale."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo della legge."
+        response:
+          type: object
+          item: Legge
+        response_format: html
+
+  ddl:
+    description: "Disegni di Legge (archivio 221): proposte di legge presentate all'ARS."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca disegni di legge per legislatura, anno, firmatario, materia o testo."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura (es. 18 per XVIII)."
+          - name: anno
+            type: int
+            description: "Anno di presentazione."
+          - name: firmatario
+            type: string
+            description: "Nome o cognome del firmatario."
+          - name: materia
+            type: string
+            description: "Materia/settore."
+          - name: testo
+            type: string
+            description: "Ricerca testuale libera."
+          - name: iter
+            type: string
+            description: "Stato dell'iter (atto/storico)."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: DDL
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc221-1.jsp"
+        description: "Scarica un singolo disegno di legge."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero DDL."
+        response:
+          type: object
+          item: DDL
+        response_format: html
+
+  interrogazioni:
+    description: "Interrogazioni parlamentari (archivio 233)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca interrogazioni per legislatura, firmatario o rubrica."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: firmatario
+            type: string
+            description: "Firmatario."
+          - name: rubrica
+            type: string
+            description: "Rubrica/materia."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Atto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc233-1.jsp"
+        description: "Scarica una singola interrogazione."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Atto
+        response_format: html
+
+  interpellanze:
+    description: "Interpellanze parlamentari (archivio 234)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca interpellanze."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: firmatario
+            type: string
+            description: "Firmatario."
+          - name: rubrica
+            type: string
+            description: "Rubrica/materia."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Atto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc234-1.jsp"
+        description: "Scarica una singola interpellanza."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Atto
+        response_format: html
+
+  mozioni:
+    description: "Mozioni parlamentari (archivio 235)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca mozioni."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: firmatario
+            type: string
+            description: "Firmatario."
+          - name: rubrica
+            type: string
+            description: "Rubrica/materia."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Atto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc235-1.jsp"
+        description: "Scarica una singola mozione."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Atto
+        response_format: html
+
+  odg:
+    description: "Ordini del Giorno (archivio 236)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca ordini del giorno."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: firmatario
+            type: string
+            description: "Firmatario."
+          - name: rubrica
+            type: string
+            description: "Rubrica."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Atto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc236-1.jsp"
+        description: "Scarica un singolo ordine del giorno."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Atto
+        response_format: html
+
+  risoluzioni:
+    description: "Risoluzioni parlamentari (archivio 238)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca risoluzioni."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: firmatario
+            type: string
+            description: "Firmatario."
+          - name: commissione
+            type: string
+            description: "Commissione."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Atto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc238-1.jsp"
+        description: "Scarica una singola risoluzione."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Atto
+        response_format: html
+
+  pareri:
+    description: "Pareri richiesti dal Governo regionale alle Commissioni (archivio 226)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca pareri richiesti dal Governo."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: commissione
+            type: string
+            description: "Commissione competente."
+          - name: oggetto
+            type: string
+            description: "Oggetto del parere."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Parere
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc226-1.jsp"
+        description: "Scarica un singolo parere."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero progressivo."
+        response:
+          type: object
+          item: Parere
+        response_format: html
+
+  resoconti:
+    description: "Resoconti delle Sedute d'Aula (archivio 217)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca resoconti per data, oratore o argomento."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: anno
+            type: int
+            description: "Anno della seduta."
+          - name: data
+            type: string
+            description: "Data seduta (YYYY-MM-DD)."
+          - name: numero
+            type: int
+            description: "Numero seduta."
+          - name: oratore
+            type: string
+            description: "Oratore."
+          - name: argomento
+            type: string
+            description: "Argomento."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Resoconto
+        response_format: html
+      get:
+        method: GET
+        path: "/icaro/doc217-1.jsp"
+        description: "Scarica un singolo resoconto."
+        params:
+          - name: legisl
+            type: int
+            required: true
+            positional: true
+            description: "Legislatura."
+          - name: numero
+            type: int
+            required: true
+            positional: true
+            description: "Numero seduta."
+        response:
+          type: object
+          item: Resoconto
+        response_format: html
+
+  commissioni:
+    description: "Lavori delle Commissioni: convocazioni (229) e sommari (230)."
+    endpoints:
+      convocazioni:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Convocazioni delle Commissioni."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: codcom
+            type: string
+            description: "Codice numerico commissione."
+          - name: commissione
+            type: string
+            description: "Nome commissione."
+          - name: data
+            type: string
+            description: "Data seduta (YYYY-MM-DD)."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Convocazione
+        response_format: html
+      sommari:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Sommari dei lavori di commissione."
+        params:
+          - name: legisl
+            type: int
+            description: "Legislatura."
+          - name: codcom
+            type: string
+            description: "Codice commissione."
+          - name: commissione
+            type: string
+            description: "Nome commissione."
+          - name: data
+            type: string
+            description: "Data seduta."
+          - name: presidente
+            type: string
+            description: "Presidente seduta."
+          - name: argomento
+            type: string
+            description: "Argomento."
+          - name: testo
+            type: string
+            description: "Ricerca testuale."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: Sommario
+        response_format: html
+
+  biblioteca:
+    description: "Catalogo Bibliografico (archivio 205) e Opere Multimediali (205multimedia)."
+    endpoints:
+      cerca:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN."
+        params:
+          - name: autore
+            type: string
+            description: "Autore (cognome nome)."
+          - name: titolo
+            type: string
+            description: "Titolo."
+          - name: soggetto
+            type: string
+            description: "Soggetto/materia."
+          - name: isbn
+            type: string
+            description: "ISBN."
+          - name: dewey
+            type: string
+            description: "Classificazione Dewey."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: VoceCatalogo
+        response_format: html
+      multimediali:
+        method: GET
+        path: "/icaro/default.jsp"
+        description: "Cerca nelle opere multimediali."
+        params:
+          - name: titolo
+            type: string
+            description: "Titolo."
+          - name: autore
+            type: string
+            description: "Autore."
+          - name: limit
+            type: int
+            default: 50
+            description: "Max risultati."
+        response:
+          type: array
+          item: VoceCatalogo
+        response_format: html
+
+types:
+  Legge:
+    fields:
+      - name: legisl
+        type: string
+      - name: anno
+        type: int
+      - name: numero
+        type: int
+      - name: titolo
+        type: string
+      - name: data
+        type: string
+      - name: testo
+        type: string
+      - name: tipo_atto
+        type: string
+      - name: pubblicazione
+        type: string
+      - name: url
+        type: string
+  DDL:
+    fields:
+      - name: legisl
+        type: string
+      - name: numero
+        type: int
+      - name: titolo
+        type: string
+      - name: firmatari
+        type: string
+      - name: data_presentazione
+        type: string
+      - name: iter
+        type: string
+      - name: iter_stato
+        type: string
+      - name: settore
+        type: string
+      - name: relatore_commissione
+        type: string
+      - name: relatore_aula
+        type: string
+      - name: sommario
+        type: string
+      - name: testo
+        type: string
+      - name: url
+        type: string
+  Atto:
+    fields:
+      - name: legisl
+        type: string
+      - name: numero
+        type: int
+      - name: titolo
+        type: string
+      - name: firmatari
+        type: string
+      - name: data_presentazione
+        type: string
+      - name: rubrica
+        type: string
+      - name: iter
+        type: string
+      - name: iter_stato
+        type: string
+      - name: testo
+        type: string
+      - name: url
+        type: string
+  Parere:
+    fields:
+      - name: legisl
+        type: string
+      - name: numero_iscrizione
+        type: int
+      - name: repertorio
+        type: string
+      - name: commissione
+        type: string
+      - name: oggetto
+        type: string
+      - name: richiedente
+        type: string
+      - name: iniziativa
+        type: string
+      - name: riferimenti_normativi
+        type: string
+      - name: iter
+        type: string
+      - name: iter_stato
+        type: string
+      - name: url
+        type: string
+  Resoconto:
+    fields:
+      - name: legisl
+        type: string
+      - name: anno
+        type: int
+      - name: data
+        type: string
+      - name: numero
+        type: int
+      - name: argomenti
+        type: string
+      - name: oratori
+        type: string
+      - name: testo
+        type: string
+      - name: url
+        type: string
+  Convocazione:
+    fields:
+      - name: legisl
+        type: string
+      - name: codcom
+        type: string
+      - name: commissione
+        type: string
+      - name: data
+        type: string
+      - name: numero_folio
+        type: int
+      - name: numero_invito
+        type: int
+      - name: invitati
+        type: string
+      - name: ordine_del_giorno
+        type: string
+      - name: url
+        type: string
+  Sommario:
+    fields:
+      - name: legisl
+        type: string
+      - name: codcom
+        type: string
+      - name: commissione
+        type: string
+      - name: data
+        type: string
+      - name: numero
+        type: int
+      - name: presidente
+        type: string
+      - name: presenti
+        type: string
+      - name: assenti
+        type: string
+      - name: argomenti
+        type: string
+      - name: ordine_del_giorno
+        type: string
+      - name: testo
+        type: string
+      - name: url
+        type: string
+  VoceCatalogo:
+    fields:
+      - name: autore
+        type: string
+      - name: titolo
+        type: string
+      - name: soggetto
+        type: string
+      - name: dewey
+        type: string
+      - name: isbn
+        type: string
+      - name: tipologia
+        type: string
+      - name: anno
+        type: int
+      - name: url
+        type: string

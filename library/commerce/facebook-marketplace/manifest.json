@@ -1,0 +1,66 @@
+{
+  "manifest_version": "0.3",
+  "name": "facebook-marketplace-pp-mcp",
+  "display_name": "Facebook Marketplace",
+  "version": "4.6.1",
+  "description": "Search, publish, mirror, and manage Facebook Marketplace seller workflows with explicit write checkpoints.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/facebook-marketplace-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/facebook-marketplace-pp-mcp",
+      "args": [],
+      "env": {
+        "FACEBOOK_MARKET_COOKIES": "${user_config.facebook_market_cookies}",
+        "FACEBOOK_MARKET_DEBUG_GRAPHQL": "${user_config.facebook_market_debug_graphql}",
+        "LOCALAPPDATA": "${user_config.localappdata}",
+        "PROGRAMFILES": "${user_config.programfiles}",
+        "PROGRAMFILES(X86)": "${user_config.programfiles(x86)}"
+      }
+    }
+  },
+  "user_config": {
+    "facebook_market_cookies": {
+      "type": "string",
+      "title": "FACEBOOK_MARKET_COOKIES",
+      "description": "Optional. Sets FACEBOOK_MARKET_COOKIES for the Facebook Marketplace MCP server.",
+      "sensitive": true
+    },
+    "facebook_market_debug_graphql": {
+      "type": "string",
+      "title": "FACEBOOK_MARKET_DEBUG_GRAPHQL",
+      "description": "Optional. Sets FACEBOOK_MARKET_DEBUG_GRAPHQL for the Facebook Marketplace MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "localappdata": {
+      "type": "string",
+      "title": "LOCALAPPDATA",
+      "description": "Optional. Sets LOCALAPPDATA for the Facebook Marketplace MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "programfiles": {
+      "type": "string",
+      "title": "PROGRAMFILES",
+      "description": "Optional. Sets PROGRAMFILES for the Facebook Marketplace MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "programfiles(x86)": {
+      "type": "string",
+      "title": "PROGRAMFILES(X86)",
+      "description": "Optional. Sets PROGRAMFILES(X86) for the Facebook Marketplace MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

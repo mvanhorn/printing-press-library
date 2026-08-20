@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-fairness-command",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add the `fairness` analytics command (risk / contribution / collectability lenses); render day-ages as readable durations (humanizeDays + shared ageCell) in the fairness and debts human tables while JSON keeps raw *_days for analytics tools.",
+  "reason": "Hand-built offline-analytics command over the synced store, completing the net/audit/forecast set. Surfaces who carries the group, a 0-100 collection-risk score with nudge/chase/write-off action tiers, and contribution (carry-ratio) and collectability (debt age, settle latency) lenses. Empty-history members are surfaced separately and never scored as riders/risk. Outstanding-balance holders are never windowed away by --since. Reuses existing helpers (Friend.Balance sign, SimplifiedDebts, parseSplitwiseDate, round2, loaders); no generator change. The ageCell/humanizeDays display helpers are shared with the debts AGE column for consistent human rendering.",
+  "files": [
+    "internal/cli/splitwise_fairness.go",
+    "internal/cli/splitwise_fairness_test.go",
+    "internal/cli/splitwise_balances.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "TestComputeFairness* table-driven suite (risk-score formula pinned at 90 for the write-off anchor, episode latency 19/15, multi-currency, group-scope via SimplifiedDebts) passes; TestHumanizeDays + TestAgeCell pin the readable-duration rendering; TestComputeFairnessSinceKeepsOutstandingDebtor pins that --since cannot hide an open debt; gofmt, go build/vet/test, govulncheck, and verify-skill all pass; live dogfood on a real account ran all three lenses."
+}

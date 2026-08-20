@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-13T01:32:27.017115Z",
+  "cli_dir": "\u003ccli-dir\u003e/bandsintown-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-13T01:31:39.819837Z"
+  }
+}

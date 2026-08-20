@@ -1,0 +1,8 @@
+{
+  "dir": "/home/chris/printing-press/.runstate/cli-printing-press-12dd9ee1/runs/20260511-180534/working/sec-edgar-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

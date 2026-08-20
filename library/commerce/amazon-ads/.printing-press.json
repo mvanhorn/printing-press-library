@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T23:31:11.943099Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "amazon-ads",
+  "display_name": "Amazon Ads",
+  "cli_name": "amazon-ads-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_source": "whitebox-co/amazon-ads-api docs/schemas with Amazon Ads OAuth refresh auth overlay",
+  "spec_source_commit": "757caf2865692e7d1eb05a97436c42265c317542",
+  "spec_checksum": "sha256:9bd007613737ce8800f9674b290bccf583650c56ffa8b329e0943228cb71af1e",
+  "run_id": "20260527-233111",
+  "category": "commerce",
+  "description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation.",
+  "mcp_binary": "amazon-ads-pp-mcp",
+  "mcp_tool_count": 53,
+  "mcp_public_tool_count": 53,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2_refresh",
+  "auth_env_vars": [
+    "AMAZON_ADS_CLIENT_ID",
+    "AMAZON_ADS_CLIENT_SECRET",
+    "AMAZON_ADS_REFRESH_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "AMAZON_ADS_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "Login with Amazon client ID for the Amazon Ads application."
+    },
+    {
+      "name": "AMAZON_ADS_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "Login with Amazon client secret for the Amazon Ads application."
+    },
+    {
+      "name": "AMAZON_ADS_REFRESH_TOKEN",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "Refresh token from authorizing the Amazon Ads application."
+    }
+  ],
+  "auth_additional_headers": [
+    {
+      "header": "Amazon-Advertising-API-ClientId",
+      "in": "header",
+      "env_var": {
+        "name": "AMAZON_ADS_API_CLIENT_ID",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Amazon Ads API client ID sent on every API request. Defaults to the same value as AMAZON_ADS_CLIENT_ID in the printed CLI."
+      }
+    },
+    {
+      "header": "Amazon-Advertising-API-Scope",
+      "in": "header",
+      "env_var": {
+        "name": "AMAZON_ADS_PROFILE_ID",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": false,
+        "description": "Amazon Ads profile ID used as the request scope."
+      }
+    }
+  ],
+  "auth_key_url": "https://advertising.amazon.com/API/docs/en-us/guides/get-started/overview",
+  "novel_features": [
+    {
+      "name": "Profitability analytics",
+      "command": "acos-vs-tacos, true-profit, break-even-acos",
+      "description": "Estimate ad profitability from Amazon Ads reports, COGS, fees, and optional amazon-seller store revenue."
+    },
+    {
+      "name": "Search term optimization",
+      "command": "search-term-mining, wasted-spend, negative-keyword-generator, new-keyword-opportunities",
+      "description": "Turn Search Term Reports into promotion, negation, and waste-reduction recommendations."
+    },
+    {
+      "name": "Performance planning",
+      "command": "portfolio-dashboard, campaign-comparison, product-ad-profitability, placement-analysis, seasonal-planner",
+      "description": "Summarize spend, sales, ACOS, placement performance, product profit, and seasonal budget signals."
+    },
+    {
+      "name": "Hourly and pacing analysis",
+      "command": "dayparting-analysis, budget-pacing",
+      "description": "Analyze reports with hour/hourOfDay or timestamped rows for conversion windows and early budget exhaustion."
+    },
+    {
+      "name": "Keyword lifecycle and bid intelligence",
+      "command": "keyword-decay, keyword-lifecycle, bid-history, keyword-snapshots, bid-optimizer",
+      "description": "Track keyword trend history locally and recommend bid changes against target ACOS."
+    },
+    {
+      "name": "Competitive intelligence",
+      "command": "share-of-voice, competitor-asin-mining",
+      "description": "Mine share-of-voice and product-targeting reports for competitor ASIN and keyword visibility signals."
+    },
+    {
+      "name": "Report normalization",
+      "command": "reports wait, normalize-report",
+      "description": "Poll Amazon Ads async report status, read gzip reports, normalize CSV/JSON, and optionally import to the local SQLite store."
+    },
+    {
+      "name": "Guarded automation",
+      "command": "auto-negate, auto-promote, budget-rebalance, bid-rules apply, automation-audit",
+      "description": "Plan and optionally apply negative keywords, exact promotions, budget changes, and bid rules with dry-run defaults, guardrails, and audit logs."
+    },
+    {
+      "name": "Profile-aware OAuth setup",
+      "command": "auth login, profiles list, profiles select, profiles current",
+      "description": "Run Login with Amazon OAuth, persist refresh-token credentials locally, and select the Amazon Ads profile scope used on API calls."
+    }
+  ],
+  "catalog_description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation."
+}

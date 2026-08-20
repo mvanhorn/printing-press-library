@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "exchangerate-api-pp-mcp",
+  "display_name": "Exchangerate Api",
+  "version": "4.8.0",
+  "description": "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/exchangerate-api-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/exchangerate-api-pp-mcp",
+      "args": [],
+      "env": {
+        "EXCHANGERATE_API_KEY": "${user_config.exchangerate_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "exchangerate_api_key": {
+      "type": "string",
+      "title": "EXCHANGERATE_API_KEY",
+      "description": "Sets EXCHANGERATE_API_KEY for the Exchangerate Api MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

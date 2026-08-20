@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T10:59:24.597174Z",
+  "cli_dir": "~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T10:59:24.597175Z"
+  }
+}

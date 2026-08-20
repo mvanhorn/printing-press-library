@@ -12,9 +12,9 @@ import (
 )
 
 var watchCmd = &cobra.Command{
-	Use:   "watch",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Take screenshots at regular intervals for monitoring UI changes",
+	Use:         "watch",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Take screenshots at regular intervals for monitoring UI changes",
 	Long: `Capture screenshots of a window at a fixed interval.
 Useful for monitoring UI state changes during automated tests or demos.`,
 	Example: `  # Watch an app every 2 seconds, take 10 screenshots

@@ -1,0 +1,8 @@
+{
+  "dir": "\u003ccli-dir\u003e/context-dev",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

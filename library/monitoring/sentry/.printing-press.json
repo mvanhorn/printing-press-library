@@ -5,6 +5,12 @@
   "api_name": "sentry",
   "display_name": "Sentry",
   "cli_name": "sentry-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://raw.githubusercontent.com/getsentry/sentry-api-schema/main/openapi-derefed.json",
   "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/research/sentry-openapi-normalized.json",
   "spec_format": "openapi3",
@@ -12,7 +18,7 @@
   "run_id": "20260502-124520",
   "catalog_entry": "sentry",
   "category": "monitoring",
-  "description": "Error tracking and performance monitoring - projects, issues, events, releases",
+  "description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring.",
   "mcp_binary": "sentry-pp-mcp",
   "mcp_tool_count": 219,
   "mcp_ready": "full",
@@ -31,5 +37,6 @@
       "command": "seer",
       "description": "List the active LLM model names available through Sentry Seer."
     }
-  ]
+  ],
+  "catalog_description": "Inspect Sentry organizations, projects, issues, events, releases, and Seer metadata for error tracking and performance monitoring."
 }

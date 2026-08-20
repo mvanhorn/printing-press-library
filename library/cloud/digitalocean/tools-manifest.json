@@ -1,0 +1,4422 @@
+{
+  "api_name": "digitalocean",
+  "base_url": "https://api.digitalocean.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "DIGITALOCEAN_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DIGITALOCEAN_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "1-clicks_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/1-clicks/kubernetes",
+      "params": []
+    },
+    {
+      "name": "1-clicks_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/1-clicks",
+      "params": []
+    },
+    {
+      "name": "account_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/account/keys",
+      "params": []
+    },
+    {
+      "name": "account_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/account/keys/{ssh_key_identifier}",
+      "params": []
+    },
+    {
+      "name": "account_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/account/keys/{ssh_key_identifier}",
+      "params": []
+    },
+    {
+      "name": "account_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/account",
+      "params": []
+    },
+    {
+      "name": "account_list-keys",
+      "description": "List keys.",
+      "method": "GET",
+      "path": "/v2/account/keys",
+      "params": []
+    },
+    {
+      "name": "account_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/account/keys/{ssh_key_identifier}",
+      "params": []
+    },
+    {
+      "name": "actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "actions_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/actions",
+      "params": []
+    },
+    {
+      "name": "add-ons_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/add-ons/saas",
+      "params": []
+    },
+    {
+      "name": "add-ons_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/add-ons/saas/{resource_uuid}",
+      "params": []
+    },
+    {
+      "name": "add-ons_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/add-ons/saas/{resource_uuid}",
+      "params": []
+    },
+    {
+      "name": "add-ons_get-addons",
+      "description": "Get addons.",
+      "method": "GET",
+      "path": "/v2/add-ons/apps/{app_slug}/metadata",
+      "params": []
+    },
+    {
+      "name": "add-ons_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/add-ons/apps",
+      "params": []
+    },
+    {
+      "name": "add-ons_list-addons",
+      "description": "List addons.",
+      "method": "GET",
+      "path": "/v2/add-ons/saas",
+      "params": []
+    },
+    {
+      "name": "add-ons_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/add-ons/saas/{resource_uuid}",
+      "params": []
+    },
+    {
+      "name": "add-ons_update-addons",
+      "description": "Update addons. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/add-ons/saas/{resource_uuid}/plan",
+      "params": []
+    },
+    {
+      "name": "apps_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps",
+      "params": []
+    },
+    {
+      "name": "apps_create-metrics",
+      "description": "Create metrics.",
+      "method": "POST",
+      "path": "/v2/apps/metrics/bandwidth_daily",
+      "params": []
+    },
+    {
+      "name": "apps_create-propose",
+      "description": "Create propose.",
+      "method": "POST",
+      "path": "/v2/apps/propose",
+      "params": []
+    },
+    {
+      "name": "apps_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/apps/{id}",
+      "params": []
+    },
+    {
+      "name": "apps_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{id}",
+      "params": []
+    },
+    {
+      "name": "apps_get-tiers",
+      "description": "Get tiers.",
+      "method": "GET",
+      "path": "/v2/apps/tiers/instance_sizes/{slug}",
+      "params": []
+    },
+    {
+      "name": "apps_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/apps",
+      "params": []
+    },
+    {
+      "name": "apps_list-regions",
+      "description": "List regions.",
+      "method": "GET",
+      "path": "/v2/apps/regions",
+      "params": []
+    },
+    {
+      "name": "apps_list-tiers",
+      "description": "List tiers.",
+      "method": "GET",
+      "path": "/v2/apps/tiers/instance_sizes",
+      "params": []
+    },
+    {
+      "name": "apps_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/apps/{id}",
+      "params": []
+    },
+    {
+      "name": "apps_alerts_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/alerts/{alert_id}/destinations",
+      "params": []
+    },
+    {
+      "name": "apps_alerts_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/alerts",
+      "params": []
+    },
+    {
+      "name": "apps_components_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/components/{component_name}/exec",
+      "params": []
+    },
+    {
+      "name": "apps_components_get-apps",
+      "description": "Get apps.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/components/{component_name}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/deployments",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_create-apps",
+      "description": "Create apps.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/deployments/{deployment_id}/cancel",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/deployments",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_get-apps",
+      "description": "Get apps.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/deployments/{deployment_id}",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_get-apps-2",
+      "description": "Get apps 2.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/deployments/{deployment_id}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_get-apps-3",
+      "description": "Get apps 3.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/deployments/{deployment_id}/components/{component_name}/exec",
+      "params": []
+    },
+    {
+      "name": "apps_deployments_get-apps-4",
+      "description": "Get apps 4.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/deployments/{deployment_id}/components/{component_name}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_events_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/events/{event_id}/cancel",
+      "params": []
+    },
+    {
+      "name": "apps_events_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/events",
+      "params": []
+    },
+    {
+      "name": "apps_events_get-apps",
+      "description": "Get apps.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/events/{event_id}",
+      "params": []
+    },
+    {
+      "name": "apps_events_get-apps-2",
+      "description": "Get apps 2.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/events/{event_id}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_health_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/health",
+      "params": []
+    },
+    {
+      "name": "apps_instances_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/instances",
+      "params": []
+    },
+    {
+      "name": "apps_job-invocations_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/job-invocations/{job_invocation_id}/cancel",
+      "params": []
+    },
+    {
+      "name": "apps_job-invocations_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/job-invocations",
+      "params": []
+    },
+    {
+      "name": "apps_job-invocations_get-apps",
+      "description": "Get apps.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/job-invocations/{job_invocation_id}",
+      "params": []
+    },
+    {
+      "name": "apps_jobs_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/jobs/{job_name}/invocations/{job_invocation_id}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_logs_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/logs",
+      "params": []
+    },
+    {
+      "name": "apps_metrics_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/apps/{app_id}/metrics/bandwidth_daily",
+      "params": []
+    },
+    {
+      "name": "apps_restart_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/restart",
+      "params": []
+    },
+    {
+      "name": "apps_rollback_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/rollback",
+      "params": []
+    },
+    {
+      "name": "apps_rollback_create-apps",
+      "description": "Create apps.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/rollback/commit",
+      "params": []
+    },
+    {
+      "name": "apps_rollback_create-apps-2",
+      "description": "Create apps 2.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/rollback/revert",
+      "params": []
+    },
+    {
+      "name": "apps_rollback_create-apps-3",
+      "description": "Create apps 3.",
+      "method": "POST",
+      "path": "/v2/apps/{app_id}/rollback/validate",
+      "params": []
+    },
+    {
+      "name": "async-invoke_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/async-invoke",
+      "params": []
+    },
+    {
+      "name": "batches_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/batches",
+      "params": []
+    },
+    {
+      "name": "batches_create-files",
+      "description": "Create files.",
+      "method": "POST",
+      "path": "/v1/batches/files",
+      "params": []
+    },
+    {
+      "name": "batches_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v1/batches/{batch_id}",
+      "params": []
+    },
+    {
+      "name": "batches_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v1/batches",
+      "params": []
+    },
+    {
+      "name": "batches_cancel_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/batches/{batch_id}/cancel",
+      "params": []
+    },
+    {
+      "name": "batches_results_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v1/batches/{batch_id}/results",
+      "params": []
+    },
+    {
+      "name": "billing_insights_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/billing/{account_urn}/insights/{start_date}/{end_date}",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/byoip_prefixes",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/byoip_prefixes/{byoip_prefix_uuid}",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/byoip_prefixes/{byoip_prefix_uuid}",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/byoip_prefixes",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/byoip_prefixes/{byoip_prefix_uuid}",
+      "params": []
+    },
+    {
+      "name": "byoip-prefixes_ips_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/byoip_prefixes/{byoip_prefix_uuid}/ips",
+      "params": []
+    },
+    {
+      "name": "cdn_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/cdn/endpoints",
+      "params": []
+    },
+    {
+      "name": "cdn_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/cdn/endpoints/{cdn_id}",
+      "params": []
+    },
+    {
+      "name": "cdn_delete-endpoints",
+      "description": "Delete endpoints. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/cdn/endpoints/{cdn_id}/cache",
+      "params": []
+    },
+    {
+      "name": "cdn_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/cdn/endpoints/{cdn_id}",
+      "params": []
+    },
+    {
+      "name": "cdn_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/cdn/endpoints",
+      "params": []
+    },
+    {
+      "name": "cdn_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/cdn/endpoints/{cdn_id}",
+      "params": []
+    },
+    {
+      "name": "certificates_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/certificates",
+      "params": []
+    },
+    {
+      "name": "certificates_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/certificates/{certificate_id}",
+      "params": []
+    },
+    {
+      "name": "certificates_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/certificates/{certificate_id}",
+      "params": []
+    },
+    {
+      "name": "certificates_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/certificates",
+      "params": []
+    },
+    {
+      "name": "chat_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "params": []
+    },
+    {
+      "name": "chat_create-completions",
+      "description": "Create completions.",
+      "method": "POST",
+      "path": "/api/v1/chat/completions",
+      "params": []
+    },
+    {
+      "name": "customers_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/customers/my/invoices/{invoice_uuid}",
+      "params": []
+    },
+    {
+      "name": "customers_get-my",
+      "description": "Get my.",
+      "method": "GET",
+      "path": "/v2/customers/my/invoices/{invoice_uuid}/csv",
+      "params": []
+    },
+    {
+      "name": "customers_get-my-2",
+      "description": "Get my 2.",
+      "method": "GET",
+      "path": "/v2/customers/my/invoices/{invoice_uuid}/pdf",
+      "params": []
+    },
+    {
+      "name": "customers_get-my-3",
+      "description": "Get my 3.",
+      "method": "GET",
+      "path": "/v2/customers/my/invoices/{invoice_uuid}/summary",
+      "params": []
+    },
+    {
+      "name": "customers_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/customers/my/balance",
+      "params": []
+    },
+    {
+      "name": "customers_list-my",
+      "description": "List my.",
+      "method": "GET",
+      "path": "/v2/customers/my/billing_history",
+      "params": []
+    },
+    {
+      "name": "customers_list-my-2",
+      "description": "List my 2.",
+      "method": "GET",
+      "path": "/v2/customers/my/invoices",
+      "params": []
+    },
+    {
+      "name": "databases_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases",
+      "params": []
+    },
+    {
+      "name": "databases_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}",
+      "params": []
+    },
+    {
+      "name": "databases_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}",
+      "params": []
+    },
+    {
+      "name": "databases_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/databases",
+      "params": []
+    },
+    {
+      "name": "databases_list-metrics",
+      "description": "List metrics.",
+      "method": "GET",
+      "path": "/v2/databases/metrics/credentials",
+      "params": []
+    },
+    {
+      "name": "databases_list-options",
+      "description": "List options.",
+      "method": "GET",
+      "path": "/v2/databases/options",
+      "params": []
+    },
+    {
+      "name": "databases_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/metrics/credentials",
+      "params": []
+    },
+    {
+      "name": "databases_autoscale_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/autoscale",
+      "params": []
+    },
+    {
+      "name": "databases_autoscale_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/autoscale",
+      "params": []
+    },
+    {
+      "name": "databases_backups_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/backups",
+      "params": []
+    },
+    {
+      "name": "databases_ca_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/ca",
+      "params": []
+    },
+    {
+      "name": "databases_config_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/config",
+      "params": []
+    },
+    {
+      "name": "databases_config_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/databases/{database_cluster_uuid}/config",
+      "params": []
+    },
+    {
+      "name": "databases_dbs_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/dbs",
+      "params": []
+    },
+    {
+      "name": "databases_dbs_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/dbs/{database_name}",
+      "params": []
+    },
+    {
+      "name": "databases_dbs_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/dbs",
+      "params": []
+    },
+    {
+      "name": "databases_dbs_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/dbs/{database_name}",
+      "params": []
+    },
+    {
+      "name": "databases_events_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/events",
+      "params": []
+    },
+    {
+      "name": "databases_eviction-policy_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/eviction_policy",
+      "params": []
+    },
+    {
+      "name": "databases_eviction-policy_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/eviction_policy",
+      "params": []
+    },
+    {
+      "name": "databases_firewall_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/firewall",
+      "params": []
+    },
+    {
+      "name": "databases_firewall_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/firewall",
+      "params": []
+    },
+    {
+      "name": "databases_indexes_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/indexes/{index_name}",
+      "params": []
+    },
+    {
+      "name": "databases_indexes_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/indexes",
+      "params": []
+    },
+    {
+      "name": "databases_install-update_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/install_update",
+      "params": []
+    },
+    {
+      "name": "databases_logsink_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/logsink",
+      "params": []
+    },
+    {
+      "name": "databases_logsink_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/logsink/{logsink_id}",
+      "params": []
+    },
+    {
+      "name": "databases_logsink_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/logsink",
+      "params": []
+    },
+    {
+      "name": "databases_logsink_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/logsink/{logsink_id}",
+      "params": []
+    },
+    {
+      "name": "databases_logsink_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/logsink/{logsink_id}",
+      "params": []
+    },
+    {
+      "name": "databases_maintenance_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/maintenance",
+      "params": []
+    },
+    {
+      "name": "databases_migrate_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/migrate",
+      "params": []
+    },
+    {
+      "name": "databases_online-migration_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/online-migration/{migration_id}",
+      "params": []
+    },
+    {
+      "name": "databases_online-migration_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/online-migration",
+      "params": []
+    },
+    {
+      "name": "databases_online-migration_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/online-migration",
+      "params": []
+    },
+    {
+      "name": "databases_pools_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/pools",
+      "params": []
+    },
+    {
+      "name": "databases_pools_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/pools/{pool_name}",
+      "params": []
+    },
+    {
+      "name": "databases_pools_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/pools",
+      "params": []
+    },
+    {
+      "name": "databases_pools_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/pools/{pool_name}",
+      "params": []
+    },
+    {
+      "name": "databases_pools_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/pools/{pool_name}",
+      "params": []
+    },
+    {
+      "name": "databases_replicas_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/replicas",
+      "params": []
+    },
+    {
+      "name": "databases_replicas_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/replicas/{replica_name}",
+      "params": []
+    },
+    {
+      "name": "databases_replicas_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/replicas",
+      "params": []
+    },
+    {
+      "name": "databases_replicas_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/replicas/{replica_name}",
+      "params": []
+    },
+    {
+      "name": "databases_replicas_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/replicas/{replica_name}/promote",
+      "params": []
+    },
+    {
+      "name": "databases_resize_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/resize",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/{subject_name}",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/config",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_get-databases-2",
+      "description": "Get databases 2.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/{subject_name}",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_get-databases-3",
+      "description": "Get databases 3.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/config/{subject_name}",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_get-databases-4",
+      "description": "Get databases 4.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/{subject_name}/versions/{version}",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/config",
+      "params": []
+    },
+    {
+      "name": "databases_schema-registry_update-databases",
+      "description": "Update databases.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/schema-registry/config/{subject_name}",
+      "params": []
+    },
+    {
+      "name": "databases_sql-mode_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/sql_mode",
+      "params": []
+    },
+    {
+      "name": "databases_sql-mode_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/sql_mode",
+      "params": []
+    },
+    {
+      "name": "databases_topics_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/topics",
+      "params": []
+    },
+    {
+      "name": "databases_topics_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/topics/{topic_name}",
+      "params": []
+    },
+    {
+      "name": "databases_topics_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/topics",
+      "params": []
+    },
+    {
+      "name": "databases_topics_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/topics/{topic_name}",
+      "params": []
+    },
+    {
+      "name": "databases_topics_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/topics/{topic_name}",
+      "params": []
+    },
+    {
+      "name": "databases_upgrade_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/upgrade",
+      "params": []
+    },
+    {
+      "name": "databases_users_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/users",
+      "params": []
+    },
+    {
+      "name": "databases_users_create-databases",
+      "description": "Create databases.",
+      "method": "POST",
+      "path": "/v2/databases/{database_cluster_uuid}/users/{username}/reset_auth",
+      "params": []
+    },
+    {
+      "name": "databases_users_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/databases/{database_cluster_uuid}/users/{username}",
+      "params": []
+    },
+    {
+      "name": "databases_users_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/users",
+      "params": []
+    },
+    {
+      "name": "databases_users_get-databases",
+      "description": "Get databases.",
+      "method": "GET",
+      "path": "/v2/databases/{database_cluster_uuid}/users/{username}",
+      "params": []
+    },
+    {
+      "name": "databases_users_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/databases/{database_cluster_uuid}/users/{username}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/dedicated-inferences",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_list-dedicatedinferences",
+      "description": "List dedicatedinferences.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/gpu-model-config",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_list-dedicatedinferences-2",
+      "description": "List dedicatedinferences 2.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/sizes",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_accelerators_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/accelerators",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_accelerators_get-dedicatedinferences",
+      "description": "Get dedicatedinferences.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/accelerators/{accelerator_id}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_ca_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/ca",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_tokens_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/tokens",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_tokens_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/tokens/{token_id}",
+      "params": []
+    },
+    {
+      "name": "dedicated-inferences_tokens_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/dedicated-inferences/{dedicated_inference_id}/tokens",
+      "params": []
+    },
+    {
+      "name": "domains_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/domains",
+      "params": []
+    },
+    {
+      "name": "domains_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/domains/{domain_name}",
+      "params": []
+    },
+    {
+      "name": "domains_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/domains/{domain_name}",
+      "params": []
+    },
+    {
+      "name": "domains_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/domains",
+      "params": []
+    },
+    {
+      "name": "domains_records_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/domains/{domain_name}/records",
+      "params": []
+    },
+    {
+      "name": "domains_records_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/domains/{domain_name}/records/{domain_record_id}",
+      "params": []
+    },
+    {
+      "name": "domains_records_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/domains/{domain_name}/records",
+      "params": []
+    },
+    {
+      "name": "domains_records_get-domains",
+      "description": "Get domains.",
+      "method": "GET",
+      "path": "/v2/domains/{domain_name}/records/{domain_record_id}",
+      "params": []
+    },
+    {
+      "name": "domains_records_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/domains/{domain_name}/records/{domain_record_id}",
+      "params": []
+    },
+    {
+      "name": "domains_records_update-domains",
+      "description": "Update domains.",
+      "method": "PUT",
+      "path": "/v2/domains/{domain_name}/records/{domain_record_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/droplets",
+      "params": []
+    },
+    {
+      "name": "droplets_create-actions",
+      "description": "Create actions.",
+      "method": "POST",
+      "path": "/v2/droplets/actions",
+      "params": []
+    },
+    {
+      "name": "droplets_create-autoscale",
+      "description": "Create autoscale.",
+      "method": "POST",
+      "path": "/v2/droplets/autoscale",
+      "params": []
+    },
+    {
+      "name": "droplets_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets",
+      "params": []
+    },
+    {
+      "name": "droplets_delete-autoscale",
+      "description": "Delete autoscale. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_delete-autoscale-2",
+      "description": "Delete autoscale 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}/dangerous",
+      "params": []
+    },
+    {
+      "name": "droplets_delete-dropletid",
+      "description": "Delete dropletid. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets/{droplet_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_get-autoscale",
+      "description": "Get autoscale.",
+      "method": "GET",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_get-autoscale-2",
+      "description": "Get autoscale 2.",
+      "method": "GET",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}/history",
+      "params": []
+    },
+    {
+      "name": "droplets_get-autoscale-3",
+      "description": "Get autoscale 3.",
+      "method": "GET",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}/members",
+      "params": []
+    },
+    {
+      "name": "droplets_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/droplets",
+      "params": []
+    },
+    {
+      "name": "droplets_list-autoscale",
+      "description": "List autoscale.",
+      "method": "GET",
+      "path": "/v2/droplets/autoscale",
+      "params": []
+    },
+    {
+      "name": "droplets_list-backups",
+      "description": "List backups.",
+      "method": "GET",
+      "path": "/v2/droplets/backups/policies",
+      "params": []
+    },
+    {
+      "name": "droplets_list-backups-2",
+      "description": "List backups 2.",
+      "method": "GET",
+      "path": "/v2/droplets/backups/supported_policies",
+      "params": []
+    },
+    {
+      "name": "droplets_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/droplets/autoscale/{autoscale_pool_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/droplets/{droplet_id}/actions",
+      "params": []
+    },
+    {
+      "name": "droplets_actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/actions",
+      "params": []
+    },
+    {
+      "name": "droplets_actions_get-droplets",
+      "description": "Get droplets.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "droplets_backups_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/backups",
+      "params": []
+    },
+    {
+      "name": "droplets_backups_get-droplets",
+      "description": "Get droplets.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/backups/policy",
+      "params": []
+    },
+    {
+      "name": "droplets_destroy-with-associated-resources_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources/retry",
+      "params": []
+    },
+    {
+      "name": "droplets_destroy-with-associated-resources_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources/dangerous",
+      "params": []
+    },
+    {
+      "name": "droplets_destroy-with-associated-resources_delete-droplets",
+      "description": "Delete droplets. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources/selective",
+      "params": []
+    },
+    {
+      "name": "droplets_destroy-with-associated-resources_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources",
+      "params": []
+    },
+    {
+      "name": "droplets_destroy-with-associated-resources_get-droplets",
+      "description": "Get droplets.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources/status",
+      "params": []
+    },
+    {
+      "name": "droplets_firewalls_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/firewalls",
+      "params": []
+    },
+    {
+      "name": "droplets_kernels_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/kernels",
+      "params": []
+    },
+    {
+      "name": "droplets_neighbors_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/neighbors",
+      "params": []
+    },
+    {
+      "name": "droplets_snapshots_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/droplets/{droplet_id}/snapshots",
+      "params": []
+    },
+    {
+      "name": "embeddings_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/embeddings",
+      "params": []
+    },
+    {
+      "name": "firewalls_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/firewalls",
+      "params": []
+    },
+    {
+      "name": "firewalls_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/firewalls/{firewall_id}",
+      "params": []
+    },
+    {
+      "name": "firewalls_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/firewalls/{firewall_id}",
+      "params": []
+    },
+    {
+      "name": "firewalls_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/firewalls",
+      "params": []
+    },
+    {
+      "name": "firewalls_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/firewalls/{firewall_id}",
+      "params": []
+    },
+    {
+      "name": "firewalls_droplets_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/firewalls/{firewall_id}/droplets",
+      "params": []
+    },
+    {
+      "name": "firewalls_droplets_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/firewalls/{firewall_id}/droplets",
+      "params": []
+    },
+    {
+      "name": "firewalls_rules_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/firewalls/{firewall_id}/rules",
+      "params": []
+    },
+    {
+      "name": "firewalls_rules_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/firewalls/{firewall_id}/rules",
+      "params": []
+    },
+    {
+      "name": "firewalls_tags_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/firewalls/{firewall_id}/tags",
+      "params": []
+    },
+    {
+      "name": "firewalls_tags_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/firewalls/{firewall_id}/tags",
+      "params": []
+    },
+    {
+      "name": "floating-ips_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/floating_ips",
+      "params": []
+    },
+    {
+      "name": "floating-ips_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/floating_ips/{floating_ip}",
+      "params": []
+    },
+    {
+      "name": "floating-ips_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/floating_ips/{floating_ip}",
+      "params": []
+    },
+    {
+      "name": "floating-ips_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/floating_ips",
+      "params": []
+    },
+    {
+      "name": "floating-ips_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/floating_ips/{floating_ip}/actions",
+      "params": []
+    },
+    {
+      "name": "floating-ips_actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/floating_ips/{floating_ip}/actions",
+      "params": []
+    },
+    {
+      "name": "floating-ips_actions_get-floatingips",
+      "description": "Get floatingips.",
+      "method": "GET",
+      "path": "/v2/floating_ips/{floating_ip}/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "functions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/functions/namespaces",
+      "params": []
+    },
+    {
+      "name": "functions_create-namespaces",
+      "description": "Create namespaces.",
+      "method": "POST",
+      "path": "/v2/functions/namespaces/{namespace_id}/keys",
+      "params": []
+    },
+    {
+      "name": "functions_create-namespaces-2",
+      "description": "Create namespaces 2.",
+      "method": "POST",
+      "path": "/v2/functions/namespaces/{namespace_id}/triggers",
+      "params": []
+    },
+    {
+      "name": "functions_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/functions/namespaces/{namespace_id}",
+      "params": []
+    },
+    {
+      "name": "functions_delete-namespaces",
+      "description": "Delete namespaces. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/functions/namespaces/{namespace_id}/keys/{key_id}",
+      "params": []
+    },
+    {
+      "name": "functions_delete-namespaces-2",
+      "description": "Delete namespaces 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/functions/namespaces/{namespace_id}/triggers/{trigger_name}",
+      "params": []
+    },
+    {
+      "name": "functions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/functions/namespaces/{namespace_id}",
+      "params": []
+    },
+    {
+      "name": "functions_get-namespaces",
+      "description": "Get namespaces.",
+      "method": "GET",
+      "path": "/v2/functions/namespaces/{namespace_id}/keys",
+      "params": []
+    },
+    {
+      "name": "functions_get-namespaces-2",
+      "description": "Get namespaces 2.",
+      "method": "GET",
+      "path": "/v2/functions/namespaces/{namespace_id}/triggers",
+      "params": []
+    },
+    {
+      "name": "functions_get-namespaces-3",
+      "description": "Get namespaces 3.",
+      "method": "GET",
+      "path": "/v2/functions/namespaces/{namespace_id}/triggers/{trigger_name}",
+      "params": []
+    },
+    {
+      "name": "functions_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/functions/namespaces",
+      "params": []
+    },
+    {
+      "name": "functions_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/functions/namespaces/{namespace_id}/keys/{key_id}",
+      "params": []
+    },
+    {
+      "name": "functions_update-namespaces",
+      "description": "Update namespaces.",
+      "method": "PUT",
+      "path": "/v2/functions/namespaces/{namespace_id}/triggers/{trigger_name}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai",
+      "description": "Create genai.",
+      "method": "POST",
+      "path": "/v2/gen-ai/evaluation_datasets",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-10",
+      "description": "Create genai 10.",
+      "method": "POST",
+      "path": "/v2/gen-ai/custom_models/import",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-11",
+      "description": "Create genai 11.",
+      "method": "POST",
+      "path": "/v2/gen-ai/evaluation_datasets/file_upload_presigned_urls",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-12",
+      "description": "Create genai 12.",
+      "method": "POST",
+      "path": "/v2/gen-ai/models/api_keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-13",
+      "description": "Create genai 13.",
+      "method": "POST",
+      "path": "/v2/gen-ai/models/routers",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-14",
+      "description": "Create genai 14.",
+      "method": "POST",
+      "path": "/v2/gen-ai/openai/keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-15",
+      "description": "Create genai 15.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/api_keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-16",
+      "description": "Create genai 16.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/functions",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-17",
+      "description": "Create genai 17.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/guardrails",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-18",
+      "description": "Create genai 18.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/knowledge_bases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-19",
+      "description": "Create genai 19.",
+      "method": "POST",
+      "path": "/v2/gen-ai/knowledge_bases/data_sources/file_upload_presigned_urls",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-2",
+      "description": "Create genai 2.",
+      "method": "POST",
+      "path": "/v2/gen-ai/evaluation_runs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-20",
+      "description": "Create genai 20.",
+      "method": "POST",
+      "path": "/v2/gen-ai/knowledge_bases/{knowledge_base_uuid}/data_sources",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-21",
+      "description": "Create genai 21.",
+      "method": "POST",
+      "path": "/v2/gen-ai/model_evaluation/datasets/file_upload_presigned_urls",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-22",
+      "description": "Create genai 22.",
+      "method": "POST",
+      "path": "/v2/gen-ai/oauth2/dropbox/tokens",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-23",
+      "description": "Create genai 23.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/knowledge_bases/{knowledge_base_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-24",
+      "description": "Create genai 24.",
+      "method": "POST",
+      "path": "/v2/gen-ai/agents/{parent_agent_uuid}/child_agents/{child_agent_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-3",
+      "description": "Create genai 3.",
+      "method": "POST",
+      "path": "/v2/gen-ai/evaluation_test_cases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-4",
+      "description": "Create genai 4.",
+      "method": "POST",
+      "path": "/v2/gen-ai/indexing_jobs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-5",
+      "description": "Create genai 5.",
+      "method": "POST",
+      "path": "/v2/gen-ai/knowledge_bases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-6",
+      "description": "Create genai 6.",
+      "method": "POST",
+      "path": "/v2/gen-ai/model_evaluation_runs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-7",
+      "description": "Create genai 7.",
+      "method": "POST",
+      "path": "/v2/gen-ai/scheduled-indexing",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-8",
+      "description": "Create genai 8.",
+      "method": "POST",
+      "path": "/v2/gen-ai/workspaces",
+      "params": []
+    },
+    {
+      "name": "gen-ai_create-genai-9",
+      "description": "Create genai 9.",
+      "method": "POST",
+      "path": "/v2/gen-ai/anthropic/keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai",
+      "description": "Delete genai. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/custom_models/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-10",
+      "description": "Delete genai 10. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/functions/{function_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-11",
+      "description": "Delete genai 11. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/guardrails/{guardrail_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-12",
+      "description": "Delete genai 12. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/knowledge_bases/{knowledge_base_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-13",
+      "description": "Delete genai 13. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{parent_agent_uuid}/child_agents/{child_agent_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-14",
+      "description": "Delete genai 14. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/knowledge_bases/{knowledge_base_uuid}/data_sources/{data_source_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-2",
+      "description": "Delete genai 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/knowledge_bases/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-3",
+      "description": "Delete genai 3. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/scheduled-indexing/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-4",
+      "description": "Delete genai 4. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-5",
+      "description": "Delete genai 5. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/anthropic/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-6",
+      "description": "Delete genai 6. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/models/api_keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-7",
+      "description": "Delete genai 7. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/models/routers/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-8",
+      "description": "Delete genai 8. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/openai/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_delete-genai-9",
+      "description": "Delete genai 9. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/api_keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai",
+      "description": "Get genai.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_runs/{evaluation_run_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-10",
+      "description": "Get genai 10.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents/{uuid}/versions",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-11",
+      "description": "Get genai 11.",
+      "method": "GET",
+      "path": "/v2/gen-ai/anthropic/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-12",
+      "description": "Get genai 12.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_datasets/{dataset_uuid}/download_url",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-13",
+      "description": "Get genai 13.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_runs/{evaluation_run_uuid}/results",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-14",
+      "description": "Get genai 14.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_test_cases/{evaluation_test_case_uuid}/evaluation_runs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-15",
+      "description": "Get genai 15.",
+      "method": "GET",
+      "path": "/v2/gen-ai/indexing_jobs/{indexing_job_uuid}/data_sources",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-16",
+      "description": "Get genai 16.",
+      "method": "GET",
+      "path": "/v2/gen-ai/indexing_jobs/{indexing_job_uuid}/details_signed_url",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-17",
+      "description": "Get genai 17.",
+      "method": "GET",
+      "path": "/v2/gen-ai/knowledge_bases/{knowledge_base_uuid}/data_sources",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-18",
+      "description": "Get genai 18.",
+      "method": "GET",
+      "path": "/v2/gen-ai/knowledge_bases/{knowledge_base_uuid}/indexing_jobs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-19",
+      "description": "Get genai 19.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/catalog/{id}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-2",
+      "description": "Get genai 2.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_test_cases/{test_case_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-20",
+      "description": "Get genai 20.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/routers/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-21",
+      "description": "Get genai 21.",
+      "method": "GET",
+      "path": "/v2/gen-ai/openai/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-22",
+      "description": "Get genai 22.",
+      "method": "GET",
+      "path": "/v2/gen-ai/scheduled-indexing/knowledge-base/{knowledge_base_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-23",
+      "description": "Get genai 23.",
+      "method": "GET",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-24",
+      "description": "Get genai 24.",
+      "method": "GET",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}/evaluation_test_cases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-25",
+      "description": "Get genai 25.",
+      "method": "GET",
+      "path": "/v2/gen-ai/anthropic/keys/{uuid}/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-26",
+      "description": "Get genai 26.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_runs/{evaluation_run_uuid}/results/{prompt_id}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-27",
+      "description": "Get genai 27.",
+      "method": "GET",
+      "path": "/v2/gen-ai/model_evaluation_runs/{eval_run_uuid}/results/download_url",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-28",
+      "description": "Get genai 28.",
+      "method": "GET",
+      "path": "/v2/gen-ai/openai/keys/{uuid}/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-3",
+      "description": "Get genai 3.",
+      "method": "GET",
+      "path": "/v2/gen-ai/indexing_jobs/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-4",
+      "description": "Get genai 4.",
+      "method": "GET",
+      "path": "/v2/gen-ai/knowledge_bases/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-5",
+      "description": "Get genai 5.",
+      "method": "GET",
+      "path": "/v2/gen-ai/model_evaluation_runs/{eval_run_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-6",
+      "description": "Get genai 6.",
+      "method": "GET",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-7",
+      "description": "Get genai 7.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/api_keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-8",
+      "description": "Get genai 8.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents/{uuid}/child_agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_get-genai-9",
+      "description": "Get genai 9.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents/{uuid}/usage",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/gen-ai/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai",
+      "description": "List genai.",
+      "method": "GET",
+      "path": "/v2/gen-ai/custom_models",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-10",
+      "description": "List genai 10.",
+      "method": "GET",
+      "path": "/v2/gen-ai/workspaces",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-11",
+      "description": "List genai 11.",
+      "method": "GET",
+      "path": "/v2/gen-ai/anthropic/keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-12",
+      "description": "List genai 12.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/api_keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-13",
+      "description": "List genai 13.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/catalog",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-14",
+      "description": "List genai 14.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/routers",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-15",
+      "description": "List genai 15.",
+      "method": "GET",
+      "path": "/v2/gen-ai/oauth2/url",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-16",
+      "description": "List genai 16.",
+      "method": "GET",
+      "path": "/v2/gen-ai/openai/keys",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-17",
+      "description": "List genai 17.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/routers/presets",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-18",
+      "description": "List genai 18.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models/routers/tasks/presets",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-2",
+      "description": "List genai 2.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_metrics",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-3",
+      "description": "List genai 3.",
+      "method": "GET",
+      "path": "/v2/gen-ai/evaluation_test_cases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-4",
+      "description": "List genai 4.",
+      "method": "GET",
+      "path": "/v2/gen-ai/indexing_jobs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-5",
+      "description": "List genai 5.",
+      "method": "GET",
+      "path": "/v2/gen-ai/knowledge_bases",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-6",
+      "description": "List genai 6.",
+      "method": "GET",
+      "path": "/v2/gen-ai/model_evaluation_metrics",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-7",
+      "description": "List genai 7.",
+      "method": "GET",
+      "path": "/v2/gen-ai/model_evaluation_runs",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-8",
+      "description": "List genai 8.",
+      "method": "GET",
+      "path": "/v2/gen-ai/models",
+      "params": []
+    },
+    {
+      "name": "gen-ai_list-genai-9",
+      "description": "List genai 9.",
+      "method": "GET",
+      "path": "/v2/gen-ai/regions",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai",
+      "description": "Update genai.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/evaluation_test_cases/{test_case_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-10",
+      "description": "Update genai 10.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/models/routers/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-11",
+      "description": "Update genai 11.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/openai/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-12",
+      "description": "Update genai 12.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}/agents",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-13",
+      "description": "Update genai 13.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/api_keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-14",
+      "description": "Update genai 14.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/functions/{function_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-15",
+      "description": "Update genai 15.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{parent_agent_uuid}/child_agents/{child_agent_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-16",
+      "description": "Update genai 16.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/knowledge_bases/{knowledge_base_uuid}/data_sources/{data_source_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-17",
+      "description": "Update genai 17.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/models/api_keys/{api_key_uuid}/regenerate",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-18",
+      "description": "Update genai 18.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{agent_uuid}/api_keys/{api_key_uuid}/regenerate",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-2",
+      "description": "Update genai 2.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/knowledge_bases/{uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-3",
+      "description": "Update genai 3.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/workspaces/{workspace_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-4",
+      "description": "Update genai 4.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{uuid}/deployment_visibility",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-5",
+      "description": "Update genai 5.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/agents/{uuid}/versions",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-6",
+      "description": "Update genai 6.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/anthropic/keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-7",
+      "description": "Update genai 7. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/gen-ai/custom_models/{uuid}/metadata",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-8",
+      "description": "Update genai 8.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/indexing_jobs/{uuid}/cancel",
+      "params": []
+    },
+    {
+      "name": "gen-ai_update-genai-9",
+      "description": "Update genai 9.",
+      "method": "PUT",
+      "path": "/v2/gen-ai/models/api_keys/{api_key_uuid}",
+      "params": []
+    },
+    {
+      "name": "images_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/images",
+      "params": []
+    },
+    {
+      "name": "images_create-generations",
+      "description": "Create generations.",
+      "method": "POST",
+      "path": "/v1/images/generations",
+      "params": []
+    },
+    {
+      "name": "images_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/images/{image_id}",
+      "params": []
+    },
+    {
+      "name": "images_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/images/{image_id}",
+      "params": []
+    },
+    {
+      "name": "images_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/images",
+      "params": []
+    },
+    {
+      "name": "images_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/images/{image_id}",
+      "params": []
+    },
+    {
+      "name": "images_account-transfer_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/images/{image_id}/account_transfer",
+      "params": []
+    },
+    {
+      "name": "images_account-transfer_create-images",
+      "description": "Create images.",
+      "method": "POST",
+      "path": "/v2/images/{image_id}/account_transfer/accept",
+      "params": []
+    },
+    {
+      "name": "images_account-transfer_create-images-2",
+      "description": "Create images 2.",
+      "method": "POST",
+      "path": "/v2/images/{image_id}/account_transfer/cancel",
+      "params": []
+    },
+    {
+      "name": "images_account-transfer_create-images-3",
+      "description": "Create images 3.",
+      "method": "POST",
+      "path": "/v2/images/{image_id}/account_transfer/decline",
+      "params": []
+    },
+    {
+      "name": "images_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/images/{image_id}/actions",
+      "params": []
+    },
+    {
+      "name": "images_actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/images/{image_id}/actions",
+      "params": []
+    },
+    {
+      "name": "images_actions_get-images",
+      "description": "Get images.",
+      "method": "GET",
+      "path": "/v2/images/{image_id}/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/kubernetes/clusters",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-clusters",
+      "description": "Create clusters.",
+      "method": "POST",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/clusterlint",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-clusters-2",
+      "description": "Create clusters 2.",
+      "method": "POST",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-clusters-3",
+      "description": "Create clusters 3.",
+      "method": "POST",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/upgrade",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-clusters-4",
+      "description": "Create clusters 4.",
+      "method": "POST",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools/{node_pool_id}/recycle",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-registries",
+      "description": "Create registries.",
+      "method": "POST",
+      "path": "/v2/kubernetes/registries",
+      "params": []
+    },
+    {
+      "name": "kubernetes_create-registry",
+      "description": "Create registry.",
+      "method": "POST",
+      "path": "/v2/kubernetes/registry",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/registries",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-clusters",
+      "description": "Delete clusters. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/clusters/{cluster_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-clusters-2",
+      "description": "Delete clusters 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/destroy_with_associated_resources/dangerous",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-clusters-3",
+      "description": "Delete clusters 3. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/destroy_with_associated_resources/selective",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-clusters-4",
+      "description": "Delete clusters 4. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools/{node_pool_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-clusters-5",
+      "description": "Delete clusters 5. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools/{node_pool_id}/nodes/{node_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_delete-registry",
+      "description": "Delete registry. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/kubernetes/registry",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters",
+      "description": "Get clusters.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/clusterlint",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-2",
+      "description": "Get clusters 2.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/credentials",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-3",
+      "description": "Get clusters 3.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/destroy_with_associated_resources",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-4",
+      "description": "Get clusters 4.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/kubeconfig",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-5",
+      "description": "Get clusters 5.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-6",
+      "description": "Get clusters 6.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/status_messages",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-7",
+      "description": "Get clusters 7.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/upgrades",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-8",
+      "description": "Get clusters 8.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/user",
+      "params": []
+    },
+    {
+      "name": "kubernetes_get-clusters-9",
+      "description": "Get clusters 9.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools/{node_pool_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/kubernetes/clusters",
+      "params": []
+    },
+    {
+      "name": "kubernetes_list-options",
+      "description": "List options.",
+      "method": "GET",
+      "path": "/v2/kubernetes/options",
+      "params": []
+    },
+    {
+      "name": "kubernetes_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/kubernetes/clusters/{cluster_id}",
+      "params": []
+    },
+    {
+      "name": "kubernetes_update-clusters",
+      "description": "Update clusters.",
+      "method": "PUT",
+      "path": "/v2/kubernetes/clusters/{cluster_id}/node_pools/{node_pool_id}",
+      "params": []
+    },
+    {
+      "name": "load-balancers_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/load_balancers",
+      "params": []
+    },
+    {
+      "name": "load-balancers_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/load_balancers/{lb_id}",
+      "params": []
+    },
+    {
+      "name": "load-balancers_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/load_balancers/{lb_id}",
+      "params": []
+    },
+    {
+      "name": "load-balancers_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/load_balancers",
+      "params": []
+    },
+    {
+      "name": "load-balancers_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/load_balancers/{lb_id}",
+      "params": []
+    },
+    {
+      "name": "load-balancers_cache_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/load_balancers/{lb_id}/cache",
+      "params": []
+    },
+    {
+      "name": "load-balancers_droplets_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/load_balancers/{lb_id}/droplets",
+      "params": []
+    },
+    {
+      "name": "load-balancers_droplets_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/load_balancers/{lb_id}/droplets",
+      "params": []
+    },
+    {
+      "name": "load-balancers_forwarding-rules_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/load_balancers/{lb_id}/forwarding_rules",
+      "params": []
+    },
+    {
+      "name": "load-balancers_forwarding-rules_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/load_balancers/{lb_id}/forwarding_rules",
+      "params": []
+    },
+    {
+      "name": "messages_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/messages",
+      "params": []
+    },
+    {
+      "name": "models_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v1/models",
+      "params": []
+    },
+    {
+      "name": "monitoring_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/monitoring/alerts",
+      "params": []
+    },
+    {
+      "name": "monitoring_create-sinks",
+      "description": "Create sinks.",
+      "method": "POST",
+      "path": "/v2/monitoring/sinks",
+      "params": []
+    },
+    {
+      "name": "monitoring_create-sinks-2",
+      "description": "Create sinks 2.",
+      "method": "POST",
+      "path": "/v2/monitoring/sinks/destinations",
+      "params": []
+    },
+    {
+      "name": "monitoring_create-sinks-3",
+      "description": "Create sinks 3.",
+      "method": "POST",
+      "path": "/v2/monitoring/sinks/destinations/{destination_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/monitoring/alerts/{alert_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_delete-sinks",
+      "description": "Delete sinks. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/monitoring/sinks/{sink_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_delete-sinks-2",
+      "description": "Delete sinks 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/monitoring/sinks/destinations/{destination_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/monitoring/alerts/{alert_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_get-sinks",
+      "description": "Get sinks.",
+      "method": "GET",
+      "path": "/v2/monitoring/sinks/{sink_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_get-sinks-2",
+      "description": "Get sinks 2.",
+      "method": "GET",
+      "path": "/v2/monitoring/sinks/destinations/{destination_uuid}",
+      "params": []
+    },
+    {
+      "name": "monitoring_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/monitoring/alerts",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics",
+      "description": "List metrics.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/apps/cpu_percentage",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-10",
+      "description": "List metrics 10.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/load_5",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-11",
+      "description": "List metrics 11.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/memory_available",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-12",
+      "description": "List metrics 12.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/memory_cached",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-13",
+      "description": "List metrics 13.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/memory_free",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-14",
+      "description": "List metrics 14.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/memory_total",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-15",
+      "description": "List metrics 15.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/current_cpu_utilization",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-16",
+      "description": "List metrics 16.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/current_instances",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-17",
+      "description": "List metrics 17.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/current_memory_utilization",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-18",
+      "description": "List metrics 18.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/target_cpu_utilization",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-19",
+      "description": "List metrics 19.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/target_instances",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-2",
+      "description": "List metrics 2.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/apps/memory_percentage",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-20",
+      "description": "List metrics 20.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet_autoscale/target_memory_utilization",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-21",
+      "description": "List metrics 21.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_connections",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-22",
+      "description": "List metrics 22.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_downtime",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-23",
+      "description": "List metrics 23.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_health_checks",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-24",
+      "description": "List metrics 24.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_response_time_50p",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-25",
+      "description": "List metrics 25.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_response_time_95p",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-26",
+      "description": "List metrics 26.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_response_time_99p",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-27",
+      "description": "List metrics 27.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_response_time_avg",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-28",
+      "description": "List metrics 28.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_responses",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-29",
+      "description": "List metrics 29.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_session_duration_50p",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-3",
+      "description": "List metrics 3.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/apps/restart_count",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-30",
+      "description": "List metrics 30.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_session_duration_95p",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-31",
+      "description": "List metrics 31.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_http_session_duration_avg",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-32",
+      "description": "List metrics 32.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/droplets_queue_size",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-33",
+      "description": "List metrics 33.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_connections_current",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-34",
+      "description": "List metrics 34.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_connections_limit",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-35",
+      "description": "List metrics 35.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_cpu_utilization",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-36",
+      "description": "List metrics 36.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_firewall_dropped_bytes",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-37",
+      "description": "List metrics 37.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_firewall_dropped_packets",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-38",
+      "description": "List metrics 38.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_http_requests_per_second",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-39",
+      "description": "List metrics 39.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_http_responses",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-4",
+      "description": "List metrics 4.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/bandwidth",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-40",
+      "description": "List metrics 40.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_network_throughput_http",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-41",
+      "description": "List metrics 41.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_network_throughput_tcp",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-42",
+      "description": "List metrics 42.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_network_throughput_udp",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-43",
+      "description": "List metrics 43.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_nlb_tcp_network_throughput",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-44",
+      "description": "List metrics 44.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_nlb_udp_network_throughput",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-45",
+      "description": "List metrics 45.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_tls_connections_current",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-46",
+      "description": "List metrics 46.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_tls_connections_exceeding_rate_limit",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-47",
+      "description": "List metrics 47.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/load_balancer/frontend_tls_connections_limit",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-48",
+      "description": "List metrics 48.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/cpu_usage",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-49",
+      "description": "List metrics 49.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/disk_usage",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-5",
+      "description": "List metrics 5.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/cpu",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-50",
+      "description": "List metrics 50.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/index_vs_sequential_reads",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-51",
+      "description": "List metrics 51.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/load",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-52",
+      "description": "List metrics 52.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/memory_usage",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-53",
+      "description": "List metrics 53.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/op_rates",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-54",
+      "description": "List metrics 54.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/schema_latency",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-55",
+      "description": "List metrics 55.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/schema_throughput",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-56",
+      "description": "List metrics 56.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/threads_active",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-57",
+      "description": "List metrics 57.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/threads_connected",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-58",
+      "description": "List metrics 58.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/database/mysql/threads_created_rate",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-6",
+      "description": "List metrics 6.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/filesystem_free",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-7",
+      "description": "List metrics 7.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/filesystem_size",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-8",
+      "description": "List metrics 8.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/load_1",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-metrics-9",
+      "description": "List metrics 9.",
+      "method": "GET",
+      "path": "/v2/monitoring/metrics/droplet/load_15",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-sinks",
+      "description": "List sinks.",
+      "method": "GET",
+      "path": "/v2/monitoring/sinks",
+      "params": []
+    },
+    {
+      "name": "monitoring_list-sinks-2",
+      "description": "List sinks 2.",
+      "method": "GET",
+      "path": "/v2/monitoring/sinks/destinations",
+      "params": []
+    },
+    {
+      "name": "monitoring_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/monitoring/alerts/{alert_uuid}",
+      "params": []
+    },
+    {
+      "name": "nfs_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/nfs",
+      "params": []
+    },
+    {
+      "name": "nfs_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/nfs/{nfs_id}",
+      "params": []
+    },
+    {
+      "name": "nfs_delete-snapshots",
+      "description": "Delete snapshots. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/nfs/snapshots/{nfs_snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "nfs_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/nfs/{nfs_id}",
+      "params": []
+    },
+    {
+      "name": "nfs_get-snapshots",
+      "description": "Get snapshots.",
+      "method": "GET",
+      "path": "/v2/nfs/snapshots/{nfs_snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "nfs_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/nfs",
+      "params": []
+    },
+    {
+      "name": "nfs_list-snapshots",
+      "description": "List snapshots.",
+      "method": "GET",
+      "path": "/v2/nfs/snapshots",
+      "params": []
+    },
+    {
+      "name": "nfs_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/nfs/{nfs_id}/actions",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/partner_network_connect/attachments",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_create-partnernetworkconnect",
+      "description": "Create partnernetworkconnect.",
+      "method": "POST",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}/service_key",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_get-partnernetworkconnect",
+      "description": "Get partnernetworkconnect.",
+      "method": "GET",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}/bgp_auth_key",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_get-partnernetworkconnect-2",
+      "description": "Get partnernetworkconnect 2.",
+      "method": "GET",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}/remote_routes",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_get-partnernetworkconnect-3",
+      "description": "Get partnernetworkconnect 3.",
+      "method": "GET",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}/service_key",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/partner_network_connect/attachments",
+      "params": []
+    },
+    {
+      "name": "partner-network-connect_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/partner_network_connect/attachments/{pa_id}",
+      "params": []
+    },
+    {
+      "name": "projects_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/projects",
+      "params": []
+    },
+    {
+      "name": "projects_create-default",
+      "description": "Create default.",
+      "method": "POST",
+      "path": "/v2/projects/default/resources",
+      "params": []
+    },
+    {
+      "name": "projects_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/projects/{project_id}",
+      "params": []
+    },
+    {
+      "name": "projects_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/projects/{project_id}",
+      "params": []
+    },
+    {
+      "name": "projects_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/projects",
+      "params": []
+    },
+    {
+      "name": "projects_list-default",
+      "description": "List default.",
+      "method": "GET",
+      "path": "/v2/projects/default",
+      "params": []
+    },
+    {
+      "name": "projects_list-default-2",
+      "description": "List default 2.",
+      "method": "GET",
+      "path": "/v2/projects/default/resources",
+      "params": []
+    },
+    {
+      "name": "projects_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/projects/default",
+      "params": []
+    },
+    {
+      "name": "projects_update-default",
+      "description": "Update default.",
+      "method": "PUT",
+      "path": "/v2/projects/default",
+      "params": []
+    },
+    {
+      "name": "projects_update-projectid",
+      "description": "Update projectid. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/projects/{project_id}",
+      "params": []
+    },
+    {
+      "name": "projects_update-projectid-2",
+      "description": "Update projectid 2.",
+      "method": "PUT",
+      "path": "/v2/projects/{project_id}",
+      "params": []
+    },
+    {
+      "name": "projects_resources_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/projects/{project_id}/resources",
+      "params": []
+    },
+    {
+      "name": "projects_resources_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/projects/{project_id}/resources",
+      "params": []
+    },
+    {
+      "name": "regions_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/regions",
+      "params": []
+    },
+    {
+      "name": "registries_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/registries",
+      "params": []
+    },
+    {
+      "name": "registries_create-subscription",
+      "description": "Create subscription.",
+      "method": "POST",
+      "path": "/v2/registries/subscription",
+      "params": []
+    },
+    {
+      "name": "registries_create-validatename",
+      "description": "Create validatename.",
+      "method": "POST",
+      "path": "/v2/registries/validate-name",
+      "params": []
+    },
+    {
+      "name": "registries_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registries/{registry_name}",
+      "params": []
+    },
+    {
+      "name": "registries_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}",
+      "params": []
+    },
+    {
+      "name": "registries_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/registries",
+      "params": []
+    },
+    {
+      "name": "registries_list-options",
+      "description": "List options.",
+      "method": "GET",
+      "path": "/v2/registries/options",
+      "params": []
+    },
+    {
+      "name": "registries_list-subscription",
+      "description": "List subscription.",
+      "method": "GET",
+      "path": "/v2/registries/subscription",
+      "params": []
+    },
+    {
+      "name": "registries_docker-credentials_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/docker-credentials",
+      "params": []
+    },
+    {
+      "name": "registries_garbage-collection_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/registries/{registry_name}/garbage-collection",
+      "params": []
+    },
+    {
+      "name": "registries_garbage-collection_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/garbage-collection",
+      "params": []
+    },
+    {
+      "name": "registries_garbage-collection_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/registries/{registry_name}/garbage-collection/{garbage_collection_uuid}",
+      "params": []
+    },
+    {
+      "name": "registries_garbage-collections_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/garbage-collections",
+      "params": []
+    },
+    {
+      "name": "registries_repositories_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registries/{registry_name}/repositories/{repository_name}",
+      "params": []
+    },
+    {
+      "name": "registries_repositories_delete-registries",
+      "description": "Delete registries. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registries/{registry_name}/repositories/{repository_name}/digests/{manifest_digest}",
+      "params": []
+    },
+    {
+      "name": "registries_repositories_delete-registries-2",
+      "description": "Delete registries 2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registries/{registry_name}/repositories/{repository_name}/tags/{repository_tag}",
+      "params": []
+    },
+    {
+      "name": "registries_repositories_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/repositories/{repository_name}/digests",
+      "params": []
+    },
+    {
+      "name": "registries_repositories_get-registries",
+      "description": "Get registries.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/repositories/{repository_name}/tags",
+      "params": []
+    },
+    {
+      "name": "registries_repositories-v2_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registries/{registry_name}/repositoriesV2",
+      "params": []
+    },
+    {
+      "name": "registry_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/registry",
+      "params": []
+    },
+    {
+      "name": "registry_create-subscription",
+      "description": "Create subscription.",
+      "method": "POST",
+      "path": "/v2/registry/subscription",
+      "params": []
+    },
+    {
+      "name": "registry_create-validatename",
+      "description": "Create validatename.",
+      "method": "POST",
+      "path": "/v2/registry/validate-name",
+      "params": []
+    },
+    {
+      "name": "registry_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registry",
+      "params": []
+    },
+    {
+      "name": "registry_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/registry",
+      "params": []
+    },
+    {
+      "name": "registry_list-dockercredentials",
+      "description": "List dockercredentials.",
+      "method": "GET",
+      "path": "/v2/registry/docker-credentials",
+      "params": []
+    },
+    {
+      "name": "registry_list-options",
+      "description": "List options.",
+      "method": "GET",
+      "path": "/v2/registry/options",
+      "params": []
+    },
+    {
+      "name": "registry_list-subscription",
+      "description": "List subscription.",
+      "method": "GET",
+      "path": "/v2/registry/subscription",
+      "params": []
+    },
+    {
+      "name": "registry_garbage-collection_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/registry/{registry_name}/garbage-collection",
+      "params": []
+    },
+    {
+      "name": "registry_garbage-collection_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/garbage-collection",
+      "params": []
+    },
+    {
+      "name": "registry_garbage-collection_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/registry/{registry_name}/garbage-collection/{garbage_collection_uuid}",
+      "params": []
+    },
+    {
+      "name": "registry_garbage-collections_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/garbage-collections",
+      "params": []
+    },
+    {
+      "name": "registry_repositories_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registry/{registry_name}/repositories/{repository_name}/digests/{manifest_digest}",
+      "params": []
+    },
+    {
+      "name": "registry_repositories_delete-registry",
+      "description": "Delete registry. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/registry/{registry_name}/repositories/{repository_name}/tags/{repository_tag}",
+      "params": []
+    },
+    {
+      "name": "registry_repositories_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/repositories",
+      "params": []
+    },
+    {
+      "name": "registry_repositories_get-registry",
+      "description": "Get registry.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/repositories/{repository_name}/digests",
+      "params": []
+    },
+    {
+      "name": "registry_repositories_get-registry-2",
+      "description": "Get registry 2.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/repositories/{repository_name}/tags",
+      "params": []
+    },
+    {
+      "name": "registry_repositories-v2_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/registry/{registry_name}/repositoriesV2",
+      "params": []
+    },
+    {
+      "name": "reports_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/reports/droplet_neighbors_ids",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/reserved_ips",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/reserved_ips/{reserved_ip}",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/reserved_ips/{reserved_ip}",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/reserved_ips",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/reserved_ips/{reserved_ip}/actions",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/reserved_ips/{reserved_ip}/actions",
+      "params": []
+    },
+    {
+      "name": "reserved-ips_actions_get-reservedips",
+      "description": "Get reservedips.",
+      "method": "GET",
+      "path": "/v2/reserved_ips/{reserved_ip}/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "reserved-ipv6_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/reserved_ipv6",
+      "params": []
+    },
+    {
+      "name": "reserved-ipv6_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/reserved_ipv6/{reserved_ipv6}",
+      "params": []
+    },
+    {
+      "name": "reserved-ipv6_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/reserved_ipv6/{reserved_ipv6}",
+      "params": []
+    },
+    {
+      "name": "reserved-ipv6_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/reserved_ipv6",
+      "params": []
+    },
+    {
+      "name": "reserved-ipv6_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/reserved_ipv6/{reserved_ipv6}/actions",
+      "params": []
+    },
+    {
+      "name": "responses_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v1/responses",
+      "params": []
+    },
+    {
+      "name": "security_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/security/scans",
+      "params": []
+    },
+    {
+      "name": "security_create-scans",
+      "description": "Create scans.",
+      "method": "POST",
+      "path": "/v2/security/scans/rules",
+      "params": []
+    },
+    {
+      "name": "security_create-settings",
+      "description": "Create settings.",
+      "method": "POST",
+      "path": "/v2/security/settings/suppressions",
+      "params": []
+    },
+    {
+      "name": "security_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/security/settings/suppressions/{suppression_uuid}",
+      "params": []
+    },
+    {
+      "name": "security_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/security/scans/{scan_id}",
+      "params": []
+    },
+    {
+      "name": "security_get-scans",
+      "description": "Get scans.",
+      "method": "GET",
+      "path": "/v2/security/scans/{scan_id}/findings/{finding_uuid}/affected_resources",
+      "params": []
+    },
+    {
+      "name": "security_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/security/scans",
+      "params": []
+    },
+    {
+      "name": "security_list-scans",
+      "description": "List scans.",
+      "method": "GET",
+      "path": "/v2/security/scans/latest",
+      "params": []
+    },
+    {
+      "name": "security_list-settings",
+      "description": "List settings.",
+      "method": "GET",
+      "path": "/v2/security/settings",
+      "params": []
+    },
+    {
+      "name": "security_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/security/settings/plan",
+      "params": []
+    },
+    {
+      "name": "sizes_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/sizes",
+      "params": []
+    },
+    {
+      "name": "snapshots_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/snapshots/{snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "snapshots_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/snapshots/{snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "snapshots_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/snapshots",
+      "params": []
+    },
+    {
+      "name": "spaces_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/spaces/keys",
+      "params": []
+    },
+    {
+      "name": "spaces_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/spaces/keys/{access_key}",
+      "params": []
+    },
+    {
+      "name": "spaces_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/spaces/keys/{access_key}",
+      "params": []
+    },
+    {
+      "name": "spaces_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/spaces/keys",
+      "params": []
+    },
+    {
+      "name": "spaces_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/spaces/keys/{access_key}",
+      "params": []
+    },
+    {
+      "name": "spaces_update-keys",
+      "description": "Update keys.",
+      "method": "PUT",
+      "path": "/v2/spaces/keys/{access_key}",
+      "params": []
+    },
+    {
+      "name": "tags_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/tags",
+      "params": []
+    },
+    {
+      "name": "tags_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/tags/{tag_id}",
+      "params": []
+    },
+    {
+      "name": "tags_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/tags/{tag_id}",
+      "params": []
+    },
+    {
+      "name": "tags_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/tags",
+      "params": []
+    },
+    {
+      "name": "tags_resources_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/tags/{tag_id}/resources",
+      "params": []
+    },
+    {
+      "name": "tags_resources_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/tags/{tag_id}/resources",
+      "params": []
+    },
+    {
+      "name": "upload-url_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/\u003cupload_url\u003e",
+      "params": []
+    },
+    {
+      "name": "uptime_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/uptime/checks",
+      "params": []
+    },
+    {
+      "name": "uptime_create-checks",
+      "description": "Create checks.",
+      "method": "POST",
+      "path": "/v2/uptime/checks/{check_id}/alerts",
+      "params": []
+    },
+    {
+      "name": "uptime_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/uptime/checks/{check_id}",
+      "params": []
+    },
+    {
+      "name": "uptime_delete-checks",
+      "description": "Delete checks. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/uptime/checks/{check_id}/alerts/{alert_id}",
+      "params": []
+    },
+    {
+      "name": "uptime_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/uptime/checks/{check_id}",
+      "params": []
+    },
+    {
+      "name": "uptime_get-checks",
+      "description": "Get checks.",
+      "method": "GET",
+      "path": "/v2/uptime/checks/{check_id}/alerts",
+      "params": []
+    },
+    {
+      "name": "uptime_get-checks-2",
+      "description": "Get checks 2.",
+      "method": "GET",
+      "path": "/v2/uptime/checks/{check_id}/state",
+      "params": []
+    },
+    {
+      "name": "uptime_get-checks-3",
+      "description": "Get checks 3.",
+      "method": "GET",
+      "path": "/v2/uptime/checks/{check_id}/alerts/{alert_id}",
+      "params": []
+    },
+    {
+      "name": "uptime_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/uptime/checks",
+      "params": []
+    },
+    {
+      "name": "uptime_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/uptime/checks/{check_id}",
+      "params": []
+    },
+    {
+      "name": "uptime_update-checks",
+      "description": "Update checks.",
+      "method": "PUT",
+      "path": "/v2/uptime/checks/{check_id}/alerts/{alert_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/volumes",
+      "params": []
+    },
+    {
+      "name": "volumes_create-actions",
+      "description": "Create actions.",
+      "method": "POST",
+      "path": "/v2/volumes/actions",
+      "params": []
+    },
+    {
+      "name": "volumes_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/volumes",
+      "params": []
+    },
+    {
+      "name": "volumes_delete-snapshots",
+      "description": "Delete snapshots. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/volumes/snapshots/{snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_delete-volumeid",
+      "description": "Delete volumeid. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/volumes/{volume_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/volumes/{volume_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_get-snapshots",
+      "description": "Get snapshots.",
+      "method": "GET",
+      "path": "/v2/volumes/snapshots/{snapshot_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/volumes",
+      "params": []
+    },
+    {
+      "name": "volumes_actions_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/volumes/{volume_id}/actions",
+      "params": []
+    },
+    {
+      "name": "volumes_actions_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/volumes/{volume_id}/actions",
+      "params": []
+    },
+    {
+      "name": "volumes_actions_get-volumes",
+      "description": "Get volumes.",
+      "method": "GET",
+      "path": "/v2/volumes/{volume_id}/actions/{action_id}",
+      "params": []
+    },
+    {
+      "name": "volumes_snapshots_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/volumes/{volume_id}/snapshots",
+      "params": []
+    },
+    {
+      "name": "volumes_snapshots_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/volumes/{volume_id}/snapshots",
+      "params": []
+    },
+    {
+      "name": "vpc-nat-gateways_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/vpc_nat_gateways",
+      "params": []
+    },
+    {
+      "name": "vpc-nat-gateways_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/vpc_nat_gateways/{id}",
+      "params": []
+    },
+    {
+      "name": "vpc-nat-gateways_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/vpc_nat_gateways/{id}",
+      "params": []
+    },
+    {
+      "name": "vpc-nat-gateways_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/vpc_nat_gateways",
+      "params": []
+    },
+    {
+      "name": "vpc-nat-gateways_update",
+      "description": "Update.",
+      "method": "PUT",
+      "path": "/v2/vpc_nat_gateways/{id}",
+      "params": []
+    },
+    {
+      "name": "vpc-peerings_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/vpc_peerings",
+      "params": []
+    },
+    {
+      "name": "vpc-peerings_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/vpc_peerings/{vpc_peering_id}",
+      "params": []
+    },
+    {
+      "name": "vpc-peerings_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/vpc_peerings/{vpc_peering_id}",
+      "params": []
+    },
+    {
+      "name": "vpc-peerings_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/vpc_peerings",
+      "params": []
+    },
+    {
+      "name": "vpc-peerings_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/vpc_peerings/{vpc_peering_id}",
+      "params": []
+    },
+    {
+      "name": "vpcs_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/vpcs",
+      "params": []
+    },
+    {
+      "name": "vpcs_delete",
+      "description": "Delete. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/vpcs/{vpc_id}",
+      "params": []
+    },
+    {
+      "name": "vpcs_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/vpcs/{vpc_id}",
+      "params": []
+    },
+    {
+      "name": "vpcs_list",
+      "description": "List.",
+      "method": "GET",
+      "path": "/v2/vpcs",
+      "params": []
+    },
+    {
+      "name": "vpcs_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/vpcs/{vpc_id}",
+      "params": []
+    },
+    {
+      "name": "vpcs_update-vpcid",
+      "description": "Update vpcid.",
+      "method": "PUT",
+      "path": "/v2/vpcs/{vpc_id}",
+      "params": []
+    },
+    {
+      "name": "vpcs_members_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/vpcs/{vpc_id}/members",
+      "params": []
+    },
+    {
+      "name": "vpcs_peerings_create",
+      "description": "Create.",
+      "method": "POST",
+      "path": "/v2/vpcs/{vpc_id}/peerings",
+      "params": []
+    },
+    {
+      "name": "vpcs_peerings_get",
+      "description": "Get.",
+      "method": "GET",
+      "path": "/v2/vpcs/{vpc_id}/peerings",
+      "params": []
+    },
+    {
+      "name": "vpcs_peerings_update",
+      "description": "Update. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/vpcs/{vpc_id}/peerings/{vpc_peering_id}",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: lunch-money-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: lunch-money-pp-cli
+    main: ./cmd/lunch-money-pp-cli
+    binary: lunch-money-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: lunch-money-pp-mcp
+    main: ./cmd/lunch-money-pp-mcp
+    binary: lunch-money-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: lunch-money-pp-cli
+    repository:
+      owner: salmonumbrella
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A Go CLI for Lunch Money's official v2 OpenAPI — offline SQLite store, subscription detection, and bulk smart..."
+    install: |
+      bin.install "lunch-money-pp-cli"
+      bin.install "lunch-money-pp-mcp"

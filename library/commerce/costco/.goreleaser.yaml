@@ -1,0 +1,51 @@
+version: 2
+project_name: costco-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: costco-pp-cli
+    main: ./cmd/costco-pp-cli
+    binary: costco-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/costco/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: costco-pp-mcp
+    main: ./cmd/costco-pp-mcp
+    binary: costco-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: costco-pp-cli
+    repository:
+      owner: richie305
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you."
+    install: |
+      bin.install "costco-pp-cli"
+      bin.install "costco-pp-mcp"

@@ -1,0 +1,27 @@
+{
+  "dir": "\u003ccli-dir\u003e",
+  "workflows": [
+    {
+      "name": "sync-caprate-price-cuts",
+      "primary": true,
+      "steps": [
+        {
+          "command": "sync worcester-ma",
+          "status": "blocked-auth",
+          "output": "Error: LoopNet returned HTTP 403 — an Akamai bot-challenge page. Authentication required: clearance cookies are missing or expired.\nRun 'loopnet-pp-cli auth refresh' to mint fresh cookies, or 'loopnet-pp-cli auth set --cookies \"\u003cheader\u003e\"'.\n",
+          "error": "authentication required"
+        },
+        {
+          "command": "caprate worcester-ma",
+          "status": "skipped-auth-required"
+        },
+        {
+          "command": "price-cuts worcester-ma",
+          "status": "skipped-auth-required"
+        }
+      ],
+      "verdict": "unverified-needs-auth"
+    }
+  ],
+  "verdict": "unverified-needs-auth"
+}

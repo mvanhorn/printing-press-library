@@ -1,0 +1,51 @@
+version: 2
+project_name: gisis-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gisis-pp-cli
+    main: ./cmd/gisis-pp-cli
+    binary: gisis-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/gisis/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gisis-pp-mcp
+    main: ./cmd/gisis-pp-mcp
+    binary: gisis-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gisis-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Authoritative IMO ship particulars on the command line"
+    install: |
+      bin.install "gisis-pp-cli"
+      bin.install "gisis-pp-mcp"

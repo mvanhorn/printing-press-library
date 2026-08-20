@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "rules-apply-serialize-criteria",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Serialized multi-rule apply calls so each criteria_id is sent to /rules/apply in its own request.",
+  "reason": "The internal backend can misapply batched commit requests by routing all matched transactions through the final rule's action.",
+  "files": [
+    "internal/cli/rules.go",
+    "internal/internalapi/captures/rules.md",
+    "internal/internalapi/endpoints_test.go",
+    "internal/internalapi/rules.go"
+  ],
+  "validated_outcome": "go test ./... passes, including a regression test for serialized ApplyRules calls."
+}

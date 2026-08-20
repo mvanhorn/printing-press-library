@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-24T19:38:04.726004Z",
+  "cli_dir": "\u003ccli-dir\u003e/printify-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-24T19:36:24.937062Z"
+  }
+}

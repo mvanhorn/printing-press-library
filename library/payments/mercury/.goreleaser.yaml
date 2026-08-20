@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Streamline financial tasks with secure account management and transaction processing. Enables user registration, balance tracking, and payment handling."
+    description: "Inspect Mercury business banking data and build safer payment plans across accounts, transactions, recipients, cards, invoices, and treasury."
     install: |
       bin.install "mercury-pp-cli"
       bin.install "mercury-pp-mcp"

@@ -1,0 +1,112 @@
+name: hotel-goat
+display_name: Google Hotels
+category: travel
+description: |
+  Free Google Hotels CLI with the full SerpAPI feature set — no API key, no subscription.
+  Counterpart to flight-goat. Built on the same AF_initDataCallback SSR pattern
+  Google Travel ships, parsed into a structured response with OTA price breakdowns,
+  booking links, and a local SQLite store for price drift, watch alerts, and offline search.
+
+base_url: https://www.google.com
+
+# No auth needed - Google Hotels SSR is publicly accessible
+auth:
+  type: none
+
+# Enable local SQLite cache for the sync/search/drift/watch features
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+
+# Free CLI; no tier routing needed
+http_transport: standard
+
+# Spec source attribution
+spec_source: hand-authored-from-sniff
+source_provenance:
+  - kind: live-probe
+    target: https://www.google.com/travel/search
+    note: |
+      Sniffed via plain HTTP GET. Response embeds hotel data in AF_initDataCallback(ds:0)
+      blob (~225KB JSON, ~37 properties per query) and AF_initDataCallback(ds:1).
+      Parser walks the nested array to extract name, brand, address, gps, price,
+      rating, hotel_class, amenities, prices[]{source,price,link}, booking links.
+
+# Resource model — minimal scaffold; Phase 3 builds the parsing + transcendence
+resources:
+  hotels:
+    description: Hotel search results from Google Hotels for a location + date range
+    primary_key: property_token
+    syncable: false  # search results are query-scoped, not a stable catalog
+    fields:
+      - {name: property_token, type: string, description: "Google's stable property identifier"}
+      - {name: name,           type: string}
+      - {name: brand,          type: string, description: "Hotel chain (Hyatt, Marriott, ...)"}
+      - {name: address,        type: string}
+      - {name: latitude,       type: float}
+      - {name: longitude,      type: float}
+      - {name: hotel_class,    type: integer, description: "Star rating, 1-5"}
+      - {name: rating,         type: float,   description: "Guest rating, 0-5"}
+      - {name: reviews,        type: integer}
+      - {name: price_per_night,type: float}
+      - {name: currency,       type: string}
+      - {name: amenities,      type: array}
+      - {name: prices,         type: array, description: "OTA breakdown: [{source, price, link}]"}
+      - {name: booking_urls,   type: object, description: "{primary, hotel_url, google_url}"}
+      - {name: images,         type: array}
+      - {name: checkin,        type: string}
+      - {name: checkout,       type: string}
+    endpoints:
+      search:
+        method: GET
+        path: /travel/search
+        description: |
+          Search hotels by location and date range. Returns ~30-40 properties per query
+          with full OTA price breakdown and booking deep-links.
+        no_auth: true
+        response_format: html
+        response_extractor: af_init_data_callback  # ds:0 blob
+        params:
+          - {name: q,          flag_name: location,   in: query, required: true, description: "Location: city, neighborhood, address, or 'hotels in <X>'"}
+          - {name: checkin,    flag_name: checkin,    in: query, required: true, description: "Check-in date (YYYY-MM-DD)"}
+          - {name: checkout,   flag_name: checkout,   in: query, required: true, description: "Check-out date (YYYY-MM-DD)"}
+          - {name: hl,         flag_name: locale,     in: query, required: false, description: "Locale (en, de, fr, ...)", default: "en"}
+          - {name: currency,   flag_name: currency,   in: query, required: false, description: "ISO 4217 currency code"}
+
+  properties:
+    description: Property detail records cached from Google's property detail pages
+    primary_key: property_token
+    syncable: true  # users can sync wishlist properties for drift tracking
+    fields:
+      - {name: property_token, type: string}
+      - {name: name,           type: string}
+      - {name: brand,          type: string}
+      - {name: full_description,type: string}
+      - {name: amenities,      type: array}
+      - {name: nearby_places,  type: array}
+      - {name: checkin_time,   type: string}
+      - {name: checkout_time,  type: string}
+      - {name: review_breakdown,type: object}
+      - {name: images,         type: array}
+    endpoints:
+      detail:
+        method: GET
+        path: /travel/hotels/entity/{property_token}
+        description: Full property detail by Google's property_token
+        no_auth: true
+        response_format: html
+        response_extractor: af_init_data_callback
+        params:
+          - {name: property_token, in: path, required: true, description: "Google property_token from search results"}
+
+# NOTE: snapshots table (price history for drift/watch) lives in a hand-built
+# internal/store/hotel_goat_migrations.go file — not modeled as a spec resource
+# since it has no API surface.
+
+# MCP enrichment — small surface, default endpoint-mirror is fine
+mcp:
+  transport: [stdio, http]  # remote-capable; the future travel-pp-cli orchestrator may connect via HTTP
+  # orchestration: default endpoint-mirror; tool count will be ~15-25 well within the 30-tool threshold
+
+# Pre-emptive auth env var declaration: none needed (no auth)

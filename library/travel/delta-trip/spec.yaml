@@ -1,0 +1,165 @@
+name: delta-trip
+cli_name: delta-trip-pp-cli
+display_name: Delta Trip Management
+version: "1.0"
+description: "Look up and manage Delta Air Lines trips by confirmation number — view all flights, seats, baggage, upgrade options, and flight details without logging in."
+
+base_url: https://www.delta.com
+
+servers:
+  - url: https://www.delta.com
+    description: Delta.com web surface
+
+auth:
+  type: none
+
+http_transport: browser-chrome
+
+resources:
+  trips:
+    description: Delta trip lookup and management by confirmation number
+    endpoints:
+      get:
+        method: GET
+        path: /my-trips/trip-details
+        description: Look up a trip by confirmation number, first name, and last name
+        params:
+          - name: confirmationNo
+            in: query
+            flag_name: confirmation
+            description: 6-character confirmation number (e.g. ABC123)
+            required: true
+          - name: firstName
+            in: query
+            flag_name: first-name
+            description: Passenger first name
+            required: true
+          - name: lastName
+            in: query
+            flag_name: last-name
+            description: Passenger last name
+            required: true
+        response_format: html
+
+  flights:
+    description: Flight details for a trip — departure, arrival, seat, fare class, operator
+    endpoints:
+      list:
+        method: GET
+        path: /my-trips/trip-details
+        description: List all flights in a trip itinerary with details
+        params:
+          - name: confirmationNo
+            in: query
+            flag_name: confirmation
+            description: 6-character confirmation number
+            required: true
+          - name: firstName
+            in: query
+            flag_name: first-name
+            description: Passenger first name
+            required: true
+          - name: lastName
+            in: query
+            flag_name: last-name
+            description: Passenger last name
+            required: true
+        response_format: html
+
+  seats:
+    description: Seat assignment and upgrade eligibility per passenger per flight
+    endpoints:
+      list:
+        method: GET
+        path: /my-trips/trip-details
+        description: View seat assignments and upgrade options for all passengers
+        params:
+          - name: confirmationNo
+            in: query
+            flag_name: confirmation
+            description: 6-character confirmation number
+            required: true
+          - name: firstName
+            in: query
+            flag_name: first-name
+            description: Passenger first name
+            required: true
+          - name: lastName
+            in: query
+            flag_name: last-name
+            description: Passenger last name
+            required: true
+        response_format: html
+
+  baggage:
+    description: Baggage information and tracking for a trip
+    endpoints:
+      info:
+        method: GET
+        path: /my-trips/trip-details
+        description: View baggage allowance and tracking info for a confirmation
+        params:
+          - name: confirmationNo
+            in: query
+            flag_name: confirmation
+            description: 6-character confirmation number
+            required: true
+          - name: firstName
+            in: query
+            flag_name: first-name
+            description: Passenger first name
+            required: true
+          - name: lastName
+            in: query
+            flag_name: last-name
+            description: Passenger last name
+            required: true
+        response_format: html
+
+data_model:
+  entities:
+    - name: Trip
+      fields:
+        - confirmationNumber
+        - destination
+        - departureDate
+        - tripType
+        - passengerCount
+        - ticketExpiration
+        - statusBadge
+        - alerts
+        - flightCount
+    - name: Flight
+      fields:
+        - flightNumber
+        - carrierCode
+        - aircraft
+        - operatedBy
+        - status
+        - duration
+        - departureTime
+        - departureDate
+        - departureAirport
+        - departureCity
+        - departureTerminal
+        - departureGate
+        - arrivalTime
+        - arrivalDate
+        - arrivalAirport
+        - arrivalCity
+        - arrivalTerminal
+        - arrivalGate
+        - flightIndex
+        - layoverDuration
+        - layoverAirport
+    - name: Passenger
+      fields:
+        - name
+        - seat
+        - fareClass
+        - fareCode
+        - eTicket
+        - loyaltyTier
+        - boardingZone
+        - fareFeatures
+        - flightNumber

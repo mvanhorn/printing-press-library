@@ -1,0 +1,10 @@
+{
+  "sources": ["locatieserver", "kadaster-location-api"],
+  "confirmed_at": "2026-05-20T13:06:33Z",
+  "raw_user_phrasing": "user confirmed via AskUserQuestion 'Combine them (recommended)' — Locatieserver primary, Location API secondary",
+  "auth_scoping": {
+    "locatieserver": "free, no auth",
+    "kadaster-location-api": "free, no auth"
+  },
+  "primary_notes": "Locatieserver is the established geocoder and gives canonical text-to-record matching. Location API supplies full geometries and OGC features but is a secondary surface that augments the primary."
+}

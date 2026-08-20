@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "doctor-probe-gate-honest-reachability",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "doctor --probe-gate issues a real inspiration-mode generation to report the live gate as open/tripped; a regen must keep an honest generate-path probe that the billing-layer check cannot provide.",
+  "reason": "The default doctor reachability check (GET /api/billing/info/) stays green while generation is gated, a false green. Only a real generate exercises the adaptive gate. The probe is opt-in because it spends credits and creates a clip when the gate is open (best-effort trashed); it is free when the gate is tripped. Logic lives in the hand-authored internal/cli/suno_doctor_gate.go so a regen of generated doctor.go only needs the small flag+call hook re-applied.",
+  "files": [
+    "internal/cli/suno_doctor_gate.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "doctor --probe-gate --agent reports generate_gate \"tripped\" (free) when the gate is active, distinct from the billing-layer \"reachable\"."
+}

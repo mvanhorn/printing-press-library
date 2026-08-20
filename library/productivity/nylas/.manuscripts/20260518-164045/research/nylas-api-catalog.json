@@ -1,0 +1,46 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://api.us.nylas.com/v3/",
+      "service-desc": [
+        {
+          "href": "https://developer.nylas.com/_spec-files/nylas-api.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://developer.nylas.com/docs/reference/api/",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://status.nylas.com/",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://api.eu.nylas.com/v3/",
+      "service-desc": [
+        {
+          "href": "https://developer.nylas.com/_spec-files/nylas-api.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://developer.nylas.com/docs/reference/api/",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://status.nylas.com/",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

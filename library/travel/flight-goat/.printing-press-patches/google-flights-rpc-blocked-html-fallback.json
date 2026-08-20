@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-rpc-blocked-html-fallback",
+  "applied_at": "2026-06-11",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Google's FlightsFrontendService RPC rejects non-interactive clients (ErrorResponse code 13 in the wrb.fr envelope); a blocked envelope must never read as a legitimate empty result, and flights/dates must fall back to the server-rendered tfs= search page, whose embedded AF_initDataCallback payload uses the same inner schema as the RPC.",
+  "reason": "Around 2026-06-09 Google gated GetShoppingResults and GetCalendarGraph for every non-browser client (verified against fli 0.10.0 with curl-cffi impersonation and against Google's own UI in headless Chromium) — 'flights' silently returned success with 0 results and 'dates' hard-errored. The gate is server-side; no request-shape tweak fixes it. The RPC paths stay primary so an un-gating restores fast behavior automatically; the fallback (one GET per search, per-day fan-out for dates) is the only data path that works while gated.",
+  "files": [
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go",
+    "internal/gflights/flights_native.go",
+    "internal/gflights/dates_native.go",
+    "internal/gflights/gflights.go",
+    "internal/cli/primary.go",
+    "internal/gflights/testdata/error_response_blocked.json",
+    "internal/gflights/testdata/aus_lax_embedded_ds1.json"
+  ],
+  "patch_count": 9,
+  "findings_addressed": ["F1", "F2"],
+  "validated_outcome": "go test ./internal/gflights/... passes (blocked-envelope detection + HTML extraction against live 2026-06-11 captures, old-format fixtures still parse); live dogfood: 'flights AUS LAX 2026-07-15' returns 13 itineraries via fallback (was 0), 'dates AUS LAX --from 2026-07-13 --to 2026-07-19' prices all 7 days (was hard error)."
+}

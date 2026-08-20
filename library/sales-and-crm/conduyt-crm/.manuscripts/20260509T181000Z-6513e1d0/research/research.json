@@ -1,0 +1,13 @@
+{
+  "api_name": "conduyt-crm",
+  "spec_format": "openapi3",
+  "endpoints": 321,
+  "resources": 76,
+  "auth_type": "bearer",
+  "novel_features": [
+    {"name": "Contact Trends", "command": "contact-trends"},
+    {"name": "Deal Velocity", "command": "deal-velocity"},
+    {"name": "Pipeline Health", "command": "pipeline-health"},
+    {"name": "Email Stats", "command": "email-stats"}
+  ]
+}

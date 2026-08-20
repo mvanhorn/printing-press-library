@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "run_id": "20260527-233111",
+  "api_name": "amazon-ads",
+  "status": "partial",
+  "summary": "Local structural, unit, build, MCP, and vulnerability checks pass. Live Amazon Ads auth/API dogfood is pending a refresh token.",
+  "checks": [
+    {
+      "name": "manifest-json",
+      "status": "pass",
+      "command": "jq . .printing-press.json"
+    },
+    {
+      "name": "patch-manifest-json",
+      "status": "pass",
+      "command": "jq . .printing-press-patches.json"
+    },
+    {
+      "name": "spec-checksum",
+      "status": "pass",
+      "command": "shasum -a 256 spec.json"
+    },
+    {
+      "name": "unit-tests",
+      "status": "pass",
+      "command": "go test ./..."
+    },
+    {
+      "name": "vet",
+      "status": "pass",
+      "command": "go vet ./..."
+    },
+    {
+      "name": "build",
+      "status": "pass",
+      "command": "go build ./cmd/amazon-ads-pp-cli ./cmd/amazon-ads-pp-mcp"
+    },
+    {
+      "name": "govulncheck",
+      "status": "pass",
+      "command": "govulncheck ./...",
+      "notes": "No vulnerabilities found in called code or imported packages; one vulnerability exists in a required module that is not called."
+    },
+    {
+      "name": "doctor",
+      "status": "pending-live-auth",
+      "command": "go run ./cmd/amazon-ads-pp-cli doctor --json",
+      "notes": "Config OK and Amazon Ads host reachable, but auth is not configured until AMAZON_ADS_REFRESH_TOKEN is minted or supplied. The auth hint now points to auth login --port 8085 and the localhost callback URL."
+    },
+    {
+      "name": "mcp-stdio-smoke",
+      "status": "pass",
+      "command": "go run ./cmd/amazon-ads-pp-mcp --transport stdio",
+      "notes": "JSON-RPC initialize succeeds; tools/list returns 53 tools and includes auto_negate."
+    },
+    {
+      "name": "mcp-manifest-counts",
+      "status": "pass",
+      "command": "go run ./cmd/amazon-ads-pp-mcp --transport stdio | tools/list",
+      "notes": ".printing-press.json advertises the runtime MCP surface: 53 total/public tools. Static tools-manifest.json remains endpoint metadata for the code-orchestration search/execute path."
+    },
+    {
+      "name": "local-novel-command-smoke",
+      "status": "pass",
+      "command": "amazon-ads-pp-cli portfolio-dashboard/acos-vs-tacos/wasted-spend/search-term-mining/true-profit/break-even-acos --json with temporary sample reports",
+      "notes": "Sample CSV/TOML inputs produced structured JSON for dashboard totals, ACOS/TACOS, wasted-spend recommendations, search-term mining recommendations, true-profit, and break-even ACOS without live Amazon credentials."
+    },
+    {
+      "name": "live-auth-login",
+      "status": "pending-live-auth",
+      "command": "go run ./cmd/amazon-ads-pp-cli auth login --port 8085",
+      "notes": "Requires Amazon developer redirect URL http://localhost:8085/callback and user authorization."
+    },
+    {
+      "name": "auth-guidance",
+      "status": "pass",
+      "command": "go run ./cmd/amazon-ads-pp-cli auth setup && go run ./cmd/amazon-ads-pp-cli doctor --json",
+      "notes": "auth setup prints http://localhost:8085/callback and auth login --port 8085; doctor emits the same callback-aware login hint when the refresh token is missing."
+    },
+    {
+      "name": "live-profile-list",
+      "status": "pending-live-auth",
+      "command": "go run ./cmd/amazon-ads-pp-cli profiles list --json",
+      "notes": "Requires a real refresh token and authorized advertising profile."
+    },
+    {
+      "name": "verify-skill",
+      "status": "pass",
+      "command": "python3 .github/scripts/verify-skill/verify_skill.py --dir . --json",
+      "notes": "35 recipes checked with no findings."
+    },
+    {
+      "name": "publish-package-verifier-simulation",
+      "status": "pass",
+      "command": "python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref <simulated-base>",
+      "notes": "Simulated a new library/commerce/amazon-ads PR in a temporary git repo; verifier selected one new CLI and passed."
+    },
+    {
+      "name": "registry-generation-simulation",
+      "status": "pass",
+      "command": "go run ./tools/generate-registry/main.go --validate amazon-ads",
+      "notes": "Simulated the public catalog with the local CLI overlaid at library/commerce/amazon-ads. Validation passed, the generated registry entry uses Amazon-specific description/search terms, and MCP metadata remains 53 total/public tools."
+    },
+    {
+      "name": "binary-payload-verifier-simulation",
+      "status": "pass",
+      "command": "python3 .github/scripts/verify-binary-payload/verify_binary_payload.py --base-ref <simulated-base>",
+      "notes": "No newly added or modified MCPB/native binary payloads under library/."
+    },
+    {
+      "name": "supply-chain-scan-simulation",
+      "status": "pass",
+      "command": "python3 .github/scripts/verify-supply-chain/scan.py --base-ref <simulated-base>",
+      "notes": "No findings for the public-library Go module path."
+    }
+  ]
+}

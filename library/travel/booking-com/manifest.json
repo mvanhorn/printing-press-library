@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "booking-com-pp-mcp",
+  "display_name": "Booking.com",
+  "version": "4.9.0",
+  "description": "Search Booking.com hotels, scrape details and reviews, watch prices over time, and read your trips, wishlist, and Genius rewards via cookie import.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/booking-com-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/booking-com-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

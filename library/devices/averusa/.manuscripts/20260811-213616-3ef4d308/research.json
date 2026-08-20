@@ -1,0 +1,224 @@
+{
+  "api_name": "averusa",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "Doc-type classification is by title/URL keywords (no structured type field exists on the portal); classification quality is heuristic. Attachment census (53/737 articles file-bearing) confirms most articles are text-only.",
+    "4 of 53 file-bearing articles (e.g., AVer-PTZapp-for-Mac/Windows) return 204 no-body on fileField — their links point to external downloaders/App stores; downloads for those resolve as text/links, not PDFs."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-12T03:20:00Z",
+  "novel_features": [
+    {
+      "name": "Model spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec fields for two or more AVer models from their datasheets, ready for bid comparisons and RFP tables. Spec fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+      "rationale": "Spec values exist only inside per-model datasheet PDFs; only a local synced spec_fields table can render a cross-model matrix.",
+      "example": "averusa-pp-cli compare CAM570 CAM550 --agent",
+      "why_it_matters": "Use this instead of opening N datasheet PDFs to answer 'which model fits?' for a bid.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Single-model spec dump",
+      "command": "specs",
+      "description": "One model's full spec fields as clean text or JSON for spec-compliance tables and agent pipelines. Fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+      "rationale": "Requires sync-time extraction of fields from the model's datasheet PDF into the local store.",
+      "example": "averusa-pp-cli specs CAM570 --json --agent",
+      "why_it_matters": "Use this to fill an RFP spec-compliance row without opening the PDF.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc link audit",
+      "command": "docs audit",
+      "description": "HEAD-checks every document URL in the catalog and flags 404s and soft-404 shells, caching last-checked status locally.",
+      "rationale": "Only a synced catalog can audit the whole link set at once; averusa.com serves 200 soft-404 shells for guessed paths and even mislinks datasheets on product pages.",
+      "example": "averusa-pp-cli docs audit",
+      "why_it_matters": "Use this before pushing docs to a shared drive to catch dead or mislinked PDFs while they are still cheap to fix.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Offline job bag",
+      "command": "docs pack",
+      "description": "Batch-download every document for a model into one offline folder with stable \u003cmodel\u003e-\u003ctype\u003e names, with a --dry-run preview. Downloads need entityIds, which `harvest` resolves at sync time.",
+      "rationale": "Groups the synced documents table by model and neutralizes the portal's unstructured PDF filenames with deterministic naming.",
+      "example": "averusa-pp-cli docs pack CAM570 --out ./job-570 --dry-run",
+      "why_it_matters": "Use this to pre-stage a job bag of manuals before driving to a site with no signal.",
+      "group": "Offline job-site workflow"
+    },
+    {
+      "name": "What's-new diff",
+      "command": "whats-new",
+      "description": "List documents and products added or updated since the last sync, filterable by age.",
+      "rationale": "No changelog exists on averusa.com; only the local sync-state cursor diff can answer 'what changed since I last looked'.",
+      "example": "averusa-pp-cli whats-new --since 30d --json",
+      "why_it_matters": "Use this to track new manuals or firmware docs across a fleet without re-checking the website.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc coverage matrix",
+      "command": "coverage",
+      "description": "Per-model doc-type availability matrix for a category, flagging which models are missing manuals, spec sheets, or white papers.",
+      "rationale": "A pure local LEFT JOIN of products and documents pivoted on the doc-type enum — no site page shows coverage.",
+      "example": "averusa-pp-cli coverage conference-camera",
+      "why_it_matters": "Use this before a recommendation or commissioning checklist to catch missing compliance docs.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Current vs discontinued",
+      "command": "products status",
+      "description": "Flag which models AVer lists as discontinued, filterable by category.",
+      "rationale": "Current/discontinued status is unstructured HTML text on the /support/ page; only sync-time parsing into a local products.discontinued flag makes it queryable.",
+      "example": "averusa-pp-cli products status --category conference-camera --json",
+      "why_it_matters": "Use this before specing a model into a school bid so a discontinued unit never ships in the quote.",
+      "group": "Service-specific intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Model spec comparison",
+      "command": "compare",
+      "description": "Side-by-side spec fields for two or more AVer models from their datasheets, ready for bid comparisons and RFP tables. Spec fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+      "rationale": "Spec values exist only inside per-model datasheet PDFs; only a local synced spec_fields table can render a cross-model matrix.",
+      "example": "averusa-pp-cli compare CAM570 CAM550 --agent",
+      "why_it_matters": "Use this instead of opening N datasheet PDFs to answer 'which model fits?' for a bid.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Single-model spec dump",
+      "command": "specs",
+      "description": "One model's full spec fields as clean text or JSON for spec-compliance tables and agent pipelines. Fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+      "rationale": "Requires sync-time extraction of fields from the model's datasheet PDF into the local store.",
+      "example": "averusa-pp-cli specs CAM570 --json --agent",
+      "why_it_matters": "Use this to fill an RFP spec-compliance row without opening the PDF.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc link audit",
+      "command": "docs audit",
+      "description": "HEAD-checks every document URL in the catalog and flags 404s and soft-404 shells, caching last-checked status locally.",
+      "rationale": "Only a synced catalog can audit the whole link set at once; averusa.com serves 200 soft-404 shells for guessed paths and even mislinks datasheets on product pages.",
+      "example": "averusa-pp-cli docs audit",
+      "why_it_matters": "Use this before pushing docs to a shared drive to catch dead or mislinked PDFs while they are still cheap to fix.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Offline job bag",
+      "command": "docs pack",
+      "description": "Batch-download every document for a model into one offline folder with stable \u003cmodel\u003e-\u003ctype\u003e names, with a --dry-run preview. Downloads need entityIds, which `harvest` resolves at sync time.",
+      "rationale": "Groups the synced documents table by model and neutralizes the portal's unstructured PDF filenames with deterministic naming.",
+      "example": "averusa-pp-cli docs pack CAM570 --out ./job-570 --dry-run",
+      "why_it_matters": "Use this to pre-stage a job bag of manuals before driving to a site with no signal.",
+      "group": "Offline job-site workflow"
+    },
+    {
+      "name": "What's-new diff",
+      "command": "whats-new",
+      "description": "List documents and products added or updated since the last sync, filterable by age.",
+      "rationale": "No changelog exists on averusa.com; only the local sync-state cursor diff can answer 'what changed since I last looked'.",
+      "example": "averusa-pp-cli whats-new --since 30d --json",
+      "why_it_matters": "Use this to track new manuals or firmware docs across a fleet without re-checking the website.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Doc coverage matrix",
+      "command": "coverage",
+      "description": "Per-model doc-type availability matrix for a category, flagging which models are missing manuals, spec sheets, or white papers.",
+      "rationale": "A pure local LEFT JOIN of products and documents pivoted on the doc-type enum — no site page shows coverage.",
+      "example": "averusa-pp-cli coverage conference-camera",
+      "why_it_matters": "Use this before a recommendation or commissioning checklist to catch missing compliance docs.",
+      "group": "Local catalog that compounds"
+    },
+    {
+      "name": "Current vs discontinued",
+      "command": "products status",
+      "description": "Flag which models AVer lists as discontinued, filterable by category.",
+      "rationale": "Current/discontinued status is unstructured HTML text on the /support/ page; only sync-time parsing into a local products.discontinued flag makes it queryable.",
+      "example": "averusa-pp-cli products status --category conference-camera --json",
+      "why_it_matters": "Use this before specing a model into a school bid so a discontinued unit never ships in the quote.",
+      "group": "Service-specific intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "AVer USA",
+    "headline": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+    "value_prop": "averusa.com hides its manuals, spec sheets, and white papers behind a Salesforce portal maze and per-model PDFs. averusa-pp-cli syncs the whole catalog into a local database, then answers the questions integrators actually ask: which model fits (compare), what are its specs (specs), what docs exist per model (coverage, docs pack), what changed since last sync (whats-new), and which PDF links are dead (doctor).",
+    "quickstart": [
+      {
+        "command": "averusa-pp-cli doctor --dry-run",
+        "comment": "Health check that works with no credentials — confirms the CLI and its config are sane."
+      },
+      {
+        "command": "averusa-pp-cli harvest",
+        "comment": "Build the local corpus from the support portal and product catalog — everything else reads it."
+      },
+      {
+        "command": "averusa-pp-cli docs search \"CAM570\" --type user-manual",
+        "comment": "Type-filtered search over the synced catalog, offline."
+      },
+      {
+        "command": "averusa-pp-cli docs pack CAM570 --out ./job-570",
+        "comment": "Grab the whole offline doc bag for a model before heading to the jobsite."
+      },
+      {
+        "command": "averusa-pp-cli compare CAM570 CAM550 --agent",
+        "comment": "Side-by-side specs from the datasheets for a bid comparison."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "docs search returns nothing right after install",
+        "fix": "Run `averusa-pp-cli harvest` first — search reads the local corpus, which starts empty."
+      },
+      {
+        "symptom": "docs download fails for an article with no known entityId",
+        "fix": "fileField downloads need a Salesforce entityId, which `harvest` now resolves for all 737 articles; articles without an attached file (the majority) return no-body 204, and `docs audit` reports which URLs are unverifiable."
+      },
+      {
+        "symptom": "a PDF link returns a 200 HTML shell instead of a PDF",
+        "fix": "averusa.com serves 61301-byte soft-404 shells for guessed paths. Run `averusa-pp-cli docs audit` to audit link health, then re-sync."
+      }
+    ],
+    "when_to_use": "Use averusa-pp-cli whenever an agent or integrator needs an AVer USA user manual, spec sheet/datasheet, or white paper — browsing the type-filtered catalog, comparing models for a bid, assembling an offline job bag, or auditing which PDF links are still alive. Its local store answers cross-document questions ('which model has a white paper and which is discontinued?') that the Salesforce portal cannot.",
+    "anti_triggers": [
+      "Do not use this CLI to control AVer PTZ or conference cameras — that is device control over VISCA/IP, which belongs to Bitfocus Companion or vendor device tools.",
+      "Do not use it to download or install firmware — the portal indexes firmware articles, but binary download entityIds are not fully seeded and firmware installation is a device operation."
+    ],
+    "recipes": [
+      {
+        "title": "Field kit before you drive out",
+        "command": "averusa-pp-cli docs pack CAM570 --out ./job-570",
+        "explanation": "One command assembles the whole offline doc bag for a model with stable names — no portal clicking at the jobsite."
+      },
+      {
+        "title": "Bid spec table",
+        "command": "averusa-pp-cli specs CAM550 --json --agent",
+        "explanation": "Structured spec fields straight into an RFP compliance table or agent pipeline."
+      },
+      {
+        "title": "Which model fits?",
+        "command": "averusa-pp-cli compare CAM570 CAM550 --agent",
+        "explanation": "Side-by-side datasheet specs so a recommendation never relies on opening two PDFs."
+      },
+      {
+        "title": "Audit the shared drive",
+        "command": "averusa-pp-cli docs audit",
+        "explanation": "Catches dead and mislinked PDFs before installers do — the CAM570 page currently mislinks cam520pro3-datasheet.pdf."
+      },
+      {
+        "title": "White papers for an eval",
+        "command": "averusa-pp-cli docs search \"white paper\" --type white-paper --json --select title,doc_type,model",
+        "explanation": "Evaluation material filtered to white papers, narrowed with --select so agents don't parse the full payload."
+      }
+    ],
+    "trigger_phrases": [
+      "get the manual for a CAM570",
+      "spec sheet for an AVer conference camera",
+      "compare AVer models side by side",
+      "AVer white papers",
+      "use averusa",
+      "run averusa"
+    ]
+  }
+}

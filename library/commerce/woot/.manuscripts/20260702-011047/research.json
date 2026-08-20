@@ -1,0 +1,83 @@
+{
+  "api_name": "woot",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "The captured browser API exposed one generic GraphQL endpoint, so safe operation validation and All Deals paging required Woot-specific runtime logic."
+  ],
+  "patterns": [
+    "Woot's All Deals page uses a browser-facing GraphQL searchOffers query with category, price, sort, limit, and skip inputs."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T01:10:47Z",
+  "novel_features": [
+    {
+      "name": "Woot All Deals Search",
+      "command": "deals",
+      "description": "Scan Woot's paged All Deals results and filter live offers by keyword.",
+      "rationale": "Uses the same frontend searchOffers paging, category, price, and page filters that Woot's All Deals UI uses.",
+      "example": "woot-pp-cli deals rayon --limit 10000 --agent",
+      "why_it_matters": "Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss; scan metadata reports short windows, duplicate IDs, and rows without identities.",
+      "group": "Live deal discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Woot All Deals Search",
+      "command": "deals",
+      "description": "Scan Woot's paged All Deals results and filter live offers by keyword.",
+      "rationale": "Uses the same frontend searchOffers paging, category, price, and page filters that Woot's All Deals UI uses.",
+      "example": "woot-pp-cli deals rayon --limit 10000 --agent",
+      "why_it_matters": "Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss; scan metadata reports short windows, duplicate IDs, and rows without identities.",
+      "group": "Live deal discovery"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Woot",
+    "headline": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+    "value_prop": "Find offers that are buried deep in Woot's paginated All Deals catalog, then save a locally searchable snapshot with explicit completeness metadata. The CLI exposes the browser-observed searchOffers query without allowing GraphQL mutations.",
+    "auth_narrative": "Capture the x-api-key value from a successful graphql request made by your own Woot All Deals browser session, then provide it through D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY or auth set-token.",
+    "quickstart": [
+      {
+        "command": "woot-pp-cli deals rayon --limit 10000 --agent",
+        "comment": "Scan up to 10000 live result slots and return matching offers plus explicit scan-completeness metadata as compact JSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The API returns HTTP 401 or says a valid authorization header was not provided.",
+        "fix": "Capture a fresh x-api-key from a successful Woot All Deals graphql request and set D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY."
+      },
+      {
+        "symptom": "A local search returns no results or stale results.",
+        "fix": "Run woot-pp-cli sync --full before searching the local deals index."
+      },
+      {
+        "symptom": "A full sync reports an incomplete snapshot.",
+        "fix": "Woot returned duplicate, missing, or changing offset pages. Existing local matches remain useful, but rerun later before treating a missing match as authoritative."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to search more of Woot's live All Deals catalog than one visible page exposes, reproduce Woot category and price filters, or build an offline deal index. It is read-only and is not intended for purchasing or changing a Woot account.",
+    "anti_triggers": [
+      "Purchasing a Woot offer or adding it to a cart",
+      "Changing Woot account, payment, order, or shipping state",
+      "Sending GraphQL mutations or subscriptions"
+    ],
+    "recipes": [
+      {
+        "title": "Search a filtered slice of All Deals",
+        "command": "woot-pp-cli deals laptop --category computers --price-range 50-100 --limit 500 --agent",
+        "explanation": "Scan current computer deals priced from $50 to $100 and return title matches as compact JSON."
+      }
+    ],
+    "trigger_phrases": [
+      "search Woot deals",
+      "find this item on Woot",
+      "sync Woot All Deals",
+      "search my local Woot catalog"
+    ]
+  }
+}

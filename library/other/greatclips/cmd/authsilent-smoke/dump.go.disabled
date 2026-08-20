@@ -1,0 +1,12 @@
+package main
+import (
+  "fmt"; "os"
+  "greatclips-pp-cli/internal/auth0silent"
+)
+func main() {
+  cookies, err := auth0silent.ExtractAuth0Cookies()
+  if err != nil { fmt.Fprintln(os.Stderr, err); os.Exit(1) }
+  tok, err := auth0silent.Mint(os.Args[1], cookies)
+  if err != nil { fmt.Fprintln(os.Stderr, err); os.Exit(1) }
+  fmt.Print(tok.AccessToken)
+}

@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-06-08T20:22:19Z",
+  "elapsed_ms": 6484,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:19Z",
+      "elapsed_ms": 4065,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press verify --dir /Users/cathrynlavery/printing-press/library/xai --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810/research/xai-openapi.normalized.json --fix --env-var XAI_API_KEY"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:23Z",
+      "elapsed_ms": 16,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press validate-narrative --strict --full-examples --research /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810/research.json --binary /Users/cathrynlavery/printing-press/library/xai/xai-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:23Z",
+      "elapsed_ms": 1501,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press dogfood --dir /Users/cathrynlavery/printing-press/library/xai --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810/research/xai-openapi.normalized.json --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:24Z",
+      "elapsed_ms": 17,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press workflow-verify --dir /Users/cathrynlavery/printing-press/library/xai"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:24Z",
+      "elapsed_ms": 20,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press apify-audit --dir /Users/cathrynlavery/printing-press/library/xai --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:24Z",
+      "elapsed_ms": 475,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press verify-skill --dir /Users/cathrynlavery/printing-press/library/xai"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-08T20:22:25Z",
+      "elapsed_ms": 388,
+      "command": "/Volumes/Cat_SSD/Developer/cli-printing-press/cli-printing-press scorecard --dir /Users/cathrynlavery/printing-press/library/xai --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810 --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-1210c349/runs/20260608-151052-ab0cd810/research/xai-openapi.normalized.json --live-check"
+    }
+  ]
+}

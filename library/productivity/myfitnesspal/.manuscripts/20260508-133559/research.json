@@ -1,0 +1,346 @@
+{
+  "api_name": "myfitnesspal",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "coddingtonbear/python-myfitnesspal",
+      "url": "https://github.com/coddingtonbear/python-myfitnesspal",
+      "language": "Python",
+      "install_method": "",
+      "stars": 861,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AdamWalt/myfitnesspal-mcp-python",
+      "url": "https://github.com/AdamWalt/myfitnesspal-mcp-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "marcosav/myfitnesspal-api",
+      "url": "https://github.com/marcosav/myfitnesspal-api",
+      "language": "Java",
+      "install_method": "",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "savaki/myfitnesspal",
+      "url": "https://github.com/savaki/myfitnesspal",
+      "language": "Go",
+      "install_method": "",
+      "stars": 19,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seonixx/myfitnesspal",
+      "url": "https://github.com/seonixx/myfitnesspal",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seeM/myfitnesspal-to-sqlite",
+      "url": "https://github.com/seeM/myfitnesspal-to-sqlite",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hbmartin/myfitnesspal-to-google-sheets",
+      "url": "https://github.com/hbmartin/myfitnesspal-to-google-sheets",
+      "language": "Python",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jnelle/MyFitnesspal-API-Golang",
+      "url": "https://github.com/jnelle/MyFitnesspal-API-Golang",
+      "language": "Go",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T20:35:00Z",
+  "novel_features": [
+    {
+      "name": "Per-food CSV export",
+      "command": "export csv",
+      "description": "Export your food diary to CSV with one row per logged food, not per meal. Premium MFP only ships per-meal CSVs.",
+      "rationale": "Requires the local diary_entry store; MFP's own CSV gates per-food granularity behind a tier that still doesn't deliver it.",
+      "example": "myfitnesspal-pp-cli export csv --from 2026-01-01 --to 2026-05-08 --out diary.csv",
+      "why_it_matters": "Reach for this when an agent needs the user's full eating history at food granularity for analysis, training, or long-form coaching memory.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weight-trend vs deficit",
+      "command": "analytics weight-trend",
+      "description": "Computes weekly weight slope, weekly average calorie deficit, and the implied calories-per-pound ratio.",
+      "rationale": "Requires joining weight measurements, daily calorie totals, and goal snapshots locally — no single MFP endpoint returns it.",
+      "example": "myfitnesspal-pp-cli analytics weight-trend --weeks 8 --smooth 7d --json",
+      "why_it_matters": "Use when an agent is helping the user calibrate a deficit or surplus and needs to know whether the plan is actually moving the scale.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent context dump",
+      "command": "context",
+      "description": "Single-call snapshot of the last N days: diary totals, weight trend, current goals, recent foods, macro deltas — sized for an agent context window.",
+      "rationale": "Composes 5+ tables of local state into one JSON; AdamWalt MCP requires N tool calls for the same picture.",
+      "example": "myfitnesspal-pp-cli context --days 14 --json",
+      "why_it_matters": "First call any agent should make before reasoning about a user's nutrition — gives the full picture in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Top foods by nutrient driver",
+      "command": "analytics top-foods",
+      "description": "Pareto query: which N foods drove X% of your protein/carbs/fat/fiber/sugar/calories over a window?",
+      "rationale": "Requires SQL group-by over diary_entry rows in local SQLite; no API endpoint exposes this.",
+      "example": "myfitnesspal-pp-cli analytics top-foods --nutrient protein --days 60 --cumulative-percent 80 --json",
+      "why_it_matters": "Use when an agent is helping the user understand what's actually driving a macro target, not what they think is.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Macro-trend report",
+      "command": "analytics macro-trend",
+      "description": "Daily protein/carbs/fat/fiber over a date range, with optional 7-day smoothing. Reads canonical reports endpoint, fills gaps from local diary.",
+      "rationale": "Combines the canonical /api/services/reports/results JSON island with local fallback — no wrapper orchestrates multi-nutrient.",
+      "example": "myfitnesspal-pp-cli analytics macro-trend --days 30 --smooth 7d --csv",
+      "why_it_matters": "Use to detect macro drift over weeks without rescraping the whole diary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Week-vs-week diff",
+      "command": "analytics weekly-diff",
+      "description": "Side-by-side: avg calories, macros, weight delta, top-3 foods that changed contribution between two recent weeks.",
+      "rationale": "Two windowed aggregates over diary_entry, measurement, and goal_snapshot in local SQLite.",
+      "example": "myfitnesspal-pp-cli analytics weekly-diff --weeks 2 --json",
+      "why_it_matters": "Use when the user asks 'how did this week compare to last' — the agent answers with one call instead of two diary fetches.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Find food in diary (FTS)",
+      "command": "find",
+      "description": "Full-text search across every diary entry and food in the local store. Returns date, meal, servings, calories per match.",
+      "rationale": "Requires local FTS5 indexes (diary_entries_fts + foods_fts); MFP web has no recall search.",
+      "example": "myfitnesspal-pp-cli find --food \"Chipotle Bowl\" --from 2026-01-01 --json",
+      "why_it_matters": "Use when an agent needs to recall every time the user logged a specific food without scrolling through months of diary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync diff",
+      "command": "sync diff",
+      "description": "After a sync, prints what changed: new diary entries, edited entries, new measurements, new water logs since the last sync.",
+      "rationale": "Local sync timestamps and row diffs — no external API call needed.",
+      "example": "myfitnesspal-pp-cli sync diff --since-last --json",
+      "why_it_matters": "Use in cron pipelines to surface only the new data to downstream tools (Hugo summaries, Sheets exports).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reports backfill",
+      "command": "reports backfill",
+      "description": "Fans out over the JSON reports endpoint to cache 2 years × N nutrients into the local report_snapshot table in one command.",
+      "rationale": "MFP's reports endpoint is a hidden JSON island; no wrapper persists it. The free tier only retains 2 years; backfill captures the full history before it expires.",
+      "example": "myfitnesspal-pp-cli reports backfill --category nutrition --names \"Net Calories,Protein,Fat,Carbs\" --days 730",
+      "why_it_matters": "Run once after install to give every analytics command a 2-year history without per-query rescraping.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Macro-gap candidate foods",
+      "command": "analytics gap-candidates",
+      "description": "Lists foods from your favorites and last-30-day recents whose servings would fill the remaining macro envelope for today.",
+      "rationale": "Joins food + diary_entry recency in local SQLite with the user's macro gap; reframed away from any LLM dependency.",
+      "example": "myfitnesspal-pp-cli analytics gap-candidates --remaining protein:60g,fat:\u003c10g --limit 20 --json",
+      "why_it_matters": "Pipe to `| claude \"pick one\"` to fold in language reasoning without coupling the CLI to an LLM.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Adherence streak",
+      "command": "analytics streak",
+      "description": "Longest run of consecutive days where calorie totals fall within ±tolerance of your goal.",
+      "rationale": "Mechanical streak query over diary_entry and goal_snapshot; motivational primitive no MFP screen exposes directly.",
+      "example": "myfitnesspal-pp-cli analytics streak --days 60 --tolerance 0.05 --json",
+      "why_it_matters": "Use when the user asks how their adherence is trending — answer arrives without subjective interpretation.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved-meal expansion",
+      "command": "meal expand",
+      "description": "Dereferences a saved meal into per-food rows with full nutrients, instead of MFP's collapsed display.",
+      "rationale": "Same gated-content pattern as per-food CSV — MFP shows the rolled-up meal but hides the components.",
+      "example": "myfitnesspal-pp-cli meal expand --meal-id 12345 --as-csv",
+      "why_it_matters": "Use when copying a saved meal's exact composition to another tracking system or analyzing what the user actually eats inside their named meals.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Per-food CSV export",
+      "command": "export csv",
+      "description": "Export your food diary to CSV with one row per logged food, not per meal. Premium MFP only ships per-meal CSVs.",
+      "rationale": "Requires the local diary_entry store; MFP's own CSV gates per-food granularity behind a tier that still doesn't deliver it.",
+      "example": "myfitnesspal-pp-cli export csv --from 2026-01-01 --to 2026-05-08 --out diary.csv",
+      "why_it_matters": "Reach for this when an agent needs the user's full eating history at food granularity for analysis, training, or long-form coaching memory.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent context dump",
+      "command": "context",
+      "description": "Single-call snapshot of the last N days: diary totals, weight trend, current goals, recent foods, macro deltas — sized for an agent context window.",
+      "rationale": "Composes 5+ tables of local state into one JSON; AdamWalt MCP requires N tool calls for the same picture.",
+      "example": "myfitnesspal-pp-cli context --days 14 --json",
+      "why_it_matters": "First call any agent should make before reasoning about a user's nutrition — gives the full picture in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Top foods by nutrient driver",
+      "command": "analytics top-foods",
+      "description": "Pareto query: which N foods drove X% of your protein/carbs/fat/fiber/sugar/calories over a window?",
+      "rationale": "Requires SQL group-by over diary_entry rows in local SQLite; no API endpoint exposes this.",
+      "example": "myfitnesspal-pp-cli analytics top-foods --nutrient protein --days 60 --cumulative-percent 80 --json",
+      "why_it_matters": "Use when an agent is helping the user understand what's actually driving a macro target, not what they think is.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Find food in diary (FTS)",
+      "command": "find",
+      "description": "Full-text search across every diary entry and food in the local store. Returns date, meal, servings, calories per match.",
+      "rationale": "Requires local FTS5 indexes (diary_entries_fts + foods_fts); MFP web has no recall search.",
+      "example": "myfitnesspal-pp-cli find --food \"Chipotle Bowl\" --from 2026-01-01 --json",
+      "why_it_matters": "Use when an agent needs to recall every time the user logged a specific food without scrolling through months of diary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Adherence streak",
+      "command": "analytics streak",
+      "description": "Longest run of consecutive days where calorie totals fall within ±tolerance of your goal.",
+      "rationale": "Mechanical streak query over diary_entry and goal_snapshot; motivational primitive no MFP screen exposes directly.",
+      "example": "myfitnesspal-pp-cli analytics streak --days 60 --tolerance 0.05 --json",
+      "why_it_matters": "Use when the user asks how their adherence is trending — answer arrives without subjective interpretation.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "MyFitnessPal",
+    "headline": "Pull every meal you ever logged out of MyFitnessPal — per-food CSV, agent-shaped trends, and a local SQLite store no other MFP tool ships.",
+    "value_prop": "MyFitnessPal closed their API, gates per-food export behind premium, and ships per-meal rows even there. This CLI imports your browser session, syncs your diary to local SQLite, and answers questions the official UI never can: which 5 foods drove 80% of your protein this quarter, what's your weekly weight slope vs your deficit, what changed since last sync. Built with agent-native output (`--json`, `--select`, `context`) so Claude can reason over your last 14 days in one tool call.",
+    "auth_narrative": "MyFitnessPal closed their public API. This CLI uses your logged-in browser session — log in to myfitnesspal.com in Chrome, then run `myfitnesspal-pp-cli auth login --chrome`. Cookies are read from the .myfitnesspal.com domain. Sessions usually last 7-30 days; when they expire, log in again in Chrome and re-run `auth login --chrome`.",
+    "quickstart": [
+      {
+        "command": "myfitnesspal-pp-cli auth login --chrome",
+        "comment": "Imports your MFP cookies from Chrome (one-time setup; works after you've logged in to myfitnesspal.com)"
+      },
+      {
+        "command": "myfitnesspal-pp-cli doctor",
+        "comment": "Verifies the session is valid and api.myfitnesspal.com is reachable"
+      },
+      {
+        "command": "myfitnesspal-pp-cli sync --from 2026-01-01 --to 2026-05-08",
+        "comment": "Pulls four months of diary, exercises, water, measurements, and goals into the local SQLite store"
+      },
+      {
+        "command": "myfitnesspal-pp-cli export csv --from 2026-01-01 --to 2026-05-08 --out diary.csv",
+        "comment": "Per-food CSV export — the headline thing premium MFP doesn't deliver"
+      },
+      {
+        "command": "myfitnesspal-pp-cli context --days 14 --json",
+        "comment": "One-shot agent context: 14 days of diary totals, weight trend, current goals, recent foods, macro deltas"
+      },
+      {
+        "command": "myfitnesspal-pp-cli analytics weight-trend --weeks 8 --smooth 7d",
+        "comment": "Joins weight measurements with calorie deficit to compute the implied calories-per-pound ratio"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports session expired",
+        "fix": "Log in to myfitnesspal.com in Chrome (the same profile you used for `auth login --chrome`), then re-run `myfitnesspal-pp-cli auth login --chrome`. Sessions typically last 7-30 days."
+      },
+      {
+        "symptom": "auth login --chrome can't find cookies",
+        "fix": "Install one of: `pip install pycookiecheat`, `cargo install cookie-scoop-cli`, or `brew install cookies`. Then re-run `auth login --chrome --profile Default`. If you have multiple Chrome profiles, list them with `auth login --chrome --list-profiles`."
+      },
+      {
+        "symptom": "/v2/foods/{id} returns 403",
+        "fix": "Some food ids are user-scoped (only readable by accounts that have logged that food). Try `food search --query \u003cname\u003e` first to get an accessible food id."
+      },
+      {
+        "symptom": "POST /food/search returns the login page",
+        "fix": "Session cookie expired. Re-run `auth login --chrome` after logging in to myfitnesspal.com again."
+      },
+      {
+        "symptom": "sync fails with 429 rate-limit",
+        "fix": "MFP throttles bursty access. The CLI defaults to 1 req/sec; if you raised --concurrency, drop it back to 1 and retry. Wait 60 seconds before re-running."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to reason over a user's actual eating, exercise, or weight history — especially across windows longer than today. The local SQLite store + agent-shaped `context` command means one tool call replaces the back-and-forth of pasting yesterday's diary into the chat. Use it for nutrition coaching, deficit calibration, macro analysis, recall questions ('every time I logged X'), and anywhere the official MFP UI's per-meal rollup blocks the question.",
+    "recipes": [
+      {
+        "title": "Build agent context for a coaching question",
+        "command": "myfitnesspal-pp-cli context --days 30 --json --select diary_totals,weight_trend,goals",
+        "explanation": "One tool call gives the agent everything it needs to answer 'should I cut more this week?' without back-and-forth pasting."
+      },
+      {
+        "title": "Find every time you logged a food",
+        "command": "myfitnesspal-pp-cli find --food \"Greek yogurt\" --from 2026-01-01 --json --select date,meal,servings,calories",
+        "explanation": "Local FTS over your synced diary; instant answer to recall questions the MFP web UI requires scrolling for."
+      },
+      {
+        "title": "Per-food CSV for a quarter",
+        "command": "myfitnesspal-pp-cli export csv --from 2026-01-01 --to 2026-03-31 --out q1-2026.csv",
+        "explanation": "One row per food entry with full nutrients — the export premium MFP doesn't deliver."
+      },
+      {
+        "title": "Weekly diff for the Sunday review",
+        "command": "myfitnesspal-pp-cli analytics weekly-diff --weeks 2 --json",
+        "explanation": "Side-by-side calories, macros, weight delta, and the top-3 foods that changed contribution between this week and last."
+      },
+      {
+        "title": "Calibrate a deficit",
+        "command": "myfitnesspal-pp-cli analytics weight-trend --weeks 8 --smooth 7d --json",
+        "explanation": "Returns weekly weight slope, weekly average deficit, and the implied calories-per-pound — the calculation Priya runs in a Google Sheet today."
+      }
+    ],
+    "trigger_phrases": [
+      "what did I eat this week",
+      "export my food diary",
+      "check my calories",
+      "what's my weight trend",
+      "log my macros",
+      "use myfitnesspal",
+      "run myfitnesspal"
+    ]
+  }
+}

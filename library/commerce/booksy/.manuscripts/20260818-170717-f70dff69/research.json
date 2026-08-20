@@ -1,0 +1,225 @@
+{
+  "api_name": "booksy",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-18T15:36:00Z",
+  "novel_features": [
+    {
+      "name": "Guided haircut booking",
+      "command": "book",
+      "description": "Book an appointment end to end — it previews the exact service, staffer, time, and price first, and only sends the real booking when you pass --confirm.",
+      "rationale": "The whole booking funnel (business, service variant, staffer, slot, dry-run validation, confirm) only composes in one place locally; the web app never exposes it as a single scriptable step.",
+      "example": "booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
+      "why_it_matters": "This is the one command that turns 'find me a haircut' into an actual appointment; the dry-run-by-default guard means an agent can plan safely and the human confirms.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Open slots",
+      "command": "availability",
+      "description": "List open time slots for a service at a business over a date range, grouped by day. No login required.",
+      "rationale": "Availability is a POST with a nested subbookings body the web app builds internally; exposing it as clean flags (service variant + date range) is only possible once the funnel is modeled locally.",
+      "example": "booksy-pp-cli availability 297360 --service-variant 20193554 --from 2026-08-19 --to 2026-08-31",
+      "why_it_matters": "Lets an agent answer 'when can I get in?' without loading the web calendar — no token needed.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Services table",
+      "command": "services",
+      "description": "Flatten a business profile into a clean table of bookable services with price, duration, and the service-variant id you pass to book.",
+      "rationale": "Booksy nests services three levels deep (categories -\u003e services -\u003e variants); the variant id needed to book is buried. Flattening it locally is what makes booking one step.",
+      "example": "booksy-pp-cli services 297360 --query haircut",
+      "why_it_matters": "Surfaces the exact --service-variant id an agent needs for availability and booking, with prices to compare.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Soonest slot",
+      "command": "earliest",
+      "description": "Find the single earliest open slot for a service across a date window in one call.",
+      "rationale": "Requires scanning the day-grouped time_slots response and returning the first slot — an aggregation no single Booksy endpoint provides.",
+      "example": "booksy-pp-cli earliest 297360 --service-variant 20193554 --within 14d",
+      "why_it_matters": "Answers 'what's the soonest I can get a haircut here?' directly instead of returning a whole calendar.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Compare barbers",
+      "command": "compare",
+      "description": "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache.",
+      "rationale": "Cross-business comparison requires holding multiple business profiles together locally; the API only ever returns one business at a time.",
+      "example": "booksy-pp-cli compare 297360 161624 --service haircut",
+      "why_it_matters": "Turns 'which of these barbers is best value?' into one command instead of opening N tabs.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Cheapest haircut nearby",
+      "command": "cheapest",
+      "description": "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price.",
+      "rationale": "Ranking by service price requires fetching each business's services and joining locally; Booksy's search sorts by score/distance, never by service price.",
+      "example": "booksy-pp-cli cheapest --location-id 47905 --service haircut --limit 10",
+      "why_it_matters": "Answers 'where's the cheapest decent haircut near me?' — a query Booksy's own UI cannot express.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Cancel appointment",
+      "command": "cancel",
+      "description": "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.",
+      "rationale": "Completes the booking loop using the appointment _version handshake captured from a real cancellation.",
+      "example": "booksy-pp-cli cancel 746784544 --confirm",
+      "why_it_matters": "Lets an agent undo a booking it made without opening the Booksy app.",
+      "group": "Booking funnel"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Guided haircut booking",
+      "command": "book",
+      "description": "Book an appointment end to end — it previews the exact service, staffer, time, and price first, and only sends the real booking when you pass --confirm.",
+      "rationale": "The whole booking funnel (business, service variant, staffer, slot, dry-run validation, confirm) only composes in one place locally; the web app never exposes it as a single scriptable step.",
+      "example": "booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
+      "why_it_matters": "This is the one command that turns 'find me a haircut' into an actual appointment; the dry-run-by-default guard means an agent can plan safely and the human confirms.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Open slots",
+      "command": "availability",
+      "description": "List open time slots for a service at a business over a date range, grouped by day. No login required.",
+      "rationale": "Availability is a POST with a nested subbookings body the web app builds internally; exposing it as clean flags (service variant + date range) is only possible once the funnel is modeled locally.",
+      "example": "booksy-pp-cli availability 297360 --service-variant 20193554 --from 2026-08-19 --to 2026-08-31",
+      "why_it_matters": "Lets an agent answer 'when can I get in?' without loading the web calendar — no token needed.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Services table",
+      "command": "services",
+      "description": "Flatten a business profile into a clean table of bookable services with price, duration, and the service-variant id you pass to book.",
+      "rationale": "Booksy nests services three levels deep (categories -\u003e services -\u003e variants); the variant id needed to book is buried. Flattening it locally is what makes booking one step.",
+      "example": "booksy-pp-cli services 297360 --query haircut",
+      "why_it_matters": "Surfaces the exact --service-variant id an agent needs for availability and booking, with prices to compare.",
+      "group": "Booking funnel"
+    },
+    {
+      "name": "Soonest slot",
+      "command": "earliest",
+      "description": "Find the single earliest open slot for a service across a date window in one call.",
+      "rationale": "Requires scanning the day-grouped time_slots response and returning the first slot — an aggregation no single Booksy endpoint provides.",
+      "example": "booksy-pp-cli earliest 297360 --service-variant 20193554 --within 14d",
+      "why_it_matters": "Answers 'what's the soonest I can get a haircut here?' directly instead of returning a whole calendar.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Compare barbers",
+      "command": "compare",
+      "description": "Compare several businesses side by side on rating, review count, and cheapest matching service price — from the local cache.",
+      "rationale": "Cross-business comparison requires holding multiple business profiles together locally; the API only ever returns one business at a time.",
+      "example": "booksy-pp-cli compare 297360 161624 --service haircut",
+      "why_it_matters": "Turns 'which of these barbers is best value?' into one command instead of opening N tabs.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Cheapest haircut nearby",
+      "command": "cheapest",
+      "description": "Scan search results in a city and rank businesses by the cheapest service matching your query (e.g. haircut), with rating alongside price.",
+      "rationale": "Ranking by service price requires fetching each business's services and joining locally; Booksy's search sorts by score/distance, never by service price.",
+      "example": "booksy-pp-cli cheapest --location-id 47905 --service haircut --limit 10",
+      "why_it_matters": "Answers 'where's the cheapest decent haircut near me?' — a query Booksy's own UI cannot express.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Cancel appointment",
+      "command": "cancel",
+      "description": "Cancel one of your Booksy appointments by id — previews the appointment first and only cancels with --confirm.",
+      "rationale": "Completes the booking loop using the appointment _version handshake captured from a real cancellation.",
+      "example": "booksy-pp-cli cancel 746784544 --confirm",
+      "why_it_matters": "Lets an agent undo a booking it made without opening the Booksy app.",
+      "group": "Booking funnel"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "BOOKSY_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Booksy",
+    "headline": "Book a haircut in Poland from the terminal — search barbers, compare prices and reviews, check open slots, and book, with a dry-run-by-default booking guard.",
+    "value_prop": "A CLI over Booksy's Polish marketplace. Public commands (search, business, reviews, suggest) need no login; add BOOKSY_ACCESS_TOKEN for your account and the guided `book` command. `book` previews the exact appointment and only commits with --confirm, so agents can plan safely and you approve the real booking.",
+    "auth_narrative": "Public discovery works out of the box. Authenticated actions (your profile, open slots, booking) use your Booksy web session token: copy the `x-access-token` request header value from booksy.com (DevTools -\u003e Network -\u003e any /customer_api/me request) and set it via `booksy-pp-cli auth set-token \u003ctoken\u003e` or the BOOKSY_ACCESS_TOKEN env var. The public x-api-key and a device fingerprint are built in.",
+    "quickstart": [
+      {
+        "command": "booksy-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired and reachable (works without a token)."
+      },
+      {
+        "command": "booksy-pp-cli discover locations --query Warszawa",
+        "comment": "Resolve your city to a location id."
+      },
+      {
+        "command": "booksy-pp-cli businesses search --query barber --location-id 47905 --per-page 10",
+        "comment": "Find barbershops, sorted by score."
+      },
+      {
+        "command": "booksy-pp-cli services 297360 --query haircut",
+        "comment": "See haircut services and the --service-variant id to book."
+      },
+      {
+        "command": "booksy-pp-cli availability 297360 --service-variant 20193554 --from 2026-08-19 --to 2026-08-31",
+        "comment": "Check open slots (no login needed)."
+      },
+      {
+        "command": "booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
+        "comment": "Preview the booking; add --confirm to actually book."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 with 'Wymagany jest token autoryzacji' (auth_header_token required)",
+        "fix": "Set your session token: booksy-pp-cli auth set-token \u003cx-access-token from booksy.com\u003e."
+      },
+      {
+        "symptom": "Search returns nothing for a city name",
+        "fix": "Resolve the city first with `discover locations --query \u003ccity\u003e` and pass its id via --location-id."
+      },
+      {
+        "symptom": "book says 'refusing to book under a test harness'",
+        "fix": "Expected — book never commits during automated verification; run it interactively with --confirm."
+      }
+    ],
+    "when_to_use": "Use this CLI to search Booksy businesses in Poland, compare barbers/salons on price and rating, check when a service has open slots, and book an appointment from the terminal or an agent. It is the fastest path from 'find me a haircut near X' to a confirmed booking.",
+    "anti_triggers": [
+      "Do not use it for Booksy Biz / provider-side management (staff, calendars, POS) — this is the customer surface only.",
+      "Do not use it to bulk-scrape all Booksy businesses; it is built for booking and comparison, not crawling.",
+      "Do not use it outside Poland; it is wired to the pl.booksy.com marketplace."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest haircut near a city",
+        "command": "booksy-pp-cli cheapest --location-id 47905 --service haircut --limit 10",
+        "explanation": "Ranks nearby barbershops by their cheapest haircut price with rating alongside."
+      },
+      {
+        "title": "Soonest opening for a service",
+        "command": "booksy-pp-cli earliest 297360 --service-variant 20193554 --within 14d",
+        "explanation": "Returns the single earliest open slot in the next two weeks."
+      },
+      {
+        "title": "Narrow a search payload for an agent",
+        "command": "booksy-pp-cli businesses search --query barber --location-id 47905 --agent --select businesses.id,businesses.name,businesses.reviews_stars,businesses.reviews_count",
+        "explanation": "Booksy business objects are large; --select trims to just the fields an agent needs to rank results."
+      },
+      {
+        "title": "Safe booking preview then confirm",
+        "command": "booksy-pp-cli book 297360 --service-variant 20193554 --date 2026-08-19 --time 10:00",
+        "explanation": "Prints the exact service, staffer, time, and price; re-run with --confirm to place it."
+      }
+    ],
+    "trigger_phrases": [
+      "book a haircut",
+      "find a barber in Warszawa",
+      "cheapest haircut near me",
+      "when can I get a haircut at",
+      "check booksy availability",
+      "use booksy",
+      "run booksy"
+    ]
+  }
+}

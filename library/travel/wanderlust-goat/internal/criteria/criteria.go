@@ -14,9 +14,9 @@ import (
 type Match struct {
 	Intent       sources.Intent
 	OSMTags      []OSMTag
-	RedditKW     []string  // body-keyword filters
-	QualityWords []string  // signals like "vintage", "no tourists", "hidden", "award-winning"
-	NegationKW   []string  // explicit avoids — "no tourists", "no chain"
+	RedditKW     []string // body-keyword filters
+	QualityWords []string // signals like "vintage", "no tourists", "hidden", "award-winning"
+	NegationKW   []string // explicit avoids — "no tourists", "no chain"
 }
 
 // OSMTag is one Overpass tag filter entry.

@@ -1,0 +1,7 @@
+actor: apify/google-news-scraper
+title: [title]
+url: [link, url]
+body: [description, snippet, summary]
+author: [source.name, source, publisher.name]
+published_at: [date, publishedAt, pubDate]
+engagement: []

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // newOpenCmd builds the side-effect command that opens a Hacker News

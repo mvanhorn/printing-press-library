@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "printing-press-4-6-1-reprint-merge",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Reprint the generated Go skeleton with Printing Press 4.6.1 and merge safe template/test updates while preserving DoorDash-specific runtime patches.",
+  "reason": "Printing Press 4.6.1 tightened generator output, MCP shellout safety tests, API body truncation behavior, usage-error classification, and manifest printer attribution. The DoorDash repo remains a hybrid: active Node/CycleTLS runtime plus generated Go PP reference tree.",
+  "files": [
+    ".printing-press.json",
+    "manifest.json",
+    "go.mod",
+    "internal/cli/root.go",
+    "internal/client/client.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/cli/root_test.go",
+    "internal/client/client_test.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "go test ./... passed in generated-cli after restoring DoorDash-specific session/cart/read patches and tightening PP 4.6.1 test expectations."
+}

@@ -1,0 +1,12 @@
+{
+  "base_run_id": "20260610-132752-motohunt",
+  "base_printing_press_version": "4.24.0",
+  "applied_at": "2026-06-10",
+  "schema_version": 2,
+  "id": "motohunt-listings-get-no-error-probe",
+  "summary": "Added pp:no-error-path-probe annotation + numeric example id to generated `listings get`.",
+  "reason": "MotoHunt serves HTTP 200 (homepage) for unknown ids, so an endpoint-mirror cannot distinguish bad input from a valid page.",
+  "files": [
+    "internal/cli/listings_get.go"
+  ]
+}

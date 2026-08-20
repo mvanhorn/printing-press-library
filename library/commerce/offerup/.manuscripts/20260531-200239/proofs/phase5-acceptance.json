@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "offerup",
+  "run_id": "20260531-200239",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 58,
+  "tests_passed": 58,
+  "tests_skipped": 47,
+  "auth_context": {
+    "type": "none"
+  }
+}

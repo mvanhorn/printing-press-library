@@ -1,0 +1,433 @@
+name: table-reservation-goat
+description: "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and track changes from a local store agents can query."
+version: "0.1.0"
+base_url: "https://www.opentable.com"
+display_name: "Table Reservation GOAT"
+website: "https://www.opentable.com"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/table-reservation-goat-pp-cli/config.toml"
+
+resources:
+  restaurants:
+    description: "Search and inspect restaurants across OpenTable and Tock"
+    endpoints:
+      list:
+        method: GET
+        path: "/restaurants"
+        description: "List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size"
+        params:
+          - name: query
+            type: string
+            description: "Free-text query (matches name, cuisine, neighborhood)"
+            aliases: [q]
+          - name: latitude
+            type: number
+            description: "Latitude for geo search"
+          - name: longitude
+            type: number
+            description: "Longitude for geo search"
+          - name: metro
+            type: string
+            description: "Metro slug (e.g., chicago, seattle, new-york)"
+          - name: neighborhood
+            type: string
+            description: "Neighborhood slug for geo-narrowed search"
+          - name: cuisine
+            type: string
+            description: "Cuisine filter (e.g., italian, japanese, tasting-menu)"
+          - name: price_band
+            type: int
+            description: "Maximum price band 1-4"
+            flag_name: max-price
+          - name: accolade
+            type: string
+            description: "Filter by accolade (e.g., michelin, worlds50best)"
+          - name: party_size
+            type: int
+            description: "Party size for availability filter"
+            flag_name: party
+          - name: network
+            type: string
+            description: "Restrict to a network (opentable, tock); default queries both"
+          - name: limit
+            type: int
+            description: "Max restaurants to return"
+        response:
+          type: array
+          item: Restaurant
+      get:
+        method: GET
+        path: "/restaurants/{slug}"
+        description: "Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Restaurant slug or 'opentable:<slug>' / 'tock:<slug>' for cross-network disambiguation"
+        response:
+          type: object
+          item: Restaurant
+
+  availability:
+    description: "Check open reservation slots across OpenTable and Tock"
+    endpoints:
+      check:
+        method: GET
+        path: "/availability"
+        description: "Check open slots for a restaurant on a specific date and party size"
+        params:
+          - name: restaurant
+            type: string
+            required: true
+            positional: true
+            description: "Restaurant slug (network-prefixed if ambiguous)"
+          - name: date
+            type: string
+            description: "Date in YYYY-MM-DD; defaults to today"
+          - name: time
+            type: string
+            description: "Time in HH:MM (24h); defaults to 19:00"
+          - name: party_size
+            type: int
+            description: "Party size (default 2)"
+            flag_name: party
+          - name: forward_minutes
+            type: int
+            description: "Search +/- N minutes around requested time (default 150)"
+          - name: forward_days
+            type: int
+            description: "Also search forward N days (default 0; same-day only)"
+          - name: attribute
+            type: string
+            description: "Filter by slot attribute (patio, bar, highTop, standard, experience)"
+        response:
+          type: array
+          item: Slot
+      multi_day:
+        method: GET
+        path: "/availability/multi-day"
+        description: "Multi-day availability for a single restaurant — Mon-Sun matrix"
+        params:
+          - name: restaurant
+            type: string
+            required: true
+            positional: true
+            description: "Restaurant slug"
+          - name: start_date
+            type: string
+            required: true
+            description: "Start of date range (YYYY-MM-DD)"
+          - name: days
+            type: int
+            description: "Number of days to scan (default 7, max 14)"
+          - name: party_size
+            type: int
+            description: "Party size (default 2)"
+            flag_name: party
+        response:
+          type: array
+          item: SlotDay
+
+  experiences:
+    description: "List prepaid and tasting-menu experiences (Tock-style)"
+    endpoints:
+      list:
+        method: GET
+        path: "/experiences"
+        description: "List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across both networks"
+        params:
+          - name: restaurant
+            type: string
+            description: "Filter to a single restaurant slug"
+          - name: type
+            type: string
+            description: "Experience type (prix_fixe, experience, package)"
+          - name: cuisine
+            type: string
+            description: "Cuisine filter"
+          - name: max_price_cents
+            type: int
+            description: "Maximum price per person (in cents)"
+        response:
+          type: array
+          item: Experience
+      get:
+        method: GET
+        path: "/experiences/{id}"
+        description: "Get a single experience's detail"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Experience ID (network-prefixed)"
+        response:
+          type: object
+          item: Experience
+
+  reservations:
+    description: "List, book, modify, and cancel reservations (requires auth login)"
+    endpoints:
+      list:
+        method: GET
+        path: "/reservations"
+        description: "List your upcoming and past reservations across both networks"
+        params:
+          - name: state
+            type: string
+            description: "Filter: upcoming, past, all (default upcoming)"
+          - name: network
+            type: string
+            description: "Restrict to one network"
+          - name: limit
+            type: int
+            description: "Max reservations to return"
+        response:
+          type: array
+          item: Reservation
+      get:
+        method: GET
+        path: "/reservations/{id}"
+        description: "Get a reservation's full detail"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Reservation ID (network-prefixed)"
+        response:
+          type: object
+          item: Reservation
+      book:
+        method: POST
+        path: "/reservations"
+        description: "Make a reservation. Print-by-default; requires --launch to actually fire the booking POST."
+        body:
+          - name: restaurant
+            type: string
+            required: true
+            description: "Restaurant slug"
+          - name: slot_token
+            type: string
+            required: true
+            description: "Slot token from a recent availability call"
+          - name: party_size
+            type: int
+            required: true
+          - name: first_name
+            type: string
+          - name: last_name
+            type: string
+          - name: phone
+            type: string
+          - name: email
+            type: string
+          - name: special_requests
+            type: string
+        response:
+          type: object
+          item: Reservation
+      cancel:
+        method: DELETE
+        path: "/reservations/{id}"
+        description: "Cancel a reservation. Requires --confirm."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Reservation ID"
+        response:
+          type: object
+          item: Reservation
+
+  wishlist:
+    description: "Read your saved/wishlisted restaurants from both networks"
+    endpoints:
+      list:
+        method: GET
+        path: "/wishlist"
+        description: "List restaurants in your saved/wishlist (requires auth login)"
+        params:
+          - name: network
+            type: string
+            description: "Restrict to one network"
+        response:
+          type: array
+          item: Restaurant
+
+  me:
+    description: "Read your authenticated user profile from both networks"
+    endpoints:
+      get:
+        method: GET
+        path: "/me"
+        description: "Show your OpenTable and Tock profile (email, phone, points balance) — requires auth login"
+        response:
+          type: object
+          item: Profile
+
+types:
+  Restaurant:
+    fields:
+      - name: id
+        type: string
+      - name: network
+        type: string
+        description: "opentable or tock"
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: cuisine
+        type: string
+      - name: price_band
+        type: int
+      - name: dining_style
+        type: string
+      - name: dress_code
+        type: string
+      - name: address
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: country
+        type: string
+      - name: latitude
+        type: number
+      - name: longitude
+        type: number
+      - name: phone
+        type: string
+      - name: website
+        type: string
+      - name: timezone
+        type: string
+      - name: hours_of_operation
+        type: string
+      - name: rating
+        type: number
+      - name: review_count
+        type: int
+      - name: max_advance_days
+        type: int
+      - name: accolades
+        type: string
+        description: "Comma-separated accolades (e.g., 'michelin-3,worlds50best')"
+      - name: photos
+        type: string
+        description: "Newline-separated photo URLs"
+
+  Slot:
+    fields:
+      - name: restaurant_id
+        type: string
+      - name: network
+        type: string
+      - name: slot_at
+        type: string
+        description: "Slot start time, RFC3339"
+      - name: party_size
+        type: int
+      - name: attributes
+        type: string
+        description: "Slot attributes (patio, bar, highTop, standard, experience)"
+      - name: slot_token
+        type: string
+        description: "Token to pass to book endpoint; expires fast"
+      - name: experience_id
+        type: string
+        description: "Set when this slot is for a prepaid experience"
+      - name: price_cents
+        type: int
+
+  SlotDay:
+    fields:
+      - name: date
+        type: string
+      - name: has_availability
+        type: bool
+      - name: earliest_slot
+        type: string
+      - name: slot_count
+        type: int
+
+  Experience:
+    fields:
+      - name: id
+        type: string
+      - name: network
+        type: string
+      - name: restaurant_id
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+        description: "PRIX_FIXE, EXPERIENCE, PACKAGE"
+      - name: description
+        type: string
+      - name: slug
+        type: string
+      - name: price_per_person_cents
+        type: int
+      - name: party_size_min
+        type: int
+      - name: party_size_max
+        type: int
+      - name: seating_area
+        type: string
+
+  Reservation:
+    fields:
+      - name: id
+        type: string
+      - name: network
+        type: string
+      - name: restaurant_id
+        type: string
+      - name: restaurant_name
+        type: string
+      - name: state
+        type: string
+        description: "confirmed, completed, cancelled, no_show"
+      - name: reservation_at
+        type: string
+        description: "Reservation time, RFC3339"
+      - name: party_size
+        type: int
+      - name: confirmation_code
+        type: string
+      - name: total_price_cents
+        type: int
+      - name: notes
+        type: string
+      - name: created_at
+        type: string
+
+  Profile:
+    fields:
+      - name: opentable_email
+        type: string
+      - name: opentable_first_name
+        type: string
+      - name: opentable_last_name
+        type: string
+      - name: tock_email
+        type: string
+      - name: tock_first_name
+        type: string
+      - name: tock_last_name
+        type: string
+      - name: opentable_logged_in
+        type: bool
+      - name: tock_logged_in
+        type: bool

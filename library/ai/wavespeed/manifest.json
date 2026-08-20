@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "wavespeed-pp-mcp",
+  "display_name": "WaveSpeed",
+  "version": "4.18.1",
+  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wavespeed-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wavespeed-pp-mcp",
+      "args": [],
+      "env": {
+        "WAVESPEED_API_KEY": "${user_config.wavespeed_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "wavespeed_api_key": {
+      "type": "string",
+      "title": "WaveSpeed API key",
+      "description": "API key from WaveSpeed access key settings",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

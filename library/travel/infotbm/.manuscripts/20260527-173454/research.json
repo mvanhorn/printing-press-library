@@ -1,0 +1,274 @@
+{
+  "api_name": "infotbm",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "drawbu/nextbus",
+      "url": "https://github.com/drawbu/nextbus",
+      "language": "Go",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JulienLavocat/InfoTBM-Client",
+      "url": "https://github.com/JulienLavocat/InfoTBM-Client",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Almtesh/infotbm",
+      "url": "https://github.com/Almtesh/infotbm",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-27T17:45:00Z",
+  "novel_features": [
+    {
+      "name": "Ghost Service Detector",
+      "command": "schedule diff",
+      "description": "Surface trips that are scheduled in GTFS but absent from live real-time data — the buses that exist on paper but never showed up",
+      "rationale": "Requires joining local GTFS stop_times with live estimated-timetable API responses — no public transit tool does this comparison",
+      "example": "infotbm-pp-cli schedule diff --stop BEQUI --line A --json",
+      "why_it_matters": "When an agent needs to know whether a scheduled service is actually running today, this is the only command that answers definitively",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Last Viable Departure",
+      "command": "trips last-departure",
+      "description": "Find the latest departure from a stop that still reaches your destination before a cutoff time",
+      "rationale": "Walks GTFS stop_times backward from the cutoff across transfer points — unavailable in TBM app or any existing tool",
+      "example": "infotbm-pp-cli trips last-departure --from Victoire --to Pessac --before 23:30 --json",
+      "why_it_matters": "When an agent plans evening activities, this answers 'what is the absolute latest I can leave and still get home by transit'",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Delay-Triggered Reroute",
+      "command": "trips reroute",
+      "description": "When your current connection is delayed, compute the best alternate onward path using live vehicle data",
+      "rationale": "Joins real-time vehicle positions with local GTFS graph to find alternatives — reactive mid-journey planning no web tool offers",
+      "example": "infotbm-pp-cli trips reroute --at \"Gare Saint-Jean\" --to Meriadeck --delay 8 --json",
+      "why_it_matters": "When an agent detects a delay notification, this computes the optimal recovery without re-planning from scratch",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Alert Impact Filter",
+      "command": "alerts impact",
+      "description": "Filter all active disruptions to only those affecting your specific lines or stops",
+      "rationale": "Cross-references alert line/stop references against a user-supplied watchlist — existing tools show all alerts with no filtering",
+      "example": "infotbm-pp-cli alerts impact --lines A,C,15 --json",
+      "why_it_matters": "When an agent monitors a commuter's daily lines, this filters noise to only relevant disruptions",
+      "group": "Commute intelligence"
+    },
+    {
+      "name": "Line Stop Sequence",
+      "command": "lines stops",
+      "description": "Print the ordered stop list for a line and direction, optionally with scheduled departure times",
+      "rationale": "Offline-capable ordered stop sequence from local GTFS — pipe-friendly output for printing, scripting, or downstream analysis",
+      "example": "infotbm-pp-cli lines stops --line A --direction 0 --json",
+      "why_it_matters": "When an agent needs the exact stop order for a tram line to plan boarding points or give directions, this is the canonical answer",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Timetable Change Diff",
+      "command": "schedule changes",
+      "description": "Compare GTFS sync snapshots to detect added, removed, or modified routes on a line",
+      "rationale": "Diffs versioned local GTFS data across sync timestamps — no tool surfaces week-over-week schedule changes",
+      "example": "infotbm-pp-cli schedule changes --line C --since 7d --json",
+      "why_it_matters": "When an agent manages a commuter's routine, this proactively detects schedule changes that would break their timing",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Journey Planner",
+      "command": "trips plan",
+      "description": "Plan multi-modal journeys across tram, bus, and ferry using local GTFS data with live disruption awareness",
+      "rationale": "Offline-capable connection scan over local SQLite GTFS graph — scriptable, disruption-aware, no dependency on Google Maps",
+      "example": "infotbm-pp-cli trips plan --from Victoire --to \"Gare Saint-Jean\" --depart 08:15 --json",
+      "why_it_matters": "When an agent needs transit directions in Bordeaux without relying on third-party map APIs, this plans the route locally",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Headway Frequency Report",
+      "command": "lines frequency",
+      "description": "Compute average headways per hour from the SIRI estimated timetable",
+      "rationale": "Aggregates stop_times across calendar patterns in SQLite — reveals when service thins out, invisible in raw timetables",
+      "example": "infotbm-pp-cli lines frequency --line B --json",
+      "why_it_matters": "When an agent evaluates transit reliability for scheduling, this shows the real-world gaps between departures by time of day",
+      "group": "Schedule intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ghost Service Detector",
+      "command": "schedule diff",
+      "description": "Surface trips that are scheduled in GTFS but absent from live real-time data — the buses that exist on paper but never showed up",
+      "rationale": "Requires joining local GTFS stop_times with live estimated-timetable API responses — no public transit tool does this comparison",
+      "example": "infotbm-pp-cli schedule diff --stop BEQUI --line A --json",
+      "why_it_matters": "When an agent needs to know whether a scheduled service is actually running today, this is the only command that answers definitively",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Last Viable Departure",
+      "command": "trips last-departure",
+      "description": "Find the latest departure from a stop that still reaches your destination before a cutoff time",
+      "rationale": "Walks GTFS stop_times backward from the cutoff across transfer points — unavailable in TBM app or any existing tool",
+      "example": "infotbm-pp-cli trips last-departure --from Victoire --to Pessac --before 23:30 --json",
+      "why_it_matters": "When an agent plans evening activities, this answers 'what is the absolute latest I can leave and still get home by transit'",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Delay-Triggered Reroute",
+      "command": "trips reroute",
+      "description": "When your current connection is delayed, compute the best alternate onward path using live vehicle data",
+      "rationale": "Joins real-time vehicle positions with local GTFS graph to find alternatives — reactive mid-journey planning no web tool offers",
+      "example": "infotbm-pp-cli trips reroute --at \"Gare Saint-Jean\" --to Meriadeck --delay 8 --json",
+      "why_it_matters": "When an agent detects a delay notification, this computes the optimal recovery without re-planning from scratch",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Alert Impact Filter",
+      "command": "alerts impact",
+      "description": "Filter all active disruptions to only those affecting your specific lines or stops",
+      "rationale": "Cross-references alert line/stop references against a user-supplied watchlist — existing tools show all alerts with no filtering",
+      "example": "infotbm-pp-cli alerts impact --lines A,C,15 --json",
+      "why_it_matters": "When an agent monitors a commuter's daily lines, this filters noise to only relevant disruptions",
+      "group": "Commute intelligence"
+    },
+    {
+      "name": "Line Stop Sequence",
+      "command": "lines stops",
+      "description": "Print the ordered stop list for a line and direction, optionally with scheduled departure times",
+      "rationale": "Offline-capable ordered stop sequence from local GTFS — pipe-friendly output for printing, scripting, or downstream analysis",
+      "example": "infotbm-pp-cli lines stops --line A --direction 0 --json",
+      "why_it_matters": "When an agent needs the exact stop order for a tram line to plan boarding points or give directions, this is the canonical answer",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Timetable Change Diff",
+      "command": "schedule changes",
+      "description": "Compare GTFS sync snapshots to detect added, removed, or modified routes on a line",
+      "rationale": "Diffs versioned local GTFS data across sync timestamps — no tool surfaces week-over-week schedule changes",
+      "example": "infotbm-pp-cli schedule changes --line C --since 7d --json",
+      "why_it_matters": "When an agent manages a commuter's routine, this proactively detects schedule changes that would break their timing",
+      "group": "Schedule intelligence"
+    },
+    {
+      "name": "Journey Planner",
+      "command": "trips plan",
+      "description": "Plan multi-modal journeys across tram, bus, and ferry using local GTFS data with live disruption awareness",
+      "rationale": "Offline-capable connection scan over local SQLite GTFS graph — scriptable, disruption-aware, no dependency on Google Maps",
+      "example": "infotbm-pp-cli trips plan --from Victoire --to \"Gare Saint-Jean\" --depart 08:15 --json",
+      "why_it_matters": "When an agent needs transit directions in Bordeaux without relying on third-party map APIs, this plans the route locally",
+      "group": "Journey intelligence"
+    },
+    {
+      "name": "Headway Frequency Report",
+      "command": "lines frequency",
+      "description": "Compute average headways per hour from the SIRI estimated timetable",
+      "rationale": "Aggregates stop_times across calendar patterns in SQLite — reveals when service thins out, invisible in raw timetables",
+      "example": "infotbm-pp-cli lines frequency --line B --json",
+      "why_it_matters": "When an agent evaluates transit reliability for scheduling, this shows the real-world gaps between departures by time of day",
+      "group": "Schedule intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "TBM Bordeaux",
+    "headline": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers.",
+    "value_prop": "Syncs the full TBM GTFS dataset locally so schedule lookups, stop searches, and frequency analysis work without an internet connection. Overlays live real-time data from the SIRI-Lite API for arrival predictions, vehicle tracking, and disruption alerts. Computes journeys, detects ghost services, and diffs timetable changes — capabilities no existing Bordeaux transit tool provides.",
+    "quickstart": [
+      {
+        "command": "infotbm-pp-cli doctor --dry-run",
+        "comment": "Health check — verifies API reachability and local store state"
+      },
+      {
+        "command": "infotbm-pp-cli sync --full",
+        "comment": "Download the full GTFS dataset into local SQLite"
+      },
+      {
+        "command": "infotbm-pp-cli stops --name Quinconces --json",
+        "comment": "Find stops matching a name"
+      },
+      {
+        "command": "infotbm-pp-cli realtime stop --stop-id bordeaux:StopPoint:BP:3648:LOC --json",
+        "comment": "Real-time next arrivals at Quinconces"
+      },
+      {
+        "command": "infotbm-pp-cli lines frequency --line A --json",
+        "comment": "Tram A headway patterns by hour"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty arrivals response",
+        "fix": "Service may have ended for the day. Check with `infotbm-pp-cli lines frequency --line \u003cline\u003e` to see operating hours."
+      },
+      {
+        "symptom": "Sync fails with timeout",
+        "fix": "The GTFS ZIP is ~15MB. Retry with `infotbm-pp-cli sync --full --timeout 60s`."
+      },
+      {
+        "symptom": "Stop ID format confusion",
+        "fix": "Use `stops --name \u003cname\u003e` to find the full stop reference (e.g., bordeaux:StopPoint:BP:3648:LOC). Short codes like BEQUI also work for some endpoints."
+      }
+    ],
+    "when_to_use": "Use when an agent needs Bordeaux transit information — schedules, real-time arrivals, route planning, or disruption monitoring. Ideal for commute automation, travel planning, and transit-aware applications in the Bordeaux Métropole area.",
+    "anti_triggers": [
+      "Journey planning outside Bordeaux Métropole",
+      "Ticket purchase or fare payment",
+      "Real-time traffic or driving directions",
+      "Historical ridership or usage statistics"
+    ],
+    "recipes": [
+      {
+        "title": "Morning commute check",
+        "command": "infotbm-pp-cli realtime stop --stop-id bordeaux:StopPoint:BP:3648:LOC --json --select items.lineName,items.destinationName,items.expectedDepartureTime",
+        "explanation": "Check next departures at your stop with only the fields that matter"
+      },
+      {
+        "title": "Weekend disruption audit",
+        "command": "infotbm-pp-cli alerts impact --lines A,B,C --json",
+        "explanation": "Filter alerts to only tram lines before a weekend outing"
+      },
+      {
+        "title": "Late night last train",
+        "command": "infotbm-pp-cli trips last-departure --from Victoire --to Pessac --before 23:30 --json",
+        "explanation": "Find the latest departure that still gets you home"
+      },
+      {
+        "title": "Detect ghost services",
+        "command": "infotbm-pp-cli schedule diff --stop BEQUI --line A --agent",
+        "explanation": "Surface scheduled trams that are not showing up in real-time data"
+      },
+      {
+        "title": "Weekly schedule change alert",
+        "command": "infotbm-pp-cli schedule changes --line C --since 7d --json",
+        "explanation": "Detect any trips added, removed, or shifted since last week's sync"
+      }
+    ],
+    "trigger_phrases": [
+      "next tram Bordeaux",
+      "TBM arrivals",
+      "Bordeaux bus schedule",
+      "check disruptions TBM",
+      "plan transit Bordeaux"
+    ]
+  }
+}

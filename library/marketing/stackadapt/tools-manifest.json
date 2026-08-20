@@ -1,0 +1,42 @@
+{
+  "api_name": "stackadapt",
+  "base_url": "https://api.stackadapt.com",
+  "description": "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {STACKADAPT_API_TOKEN}",
+    "env_vars": [
+      "STACKADAPT_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "STACKADAPT_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "graphql_query",
+      "description": "Execute a raw GraphQL query against the StackAdapt API. Required: query. Returns the new GraphQLResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL query document",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

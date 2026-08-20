@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "api_name": "open-food-facts",
+  "run_id": "20260626-214605",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 10,
+  "tests_passed": 8,
+  "tests_skipped": 2,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_keys_available": false,
+    "secret_material": "none required or committed",
+    "notes": [
+      "Open Food Facts read APIs used by this print are public and keyless.",
+      "Optional OPEN_FOOD_FACTS_USER_AGENT and OPEN_FOOD_FACTS_CONTACT_EMAIL configure responsible request identity.",
+      "All live commands are bounded and read-only."
+    ]
+  },
+  "validated_commands": [
+    "open-food-facts-pp-cli --help",
+    "open-food-facts-pp-cli --version",
+    "open-food-facts-pp-cli sources --agent",
+    "open-food-facts-pp-cli doctor --agent",
+    "open-food-facts-pp-cli product 3017620422003 --agent",
+    "open-food-facts-pp-cli nutrition 3017620422003 --agent",
+    "open-food-facts-pp-cli allergens 3017620422003 --agent",
+    "open-food-facts-pp-cli compare 3017620422003 5449000000996 --agent"
+  ],
+  "skipped_live_commands": [
+    {
+      "command": "open-food-facts-pp-cli search --category \"breakfast cereals\" --country \"united-states\" --page-size 2 --agent",
+      "reason": "The live /api/v2/search endpoint returned HTTP 503 and then timed out during validation; request shape is covered by unit tests."
+    },
+    {
+      "command": "open-food-facts-pp-cli category \"breakfast cereals\" --page-size 2 --agent",
+      "reason": "The command uses the same bounded /api/v2/search endpoint; live validation was skipped after the search endpoint failed, and request shape is covered by unit tests."
+    }
+  ]
+}

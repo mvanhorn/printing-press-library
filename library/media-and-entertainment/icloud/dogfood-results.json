@@ -1,0 +1,86 @@
+{
+  "dir": "<cli-dir>/icloud-pp-cli",
+  "spec_path": "local-sqlite",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "local SQLite source: no HTTP endpoints to validate"
+  },
+  "auth_check": {
+    "spec_scheme": "none",
+    "generated_format": "none",
+    "match": true,
+    "detail": "no auth required; reads local SQLite in read-only mode"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 11,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 54,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "detail": "local SQLite CLI: no domain model sync or search methods"
+  },
+  "example_check": {
+    "tested": 6,
+    "with_examples": 6,
+    "valid_examples": 6,
+    "detail": "6/6 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 6,
+      "registered": 6
+    },
+    "config_consistency": {
+      "write_fields": [],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 4,
+    "found": 4
+  },
+  "mcp_surface_parity": {
+    "state": "not_applicable",
+    "pass": true,
+    "detail": "CLI-only submission; no MCP server"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "exempted_via_client_directive": 0
+  },
+  "source_client_check": {
+    "checked": 0
+  },
+  "print_json_filtered_check": {
+    "checked": 6
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 6
+  },
+  "issues": []
+}

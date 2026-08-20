@@ -1,0 +1,317 @@
+openapi: 3.1.0
+info:
+  title: Podscan
+  version: "1.0"
+  description: |
+    Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts.
+    Full transcripts, AI-extracted entities, mentions, brand-safety analysis.
+  contact:
+    name: Podscan
+    url: https://podscan.fm
+servers:
+  - url: https://podscan.fm/api/v1
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token from podscan.fm/user/api-tokens
+  schemas:
+    Podcast:
+      type: object
+      properties:
+        podcast_id: {type: string}
+        podcast_name: {type: string}
+        podcast_url: {type: string}
+        podcast_description: {type: string}
+        podcast_image_url: {type: string}
+        rss_url: {type: string}
+        reach: {type: integer, description: "Estimated audience reach"}
+        categories:
+          type: array
+          items: {$ref: "#/components/schemas/Category"}
+    Episode:
+      type: object
+      properties:
+        episode_id: {type: string}
+        episode_title: {type: string}
+        episode_description: {type: string}
+        episode_url: {type: string}
+        episode_audio_url: {type: string}
+        episode_image_url: {type: string}
+        episode_duration: {type: integer}
+        episode_word_count: {type: integer}
+        episode_posted_at: {type: string, format: date-time}
+        podcast_id: {type: string}
+        podcast_name: {type: string}
+        episode_categories:
+          type: array
+          items: {$ref: "#/components/schemas/Category"}
+    Category:
+      type: object
+      properties:
+        category_id: {type: string}
+        category_name: {type: string}
+    Transcript:
+      type: object
+      properties:
+        episode_id: {type: string}
+        transcript: {type: string, description: "Full transcript with word timestamps"}
+    Alert:
+      type: object
+      properties:
+        alert_id: {type: string}
+        alert_term: {type: string}
+        webhook_url: {type: string}
+        created_at: {type: string, format: date-time}
+    Mention:
+      type: object
+      properties:
+        episode_id: {type: string}
+        podcast_id: {type: string}
+        term: {type: string}
+        snippet: {type: string}
+        timestamp: {type: number}
+        sentiment: {type: string}
+paths:
+  /podcasts/search:
+    get:
+      summary: Search podcasts by name or description
+      operationId: searchPodcasts
+      tags: [podcasts]
+      parameters:
+        - {name: query, in: query, required: true, schema: {type: string}}
+        - {name: per_page, in: query, schema: {type: integer, default: 20}}
+        - {name: page, in: query, schema: {type: integer, default: 1}}
+        - {name: category_id, in: query, schema: {type: string}}
+        - {name: language, in: query, schema: {type: string}}
+      responses:
+        "200":
+          description: List of matching podcasts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  podcasts:
+                    type: array
+                    items: {$ref: "#/components/schemas/Podcast"}
+  /podcasts/{podcast_id}:
+    get:
+      summary: Get a podcast by ID
+      operationId: getPodcast
+      tags: [podcasts]
+      parameters:
+        - {name: podcast_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Podcast detail
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Podcast"}
+  /podcasts/{podcast_id}/episodes:
+    get:
+      summary: List episodes for a podcast
+      operationId: listPodcastEpisodes
+      tags: [podcasts]
+      parameters:
+        - {name: podcast_id, in: path, required: true, schema: {type: string}}
+        - {name: per_page, in: query, schema: {type: integer, default: 20}}
+        - {name: page, in: query, schema: {type: integer, default: 1}}
+      responses:
+        "200":
+          description: Episodes list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  episodes:
+                    type: array
+                    items: {$ref: "#/components/schemas/Episode"}
+  /episodes/search:
+    get:
+      summary: Search episodes by transcript content
+      operationId: searchEpisodes
+      tags: [episodes]
+      parameters:
+        - {name: query, in: query, required: true, schema: {type: string}}
+        - {name: per_page, in: query, schema: {type: integer, default: 20}}
+        - {name: page, in: query, schema: {type: integer, default: 1}}
+        - {name: posted_after, in: query, schema: {type: string, format: date}}
+        - {name: posted_before, in: query, schema: {type: string, format: date}}
+        - {name: category_id, in: query, schema: {type: string}}
+        - {name: language, in: query, schema: {type: string}}
+      responses:
+        "200":
+          description: List of matching episodes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  episodes:
+                    type: array
+                    items: {$ref: "#/components/schemas/Episode"}
+  /episodes/{episode_id}:
+    get:
+      summary: Get an episode by ID
+      operationId: getEpisode
+      tags: [episodes]
+      parameters:
+        - {name: episode_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Episode detail
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Episode"}
+  /categories:
+    get:
+      summary: List all podcast categories
+      operationId: listCategories
+      tags: [categories]
+      responses:
+        "200":
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items: {$ref: "#/components/schemas/Category"}
+  /alerts:
+    get:
+      summary: List configured alerts
+      operationId: listAlerts
+      tags: [alerts]
+      responses:
+        "200":
+          description: Alerts list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items: {$ref: "#/components/schemas/Alert"}
+    post:
+      summary: Create a new alert
+      operationId: createAlert
+      tags: [alerts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [alert_term]
+              properties:
+                alert_term: {type: string}
+                webhook_url: {type: string}
+      responses:
+        "201":
+          description: Alert created
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Alert"}
+  /alerts/{alert_id}:
+    get:
+      summary: Get an alert
+      operationId: getAlert
+      tags: [alerts]
+      parameters:
+        - {name: alert_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Alert
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Alert"}
+    delete:
+      summary: Delete an alert
+      operationId: deleteAlert
+      tags: [alerts]
+      parameters:
+        - {name: alert_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "204": {description: Deleted}
+  /alerts/{alert_id}/mentions:
+    get:
+      summary: List mentions for an alert
+      operationId: listAlertMentions
+      tags: [alerts]
+      parameters:
+        - {name: alert_id, in: path, required: true, schema: {type: string}}
+        - {name: per_page, in: query, schema: {type: integer, default: 20}}
+      responses:
+        "200":
+          description: Mentions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mentions:
+                    type: array
+                    items: {$ref: "#/components/schemas/Mention"}
+  /exports/episodes:
+    get:
+      summary: List daily episode export files
+      operationId: listEpisodeExports
+      tags: [exports]
+      responses:
+        "200":
+          description: Available exports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: {type: string, format: date}
+                        path: {type: string}
+                        size_bytes: {type: integer}
+  /exports/podcasts:
+    get:
+      summary: List podcast catalog export files
+      operationId: listPodcastExports
+      tags: [exports]
+      responses:
+        "200":
+          description: Available exports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: {type: string, format: date}
+                        path: {type: string}
+                        size_bytes: {type: integer}
+  /exports/download:
+    get:
+      summary: Download an export file
+      operationId: downloadExport
+      tags: [exports]
+      parameters:
+        - {name: path, in: query, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Export file (binary)
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}

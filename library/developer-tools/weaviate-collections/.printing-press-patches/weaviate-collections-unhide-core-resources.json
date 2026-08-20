@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-unhide-core-resources",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Un-hid the schema, tenants, shards, and vectors top-level command groups from --help.",
+  "reason": "The generator marked these four command groups Hidden: true, presumably following the pattern where raw per-interface CRUD groups stay hidden behind `api <interface>` on large multi-resource APIs. For this focused 13-endpoint collections API, schema/tenants/shards/vectors ARE the CLI's primary surface, so hiding them buried the core CRUD commands (create/get/list/update/delete a collection) from discovery.",
+  "files": ["internal/cli/schema.go", "internal/cli/tenants.go", "internal/cli/shards.go", "internal/cli/vectors.go"],
+  "validated_outcome": "`--help` now lists schema/tenants/shards/vectors alongside the other top-level commands.",
+  "upstream_issue": ""
+}

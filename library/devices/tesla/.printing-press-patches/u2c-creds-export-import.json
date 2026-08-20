@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "u2c-creds-export-import",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "`tesla auth export` and `tesla auth import` for transporting Fleet credentials + signing key to a remote agent host (e.g. cloud Mac mini). Passphrase-encrypted tar.gz bundle: magic header + Argon2id salt + AES-256-GCM. Passphrase read via term.ReadPassword (no echo, no flag, no env unless explicit --no-prompt opt-in for CI). Manifest schema versioning with major/minor refusal/warning policy.",
+  "reason": "Multi-machine deployments (laptop -> Mac mini) need a secure transport for the [fleet] block + private key file. Re-doing OAuth + key enrollment on every machine doesn't scale. The encrypted bundle is the canonical path; brokers (Teslemetry/Tessie) are the alternative if the user accepts key surrender.",
+  "files": [
+    "internal/cli/tesla_creds_export.go",
+    "internal/cli/tesla_creds_import.go",
+    "internal/cli/tesla_creds_export_test.go",
+    "internal/cli/tesla_creds_import_test.go",
+    "internal/cli/root.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "25 export/import tests pass (11 export + 14 import): roundtrip with all includes, partial-include preservation, refuse-without-force on existing non-expired Fleet token, wrong-passphrase generic decryption-failed, corruption detection via GCM auth tag, schema_version mismatch policy, no-passphrase-in-bundle security scan, no-private-key-bytes-in-bundle security scan, verify-mode + dry-run short-circuit, full lifecycle on two ephemeral home dirs."
+}

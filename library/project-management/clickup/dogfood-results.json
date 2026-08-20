@@ -1,0 +1,92 @@
+{
+  "dir": "/Users/kevinmagnan/printing-press/library/clickup",
+  "spec_path": "/Users/kevinmagnan/printing-press/.runstate/cli-printing-press-e4fb5925/current/clickup/clickup-merged-flat.json",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 4,
+    "valid": 4,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 54,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 3,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 3 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 275,
+      "registered": 275
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 3,
+    "found": 3
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 3,
+    "exempted_via_store": 2,
+    "suspicious": [
+      {
+        "command": "docs",
+        "file": "clickup_aliases.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 267
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 267
+  },
+  "issues": [
+    "1/3 novel features look reimplemented: docs (clickup_aliases.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

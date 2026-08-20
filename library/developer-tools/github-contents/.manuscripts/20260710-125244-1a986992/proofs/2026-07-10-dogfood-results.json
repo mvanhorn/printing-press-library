@@ -1,0 +1,1659 @@
+{
+  "dir": "/Users/rick/printing-press/.runstate/openclawdocker-03c20893/runs/20260710-125244-1a986992/working/github-contents-pp-cli",
+  "binary": "/Users/rick/printing-press/.runstate/openclawdocker-03c20893/runs/20260710-125244-1a986992/working/github-contents-pp-cli/build/stage/bin/github-contents-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 99,
+  "passed": 99,
+  "failed": 0,
+  "skipped": 66,
+  "commands": [
+    "api",
+    "blobs",
+    "contents",
+    "doctor",
+    "feedback list",
+    "fetch",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "plan",
+    "playbook amend",
+    "playbook list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rate-limit",
+    "recall",
+    "releases download",
+    "releases latest",
+    "releases list",
+    "repos branches",
+    "repos commits",
+    "repos get",
+    "search",
+    "stats",
+    "sync-dir",
+    "tarball",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "trees",
+    "verify",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  github-contents-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  github-contents-pp-cli api\n\n  # Show methods for a specific interface\n  github-contents-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'github-contents-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "blobs",
+      "kind": "help",
+      "args": [
+        "blobs",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a blob (base64-encoded content) by its git SHA\n\nUsage:\n  github-contents-pp-cli blobs \u003cowner\u003e \u003crepo\u003e \u003cfile_sha\u003e [flags]\n\nExamples:\n  github-contents-pp-cli blobs example-value example-value example-value\n\nFlags:\n  -h, --help   help for blobs\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "blobs",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [blobs] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "blobs",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [blobs] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "blobs",
+      "kind": "error_path",
+      "args": [
+        "blobs",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli blobs \u003crepo\u003e\n"
+    },
+    {
+      "command": "contents",
+      "kind": "help",
+      "args": [
+        "contents",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a directory listing (JSON array) or file metadata+content (JSON object, base64, files up to 1 MB).\n\nUsage:\n  github-contents-pp-cli contents \u003cowner\u003e \u003crepo\u003e \u003cpath\u003e [flags]\n\nExamples:\n  github-contents-pp-cli contents example-value example-value books\n\nFlags:\n  -h, --help         help for contents\n      --ref string   Branch, tag, or commit SHA (defaults to the default branch)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "contents",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [contents] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "contents",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [contents] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "contents",
+      "kind": "error_path",
+      "args": [
+        "contents",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli contents \u003crepo\u003e\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  github-contents-pp-cli doctor [flags]\n\nExamples:\n  github-contents-pp-cli doctor\n  github-contents-pp-cli doctor --json\n  github-contents-pp-cli doctor --fail-on warn\n  github-contents-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK credentials available from env:GITHUB_TOKEN\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.config/github-contents-pp-cli/config.toml\n  base_url: https://api.github.com\n  auth_source: env:GITHUB_TOKEN\n  credentials_location: env:GITHUB_TOKEN\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.config/github-contents-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.local/share/github-contents-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.local/state/github-contents-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.cache/github-contents-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:GITHUB_TOKEN\",\n  \"base_url\": \"https://api.github.com\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.config/github-contents-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:GITHUB_TOKEN\",\n  \"env_vars\": \"OK credentials available from env:GITHUB_TOKEN\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.cache/github-contents-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.config/github-contents-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.local/share/github-contents-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.local/state/github-contents-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  github-contents-pp-cli feedback list [flags]\n\nExamples:\n  github-contents-pp-cli feedback list\n  github-contents-pp-cli feedback list --limit 5\n  github-contents-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "fetch",
+      "kind": "help",
+      "args": [
+        "fetch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download a GitHub folder without cloning — recursive, structure-preserving, and resumable.\nAccepts owner/repo, owner/repo/sub/path, an optional #ref suffix, or a github.com tree/blob URL.\n\nUsage:\n  github-contents-pp-cli fetch \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli fetch mjwoon/AI-readings/books --out ./books\n  github-contents-pp-cli fetch mjwoon/AI-readings/books --include \"*.pdf\" --out ./pdfs\n  github-contents-pp-cli fetch octocat/Hello-World --out /tmp/hw --agent\n\nFlags:\n      --concurrency int   Number of concurrent downloads (default 8)\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n      --flatten           Write all files directly into --out, without subfolders\n      --force             Re-download files even if a local copy already matches by blob SHA\n  -h, --help              help for fetch\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --max-files int     Maximum number of files to download (0 = unlimited)\n      --out string        Local destination directory (default: basename of path, or repo name)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "fetch",
+      "kind": "happy_path",
+      "args": [
+        "fetch",
+        "mjwoon/AI-readings/books",
+        "--out",
+        "/tmp/pp-ghc-dogfood/fetch"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api_requests\": 2,\n  \"bytes\": 0,\n  \"downloaded\": 0,\n  \"fetch_failures\": null,\n  \"files_total\": 5,\n  \"lfs_pointers\": null,\n  \"out_dir\": \"/tmp/pp-ghc-dogfood/fetch\",\n  \"ref\": \"main\",\n  \"skipped\": 5,\n  \"skipped_submodules\": null,\n  \"skipped_symlinks\": [\n    \"books/LLM/ChatGPT/Transformer, BERT, and GPT Including ChatGPT and Prompt Engineering (MLI Generative AI Series) (Oswald Campesato) (Z-Library).pdf\",\n    \"books/PyTorch/Deep-Learning-with-PyTorch.pdf\",\n    \"books/PyTorch/Natural Language Processing with PyTorch (Z-Library).pdf\",\n    \"books/PyTorch/Programming PyTorch for Deep Learning (Ian Pointer) (Z-Library).pdf\"\n  ],\n  \"target\": \"mjwoon/AI-readings/books\",\n  \"truncated\": false\n}\n"
+    },
+    {
+      "command": "fetch",
+      "kind": "json_fidelity",
+      "args": [
+        "fetch",
+        "mjwoon/AI-readings/books",
+        "--out",
+        "/tmp/pp-ghc-dogfood/fetch",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api_requests\": 2,\n  \"bytes\": 0,\n  \"downloaded\": 0,\n  \"fetch_failures\": null,\n  \"files_total\": 5,\n  \"lfs_pointers\": null,\n  \"out_dir\": \"/tmp/pp-ghc-dogfood/fetch\",\n  \"ref\": \"main\",\n  \"skipped\": 5,\n  \"skipped_submodules\": null,\n  \"skipped_symlinks\": [\n    \"books/LLM/ChatGPT/Transformer, BERT, and GPT Including ChatGPT and Prompt Engineering (MLI Generative AI Series) (Oswald Campesato) (Z-Library).pdf\",\n    \"books/PyTorch/Deep-Learning-with-PyTorch.pdf\",\n    \"books/PyTorch/Natural Language Processing with PyTorch (Z-Library).pdf\",\n    \"books/PyTorch/Programming PyTorch for Deep Learning (Ian Pointer) (Z-Library).pdf\"\n  ],\n  \"target\": \"mjwoon/AI-readings/books\",\n  \"truncated\": false\n}\n"
+    },
+    {
+      "command": "fetch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  github-contents-pp-cli learnings candidates [flags]\n\nExamples:\n  github-contents-pp-cli learnings candidates\n  github-contents-pp-cli learnings candidates --class flag_alias\n  github-contents-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  github-contents-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  github-contents-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "confirm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings confirm: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  github-contents-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  github-contents-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  github-contents-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "forget",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings forget: forget learnings: pass --resource, --action, or --all\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings\n\nUsage:\n  github-contents-pp-cli learnings list [flags]\n\nExamples:\n  github-contents-pp-cli learnings list --agent\n  github-contents-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  github-contents-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  github-contents-pp-cli learnings purge [flags]\n\nExamples:\n  github-contents-pp-cli learnings purge\n  github-contents-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  github-contents-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  github-contents-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "reject",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings reject: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  github-contents-pp-cli learnings stats [flags]\n\nExamples:\n  github-contents-pp-cli learnings stats\n  github-contents-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "plan",
+      "kind": "help",
+      "args": [
+        "plan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Preview exactly what a fetch would download — file list, sizes, total bytes, API-request cost vs your remaining quota, and LFS-pointer warnings — before spending any bandwidth.\nUse this command to preview what 'fetch' would download (files, sizes, total, API cost) without writing anything. Do NOT use it to compare an already-downloaded local directory against the remote; use 'verify' instead.\n\nUsage:\n  github-contents-pp-cli plan \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli plan mjwoon/AI-readings/books --agent\n\nFlags:\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n  -h, --help              help for plan\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n      --top int           Number of largest files to list (default 10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "plan",
+      "kind": "happy_path",
+      "args": [
+        "plan",
+        "mjwoon/AI-readings/books",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"api_cost\": 2,\n    \"file_count\": 118,\n    \"files\": [\n      {\n        \"path\": \"AI \\u0026 society/AI Superpowers China, Silicon Valley, and the New World Order (Lee, Kai-Fu) (Z-Library).epub\",\n        \"sha\": \"1ca62ee9d71f09d0ee272de034d633082648a7f7\",\n        \"size\": 1809674\n      },\n      {\n        \"path\": \"AI \\u0026 society/Integrating Human and Artificial Intelligence Software in the Age of AI (Stephen K. Reed) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"729f8faea8ea3df5ea6007baf3d61aac711a4fd7\",\n        \"size\": 3355945\n      },\n      {\n        \"path\": \"AI \\u0026 society/OpenAI - AI in the Enterprise.pdf\",\n        \"sha\": \"5a67d3de112d90cf3364fa1456258a41f5fcbfff\",\n        \"size\": 9942273\n      },\n      {\n        \"path\": \"AI agents/AI Agents in Action (Micheal Lanham) (Z-Library).pdf\",\n        \"sha\": \"22c6baa2802e98296abe9a57eb67fac69e950e4e\",\n        \"size\": 12324920\n      },\n      {\n        \"path\": \"AI agents/AI_AGENTS_TheIllustratedGuidebook-compressed.pdf\",\n        \"sha\": \"f8d4e079667c07589f0fe95ce5fd4bc3b54abc74\",\n        \"size\": 5314906\n      },\n      {\n        \"path\": \"AI agents/Agentic Design Patterns (Antonio Gullí) (Z-Library).pdf\",\n        \"sha\": \"26e382fefc1ab98001f807c2fb14863d28e23f46\",\n        \"size\": 22932744\n      },\n      {\n        \"path\": \"AI agents/Agentic Mesh The GenAI-Powered Autonomous Agent Ecosystem (Eric Broda, Davis Broda) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"d5967a1ccca55fb5c22c936027a6f88575ced084\",\n        \"size\": 9959053\n      },\n      {\n        \"path\": \"AI agents/Building Applications with AI Agents Designing and Implementing Multiagent Systems (Michael Albada) (Z-Library).pdf\",\n        \"sha\": \"05c885fe3d25bc5f5ab719fe49551a00d2025b4f\",\n        \"size\": 12990407\n      },\n      {\n        \"path\": \"AI agents/Introduction to Agents.pdf\",\n        \"sha\": \"6e25923eaca9cc0ba4a2d5d709196b844a970dbd\",\n        \"size\": 9473606\n      },\n      {\n        \"path\": \"AI agents/Mastering AI Agents A comprehensive guide for evaluating AI agents (Pratik Bhavsar) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"796f44cc4b9db1d47ac714cb7d877bfdfde0ea39\",\n        \"size\": 29843180\n      },\n      {\n        \"path\": \"AI agents/ai-agents-in-action-book-from-zeeshan-ali-website.pdf\",\n        \"sha\": \"021c7625d8fff2548050e0731e6a9d182b5793c9\",\n        \"size\": 31483036\n      },\n      {\n        \"path\": \"AI agents/google-ai-agents-whitepaper.pdf\",\n        \"sha\": \"6c74cdd80112b62b7d5ac6c1b648255a3cbacdc6\",\n        \"size\": 4267233\n      },\n      {\n        \"path\": \"AI engineering/AI Engineering Building Applications with Foundation Models (Chip Huyen) (Z-Library).pdf\",\n        \"sha\": \"1ec1d15d9635ed43d1d8baba29aee124fc5ab1e6\",\n        \"size\": 33473585\n      },\n      {\n        \"path\": \"Claude/Claude Code The Definitive Guide to Agentic Development (Written by Claude Code etc.) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"23fd55bf7625e6c088b17d53f61c97f318b7e583\",\n        \"size\": 4854958\n      },\n      {\n        \"path\": \"Claude/Mastering Claude AI Practical Journey from First Prompts to Pro with Claude AI (Ryan Dickey) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"97c490f84a484f1d85181d548ea8a554569a9451\",\n        \"size\": 10857543\n      },\n      {\n        \"path\": \"LLM/A Hands-On Guide to Fine-Tuning Large Language Models with PyTorch and Hugging Face (Daniel Voigt Godoy) (Z-Library).pdf\",\n        \"sha\": \"052239bc4f5414b740a32fa0af7bdd7e09371909\",\n        \"size\": 11874798\n      },\n      {\n        \"path\": \"LLM/Build a Large Language Model (From Scratch) (Sebastian Raschka) (Z-Library).pdf\",\n        \"sha\": \"b2f8ab5797d43348b7014e0ca5cfd58c8f65a85b\",\n        \"size\": 18127777\n      },\n      {\n        \"path\": \"LLM/ChatGPT/ChatGPT For Dummies (Pam Baker) (Z-Library).pdf\",\n        \"sha\": \"1fafe4306936877cf447dd0766cf115472e274df\",\n        \"size\": 12099016\n      },\n      {\n        \"path\": \"LLM/ChatGPT/ChatGPT Millionaire A Beginners Guide to ChatGPT and Passive Income Strategies for Financial Freedom (Drake Cox) (Z-Libra…[truncated]"
+    },
+    {
+      "command": "plan",
+      "kind": "json_fidelity",
+      "args": [
+        "plan",
+        "mjwoon/AI-readings/books",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"api_cost\": 2,\n    \"file_count\": 118,\n    \"files\": [\n      {\n        \"path\": \"AI \\u0026 society/AI Superpowers China, Silicon Valley, and the New World Order (Lee, Kai-Fu) (Z-Library).epub\",\n        \"sha\": \"1ca62ee9d71f09d0ee272de034d633082648a7f7\",\n        \"size\": 1809674\n      },\n      {\n        \"path\": \"AI \\u0026 society/Integrating Human and Artificial Intelligence Software in the Age of AI (Stephen K. Reed) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"729f8faea8ea3df5ea6007baf3d61aac711a4fd7\",\n        \"size\": 3355945\n      },\n      {\n        \"path\": \"AI \\u0026 society/OpenAI - AI in the Enterprise.pdf\",\n        \"sha\": \"5a67d3de112d90cf3364fa1456258a41f5fcbfff\",\n        \"size\": 9942273\n      },\n      {\n        \"path\": \"AI agents/AI Agents in Action (Micheal Lanham) (Z-Library).pdf\",\n        \"sha\": \"22c6baa2802e98296abe9a57eb67fac69e950e4e\",\n        \"size\": 12324920\n      },\n      {\n        \"path\": \"AI agents/AI_AGENTS_TheIllustratedGuidebook-compressed.pdf\",\n        \"sha\": \"f8d4e079667c07589f0fe95ce5fd4bc3b54abc74\",\n        \"size\": 5314906\n      },\n      {\n        \"path\": \"AI agents/Agentic Design Patterns (Antonio Gullí) (Z-Library).pdf\",\n        \"sha\": \"26e382fefc1ab98001f807c2fb14863d28e23f46\",\n        \"size\": 22932744\n      },\n      {\n        \"path\": \"AI agents/Agentic Mesh The GenAI-Powered Autonomous Agent Ecosystem (Eric Broda, Davis Broda) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"d5967a1ccca55fb5c22c936027a6f88575ced084\",\n        \"size\": 9959053\n      },\n      {\n        \"path\": \"AI agents/Building Applications with AI Agents Designing and Implementing Multiagent Systems (Michael Albada) (Z-Library).pdf\",\n        \"sha\": \"05c885fe3d25bc5f5ab719fe49551a00d2025b4f\",\n        \"size\": 12990407\n      },\n      {\n        \"path\": \"AI agents/Introduction to Agents.pdf\",\n        \"sha\": \"6e25923eaca9cc0ba4a2d5d709196b844a970dbd\",\n        \"size\": 9473606\n      },\n      {\n        \"path\": \"AI agents/Mastering AI Agents A comprehensive guide for evaluating AI agents (Pratik Bhavsar) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"796f44cc4b9db1d47ac714cb7d877bfdfde0ea39\",\n        \"size\": 29843180\n      },\n      {\n        \"path\": \"AI agents/ai-agents-in-action-book-from-zeeshan-ali-website.pdf\",\n        \"sha\": \"021c7625d8fff2548050e0731e6a9d182b5793c9\",\n        \"size\": 31483036\n      },\n      {\n        \"path\": \"AI agents/google-ai-agents-whitepaper.pdf\",\n        \"sha\": \"6c74cdd80112b62b7d5ac6c1b648255a3cbacdc6\",\n        \"size\": 4267233\n      },\n      {\n        \"path\": \"AI engineering/AI Engineering Building Applications with Foundation Models (Chip Huyen) (Z-Library).pdf\",\n        \"sha\": \"1ec1d15d9635ed43d1d8baba29aee124fc5ab1e6\",\n        \"size\": 33473585\n      },\n      {\n        \"path\": \"Claude/Claude Code The Definitive Guide to Agentic Development (Written by Claude Code etc.) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"23fd55bf7625e6c088b17d53f61c97f318b7e583\",\n        \"size\": 4854958\n      },\n      {\n        \"path\": \"Claude/Mastering Claude AI Practical Journey from First Prompts to Pro with Claude AI (Ryan Dickey) (z-library.sk, 1lib.sk, z-lib.sk).pdf\",\n        \"sha\": \"97c490f84a484f1d85181d548ea8a554569a9451\",\n        \"size\": 10857543\n      },\n      {\n        \"path\": \"LLM/A Hands-On Guide to Fine-Tuning Large Language Models with PyTorch and Hugging Face (Daniel Voigt Godoy) (Z-Library).pdf\",\n        \"sha\": \"052239bc4f5414b740a32fa0af7bdd7e09371909\",\n        \"size\": 11874798\n      },\n      {\n        \"path\": \"LLM/Build a Large Language Model (From Scratch) (Sebastian Raschka) (Z-Library).pdf\",\n        \"sha\": \"b2f8ab5797d43348b7014e0ca5cfd58c8f65a85b\",\n        \"size\": 18127777\n      },\n      {\n        \"path\": \"LLM/ChatGPT/ChatGPT For Dummies (Pam Baker) (Z-Library).pdf\",\n        \"sha\": \"1fafe4306936877cf447dd0766cf115472e274df\",\n        \"size\": 12099016\n      },\n      {\n        \"path\": \"LLM/ChatGPT/ChatGPT Millionaire A Beginners Guide to ChatGPT and Passive Income Strategies for Financial Freedom (Drake Cox) (Z-Libra…[truncated]"
+    },
+    {
+      "command": "plan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set GITHUB_CONTENTS_NO_LEARN=true.\n\nUsage:\n  github-contents-pp-cli playbook amend [flags]\n\nExamples:\n  github-contents-pp-cli playbook amend \\\n    --query \"\u003cexact recall query\u003e\" \\\n    --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "\\",
+        "--query",
+        "how to mirror a github folder",
+        "--add-note",
+        "raw CDN escapes spaces via EscapePath"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "\\",
+        "--query",
+        "how to mirror a github folder",
+        "--add-note",
+        "raw CDN escapes spaces via EscapePath",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"amended\": true,\n  \"query\": \"how to mirror a github folder\",\n  \"query_family\": \"folder github mirror\"\n}\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  github-contents-pp-cli playbook list [flags]\n\nExamples:\n  github-contents-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-07-10T17:42:17Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-07-10T17:42:17.185239Z\",\n      \"notes_text\": \"[amend 2026-07-10T17:42Z]: raw CDN escapes spaces via EscapePath\\n\\n[amend 2026-07-10T17:42Z]: raw CDN escapes spaces via EscapePath\",\n      \"query_family\": \"folder github mirror\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-07-10T17:42:17Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-07-10T17:42:17.185239Z\",\n      \"notes_text\": \"[amend 2026-07-10T17:42Z]: raw CDN escapes spaces via EscapePath\\n\\n[amend 2026-07-10T17:42Z]: raw CDN escapes spaces via EscapePath\",\n      \"query_family\": \"folder github mirror\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  github-contents-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  github-contents-pp-cli profile delete my-defaults --yes\n  github-contents-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  github-contents-pp-cli profile list [flags]\n\nExamples:\n  github-contents-pp-cli profile list\n  github-contents-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  github-contents-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  github-contents-pp-cli profile save my-defaults --json --compact\n  github-contents-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  github-contents-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  github-contents-pp-cli profile show my-defaults\n  github-contents-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  github-contents-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  github-contents-pp-cli profile use my-defaults\n  github-contents-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "rate-limit",
+      "kind": "help",
+      "args": [
+        "rate-limit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show remaining API quota (5000/h with a token, 60/h without)\n\nUsage:\n  github-contents-pp-cli rate-limit [flags]\n\nExamples:\n  github-contents-pp-cli rate-limit\n\nFlags:\n  -h, --help   help for rate-limit\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "rate-limit",
+      "kind": "happy_path",
+      "args": [
+        "rate-limit"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"resources\": {\n      \"core\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"search\": {\n        \"limit\": 30,\n        \"used\": 0,\n        \"remaining\": 30,\n        \"reset\": 1783705394\n      },\n      \"graphql\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"integration_manifest\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"source_import\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"code_scanning_autofix\": {\n        \"limit\": 10,\n        \"used\": 0,\n        \"remaining\": 10,\n        \"reset\": 1783705394\n      },\n      \"actions_runner_registration\": {\n        \"limit\": 10000,\n        \"used\": 0,\n        \"remaining\": 10000,\n        \"reset\": 1783708934\n      },\n      \"scim\": {\n        \"limit\": 15000,\n        \"used\": 0,\n        \"remaining\": 15000,\n        \"reset\": 1783708934\n      },\n      \"dependency_snapshots\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"dependency_sbom\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"audit_log\": {\n        \"limit\": 1750,\n        \"used\": 0,\n        \"remaining\": 1750,\n        \"reset\": 1783708934\n      },\n      \"audit_log_streaming\": {\n        \"limit\": 15,\n        \"used\": 0,\n        \"remaining\": 15,\n        \"reset\": 1783708934\n      },\n      \"code_search\": {\n        \"limit\": 10,\n        \"used\": 0,\n        \"remaining\": 10,\n        \"reset\": 1783705394\n      },\n      \"copilot_usage_records\": {\n        \"limit\": 1750,\n        \"used\": 0,\n        \"remaining\": 1750,\n        \"reset\": 1783708934\n      }\n    },\n    \"rate\": {\n      \"limit\": 5000,\n      \"used\": 0,\n      \"remaining\": 5000,\n      \"reset\": 1783708934\n    }\n  }\n}\nwarning: 1/1 rate-limit items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "rate-limit",
+      "kind": "json_fidelity",
+      "args": [
+        "rate-limit",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"resources\": {\n      \"core\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"search\": {\n        \"limit\": 30,\n        \"used\": 0,\n        \"remaining\": 30,\n        \"reset\": 1783705394\n      },\n      \"graphql\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"integration_manifest\": {\n        \"limit\": 5000,\n        \"used\": 0,\n        \"remaining\": 5000,\n        \"reset\": 1783708934\n      },\n      \"source_import\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"code_scanning_autofix\": {\n        \"limit\": 10,\n        \"used\": 0,\n        \"remaining\": 10,\n        \"reset\": 1783705394\n      },\n      \"actions_runner_registration\": {\n        \"limit\": 10000,\n        \"used\": 0,\n        \"remaining\": 10000,\n        \"reset\": 1783708934\n      },\n      \"scim\": {\n        \"limit\": 15000,\n        \"used\": 0,\n        \"remaining\": 15000,\n        \"reset\": 1783708934\n      },\n      \"dependency_snapshots\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"dependency_sbom\": {\n        \"limit\": 100,\n        \"used\": 0,\n        \"remaining\": 100,\n        \"reset\": 1783705394\n      },\n      \"audit_log\": {\n        \"limit\": 1750,\n        \"used\": 0,\n        \"remaining\": 1750,\n        \"reset\": 1783708934\n      },\n      \"audit_log_streaming\": {\n        \"limit\": 15,\n        \"used\": 0,\n        \"remaining\": 15,\n        \"reset\": 1783708934\n      },\n      \"code_search\": {\n        \"limit\": 10,\n        \"used\": 0,\n        \"remaining\": 10,\n        \"reset\": 1783705394\n      },\n      \"copilot_usage_records\": {\n        \"limit\": 1750,\n        \"used\": 0,\n        \"remaining\": 1750,\n        \"reset\": 1783708934\n      }\n    },\n    \"rate\": {\n      \"limit\": 5000,\n      \"used\": 0,\n      \"remaining\": 5000,\n      \"reset\": 1783708934\n    }\n  }\n}\nwarning: 1/1 rate-limit items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "rate-limit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: GITHUB_CONTENTS_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  github-contents-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  github-contents-pp-cli recall \"\u003cquestion\u003e\" --agent\n  github-contents-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "releases download",
+      "kind": "help",
+      "args": [
+        "releases",
+        "download",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve a release (latest, or --tag) and download its assets, optionally filtered by --pattern. Use --list-only to preview matching assets without downloading.\n\nUsage:\n  github-contents-pp-cli releases download \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli releases download cli cli --pattern \"*.deb\" --out ./assets\n  github-contents-pp-cli releases download mjwoon AI-readings --list-only --json\n\nFlags:\n  -h, --help             help for download\n      --list-only        List matching assets without downloading\n      --out string       Local destination directory for downloaded assets (default \".\")\n      --pattern string   Glob pattern to filter asset names (default: all assets)\n      --tag string       Release tag (default: latest published release)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases download",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases download] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases download",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases download] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases download",
+      "kind": "error_path",
+      "args": [
+        "releases",
+        "download",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  github-contents-pp-cli releases download \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli releases download cli cli --pattern \"*.deb\" --out ./assets\n  github-contents-pp-cli releases download mjwoon AI-readings --list-only --json\n\nFlags:\n  -h, --help             help for download\n      --list-only        List matching assets without downloading\n      --out string       Local destination directory for downloaded assets (default \".\")\n      --pattern string   Glob pattern to filter asset names (default: all assets)\n      --tag string       Release tag (default: latest published release)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: both \u003cowner\u003e and \u003crepo\u003e are required\nUsage: github-contents-pp-cli releases download \u003cowner\u003e \u003crepo\u003e\n"
+    },
+    {
+      "command": "releases latest",
+      "kind": "help",
+      "args": [
+        "releases",
+        "latest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the latest published release\n\nUsage:\n  github-contents-pp-cli releases latest \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli releases latest example-value example-value\n\nFlags:\n  -h, --help   help for latest\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases latest",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases latest] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases latest",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases latest] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases latest",
+      "kind": "error_path",
+      "args": [
+        "releases",
+        "latest",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli releases latest \u003crepo\u003e\n"
+    },
+    {
+      "command": "releases list",
+      "kind": "help",
+      "args": [
+        "releases",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List releases with their assets\n\nUsage:\n  github-contents-pp-cli releases list \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli releases list example-value example-value\n\nFlags:\n  -h, --help           help for list\n      --per-page int   Results per page (max 100) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases list] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases list] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases list",
+      "kind": "error_path",
+      "args": [
+        "releases",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli releases list \u003crepo\u003e\n"
+    },
+    {
+      "command": "repos branches",
+      "kind": "help",
+      "args": [
+        "repos",
+        "branches",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List branches of a repository\n\nUsage:\n  github-contents-pp-cli repos branches \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli repos branches example-value example-value\n\nFlags:\n  -h, --help           help for branches\n      --per-page int   Results per page (max 100) (default 100)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "repos branches",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos branches] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos branches",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos branches] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos branches",
+      "kind": "error_path",
+      "args": [
+        "repos",
+        "branches",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli repos branches \u003crepo\u003e\n"
+    },
+    {
+      "command": "repos commits",
+      "kind": "help",
+      "args": [
+        "repos",
+        "commits",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List commits, optionally filtered to a path (newest first)\n\nUsage:\n  github-contents-pp-cli repos commits \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli repos commits example-value example-value\n\nFlags:\n  -h, --help           help for commits\n      --path string    Only commits touching this file or directory path\n      --per-page int   Results per page (max 100) (default 30)\n      --ref string     Branch, tag, or commit SHA to start listing from\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "repos commits",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos commits] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos commits",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos commits] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos commits",
+      "kind": "error_path",
+      "args": [
+        "repos",
+        "commits",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli repos commits \u003crepo\u003e\n"
+    },
+    {
+      "command": "repos get",
+      "kind": "help",
+      "args": [
+        "repos",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get repository metadata including the default branch\n\nUsage:\n  github-contents-pp-cli repos get \u003cowner\u003e \u003crepo\u003e [flags]\n\nExamples:\n  github-contents-pp-cli repos get mjwoon AI-readings\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "repos get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repos get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "repos get",
+      "kind": "error_path",
+      "args": [
+        "repos",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli repos get \u003crepo\u003e\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search tree listings that 'plan' and 'fetch' persisted into the local store.\nMatches are case-insensitive substring matches on the file path. Nothing\ntouches the network, so results reflect the last plan/fetch of each target.\n\nUsage:\n  github-contents-pp-cli search \u003cpattern\u003e [flags]\n\nExamples:\n  # Where did I see that transformers book?\n  github-contents-pp-cli search transformers --limit 20\n\n  # All PDFs seen across fetched repos, as JSON for an agent\n  github-contents-pp-cli search .pdf --json --select hits.path,hits.size\n\nFlags:\n  -h, --help        help for search\n      --limit int   Maximum matches to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "stats",
+      "kind": "help",
+      "args": [
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Size and file-count breakdown of any repo path by subfolder and extension, plus the largest files, from a single API request.\nUse this command for size and file-type breakdowns of a remote repo path. Do NOT use it to preview a specific download's file list; use 'plan' instead.\n\nUsage:\n  github-contents-pp-cli stats \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli stats mjwoon/AI-readings/books --agent --select by_folder\n\nFlags:\n  -h, --help         help for stats\n      --ref string   Branch, tag, or commit SHA (overrides #ref in the target)\n      --top int      Number of largest files to list (default 10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stats",
+      "kind": "happy_path",
+      "args": [
+        "stats",
+        "mjwoon/AI-readings/books",
+        "--agent",
+        "--select",
+        "by_folder"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"by_folder\": [\n      {\n        \"folder\": \"machine learning\",\n        \"files\": 20,\n        \"bytes\": 544471515\n      },\n      {\n        \"folder\": \"LLM\",\n        \"files\": 49,\n        \"bytes\": 465322226\n      },\n      {\n        \"folder\": \"mathematics\",\n        \"files\": 9,\n        \"bytes\": 213365747\n      },\n      {\n        \"folder\": \"computer vision\",\n        \"files\": 5,\n        \"bytes\": 203954306\n      },\n      {\n        \"folder\": \"AI agents\",\n        \"files\": 9,\n        \"bytes\": 138589085\n      },\n      {\n        \"folder\": \"programming\",\n        \"files\": 4,\n        \"bytes\": 126612504\n      },\n      {\n        \"folder\": \"natural language processing\",\n        \"files\": 5,\n        \"bytes\": 108540019\n      },\n      {\n        \"folder\": \"Multimedia Technology and Enhanced Learning\",\n        \"files\": 2,\n        \"bytes\": 65732357\n      },\n      {\n        \"folder\": \"system design\",\n        \"files\": 3,\n        \"bytes\": 64285516\n      },\n      {\n        \"folder\": \"AI engineering\",\n        \"files\": 1,\n        \"bytes\": 33473585\n      },\n      {\n        \"folder\": \"generative AI\",\n        \"files\": 1,\n        \"bytes\": 30758885\n      },\n      {\n        \"folder\": \"intro\",\n        \"files\": 1,\n        \"bytes\": 22443847\n      },\n      {\n        \"folder\": \"Claude\",\n        \"files\": 2,\n        \"bytes\": 15712501\n      },\n      {\n        \"folder\": \"AI \\u0026 society\",\n        \"files\": 3,\n        \"bytes\": 15107892\n      },\n      {\n        \"folder\": \"PyTorch\",\n        \"files\": 1,\n        \"bytes\": 7076911\n      },\n      {\n        \"folder\": \"MCP\",\n        \"files\": 1,\n        \"bytes\": 6304626\n      },\n      {\n        \"folder\": \"career development\",\n        \"files\": 1,\n        \"bytes\": 3717673\n      },\n      {\n        \"folder\": \"(root)\",\n        \"files\": 1,\n        \"bytes\": 22641\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "json_fidelity",
+      "args": [
+        "stats",
+        "mjwoon/AI-readings/books",
+        "--agent",
+        "--select",
+        "by_folder",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"by_folder\": [\n      {\n        \"folder\": \"machine learning\",\n        \"files\": 20,\n        \"bytes\": 544471515\n      },\n      {\n        \"folder\": \"LLM\",\n        \"files\": 49,\n        \"bytes\": 465322226\n      },\n      {\n        \"folder\": \"mathematics\",\n        \"files\": 9,\n        \"bytes\": 213365747\n      },\n      {\n        \"folder\": \"computer vision\",\n        \"files\": 5,\n        \"bytes\": 203954306\n      },\n      {\n        \"folder\": \"AI agents\",\n        \"files\": 9,\n        \"bytes\": 138589085\n      },\n      {\n        \"folder\": \"programming\",\n        \"files\": 4,\n        \"bytes\": 126612504\n      },\n      {\n        \"folder\": \"natural language processing\",\n        \"files\": 5,\n        \"bytes\": 108540019\n      },\n      {\n        \"folder\": \"Multimedia Technology and Enhanced Learning\",\n        \"files\": 2,\n        \"bytes\": 65732357\n      },\n      {\n        \"folder\": \"system design\",\n        \"files\": 3,\n        \"bytes\": 64285516\n      },\n      {\n        \"folder\": \"AI engineering\",\n        \"files\": 1,\n        \"bytes\": 33473585\n      },\n      {\n        \"folder\": \"generative AI\",\n        \"files\": 1,\n        \"bytes\": 30758885\n      },\n      {\n        \"folder\": \"intro\",\n        \"files\": 1,\n        \"bytes\": 22443847\n      },\n      {\n        \"folder\": \"Claude\",\n        \"files\": 2,\n        \"bytes\": 15712501\n      },\n      {\n        \"folder\": \"AI \\u0026 society\",\n        \"files\": 3,\n        \"bytes\": 15107892\n      },\n      {\n        \"folder\": \"PyTorch\",\n        \"files\": 1,\n        \"bytes\": 7076911\n      },\n      {\n        \"folder\": \"MCP\",\n        \"files\": 1,\n        \"bytes\": 6304626\n      },\n      {\n        \"folder\": \"career development\",\n        \"files\": 1,\n        \"bytes\": 3717673\n      },\n      {\n        \"folder\": \"(root)\",\n        \"files\": 1,\n        \"bytes\": 22641\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync-dir",
+      "kind": "help",
+      "args": [
+        "sync-dir",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Update an existing downloaded directory in place, fetching only files that changed upstream or are missing locally.\nUse this command to update an existing downloaded directory in place, fetching only changed or new files. Do NOT use it for a first-time download into an empty directory; use 'fetch' instead.\n\nUsage:\n  github-contents-pp-cli sync-dir \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli sync-dir ./books mjwoon/AI-readings/books --agent\n\nFlags:\n      --concurrency int   Number of concurrent downloads (default 8)\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n      --force             Re-download files even if a local copy already matches by blob SHA\n  -h, --help              help for sync-dir\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync-dir",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync-dir] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync-dir",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync-dir] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync-dir",
+      "kind": "error_path",
+      "args": [
+        "sync-dir",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  github-contents-pp-cli sync-dir \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli sync-dir ./books mjwoon/AI-readings/books --agent\n\nFlags:\n      --concurrency int   Number of concurrent downloads (default 8)\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n      --force             Re-download files even if a local copy already matches by blob SHA\n  -h, --help              help for sync-dir\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: both \u003clocal-dir\u003e and \u003cowner/repo[/path][#ref]\u003e are required\nUsage: github-contents-pp-cli sync-dir \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e\n"
+    },
+    {
+      "command": "tarball",
+      "kind": "help",
+      "args": [
+        "tarball",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download a full repository snapshot as a .tar.gz via GitHub's codeload archive endpoint. Snapshots the whole repo; use 'fetch' for a subdirectory.\n\nUsage:\n  github-contents-pp-cli tarball \u003cowner/repo[#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli tarball octocat/Hello-World --out ./hello-world.tar.gz\n  github-contents-pp-cli tarball octocat/Hello-World#main --agent\n\nFlags:\n  -h, --help         help for tarball\n      --out string   Output path for the tarball (default: {repo}-{ref}.tar.gz)\n      --ref string   Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tarball",
+      "kind": "happy_path",
+      "args": [
+        "tarball",
+        "octocat/Hello-World",
+        "--out",
+        "/tmp/pp-ghc-dogfood/hw.tar.gz"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bytes\": 265,\n  \"out\": \"/tmp/pp-ghc-dogfood/hw.tar.gz\",\n  \"ref\": \"HEAD\"\n}\n"
+    },
+    {
+      "command": "tarball",
+      "kind": "json_fidelity",
+      "args": [
+        "tarball",
+        "octocat/Hello-World",
+        "--out",
+        "/tmp/pp-ghc-dogfood/hw.tar.gz",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bytes\": 265,\n  \"out\": \"/tmp/pp-ghc-dogfood/hw.tar.gz\",\n  \"ref\": \"HEAD\"\n}\n"
+    },
+    {
+      "command": "tarball",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set GITHUB_CONTENTS_NO_LEARN=true.\n\nUsage:\n  github-contents-pp-cli teach [flags]\n\nExamples:\n  github-contents-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e \\\n    --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "which repo has the transformers book",
+        "--resource-type",
+        "trees",
+        "\\",
+        "--resource",
+        "mjwoon/AI-readings@main:books/LLM/transformers-book.pdf",
+        "--quiet",
+        "false"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "which repo has the transformers book",
+        "--resource-type",
+        "trees",
+        "\\",
+        "--resource",
+        "mjwoon/AI-readings@main:books/LLM/transformers-book.pdf",
+        "--quiet",
+        "false",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"normalized\": \"book repo transformers\",\n  \"query\": \"which repo has the transformers book\",\n  \"recorded\": true,\n  \"resources\": [\n    \"mjwoon/AI-readings@main:books/LLM/transformers-book.pdf\"\n  ]\n}\n"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  github-contents-pp-cli teach-lookup [flags]\n\nExamples:\n  github-contents-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  github-contents-pp-cli teach-pattern [flags]\n\nExamples:\n  github-contents-pp-cli teach-pattern \\\n    --query-template \"items in {entity}\" \\\n    --resource-template \"GROUP-{entity:category}\" \\\n    --resource-type \"items\" \\\n    --entity-kind \"category\" \\\n    --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "\\",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entity_kind\": \"category\",\n  \"newly_inserted\": true,\n  \"pattern_id\": 1,\n  \"query_template\": \"items in {entity}\",\n  \"recorded\": true,\n  \"resource_template\": \"GROUP-{entity:category}\",\n  \"resource_type\": \"items\",\n  \"strategy\": \"substitute\",\n  \"venue\": \"\"\n}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "\\",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entity_kind\": \"category\",\n  \"newly_inserted\": false,\n  \"pattern_id\": 1,\n  \"query_template\": \"items in {entity}\",\n  \"recorded\": true,\n  \"resource_template\": \"GROUP-{entity:category}\",\n  \"resource_type\": \"items\",\n  \"strategy\": \"substitute\",\n  \"venue\": \"\"\n}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  github-contents-pp-cli teach-playbook [flags]\n\nExamples:\n  github-contents-pp-cli teach-playbook \\\n    --query \"\u003cquestion that anchors the family\u003e\" \\\n    --playbook-file ~/playbooks/recipe.json \\\n    --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": [
+        "teach-playbook",
+        "\\",
+        "--query",
+        "how to mirror a github folder",
+        "--notes",
+        "prefer sync-dir for repeat downloads"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"has_notes\": true,\n  \"has_playbook\": false,\n  \"inserted\": false,\n  \"playbook_id\": 2,\n  \"query_family\": \"folder github mirror\",\n  \"recorded\": true\n}\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-playbook",
+        "\\",
+        "--query",
+        "how to mirror a github folder",
+        "--notes",
+        "prefer sync-dir for repeat downloads",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"has_notes\": true,\n  \"has_playbook\": false,\n  \"inserted\": false,\n  \"playbook_id\": 2,\n  \"query_family\": \"folder github mirror\",\n  \"recorded\": true\n}\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trees",
+      "kind": "help",
+      "args": [
+        "trees",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a git tree. With --recursive, returns every file under it in one request (check the truncated flag on huge repos)\n\nUsage:\n  github-contents-pp-cli trees \u003cowner\u003e \u003crepo\u003e \u003ctree_sha\u003e [flags]\n\nExamples:\n  github-contents-pp-cli trees example-value example-value example-value\n\nFlags:\n  -h, --help        help for trees\n      --recursive   Return all nested entries in one response\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trees",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trees] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "trees",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trees] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "trees",
+      "kind": "error_path",
+      "args": [
+        "trees",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: repo is required\nUsage: github-contents-pp-cli trees \u003crepo\u003e\n"
+    },
+    {
+      "command": "verify",
+      "kind": "help",
+      "args": [
+        "verify",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check whether a previously downloaded directory still matches the remote at a ref — match/changed/missing/extra per file — without re-downloading anything.\nUse this command to check whether a previously downloaded directory matches the remote at a ref. Do NOT use it to download the differences; use 'sync-dir' instead.\n\nUsage:\n  github-contents-pp-cli verify \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli verify ./books mjwoon/AI-readings/books --agent\n\nFlags:\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n  -h, --help              help for verify\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "verify",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [verify] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "verify",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [verify] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "verify",
+      "kind": "error_path",
+      "args": [
+        "verify",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  github-contents-pp-cli verify \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e [flags]\n\nExamples:\n  github-contents-pp-cli verify ./books mjwoon/AI-readings/books --agent\n\nFlags:\n      --exclude strings   Glob pattern(s) to exclude (repeatable)\n  -h, --help              help for verify\n      --include strings   Glob pattern(s) to include (repeatable; empty = all)\n      --ref string        Branch, tag, or commit SHA (overrides #ref in the target)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: both \u003clocal-dir\u003e and \u003cowner/repo[/path][#ref]\u003e are required\nUsage: github-contents-pp-cli verify \u003clocal-dir\u003e \u003cowner/repo[/path][#ref]\u003e\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  github-contents-pp-cli which [query] [flags]\n\nExamples:\n  github-contents-pp-cli which \"stale tickets\"\n  github-contents-pp-cli which \"bottleneck\"\n  github-contents-pp-cli which --limit 1 \"send message\"\n  github-contents-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  github-contents-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  github-contents-pp-cli workflow status\n\n  # Show status as JSON\n  github-contents-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'github-contents-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  trees                          118 items\n\n  Total: 118 items\n  Store: /var/folders/ph/cbntz9ws2gd2cnsg2dp60_mh0000gn/T/printing-press-subprocess-3973496491/.local/share/github-contents-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"trees\": 118\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-10T17:42:13.723252Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fleet-token-401-self-heal",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Reactive [fleet] token refresh + single retry when the signed-command tesla-control subprocess fails with a 401, plus a skew-window-hardened proactive refresh.",
+  "reason": "An agentcookie sink reading a synced config holds a short-lived [fleet] token that can lapse between sync and use (or read valid locally while Tesla rejects it). The owner-API read path self-heals via the transport OnTokenExpired hook, but the signed-command path shells out to tesla-control so the Go transport never sees that 401. Re-minting from the stored fleet refresh token and retrying once lets the sink control cars with no source-side fleet-refresh.",
+  "files": [
+    "internal/cli/tesla_command.go",
+    "internal/cli/tesla_command_test.go"
+  ],
+  "validated_outcome": "Full module build/vet/test/govulncheck pass (310 cli tests). Covers: self-heal happy path (401 then retry succeeds, exactly 1 refresh + 2 subprocess calls), retry bounded to one, refresh-failure surfaces the original 401 with fleet-login guidance, non-auth failures (sleeping car/timeout) trigger no refresh, isFleetAuthError classification table, concurrent-refresh guard under -race, proactive skew-window table, and a read-path guard asserting both routing modes wire a 401 self-heal callback."
+}

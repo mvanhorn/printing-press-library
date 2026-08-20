@@ -1,0 +1,76 @@
+{
+  "reachability": {
+    "mode": "standard_http",
+    "uses_browser_http_transport": false,
+    "base_url": "https://services.leadconnectorhq.com"
+  },
+  "endpoint_clusters": [
+    { "resource": "contacts",              "base_path": "/contacts",                 "observed_auth": ["authorization"], "method_count": 32, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "conversations",         "base_path": "/conversations",            "observed_auth": ["authorization"], "method_count": 19, "version": "2021-04-15", "requires_location_id": true },
+    { "resource": "calendars",             "base_path": "/calendars",                "observed_auth": ["authorization"], "method_count": 34, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "opportunities",         "base_path": "/opportunities",            "observed_auth": ["authorization"], "method_count": 10, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "locations",             "base_path": "/locations",                "observed_auth": ["authorization"], "method_count": 9,  "version": "2021-07-28", "requires_location_id": false },
+    { "resource": "location_tags",         "base_path": "/locations/{locationId}/tags",         "observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "custom_fields_v1",      "base_path": "/locations/{locationId}/customFields", "observed_auth": ["authorization"], "method_count": 6,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "custom_fields_v2",      "base_path": "/custom-fields",            "observed_auth": ["authorization"], "method_count": 8,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "custom_values",         "base_path": "/locations/{locationId}/customValues", "observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "custom_objects",        "base_path": "/objects",                  "observed_auth": ["authorization"], "method_count": 9,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "associations",          "base_path": "/associations",             "observed_auth": ["authorization"], "method_count": 10, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "blogs",                 "base_path": "/blogs",                    "observed_auth": ["authorization"], "method_count": 7,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "workflows",             "base_path": "/workflows",                "observed_auth": ["authorization"], "method_count": 1,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "surveys",               "base_path": "/surveys",                  "observed_auth": ["authorization"], "method_count": 2,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "emails",                "base_path": "/emails",                   "observed_auth": ["authorization"], "method_count": 6,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "email_verify",          "base_path": "/email/verify",             "observed_auth": ["authorization"], "method_count": 1,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "media",                 "base_path": "/medias",                   "observed_auth": ["authorization"], "method_count": 3,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "social_media_posting",  "base_path": "/social-media-posting",     "observed_auth": ["authorization"], "method_count": 16, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_orders",       "base_path": "/payments/orders",          "observed_auth": ["authorization"], "method_count": 4,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_transactions", "base_path": "/payments/transactions",    "observed_auth": ["authorization"], "method_count": 2,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_subscriptions","base_path": "/payments/subscriptions",   "observed_auth": ["authorization"], "method_count": 2,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_coupons",      "base_path": "/payments/coupon",          "observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_integrations", "base_path": "/payments/integrations",    "observed_auth": ["authorization"], "method_count": 2,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "payments_custom_provider","base_path": "/payments/custom-provider","observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "invoices",              "base_path": "/invoices",                 "observed_auth": ["authorization"], "method_count": 17, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "invoice_templates",     "base_path": "/invoices/template",        "observed_auth": ["authorization"], "method_count": 7,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "invoice_schedules",     "base_path": "/invoices/schedule",        "observed_auth": ["authorization"], "method_count": 9,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "estimates",             "base_path": "/invoices/estimate",        "observed_auth": ["authorization"], "method_count": 13, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "products",              "base_path": "/products",                 "observed_auth": ["authorization"], "method_count": 18, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "product_reviews",       "base_path": "/products/reviews",         "observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "store_shipping",        "base_path": "/store/shipping-zone",      "observed_auth": ["authorization"], "method_count": 11, "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "store_carriers",        "base_path": "/store/shipping-carrier",   "observed_auth": ["authorization"], "method_count": 5,  "version": "2021-07-28", "requires_location_id": true },
+    { "resource": "store_settings",        "base_path": "/store/store-setting",      "observed_auth": ["authorization"], "method_count": 2,  "version": "2021-07-28", "requires_location_id": true }
+  ],
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Bearer pit-<uuid>",
+    "version_header_default": "2021-07-28",
+    "version_header_conversations": "2021-04-15",
+    "case_sensitivity_note": "Token must be lowercase 'pit-' prefix; capital 'Pit-' returns 401 Invalid JWT"
+  },
+  "totals": {
+    "resource_groups": 33,
+    "endpoint_templates_extracted": 205,
+    "endpoint_table_rows_in_report": 268
+  },
+  "stoplight_resources_not_in_local_mcp": [
+    "users",
+    "forms",
+    "funnels",
+    "companies",
+    "businesses",
+    "courses_communities_memberships",
+    "snapshots",
+    "oauth",
+    "saas",
+    "triggers",
+    "phone_system"
+  ],
+  "notes": {
+    "stoplight_fetch": "https://highlevel.stoplight.io/docs/integrations/ is a JS-rendered Stoplight Elements SPA; plain HTTP fetch returns an empty shell. Local MCP (mastanley13 fork) used as authoritative source — implements ~250 tools across the documented public surface.",
+    "extraction_source": "/Users/jenwilliams/Documents/ghl-mcp-server-kwcp/src/clients/ghl-api-client.ts (6,830 LOC, 265 method comments, 205 unique URL templates) + 19 tool files",
+    "client_class_lines": {
+      "default_version_header_set": 402,
+      "conversations_version_override": 465
+    }
+  }
+}

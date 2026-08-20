@@ -1,0 +1,2699 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "soccer-goat",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/competitions/search/{competition_name}": {
+      "get": {
+        "tags": [
+          "competitions"
+        ],
+        "summary": "Search Competitions",
+        "operationId": "search_competitions_competitions_search__competition_name__get",
+        "parameters": [
+          {
+            "name": "competition_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Competition Name"
+            }
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 1,
+              "title": "Page Number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitionSearch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/competitions/{competition_id}/clubs": {
+      "get": {
+        "tags": [
+          "competitions"
+        ],
+        "summary": "Get Competition Clubs",
+        "operationId": "get_competition_clubs_competitions__competition_id__clubs_get",
+        "parameters": [
+          {
+            "name": "competition_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Competition Id"
+            }
+          },
+          {
+            "name": "season_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Season Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitionClubs"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clubs/search/{club_name}": {
+      "get": {
+        "tags": [
+          "clubs"
+        ],
+        "summary": "Search Clubs",
+        "operationId": "search_clubs_clubs_search__club_name__get",
+        "parameters": [
+          {
+            "name": "club_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Club Name"
+            }
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 1,
+              "title": "Page Number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClubSearch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clubs/{club_id}/profile": {
+      "get": {
+        "tags": [
+          "clubs"
+        ],
+        "summary": "Get Club Profile",
+        "operationId": "get_club_profile_clubs__club_id__profile_get",
+        "parameters": [
+          {
+            "name": "club_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Club Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClubProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clubs/{club_id}/players": {
+      "get": {
+        "tags": [
+          "clubs"
+        ],
+        "summary": "Get Club Players",
+        "operationId": "get_club_players_clubs__club_id__players_get",
+        "parameters": [
+          {
+            "name": "club_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Club Id"
+            }
+          },
+          {
+            "name": "season_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Season Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClubPlayers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/search/{player_name}": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Search Players",
+        "operationId": "search_players_players_search__player_name__get",
+        "parameters": [
+          {
+            "name": "player_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Name"
+            }
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 1,
+              "title": "Page Number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSearch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/profile": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Profile",
+        "operationId": "get_player_profile_players__player_id__profile_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/market_value": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Market Value",
+        "operationId": "get_player_market_value_players__player_id__market_value_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerMarketValue"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/transfers": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Transfers",
+        "operationId": "get_player_transfers_players__player_id__transfers_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerTransfers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/jersey_numbers": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Jersey Numbers",
+        "operationId": "get_player_jersey_numbers_players__player_id__jersey_numbers_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerJerseyNumbers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/stats": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Stats",
+        "operationId": "get_player_stats_players__player_id__stats_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/injuries": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Injuries",
+        "operationId": "get_player_injuries_players__player_id__injuries_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 1,
+              "title": "Page Number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerInjuries"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/achievements": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Get Player Achievements",
+        "operationId": "get_player_achievements_players__player_id__achievements_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerAchievements"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AchievementDetail": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "AchievementDetail"
+      },
+      "AchievementDetails": {
+        "properties": {
+          "competition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AchievementDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "season": {
+            "$ref": "#/components/schemas/AchievementDetail"
+          },
+          "club": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AchievementDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "season"
+        ],
+        "title": "AchievementDetails"
+      },
+      "ClubLeague": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "countryId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Countryid"
+          },
+          "countryName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Countryname"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier"
+          }
+        },
+        "type": "object",
+        "title": "ClubLeague"
+      },
+      "ClubPlayer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "position": {
+            "type": "string",
+            "title": "Position"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "nationality": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Nationality"
+          },
+          "currentClub": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentclub"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "foot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foot"
+          },
+          "joinedOn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joinedon"
+          },
+          "joined": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined"
+          },
+          "signedFrom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signedfrom"
+          },
+          "contract": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contract"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "position",
+          "nationality"
+        ],
+        "title": "ClubPlayer"
+      },
+      "ClubPlayers": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/ClubPlayer"
+            },
+            "type": "array",
+            "title": "Players"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "players"
+        ],
+        "title": "ClubPlayers"
+      },
+      "ClubProfile": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "officialName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Officialname"
+          },
+          "image": {
+            "type": "string",
+            "title": "Image"
+          },
+          "legalForm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legalform"
+          },
+          "addressLine1": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Addressline1"
+          },
+          "addressLine2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Addressline2"
+          },
+          "addressLine3": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Addressline3"
+          },
+          "tel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tel"
+          },
+          "fax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fax"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "foundedOn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foundedon"
+          },
+          "members": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Members"
+          },
+          "membersDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Membersdate"
+          },
+          "otherSports": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Othersports"
+          },
+          "colors": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Colors",
+            "default": []
+          },
+          "stadiumName": {
+            "type": "string",
+            "title": "Stadiumname"
+          },
+          "stadiumSeats": {
+            "type": "integer",
+            "title": "Stadiumseats"
+          },
+          "currentTransferRecord": {
+            "type": "integer",
+            "title": "Currenttransferrecord"
+          },
+          "currentMarketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentmarketvalue"
+          },
+          "confederation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confederation"
+          },
+          "fifaWorldRanking": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fifaworldranking"
+          },
+          "squad": {
+            "$ref": "#/components/schemas/ClubSquad"
+          },
+          "league": {
+            "$ref": "#/components/schemas/ClubLeague"
+          },
+          "historicalCrests": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historicalcrests",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "name",
+          "image",
+          "stadiumName",
+          "stadiumSeats",
+          "currentTransferRecord",
+          "squad",
+          "league"
+        ],
+        "title": "ClubProfile"
+      },
+      "ClubSearch": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "title": "Pagenumber"
+          },
+          "lastPageNumber": {
+            "type": "integer",
+            "title": "Lastpagenumber"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ClubSearchResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "pageNumber",
+          "lastPageNumber",
+          "results"
+        ],
+        "title": "ClubSearch"
+      },
+      "ClubSearchResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "squad": {
+            "type": "integer",
+            "title": "Squad"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "name",
+          "country",
+          "squad"
+        ],
+        "title": "ClubSearchResult"
+      },
+      "ClubSquad": {
+        "properties": {
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          },
+          "averageAge": {
+            "type": "number",
+            "title": "Averageage"
+          },
+          "foreigners": {
+            "type": "integer",
+            "title": "Foreigners"
+          },
+          "nationalTeamPlayers": {
+            "type": "integer",
+            "title": "Nationalteamplayers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "size",
+          "averageAge",
+          "foreigners",
+          "nationalTeamPlayers"
+        ],
+        "title": "ClubSquad"
+      },
+      "CompetitionClub": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "CompetitionClub"
+      },
+      "CompetitionClubs": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "seasonId": {
+            "type": "string",
+            "title": "Seasonid"
+          },
+          "clubs": {
+            "items": {
+              "$ref": "#/components/schemas/CompetitionClub"
+            },
+            "type": "array",
+            "title": "Clubs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "seasonId",
+          "clubs"
+        ],
+        "title": "CompetitionClubs"
+      },
+      "CompetitionSearch": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "title": "Pagenumber"
+          },
+          "lastPageNumber": {
+            "type": "integer",
+            "title": "Lastpagenumber"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CompetitionSearchResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "pageNumber",
+          "lastPageNumber",
+          "results"
+        ],
+        "title": "CompetitionSearch"
+      },
+      "CompetitionSearchResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "clubs": {
+            "type": "integer",
+            "title": "Clubs"
+          },
+          "players": {
+            "type": "integer",
+            "title": "Players"
+          },
+          "totalMarketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalmarketvalue"
+          },
+          "meanMarketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meanmarketvalue"
+          },
+          "continent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Continent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country",
+          "clubs",
+          "players"
+        ],
+        "title": "CompetitionSearchResult"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Injury": {
+        "properties": {
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "injury": {
+            "type": "string",
+            "title": "Injury"
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date",
+            "title": "Fromdate"
+          },
+          "untilDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Untildate"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          },
+          "gamesMissed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gamesmissed"
+          },
+          "gamesMissedClubs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Gamesmissedclubs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "season",
+          "injury",
+          "fromDate",
+          "untilDate",
+          "days",
+          "gamesMissed",
+          "gamesMissedClubs"
+        ],
+        "title": "Injury"
+      },
+      "JerseyNumber": {
+        "properties": {
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "club": {
+            "type": "string",
+            "title": "Club"
+          },
+          "jerseyNumber": {
+            "type": "integer",
+            "title": "Jerseynumber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "season",
+          "club",
+          "jerseyNumber"
+        ],
+        "title": "JerseyNumber"
+      },
+      "MarketValueHistory": {
+        "properties": {
+          "age": {
+            "type": "integer",
+            "title": "Age"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "clubId": {
+            "type": "string",
+            "title": "Clubid"
+          },
+          "clubName": {
+            "type": "string",
+            "title": "Clubname"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "age",
+          "date",
+          "clubId",
+          "clubName"
+        ],
+        "title": "MarketValueHistory"
+      },
+      "PlayerAchievement": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "details": {
+            "items": {
+              "$ref": "#/components/schemas/AchievementDetails"
+            },
+            "type": "array",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "count",
+          "details"
+        ],
+        "title": "PlayerAchievement"
+      },
+      "PlayerAchievements": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "achievements": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerAchievement"
+            },
+            "type": "array",
+            "title": "Achievements"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "achievements"
+        ],
+        "title": "PlayerAchievements"
+      },
+      "PlayerAgent": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "url"
+        ],
+        "title": "PlayerAgent"
+      },
+      "PlayerClub": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "joined": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined"
+          },
+          "contractExpires": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contractexpires"
+          },
+          "contractOption": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contractoption"
+          },
+          "lastClubId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastclubid"
+          },
+          "lastClubName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastclubname"
+          },
+          "mostGamesFor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mostgamesfor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "joined",
+          "contractExpires",
+          "contractOption",
+          "lastClubId",
+          "lastClubName",
+          "mostGamesFor"
+        ],
+        "title": "PlayerClub"
+      },
+      "PlayerInjuries": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "title": "Pagenumber"
+          },
+          "lastPageNumber": {
+            "type": "integer",
+            "title": "Lastpagenumber"
+          },
+          "injuries": {
+            "items": {
+              "$ref": "#/components/schemas/Injury"
+            },
+            "type": "array",
+            "title": "Injuries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pageNumber",
+          "lastPageNumber",
+          "injuries"
+        ],
+        "title": "PlayerInjuries"
+      },
+      "PlayerJerseyNumbers": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "jerseyNumbers": {
+            "items": {
+              "$ref": "#/components/schemas/JerseyNumber"
+            },
+            "type": "array",
+            "title": "Jerseynumbers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "jerseyNumbers"
+        ],
+        "title": "PlayerJerseyNumbers"
+      },
+      "PlayerMarketValue": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          },
+          "marketValueHistory": {
+            "items": {
+              "$ref": "#/components/schemas/MarketValueHistory"
+            },
+            "type": "array",
+            "title": "Marketvaluehistory"
+          },
+          "ranking": {
+            "$ref": "#/components/schemas/PlayerRanking"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "marketValue",
+          "marketValueHistory",
+          "ranking"
+        ],
+        "title": "PlayerMarketValue"
+      },
+      "PlayerPlaceOfBirth": {
+        "properties": {
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          }
+        },
+        "type": "object",
+        "required": [
+          "city",
+          "country"
+        ],
+        "title": "PlayerPlaceOfBirth"
+      },
+      "PlayerPosition": {
+        "properties": {
+          "main": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main"
+          },
+          "other": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other"
+          }
+        },
+        "type": "object",
+        "required": [
+          "main",
+          "other"
+        ],
+        "title": "PlayerPosition"
+      },
+      "PlayerProfile": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2083,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Url"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "fullName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fullname"
+          },
+          "nameInHomeCountry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nameinhomecountry"
+          },
+          "imageUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2083,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imageurl"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          },
+          "placeOfBirth": {
+            "$ref": "#/components/schemas/PlayerPlaceOfBirth"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "citizenship": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citizenship"
+          },
+          "isRetired": {
+            "type": "boolean",
+            "title": "Isretired"
+          },
+          "retiredSince": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retiredsince"
+          },
+          "position": {
+            "$ref": "#/components/schemas/PlayerPosition"
+          },
+          "foot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foot"
+          },
+          "shirtNumber": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shirtnumber"
+          },
+          "club": {
+            "$ref": "#/components/schemas/PlayerClub"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          },
+          "agent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlayerAgent"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outfitter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outfitter"
+          },
+          "socialMedia": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Socialmedia"
+          },
+          "trainerProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrainerProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relatives": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Relatives"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relatives"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "name",
+          "description",
+          "fullName",
+          "nameInHomeCountry",
+          "imageUrl",
+          "dateOfBirth",
+          "placeOfBirth",
+          "age",
+          "height",
+          "citizenship",
+          "isRetired",
+          "retiredSince",
+          "position",
+          "foot",
+          "shirtNumber",
+          "club",
+          "marketValue",
+          "agent",
+          "outfitter",
+          "socialMedia",
+          "trainerProfile",
+          "relatives"
+        ],
+        "title": "PlayerProfile"
+      },
+      "PlayerRanking": {
+        "additionalProperties": {
+          "type": "integer"
+        },
+        "type": "object",
+        "title": "PlayerRanking"
+      },
+      "PlayerSearch": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "title": "Pagenumber"
+          },
+          "lastPageNumber": {
+            "type": "integer",
+            "title": "Lastpagenumber"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerSearchResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "pageNumber",
+          "lastPageNumber",
+          "results"
+        ],
+        "title": "PlayerSearch"
+      },
+      "PlayerSearchClub": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PlayerSearchClub"
+      },
+      "PlayerSearchResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "position": {
+            "type": "string",
+            "title": "Position"
+          },
+          "club": {
+            "$ref": "#/components/schemas/PlayerSearchClub"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "nationalities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Nationalities"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "position",
+          "club",
+          "age",
+          "nationalities",
+          "marketValue"
+        ],
+        "title": "PlayerSearchResult"
+      },
+      "PlayerStat": {
+        "properties": {
+          "competitionId": {
+            "type": "string",
+            "title": "Competitionid"
+          },
+          "competitionName": {
+            "type": "string",
+            "title": "Competitionname"
+          },
+          "seasonId": {
+            "type": "string",
+            "title": "Seasonid"
+          },
+          "clubId": {
+            "type": "string",
+            "title": "Clubid"
+          },
+          "appearances": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Appearances",
+            "default": 0
+          },
+          "goals": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goals",
+            "default": 0
+          },
+          "assists": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assists",
+            "default": 0
+          },
+          "yellowCards": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yellowcards",
+            "default": 0
+          },
+          "redCards": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redcards",
+            "default": 0
+          },
+          "minutesPlayed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minutesplayed",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "competitionId",
+          "competitionName",
+          "seasonId",
+          "clubId"
+        ],
+        "title": "PlayerStat"
+      },
+      "PlayerStats": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerStat"
+            },
+            "type": "array",
+            "title": "Stats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "stats"
+        ],
+        "title": "PlayerStats"
+      },
+      "PlayerTransfer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "clubFrom": {
+            "$ref": "#/components/schemas/PlayerTransferClub"
+          },
+          "clubTo": {
+            "$ref": "#/components/schemas/PlayerTransferClub"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "upcoming": {
+            "type": "boolean",
+            "title": "Upcoming"
+          },
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "marketValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marketvalue"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "clubFrom",
+          "clubTo",
+          "date",
+          "upcoming",
+          "season",
+          "marketValue",
+          "fee"
+        ],
+        "title": "PlayerTransfer"
+      },
+      "PlayerTransferClub": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PlayerTransferClub"
+      },
+      "PlayerTransfers": {
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "transfers": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerTransfer"
+            },
+            "type": "array",
+            "title": "Transfers"
+          },
+          "youthClubs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youthclubs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "transfers",
+          "youthClubs"
+        ],
+        "title": "PlayerTransfers"
+      },
+      "RelativeProfileTypeEnum": {
+        "type": "string",
+        "enum": [
+          "player",
+          "trainer"
+        ],
+        "title": "RelativeProfileTypeEnum"
+      },
+      "Relatives": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "profileType": {
+            "$ref": "#/components/schemas/RelativeProfileTypeEnum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "name",
+          "profileType"
+        ],
+        "title": "Relatives"
+      },
+      "TrainerProfile": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "position"
+        ],
+        "title": "TrainerProfile"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://transfermarkt-api.fly.dev",
+      "description": "Public transfermarkt-api instance (override with SOCCER_GOAT_TM_BASE_URL)"
+    }
+  ]
+}

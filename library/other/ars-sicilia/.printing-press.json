@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T12:36:06.482525487Z",
+  "printing_press_version": "4.18.0",
+  "api_name": "ars-sicilia",
+  "cli_name": "ars-sicilia-pp-cli",
+  "spec_path": "ars-sicilia-spec.yaml",
+  "run_id": "20260528-181840",
+  "novel_features": [
+    {
+      "name": "Iter completo di un DDL",
+      "command": "ddl iter",
+      "description": "Ricostruisce la cronologia completa di un disegno di legge: presentazione, passaggio in commissione, lavori d'aula, eventuale promulgazione come legge regionale."
+    },
+    {
+      "name": "Profilo deputato cross-archive",
+      "command": "deputato profilo",
+      "description": "Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula."
+    },
+    {
+      "name": "Coppie di co-firmatari",
+      "command": "analytics",
+      "description": "Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico."
+    },
+    {
+      "name": "Oratori più attivi in aula",
+      "command": "analytics",
+      "description": "Classifica i deputati per numero di interventi nei resoconti d'aula, con range date e legislatura, opzionale conteggio parole."
+    },
+    {
+      "name": "Dossier 360° di una commissione",
+      "command": "commissione dossier",
+      "description": "Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale."
+    },
+    {
+      "name": "Drift iter DDL",
+      "command": "ddl drift",
+      "description": "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati)."
+    },
+    {
+      "name": "Stato sync archivi",
+      "command": "sync stale",
+      "description": "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n. record locali, età della sync, eventuale segnalazione di staleness."
+    },
+    {
+      "name": "Cronologia inversa di una legge",
+      "command": "legge cronologia",
+      "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter."
+    }
+  ],
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "category": "other"
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "steam-web-pp-mcp",
+  "display_name": "Steam Web",
+  "version": "4.0.6",
+  "description": "Steam Web API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/steam-web-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/steam-web-pp-mcp",
+      "args": [],
+      "env": {
+        "STEAM_WEB_API_KEY": "${user_config.steam_web_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "steam_web_api_key": {
+      "type": "string",
+      "title": "STEAM_WEB_API_KEY",
+      "description": "Sets STEAM_WEB_API_KEY for the Steam Web MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

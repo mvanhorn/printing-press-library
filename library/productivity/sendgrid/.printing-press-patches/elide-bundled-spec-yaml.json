@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "elide-bundled-spec-yaml",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260518-202518",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Drop archived spec.yaml from publish artifacts; keep spec_format + spec_checksum + spec_source in manifest as reference.",
+  "reason": "Bundled twilio/sendgrid-oai spec is 37,685 lines / 1.4MB and pushed the PR over Greptile's automated-review size cap (PR was 511 files / 126K lines / 5.1MB; Greptile timed out 3x in a row even after auto-nudge). The spec is not read at runtime (`grep spec.yaml internal/ cmd/` returns nothing), 45 of 135 published library CLIs already ship without it per AGENTS.md (\"some CLIs have no archived spec on disk\"), and the manifest carries `spec_format: openapi3` + sha256 checksum + the bundle origin URL so the reference is durable and reproducible.",
+  "files": [
+    "spec.yaml (deleted)",
+    ".printing-press.json (spec_source filled in)"
+  ],
+  "validated_outcome": "Diff shrinks ~37,685 lines (-30%). spec_checksum stays in manifest so anyone wanting to verify the spec used at print time can re-bundle from twilio/sendgrid-oai and compare. No runtime impact (CLI is already generated; spec was a generation-time input)."
+}

@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-28T22:35:29.622434Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "webflow",
+  "display_name": "Webflow",
+  "cli_name": "webflow-pp-cli",
+  "creator": {
+    "handle": "kmorebetter",
+    "name": "Kerry Morrison"
+  },
+  "owner": "kmorebetter",
+  "printer": "kmorebetter",
+  "printer_name": "Kerry Morrison",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1e04c65bce3642fe2197d901ac7883cf11eeb2af829940118ff2fa07e76058b7",
+  "run_id": "20260728-073020-15799c7c",
+  "category": "developer-tools",
+  "description": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+  "mcp_binary": "webflow-pp-mcp",
+  "mcp_tool_count": 117,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "OAuth2",
+  "auth_env_vars": [
+    "WEBFLOW_OAUTH2"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "WEBFLOW_API_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "WEBFLOW_OAUTH2",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Page SEO audit",
+      "command": "seo audit",
+      "description": "Find every page on a site with a missing, duplicated, or over-length SEO title or description before it costs you traffic."
+    },
+    {
+      "name": "Staged-vs-live drift",
+      "command": "drift",
+      "description": "See exactly which CMS items were edited in staging but never published, field by field."
+    },
+    {
+      "name": "Publish preview",
+      "command": "publish preview",
+      "description": "See everything that would change if you published this site right now: pages edited since the last publish, draft pages, and unpublished CMS items, alongside the site's redirect-rule count."
+    },
+    {
+      "name": "Query-driven bulk field set",
+      "command": "items bulk-set",
+      "description": "Apply the same field value to many CMS items selected by a condition. Previews the change set by default; --apply writes it, paced so you never hit a rate limit mid-run."
+    },
+    {
+      "name": "Collection field completeness",
+      "command": "collections completeness",
+      "description": "Per-field fill rate across a whole collection, so you can spot required fields nobody filled and schema fields nobody uses."
+    },
+    {
+      "name": "Redirect table audit",
+      "command": "redirects audit",
+      "description": "Catch redirects that shadow a live page, point nowhere, loop, or duplicate another rule."
+    },
+    {
+      "name": "Multi-site rollup",
+      "command": "overview",
+      "description": "One row per site you have synced locally: pages, collections, unpublished items, SEO findings, days since last publish."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Page SEO audit",
+      "command": "seo audit",
+      "description": "Find every page on a site with a missing, duplicated, or over-length SEO title or description before it costs you traffic."
+    },
+    {
+      "name": "Staged-vs-live drift",
+      "command": "drift",
+      "description": "See exactly which CMS items were edited in staging but never published, field by field."
+    },
+    {
+      "name": "Publish preview",
+      "command": "publish preview",
+      "description": "See everything that would change if you published this site right now: pages edited since the last publish, draft pages, and unpublished CMS items, alongside the site's redirect-rule count."
+    },
+    {
+      "name": "Query-driven bulk field set",
+      "command": "items bulk-set",
+      "description": "Apply the same field value to many CMS items selected by a condition. Previews the change set by default; --apply writes it, paced so you never hit a rate limit mid-run."
+    },
+    {
+      "name": "Collection field completeness",
+      "command": "collections completeness",
+      "description": "Per-field fill rate across a whole collection, so you can spot required fields nobody filled and schema fields nobody uses."
+    },
+    {
+      "name": "Redirect table audit",
+      "command": "redirects audit",
+      "description": "Catch redirects that shadow a live page, point nowhere, loop, or duplicate another rule."
+    },
+    {
+      "name": "Multi-site rollup",
+      "command": "overview",
+      "description": "One row per site you have synced locally: pages, collections, unpublished items, SEO findings, days since last publish."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 43,
+    "total": 43,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 94,
+      "grade": "A",
+      "total": 94
+    }
+  }
+}

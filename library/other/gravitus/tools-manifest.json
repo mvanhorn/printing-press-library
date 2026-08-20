@@ -1,0 +1,35 @@
+{
+  "api_name": "gravitus",
+  "base_url": "https://gravitus.com",
+  "description": "Scrape and analyze your Gravitus strength training data from the terminal",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "format": "sessionid={GRAVITUS_SESSION_ID}",
+    "env_vars": [
+      "GRAVITUS_SESSION_ID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GRAVITUS_SESSION_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_login_page",
+      "description": "Fetch login page to retrieve CSRF token. Returns the html.",
+      "method": "GET",
+      "path": "/accounts/sign_in/",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: art-goat
+  description: A contemplative daily art practice with museum and astronomy APIs as your gallery.
+  version: 1.0.0
+  x-cli-description: A contemplative daily art practice with museum and astronomy APIs as your gallery.
+  x-auth-instructions: NASA APOD ships with DEMO_KEY (rate-limited) by default. Get a free key at https://api.nasa.gov/ to remove the rate limit.
+servers:
+  - url: https://api.nasa.gov
+    description: NASA APOD endpoint base
+paths:
+  /planetary/apod:
+    get:
+      operationId: apod_get
+      summary: Get NASA Astronomy Picture of the Day
+      description: Fetch the Astronomy Picture of the Day for a given date or date range. Anonymous via DEMO_KEY.
+      parameters:
+        - name: api_key
+          in: query
+          schema:
+            type: string
+          description: NASA API key. Defaults to DEMO_KEY (rate-limited).
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Date for single APOD lookup (YYYY-MM-DD)
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date for a range query (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date for a range query (YYYY-MM-DD)
+        - name: count
+          in: query
+          schema:
+            type: integer
+          description: Return N random APOD entries
+        - name: thumbs
+          in: query
+          schema:
+            type: boolean
+          description: Include thumbnail URLs for video APODs
+      responses:
+        '200':
+          description: APOD entry or array of entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APOD'
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      in: query
+      name: api_key
+      x-auth-env-vars:
+        - ART_GOAT_API_KEY
+        - NASA_API_KEY
+  schemas:
+    APOD:
+      type: object
+      properties:
+        date:
+          type: string
+          description: YYYY-MM-DD date of the APOD entry
+        title:
+          type: string
+          description: APOD title
+        explanation:
+          type: string
+          description: Curator-written explanation (essay-length)
+        url:
+          type: string
+          description: URL of the image or video
+        hdurl:
+          type: string
+          description: High-resolution image URL when available
+        media_type:
+          type: string
+          description: Either "image" or "video"
+        service_version:
+          type: string
+        copyright:
+          type: string
+          description: Image copyright credit when not in the public domain
+        thumbnail_url:
+          type: string
+          description: Video thumbnail URL when thumbs=true and media_type=video
+security:
+  - api_key: []

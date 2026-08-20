@@ -1,0 +1,22 @@
+{
+  "title": "{{title}}",
+  "description": "Personalized mug for {{name}}",
+  "blueprint_id": 384,
+  "print_provider_id": 1,
+  "variants": [
+    {"id": 101, "price": "{{price}}", "is_enabled": true}
+  ],
+  "print_areas": [
+    {
+      "variant_ids": [101],
+      "placeholders": [
+        {
+          "position": "front",
+          "images": [
+            {"id": "{{image_id}}", "input_text": "{{name}}", "font_family": "Inter", "font_size": 24}
+          ]
+        }
+      ]
+    }
+  ]
+}

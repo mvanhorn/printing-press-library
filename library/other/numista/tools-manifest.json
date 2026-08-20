@@ -1,0 +1,683 @@
+{
+  "api_name": "numista",
+  "base_url": "https://api.numista.com/v3",
+  "description": "Numista provides a REST API to access the numismatic catalogue and collection data programmatically. The functionalities include coin search, coin identification by image, coin pricing, and coin collection management.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Numista-API-Key",
+    "in": "header",
+    "env_vars": [
+      "NUMISTA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "NUMISTA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalogues_get",
+      "description": "Retrieve the list of all the reference catalogues used for cross-reference in the catalogue. Returns the CataloguesGetResponse.",
+      "method": "GET",
+      "path": "/catalogues",
+      "params": []
+    },
+    {
+      "name": "issuers_get",
+      "description": "Retrieve the details about all the issuing countries and territories. Optional: lang (default: en). Returns the IssuersGetResponse.",
+      "method": "GET",
+      "path": "/issuers",
+      "params": [
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "mints_get",
+      "description": "Retrieve the details about all the mints. Optional: lang (default: en). Returns the MintsGetResponse.",
+      "method": "GET",
+      "path": "/mints",
+      "params": [
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "mints_get-mintid",
+      "description": "Retrieve the details about a specific mint. Required: mint_id. Optional: lang (default: en). Returns the Mint.",
+      "method": "GET",
+      "path": "/mints/{mint_id}",
+      "params": [
+        {
+          "name": "mint_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the mint",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "oauth-token_get",
+      "description": "In order to access the data of a Numista user, you will need to authenticate using the OAuth 2.0 protocol. See the section 'Authentication' above. Two types of authentications are available: authorization code and client credentials. For the 'authoriation code' flow, call the endpoint `/oauth_token` with the following parameters: - `grant_type` is 'authorization_code'. - `code` is the code you received in the query string of the back redirection described above. - `client_id` is the client ID which was assigned to your application and provided together with your API key. - `client_secret` is your API key. - `redirect_uri` is the redirection URI you specified for the step described above. For the 'client credentials' flow, call the endpoint `/oauth_token` with the following parameters: - `grant_type` is 'client_credentials'. - `scope` is a comma-separated list of permissions you are requesting (e.g. 'view_collection'). You may use the resulting access token for all subsequent API calls which need user authentication. The access token should be provided in the HTTP header of the subsequent API calls according the following model: `Authorization: Bearer {access_token}` The access token has a limited validity period. The lifetime of the access token is indicated in the response of the API. Optional: grant_type (default: authorization_code), code, client_id (plus 3 more). Returns the OauthTokenGetResponse.",
+      "method": "GET",
+      "path": "/oauth_token",
+      "params": [
+        {
+          "name": "grant_type",
+          "type": "string",
+          "location": "query",
+          "description": "Grant type 'authorization_code' (default) or 'client_credentials'"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "query",
+          "description": "For grant type 'authorization_code', this is the authorization code (mandatory for grant type 'authorization_code')"
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "For grant type 'authorization_code', client ID (mandatory for grant type 'authorization_code')"
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "query",
+          "description": "For grant type 'authorization_code', client secret, which is the same as the API key (mandatory for grant type 'authorization_code')"
+        },
+        {
+          "name": "redirect_uri",
+          "type": "string",
+          "location": "query",
+          "description": "For grant type 'authorization_code', repeat the redirect URI used to get the authorization code (mandatory for grant type 'authorization_code')"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "A comma-separated list of permissions you are requesting (e.g. 'view_collection') (for grant type 'client_credentials')"
+        }
+      ]
+    },
+    {
+      "name": "publications_get",
+      "description": "Retrieve the details about a specific item in the literature catalogue. Required: id. Returns the Publication.",
+      "method": "GET",
+      "path": "/publications/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numista ID of the publication to fetch, starting with 'L' followed by 6 digits.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "types_get",
+      "description": "Retrieve the details about a specific type in the catalogue. Required: type_id. Optional: lang (default: en). Returns the Type.",
+      "method": "GET",
+      "path": "/types/{type_id}",
+      "params": [
+        {
+          "name": "type_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the type to fetch",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "types_search",
+      "description": "Search the catalogue for coin, banknote, and exonumia types. At least one of the following parameters should be provided: `q`, `issuer`, `catalogue`, `date`, or `year`. Optional: lang (default: en), q, object_type (plus 12 more). Returns the TypesSearchResponse.",
+      "method": "GET",
+      "path": "/types",
+      "params": [
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query"
+        },
+        {
+          "name": "object_type",
+          "type": "int",
+          "location": "query",
+          "description": "ID of a object type. If provided, only the objects of this type are returned."
+        },
+        {
+          "name": "issuer",
+          "type": "string",
+          "location": "query",
+          "description": "Issuer code. If provided, only the types from the given issuer are returned."
+        },
+        {
+          "name": "catalogue",
+          "type": "int",
+          "location": "query",
+          "description": "ID of a reference catalogue. If provided, only the types referenced in the given catalogue are returned."
+        },
+        {
+          "name": "number",
+          "type": "string",
+          "location": "query",
+          "description": "Number of the searched typed in a reference catalogue. This parameter works only with the other parameter `catalogue`."
+        },
+        {
+          "name": "ruler",
+          "type": "int",
+          "location": "query",
+          "description": "ID of a ruler. If provided, only the types issued by this ruler are returned."
+        },
+        {
+          "name": "material",
+          "type": "int",
+          "location": "query",
+          "description": "ID of a material. If provided, only the types made of this material are returned."
+        },
+        {
+          "name": "year",
+          "type": "string",
+          "location": "query",
+          "description": "Year (for example '1302'), or a range of years (for example '1800-1850'), as written on the item."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Year of the Gregorian calendar when the type was issued, or a range of years (for example '1789', '800-900')."
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Diameter of the item (or largest dimension for non-round objects) in millimetres, or a range of diameters (for example '10.5', '9-11')."
+        },
+        {
+          "name": "weight",
+          "type": "string",
+          "location": "query",
+          "description": "Weight of the item in grams, or a range of weights (for example '31.1', '10-12')."
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Catalogue category"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page"
+        }
+      ]
+    },
+    {
+      "name": "types_issues_get",
+      "description": "The types in the catalogue have one or more issues for the different years, mintmarks and varieties. Required: type_id. Optional: lang (default: en). Returns array of Issue.",
+      "method": "GET",
+      "path": "/types/{type_id}/issues",
+      "params": [
+        {
+          "name": "type_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the type to fetch the issues from",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "types_issues_get-prices",
+      "description": "Get estimates for the price of an issue, depending on the grade. Required: type_id, issue_id. Optional: currency (default: EUR), lang (default: en). Returns the IssuesGetPricesResponse.",
+      "method": "GET",
+      "path": "/types/{type_id}/issues/{issue_id}/prices",
+      "params": [
+        {
+          "name": "type_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the type",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the issue",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "3-letter ISO 4217 currency code"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get details about a user. Required: user_id. Optional: lang (default: en). Returns the UsersGetResponse.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language"
+        }
+      ]
+    },
+    {
+      "name": "users_collected-items_add",
+      "description": "This functionality requires the OAuth 2.0 authentication with the scope 'edit_collection'. Required: user_id, type. Optional: acquisition_date, acquisition_place, axis (plus 14 more). Returns the new CollectedItem.",
+      "method": "POST",
+      "path": "/users/{user_id}/collected_items",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "acquisition_date",
+          "type": "string",
+          "location": "body",
+          "description": "Acquisition date (YYYY-MM-DD)"
+        },
+        {
+          "name": "acquisition_place",
+          "type": "string",
+          "location": "body",
+          "description": "Acquisition place"
+        },
+        {
+          "name": "axis",
+          "type": "int",
+          "location": "body",
+          "description": "Axis, h (integers from 1 to 12)"
+        },
+        {
+          "name": "collection",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the collection."
+        },
+        {
+          "name": "for_swap",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicate whether the item is available for swap"
+        },
+        {
+          "name": "grade",
+          "type": "string",
+          "location": "body",
+          "description": "Grade of the item"
+        },
+        {
+          "name": "grading_details",
+          "type": "string",
+          "location": "body",
+          "description": "Grading details"
+        },
+        {
+          "name": "internal_id",
+          "type": "string",
+          "location": "body",
+          "description": "Internal ID"
+        },
+        {
+          "name": "issue",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the issue of the item"
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "body",
+          "description": "Price"
+        },
+        {
+          "name": "private_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Private comment"
+        },
+        {
+          "name": "public_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Public comment"
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity of items"
+        },
+        {
+          "name": "serial_number",
+          "type": "string",
+          "location": "body",
+          "description": "Serial number"
+        },
+        {
+          "name": "size",
+          "type": "float",
+          "location": "body",
+          "description": "Size, mm"
+        },
+        {
+          "name": "storage_location",
+          "type": "string",
+          "location": "body",
+          "description": "Storage location"
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the type of the item",
+          "required": true
+        },
+        {
+          "name": "weight",
+          "type": "float",
+          "location": "body",
+          "description": "Weight, g"
+        }
+      ]
+    },
+    {
+      "name": "users_collected-items_delete",
+      "description": "This functionality requires the OAuth 2.0 authentication with the scope 'edit_collection'. Required: user_id, item_id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{user_id}/collected_items/{item_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the collected item",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_collected-items_edit",
+      "description": "All fields in the request body are optional. Only the fields which are present will be updated. This functionality requires the OAuth 2.0 authentication with the scope 'edit_collection'. Required: user_id, item_id. Optional: acquisition_date, acquisition_place, axis (plus 15 more). Returns the updated CollectedItem.",
+      "method": "PATCH",
+      "path": "/users/{user_id}/collected_items/{item_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the collected item",
+          "required": true
+        },
+        {
+          "name": "acquisition_date",
+          "type": "string",
+          "location": "body",
+          "description": "Acquisition date (YYYY-MM-DD)"
+        },
+        {
+          "name": "acquisition_place",
+          "type": "string",
+          "location": "body",
+          "description": "Acquisition place"
+        },
+        {
+          "name": "axis",
+          "type": "int",
+          "location": "body",
+          "description": "Axis, h (integers from 1 to 12)"
+        },
+        {
+          "name": "collection",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the collection."
+        },
+        {
+          "name": "for_swap",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicate whether the item is available for swap"
+        },
+        {
+          "name": "grade",
+          "type": "string",
+          "location": "body",
+          "description": "Grade of the item, or null for undetermined grade"
+        },
+        {
+          "name": "grading_details",
+          "type": "string",
+          "location": "body",
+          "description": "Grading details"
+        },
+        {
+          "name": "internal_id",
+          "type": "string",
+          "location": "body",
+          "description": "Internal ID"
+        },
+        {
+          "name": "issue",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the issue of the item, or null for undetermined issue"
+        },
+        {
+          "name": "price",
+          "type": "object",
+          "location": "body",
+          "description": "Buying price"
+        },
+        {
+          "name": "private_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Private comment"
+        },
+        {
+          "name": "public_comment",
+          "type": "string",
+          "location": "body",
+          "description": "Public comment"
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity of items"
+        },
+        {
+          "name": "serial_number",
+          "type": "string",
+          "location": "body",
+          "description": "Serial number"
+        },
+        {
+          "name": "size",
+          "type": "float",
+          "location": "body",
+          "description": "Size, mm"
+        },
+        {
+          "name": "storage_location",
+          "type": "string",
+          "location": "body",
+          "description": "Storage location"
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the type of the item"
+        },
+        {
+          "name": "weight",
+          "type": "float",
+          "location": "body",
+          "description": "Weight, g"
+        }
+      ]
+    },
+    {
+      "name": "users_collected-items_get",
+      "description": "Retrieve the details about all the items (coins, banknotes, pieces of exonumia) in collected by the user. This functionality requires the OAuth 2.0 authentication with the scope 'view_collection'. Required: user_id. Optional: category, type, collection. Returns the CollectedItemsGetResponse.",
+      "method": "GET",
+      "path": "/users/{user_id}/collected_items",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Category. If this parameter is provided, only items of the given category are returned."
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "query",
+          "description": "Type ID. If this parameter is provided, only items of the given type are returned."
+        },
+        {
+          "name": "collection",
+          "type": "int",
+          "location": "query",
+          "description": "Collection ID. If this parameter is provided, only items in the given collection are returned."
+        }
+      ]
+    },
+    {
+      "name": "users_collected-items_get-users",
+      "description": "Retrieve the details about a specific item collected by the user. This functionality requires the OAuth 2.0 authentication with the scope 'view_collection'. Required: user_id, item_id. Returns the CollectedItem.",
+      "method": "GET",
+      "path": "/users/{user_id}/collected_items/{item_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the collected item",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_collections_get-user",
+      "description": "A user can organize their items in multiple collections. This functionality requires the OAuth 2.0 authentication with the scope 'view_collection'. Required: user_id. Returns the CollectionsGetUserResponse.",
+      "method": "GET",
+      "path": "/users/{user_id}/collections",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

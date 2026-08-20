@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bq-default-empty",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Set --bq flag default to empty string in promoted_free.go and promoted_suggest.go (was a JSON-encoded Solr literal that the Solr parser rejected).",
+  "reason": "The generator emits array-typed Solr query params with their JSON-array default value baked into the flag default. When a user runs `free --q foo` without overriding --bq, the JSON array string `[\"type:provincie^1.5\",...]` ships to Solr verbatim, which Solr can't parse and returns HTTP 400. Empty default lets the server-side default apply.",
+  "files": [
+    "internal/cli/promoted_free.go",
+    "internal/cli/promoted_suggest.go"
+  ],
+  "validated_outcome": "`pdok-location-pp-cli free --q amsterdam --rows 1` returns 200 with the expected match."
+}

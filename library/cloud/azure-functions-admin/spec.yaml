@@ -1,0 +1,219 @@
+name: azure-functions-admin
+description: "Read-only inspector for Azure Functions: inventory, app settings, keys, plans, and Application Insights-backed cold-start and plan-fit analysis."
+version: "0.1.0"
+base_url: "https://management.azure.com"
+category: cloud
+health_check_path: "/subscriptions?api-version=2022-12-01"
+
+# Azure Resource Manager uses an Azure AD bearer token. The spec models it as
+# bearer_token so the generated client attaches `Authorization: Bearer <token>`;
+# the hand-authored internal/client/azure_auth.go acquires that token from
+# azidentity.DefaultAzureCredential using the AZURE_* service-principal env vars
+# (or an `az login` session), and internal/config/azure_config.go reads
+# AZURE_SUBSCRIPTION_ID. See the build log for the auth-layer extension.
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - AZURE_TENANT_ID
+    - AZURE_CLIENT_ID
+    - AZURE_CLIENT_SECRET
+    - AZURE_SUBSCRIPTION_ID
+
+config:
+  format: toml
+  path: "~/.config/azure-functions-admin/config.toml"
+
+resources:
+  subscriptions:
+    description: "List Azure subscriptions reachable by the current credential"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions?api-version=2022-12-01"
+        description: "List accessible subscriptions"
+        response:
+          type: array
+          item: Subscription
+        response_path: value
+
+  apps:
+    description: "Inspect Azure Function Apps (Microsoft.Web/sites where kind~functionapp)"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions/{subscriptionId}/providers/Microsoft.Web/sites?api-version=2024-11-01"
+        description: "List Function Apps in a subscription (filter kind~functionapp)"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID (defaults to AZURE_SUBSCRIPTION_ID)"
+        response:
+          type: array
+          item: Site
+        response_path: value
+      get:
+        method: GET
+        path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}?api-version=2024-11-01"
+        description: "Get a single Function App"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID"
+          - name: resourceGroup
+            type: string
+            required: true
+            positional: true
+            description: "Resource group name"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Function App name"
+        response:
+          type: object
+          item: Site
+
+  functions:
+    description: "List functions within a Function App"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/functions?api-version=2024-11-01"
+        description: "List functions in a Function App"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID"
+          - name: resourceGroup
+            type: string
+            required: true
+            positional: true
+            description: "Resource group name"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Function App name"
+        response:
+          type: array
+          item: FunctionEnvelope
+        response_path: value
+
+  settings:
+    description: "Read Function App application settings"
+    endpoints:
+      list:
+        method: POST
+        path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/config/appsettings/list?api-version=2024-11-01"
+        description: "List application settings (values are masked by the analysis layer)"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID"
+          - name: resourceGroup
+            type: string
+            required: true
+            positional: true
+            description: "Resource group name"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Function App name"
+        response:
+          type: object
+          item: StringDictionary
+
+  plans:
+    description: "List App Service / hosting plans (serverfarms)"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions/{subscriptionId}/providers/Microsoft.Web/serverfarms?api-version=2024-11-01"
+        description: "List hosting plans (tier decode: Y1=Consumption, EP*=Premium, P*=Dedicated)"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID"
+        response:
+          type: array
+          item: AppServicePlan
+        response_path: value
+
+  slots:
+    description: "List deployment slots for a Function App"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/slots?api-version=2024-11-01"
+        description: "List deployment slots"
+        params:
+          - name: subscriptionId
+            type: string
+            required: true
+            positional: true
+            description: "Azure subscription ID"
+          - name: resourceGroup
+            type: string
+            required: true
+            positional: true
+            description: "Resource group name"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Function App name"
+        response:
+          type: array
+          item: Site
+        response_path: value
+
+types:
+  Subscription:
+    fields:
+      - name: subscriptionId
+        type: string
+      - name: displayName
+        type: string
+      - name: state
+        type: string
+  Site:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: kind
+        type: string
+      - name: location
+        type: string
+  FunctionEnvelope:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  StringDictionary:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  AppServicePlan:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string

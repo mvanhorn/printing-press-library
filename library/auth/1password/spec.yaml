@@ -1,0 +1,37 @@
+name: 1password
+display_name: "1Password Agent Secrets"
+description: "Agent-safe command layer over the official 1Password CLI and SDK service-account workflows."
+version: "2026.06"
+source: local-sqlite
+health_check_path: /status
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/1password-pp-cli/config.toml"
+mcp:
+  transport: [stdio, http]
+  orchestration: endpoint-mirror
+  endpoint_tools: hidden
+resources:
+  op:
+    description: "Inspect the local 1Password CLI authentication surface"
+    endpoints:
+      status:
+        method: GET
+        path: /status
+        description: "Show whether op is installed and authenticated without reading secret values"
+        response:
+          type: object
+          item: OpStatus
+types:
+  OpStatus:
+    fields:
+      - name: op_path
+        type: string
+      - name: op_version
+        type: string
+      - name: auth_mode
+        type: string
+      - name: authenticated
+        type: bool

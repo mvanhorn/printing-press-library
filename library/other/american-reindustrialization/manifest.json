@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "american-reindustrialization-pp-mcp",
+  "display_name": "American Reindustrialization",
+  "version": "4.9.0",
+  "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector heatmaps, and offline SQL no website view shows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/american-reindustrialization-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/american-reindustrialization-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T21:05:36.675008Z",
+  "printing_press_version": "4.16.0",
+  "api_name": "defillama",
+  "display_name": "Defillama",
+  "cli_name": "defillama-pp-cli",
+  "creator": {
+    "handle": "kierandotai",
+    "name": "kierandotai"
+  },
+  "owner": "kierandotai",
+  "printer": "kierandotai",
+  "printer_name": "kierandotai",
+  "spec_url": "https://defillama.com/docs/api",
+  "spec_path": "defillama-api.printing-press.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:590b63217e091e0480e04e98278af06389ee89e0fc6c6348126ac0da56cf0f5a",
+  "run_id": "20260526-210536",
+  "category": "other",
+  "description": "DefiLlama offers two ways to use our data with AI:",
+  "mcp_binary": "defillama-pp-mcp",
+  "mcp_tool_count": 114,
+  "mcp_public_tool_count": 114,
+  "mcp_ready": "full",
+  "api_version": "1.0.0-oas3",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Compound workflows",
+      "command": "defillama-pp-cli workflow",
+      "description": "Run multi-step DefiLlama workflows that combine API operations for agent-friendly analysis."
+    },
+    {
+      "name": "Offline analytics",
+      "command": "defillama-pp-cli analytics",
+      "description": "Query locally synced DefiLlama data for repeatable analysis without re-fetching every endpoint."
+    },
+    {
+      "name": "Live/local search",
+      "command": "defillama-pp-cli search",
+      "description": "Search across synced DefiLlama data or live API resources from one command."
+    }
+  ],
+  "spec_source": "official"
+}

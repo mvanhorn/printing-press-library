@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "u4-unified-command-router",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "`tesla command <name> [--vehicle ...] [--via=auto|fleet|hermes|ble] [--send]` unified router. Path picker in internal/cli/tesla_signed_paths.go is a pure function (CommandClass, vehicleClass, fleetReady, hermesRunning, viaOverride) -> (path, reason). KD6 cost-honest default: Hermes-first for infotainment, Fleet for VCSEC. KD5 side-effect rule: prints intent without --send, fires only with --send. Token written to mode-600 temp file under ~/.config/tesla-pp-cli/tmp/ (mode 700 dir), deleted in defer, stale-tmp sweep helper exposed.",
+  "reason": "Without a unified router, the user has to know which path supports which command on which vehicle. The router carries that complexity for them and surfaces it via --via overrides + clear errors when a chosen path can't deliver a chosen command (e.g. --via=hermes unlock).",
+  "files": [
+    "internal/cli/tesla_command.go",
+    "internal/cli/tesla_command_test.go",
+    "internal/cli/tesla_signed_paths.go",
+    "internal/cli/tesla_signed_paths_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "53 tests pass (20 path-picker matrix rows + 15 classifyCommand + 14 command-router integration + 4 BLE recipe edge cases): default-print without --send, Fleet send with token-file shape assertion (mode 600 under private tmp), Hermes send via local relay with bearer header assertion, --via=fleet without creds errors, --via=hermes for VCSEC errors, vehicle resolution by name/VIN-suffix/substring/ambiguous, REST-friendly hint, BLE recipe surfacing, verify-mode short-circuit."
+}

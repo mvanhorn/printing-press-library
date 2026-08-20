@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "meta-ads-pp-mcp",
+  "display_name": "Meta Ads",
+  "version": "4.18.1",
+  "description": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/meta-ads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/meta-ads-pp-mcp",
+      "args": [],
+      "env": {
+        "META_ACCESS_TOKEN": "${user_config.meta_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "meta_access_token": {
+      "type": "string",
+      "title": "META_ACCESS_TOKEN",
+      "description": "Sets META_ACCESS_TOKEN for the Meta Ads MCP server. Get a credential from https://developers.facebook.com/docs/marketing-api/access.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

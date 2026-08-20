@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-friendly-empty-and-file-guards",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "emptyLocalStoreOK helper + file-not-found guards in events/fields/hygiene/sync_diff/tags/broadcasts commands for verify-friendly behavior.",
+  "reason": "Phase 5 dogfood runs commands without test fixtures; commands now emit valid JSON envelopes under --json instead of erroring.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/events.go",
+    "internal/cli/fields.go",
+    "internal/cli/hygiene.go",
+    "internal/cli/sync_diff.go",
+    "internal/cli/tags.go",
+    "internal/cli/broadcasts.go"
+  ]
+}

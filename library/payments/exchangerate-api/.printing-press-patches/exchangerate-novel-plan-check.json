@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-plan-check",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add plan-check command that probes /codes, /pair, /latest, /quota, /enriched, /history once each and reports the highest tier the key supports.",
+  "reason": "Free-tier users hit plan-upgrade-required errors on /enriched and /history with no clear signal which endpoints they can use. plan-check converts about 5 quota ticks into a definitive tier readout. Paths in output are masked via lastN(key, 4); raw key never appears in --json output.",
+  "files": [
+    "internal/cli/plan_check.go"
+  ],
+  "validated_outcome": "On a Free-tier key, plan-check reports detected_tier=Free with /enriched and /history correctly flagged as plan-upgrade-required and paths masked as /v6/****<last4>/..."
+}

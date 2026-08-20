@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "per-item-live-path-is-items-id-live",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Updating a single published CMS item is PATCH /collections/{id}/items/{item_id}/live; the plural /items/live is the bulk endpoint and 404s when given a trailing item id.",
+  "reason": "Webflow exposes two similarly-named live endpoints. Building the path as collection + '/items/live' + item id produces /items/live/{id}, which does not exist, so every write in a bulk run fails with 404 while the preview path looks healthy. Any hand-written code that writes live items must suffix /live after the item id, not before.",
+  "files": ["internal/cli/items_bulk_set.go"],
+  "validated_outcome": "",
+  "upstream_issue": ""
+}

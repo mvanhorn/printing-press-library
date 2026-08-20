@@ -6,23 +6,39 @@ Movie Goat unifies the workflows that today require four browser tabs: discovery
 
 Learn more at [Movie Goat](https://www.themoviedb.org).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
+
 ## Install
 
-The recommended path installs both the `movie-goat-pp-cli` binary and the `pp-movie-goat` agent skill in one shot:
+The recommended path installs both the `movie-goat-pp-cli` binary and the `pp-movie-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install movie-goat
+npx -y @mvanhorn/printing-press-library install movie-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install movie-goat --cli-only
+npx -y @mvanhorn/printing-press-library install movie-goat --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install movie-goat --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install movie-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install movie-goat --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest
@@ -37,6 +53,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install movie-goat --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -49,17 +73,71 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-movie-goat --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install movie-goat --agent openclaw
 ```
-Install the pp-movie-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-movie-goat. The skill defines how its required CLI can be installed.
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `TMDB_API_KEY` when Claude Desktop prompts you. Add `OMDB_API_KEY` too if you want IMDb, Rotten Tomatoes, and Metacritic enrichment in `ratings`, `versus`, and `career`.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-mcp@latest
 ```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "movie-goat": {
+      "command": "movie-goat-pp-mcp",
+      "env": {
+        "TMDB_API_KEY": "<your-tmdb-key>",
+        "OMDB_API_KEY": "<your-omdb-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
 
 ## Authentication
 
-TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and goes in `TMDB_API_KEY` — used as a query parameter, not a Bearer header. OMDb key (free, http://www.omdbapi.com/apikey.aspx) is optional and goes in `OMDB_API_KEY`; without it, `ratings` and `versus` show TMDb-only and gracefully omit the IMDb/RT/Metacritic columns.
+Movie Goat uses two API keys, and each can live in the config file or the environment.
+
+| Key | Required | Save to config | Environment variable |
+|---|---|---|---|
+| TMDb v3 (free, https://www.themoviedb.org/settings/api) | yes | `movie-goat-pp-cli auth set-token <token>` | `TMDB_API_KEY` |
+| OMDb (free, http://www.omdbapi.com/apikey.aspx) | no | `movie-goat-pp-cli auth set-omdb-token <token>` | `OMDB_API_KEY` |
+
+Both keys are stored in `~/.config/movie-goat-pp-cli/config.toml` (mode `0600`) as `api_key` and `omdb_api_key`. The environment variable wins over the saved value for either key, so an existing environment-based setup keeps working unchanged.
+
+The TMDb key is sent as a query parameter, not a Bearer header. Without an OMDb key, `ratings`, `versus`, and `career` show TMDb-only and gracefully omit the IMDb / RT / Metacritic columns.
+
+`movie-goat-pp-cli auth status` reports both credentials and where each resolved from; `movie-goat-pp-cli auth logout` clears both from the config file.
 
 ## Quick Start
 
@@ -102,6 +180,13 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   movie-goat-pp-cli ratings 550 --json
+  ```
+- **Remake-aware title resolution** — Every command that takes a title instead of a TMDb id tells you when the title is shared.
+
+  _TMDb's search ranks by a proprietary relevance score — not the vote count, not the `popularity` field — so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original leads on both. When a title has more than one well-rated match the CLI says so on **both** channels: a notice on stderr for humans, and a `meta.ambiguous` record in the JSON for scripts that run with `2>/dev/null`. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
+
+  ```bash
+  movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
   ```
 - **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
@@ -153,6 +238,15 @@ These capabilities aren't available in any other tool for this API.
 Run `movie-goat-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
+
+### auth
+
+Manage TMDB_API_KEY and OMDB_API_KEY credentials
+
+- **`movie-goat-pp-cli auth status`** - Show authentication status for both the TMDb and OMDb credentials
+- **`movie-goat-pp-cli auth set-token`** - Save the TMDb API token to the config file
+- **`movie-goat-pp-cli auth set-omdb-token`** - Save the optional OMDb API token to the config file
+- **`movie-goat-pp-cli auth logout`** - Clear stored credentials
 
 ### discover
 
@@ -255,7 +349,49 @@ movie-goat-pp-cli discover movies --with-genres 28,53 --primary-release-date-gte
 
 # 12. Recommendation queue from your watchlist (suggests next-watch picks).
 movie-goat-pp-cli queue --providers netflix,max --region US --limit 10
+
+# 13. Store both API keys in the config file, then confirm they were picked up.
+movie-goat-pp-cli auth set-token YOUR_TMDB_API_KEY
+movie-goat-pp-cli auth set-omdb-token YOUR_OMDB_API_KEY
+movie-goat-pp-cli auth status
+
+# 14. Pin the original instead of the remake. Bare "Sabrina" resolves to the 1995
+#     version (TMDb's search ranks it first) and prints the rival ids on stderr.
+movie-goat-pp-cli ratings "Sabrina" --year 1954
+movie-goat-pp-cli ratings "Sabrina (1954)"
+movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
+movie-goat-pp-cli watchlist add "Sabrina" --year 1954
 ```
+
+`--year` is available on `ratings`, `marathon`, and `watchlist add`; the inline
+`"Title (YYYY)"` suffix works on every command that accepts a title, including
+the two-positional `versus`.
+
+```bash
+# 14. Detect the ambiguity from a script that never reads stderr.
+movie-goat-pp-cli ratings "Sabrina" --agent 2>/dev/null | jq '.meta.ambiguous[0].signal'
+# → "alternative_better_rated"  (TMDb's top pick is not the best-rated match)
+movie-goat-pp-cli ratings "Inception" --agent 2>/dev/null | jq '.meta'
+# → null  (no ambiguity, so no field)
+```
+
+The `meta.ambiguous` record carries the query, the chosen entry, every notable
+alternative (tmdb_id, title, year, vote_count), and a `signal` of
+`alternative_better_rated` or `multiple_exact_matches`. It is a list because one
+command can resolve several titles — `versus` resolves two.
+
+`/search/*` orders results by a relevance score TMDb does not expose, so the top
+result is not necessarily the canonical edition. The `popularity` value in the
+record is TMDb's trending score passed through as-is; it is neither the ordering
+criterion nor what `signal` compares — that is `vote_count`. For "Sabrina" the
+1954 entry leads on both and is still returned second.
+
+It only appears when the stderr notice fires, so existing parsers see no change
+on unambiguous lookups. `--select` deliberately cannot filter it out (narrowing
+the field list is exactly what would hide it), and `--compact` / `--agent` keep
+it. `--quiet` silences the stderr notice but not the record — though on these
+commands `--quiet` already suppresses stdout entirely, so read the field with
+`--json` instead.
 
 ## Output Formats
 
@@ -290,74 +426,6 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-movie-goat -g
-```
-
-Then invoke `/pp-movie-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add -e TMDB_API_KEY=<your-tmdb-key> -e OMDB_API_KEY=<your-omdb-key> movie-goat -- movie-goat-pp-mcp
-```
-
-`OMDB_API_KEY` is optional, but it is what enables IMDb, Rotten Tomatoes, and Metacritic enrichment in the MCP command-mirror tools such as `ratings`, `versus`, and `career`.
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `TMDB_API_KEY` when Claude Desktop prompts you. Add `OMDB_API_KEY` too if you want IMDb, Rotten Tomatoes, and Metacritic enrichment in `ratings`, `versus`, and `career`.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "movie-goat": {
-      "command": "movie-goat-pp-mcp",
-      "env": {
-        "TMDB_API_KEY": "<your-tmdb-key>",
-        "OMDB_API_KEY": "<your-omdb-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
-
 ## Health Check
 
 ```bash
@@ -370,7 +438,11 @@ Verifies configuration, credentials, and connectivity to the API.
 
 Config file: `~/.config/movie-goat-pp-cli/config.toml`
 
-Environment variables:
+Credential fields in the config file:
+- `api_key` — TMDb v3 key, written by `auth set-token`
+- `omdb_api_key` — OMDb key, written by `auth set-omdb-token`
+
+Environment variables (each overrides the matching config-file field):
 - `TMDB_API_KEY`
 - `OMDB_API_KEY` (optional; enables IMDb, Rotten Tomatoes, and Metacritic enrichment)
 
@@ -385,7 +457,7 @@ Environment variables:
 ### API-specific
 
 - **401 Unauthorized: "Invalid API key: You must be granted a valid key."** — TMDb v3 keys (32-char hex) must be sent as a query parameter, not as a Bearer header. The CLI does this automatically — re-check that TMDB_API_KEY is set to the v3 key from https://www.themoviedb.org/settings/api, not a v4 read access token.
-- **`ratings` shows only the TMDb score and skips IMDb/RT/Metacritic columns.** — Set OMDB_API_KEY to a free key from http://www.omdbapi.com/apikey.aspx. Without it the CLI degrades to TMDb-only by design.
+- **`ratings` shows only the TMDb score and skips IMDb/RT/Metacritic columns.** — No OMDb key is configured. Save one with `movie-goat-pp-cli auth set-omdb-token <token>` (free key from http://www.omdbapi.com/apikey.aspx), or export `OMDB_API_KEY`. Without a key the CLI degrades to TMDb-only by design. Run `movie-goat-pp-cli auth status` to see whether the key was picked up and from where.
 - **`watchlist list --available` returns rows but every row says `not available`.** — Pass `--region` (e.g. `--region US`) and confirm `--providers` matches TMDb's canonical provider names exactly (e.g. `"Netflix"`, `"Max"`, `"Amazon Prime Video"`). Use `movie-goat-pp-cli movies get <id> --select watch_providers` to see the canonical names for any title.
 - **429 Too Many Requests when running `career` or `marathon` on long filmographies/collections.** — TMDb's rate limit is ~40 req/10s. The CLI's adaptive limiter ramps down on 429 automatically; rerun, and the ceiling will be discovered. For very long careers, use `--since YEAR` to scope the fan-out.
 

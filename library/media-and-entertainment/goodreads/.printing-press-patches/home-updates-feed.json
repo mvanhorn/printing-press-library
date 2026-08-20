@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "home-updates-feed",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added 'feed list' reading the home UPDATES feed (friends' activity) via read-only POST /home/load_more_updates with --page pagination.",
+  "reason": "The friends'-activity feed endpoint appeared in the live capture but was not wired by the generator; required by the feature list.",
+  "files": [
+    "internal/cli/feed.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ]
+}

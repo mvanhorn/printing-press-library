@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mcp-prune-redundant-tools",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Removed 14 redundant AddTool blocks from internal/mcp/tools.go: 13 `collections_get-<collection>` mirrors and the `pdok-location-search_search` raw endpoint mirror.",
+  "reason": "The 13 per-collection mirrors are constant-id forms of the parametric `collections_get` tool (one tool that takes the collection id covers them all). `pdok-location-search_search` is the auto-renamed broken endpoint that was already hidden from the CLI. Removing them improves token efficiency for agents loading the MCP tool list.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Tool count down from 24 to 10 in the hand-written set (the cobratree mirror still surfaces all user-facing Cobra commands)."
+}

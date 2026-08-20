@@ -1,0 +1,143 @@
+{
+  "api_name": "mobalytics-lol",
+  "base_url": "https://ddragon.leagueoflegends.com",
+  "description": "League of Legends data CLI combining Riot Data Dragon (reference data —\nchampions, items, runes, summoner spells, patches) with Mobalytics\naggregator data (tier list, champion builds, counters, matchups — hand-built\nvia the discovered GraphQL endpoints at mobalytics.gg/api/lol/graphql/v1/query).\n\nNo authentication required for either data source. Mobalytics Plus is a\nuser-overlay product and does not gate champion-page data.\n\nThe base spec covers Riot Data Dragon at ddragon.leagueoflegends.com. The\nMobalytics-specific commands (tier-list, champion-build, counters, matchups,\nmeta-shift, compare, power-spike, counter-pool, one-trick) are added as\nnovel features in Phase 3 hand-built code, posting to the Mobalytics\nGraphQL endpoint with queries extracted from the JS bundle during browser-sniff.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cdn_data_get-champion",
+      "description": "Returns the full champion record including abilities (passive + Q/W/E/R with descriptions and tooltips), skins, lore, allytips, enemytips, stats, and image data. The championId is the canonical Riot id (PascalCase, no spaces or apostrophes — e.g., `Aatrox`, `KaiSa`, `MonkeyKing` for Wukong). Required: version (default: latest), locale (default: en_US), championId.",
+      "method": "GET",
+      "path": "/cdn/{version}/data/{locale}/champion/{championId}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the newest version, or pass...",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.",
+          "required": true
+        },
+        {
+          "name": "championId",
+          "type": "string",
+          "location": "path",
+          "description": "Riot champion id in PascalCase (`Aatrox`, `KaiSa`, `MonkeyKing`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdn_data_list-champions",
+      "description": "Returns champion summary records keyed by champion id. Includes name, title, blurb, tags (roles), info (attack/defense/magic/difficulty), partype (mana/energy/none), and image references. Required: version (default: latest), locale (default: en_US).",
+      "method": "GET",
+      "path": "/cdn/{version}/data/{locale}/champion.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the newest version, or pass...",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdn_data_list-items",
+      "description": "Returns the full item catalog including stats, gold cost, build paths (`from` and `into`), tags, descriptions, and image references. Required: version (default: latest), locale (default: en_US).",
+      "method": "GET",
+      "path": "/cdn/{version}/data/{locale}/item.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the newest version, or pass...",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdn_data_list-runes",
+      "description": "Returns the 5 rune trees (Precision, Domination, Sorcery, Resolve, Inspiration) and each tree's keystone, slot 1/2/3, and shards. Each rune has id, name, icon, shortDesc, longDesc. Required: version (default: latest), locale (default: en_US).",
+      "method": "GET",
+      "path": "/cdn/{version}/data/{locale}/runesReforged.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the newest version, or pass...",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdn_data_list-summoner-spells",
+      "description": "Returns the summoner spell catalog (Flash, Ignite, Teleport, etc.) keyed by spell id, including cooldown, range, modes (CLASSIC, ARAM), description, and image data. Required: version (default: latest), locale (default: en_US).",
+      "method": "GET",
+      "path": "/cdn/{version}/data/{locale}/summoner.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the newest version, or pass...",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "versions-json_list-versions",
+      "description": "Returns the full list of LoL patch versions known to Data Dragon, newest first. The first element is the current patch.",
+      "method": "GET",
+      "path": "/api/versions.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

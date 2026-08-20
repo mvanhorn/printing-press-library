@@ -1,0 +1,267 @@
+{
+  "api_name": "opensnow",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "jwise/snow",
+      "url": "https://github.com/jwise/snow",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "meccaLeccaHi/snow_scraper",
+      "url": "https://github.com/meccaLeccaHi/snow_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T18:35:00Z",
+  "novel_features": [
+    {
+      "name": "Powder Day Scorer",
+      "command": "powder-score",
+      "description": "Rate upcoming days 1-10 for powder quality by combining forecast snow totals, wind, temperature, and historical averages",
+      "rationale": "Requires correlating forecast data with cached historical averages that only exist in the local SQLite store",
+      "example": "opensnow-pp-cli powder-score alta --days 5 --agent",
+      "why_it_matters": "When an agent needs to recommend the single best day to ski this week, this command gives a scored ranking instead of raw forecast numbers",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Multi-Resort Powder Ranker",
+      "command": "powder-rank",
+      "description": "Rank all synced resorts by powder potential, combining expected snowfall, base depth, and terrain openness",
+      "rationale": "Requires cross-resort aggregation of forecast and report data that no single API call provides",
+      "example": "opensnow-pp-cli powder-rank --slugs alta,steamboat,telluride --agent",
+      "why_it_matters": "When an agent needs to answer 'where should I ski this weekend in Colorado', this gives a ranked list with scores",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Storm Tracker",
+      "command": "storm-track",
+      "description": "Show storm progression \u2014 when snow starts, peaks, and ends \u2014 by correlating rolling hourly forecasts over time",
+      "rationale": "Requires time-series analysis of cached hourly forecast snapshots that only exist locally",
+      "example": "opensnow-pp-cli storm-track telluride --agent",
+      "why_it_matters": "When planning travel around a storm, this shows exactly when to arrive and when the storm window closes",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Favorites Dashboard",
+      "command": "dashboard",
+      "description": "One-command view of all favorited locations with current temp, 24h snow, 5-day total, and operating status",
+      "rationale": "Requires local favorites list and parallel API calls across multiple locations joined in one view",
+      "example": "opensnow-pp-cli dashboard --agent",
+      "why_it_matters": "Replaces opening the OpenSnow app \u2014 one command shows everything an agent needs about the user's preferred mountains",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Overnight Snowfall Check",
+      "command": "overnight",
+      "description": "Check the semi-daily forecast for the overnight period at favorited resorts \u2014 the powder hunter's morning ritual",
+      "rationale": "Extracts the overnight (6pm-6am) segment from semi-daily forecasts and presents it as a simple answer",
+      "example": "opensnow-pp-cli overnight --agent",
+      "why_it_matters": "The first question every skier asks: 'How much snow fell overnight?' This answers it for all favorites in one call",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Conditions Diff",
+      "command": "diff",
+      "description": "Compare current snow report against the last-synced version to see what changed: new snow, lifts opened or closed, status changes",
+      "rationale": "Requires comparing current API data against previously cached snapshots in SQLite",
+      "example": "opensnow-pp-cli diff alta --agent",
+      "why_it_matters": "Agents monitoring resort conditions can detect meaningful changes without parsing raw reports",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily Snow Digest",
+      "command": "digest",
+      "description": "Pull all Daily Snow posts for favorited regions, strip HTML to clean text, and show a summary digest",
+      "rationale": "Aggregates multiple Daily Snow posts across regions and renders HTML content as readable terminal text",
+      "example": "opensnow-pp-cli digest --region colorado,tahoe --agent",
+      "why_it_matters": "Expert forecasts from OpenSnow meteorologists, rendered for agents and terminals instead of requiring a browser",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Historical Snowfall Trends",
+      "command": "history",
+      "description": "Show snowfall trends, season totals vs averages, and base depth progression from cached report snapshots",
+      "rationale": "Requires accumulated historical snapshots in SQLite \u2014 the API only returns current data",
+      "example": "opensnow-pp-cli history steamboat --days 30 --agent",
+      "why_it_matters": "When planning a trip weeks out, historical context shows whether the mountain is trending up or down",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Powder Day Scorer",
+      "command": "powder-score",
+      "description": "Rate upcoming days 1-10 for powder quality by combining forecast snow totals, wind, temperature, and historical averages",
+      "rationale": "Requires correlating forecast data with cached historical averages that only exist in the local SQLite store",
+      "example": "opensnow-pp-cli powder-score alta --days 5 --agent",
+      "why_it_matters": "When an agent needs to recommend the single best day to ski this week, this command gives a scored ranking instead of raw forecast numbers",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Multi-Resort Powder Ranker",
+      "command": "powder-rank",
+      "description": "Rank all synced resorts by powder potential, combining expected snowfall, base depth, and terrain openness",
+      "rationale": "Requires cross-resort aggregation of forecast and report data that no single API call provides",
+      "example": "opensnow-pp-cli powder-rank --region CO --days 3 --agent",
+      "why_it_matters": "When an agent needs to answer 'where should I ski this weekend in Colorado', this gives a ranked list with scores",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Storm Tracker",
+      "command": "storm-track",
+      "description": "Show storm progression \u2014 when snow starts, peaks, and ends \u2014 by correlating rolling hourly forecasts over time",
+      "rationale": "Requires time-series analysis of cached hourly forecast snapshots that only exist locally",
+      "example": "opensnow-pp-cli storm-track telluride --agent",
+      "why_it_matters": "When planning travel around a storm, this shows exactly when to arrive and when the storm window closes",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Favorites Dashboard",
+      "command": "dashboard",
+      "description": "One-command view of all favorited locations with current temp, 24h snow, 5-day total, and operating status",
+      "rationale": "Requires local favorites list and parallel API calls across multiple locations joined in one view",
+      "example": "opensnow-pp-cli dashboard --agent",
+      "why_it_matters": "Replaces opening the OpenSnow app \u2014 one command shows everything an agent needs about the user's preferred mountains",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Overnight Snowfall Check",
+      "command": "overnight",
+      "description": "Check the semi-daily forecast for the overnight period at favorited resorts \u2014 the powder hunter's morning ritual",
+      "rationale": "Extracts the overnight (6pm-6am) segment from semi-daily forecasts and presents it as a simple answer",
+      "example": "opensnow-pp-cli overnight --agent",
+      "why_it_matters": "The first question every skier asks: 'How much snow fell overnight?' This answers it for all favorites in one call",
+      "group": "Powder intelligence"
+    },
+    {
+      "name": "Conditions Diff",
+      "command": "diff",
+      "description": "Compare current snow report against the last-synced version to see what changed: new snow, lifts opened or closed, status changes",
+      "rationale": "Requires comparing current API data against previously cached snapshots in SQLite",
+      "example": "opensnow-pp-cli diff alta --agent",
+      "why_it_matters": "Agents monitoring resort conditions can detect meaningful changes without parsing raw reports",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily Snow Digest",
+      "command": "digest",
+      "description": "Pull all Daily Snow posts for favorited regions, strip HTML to clean text, and show a summary digest",
+      "rationale": "Aggregates multiple Daily Snow posts across regions and renders HTML content as readable terminal text",
+      "example": "opensnow-pp-cli digest --region colorado,tahoe --agent",
+      "why_it_matters": "Expert forecasts from OpenSnow meteorologists, rendered for agents and terminals instead of requiring a browser",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Historical Snowfall Trends",
+      "command": "history",
+      "description": "Show snowfall trends, season totals vs averages, and base depth progression from cached report snapshots",
+      "rationale": "Requires accumulated historical snapshots in SQLite \u2014 the API only returns current data",
+      "example": "opensnow-pp-cli history steamboat --days 30 --agent",
+      "why_it_matters": "When planning a trip weeks out, historical context shows whether the mountain is trending up or down",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "OpenSnow",
+    "headline": "Every OpenSnow forecast, snow report, and Daily Snow post \u2014 plus powder scoring, storm tracking, and historical trends no other tool has.",
+    "value_prop": "The OpenSnow CLI puts the same hyper-local mountain forecasts trusted by millions of skiers directly into your terminal. Sync resort data to a local SQLite store, then score powder days, rank resorts, and track storms offline. The Daily Snow digest brings expert meteorologist forecasts to your terminal without opening a browser.",
+    "auth_narrative": "OpenSnow API access is partnership-only. Set your API key with `opensnow-pp-cli config set-token <key>`. The key is stored locally and passed as a query parameter on every request. Access level 5 covers point-based forecasts; level 10 unlocks named locations, snow reports, and Daily Snow.",
+    "quickstart": [
+      {
+        "command": "opensnow-pp-cli config set-token YOUR_API_KEY",
+        "comment": "Set your OpenSnow API key (partnership access required)"
+      },
+      {
+        "command": "opensnow-pp-cli doctor",
+        "comment": "Verify API key is valid and API is reachable"
+      },
+      {
+        "command": "opensnow-pp-cli forecast detail alta",
+        "comment": "Get the 5-day forecast for Alta"
+      },
+      {
+        "command": "opensnow-pp-cli report steamboat",
+        "comment": "Get Steamboat's latest snow report"
+      },
+      {
+        "command": "opensnow-pp-cli daily-snow colorado",
+        "comment": "Read the Colorado Daily Snow forecast"
+      },
+      {
+        "command": "opensnow-pp-cli favorites add alta steamboat telluride",
+        "comment": "Save your favorite resorts"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Run `opensnow-pp-cli config set-token <key>` \u2014 the API key must be set before any request"
+      },
+      {
+        "symptom": "403 Forbidden on /forecast/detail",
+        "fix": "Your API key has access level 5 \u2014 named-location endpoints require level 10. Contact hello@opensnow.com to upgrade."
+      },
+      {
+        "symptom": "Empty snow report (all nulls)",
+        "fix": "Resort may be closed for the season. Check status_display field \u2014 'Closed' or 'Summer Operations' means no active snow data."
+      },
+      {
+        "symptom": "No results for a location slug",
+        "fix": "Slugs are case-sensitive and specific. Try common names: alta, steamboat, aspenhighlands. Email hello@opensnow.com for the full slug list."
+      }
+    ],
+    "when_to_use": "Use the OpenSnow CLI when you need mountain weather forecasts with snow-specific detail \u2014 day/night snowfall splits, powder quality, and resort operating status. Ideal for trip planning agents that need to compare resorts, track storms, or answer 'where should I ski this weekend?' The Daily Snow digest provides expert meteorologist analysis not available from generic weather APIs.",
+    "recipes": [
+      {
+        "title": "Best powder day this week",
+        "command": "opensnow-pp-cli powder-rank --slugs alta,steamboat,telluride --agent --select resort,score,expected_snow,conditions",
+        "explanation": "Ranks all synced Colorado resorts by powder potential for the next 5 days, returning only key fields for agent consumption"
+      },
+      {
+        "title": "Morning snow check",
+        "command": "opensnow-pp-cli overnight --agent --select name,precip_snow,conditions_label",
+        "explanation": "Quick check of overnight snowfall at all favorited resorts \u2014 the powder hunter's morning ritual"
+      },
+      {
+        "title": "Compare two resorts",
+        "command": "opensnow-pp-cli compare alta steamboat --agent",
+        "explanation": "Side-by-side comparison of forecasts and conditions for trip planning"
+      },
+      {
+        "title": "Expert forecast digest",
+        "command": "opensnow-pp-cli digest --region colorado --agent",
+        "explanation": "Read today's Daily Snow from OpenSnow's meteorologists in terminal-friendly format"
+      },
+      {
+        "title": "Storm watch",
+        "command": "opensnow-pp-cli storm-track telluride --agent --select period,precip_snow,wind_speed",
+        "explanation": "Track when the next storm starts, peaks, and ends at Telluride with narrowed fields for agent context"
+      }
+    ],
+    "trigger_phrases": [
+      "check snow conditions",
+      "how much snow at alta",
+      "powder forecast this week",
+      "compare ski resorts",
+      "daily snow report",
+      "use opensnow",
+      "run opensnow"
+    ]
+  }
+}

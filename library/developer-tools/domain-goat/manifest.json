@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "domain-goat-pp-mcp",
+  "display_name": "Domain Goat",
+  "version": "4.4.0",
+  "description": "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/domain-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/domain-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

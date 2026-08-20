@@ -1,0 +1,366 @@
+{
+  "_meta": {
+    "endpoint": "GET https://reignite-api.athlinks.com/event/{eventId}/results?correlationId=&from={from}&limit={limit}",
+    "captured_url": "https://reignite-api.athlinks.com/event/1094411/results?correlationId=&from=0&limit=10",
+    "event": "Paraguay Multisport Challenge 2024 (masterEventId=390468, eventId=1094411)",
+    "auth": "Authorization: Bearer <token> required",
+    "note": "Returns array of race groups. Each element covers one race (course) within the event. Times are in milliseconds. Rankings are chip-time based."
+  },
+  "data": [
+    {
+      "division": {
+        "id": 2451310,
+        "name": "Overall",
+        "rankType": "chip",
+        "totalAthletes": 11,
+        "type": "overall"
+      },
+      "intervals": [
+        {
+          "distance": {
+            "meters": 2000,
+            "metersFromStart": 2000,
+            "units": "km"
+          },
+          "full": true,
+          "id": 562851,
+          "name": "Full Course",
+          "paceUnits": "min/km",
+          "raceType": "run",
+          "results": [
+            {
+              "age": 36,
+              "bib": "8420",
+              "chipTimeInMillis": 535000,
+              "displayName": "SAMPLE RUNNER",
+              "gender": "M",
+              "gunTimeInMillis": 540000,
+              "id": 70078023,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 1,
+                "overall": 1,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773300960,
+              "status": "CONF"
+            },
+            {
+              "age": 50,
+              "bib": "8443",
+              "chipTimeInMillis": 544000,
+              "displayName": "SAMPLE RUNNER B",
+              "gender": "M",
+              "gunTimeInMillis": 547000,
+              "id": 70078051,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 2,
+                "overall": 2,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773299220,
+              "status": "CONF"
+            },
+            {
+              "age": 33,
+              "bib": "8434",
+              "chipTimeInMillis": 555000,
+              "displayName": "SAMPLE RUNNER C",
+              "gender": "M",
+              "gunTimeInMillis": 564000,
+              "id": 70078052,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 3,
+                "overall": 3,
+                "primary": 2
+              },
+              "startTimeInMillis": 1729773304850,
+              "status": "CONF"
+            },
+            {
+              "age": 48,
+              "bib": "8421",
+              "chipTimeInMillis": 643000,
+              "displayName": "SAMPLE RUNNER D",
+              "gender": "M",
+              "gunTimeInMillis": 647000,
+              "id": 70078050,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 4,
+                "overall": 4,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773299920,
+              "status": "CONF"
+            },
+            {
+              "age": null,
+              "bib": "8436",
+              "chipTimeInMillis": 722000,
+              "displayName": "SAMPLE RUNNER E",
+              "gender": "F",
+              "gunTimeInMillis": 724000,
+              "id": 70078022,
+              "location": null,
+              "private": true,
+              "racerId": 583005986,
+              "rankings": {
+                "gender": 1,
+                "overall": 5,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773298360,
+              "status": "CONF"
+            },
+            {
+              "age": 51,
+              "bib": "8431",
+              "chipTimeInMillis": 836000,
+              "displayName": "SAMPLE RUNNER F",
+              "gender": "F",
+              "gunTimeInMillis": 841000,
+              "id": 70078037,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 2,
+                "overall": 6,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773300290,
+              "status": "CONF"
+            },
+            {
+              "age": 35,
+              "bib": "8426",
+              "chipTimeInMillis": 838000,
+              "displayName": "SAMPLE RUNNER G",
+              "gender": "F",
+              "gunTimeInMillis": 845000,
+              "id": 70078029,
+              "location": {
+                "country": "PY",
+                "locality": "Limpio",
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 3,
+                "overall": 7,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773303190,
+              "status": "CONF"
+            },
+            {
+              "age": 41,
+              "bib": "8435",
+              "chipTimeInMillis": 1055000,
+              "displayName": "SAMPLE RUNNER H",
+              "gender": "F",
+              "gunTimeInMillis": 1061000,
+              "id": 70078027,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 4,
+                "overall": 8,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773302190,
+              "status": "CONF"
+            },
+            {
+              "age": 38,
+              "bib": "8441",
+              "chipTimeInMillis": 1106000,
+              "displayName": "SAMPLE RUNNER I",
+              "gender": "F",
+              "gunTimeInMillis": 1111000,
+              "id": 70078044,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 5,
+                "overall": 9,
+                "primary": 2
+              },
+              "startTimeInMillis": 1729773301670,
+              "status": "CONF"
+            },
+            {
+              "age": 34,
+              "bib": "8430",
+              "chipTimeInMillis": 1247000,
+              "displayName": "SAMPLE RUNNER J",
+              "gender": "F",
+              "gunTimeInMillis": 1254000,
+              "id": 70078025,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 6,
+                "overall": 10,
+                "primary": 3
+              },
+              "startTimeInMillis": 1729773303850,
+              "status": "CONF"
+            }
+          ]
+        }
+      ],
+      "race": {
+        "id": 2530164,
+        "name": "2 km (Group 1)"
+      },
+      "source": "opensearch"
+    },
+    {
+      "division": {
+        "id": 2451313,
+        "name": "Overall",
+        "rankType": "chip",
+        "totalAthletes": 3,
+        "type": "overall"
+      },
+      "intervals": [
+        {
+          "distance": {
+            "meters": 1000,
+            "metersFromStart": 1000,
+            "units": "km"
+          },
+          "full": true,
+          "id": 562852,
+          "name": "Full Course",
+          "paceUnits": "min/km",
+          "raceType": "run",
+          "results": [
+            {
+              "age": 25,
+              "bib": "8446",
+              "chipTimeInMillis": 305000,
+              "displayName": "SAMPLE RUNNER K",
+              "gender": "F",
+              "gunTimeInMillis": 305000,
+              "id": 70078038,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 1,
+                "overall": 1,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773296160,
+              "status": "CONF"
+            },
+            {
+              "age": 41,
+              "bib": "4998",
+              "chipTimeInMillis": 333000,
+              "displayName": "SAMPLE RUNNER L",
+              "gender": "F",
+              "gunTimeInMillis": 337000,
+              "id": 70078019,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 2,
+                "overall": 2,
+                "primary": 2
+              },
+              "startTimeInMillis": 1729773299840,
+              "status": "CONF"
+            },
+            {
+              "age": 45,
+              "bib": "3452",
+              "chipTimeInMillis": 648000,
+              "displayName": "SAMPLE RUNNER M",
+              "gender": "M",
+              "gunTimeInMillis": 659000,
+              "id": 70078031,
+              "location": {
+                "country": "PY",
+                "locality": null,
+                "region": "-"
+              },
+              "private": false,
+              "racerId": 0,
+              "rankings": {
+                "gender": 1,
+                "overall": 3,
+                "primary": 1
+              },
+              "startTimeInMillis": 1729773306800,
+              "status": "CONF"
+            }
+          ]
+        }
+      ],
+      "race": {
+        "id": 2530165,
+        "name": "1 km (Group 1)"
+      },
+      "source": "opensearch"
+    }
+  ]
+}

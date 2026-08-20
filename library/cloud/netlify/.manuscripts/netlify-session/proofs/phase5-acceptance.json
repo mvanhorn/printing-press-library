@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "netlify",
+  "run_id": "netlify-session",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 14,
+  "tests_passed": 14,
+  "tests_skipped": 11,
+  "auth_context": {
+    "type": "none"
+  }
+}

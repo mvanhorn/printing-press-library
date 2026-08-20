@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/davemorin/printing-press/.runstate/davemorin-2d86084d/runs/20260508-101534/working/ufo-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

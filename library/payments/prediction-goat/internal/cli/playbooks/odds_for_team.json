@@ -1,0 +1,31 @@
+{
+  "query_family_examples": [
+    "odds USA wins world cup",
+    "odds Portugal wins world cup",
+    "odds for England in world cup",
+    "odds Brazil wins world cup",
+    "odds Ghana wins world cup"
+  ],
+  "steps": [
+    {
+      "cmd": "prediction-goat-pp-cli polymarket siblings will-ghana-win-the-2026-fifa-world-cup --agent",
+      "purpose": "Walk from any one known team's market slug to the parent event and back to every sibling team market. Returns yesProbability + yesPercent + endDate for each.",
+      "failure_modes": "If the seed slug 404s (event resolved/expired), retry with another known team in the same event. /public-search is unreliable for multi-outcome hub topics — do not fall back to it."
+    },
+    {
+      "client_side": "filter_siblings_by_team",
+      "args": {
+        "team": "$TEAM.canonical",
+        "field": "title"
+      },
+      "purpose": "Find the sibling whose .question or .title contains $TEAM (case-insensitive whole word). The siblings array is the .markets field of the response."
+    },
+    {
+      "cmd": "prediction-goat-pp-cli compare 'world cup' --json --select pairs",
+      "purpose": "OPTIONAL cross-venue check: surface Kalshi's same-team market alongside the Polymarket sibling so the agent can report any divergence (Kalshi tickers under KXMENWORLDCUP-26-<TEAM_ABBREV>).",
+      "failure_modes": "compare returns empty when pairing confidence is low; in that case fall back to `kalshi events get KXMENWORLDCUP-26 --with-markets --agent` and filter children by yes_sub_title."
+    }
+  ],
+  "entity_slots": ["$TEAM"],
+  "expected_tool_calls": 2
+}

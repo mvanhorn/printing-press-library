@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "gohighlevel-pp-mcp",
+  "display_name": "Gohighlevel",
+  "version": "4.9.0",
+  "description": "Gohighlevel API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gohighlevel-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gohighlevel-pp-mcp",
+      "args": [],
+      "env": {
+        "GHL_PIT_TOKEN": "${user_config.ghl_pit_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ghl_pit_token": {
+      "type": "string",
+      "title": "GHL_PIT_TOKEN",
+      "description": "Sets GHL_PIT_TOKEN for the Gohighlevel MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

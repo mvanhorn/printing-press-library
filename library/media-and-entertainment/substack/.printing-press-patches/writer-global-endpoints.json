@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "writer-global-endpoints",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Authenticated Substack writer mutations use global substack.com API routes with publication_id instead of publication-host routes when that is the working writer contract.",
+  "reason": "Live author sessions can read/write drafts and upload images through https://substack.com/api/v1 with a numeric publication_id, while publication-host writer routes return 403 or 404 for the same valid session.",
+  "files": [
+    "internal/cli/drafts_create.go",
+    "internal/cli/promoted_images.go",
+    "internal/cli/root.go",
+    "internal/cli/writer_endpoints.go",
+    "internal/config/config.go",
+    "internal/cli/publication_paths_test.go"
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/1239"
+}

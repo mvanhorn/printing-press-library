@@ -1,0 +1,286 @@
+name: ordertogo
+description: OrderToGo.com pickup ordering platform - browse restaurants, manage carts, place orders with budget gates and headless Braintree drive
+version: 0.1.0
+base_url: https://www.ordertogo.com
+spec_source: sniffed
+cli_description: Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal with safety rails for agent-driven ordering
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: .ordertogo.com
+  description: |
+    OrderToGo authenticates via Firebase phone-OTP on the web. The CLI does not implement
+    phone OTP — instead, `auth login --chrome` imports your existing OrderToGo session
+    cookies from your local Chrome profile. After import, every command travels with the
+    cookie. Re-run `auth login --chrome` if your session expires.
+
+config:
+  format: toml
+  path: ~/.config/ordertogo-pp-cli/config.toml
+
+resources:
+  restaurants:
+    description: Restaurants on the OrderToGo platform - filter by location, view detail, list multi-location chains
+    endpoints:
+      list:
+        method: GET
+        path: /m/api/restaurants/filter/{location_code}
+        description: List restaurants in a location code (e.g. sto for Seattle area)
+        params:
+          - name: location_code
+            in: path
+            type: string
+            required: true
+            description: Location/metro code such as sto (Seattle area). Auto-detected from synced order history when not provided.
+        body: []
+        response:
+          type: array
+          item: restaurant
+        no_auth: false
+      show:
+        method: GET
+        path: /m/api/restaurants/{slug}
+        description: Show restaurant detail - hours, address, phone, location code, multi-location chain mapping
+        params:
+          - name: slug
+            in: path
+            type: string
+            required: true
+            description: Restaurant short slug (e.g. mixsushibarlin)
+        body: []
+        response:
+          type: object
+          item: restaurant
+        no_auth: false
+      menu:
+        method: GET
+        path: /m/api/restaurants/{slug}/menus/full
+        description: Full menu for a restaurant with categories, items, and modifier options
+        params:
+          - name: slug
+            in: path
+            type: string
+            required: true
+            description: Restaurant short slug
+        body: []
+        response:
+          type: object
+          item: menu
+        no_auth: false
+
+  orders:
+    description: Order history, detail, validation, and tracking - the core ordering data path
+    endpoints:
+      list:
+        method: POST
+        path: /m/api/getmicmeshorders
+        description: List your order history across all restaurants (returns latest N orders, server-paginated)
+        params: []
+        body: []
+        response:
+          type: array
+          item: order_summary
+        no_auth: false
+      show:
+        method: POST
+        path: /m/api/getmicmeshorders
+        description: Get order detail by orderid - items, options, totals, payment method, points earned, status timeline
+        params: []
+        body:
+          - name: orderid
+            type: string
+            required: true
+            description: Order ID (encrypted token form, e.g. 2258091)
+          - name: restname
+            type: string
+            required: true
+            description: Restaurant display name
+        response:
+          type: object
+          item: order_detail
+        no_auth: false
+      validate:
+        method: POST
+        path: /m/api/orders
+        description: Pre-validate a cart - returns an order token plus tax computation, used by `order plan` before any payment surface opens
+        params: []
+        body:
+          - name: restid
+            type: integer
+            required: true
+            description: Numeric restaurant id
+          - name: items
+            type: array
+            required: true
+            description: Cart items in the localStorage shape (id, item_id, name, price, optionsstr, optionitemobjects, etc.)
+        response:
+          type: object
+          item: order_token
+        no_auth: false
+      track:
+        method: GET
+        path: /trackorder/{order_token}
+        description: HTML order tracking page (received → preparing → ready → picked up). Parsed for status by `order track`.
+        params:
+          - name: order_token
+            in: path
+            type: string
+            required: true
+            description: Encrypted order token returned by braintreeCheckout
+        body: []
+        response:
+          type: object
+          item: order_status
+        response_format: html
+        no_auth: false
+      cancel:
+        method: POST
+        path: /m/api/voidSelfOrder
+        description: Cancel your own order within the void window (typically before preparing-state)
+        params: []
+        body:
+          - name: orderid
+            type: string
+            required: true
+            description: Order ID to cancel
+        response:
+          type: object
+          item: cancel_result
+        no_auth: false
+
+  payment:
+    description: Braintree client token for payment-method nonce generation (used internally by chromedp headless flow)
+    endpoints:
+      braintree_token:
+        method: GET
+        path: /m/generateBrainTreeClientToken
+        description: Returns a Braintree client token used by the DropIn UI to mint a single-use payment nonce. Hand-driven by chromedp during `order place`.
+        params: []
+        body: []
+        response:
+          type: object
+          item: braintree_client_token
+        no_auth: false
+      checkout:
+        method: POST
+        path: /m/api/orders/braintreeCheckout
+        description: Submit order with payment nonce and customer details. Body must include `nonce` from Braintree client. The CLI uses chromedp to obtain the nonce; this endpoint is not directly callable from a Go CLI without driving the Braintree client SDK.
+        params: []
+        body:
+          - name: nonce
+            type: string
+            required: true
+            description: Braintree single-use payment nonce
+          - name: tip
+            type: number
+            required: true
+            description: Tip amount in dollars
+          - name: customerphone
+            type: string
+            required: true
+            description: 10-digit phone number (no formatting)
+          - name: customername
+            type: string
+            required: true
+            description: First name (max 30 chars)
+          - name: deliveryfee
+            type: number
+            required: true
+            description: Delivery fee, 0 for pickup
+          - name: restname
+            type: string
+            required: true
+            description: Restaurant display name
+          - name: orderdetails
+            type: object
+            required: true
+            description: Cart items in compact form (item_id, optionsstr, optionitemids, optionItemIdsAndPrices, price, taxrate) plus subtotal
+          - name: restid
+            type: integer
+            required: true
+            description: Numeric restaurant id
+          - name: database
+            type: string
+            required: true
+            description: Restaurant tenant database identifier from restaurant detail
+          - name: deliveryaddress
+            type: object
+            required: false
+            description: Only present when deliverymethod=1; geocoded address. Pickup-only accounts omit this field.
+        response:
+          type: object
+          item: order_result
+        no_auth: false
+
+  rewards:
+    description: Reward points balances per restaurant
+    endpoints:
+      list:
+        method: GET
+        path: /m/api/rewards
+        description: List your reward points across all restaurants (endpoint shape inferred from web 'My Rewards' panel)
+        params: []
+        body: []
+        response:
+          type: array
+          item: reward_balance
+        no_auth: false
+
+  giftcards:
+    description: Giftcard balances and history per restaurant
+    endpoints:
+      list:
+        method: GET
+        path: /m/api/giftcards
+        description: List your giftcards across all restaurants (endpoint shape inferred from web 'My Giftcards' panel)
+        params: []
+        body: []
+        response:
+          type: array
+          item: giftcard
+        no_auth: false
+
+  coupons:
+    description: Promotional coupons available to your account
+    endpoints:
+      list:
+        method: GET
+        path: /m/api/coupons
+        description: List active coupons for your account (endpoint shape inferred from web 'My Coupons' panel)
+        params: []
+        body: []
+        response:
+          type: array
+          item: coupon
+        no_auth: false
+      mark_used:
+        method: POST
+        path: /api/markPromotionUsed
+        description: Mark a promotion code as used after applying it to an order
+        params: []
+        body:
+          - name: promoid
+            type: string
+            required: true
+            description: Promotion identifier
+        response:
+          type: object
+          item: promo_result
+        no_auth: false
+
+  notifications:
+    description: Notification badge for orders, rewards, and platform messages
+    endpoints:
+      unread_count:
+        method: GET
+        path: /api/ordertogoV2/notification/getNotificationCountUserUnread
+        description: Count of unread notifications for your account
+        params: []
+        body: []
+        response:
+          type: object
+          item: notification_count
+        no_auth: false
+
+types: {}

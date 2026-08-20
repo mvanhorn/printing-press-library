@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "u7-pii-scrub",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Mechanical scrub of workspace identifiers from source, docs, and manifest files before first publish. Replaced workspace VINs with placeholders across source examples. Scrubbed absolute home paths from polish-state files. Verified the published tree has no workspace identifiers.",
+  "reason": "R6: no real PII in any file that lands in the publish repo. Vehicle names Snowflake and Stella are explicitly accepted by the author for cookbook examples; everything else is workspace-specific.",
+  "files": [
+    "internal/cli/tesla_reachability.go",
+    "internal/cli/tesla_ready.go",
+    "internal/cli/tesla_timeline.go",
+    "internal/cli/tesla_supercharger.go",
+    "internal/cli/tesla_snap.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/tesla_keys.go",
+    ".printing-press-pii-polish.json",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "Full test suite (8 packages) still passes after the scrub. Grep for real VINs, real Vercel host, real partner-app UUIDs, real client-secret prefix, real coordinates, real email, and workspace-absolute home paths returns zero matches across .go, .md, .json, .toml, .yaml files."
+}

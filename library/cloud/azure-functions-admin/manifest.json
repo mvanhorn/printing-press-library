@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "azure-functions-admin-pp-mcp",
+  "display_name": "Azure Functions",
+  "version": "4.18.1",
+  "description": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/azure-functions-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/azure-functions-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "AZURE_CLIENT_ID": "${user_config.azure_client_id}",
+        "AZURE_CLIENT_SECRET": "${user_config.azure_client_secret}",
+        "AZURE_SUBSCRIPTION_ID": "${user_config.azure_subscription_id}",
+        "AZURE_TENANT_ID": "${user_config.azure_tenant_id}"
+      }
+    }
+  },
+  "user_config": {
+    "azure_client_id": {
+      "type": "string",
+      "title": "AZURE_CLIENT_ID",
+      "description": "Sets AZURE_CLIENT_ID for the Azure Functions MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "azure_client_secret": {
+      "type": "string",
+      "title": "AZURE_CLIENT_SECRET",
+      "description": "Sets AZURE_CLIENT_SECRET for the Azure Functions MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "azure_subscription_id": {
+      "type": "string",
+      "title": "AZURE_SUBSCRIPTION_ID",
+      "description": "Sets AZURE_SUBSCRIPTION_ID for the Azure Functions MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "azure_tenant_id": {
+      "type": "string",
+      "title": "AZURE_TENANT_ID",
+      "description": "Sets AZURE_TENANT_ID for the Azure Functions MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

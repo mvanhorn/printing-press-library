@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "notion-pp-mcp",
+  "display_name": "Notion",
+  "version": "4.0.6",
+  "description": "Notion API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/notion-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/notion-pp-mcp",
+      "args": [],
+      "env": {
+        "NOTION_BEARER_AUTH": "${user_config.notion_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "notion_bearer_auth": {
+      "type": "string",
+      "title": "NOTION_BEARER_AUTH",
+      "description": "Sets NOTION_BEARER_AUTH for the Notion MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

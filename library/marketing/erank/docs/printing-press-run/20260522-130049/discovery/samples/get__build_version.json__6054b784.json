@@ -1,0 +1,34 @@
+{
+  "endpoint": "GET /build/version.json",
+  "method": "GET",
+  "raw_url": "https://members.erank.com/build/version.json?t=1779470677359",
+  "status": 200,
+  "request_headers": {
+    "Referer": "https://members.erank.com/keyword-tool/top-listings?keyword=dad%20mug&source=etsy&country=USA",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\""
+  },
+  "request_body": null,
+  "response_headers": {
+    "accept-ranges": "bytes",
+    "content-length": "173",
+    "content-type": "application/json",
+    "date": "Fri, 22 May 2026 17:24:37 GMT",
+    "etag": "\"6a10195b-ad\"",
+    "last-modified": "Fri, 22 May 2026 08:52:43 GMT",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "via": "1.1 2d6460135a39e6ca82c7d39b6b2befc2.cloudfront.net (CloudFront)",
+    "x-amz-cf-id": "Avo6IPS1XKZ5ziwIujmXN1reCQp-2gzggVPEYmCdjUsmxPRIAfh8ow==",
+    "x-amz-cf-pop": "BOS50-P3",
+    "x-cache": "Miss from cloudfront",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": null,
+  "response_body_known": false
+}

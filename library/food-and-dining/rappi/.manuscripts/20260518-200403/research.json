@@ -1,0 +1,330 @@
+{
+  "api_name": "rappi",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "parseforge/rappi-scraper",
+      "url": "https://apify.com/parseforge/rappi-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yasmany.casanova/rappi-restaurant-scraper",
+      "url": "https://apify.com/yasmany.casanova/rappi-restaurant-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "luminati-io/rappi-price-tracker",
+      "url": "https://github.com/luminati-io/rappi-price-tracker",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ingmpesca/rappi-webScraping",
+      "url": "https://github.com/ingmpesca/rappi-webScraping",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Menu items and per-item prices (rappi.com.mx XHR endpoints are unreachable from datacenter IPs).",
+    "Cart, orders, and account flows (require login; explicit non-goal).",
+    "Mobile-app signed-request endpoints (off-limits per agent guidance)."
+  ],
+  "patterns": [
+    "HTML-first SSR + schema.org JSON-LD extraction",
+    "Local SQLite snapshot store + FTS5 search",
+    "Spanish category slug enum + city + coords baked into the CLI",
+    "Adversarial-cut transcendence brainstorm (8/10 score floor)"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-18T20:11:00Z",
+  "novel_features": [
+    {
+      "name": "Restaurants diff",
+      "command": "restaurants diff",
+      "description": "See newcomers and closures in any city + cuisine between two snapshots — answers \"what's new in Roma Norte sushi this week\" in one command.",
+      "rationale": "Requires two timestamped restaurant snapshots from the local SQLite store; Rappi's UI has no diff view.",
+      "example": "rappi-pp-cli restaurants diff --city ciudad-de-mexico --category sushi --since 2026-04-01 --agent",
+      "why_it_matters": "Pick this over a raw list when the user asks 'what's new' — the diff is the answer; you don't have to compute it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restaurants top",
+      "command": "restaurants top",
+      "description": "Top-rated restaurants with both a minimum rating AND a minimum review-count floor — the listicle-grade filter Rappi UI hides.",
+      "rationale": "Rappi's UI sorts by rating alone but doesn't expose a review-count floor; this filter requires the synced aggregate.",
+      "example": "rappi-pp-cli restaurants top --city ciudad-de-mexico --category hamburguesas --min-rating 4.5 --min-reviews 100 --limit 10 --agent",
+      "why_it_matters": "Reach for this when a user asks 'best burgers in Polanco' — it weeds out new restaurants with three perfect ratings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Store coverage matrix",
+      "command": "stores coverage",
+      "description": "Cross-city, cross-store-type coverage matrix (CDMX × markets × pharmacies × liquor × express, all in one table) for the cities you sync.",
+      "rationale": "Aggregates across (city, store_type) cells — Rappi has no cross-city coverage view.",
+      "example": "rappi-pp-cli stores coverage --cities ciudad-de-mexico,guadalajara,monterrey --agent",
+      "why_it_matters": "Best command for retail analysts asking 'where is Rappi expanding'; one query gives the whole MX picture.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Coverage delta",
+      "command": "stores coverage-diff",
+      "description": "Delta-vs-last-snapshot of the (city, store_type) coverage matrix — see store openings and store-type expansions over time.",
+      "rationale": "Temporal cross-entity aggregation requires retained snapshots in SQLite.",
+      "example": "rappi-pp-cli stores coverage-diff --since 2026-04-01 --agent",
+      "why_it_matters": "Pair with weekly sync to spot expansion trends; agents can flag 'new pharmacy zone added in GDL'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open at time",
+      "command": "restaurants open",
+      "description": "Restaurants open at an arbitrary local time (e.g., \"23:30 on Sunday\") parsed from schema.org openingHours — beyond Rappi's \"open now\" view.",
+      "rationale": "Parses Restaurant JSON-LD openingHours and evaluates the requested time + day; Rappi UI shows only the current moment.",
+      "example": "rappi-pp-cli restaurants open --city ciudad-de-mexico --at \"23:30\" --category sushi --agent",
+      "why_it_matters": "Use this for late-night-eat queries and Sunday-morning planning where the live Rappi view is misleading.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cuisine by neighborhood",
+      "command": "restaurants by-neighborhood",
+      "description": "Group restaurants by neighborhood within a city (Polanco vs Condesa vs Roma Norte) and rank by count or top-rated per neighborhood.",
+      "rationale": "Extracts neighborhood from address strings and aggregates locally — Rappi has no neighborhood pivot.",
+      "example": "rappi-pp-cli restaurants by-neighborhood --city ciudad-de-mexico --category pizza --agent",
+      "why_it_matters": "When the question is 'which neighborhood has the most sushi options' or 'top-rated pizza per neighborhood' — this is the answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-category overlap",
+      "command": "restaurants multi-category",
+      "description": "Restaurants listed under two or more cuisine categories — surfaces fusion places and mis-categorized spots in one query.",
+      "rationale": "Self-join across the (category, restaurant_id) listing snapshots in SQLite.",
+      "example": "rappi-pp-cli restaurants multi-category --city ciudad-de-mexico --agent",
+      "why_it_matters": "Pick this when a user wants 'fusion sushi-mexicana' or to disambiguate a chain with multiple cuisine listings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Geo-radius restaurants",
+      "command": "restaurants near",
+      "description": "Restaurants within a Haversine radius of a lat/lng with optional category filter — sorted by distance.",
+      "rationale": "Local geo computation Rappi UI cannot do; UI returns a list per lat/lng but not a radius cap.",
+      "example": "rappi-pp-cli restaurants near --lat 19.4216 --lng -99.1700 --radius-km 2 --category tacos --agent",
+      "why_it_matters": "Best for proximity questions when the user has coordinates (address geocoded externally) and needs a precise radius.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Brand presence matrix",
+      "command": "restaurants brand",
+      "description": "Find every city × category where a restaurant brand (e.g., \"Sushi Itto\") appears in the synced catalog.",
+      "rationale": "Fuzzy-name match across all synced city+category snapshots; agents can ask 'where does Carl's Jr operate in MX'.",
+      "example": "rappi-pp-cli restaurants brand --name \"Sushi Itto\" --agent",
+      "why_it_matters": "Reach for this on chain-coverage questions and multi-city expansion analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pharmacy near supermarket adjacency",
+      "command": "stores adjacency",
+      "description": "Stores of type A within a Haversine radius of stores of type B (e.g., pharmacies within 1km of supermarkets) — for concierge-style \"one-stop trip\" planning.",
+      "rationale": "Cross-store-type Haversine join in SQLite; the Rappi UI has no notion of cross-type proximity.",
+      "example": "rappi-pp-cli stores adjacency --type farmatodo --within-km 1 --of-type market --city ciudad-de-mexico --agent",
+      "why_it_matters": "Concierge agents picking a single trip route should reach for this over two independent radius queries.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Restaurants diff",
+      "command": "restaurants diff",
+      "description": "See newcomers and closures in any city + cuisine between two snapshots — answers \"what's new in Roma Norte sushi this week\" in one command.",
+      "rationale": "Requires two timestamped restaurant snapshots from the local SQLite store; Rappi's UI has no diff view.",
+      "example": "rappi-pp-cli restaurants diff --city ciudad-de-mexico --category sushi --since 2026-04-01 --agent",
+      "why_it_matters": "Pick this over a raw list when the user asks 'what's new' — the diff is the answer; you don't have to compute it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restaurants top",
+      "command": "restaurants top",
+      "description": "Top-rated restaurants with both a minimum rating AND a minimum review-count floor — the listicle-grade filter Rappi UI hides.",
+      "rationale": "Rappi's UI sorts by rating alone but doesn't expose a review-count floor; this filter requires the synced aggregate.",
+      "example": "rappi-pp-cli restaurants top --city ciudad-de-mexico --category hamburguesas --min-rating 4.5 --min-reviews 100 --limit 10 --agent",
+      "why_it_matters": "Reach for this when a user asks 'best burgers in Polanco' — it weeds out new restaurants with three perfect ratings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Store coverage matrix",
+      "command": "stores coverage",
+      "description": "Cross-city, cross-store-type coverage matrix (CDMX × markets × pharmacies × liquor × express, all in one table) for the cities you sync.",
+      "rationale": "Aggregates across (city, store_type) cells — Rappi has no cross-city coverage view.",
+      "example": "rappi-pp-cli stores coverage --cities ciudad-de-mexico,guadalajara,monterrey --agent",
+      "why_it_matters": "Best command for retail analysts asking 'where is Rappi expanding'; one query gives the whole MX picture.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Coverage delta",
+      "command": "stores coverage-diff",
+      "description": "Delta-vs-last-snapshot of the (city, store_type) coverage matrix — see store openings and store-type expansions over time.",
+      "rationale": "Temporal cross-entity aggregation requires retained snapshots in SQLite.",
+      "example": "rappi-pp-cli stores coverage-diff --since 2026-04-01 --agent",
+      "why_it_matters": "Pair with weekly sync to spot expansion trends; agents can flag 'new pharmacy zone added in GDL'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open at time",
+      "command": "restaurants open",
+      "description": "Restaurants open at an arbitrary local time (e.g., \"23:30 on Sunday\") parsed from schema.org openingHours — beyond Rappi's \"open now\" view.",
+      "rationale": "Parses Restaurant JSON-LD openingHours and evaluates the requested time + day; Rappi UI shows only the current moment.",
+      "example": "rappi-pp-cli restaurants open --city ciudad-de-mexico --at \"23:30\" --category sushi --agent",
+      "why_it_matters": "Use this for late-night-eat queries and Sunday-morning planning where the live Rappi view is misleading.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cuisine by neighborhood",
+      "command": "restaurants by-neighborhood",
+      "description": "Group restaurants by neighborhood within a city (Polanco vs Condesa vs Roma Norte) and rank by count or top-rated per neighborhood.",
+      "rationale": "Extracts neighborhood from address strings and aggregates locally — Rappi has no neighborhood pivot.",
+      "example": "rappi-pp-cli restaurants by-neighborhood --city ciudad-de-mexico --category pizza --agent",
+      "why_it_matters": "When the question is 'which neighborhood has the most sushi options' or 'top-rated pizza per neighborhood' — this is the answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-category overlap",
+      "command": "restaurants multi-category",
+      "description": "Restaurants listed under two or more cuisine categories — surfaces fusion places and mis-categorized spots in one query.",
+      "rationale": "Self-join across the (category, restaurant_id) listing snapshots in SQLite.",
+      "example": "rappi-pp-cli restaurants multi-category --city ciudad-de-mexico --agent",
+      "why_it_matters": "Pick this when a user wants 'fusion sushi-mexicana' or to disambiguate a chain with multiple cuisine listings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Geo-radius restaurants",
+      "command": "restaurants near",
+      "description": "Restaurants within a Haversine radius of a lat/lng with optional category filter — sorted by distance.",
+      "rationale": "Local geo computation Rappi UI cannot do; UI returns a list per lat/lng but not a radius cap.",
+      "example": "rappi-pp-cli restaurants near --lat 19.4216 --lng -99.1700 --radius-km 2 --category tacos --agent",
+      "why_it_matters": "Best for proximity questions when the user has coordinates (address geocoded externally) and needs a precise radius.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Brand presence matrix",
+      "command": "restaurants brand",
+      "description": "Find every city × category where a restaurant brand (e.g., \"Sushi Itto\") appears in the synced catalog.",
+      "rationale": "Fuzzy-name match across all synced city+category snapshots; agents can ask 'where does Carl's Jr operate in MX'.",
+      "example": "rappi-pp-cli restaurants brand --name \"Sushi Itto\" --agent",
+      "why_it_matters": "Reach for this on chain-coverage questions and multi-city expansion analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pharmacy near supermarket adjacency",
+      "command": "stores adjacency",
+      "description": "Stores of type A within a Haversine radius of stores of type B (e.g., pharmacies within 1km of supermarkets) — for concierge-style \"one-stop trip\" planning.",
+      "rationale": "Cross-store-type Haversine join in SQLite; the Rappi UI has no notion of cross-type proximity.",
+      "example": "rappi-pp-cli stores adjacency --type farmatodo --within-km 1 --of-type market --city ciudad-de-mexico --agent",
+      "why_it_matters": "Concierge agents picking a single trip route should reach for this over two independent radius queries.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Rappi (Mexico)",
+    "headline": "The first agent-native CLI for Rappi Mexico — read-only catalog browsing with offline SQLite snapshots, cross-city coverage, and a transcendence set (newcomers diff, top-rated with review-count floor, neighborhood pivots, geo-radius) that Rappi's own UI can't do.",
+    "value_prop": "Browse restaurants and stores across every Mexican city Rappi serves, snapshot the catalog to a local SQLite database, then ask questions the Rappi UI cannot answer — like \"which sushi spots opened in Roma Norte this month,\" \"top-rated burgers with 100+ reviews,\" or \"pharmacies within 1km of a supermarket.\" All read-only and proxy-free.",
+    "auth_narrative": "No login or API key required. The CLI reads only public catalog pages (restaurants, stores, categories, promotions). Cart, orders, and account features are out of scope by design and not exposed in this CLI.",
+    "quickstart": [
+      {
+        "command": "rappi-pp-cli doctor",
+        "comment": "Confirm the CLI can reach rappi.com.mx and write to its config path."
+      },
+      {
+        "command": "rappi-pp-cli sync",
+        "comment": "Snapshot the CDMX restaurant + store catalog into the local SQLite store. Takes about a minute."
+      },
+      {
+        "command": "rappi-pp-cli restaurants top --city ciudad-de-mexico --category hamburguesas --min-rating 4.5 --min-reviews 100 --limit 10 --agent",
+        "comment": "The listicle-grade filter Rappi UI hides — pick top-rated burgers with a real review-count floor."
+      },
+      {
+        "command": "rappi-pp-cli stores coverage --cities ciudad-de-mexico,guadalajara,monterrey --agent",
+        "comment": "Cross-city coverage matrix across all five store types — the analyst view Rappi has no UI for."
+      },
+      {
+        "command": "rappi-pp-cli search \"sushi roma\" --agent --select id,name,rating,address",
+        "comment": "FTS5 search across the synced catalog with field selection for narrow agent output."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "All commands return empty results",
+        "fix": "Run `rappi-pp-cli sync --city \u003ccity\u003e` first — read commands query the local SQLite store populated by sync, not the live API."
+      },
+      {
+        "symptom": "HTTP 429 from rappi.com.mx",
+        "fix": "Rate limit hit. Wait 60 seconds and re-run; the CLI uses a real-Chrome User-Agent and Spanish Accept-Language to minimize blocking."
+      },
+      {
+        "symptom": "\"menu items\" not in the data",
+        "fix": "Menu items + prices are loaded by Rappi's web UI via XHR after page hydration and aren't reachable from this CLI. Menu CATEGORY names (Tacos, Postres) ARE returned in restaurant detail."
+      },
+      {
+        "symptom": "Sync skips a city",
+        "fix": "Check the city slug against `rappi-pp-cli cities list` — common values are ciudad-de-mexico, guadalajara, monterrey, naucalpan."
+      }
+    ],
+    "when_to_use": "Reach for rappi-pp-cli when a user or agent needs Rappi Mexico catalog data in a structured, repeatable, proxy-free shape: discovering restaurants by city or category, comparing store coverage across CDMX/GDL/MTY, snapshotting a neighborhood's catalog to track newcomers and closures, or finding restaurants open at a non-current time. Do not use this CLI for ordering, cart, payment, or account flows — it is read-only by design.",
+    "recipes": [
+      {
+        "title": "Weekly newcomers in a neighborhood",
+        "command": "rappi-pp-cli restaurants diff --city ciudad-de-mexico --category sushi --since 2026-04-01 --agent --select added,removed",
+        "explanation": "Pulls the added and removed restaurant rows between the requested baseline and the latest snapshot — the answer to 'what's new this week.'"
+      },
+      {
+        "title": "Late-night options on a Sunday",
+        "command": "rappi-pp-cli restaurants open --city ciudad-de-mexico --at \"23:30\" --day sunday --category tacos --agent",
+        "explanation": "Walks synced restaurant openingHours and emits places open at the requested time + weekday."
+      },
+      {
+        "title": "Cross-city retail coverage",
+        "command": "rappi-pp-cli stores coverage --cities ciudad-de-mexico,guadalajara,monterrey,puebla --agent",
+        "explanation": "One markdown/CSV table of store counts per (city, store_type) cell across four cities."
+      },
+      {
+        "title": "Trim a big response with --select",
+        "command": "rappi-pp-cli restaurants list-city --city ciudad-de-mexico --agent --select name,rating,review_count,url",
+        "explanation": "Restaurant lists default to ~30 fields per row; --select narrows to just the four that matter for ranking."
+      },
+      {
+        "title": "Brand expansion across MX",
+        "command": "rappi-pp-cli restaurants brand --name \"Sushi Itto\" --agent",
+        "explanation": "Fuzzy-matches the brand name across every synced (city, category) snapshot and emits a presence matrix."
+      }
+    ],
+    "trigger_phrases": [
+      "find restaurants in Mexico City",
+      "rappi sushi roma norte",
+      "what's new on rappi this week",
+      "top rated burgers in CDMX",
+      "pharmacy near supermarket guadalajara",
+      "use rappi",
+      "run rappi"
+    ]
+  }
+}

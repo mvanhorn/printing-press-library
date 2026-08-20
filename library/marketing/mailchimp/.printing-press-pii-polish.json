@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-05-17T09:52:43.621359Z",
+  "cli_dir": "/tmp/printing-press/publish/mailchimp-hx2ywt/package/library/marketing/mailchimp",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 126,
+      "column": 28,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "README Quick Start fence: '# one-shot upsert with tags, no MD5 dance\\nmailchimp-pp-cli subscribe alice@example.com --list LIST_ID --tags vip,newsletter' — synthetic example demonstrating the subscribe command's required \u003cemail\u003e positional argument; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 148,
+      "column": 30,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "README Unique Features section, subscribe code fence: 'mailchimp-pp-cli subscribe alice@example.com --list a1b2c3d4e5 --tags vip,onboarding --merge FNAME=Alice' — documentation example showing the workflow-composition command's signature; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 48,
+      "column": 30,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "SKILL Unique Capabilities section, subscribe example fence: 'mailchimp-pp-cli subscribe alice@example.com --list a1b2c3d4e5 --tags vip,onboarding --merge FNAME=Alice' — illustrative agent-facing example for the workflow-composition command; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 358,
+      "column": 28,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "SKILL 'Add a subscriber with tags in one call' recipe code fence: 'mailchimp-pp-cli subscribe alice@example.com --list LIST_ID --tags vip,onboarding --merge FNAME=Alice --merge LNAME=Smith' — documentation example showing the workflow composition; reserved @example.com TLD (RFC 2606)."
+    }
+  ],
+  "findings_count_before": 4
+}

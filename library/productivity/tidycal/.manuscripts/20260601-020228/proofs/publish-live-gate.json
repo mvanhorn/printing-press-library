@@ -1,0 +1,1584 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/tidycal",
+  "binary": "/Users/cathrynlavery/printing-press/library/tidycal/tidycal-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 88,
+  "passed": 88,
+  "failed": 0,
+  "skipped": 76,
+  "commands": [
+    "analytics",
+    "api",
+    "assisted-book",
+    "booking-types bookings create",
+    "booking-types create",
+    "booking-types list",
+    "booking-types timeslots list-booking-type",
+    "bookings cancel booking",
+    "bookings get",
+    "bookings list",
+    "brief",
+    "contacts create",
+    "contacts list",
+    "doctor",
+    "export",
+    "feedback list",
+    "followups",
+    "import",
+    "me",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "propose-times",
+    "search",
+    "sync",
+    "teams booking-types create-team",
+    "teams booking-types list-team",
+    "teams bookings list-team",
+    "teams get",
+    "teams list",
+    "teams users add-team",
+    "teams users list-team",
+    "teams users remove-team",
+    "triage",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  tidycal-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  tidycal-pp-cli analytics --type messages\n\n  # Group by a field\n  tidycal-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  tidycal-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'tidycal-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'tidycal-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  tidycal-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  tidycal-pp-cli api\n\n  # Show methods for a specific interface\n  tidycal-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'tidycal-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "assisted-book",
+      "kind": "help",
+      "args": [
+        "assisted-book",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Book on behalf of a contact after an inspectable confirmation step.\n\nUsage:\n  tidycal-pp-cli assisted-book \u003cbooking-type-id\u003e [flags]\n\nExamples:\n  tidycal-pp-cli assisted-book 123 --name 'Ada Lovelace' --email ada@example.com --slot 2026-06-02T15:00:00Z --dry-run --format json\n  tidycal-pp-cli assisted-book 123 --name 'Ada Lovelace' --email ada@example.com --slot 2026-06-02T15:00:00Z --confirm\n\nFlags:\n      --confirm                Create the booking after showing the payload\n      --email string           Contact email\n      --format string          Output format: text or json (default \"text\")\n      --from string            Start date when selecting a slot (default \"today\")\n  -h, --help                   help for assisted-book\n      --name string            Contact name\n      --phone string           Contact phone\n      --prefer string          Slot preference: morning, afternoon, or any (default \"any\")\n      --question stringArray   Intake answer as question=answer; may be repeated\n      --slot string            Exact slot timestamp to book\n      --timezone string        IANA timezone for the booking\n      --to string              End date when selecting a slot (default \"+14d\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "assisted-book",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [assisted-book] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "assisted-book",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [assisted-book] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "assisted-book",
+      "kind": "error_path",
+      "args": [
+        "assisted-book",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --name and a valid --email are required\n"
+    },
+    {
+      "command": "booking-types bookings create",
+      "kind": "help",
+      "args": [
+        "booking-types",
+        "bookings",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new booking for a specific booking type.\n\nUsage:\n  tidycal-pp-cli booking-types bookings create \u003cbookingType\u003e [flags]\n\nExamples:\n  tidycal-pp-cli booking-types bookings create 42 --email user@example.com\n\nFlags:\n      --booking-questions string   Answers to booking type questions\n      --bookings starts_at         Array of booking times for package/multi-session bookings. If provided, starts_at is ignored.\n      --email string               Email of the person making the booking\n  -h, --help                       help for create\n      --name string                Name of the person making the booking\n      --starts-at bookings         The start time of the booking in UTC. Required for single bookings. Ignored if bookings array is provided.\n      --stdin                      Read request body as JSON from stdin\n      --timezone string            The timezone of the booking\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "booking-types bookings create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"bookingtype\" at depth 0"
+    },
+    {
+      "command": "booking-types bookings create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"bookingtype\" at depth 0"
+    },
+    {
+      "command": "booking-types bookings create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "booking-types bookings create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"bookingtype\" at depth 0"
+    },
+    {
+      "command": "booking-types create",
+      "kind": "help",
+      "args": [
+        "booking-types",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new booking type.\n\nUsage:\n  tidycal-pp-cli booking-types create [flags]\n\nExamples:\n  tidycal-pp-cli booking-types create --description example-value\n\nFlags:\n      --approval-required                           Approval required\n      --booking-availability-interval-minutes int   Booking availability interval minutes (default 15)\n      --booking-type-category-id string             Booking type category id\n      --currency-code string                        ISO 4217 currency code (e.g. USD, EUR, GBP). Defaults to your account currency.\n      --description string                          Description\n      --display-seats-remaining                     Display seats remaining\n      --duration-minutes int                        Duration minutes\n  -h, --help                                        help for create\n      --latest-availability-days int                Latest availability days (default 60)\n      --max-bookings int                            Max bookings (default 1)\n      --max-guest-invites-per-booker int            Max guest invites per booker\n      --padding-minutes int                         Padding minutes\n      --payment-platform string                     Payment platform to use. The platform must be connected in your account Integrations settings. Required when price \u003e 0.\n      --price float                                 Price for the booking type. Set to 0 for free booking types.\n      --private                                     Private\n      --redirect-url string                         Redirect url\n      --stdin                                       Read request body as JSON from stdin\n      --title string                                Title\n      --url-slug string                             Url slug\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "booking-types create",
+      "kind": "happy_path",
+      "args": [
+        "booking-types",
+        "create",
+        "--description",
+        "example-value",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/booking-types\",\n  \"resource\": \"booking-types\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://tidycal.com/api/booking-types\n  Body:\n{\n    \"booking_availability_interval_minutes\": 15,\n    \"description\": \"example-value\",\n    \"latest_availability_days\": 60,\n    \"max_bookings\": 1\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "booking-types create",
+      "kind": "json_fidelity",
+      "args": [
+        "booking-types",
+        "create",
+        "--description",
+        "example-value",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/booking-types\",\n  \"resource\": \"booking-types\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://tidycal.com/api/booking-types\n  Body:\n{\n    \"booking_availability_interval_minutes\": 15,\n    \"description\": \"example-value\",\n    \"latest_availability_days\": 60,\n    \"max_bookings\": 1\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "booking-types create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "booking-types create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "booking-types list",
+      "kind": "help",
+      "args": [
+        "booking-types",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of booking types.\n\nUsage:\n  tidycal-pp-cli booking-types list [flags]\n\nExamples:\n  tidycal-pp-cli booking-types list\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list\n      --page string   Page number. (default \"1\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "booking-types list",
+      "kind": "happy_path",
+      "args": [
+        "booking-types",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"current_page\":1,\"data\":[{\"allow_reviews_at\":null,\"approval_required\":false,\"availability_schedule_id\":null,\"booking_availability_interval_minutes\":15,\"booking_limit\":null,\"booking_page_url\":\"https://tidycal.com/cathrynlavery/hiring\",\"booking_threshold_minutes\":120,\"booking_type_category_id\":null,\"cc_email_addresses\":null,\"confirmation_method\":\"calendar\",\"coupons_enabled\":true,\"cover_image\":null,\"cover_image_url\":null,\"created_at\":\"2024-12-02T22:05:03.000000Z\",\"currency_code\":\"USD\",\"deleted_at\":null,\"description\":\"\u003cp\u003eCall with Cathryn\u003c/p\u003e\",\"disabled_at\":null,\"display_seats_remaining\":true,\"duration_minutes\":30,\"email_confirmation_html\":\"\u003cdiv\u003eHello, {{contact.name}}!\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eYour booking has been confirmed!\u003c/div\u003e\\n\u003cbr\u003e\\n\\n\u003cdiv\u003e\u003cstrong\u003e{{booking_type.title}}\u003c/strong\u003e\u003c/div\u003e\\n\u003cdiv\u003eWith: {{host.name}}\u003c/div\u003e\\n\u003cdiv\u003eDate: {{booking.date}}\u003c/div\u003e\\n\u003cdiv\u003eTime: {{booking.time}}\u003c/div\u003e\\n\u003cdiv\u003eTimezone: {{booking.timezone}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eMeeting URL: {{booking.meeting_url}}\u003c/div\u003e\\n\u003cdiv\u003eLocation: \u003cbr\u003e{{booking.location}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003e\u003ca href=\\\"{{booking.reschedule_url}}\\\"\u003eReschedule or cancel\u003c/a\u003e\u003c/div\u003e\\n\\n\u003cbr\u003e\\n\u003cdiv\u003eThanks,\u003c/div\u003e\\n\u003cdiv\u003e{{host.name}}\u003c/div\u003e\\n\",\"email_confirmation_subject\":\"Your booking is confirmed\",\"email_confirmation_type\":\"default\",\"email_reminder_html\":\"\u003cdiv\u003eHello {{contact.name}},\u003c/div\u003e\\n\u003cbr\u003e\\n\\n\u003cdiv\u003e\u003cstrong\u003e{{booking_type.title}}\u003c/strong\u003e\u003c/div\u003e\\n\u003cdiv\u003eWith: {{user.name}}\u003c/div\u003e\\n\u003cdiv\u003eDate: {{booking.date}}\u003c/div\u003e\\n\u003cdiv\u003eTime: {{booking.time}}\u003c/div\u003e\\n\u003cdiv\u003eTimezone: {{booking.timezone}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eMeeting URL: {{booking.meeting_url}}\u003c/div\u003e\\n\u003cdiv\u003eLocation: \u003cbr\u003e{{booking.location}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eReschedule or cancel: {{booking.reschedule_url}}\u003c/div\u003e\\n\\n\u003cbr\u003e\\n\u003cdiv\u003eThanks,\u003c/div\u003e\\n\u003cdiv\u003e{{user.name}}\u003c/div\u003e\\n\",\"email_reminder_subject\":\"Upcoming booking reminder - {{booking_type.title}}\",\"email_share_url\":\"mailto:?subject=40-Min%20Call\u0026body=40-Min%20Call%0A%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"email_signature_url\":null,\"facebook_share_url\":\"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\u0026description=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"formatted_duration\":\"30 minutes\",\"google_meet_enabled_at\":\"2025-01-14T12:50:43.000000Z\",\"id\":943614,\"ignore_conflicts\":false,\"import_source_id\":null,\"in_gallery_at\":null,\"is_bundle\":false,\"is_poll\":false,\"is_recurring\":false,\"latest_availability_days\":60,\"linkedin_share_url\":\"https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"localized_price\":\"$0.00\",\"location\":null,\"locations\":[{\"id\":608422,\"location_link\":null,\"location_link_source\":\"google_meet\",\"location_option\":\"location_option_online\"}],\"max_bookings\":1,\"max_guest_invites_per_booker\":0,\"meeting_url\":null,\"ms_teams_enabled_at\":null,\"order\":9,\"owner_tier_level\":1,\"padding_minutes\":0,\"payment_platform\":\"paypal\",\"payment_platform_id\":\"fabce0cf-14d2-4cf7-aad6-7a0dc651985d\",\"price\":\"0.00\",\"private\":false,\"recurrence_frequency\":null,\"recurrence_min\":null,\"recurrence_rule\":null,\"recurring_description\":null,\"redirect_url\":null,\"reply_to_email\":null,\"round_robin\":false,\"show_reviews_on_booking_page\":true,\"slug\":\"1ylky6y\",\"sms_reminder_content\":null,\"sms_share_url\":\"sms:?\u0026body=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"source\":null,\"team_id\":null,\"team_managed\":false,\"team_managed_booking_type_id\":null,\"theme_id\":87373,\"title\":\"40-Min Call\",\"twitter_share_url\":\"https://twitter.com/intent/tweet?text=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"updated_at\":\"2026-03-12T15:21:04.000000Z\",\"url_slug\":\"hiring\",\"user\":{\"currency\":\"USD\",\"currency_code\":\"USD\",\"currency_symbol\":\"$\",\"google_analytics_measurement_id\":null,\"gtm_container_id\":null,\"id\":87144,\"language\":\"en\",\"lifetime_pro_at\":\"2023-10-25T18:47:17.000000Z\",\"name\":\"\u003credacted\u003e\",\"page_presentation\":\"\u003cdiv\u003eBook a call with me:\u003c/div\u003e\",\"page_title\":\"Cathryn Lavery\",\"profile_picture_url\":\"https://www.gravatar.com/avatar/f9c72d747e1164429a0818d22513c…[truncated]"
+    },
+    {
+      "command": "booking-types list",
+      "kind": "json_fidelity",
+      "args": [
+        "booking-types",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"current_page\":1,\"data\":[{\"allow_reviews_at\":null,\"approval_required\":false,\"availability_schedule_id\":null,\"booking_availability_interval_minutes\":15,\"booking_limit\":null,\"booking_page_url\":\"https://tidycal.com/cathrynlavery/hiring\",\"booking_threshold_minutes\":120,\"booking_type_category_id\":null,\"cc_email_addresses\":null,\"confirmation_method\":\"calendar\",\"coupons_enabled\":true,\"cover_image\":null,\"cover_image_url\":null,\"created_at\":\"2024-12-02T22:05:03.000000Z\",\"currency_code\":\"USD\",\"deleted_at\":null,\"description\":\"\u003cp\u003eCall with Cathryn\u003c/p\u003e\",\"disabled_at\":null,\"display_seats_remaining\":true,\"duration_minutes\":30,\"email_confirmation_html\":\"\u003cdiv\u003eHello, {{contact.name}}!\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eYour booking has been confirmed!\u003c/div\u003e\\n\u003cbr\u003e\\n\\n\u003cdiv\u003e\u003cstrong\u003e{{booking_type.title}}\u003c/strong\u003e\u003c/div\u003e\\n\u003cdiv\u003eWith: {{host.name}}\u003c/div\u003e\\n\u003cdiv\u003eDate: {{booking.date}}\u003c/div\u003e\\n\u003cdiv\u003eTime: {{booking.time}}\u003c/div\u003e\\n\u003cdiv\u003eTimezone: {{booking.timezone}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eMeeting URL: {{booking.meeting_url}}\u003c/div\u003e\\n\u003cdiv\u003eLocation: \u003cbr\u003e{{booking.location}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003e\u003ca href=\\\"{{booking.reschedule_url}}\\\"\u003eReschedule or cancel\u003c/a\u003e\u003c/div\u003e\\n\\n\u003cbr\u003e\\n\u003cdiv\u003eThanks,\u003c/div\u003e\\n\u003cdiv\u003e{{host.name}}\u003c/div\u003e\\n\",\"email_confirmation_subject\":\"Your booking is confirmed\",\"email_confirmation_type\":\"default\",\"email_reminder_html\":\"\u003cdiv\u003eHello {{contact.name}},\u003c/div\u003e\\n\u003cbr\u003e\\n\\n\u003cdiv\u003e\u003cstrong\u003e{{booking_type.title}}\u003c/strong\u003e\u003c/div\u003e\\n\u003cdiv\u003eWith: {{user.name}}\u003c/div\u003e\\n\u003cdiv\u003eDate: {{booking.date}}\u003c/div\u003e\\n\u003cdiv\u003eTime: {{booking.time}}\u003c/div\u003e\\n\u003cdiv\u003eTimezone: {{booking.timezone}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eMeeting URL: {{booking.meeting_url}}\u003c/div\u003e\\n\u003cdiv\u003eLocation: \u003cbr\u003e{{booking.location}}\u003c/div\u003e\\n\u003cbr\u003e\\n\u003cdiv\u003eReschedule or cancel: {{booking.reschedule_url}}\u003c/div\u003e\\n\\n\u003cbr\u003e\\n\u003cdiv\u003eThanks,\u003c/div\u003e\\n\u003cdiv\u003e{{user.name}}\u003c/div\u003e\\n\",\"email_reminder_subject\":\"Upcoming booking reminder - {{booking_type.title}}\",\"email_share_url\":\"mailto:?subject=40-Min%20Call\u0026body=40-Min%20Call%0A%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"email_signature_url\":null,\"facebook_share_url\":\"https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\u0026description=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"formatted_duration\":\"30 minutes\",\"google_meet_enabled_at\":\"2025-01-14T12:50:43.000000Z\",\"id\":943614,\"ignore_conflicts\":false,\"import_source_id\":null,\"in_gallery_at\":null,\"is_bundle\":false,\"is_poll\":false,\"is_recurring\":false,\"latest_availability_days\":60,\"linkedin_share_url\":\"https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"localized_price\":\"$0.00\",\"location\":null,\"locations\":[{\"id\":608422,\"location_link\":null,\"location_link_source\":\"google_meet\",\"location_option\":\"location_option_online\"}],\"max_bookings\":1,\"max_guest_invites_per_booker\":0,\"meeting_url\":null,\"ms_teams_enabled_at\":null,\"order\":9,\"owner_tier_level\":1,\"padding_minutes\":0,\"payment_platform\":\"paypal\",\"payment_platform_id\":\"fabce0cf-14d2-4cf7-aad6-7a0dc651985d\",\"price\":\"0.00\",\"private\":false,\"recurrence_frequency\":null,\"recurrence_min\":null,\"recurrence_rule\":null,\"recurring_description\":null,\"redirect_url\":null,\"reply_to_email\":null,\"round_robin\":false,\"show_reviews_on_booking_page\":true,\"slug\":\"1ylky6y\",\"sms_reminder_content\":null,\"sms_share_url\":\"sms:?\u0026body=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"source\":null,\"team_id\":null,\"team_managed\":false,\"team_managed_booking_type_id\":null,\"theme_id\":87373,\"title\":\"40-Min Call\",\"twitter_share_url\":\"https://twitter.com/intent/tweet?text=40-Min%20Call%0Ahttps%3A%2F%2Ftidycal.com%2Fcathrynlavery%2Fhiring\",\"updated_at\":\"2026-03-12T15:21:04.000000Z\",\"url_slug\":\"hiring\",\"user\":{\"currency\":\"USD\",\"currency_code\":\"USD\",\"currency_symbol\":\"$\",\"google_analytics_measurement_id\":null,\"gtm_container_id\":null,\"id\":87144,\"language\":\"en\",\"lifetime_pro_at\":\"2023-10-25T18:47:17.000000Z\",\"name\":\"\u003credacted\u003e\",\"page_presentation\":\"\u003cdiv\u003eBook a call with me:\u003c/div\u003e\",\"page_title\":\"Cathryn Lavery\",\"profile_picture_url\":\"https://www.gravatar.com/avatar/f9c72d747e1164429a0818d22513c…[truncated]"
+    },
+    {
+      "command": "booking-types list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "booking-types timeslots list-booking-type",
+      "kind": "help",
+      "args": [
+        "booking-types",
+        "timeslots",
+        "list-booking-type",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of available timeslots for a specific booking type.\n\nUsage:\n  tidycal-pp-cli booking-types timeslots list-booking-type \u003cbookingType\u003e [flags]\n\nAliases:\n  list-booking-type, get\n\nExamples:\n  tidycal-pp-cli booking-types timeslots list-booking-type 42 --starts-at 2026-01-15T09:00:00Z --ends-at 2026-01-15T09:00:00Z\n\nFlags:\n      --ends-at string     End date to get timeslots until (UTC).\n  -h, --help               help for list-booking-type\n      --starts-at string   Start date to get timeslots from (UTC).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "booking-types timeslots list-booking-type",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"bookingtype\" at depth 0"
+    },
+    {
+      "command": "booking-types timeslots list-booking-type",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"bookingtype\" at depth 0"
+    },
+    {
+      "command": "booking-types timeslots list-booking-type",
+      "kind": "error_path",
+      "args": [
+        "booking-types",
+        "timeslots",
+        "list-booking-type",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag \"starts-at\" not set\n"
+    },
+    {
+      "command": "bookings cancel booking",
+      "kind": "help",
+      "args": [
+        "bookings",
+        "cancel",
+        "booking",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cancel a booking by ID.\n\nUsage:\n  tidycal-pp-cli bookings cancel booking \u003cbooking\u003e [flags]\n\nAliases:\n  booking, update\n\nExamples:\n  tidycal-pp-cli bookings cancel booking 42\n\nFlags:\n  -h, --help            help for booking\n      --reason string   Optional reason for cancellation\n      --stdin           Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bookings cancel booking",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"booking\" at depth 0"
+    },
+    {
+      "command": "bookings cancel booking",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"booking\" at depth 0"
+    },
+    {
+      "command": "bookings cancel booking",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "bookings cancel booking",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"booking\" at depth 0"
+    },
+    {
+      "command": "bookings get",
+      "kind": "help",
+      "args": [
+        "bookings",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a booking by ID.\n\nUsage:\n  tidycal-pp-cli bookings get \u003cbooking\u003e [flags]\n\nExamples:\n  tidycal-pp-cli bookings get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bookings get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"booking\" at depth 0"
+    },
+    {
+      "command": "bookings get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"booking\" at depth 0"
+    },
+    {
+      "command": "bookings get",
+      "kind": "error_path",
+      "args": [
+        "bookings",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /bookings/__printing_press_invalid__ returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Booking] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "bookings list",
+      "kind": "help",
+      "args": [
+        "bookings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of bookings.\n\nUsage:\n  tidycal-pp-cli bookings list \u003cstarts_at\u003e \u003cends_at\u003e \u003ccancelled\u003e \u003cinclude_teams\u003e [flags]\n\nExamples:\n  tidycal-pp-cli bookings list example-value example-value true true\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list\n      --page string   Page number. (default \"1\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bookings list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [bookings list] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "bookings list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [bookings list] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "bookings list",
+      "kind": "error_path",
+      "args": [
+        "bookings",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: ends_at is required\nUsage: tidycal-pp-cli bookings list \u003cends_at\u003e\n"
+    },
+    {
+      "command": "brief",
+      "kind": "help",
+      "args": [
+        "brief",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Produce a contact-aware schedule brief for a day or date range.\n\nUsage:\n  tidycal-pp-cli brief [flags]\n\nExamples:\n  tidycal-pp-cli brief --date today --format json\n  tidycal-pp-cli brief --from 2026-06-01 --to 2026-06-08 --include-teams\n\nFlags:\n      --date string       Local day to brief, or empty when --from/--to are set (default \"today\")\n      --format string     Output format: text or json (default \"text\")\n      --from string       Start date (YYYY-MM-DD, today, +Nd, or -Nd)\n  -h, --help              help for brief\n      --include-teams     Include team bookings when supported by TidyCal\n      --offline           Read from the local store instead of the live API\n      --sync-before       Refresh the viewed window from the API before rendering\n      --timezone string   IANA timezone for display (defaults to local timezone)\n      --to string         End date (YYYY-MM-DD, today, +Nd, or -Nd)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "brief",
+      "kind": "happy_path",
+      "args": [
+        "brief",
+        "--date",
+        "today",
+        "--format",
+        "json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bookings\": [],\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-31\",\n    \"to\": \"2026-06-01\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "brief",
+      "kind": "json_fidelity",
+      "args": [
+        "brief",
+        "--date",
+        "today",
+        "--format",
+        "json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bookings\": [],\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-31\",\n    \"to\": \"2026-06-01\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "brief",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "contacts create",
+      "kind": "help",
+      "args": [
+        "contacts",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new contact.\n\nUsage:\n  tidycal-pp-cli contacts create [flags]\n\nExamples:\n  tidycal-pp-cli contacts create --email user@example.com\n\nFlags:\n      --email string      Email\n  -h, --help              help for create\n      --name string       Name\n      --stdin             Read request body as JSON from stdin\n      --timezone string   Timezone\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "contacts create",
+      "kind": "happy_path",
+      "args": [
+        "contacts",
+        "create",
+        "--email",
+        "user@example.com",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/contacts\",\n  \"resource\": \"contacts\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://tidycal.com/api/contacts\n  Body:\n{\n    \"email\": \"\u003credacted\u003e\"\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "contacts create",
+      "kind": "json_fidelity",
+      "args": [
+        "contacts",
+        "create",
+        "--email",
+        "user@example.com",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/contacts\",\n  \"resource\": \"contacts\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://tidycal.com/api/contacts\n  Body:\n{\n    \"email\": \"\u003credacted\u003e\"\n  }\n  Authorization: ****\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "contacts create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "contacts create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "contacts list",
+      "kind": "help",
+      "args": [
+        "contacts",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of contacts.\n\nUsage:\n  tidycal-pp-cli contacts list [flags]\n\nExamples:\n  tidycal-pp-cli contacts list\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list\n      --page string   Page number. (default \"1\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "contacts list",
+      "kind": "happy_path",
+      "args": [
+        "contacts",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"created_at\":\"2025-08-13T21:18:25.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3313789,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-08-13T21:18:25.000000Z\"},{\"created_at\":\"2025-07-30T20:38:17.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3244912,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-07-30T20:38:17.000000Z\"},{\"created_at\":\"2025-07-08T20:26:15.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3120606,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-07-08T20:26:15.000000Z\"},{\"created_at\":\"2025-06-26T16:34:50.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3065671,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-06-26T16:34:50.000000Z\"},{\"created_at\":\"2025-06-02T14:57:06.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2952496,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-06-02T14:57:06.000000Z\"},{\"created_at\":\"2025-05-27T14:59:41.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2913866,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-27T14:59:41.000000Z\"},{\"created_at\":\"2025-05-27T02:39:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2910875,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-27T02:39:39.000000Z\"},{\"created_at\":\"2025-05-22T09:43:05.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2882772,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-22T09:43:05.000000Z\"},{\"created_at\":\"2025-05-16T18:04:57.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2853236,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-26T16:30:51.000000Z\"},{\"created_at\":\"2025-05-16T14:18:48.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2852097,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-16T14:18:48.000000Z\"},{\"created_at\":\"2025-05-15T14:16:38.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2846735,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-15T14:16:38.000000Z\"},{\"created_at\":\"2025-05-13T15:36:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2835473,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-26T16:05:54.000000Z\"},{\"created_at\":\"2025-05-05T15:32:43.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2789287,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-05T15:32:43.000000Z\"},{\"created_at\":\"2025-04-16T17:57:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2691864,\"ip_address\":null,\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T17:57:01.000000Z\"},{\"created_at\":\"2025-04-16T17:55:59.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2691855,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T17:55:59.000000Z\"},{\"created_at\":\"2025-04-16T15:03:58.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2690866,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T15:03:58.000000Z\"},{\"created_at\":\"2025-04-01T17:47:42.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2622660,\"ip_address\":null,\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-01T17:47:42.000000Z\"},{\"created_at\":\"2025-04-01T17:44:56.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2622647,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timez…[truncated]"
+    },
+    {
+      "command": "contacts list",
+      "kind": "json_fidelity",
+      "args": [
+        "contacts",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"created_at\":\"2025-08-13T21:18:25.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3313789,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-08-13T21:18:25.000000Z\"},{\"created_at\":\"2025-07-30T20:38:17.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3244912,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-07-30T20:38:17.000000Z\"},{\"created_at\":\"2025-07-08T20:26:15.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3120606,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-07-08T20:26:15.000000Z\"},{\"created_at\":\"2025-06-26T16:34:50.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":3065671,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-06-26T16:34:50.000000Z\"},{\"created_at\":\"2025-06-02T14:57:06.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2952496,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-06-02T14:57:06.000000Z\"},{\"created_at\":\"2025-05-27T14:59:41.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2913866,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-27T14:59:41.000000Z\"},{\"created_at\":\"2025-05-27T02:39:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2910875,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-27T02:39:39.000000Z\"},{\"created_at\":\"2025-05-22T09:43:05.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2882772,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-22T09:43:05.000000Z\"},{\"created_at\":\"2025-05-16T18:04:57.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2853236,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-26T16:30:51.000000Z\"},{\"created_at\":\"2025-05-16T14:18:48.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2852097,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-16T14:18:48.000000Z\"},{\"created_at\":\"2025-05-15T14:16:38.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2846735,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-15T14:16:38.000000Z\"},{\"created_at\":\"2025-05-13T15:36:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2835473,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-26T16:05:54.000000Z\"},{\"created_at\":\"2025-05-05T15:32:43.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2789287,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-05-05T15:32:43.000000Z\"},{\"created_at\":\"2025-04-16T17:57:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2691864,\"ip_address\":null,\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T17:57:01.000000Z\"},{\"created_at\":\"2025-04-16T17:55:59.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2691855,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T17:55:59.000000Z\"},{\"created_at\":\"2025-04-16T15:03:58.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2690866,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-16T15:03:58.000000Z\"},{\"created_at\":\"2025-04-01T17:47:42.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2622660,\"ip_address\":null,\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timezone\":null,\"updated_at\":\"2025-04-01T17:47:42.000000Z\"},{\"created_at\":\"2025-04-01T17:44:56.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2622647,\"ip_address\":\"<redacted-ip>\",\"name\":\"\u003credacted\u003e\",\"phone_number\":\"\u003credacted\u003e\",\"source\":null,\"timez…[truncated]"
+    },
+    {
+      "command": "contacts list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  tidycal-pp-cli doctor [flags]\n\nExamples:\n  tidycal-pp-cli doctor\n  tidycal-pp-cli doctor --json\n  tidycal-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK TIDYCAL_BEARER_AUTH optional\n  OK Verify Mode: normal operation\n  OK API: reachable\n  OK Credentials: valid\n  config_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.config/tidycal-pp-cli/config.toml\n  base_url: https://tidycal.com/api\n  auth_source: env:TIDYCAL_API_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/tidycal-pp-cli/data.db\n    schema_version: 3\n    db_bytes: 667648\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'tidycal-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"agentcookie\":\"not detected (optional)\",\"api\":\"reachable\",\"auth\":\"configured\",\"auth_source\":\"env:TIDYCAL_API_TOKEN\",\"base_url\":\"https://tidycal.com/api\",\"cache\":{\"db_bytes\":667648,\"db_path\":\"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/tidycal-pp-cli/data.db\",\"hint\":\"sync_state is empty; run 'tidycal-pp-cli sync' to hydrate.\",\"resources\":null,\"schema_version\":3,\"stale_after\":\"6h0m0s\",\"status\":\"unknown\"},\"config\":\"ok\",\"config_path\":\"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.config/tidycal-pp-cli/config.toml\",\"credentials\":\"valid\",\"env_vars\":\"OK TIDYCAL_BEARER_AUTH optional\",\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  tidycal-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  tidycal-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  tidycal-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  tidycal-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: booking-types, bookings, contacts, me, teams\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  tidycal-pp-cli feedback list [flags]\n\nExamples:\n  tidycal-pp-cli feedback list\n  tidycal-pp-cli feedback list --limit 5\n  tidycal-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "followups",
+      "kind": "help",
+      "args": [
+        "followups",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create an AI-ready follow-up queue from recent bookings.\n\nUsage:\n  tidycal-pp-cli followups [flags]\n\nExamples:\n  tidycal-pp-cli followups --from -7d --to today --format json\n  tidycal-pp-cli followups --exclude-cancelled --format csv\n\nFlags:\n      --exclude-cancelled   Exclude cancelled bookings from the queue (default true)\n      --format string       Output format: text, json, or csv (default \"text\")\n      --from string         Start date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"-7d\")\n  -h, --help                help for followups\n      --include-teams       Include team bookings when supported by TidyCal\n      --offline             Read from the local store instead of the live API\n      --sync-before         Refresh the viewed window from the API before queueing\n      --timezone string     IANA timezone for display (defaults to local timezone)\n      --to string           End date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"today\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "followups",
+      "kind": "happy_path",
+      "args": [
+        "followups",
+        "--from",
+        "-7d",
+        "--to",
+        "today",
+        "--format",
+        "json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"followups\": [],\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-24\",\n    \"to\": \"2026-06-01\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "followups",
+      "kind": "json_fidelity",
+      "args": [
+        "followups",
+        "--from",
+        "-7d",
+        "--to",
+        "today",
+        "--format",
+        "json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"followups\": [],\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-24\",\n    \"to\": \"2026-06-01\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "followups",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  tidycal-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  tidycal-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  tidycal-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | tidycal-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "me",
+      "kind": "help",
+      "args": [
+        "me",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get account details.\n\nUsage:\n  tidycal-pp-cli me [flags]\n\nExamples:\n  tidycal-pp-cli me\n\nFlags:\n  -h, --help   help for me\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "me",
+      "kind": "happy_path",
+      "args": [
+        "me"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"currency\":\"USD\",\"currency_code\":\"USD\",\"currency_symbol\":\"$\",\"email\":\"\u003credacted\u003e\",\"google_analytics_measurement_id\":null,\"gtm_container_id\":null,\"id\":87144,\"language\":\"en\",\"lifetime_pro_at\":\"2023-10-25T18:47:17.000000Z\",\"name\":\"\u003credacted\u003e\",\"page_presentation\":\"\u003cdiv\u003eBook a call with me:\u003c/div\u003e\",\"page_title\":\"Cathryn Lavery\",\"profile_picture_url\":\"https://www.gravatar.com/avatar/f9c72d747e1164429a0818d22513c4df?d=404\u0026s=200\",\"recaptcha_enabled\":true,\"theme_color\":\"#696c77\",\"tier_level\":1,\"tiktok_pixel_id\":null,\"time_format\":12,\"timezone\":\"America/Chicago\",\"vanity_path\":\"cathrynlavery\"}}"
+    },
+    {
+      "command": "me",
+      "kind": "json_fidelity",
+      "args": [
+        "me",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"currency\":\"USD\",\"currency_code\":\"USD\",\"currency_symbol\":\"$\",\"email\":\"\u003credacted\u003e\",\"google_analytics_measurement_id\":null,\"gtm_container_id\":null,\"id\":87144,\"language\":\"en\",\"lifetime_pro_at\":\"2023-10-25T18:47:17.000000Z\",\"name\":\"\u003credacted\u003e\",\"page_presentation\":\"\u003cdiv\u003eBook a call with me:\u003c/div\u003e\",\"page_title\":\"Cathryn Lavery\",\"profile_picture_url\":\"https://www.gravatar.com/avatar/f9c72d747e1164429a0818d22513c4df?d=404\u0026s=200\",\"recaptcha_enabled\":true,\"theme_color\":\"#696c77\",\"tier_level\":1,\"tiktok_pixel_id\":null,\"time_format\":12,\"timezone\":\"America/Chicago\",\"vanity_path\":\"cathrynlavery\"}}"
+    },
+    {
+      "command": "me",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  tidycal-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  tidycal-pp-cli profile delete my-defaults --yes\n  tidycal-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  tidycal-pp-cli profile list [flags]\n\nExamples:\n  tidycal-pp-cli profile list\n  tidycal-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  tidycal-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  tidycal-pp-cli profile save my-defaults --json --compact\n  tidycal-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  tidycal-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  tidycal-pp-cli profile show my-defaults\n  tidycal-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  tidycal-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  tidycal-pp-cli profile use my-defaults\n  tidycal-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "propose-times",
+      "kind": "help",
+      "args": [
+        "propose-times",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find available timeslots and produce a shortlist.\n\nUsage:\n  tidycal-pp-cli propose-times \u003cbooking-type-id\u003e [flags]\n\nExamples:\n  tidycal-pp-cli propose-times 123 --from today --to +14d --count 3 --format json\n  tidycal-pp-cli propose-times 123 --prefer morning --avoid-weekends\n\nFlags:\n      --avoid-weekends    Skip Saturday and Sunday slots\n      --count int         Maximum number of slots to return (default 3)\n      --format string     Output format: text or json (default \"text\")\n      --from string       Start date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"today\")\n  -h, --help              help for propose-times\n      --prefer string     Slot preference: morning, afternoon, or any (default \"any\")\n      --timezone string   IANA timezone for display (defaults to local timezone)\n      --to string         End date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"+14d\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "propose-times",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [propose-times] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "propose-times",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [propose-times] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "propose-times",
+      "kind": "error_path",
+      "args": [
+        "propose-times",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /booking-types/__printing_press_invalid__/timeslots returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\BookingType] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  tidycal-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  tidycal-pp-cli search \"error timeout\"\n\n  # Force local search only\n  tidycal-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  tidycal-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  tidycal-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/tidycal-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'tidycal-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  tidycal-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  tidycal-pp-cli sync\n\n  # Sync specific resources only\n  tidycal-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  tidycal-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  tidycal-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  tidycal-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  tidycal-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/tidycal-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"booking-types\"}\n{\"event\":\"sync_start\",\"resource\":\"contacts\"}\n{\"event\":\"sync_start\",\"resource\":\"bookings\"}\n{\"event\":\"sync_start\",\"resource\":\"teams\"}\n{\"event\":\"sync_complete\",\"resource\":\"teams\",\"total\":0,\"duration_ms\":254}\n{\"event\":\"sync_progress\",\"resource\":\"contacts\",\"fetched\":83}\n{\"event\":\"sync_complete\",\"resource\":\"contacts\",\"total\":83,\"duration_ms\":284}\n{\"event\":\"sync_progress\",\"resource\":\"booking-types\",\"fetched\":9}\n{\"event\":\"sync_complete\",\"resource\":\"booking-types\",\"total\":9,\"duration_ms\":302}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":120}\n{\"event\":\"sync_complete\",\"resource\":\"bookings\",\"total\":120,\"duration_ms\":888}\n{\"event\":\"sync_summary\",\"total_records\":212,\"resources\":7,\"success\":7,\"warned\":0,\"errored\":0,\"duration_ms\":888}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"booking-types\"}\n{\"event\":\"sync_start\",\"resource\":\"teams\"}\n{\"event\":\"sync_start\",\"resource\":\"contacts\"}\n{\"event\":\"sync_start\",\"resource\":\"bookings\"}\n{\"event\":\"sync_warning\",\"resource\":\"booking-types\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"contacts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"bookings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"teams\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"contacts\",\"fetched\":83}\n{\"event\":\"sync_complete\",\"resource\":\"contacts\",\"total\":83,\"duration_ms\":302}\n{\"event\":\"sync_complete\",\"resource\":\"teams\",\"total\":0,\"duration_ms\":305}\n{\"event\":\"sync_progress\",\"resource\":\"booking-types\",\"fetched\":9}\n{\"event\":\"sync_complete\",\"resource\":\"booking-types\",\"total\":9,\"duration_ms\":324}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":120}\n{\"event\":\"sync_complete\",\"resource\":\"bookings\",\"total\":120,\"duration_ms\":818}\n{\"event\":\"sync_summary\",\"total_records\":212,\"resources\":7,\"success\":7,\"warned\":0,\"errored\":0,\"duration_ms\":818}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams booking-types create-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "booking-types",
+        "create-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new booking type for a specific team.\n\nUsage:\n  tidycal-pp-cli teams booking-types create-team \u003cteam\u003e [flags]\n\nAliases:\n  create-team, create\n\nExamples:\n  tidycal-pp-cli teams booking-types create-team 42 --description example-value\n\nFlags:\n      --approval-required                           Approval required\n      --booking-availability-interval-minutes int   Booking availability interval minutes (default 15)\n      --booking-type-category-id string             Booking type category id\n      --currency-code string                        ISO 4217 currency code (e.g. USD, EUR, GBP). Defaults to your account currency.\n      --description string                          Description\n      --display-seats-remaining                     Display seats remaining\n      --duration-minutes int                        Duration minutes\n  -h, --help                                        help for create-team\n      --latest-availability-days int                Latest availability days (default 60)\n      --max-bookings int                            Max bookings (default 1)\n      --max-guest-invites-per-booker int            Max guest invites per booker\n      --padding-minutes int                         Padding minutes\n      --payment-platform string                     Payment platform to use. The platform must be connected in your account Integrations settings. Required when price \u003e 0.\n      --price float                                 Price for the booking type. Set to 0 for free booking types.\n      --private                                     Private\n      --redirect-url string                         Redirect url\n      --stdin                                       Read request body as JSON from stdin\n      --title string                                Title\n      --url-slug string                             Url slug\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams booking-types create-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams booking-types create-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams booking-types create-team",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "teams booking-types create-team",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams booking-types list-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "booking-types",
+        "list-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of booking types for a specific team.\n\nUsage:\n  tidycal-pp-cli teams booking-types list-team \u003cteam\u003e [flags]\n\nAliases:\n  list-team, get\n\nExamples:\n  tidycal-pp-cli teams booking-types list-team 42\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list-team\n      --page string   Page number.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams booking-types list-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams booking-types list-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams booking-types list-team",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "booking-types",
+        "list-team",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__/booking-types returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "teams bookings list-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "bookings",
+        "list-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of bookings for a specific team.\n\nUsage:\n  tidycal-pp-cli teams bookings list-team \u003cteam\u003e [flags]\n\nAliases:\n  list-team, get\n\nExamples:\n  tidycal-pp-cli teams bookings list-team 42\n\nFlags:\n      --all                 Fetch all pages\n      --cancelled           Filter by cancellation status.\n      --email string        Get bookings for a specific email address.\n      --end-date string     Get bookings ending before a specific date.\n  -h, --help                help for list-team\n      --host-id string      Get bookings for a specific user ID.\n      --page string         Page number.\n      --start-date string   Get bookings starting from a specific date.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams bookings list-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams bookings list-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams bookings list-team",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "bookings",
+        "list-team",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__/bookings returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "teams get",
+      "kind": "help",
+      "args": [
+        "teams",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get details of a specific team.\n\nUsage:\n  tidycal-pp-cli teams get \u003cteam\u003e [flags]\n\nExamples:\n  tidycal-pp-cli teams get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams get",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__ returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "teams list",
+      "kind": "help",
+      "args": [
+        "teams",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of teams the authenticated user has access to.\n\nUsage:\n  tidycal-pp-cli teams list [flags]\n\nExamples:\n  tidycal-pp-cli teams list\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list\n      --page string   Page number. (default \"1\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams list",
+      "kind": "happy_path",
+      "args": [
+        "teams",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [],\n    \"links\": {\n      \"first\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n      \"last\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n      \"prev\": null,\n      \"next\": null\n    },\n    \"meta\": {\n      \"current_page\": 1,\n      \"from\": null,\n      \"last_page\": 1,\n      \"links\": [\n        {\n          \"url\": null,\n          \"label\": \"\\u0026laquo; Previous\",\n          \"page\": null,\n          \"active\": false\n        },\n        {\n          \"url\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n          \"label\": \"1\",\n          \"page\": 1,\n          \"active\": true\n        },\n        {\n          \"url\": null,\n          \"label\": \"Next \\u0026raquo;\",\n          \"page\": null,\n          \"active\": false\n        }\n      ],\n      \"path\": \"https:\\/\\/tidycal.com\\/api\\/teams\",\n      \"per_page\": 100,\n      \"to\": null,\n      \"total\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "teams list",
+      "kind": "json_fidelity",
+      "args": [
+        "teams",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [],\n    \"links\": {\n      \"first\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n      \"last\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n      \"prev\": null,\n      \"next\": null\n    },\n    \"meta\": {\n      \"current_page\": 1,\n      \"from\": null,\n      \"last_page\": 1,\n      \"links\": [\n        {\n          \"url\": null,\n          \"label\": \"\\u0026laquo; Previous\",\n          \"page\": null,\n          \"active\": false\n        },\n        {\n          \"url\": \"https:\\/\\/tidycal.com\\/api\\/teams?page=1\",\n          \"label\": \"1\",\n          \"page\": 1,\n          \"active\": true\n        },\n        {\n          \"url\": null,\n          \"label\": \"Next \\u0026raquo;\",\n          \"page\": null,\n          \"active\": false\n        }\n      ],\n      \"path\": \"https:\\/\\/tidycal.com\\/api\\/teams\",\n      \"per_page\": 100,\n      \"to\": null,\n      \"total\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "teams list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams users add-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "users",
+        "add-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a user to a team by sending an invitation email.\n\nUsage:\n  tidycal-pp-cli teams users add-team \u003cteam\u003e [flags]\n\nAliases:\n  add-team, create\n\nExamples:\n  tidycal-pp-cli teams users add-team 42 --email user@example.com\n\nFlags:\n      --email string       Email address of the user to invite\n  -h, --help               help for add-team\n      --role-name string   Role name for the user in the team\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams users add-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users add-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users add-team",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "teams users add-team",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users list-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "users",
+        "list-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a list of users in a specific team.\n\nUsage:\n  tidycal-pp-cli teams users list-team \u003cteam\u003e [flags]\n\nAliases:\n  list-team, get\n\nExamples:\n  tidycal-pp-cli teams users list-team 42\n\nFlags:\n      --all           Fetch all pages\n  -h, --help          help for list-team\n      --page string   Page number. (default \"1\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams users list-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users list-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users list-team",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "users",
+        "list-team",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__/users returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "teams users remove-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "users",
+        "remove-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a user from a team.\n\nUsage:\n  tidycal-pp-cli teams users remove-team \u003cteam\u003e \u003cteamUser\u003e [flags]\n\nAliases:\n  remove-team, delete\n\nExamples:\n  tidycal-pp-cli teams users remove-team 42 42\n\nFlags:\n  -h, --help   help for remove-team\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams users remove-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users remove-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams users remove-team",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "teams users remove-team",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "triage",
+      "kind": "help",
+      "args": [
+        "triage",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Identify schedule and booking problems that need attention.\n\nUsage:\n  tidycal-pp-cli triage [flags]\n\nExamples:\n  tidycal-pp-cli triage --from today --to +7d --severity warning --format json\n  tidycal-pp-cli triage --preferred-hours 08:30-16:30 --include-teams\n\nFlags:\n      --cancelled                Include cancelled bookings in the viewed window\n      --format string            Output format: text or json (default \"text\")\n      --from string              Start date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"today\")\n  -h, --help                     help for triage\n      --include-teams            Include team bookings when supported by TidyCal\n      --offline                  Read from the local store instead of the live API\n      --preferred-hours string   Preferred local hours as HH:MM-HH:MM (default \"09:00-17:00\")\n      --severity string          Minimum severity: info, warning, or critical (default \"info\")\n      --sync-before              Refresh the viewed window from the API before triage\n      --timezone string          IANA timezone for display (defaults to local timezone)\n      --to string                End date (YYYY-MM-DD, today, +Nd, or -Nd) (default \"+7d\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "triage",
+      "kind": "happy_path",
+      "args": [
+        "triage",
+        "--from",
+        "today",
+        "--to",
+        "+7d",
+        "--severity",
+        "warning",
+        "--format",
+        "json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"findings\": null,\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-31\",\n    \"to\": \"2026-06-07\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "triage",
+      "kind": "json_fidelity",
+      "args": [
+        "triage",
+        "--from",
+        "today",
+        "--to",
+        "+7d",
+        "--severity",
+        "warning",
+        "--format",
+        "json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"findings\": null,\n  \"timezone\": \"Local\",\n  \"window\": {\n    \"from\": \"2026-05-31\",\n    \"to\": \"2026-06-07\"\n  }\n}\nwarning: 1/1 bookings items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "triage",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  tidycal-pp-cli which [query] [flags]\n\nExamples:\n  tidycal-pp-cli which \"stale tickets\"\n  tidycal-pp-cli which \"bottleneck\"\n  tidycal-pp-cli which --limit 1 \"send message\"\n  tidycal-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  tidycal-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  tidycal-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  tidycal-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/tidycal-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"booking-types\"}\n{\"event\":\"sync_warning\",\"resource\":\"booking-types\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"booking-types\",\"fetched\":9}\n{\"event\":\"sync_complete\",\"resource\":\"booking-types\",\"total\":9,\"duration_ms\":211}\n{\"event\":\"sync_start\",\"resource\":\"bookings\"}\n{\"event\":\"sync_warning\",\"resource\":\"bookings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":120}\n{\"event\":\"sync_complete\",\"resource\":\"bookings\",\"total\":120,\"duration_ms\":581}\n{\"event\":\"sync_start\",\"resource\":\"contacts\"}\n{\"event\":\"sync_warning\",\"resource\":\"contacts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"contacts\",\"fetched\":83}\n{\"event\":\"sync_complete\",\"resource\":\"contacts\",\"total\":83,\"duration_ms\":134}\n{\"event\":\"sync_start\",\"resource\":\"teams\"}\n{\"event\":\"sync_warning\",\"resource\":\"teams\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"teams\",\"total\":0,\"duration_ms\":107}\nArchived 212 items across 4 resources to /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/tidycal-pp-cli/data.db\n  booking-types: 9 synced\n  bookings: 120 synced\n  contacts: 83 synced\n  teams: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 4,\n  \"store_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/tidycal-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-01T02:27:11Z\",\n  \"total_items\": 212\n}\n{\"event\":\"sync_start\",\"resource\":\"booking-types\"}\n{\"event\":\"sync_warning\",\"resource\":\"booking-types\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"booking-types\",\"fetched\":9}\n{\"event\":\"sync_complete\",\"resource\":\"booking-types\",\"total\":9,\"duration_ms\":201}\n  booking-types: 9 synced\n{\"event\":\"sync_start\",\"resource\":\"bookings\"}\n{\"event\":\"sync_warning\",\"resource\":\"bookings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"bookings\",\"fetched\":120}\n{\"event\":\"sync_complete\",\"resource\":\"bookings\",\"total\":120,\"duration_ms\":670}\n  bookings: 120 synced\n{\"event\":\"sync_start\",\"resource\":\"contacts\"}\n{\"event\":\"sync_warning\",\"resource\":\"contacts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"contacts\",\"fetched\":83}\n{\"event\":\"sync_complete\",\"resource\":\"contacts\",\"total\":83,\"duration_ms\":135}\n  contacts: 83 synced\n{\"event\":\"sync_start\",\"resource\":\"teams\"}\n{\"event\":\"sync_warning\",\"resource\":\"teams\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"teams\",\"total\":0,\"duration_ms\":117}\n  teams: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  tidycal-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  tidycal-pp-cli workflow status\n\n  # Show status as JSON\n  tidycal-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tidycal-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  booking-types                  9 items\n  bookings                       120 items\n  contacts                       83 items\n  me                             1 items\n\n  Total: 213 items\n  Store: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-\u003credacted\u003e/.local/share/tidycal-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"booking-types\": 9,\n  \"bookings\": 120,\n  \"contacts\": 83,\n  \"me\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-01T02:27:04.679509Z"
+}

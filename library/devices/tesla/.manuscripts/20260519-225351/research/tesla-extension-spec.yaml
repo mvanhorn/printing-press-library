@@ -1,0 +1,1243 @@
+name: tesla
+description: Tesla owner-API endpoints not captured in the iOS HAR (tesla-control + TeslaPy methods)
+version: 0.1.0
+base_url: https://owner-api.teslamotors.com
+spec_source: sniffed
+http_transport: standard
+auth:
+  type: bearer_token
+  header: Authorization
+  env_vars:
+  - TESLA_AUTH_TOKEN
+  env_var_specs:
+  - name: TESLA_AUTH_TOKEN
+    kind: per_call
+    required: true
+    sensitive: true
+resources:
+  energy_sites:
+    description: energy_sites commands (extended)
+    endpoints:
+      get_site_info:
+        method: GET
+        path: /api/1/energy_sites/{site_id}/site_info
+        description: Energy site config (capacity, type, address)
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_site_info
+        pagination: null
+      get_live_status:
+        method: GET
+        path: /api/1/energy_sites/{site_id}/live_status
+        description: Real-time Powerwall solar/grid/battery power
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_live_status
+        pagination: null
+      get_site_status:
+        method: GET
+        path: /api/1/energy_sites/{site_id}/site_status
+        description: Backup-reserve and operation mode
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_site_status
+        pagination: null
+      get_calendar_history:
+        method: GET
+        path: /api/1/energy_sites/{site_id}/calendar_history
+        description: Historical energy data per day/month
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body:
+        - name: kind
+          type: string
+          required: true
+          description: energy | power | self_consumption | savings
+        - name: period
+          type: string
+          required: true
+          description: day | month | year
+        response:
+          type: object
+          item: get_calendar_history
+        pagination: null
+      create_set_backup_reserve:
+        method: POST
+        path: /api/1/energy_sites/{site_id}/backup
+        description: Set Powerwall backup reserve percent
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body:
+        - name: backup_reserve_percent
+          type: integer
+          required: true
+          description: Percent 0-100
+        response:
+          type: object
+          item: create_set_backup_reserve
+        pagination: null
+      create_set_operation:
+        method: POST
+        path: /api/1/energy_sites/{site_id}/operation
+        description: Set Powerwall operation mode
+        params:
+        - name: site_id
+          type: string
+          required: true
+          positional: true
+          description: Energy site id from /api/1/products
+          fields: []
+        body:
+        - name: default_real_mode
+          type: string
+          required: true
+          description: self_consumption | backup | autonomous
+        response:
+          type: object
+          item: create_set_operation
+        pagination: null
+  vehicles:
+    description: vehicles commands (extended)
+    endpoints:
+      get_data_charge_state:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/charge_state
+        description: Charge state subset (faster than full vehicle_data)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_charge_state
+        pagination: null
+      get_data_climate_state:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/climate_state
+        description: Climate state subset
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_climate_state
+        pagination: null
+      get_data_drive_state:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/drive_state
+        description: Drive state (location, speed, shift) subset
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_drive_state
+        pagination: null
+      get_data_vehicle_state:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/vehicle_state
+        description: Vehicle state (locks, software, sentry) subset
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_vehicle_state
+        pagination: null
+      get_data_gui_settings:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/gui_settings
+        description: GUI settings (units, time format)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_gui_settings
+        pagination: null
+      get_data_vehicle_config:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/data_request/vehicle_config
+        description: Vehicle config (model, options, trim)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_data_vehicle_config
+        pagination: null
+      get_mobile_enabled:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/mobile_enabled
+        description: Is mobile control enabled in the car
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_mobile_enabled
+        pagination: null
+      get_nearby_chargers:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/nearby_charging_sites
+        description: Nearby Supercharger sites with stall availability subfield
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_nearby_chargers
+        pagination: null
+      get_release_notes:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/release_notes
+        description: Release notes for the current/queued software update
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: get_release_notes
+        pagination: null
+      create_wake_up:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/wake_up
+        description: Wake the vehicle from sleep
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_wake_up
+        pagination: null
+      create_honk_horn:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/honk_horn
+        description: Honk the horn
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_honk_horn
+        pagination: null
+      create_flash_lights:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/flash_lights
+        description: Flash headlights
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_flash_lights
+        pagination: null
+      create_actuate_trunk:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/actuate_trunk
+        description: Open/close trunk or frunk; which_trunk = front | rear
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: which_trunk
+          type: string
+          required: true
+          description: front or rear
+        response:
+          type: object
+          item: create_actuate_trunk
+        pagination: null
+      create_charge_port_door_open:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_port_door_open
+        description: Open the charge port
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_port_door_open
+        pagination: null
+      create_charge_port_door_close:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_port_door_close
+        description: Close the charge port
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_port_door_close
+        pagination: null
+      create_window_control:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/window_control
+        description: Vent or close all windows; command = vent | close
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: command
+          type: string
+          required: true
+          description: vent or close
+        - name: lat
+          type: number
+          required: false
+          description: Required for vent (geofence)
+        - name: lon
+          type: number
+          required: false
+          description: Required for vent (geofence)
+        response:
+          type: object
+          item: create_window_control
+        pagination: null
+      create_sun_roof_control:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/sun_roof_control
+        description: 'Sun roof: state = vent | close'
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: state
+          type: string
+          required: true
+          description: vent or close
+        response:
+          type: object
+          item: create_sun_roof_control
+        pagination: null
+      create_set_temps:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_temps
+        description: Set driver and passenger climate temps (Celsius)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: driver_temp
+          type: number
+          required: true
+          description: Driver-side temp in Celsius
+        - name: passenger_temp
+          type: number
+          required: true
+          description: Passenger-side temp in Celsius
+        response:
+          type: object
+          item: create_set_temps
+        pagination: null
+      create_max_defrost:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_preconditioning_max
+        description: Toggle max defrost
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: 'on'
+          type: boolean
+          required: true
+          description: true to enable max defrost
+        response:
+          type: object
+          item: create_max_defrost
+        pagination: null
+      create_seat_heater_request:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/remote_seat_heater_request
+        description: Set seat heater level (0-3) at a seat position (0=driver, 1=passenger, 2-5=rear)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: heater
+          type: integer
+          required: true
+          description: 0-5 seat position
+        - name: level
+          type: integer
+          required: true
+          description: 0-3 heat level
+        response:
+          type: object
+          item: create_seat_heater_request
+        pagination: null
+      create_steering_wheel_heater_request:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/remote_steering_wheel_heater_request
+        description: Toggle steering wheel heater
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: 'on'
+          type: boolean
+          required: true
+          description: true to enable
+        response:
+          type: object
+          item: create_steering_wheel_heater_request
+        pagination: null
+      create_climate_keeper_mode:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_climate_keeper_mode
+        description: 'Climate keeper mode: 0=off, 1=on, 2=dog, 3=camp'
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: climate_keeper_mode
+          type: integer
+          required: true
+          description: 0=off 1=on 2=dog 3=camp
+        response:
+          type: object
+          item: create_climate_keeper_mode
+        pagination: null
+      create_bioweapon_mode:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_bioweapon_mode
+        description: Toggle bioweapon defense mode (HEPA recirculation)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: 'on'
+          type: boolean
+          required: true
+          description: true to enable
+        - name: manual_override
+          type: boolean
+          required: false
+          description: force toggle
+        response:
+          type: object
+          item: create_bioweapon_mode
+        pagination: null
+      create_charge_start:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_start
+        description: Start charging
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_start
+        pagination: null
+      create_charge_stop:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_stop
+        description: Stop charging
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_stop
+        pagination: null
+      create_set_charge_limit:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_charge_limit
+        description: Set charge limit percent (50-100)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: percent
+          type: integer
+          required: true
+          description: Target SOC percent 50-100
+        response:
+          type: object
+          item: create_set_charge_limit
+        pagination: null
+      create_set_charging_amps:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_charging_amps
+        description: Set charging amps draw
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: charging_amps
+          type: integer
+          required: true
+          description: Amperes
+        response:
+          type: object
+          item: create_set_charging_amps
+        pagination: null
+      create_charge_standard:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_standard
+        description: Set charge limit to Standard (~90%)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_standard
+        pagination: null
+      create_charge_max_range:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/charge_max_range
+        description: Set charge limit to Max Range (100%)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_charge_max_range
+        pagination: null
+      create_add_charge_schedule:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/add_charge_schedule
+        description: Add a charging schedule (location + time window)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: lat
+          type: number
+          required: true
+          description: Schedule location latitude
+        - name: lon
+          type: number
+          required: true
+          description: Schedule location longitude
+        - name: start_enabled
+          type: boolean
+          required: false
+          description: Enable start time
+        - name: end_enabled
+          type: boolean
+          required: false
+          description: Enable end time
+        - name: start_time
+          type: integer
+          required: false
+          description: Minutes from midnight
+        - name: end_time
+          type: integer
+          required: false
+          description: Minutes from midnight
+        - name: enabled
+          type: boolean
+          required: false
+          description: Schedule active
+        - name: one_time
+          type: boolean
+          required: false
+          description: One-time vs recurring
+        response:
+          type: object
+          item: create_add_charge_schedule
+        pagination: null
+      create_remove_charge_schedule:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/remove_charge_schedule
+        description: Remove charging schedule by id
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: id
+          type: integer
+          required: true
+          description: Schedule id
+        response:
+          type: object
+          item: create_remove_charge_schedule
+        pagination: null
+      create_add_precondition_schedule:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/add_precondition_schedule
+        description: Add a preconditioning schedule
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: lat
+          type: number
+          required: true
+          description: Schedule location latitude
+        - name: lon
+          type: number
+          required: true
+          description: Schedule location longitude
+        - name: precondition_time
+          type: integer
+          required: true
+          description: Minutes from midnight to be ready
+        - name: days_of_week
+          type: string
+          required: false
+          description: Days mask e.g. "Weekdays" or "All"
+        - name: enabled
+          type: boolean
+          required: false
+          description: Schedule active
+        response:
+          type: object
+          item: create_add_precondition_schedule
+        pagination: null
+      create_remove_precondition_schedule:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/remove_precondition_schedule
+        description: Remove preconditioning schedule by id
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: id
+          type: integer
+          required: true
+          description: Schedule id
+        response:
+          type: object
+          item: create_remove_precondition_schedule
+        pagination: null
+      create_set_sentry_mode:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_sentry_mode
+        description: Enable/disable Sentry mode
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: 'on'
+          type: boolean
+          required: true
+          description: true to enable
+        response:
+          type: object
+          item: create_set_sentry_mode
+        pagination: null
+      create_set_valet_mode:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/set_valet_mode
+        description: Enable/disable Valet mode with optional PIN
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: 'on'
+          type: boolean
+          required: true
+          description: true to enable
+        - name: password
+          type: string
+          required: false
+          description: 4-digit PIN
+        response:
+          type: object
+          item: create_set_valet_mode
+        pagination: null
+      create_reset_valet_pin:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/reset_valet_pin
+        description: Reset Valet PIN
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_reset_valet_pin
+        pagination: null
+      create_guest_mode:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/guest_mode
+        description: Enable/disable Guest mode
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: enable
+          type: boolean
+          required: true
+          description: true to enable
+        response:
+          type: object
+          item: create_guest_mode
+        pagination: null
+      create_erase_user_data:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/erase_user_data
+        description: Erase guest-session user data
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_erase_user_data
+        pagination: null
+      create_speed_limit_activate:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/speed_limit_activate
+        description: Activate Speed Limit mode
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: pin
+          type: string
+          required: true
+          description: 4-digit PIN
+        response:
+          type: object
+          item: create_speed_limit_activate
+        pagination: null
+      create_speed_limit_deactivate:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/speed_limit_deactivate
+        description: Deactivate Speed Limit mode
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: pin
+          type: string
+          required: true
+          description: 4-digit PIN
+        response:
+          type: object
+          item: create_speed_limit_deactivate
+        pagination: null
+      create_speed_limit_set_limit:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/speed_limit_set_limit
+        description: Set Speed Limit value (mph)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: limit_mph
+          type: integer
+          required: true
+          description: Speed limit in MPH
+        response:
+          type: object
+          item: create_speed_limit_set_limit
+        pagination: null
+      create_speed_limit_clear_pin:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/speed_limit_clear_pin
+        description: Clear Speed Limit PIN
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: pin
+          type: string
+          required: true
+          description: Current 4-digit PIN
+        response:
+          type: object
+          item: create_speed_limit_clear_pin
+        pagination: null
+      create_media_toggle_playback:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_toggle_playback
+        description: Toggle play/pause
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_toggle_playback
+        pagination: null
+      create_media_next_track:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_next_track
+        description: Next track
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_next_track
+        pagination: null
+      create_media_prev_track:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_prev_track
+        description: Previous track
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_prev_track
+        pagination: null
+      create_media_next_favorite:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_next_favorite
+        description: Next favorite station
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_next_favorite
+        pagination: null
+      create_media_prev_favorite:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_prev_favorite
+        description: Previous favorite station
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_prev_favorite
+        pagination: null
+      create_media_volume_up:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_volume_up
+        description: Volume up
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_volume_up
+        pagination: null
+      create_media_volume_down:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/media_volume_down
+        description: Volume down
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_media_volume_down
+        pagination: null
+      create_adjust_volume:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/adjust_volume
+        description: Set volume to specific level
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: volume
+          type: number
+          required: true
+          description: Target volume level
+        response:
+          type: object
+          item: create_adjust_volume
+        pagination: null
+      create_share:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/share
+        description: Send navigation destination to the car (address or coordinates)
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: type
+          type: string
+          required: false
+          description: share_ext_content_raw default
+        - name: value
+          type: object
+          required: true
+          description: Object containing destination text or coords
+        - name: locale
+          type: string
+          required: false
+          description: en-US default
+        - name: timestamp_ms
+          type: integer
+          required: false
+          description: Unix ms; defaults to now
+        response:
+          type: object
+          item: create_share
+        pagination: null
+      create_navigation_gps_request:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/navigation_gps_request
+        description: Send lat/lng directly to navigation
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: lat
+          type: number
+          required: true
+          description: Latitude
+        - name: lon
+          type: number
+          required: true
+          description: Longitude
+        - name: order
+          type: integer
+          required: false
+          description: Waypoint order
+        response:
+          type: object
+          item: create_navigation_gps_request
+        pagination: null
+      create_schedule_software_update:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/schedule_software_update
+        description: Schedule the pending software update
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: offset_sec
+          type: integer
+          required: true
+          description: Seconds from now
+        response:
+          type: object
+          item: create_schedule_software_update
+        pagination: null
+      create_cancel_software_update:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/cancel_software_update
+        description: Cancel pending software update
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body: []
+        response:
+          type: object
+          item: create_cancel_software_update
+        pagination: null
+      create_trigger_homelink:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/trigger_homelink
+        description: Trigger HomeLink garage door
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: lat
+          type: number
+          required: true
+          description: Current latitude (HomeLink uses geofence)
+        - name: lon
+          type: number
+          required: true
+          description: Current longitude
+        response:
+          type: object
+          item: create_trigger_homelink
+        pagination: null
+      get_compose_image:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/composite_image
+        description: Compose a rendered image of the configured vehicle
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          description: Vehicle id from /api/1/products
+          fields: []
+        body:
+        - name: view
+          type: string
+          required: false
+          description: STUD_3QTR | STUD_REAR | STUD_SIDE | STUD_REAR_QUARTER
+        - name: options
+          type: string
+          required: false
+          description: Option codes (optional override)
+        - name: size
+          type: integer
+          required: false
+          description: Image size in pixels
+        response:
+          type: object
+          item: get_compose_image
+        pagination: null

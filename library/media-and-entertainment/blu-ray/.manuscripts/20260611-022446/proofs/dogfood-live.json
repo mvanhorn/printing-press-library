@@ -1,0 +1,1362 @@
+{
+  "dir": "/Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli",
+  "binary": "/Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260611-022446/working/blu-ray-pp-cli/blu-ray-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 88,
+  "passed": 85,
+  "failed": 3,
+  "skipped": 46,
+  "commands": [
+    "api",
+    "calendar digital",
+    "calendar releases",
+    "calendar theatrical",
+    "deals",
+    "doctor",
+    "drift",
+    "editions",
+    "export",
+    "feedback list",
+    "history",
+    "import",
+    "news get",
+    "news index",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "releases get",
+    "releases new",
+    "search",
+    "sitemap bluraymovies",
+    "sitemap index",
+    "sitemap news",
+    "sync",
+    "upc",
+    "watch add",
+    "watch check",
+    "watch list",
+    "watch rm",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  blu-ray-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  blu-ray-pp-cli api\n\n  # Show methods for a specific interface\n  blu-ray-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'blu-ray-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "calendar digital",
+      "kind": "help",
+      "args": [
+        "calendar",
+        "digital",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Digital release calendar (streaming/rental window opens).\n\nUsage:\n  blu-ray-pp-cli calendar digital [flags]\n\nExamples:\n  blu-ray-pp-cli calendar digital\n\nFlags:\n  -h, --help       help for digital\n      --year int   Calendar year.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "calendar digital",
+      "kind": "happy_path",
+      "args": [
+        "calendar",
+        "digital"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/digital/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",…[truncated]"
+    },
+    {
+      "command": "calendar digital",
+      "kind": "json_fidelity",
+      "args": [
+        "calendar",
+        "digital",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/digital/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/digital/releasedates.php\",\"name\":\"\u003credacted\u003e\",…[truncated]"
+    },
+    {
+      "command": "calendar digital",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "calendar releases",
+      "kind": "help",
+      "args": [
+        "calendar",
+        "releases",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Release calendar page for a given year, optionally filtered by country and format.\n\nUsage:\n  blu-ray-pp-cli calendar releases [flags]\n\nExamples:\n  blu-ray-pp-cli calendar releases\n\nFlags:\n      --country string   Country filter (e.g. USA).\n      --format string    Format filter. (one of: 4K, bluray, 3D, DVD)\n  -h, --help             help for releases\n      --year int         Calendar year (2006-onwards). Defaults to current year when omitted.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "calendar releases",
+      "kind": "happy_path",
+      "args": [
+        "calendar",
+        "releases"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/movies/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3ds\",\"text\":\"3DS\",\"u…[truncated]"
+    },
+    {
+      "command": "calendar releases",
+      "kind": "json_fidelity",
+      "args": [
+        "calendar",
+        "releases",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/movies/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/movies/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3ds\",\"text\":\"3DS\",\"u…[truncated]"
+    },
+    {
+      "command": "calendar releases",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "calendar theatrical",
+      "kind": "help",
+      "args": [
+        "calendar",
+        "theatrical",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Theatrical release calendar.\n\nUsage:\n  blu-ray-pp-cli calendar theatrical [flags]\n\nExamples:\n  blu-ray-pp-cli calendar theatrical\n\nFlags:\n  -h, --help       help for theatrical\n      --year int   Calendar year.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "calendar theatrical",
+      "kind": "happy_path",
+      "args": [
+        "calendar",
+        "theatrical"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"}…[truncated]"
+    },
+    {
+      "command": "calendar theatrical",
+      "kind": "json_fidelity",
+      "args": [
+        "calendar",
+        "theatrical",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"links\":[{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/theatrical/releasedates.php\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"}…[truncated]"
+    },
+    {
+      "command": "calendar theatrical",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "deals",
+      "kind": "help",
+      "args": [
+        "deals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Current Blu-ray.com deals, filterable by country and format.\n\nUsage:\n  blu-ray-pp-cli deals [flags]\n\nExamples:\n  blu-ray-pp-cli deals --country USA --format 4k --json --select release_id,title,sale_price,percent_off\n\nFlags:\n      --country string     Country code (USA, UK, DE, FR, ...). Defaults to USA. (default \"USA\")\n      --format string      Format filter. (one of: 4k, bluray, dvd, 3d)\n  -h, --help               help for deals\n      --limit int          Cap returned deal rows. Defaults to no cap.\n      --max-price float    Keep only deals whose sale_price is at most N. Defaults to no filter.\n      --min-discount int   Keep only deals whose percent_off is at least N. Defaults to no filter.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deals",
+      "kind": "happy_path",
+      "args": [
+        "deals",
+        "--country",
+        "USA",
+        "--format",
+        "4k",
+        "--json",
+        "--select",
+        "release_id,title,sale_price,percent_off"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"release_id\": 407441,\n    \"sale_price\": 47.99,\n    \"title\": \"Suzzanna Empress of Darkness\"\n  },\n  {\n    \"release_id\": 253623,\n    \"sale_price\": 11.49,\n    \"title\": \"Universal Soldier\"\n  },\n  {\n    \"release_id\": 413997,\n    \"sale_price\": 69.99,\n    \"title\": \"Heated Rivalry Season One\"\n  },\n  {\n    \"release_id\": 394492,\n    \"sale_price\": 43.35,\n    \"title\": \"Teenage Mutant Ninja Turtles Trilogy\"\n  },\n  {\n    \"release_id\": 401622,\n    \"sale_price\": 34.27,\n    \"title\": \"The Flintstones\"\n  },\n  {\n    \"release_id\": 413683,\n    \"sale_price\": 39.16,\n    \"title\": \"Troy\"\n  },\n  {\n    \"release_id\": 413890,\n    \"sale_price\": 41.71,\n    \"title\": \"Your Name\"\n  },\n  {\n    \"release_id\": 393376,\n    \"sale_price\": 24.99,\n    \"title\": \"Avatar Fire and Ash\"\n  },\n  {\n    \"release_id\": 413736,\n    \"sale_price\": 38.02,\n    \"title\": \"Identity\"\n  },\n  {\n    \"release_id\": 413806,\n    \"sale_price\": 30.72,\n    \"title\": \"Hokum\"\n  },\n  {\n    \"release_id\": 411797,\n    \"sale_price\": 30.99,\n    \"title\": \"Ready or Not 2 Here I Come\"\n  },\n  {\n    \"release_id\": 402561,\n    \"sale_price\": 20.49,\n    \"title\": \"Ma and Pa Kettle Complete Comedy Collection\"\n  },\n  {\n    \"release_id\": 409475,\n    \"sale_price\": 142.97,\n    \"title\": \"Jackie Chans Breakout Hits\"\n  },\n  {\n    \"release_id\": 404730,\n    \"sale_price\": 74.93,\n    \"title\": \"John Singletons Hood Trilogy\"\n  },\n  {\n    \"release_id\": 413874,\n    \"sale_price\": 38.3,\n    \"title\": \"The Stunt Man\"\n  },\n  {\n    \"release_id\": 410215,\n    \"sale_price\": 59.95,\n    \"title\": \"Sailor Moon Crystal Seasons 1 3 Collection\"\n  },\n  {\n    \"release_id\": 395712,\n    \"sale_price\": 30.61,\n    \"title\": \"TRON\"\n  },\n  {\n    \"release_id\": 409269,\n    \"sale_price\": 69.99,\n    \"title\": \"The Office The Complete Series Superfan Extended Episodes\"\n  },\n  {\n    \"release_id\": 413832,\n    \"sale_price\": 27.95,\n    \"title\": \"Pressure\"\n  },\n  {\n    \"release_id\": 406035,\n    \"sale_price\": 42.99,\n    \"title\": \"Fallout Season Two\"\n  },\n  {\n    \"release_id\": 66113,\n    \"sale_price\": 8.49,\n    \"title\": \"Tightrope\"\n  },\n  {\n    \"release_id\": 405714,\n    \"sale_price\": 32.38,\n    \"title\": \"Sky Captain and the World of Tomorrow\"\n  },\n  {\n    \"release_id\": 409571,\n    \"sale_price\": 36.99,\n    \"title\": \"Teenage Mutant Ninja Turtles Trilogy\"\n  },\n  {\n    \"release_id\": 409689,\n    \"sale_price\": 34.27,\n    \"title\": \"Bubba Ho Tep\"\n  },\n  {\n    \"release_id\": 413735,\n    \"sale_price\": 38.02,\n    \"title\": \"The People vs Larry Flynt\"\n  },\n  {\n    \"release_id\": 401237,\n    \"sale_price\": 35.15,\n    \"title\": \"1408\"\n  },\n  {\n    \"release_id\": 387722,\n    \"sale_price\": 25.89,\n    \"title\": \"The Phantom\"\n  },\n  {\n    \"release_id\": 413998,\n    \"sale_price\": 30.95,\n    \"title\": \"Heated Rivalry Season One\"\n  },\n  {\n    \"release_id\": 406299,\n    \"sale_price\": 22.99,\n    \"title\": \"Hoppers\"\n  },\n  {\n    \"release_id\": 400505,\n    \"sale_price\": 17.51,\n    \"title\": \"Ben Hur\"\n  },\n  {\n    \"release_id\": 407553,\n    \"sale_price\": 24.99,\n    \"title\": \"The Ghost Galleon\"\n  },\n  {\n    \"release_id\": 404720,\n    \"sale_price\": 27.26,\n    \"title\": \"Monty Pythons Life of Brian\"\n  },\n  {\n    \"release_id\": 412968,\n    \"sale_price\": 30.99,\n    \"title\": \"The Cell\"\n  },\n  {\n    \"release_id\": 23076,\n    \"sale_price\": 39.96,\n    \"title\": \"Kill Bill The Whole Bloody Affair\"\n  },\n  {\n    \"release_id\": 372606,\n    \"sale_price\": 20.24,\n    \"title\": \"Dantes Peak\"\n  },\n  {\n    \"release_id\": 382815,\n    \"sale_price\": 21.07,\n    \"title\": \"Hold That Ghost\"\n  },\n  {\n    \"release_id\": 413879,\n    \"sale_price\": 41.71,\n    \"title\": \"Night of the Comet\"\n  },\n  {\n    \"release_id\": 412735,\n    \"sale_price\": 17.96,\n    \"title\": \"Ip Man Kung Fu Legend\"\n  },\n  {\n    \"release_id\": 405573,\n    \"sale_price\": 29.99,\n    \"title\": \"Soldier\"\n  },\n  {\n    \"release_id\": 219641,\n    \"sale_price\": 38.02,\n    \"title\": \"Ju on The Grudge\"\n  },\n  {\n    \"release_id\": 375753,\n    \"sale_price\": 39.99,\n    \"title\": \"Willow\"\n  },\n  {\n    \"release_id\": 256531,\n    \"sale_price\": 16.99,\n    \"title\": \"Seven Worlds One Planet\"\n  },\n  {\n    \"release_id\": 409938,\n    \"sale_price\": 20.99,\n    \"title\": \"The Naughty World of Stanley L…[truncated]"
+    },
+    {
+      "command": "deals",
+      "kind": "json_fidelity",
+      "args": [
+        "deals",
+        "--country",
+        "USA",
+        "--format",
+        "4k",
+        "--json",
+        "--select",
+        "release_id,title,sale_price,percent_off"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"release_id\": 407441,\n    \"sale_price\": 47.99,\n    \"title\": \"Suzzanna Empress of Darkness\"\n  },\n  {\n    \"release_id\": 253623,\n    \"sale_price\": 11.49,\n    \"title\": \"Universal Soldier\"\n  },\n  {\n    \"release_id\": 413997,\n    \"sale_price\": 69.99,\n    \"title\": \"Heated Rivalry Season One\"\n  },\n  {\n    \"release_id\": 394492,\n    \"sale_price\": 43.35,\n    \"title\": \"Teenage Mutant Ninja Turtles Trilogy\"\n  },\n  {\n    \"release_id\": 401622,\n    \"sale_price\": 34.27,\n    \"title\": \"The Flintstones\"\n  },\n  {\n    \"release_id\": 413683,\n    \"sale_price\": 39.16,\n    \"title\": \"Troy\"\n  },\n  {\n    \"release_id\": 413890,\n    \"sale_price\": 41.71,\n    \"title\": \"Your Name\"\n  },\n  {\n    \"release_id\": 393376,\n    \"sale_price\": 24.99,\n    \"title\": \"Avatar Fire and Ash\"\n  },\n  {\n    \"release_id\": 413736,\n    \"sale_price\": 38.02,\n    \"title\": \"Identity\"\n  },\n  {\n    \"release_id\": 413806,\n    \"sale_price\": 30.72,\n    \"title\": \"Hokum\"\n  },\n  {\n    \"release_id\": 411797,\n    \"sale_price\": 30.99,\n    \"title\": \"Ready or Not 2 Here I Come\"\n  },\n  {\n    \"release_id\": 402561,\n    \"sale_price\": 20.49,\n    \"title\": \"Ma and Pa Kettle Complete Comedy Collection\"\n  },\n  {\n    \"release_id\": 409475,\n    \"sale_price\": 142.97,\n    \"title\": \"Jackie Chans Breakout Hits\"\n  },\n  {\n    \"release_id\": 404730,\n    \"sale_price\": 74.93,\n    \"title\": \"John Singletons Hood Trilogy\"\n  },\n  {\n    \"release_id\": 413874,\n    \"sale_price\": 38.3,\n    \"title\": \"The Stunt Man\"\n  },\n  {\n    \"release_id\": 410215,\n    \"sale_price\": 59.95,\n    \"title\": \"Sailor Moon Crystal Seasons 1 3 Collection\"\n  },\n  {\n    \"release_id\": 395712,\n    \"sale_price\": 30.61,\n    \"title\": \"TRON\"\n  },\n  {\n    \"release_id\": 409269,\n    \"sale_price\": 69.99,\n    \"title\": \"The Office The Complete Series Superfan Extended Episodes\"\n  },\n  {\n    \"release_id\": 413832,\n    \"sale_price\": 27.95,\n    \"title\": \"Pressure\"\n  },\n  {\n    \"release_id\": 406035,\n    \"sale_price\": 42.99,\n    \"title\": \"Fallout Season Two\"\n  },\n  {\n    \"release_id\": 66113,\n    \"sale_price\": 8.49,\n    \"title\": \"Tightrope\"\n  },\n  {\n    \"release_id\": 405714,\n    \"sale_price\": 32.38,\n    \"title\": \"Sky Captain and the World of Tomorrow\"\n  },\n  {\n    \"release_id\": 409571,\n    \"sale_price\": 36.99,\n    \"title\": \"Teenage Mutant Ninja Turtles Trilogy\"\n  },\n  {\n    \"release_id\": 409689,\n    \"sale_price\": 34.27,\n    \"title\": \"Bubba Ho Tep\"\n  },\n  {\n    \"release_id\": 413735,\n    \"sale_price\": 38.02,\n    \"title\": \"The People vs Larry Flynt\"\n  },\n  {\n    \"release_id\": 401237,\n    \"sale_price\": 35.15,\n    \"title\": \"1408\"\n  },\n  {\n    \"release_id\": 387722,\n    \"sale_price\": 25.89,\n    \"title\": \"The Phantom\"\n  },\n  {\n    \"release_id\": 413998,\n    \"sale_price\": 30.95,\n    \"title\": \"Heated Rivalry Season One\"\n  },\n  {\n    \"release_id\": 406299,\n    \"sale_price\": 22.99,\n    \"title\": \"Hoppers\"\n  },\n  {\n    \"release_id\": 400505,\n    \"sale_price\": 17.51,\n    \"title\": \"Ben Hur\"\n  },\n  {\n    \"release_id\": 407553,\n    \"sale_price\": 24.99,\n    \"title\": \"The Ghost Galleon\"\n  },\n  {\n    \"release_id\": 404720,\n    \"sale_price\": 27.26,\n    \"title\": \"Monty Pythons Life of Brian\"\n  },\n  {\n    \"release_id\": 412968,\n    \"sale_price\": 30.99,\n    \"title\": \"The Cell\"\n  },\n  {\n    \"release_id\": 23076,\n    \"sale_price\": 39.96,\n    \"title\": \"Kill Bill The Whole Bloody Affair\"\n  },\n  {\n    \"release_id\": 372606,\n    \"sale_price\": 20.24,\n    \"title\": \"Dantes Peak\"\n  },\n  {\n    \"release_id\": 382815,\n    \"sale_price\": 21.07,\n    \"title\": \"Hold That Ghost\"\n  },\n  {\n    \"release_id\": 413879,\n    \"sale_price\": 41.71,\n    \"title\": \"Night of the Comet\"\n  },\n  {\n    \"release_id\": 412735,\n    \"sale_price\": 17.96,\n    \"title\": \"Ip Man Kung Fu Legend\"\n  },\n  {\n    \"release_id\": 405573,\n    \"sale_price\": 29.99,\n    \"title\": \"Soldier\"\n  },\n  {\n    \"release_id\": 219641,\n    \"sale_price\": 38.02,\n    \"title\": \"Ju on The Grudge\"\n  },\n  {\n    \"release_id\": 375753,\n    \"sale_price\": 39.99,\n    \"title\": \"Willow\"\n  },\n  {\n    \"release_id\": 256531,\n    \"sale_price\": 16.99,\n    \"title\": \"Seven Worlds One Planet\"\n  },\n  {\n    \"release_id\": 409938,\n    \"sale_price\": 20.99,\n    \"title\": \"The Naughty World of Stanley L…[truncated]"
+    },
+    {
+      "command": "deals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  blu-ray-pp-cli doctor [flags]\n\nExamples:\n  blu-ray-pp-cli doctor\n  blu-ray-pp-cli doctor --json\n  blu-ray-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/cr/8z3ytxb13tj_xchv9dfqzmr80000gn/T/printing-press-subprocess-1308761285/.config/blu-ray-pp-cli/config.toml\n  base_url: https://www.blu-ray.com\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/cr/8z3ytxb13tj_xchv9dfqzmr80000gn/T/printing-press-subprocess-1308761285/.local/share/blu-ray-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 143360\n    stale_after: 6h0m0s\n    resources:\n      - releases_catalog: 100 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.blu-ray.com\",\n  \"cache\": {\n    \"db_bytes\": 143360,\n    \"db_path\": \"/var/folders/cr/8z3ytxb13tj_xchv9dfqzmr80000gn/T/printing-press-subprocess-1308761285/.local/share/blu-ray-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-11T06:54:30Z\",\n        \"rows\": 100,\n        \"staleness\": \"0s\",\n        \"type\": \"releases_catalog\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/cr/8z3ytxb13tj_xchv9dfqzmr80000gn/T/printing-press-subprocess-1308761285/.config/blu-ray-pp-cli/config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drift",
+      "kind": "help",
+      "args": [
+        "drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare current sitemap snapshots with previous sync snapshots.\n\nUsage:\n  blu-ray-pp-cli drift [flags]\n\nExamples:\n  blu-ray-pp-cli drift --since 2026-05-01 --kind bluray --json\n  blu-ray-pp-cli drift --json --select added,removed,changed\n\nFlags:\n  -h, --help           help for drift\n      --kind string    Sitemap kind filter: bluray, 4k, dvd, digital, or news.\n      --since string   Only consider snapshots taken on or after YYYY-MM-DD.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drift",
+      "kind": "happy_path",
+      "args": [
+        "drift",
+        "--since",
+        "2026-05-01",
+        "--kind",
+        "bluray",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"first_sync_complete\": true,\n  \"releases_indexed\": 100,\n  \"snapshots\": [\n    {\n      \"taken_at\": \"2026-06-11T06:54:30Z\",\n      \"sitemap_name\": \"sitemap_bluraymovies_0.xml.gz\",\n      \"url_count\": 100,\n      \"url_set_hash\": \"0ee22b999fcd5760a563e99c32608f4552c57aaf1351ce702d98177bce1818bb\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "drift",
+      "kind": "json_fidelity",
+      "args": [
+        "drift",
+        "--since",
+        "2026-05-01",
+        "--kind",
+        "bluray",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"first_sync_complete\": true,\n  \"releases_indexed\": 100,\n  \"snapshots\": [\n    {\n      \"taken_at\": \"2026-06-11T06:54:30Z\",\n      \"sitemap_name\": \"sitemap_bluraymovies_0.xml.gz\",\n      \"url_count\": 100,\n      \"url_set_hash\": \"0ee22b999fcd5760a563e99c32608f4552c57aaf1351ce702d98177bce1818bb\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "editions",
+      "kind": "help",
+      "args": [
+        "editions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare all disc editions from a Blu-ray.com movie umbrella page.\n\nUsage:\n  blu-ray-pp-cli editions \u003cumbrella-id\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli editions 9929 --json\n  blu-ray-pp-cli editions 9929 --country US --no-enrich --json --select id,kind,country,distributor,current_price\n\nFlags:\n      --country string   Country filter (e.g. US, UK, DE).\n  -h, --help             help for editions\n      --no-enrich        Return raw umbrella-page values; skip the list-price -\u003e current-price fallback applied in the default 'enriched' path.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "editions",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [editions] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "editions",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [editions] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "editions",
+      "kind": "error_path",
+      "args": [
+        "editions",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: umbrella-id must be numeric\n"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export the local Blu-ray.com catalog to a file or stdout.\n\nUsage:\n  blu-ray-pp-cli export [--format json|csv|sqlite] [--kind bluray|4k|dvd|...] [--output PATH] [flags]\n\nExamples:\n  blu-ray-pp-cli export --format json\n  blu-ray-pp-cli export --format csv --kind 4k --output 4k-releases.csv\n  blu-ray-pp-cli export --format sqlite --output catalog-snapshot.db\n\nFlags:\n      --format string   Export format: json, csv, or sqlite. (default \"json\")\n  -h, --help            help for export\n      --kind string     Catalog kind filter: bluray, 4k, dvd, digital, itunes, ma, or uv.\n      --output string   Write export to PATH instead of stdout.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": [
+        "export",
+        "--format",
+        "json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": [
+        "export",
+        "--format",
+        "json",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  blu-ray-pp-cli feedback list [flags]\n\nExamples:\n  blu-ray-pp-cli feedback list\n  blu-ray-pp-cli feedback list --limit 5\n  blu-ray-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "history",
+      "kind": "help",
+      "args": [
+        "history",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show locally recorded price history for a release.\n\nUsage:\n  blu-ray-pp-cli history \u003crelease-id\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli history 9929 --json\n  blu-ray-pp-cli history 9929 --retailer 1 --plot\n\nFlags:\n  -h, --help              help for history\n      --plot              Render a 60-character ASCII spark plot before the table.\n      --retailer string   Numeric retailer id to filter price observations (Blu-ray.com price-history rows are keyed by retailer id, not name).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "history",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [history] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "history",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [history] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "history",
+      "kind": "error_path",
+      "args": [
+        "history",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: release-id must be numeric\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  blu-ray-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  blu-ray-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  blu-ray-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | blu-ray-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "news get",
+      "kind": "help",
+      "args": [
+        "news",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a single news story by id.\n\nUsage:\n  blu-ray-pp-cli news get \u003cid\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli news get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "news get",
+      "kind": "happy_path",
+      "args": [
+        "news",
+        "get",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "pass",
+      "fixture_source": "synthetic",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/news/\",\"links\":[{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e84…[truncated]"
+    },
+    {
+      "command": "news get",
+      "kind": "json_fidelity",
+      "args": [
+        "news",
+        "get",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--json"
+      ],
+      "status": "pass",
+      "fixture_source": "synthetic",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/news/\",\"links\":[{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e8400-e29b-41d4-a716-446655440000\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/news/?id=550e84…[truncated]"
+    },
+    {
+      "command": "news get",
+      "kind": "error_path",
+      "args": [
+        "news",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/news/\",\"links\":[{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/news/?id=__printing_press_invalid__\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"ur…[truncated]"
+    },
+    {
+      "command": "news index",
+      "kind": "help",
+      "args": [
+        "news",
+        "index",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "News index page (latest stories on top). Hand-parser extracts headline + posted-date + body link.\n\nUsage:\n  blu-ray-pp-cli news index [flags]\n\nExamples:\n  blu-ray-pp-cli news index\n\nFlags:\n  -h, --help   help for index\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "news index",
+      "kind": "happy_path",
+      "args": [
+        "news",
+        "index"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/news/\",\"links\":[{\"image\":\"https://www.blu-ray.com/news/\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3ds\",\"text\":\"3DS\",\"url\":\"https://www.blu-ray.com/3ds/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"switch\",\"text\":\"Switch\",\"url\":\"https://www.blu-ray.com/switch/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"switch2\",\"text\":\"Switch 2\",\"url\":\"https://www.blu-ray.com/switch2/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pc\",\"text\":\"PC\",\"url\":\"https://www.blu-ray.com/pc/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"steam…[truncated]"
+    },
+    {
+      "command": "news index",
+      "kind": "json_fidelity",
+      "args": [
+        "news",
+        "index",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"canonical_url\":\"https://www.blu-ray.com/news/\",\"links\":[{\"image\":\"https://www.blu-ray.com/news/\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"link.php\",\"text\":\"Lost password\",\"url\":\"https://www.blu-ray.com/link/link.php?url=https://forum.blu-ray.com/login.php?do=lostpw\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"text\":\"Home\",\"url\":\"https://www.blu-ray.com/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"news\",\"text\":\"News\",\"url\":\"https://www.blu-ray.com/news/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"theatrical\",\"text\":\"Movies\",\"url\":\"https://www.blu-ray.com/theatrical/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"movies\",\"text\":\"Blu-ray\",\"url\":\"https://www.blu-ray.com/movies/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"4k\",\"text\":\"4K Movies\",\"url\":\"https://www.blu-ray.com/4k/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3d\",\"text\":\"3D Movies\",\"url\":\"https://www.blu-ray.com/3d/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"dvd\",\"text\":\"DVD\",\"url\":\"https://www.blu-ray.com/dvd/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"digital\",\"text\":\"Digital\",\"url\":\"https://www.blu-ray.com/digital/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ma\",\"text\":\"MA\",\"url\":\"https://www.blu-ray.com/ma/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"itunes\",\"text\":\"iTunes\",\"url\":\"https://www.blu-ray.com/itunes/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"prime\",\"text\":\"Prime\",\"url\":\"https://www.blu-ray.com/prime/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hometheater\",\"text\":\"Home Theater\",\"url\":\"https://www.blu-ray.com/hometheater/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"players\",\"text\":\"Players\",\"url\":\"https://www.blu-ray.com/players/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"Games\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps5\",\"text\":\"PS5\",\"url\":\"https://www.blu-ray.com/ps5/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps4\",\"text\":\"PS4\",\"url\":\"https://www.blu-ray.com/ps4/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ps3\",\"text\":\"PS3\",\"url\":\"https://www.blu-ray.com/ps3/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"psvita\",\"text\":\"PS Vita\",\"url\":\"https://www.blu-ray.com/psvita/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxsx\",\"text\":\"Xbox SX\",\"url\":\"https://www.blu-ray.com/xboxsx/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xbox360\",\"text\":\"Xbox 360\",\"url\":\"https://www.blu-ray.com/xbox360/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"xboxone\",\"text\":\"Xbox One\",\"url\":\"https://www.blu-ray.com/xboxone/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wiiu\",\"text\":\"Wii U\",\"url\":\"https://www.blu-ray.com/wiiu/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"wii\",\"text\":\"Wii\",\"url\":\"https://www.blu-ray.com/wii/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"ds\",\"text\":\"DS\",\"url\":\"https://www.blu-ray.com/ds/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"3ds\",\"text\":\"3DS\",\"url\":\"https://www.blu-ray.com/3ds/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"switch\",\"text\":\"Switch\",\"url\":\"https://www.blu-ray.com/switch/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"switch2\",\"text\":\"Switch 2\",\"url\":\"https://www.blu-ray.com/switch2/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pc\",\"text\":\"PC\",\"url\":\"https://www.blu-ray.com/pc/\"},{\"image\":\"https://www.blu-ray.com/news/\",\"name\":\"\u003credacted\u003e\",\"slug\":\"steam…[truncated]"
+    },
+    {
+      "command": "news index",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  blu-ray-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli profile delete my-defaults --yes\n  blu-ray-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  blu-ray-pp-cli profile list [flags]\n\nExamples:\n  blu-ray-pp-cli profile list\n  blu-ray-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  blu-ray-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  blu-ray-pp-cli profile save my-defaults --json --compact\n  blu-ray-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  blu-ray-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli profile show my-defaults\n  blu-ray-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  blu-ray-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli profile use my-defaults\n  blu-ray-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "releases get",
+      "kind": "help",
+      "args": [
+        "releases",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the canonical release detail page by URL slug and id.\n\nUsage:\n  blu-ray-pp-cli releases get \u003cslug\u003e \u003cid\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli releases get Fight-Club-4K-Blu-ray 406956 --json\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [releases get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "releases get",
+      "kind": "error_path",
+      "args": [
+        "releases",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: id is required\nUsage: blu-ray-pp-cli releases get \u003cid\u003e\n"
+    },
+    {
+      "command": "releases new",
+      "kind": "help",
+      "args": [
+        "releases",
+        "new",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent Blu-ray, 4K, DVD, and digital releases (paginated). Returns release page links from the static template.\n\nUsage:\n  blu-ray-pp-cli releases new [flags]\n\nExamples:\n  blu-ray-pp-cli releases new --show comingsoon --format 4k --json --select title,release_date,distributor\n\nFlags:\n      --country string   ISO 2-letter country filter (e.g. US, UK, FR).\n      --format string    Format filter. (one of: bluray, 4k, 3d, dvd, digital)\n  -h, --help             help for new\n      --page string      Page number (1-indexed). (default \"1\")\n      --show string      Listing view: new releases or coming soon. (one of: newreleases, comingsoon) (default \"newreleases\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases new",
+      "kind": "happy_path",
+      "args": [
+        "releases",
+        "new",
+        "--show",
+        "comingsoon",
+        "--format",
+        "4k",
+        "--json",
+        "--select",
+        "title,release_date,distributor"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "releases new",
+      "kind": "json_fidelity",
+      "args": [
+        "releases",
+        "new",
+        "--show",
+        "comingsoon",
+        "--format",
+        "4k",
+        "--json",
+        "--select",
+        "title,release_date,distributor"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "releases new",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the locally synced Blu-ray.com catalog using SQLite FTS5.\n\nUsage:\n  blu-ray-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli search 'fight club' --format 4k --json\n  blu-ray-pp-cli search 'criterion' --year 2024 --limit 10 --json --select id,title,slug\n\nFlags:\n      --country string   Country filter, when catalog rows include country data (e.g. US).\n      --format string    Format filter: 4k, bluray, 3d, dvd, or digital.\n  -h, --help             help for search\n      --limit int        Maximum number of search results to return. (default 25)\n      --year string      Release year filter (YYYY).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "sitemap bluraymovies",
+      "kind": "help",
+      "args": [
+        "sitemap",
+        "bluraymovies",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog.\n\nUsage:\n  blu-ray-pp-cli sitemap bluraymovies \u003cshard\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli sitemap bluraymovies 42\n\nFlags:\n  -h, --help   help for bluraymovies\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sitemap bluraymovies",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"shard\" at depth 0"
+    },
+    {
+      "command": "sitemap bluraymovies",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"shard\" at depth 0"
+    },
+    {
+      "command": "sitemap bluraymovies",
+      "kind": "error_path",
+      "args": [
+        "sitemap",
+        "bluraymovies",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /sitemap/sitemap_bluraymovies___printing_press_invalid__.xml.gz returned HTTP 404: \u003chtml\u003e\r\n\u003chead\u003e\u003ctitle\u003e404 Not Found\u003c/title\u003e\u003c/head\u003e\r\n\u003cbody bgcolor=\"white\"\u003e\r\n\u003ccenter\u003e\u003ch1\u003e404 Not Found\u003c/h1\u003e\u003c/center\u003e\r\n\u003chr\u003e\u003ccenter\u003enginx/1.14.1\u003c/center\u003e\r\n\u003c/body\u003e\r\n\u003c/html\u003e\r\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "sitemap index",
+      "kind": "help",
+      "args": [
+        "sitemap",
+        "index",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5)\n\nUsage:\n  blu-ray-pp-cli sitemap index [flags]\n\nExamples:\n  blu-ray-pp-cli sitemap index\n\nFlags:\n  -h, --help   help for index\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sitemap index",
+      "kind": "happy_path",
+      "args": [
+        "sitemap",
+        "index"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {}\n}\n"
+    },
+    {
+      "command": "sitemap index",
+      "kind": "json_fidelity",
+      "args": [
+        "sitemap",
+        "index",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {}\n}\n"
+    },
+    {
+      "command": "sitemap index",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sitemap news",
+      "kind": "help",
+      "args": [
+        "sitemap",
+        "news",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration).\n\nUsage:\n  blu-ray-pp-cli sitemap news [flags]\n\nExamples:\n  blu-ray-pp-cli sitemap news\n\nFlags:\n  -h, --help   help for news\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sitemap news",
+      "kind": "happy_path",
+      "args": [
+        "sitemap",
+        "news"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {}\n}\nwarning: 1/1 sitemap items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "sitemap news",
+      "kind": "json_fidelity",
+      "args": [
+        "sitemap",
+        "news",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {}\n}\nwarning: 1/1 sitemap items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "sitemap news",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync the public Blu-ray.com sitemap into local SQLite catalog tables.\n\nUsage:\n  blu-ray-pp-cli sync [flags]\n\nExamples:\n  blu-ray-pp-cli sync --kind bluray\n  blu-ray-pp-cli sync --kind all --wait 2 --quiet\n\nFlags:\n  -h, --help            help for sync\n      --kind string     Sitemap kind to sync: bluray, dvd, digital, itunes, ma, news, or all. (default \"bluray\")\n      --max-pages int   Maximum sitemap shards to fetch (0 = all matching shards).\n      --quiet           Suppress per-shard progress lines.\n      --wait duration   Delay between sitemap shard fetches, with small jitter. (default 1s)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync",
+        "--kind",
+        "bluray"
+      ],
+      "status": "pass",
+      "output_sample": "synced sitemap_bluraymovies_0.xml.gz: 100 urls\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--kind",
+        "bluray",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"events\":[{\"event\":\"sync_start\",\"resources\":1,\"timestamp\":\"2026-06-11T06:54:33Z\"},{\"event\":\"resource_synced\",\"items\":100,\"sitemap\":\"sitemap_bluraymovies_0.xml.gz\",\"timestamp\":\"2026-06-11T06:54:35Z\",\"url_count\":100},{\"event\":\"sync_complete\",\"resources\":1,\"timestamp\":\"2026-06-11T06:54:35Z\",\"total_items\":100}],\"resources_synced\":1,\"store_path\":\"/var/folders/cr/8z3ytxb13tj_xchv9dfqzmr80000gn/T/printing-press-subprocess-1308761285/.local/share/blu-ray-pp-cli/data.db\",\"timestamp\":\"2026-06-11T06:54:35Z\",\"total_items\":100}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "upc",
+      "kind": "help",
+      "args": [
+        "upc",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve UPC codes from a Blu-ray.com export against the local catalog.\n\nAccepts a file with one UPC per line, or comma-separated on a single line -- the shape Blu-ray.com's own export produces. Non-numeric tokens are skipped, so CSV header rows are tolerated. Full RFC-4180 CSV with quoted commas inside fields is NOT parsed.\n\nWhen --enrich is set, the output includes last_observed_price + last_observed_at from the local price_history table — these are the most-recent locally-recorded prices, NOT live prices. Run \\\"watch check\\\" first to refresh prices before enriching for time-sensitive workflows.\n\nUsage:\n  blu-ray-pp-cli upc \u003cfile.csv\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli upc ./my-collection.csv --json\n  blu-ray-pp-cli upc ./blu-ray-export.csv --json # one UPC per line, or comma-separated UPCs\n  blu-ray-pp-cli upc ./my-collection.csv --enrich --json --select upc,resolved,title\n\nFlags:\n      --enrich   Add locally known price data for resolved releases.\n  -h, --help     help for upc\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "upc",
+      "kind": "happy_path",
+      "args": [
+        "upc",
+        "./my-collection.csv",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "upc",
+      "kind": "json_fidelity",
+      "args": [
+        "upc",
+        "./my-collection.csv",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "upc",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch add",
+      "kind": "help",
+      "args": [
+        "watch",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a release id to the local price watchlist.\n\nUsage:\n  blu-ray-pp-cli watch add \u003crelease-id\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli watch add 9929\n  blu-ray-pp-cli watch add 9929 --target-price 14.99\n\nFlags:\n  -h, --help                 help for add\n      --target-price float   Alert when a deal is at or below this price. If unset, alerts fire on a new historical low instead.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "add",
+        "9929",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "fixture_source": "synthetic"
+    },
+    {
+      "command": "watch add",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "add",
+        "9929",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "fixture_source": "synthetic"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "watch check",
+      "kind": "help",
+      "args": [
+        "watch",
+        "check",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan current Blu-ray.com deals and record prices for watched releases.\n\nUsage:\n  blu-ray-pp-cli watch check [flags]\n\nExamples:\n  blu-ray-pp-cli watch check --agent\n  blu-ray-pp-cli watch check --retailer 1 --limit 50\n\nFlags:\n  -h, --help              help for check\n      --limit int         Maximum deal rows to scan. (default 100)\n      --retailer string   Only record deals from this numeric retailer id (Blu-ray.com deal rows do not expose retailer names).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "check",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"alerted\": 0,\n  \"checked\": 0,\n  \"watchlist_empty\": true\n}\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "check",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"alerted\": 0,\n  \"checked\": 0,\n  \"watchlist_empty\": true\n}\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch list",
+      "kind": "help",
+      "args": [
+        "watch",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List watched releases with the latest observed low price.\n\nUsage:\n  blu-ray-pp-cli watch list [flags]\n\nExamples:\n  blu-ray-pp-cli watch list --json\n  blu-ray-pp-cli watch list --json --select release_id,target_price,low_seen\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch rm",
+      "kind": "help",
+      "args": [
+        "watch",
+        "rm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a release id from the local watchlist.\n\nUsage:\n  blu-ray-pp-cli watch rm \u003crelease-id\u003e [flags]\n\nExamples:\n  blu-ray-pp-cli watch rm 9929\n\nFlags:\n  -h, --help   help for rm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch rm",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "rm",
+        "9929"
+      ],
+      "status": "pass",
+      "fixture_source": "synthetic",
+      "output_sample": "Removed release 9929\n"
+    },
+    {
+      "command": "watch rm",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "rm",
+        "9929",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "fixture_source": "synthetic",
+      "output_sample": "Removed release 9929\n"
+    },
+    {
+      "command": "watch rm",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "rm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: release-id must be numeric\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  blu-ray-pp-cli which [query] [flags]\n\nExamples:\n  blu-ray-pp-cli which \"stale tickets\"\n  blu-ray-pp-cli which \"bottleneck\"\n  blu-ray-pp-cli which --limit 1 \"send message\"\n  blu-ray-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  blu-ray-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  blu-ray-pp-cli workflow status\n\n  # Show status as JSON\n  blu-ray-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'blu-ray-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-11T06:54:28.556895Z"
+}

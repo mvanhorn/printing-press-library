@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "api_name": "sendfox",
+  "run_id": "20260611-165423",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "env_vars": [
+      "SENDFOX_API_TOKEN",
+      "SENDFOX_BEARER_AUTH"
+    ]
+  },
+  "commands_verified": [
+    "doctor",
+    "workflow account-snapshot --dry-run --agent",
+    "contacts onboard --dry-run --agent",
+    "forms generate --agent",
+    "go test ./...",
+    "verify-skill"
+  ]
+}

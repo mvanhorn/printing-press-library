@@ -1,0 +1,130 @@
+name: ufo
+display_name: War.gov UFO
+description: Browse, search, and download declassified UAP files from the War.gov PURSUE archive
+base_url: https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata
+version: "1.0"
+
+auth:
+  type: none
+
+resources:
+  files:
+    description: Declassified UAP files (PDFs, videos, images) from FBI, DoD, NASA, State Department
+    entity: file
+    properties:
+      id:
+        type: string
+        description: Unique file identifier derived from title
+      title:
+        type: string
+        description: Document title/filename
+      type:
+        type: string
+        description: "File type: PDF, VID, or IMG"
+        enum: [PDF, VID, IMG]
+      agency:
+        type: string
+        description: "Originating agency: Department of War, FBI, NASA, Department of State"
+      release_date:
+        type: string
+        description: Date the file was released on war.gov/UFO
+      incident_date:
+        type: string
+        description: Date of the UAP incident
+      incident_location:
+        type: string
+        description: Geographic location of the incident
+      description:
+        type: string
+        description: Description blurb of the file contents
+      redacted:
+        type: boolean
+        description: Whether the file contains redactions
+      download_url:
+        type: string
+        description: Direct download URL for the file
+      thumbnail_url:
+        type: string
+        description: Thumbnail/modal image URL
+      dvids_video_id:
+        type: string
+        description: DVIDS video ID for video files
+      video_title:
+        type: string
+        description: Title for video files
+      video_pairing:
+        type: string
+        description: Related video file reference
+      pdf_pairing:
+        type: string
+        description: Related PDF file reference
+
+    endpoints:
+      list:
+        method: GET
+        path: /uap-csv.csv
+        description: List all declassified UAP files
+        params:
+          - name: agency
+            type: string
+            in: query
+            description: Filter by agency
+          - name: type
+            type: string
+            in: query
+            description: Filter by file type (PDF, VID, IMG)
+          - name: location
+            type: string
+            in: query
+            description: Filter by incident location
+          - name: after
+            type: string
+            in: query
+            description: Show files with incident dates after this date
+          - name: before
+            type: string
+            in: query
+            description: Show files with incident dates before this date
+          - name: redacted
+            type: boolean
+            in: query
+            description: Filter by redaction status
+
+      get:
+        method: GET
+        path: /files/{id}
+        description: Get details of a specific file
+        params:
+          - name: id
+            type: string
+            in: path
+            required: true
+            description: File ID
+
+      search:
+        method: GET
+        path: /files/search
+        description: Full-text search across file titles, descriptions, and locations
+        params:
+          - name: q
+            type: string
+            in: query
+            required: true
+            description: Search query
+
+  agencies:
+    description: Government agencies contributing to the PURSUE release
+    entity: agency
+    properties:
+      name:
+        type: string
+        description: Agency name
+      file_count:
+        type: integer
+        description: Number of files from this agency
+
+    endpoints:
+      list:
+        method: GET
+        path: /agencies
+        description: List all contributing agencies with file counts

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-28T15:12:01.084676Z",
+  "cli_dir": "\u003ccli-dir\u003e/apple-docs-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 328,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-28T14:11:32.414274Z"
+  }
+}

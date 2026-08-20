@@ -1,0 +1,1271 @@
+name: myfitnesspal
+description: Discovered API spec for myfitnesspal
+version: 0.1.0
+base_url: https://www.myfitnesspal.com
+spec_source: sniffed
+auth:
+    type: api_key
+    header: nonKeyedLocalState
+    format: ""
+    env_vars:
+        - MYFITNESSPAL_API_KEY
+    env_var_specs:
+        - name: MYFITNESSPAL_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: query
+config:
+    format: toml
+    path: ~/.config/myfitnesspal-pp-cli/config.toml
+resources:
+    _next:
+        description: Operations on example-user.json
+        endpoints:
+            list_change_goals_guided.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/change-goals-guided.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/change-goals-guided.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: change_goals_guided.json
+                pagination: null
+            list_check_in.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/measurements/check-in.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/measurements/check-in.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: check_in.json
+                pagination: null
+            list_community_guidelines.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/community-guidelines.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/community-guidelines.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: community_guidelines.json
+                pagination: null
+            list_contact_us.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/contact-us.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/contact-us.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: contact_us.json
+                pagination: null
+            list_daily_nutrition_goals.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/daily-nutrition-goals.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/daily-nutrition-goals.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: daily_nutrition_goals.json
+                pagination: null
+            list_en.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: en.json
+                pagination: null
+            list_export.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/export.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/export.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: export.json
+                pagination: null
+            list_fitness.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/fitness.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/fitness.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: fitness.json
+                pagination: null
+            list_friends.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/friends.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/friends.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: friends.json
+                pagination: null
+            list_invitations.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/invitations.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/invitations.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: invitations.json
+                pagination: null
+            list_logout.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/logout.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/logout.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: logout.json
+                pagination: null
+            list_meal_goals.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/meal-goals.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/meal-goals.json
+                params:
+                    - name: enabled
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: meal_goals.json
+                pagination: null
+            list_messages.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/messages.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/messages.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: messages.json
+                pagination: null
+            list_micronutrients.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/micronutrients.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals/micronutrients.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: micronutrients.json
+                pagination: null
+            list_my_goals.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/my-goals.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: my_goals.json
+                pagination: null
+            list_example-user.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/profile/example-user.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/profile/example-user.json
+                params:
+                    - name: username
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: example-user.json
+                pagination: null
+            list_example-user.json_2:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/printable-diary/example-user.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/printable-diary/example-user.json
+                params:
+                    - name: username
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: example-user.json
+                pagination: null
+            list_premium.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/premium.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/premium.json
+                params:
+                    - name: source
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: premium.json
+                pagination: null
+            list_privacy_policy.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/privacy-policy.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/privacy-policy.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: privacy_policy.json
+                pagination: null
+            list_reports.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: reports.json
+                pagination: null
+            list_settings.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/settings.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/account/settings.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: settings.json
+                pagination: null
+            list_terms_of_service.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/terms-of-service.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/terms-of-service.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: terms_of_service.json
+                pagination: null
+            list_washington_health_data_privacy_policy.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/washington-health-data-privacy-policy.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/washington-health-data-privacy-policy.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: washington_health_data_privacy_policy.json
+                pagination: null
+            list_weekly_digest.json:
+                method: GET
+                path: /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/weekly-digest.json
+                description: GET /_next/data/lBMEsf6_6belEfb-jjL0K/en/reports/weekly-digest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: weekly_digest.json
+                pagination: null
+    auth:
+        description: Operations on csrf
+        endpoints:
+            list_csrf:
+                method: GET
+                path: /api/auth/csrf
+                description: GET /api/auth/csrf
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: csrf
+                pagination: null
+    cdn-cgi:
+        description: Operations on rum
+        endpoints:
+            create_rum:
+                method: POST
+                path: /cdn-cgi/rum
+                description: POST /cdn-cgi/rum
+                params: []
+                body:
+                    - name: dt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: eventType
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: firstContentfulPaint
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: firstPaint
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: memory
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: jsHeapSizeLimit
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: totalJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: usedJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: nt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pageloadId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: referrer
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: resources
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: siteToken
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: st
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: number
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timingsV2
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: connectEnd
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: connectStart
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: decodedBodySize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domComplete
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domInteractive
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domainLookupEnd
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domainLookupStart
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: finalResponseHeadersStart
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: firstInterimResponseStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: loadEventEnd
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: loadEventStart
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: nextHopProtocol
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: requestStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: responseEnd
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: responseStart
+                          type: number
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: transferSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: versions
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: fl
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: js
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: timings
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: rum
+                pagination: null
+    events:
+        description: Operations on events
+        endpoints:
+            create_events:
+                method: POST
+                path: /events
+                description: POST /events
+                params:
+                    - name: site-id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: events
+                pagination: null
+    favicons:
+        description: Operations on site.webmanifest
+        endpoints:
+            list_site.webmanifest:
+                method: GET
+                path: /favicons/site.webmanifest
+                description: GET /favicons/site.webmanifest
+                params:
+                    - name: v
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: site.webmanifest
+                pagination: null
+    food:
+        description: Operations on water
+        endpoints:
+            list_note:
+                method: GET
+                path: /food/note
+                description: GET /food/note
+                params:
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: note
+                pagination: null
+            list_water:
+                method: GET
+                path: /food/water
+                description: GET /food/water
+                params:
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: water
+                pagination: null
+    foods:
+        description: Operations on foods
+        endpoints:
+            get_foods:
+                method: GET
+                path: /v2/foods/{id}
+                description: GET /v2/foods/{id}
+                params:
+                    - name: fields[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: foods
+                pagination: null
+            get_suggested_servings:
+                method: GET
+                path: /v2/foods/{id}/suggested_servings
+                description: GET /v2/foods/{id}/suggested_servings
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: version
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: suggested_servings
+                pagination: null
+            options_foods:
+                method: OPTIONS
+                path: /v2/foods/{id}
+                description: OPTIONS /v2/foods/{id}
+                params:
+                    - name: fields[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: foods
+                pagination: null
+            options_suggested_servings:
+                method: OPTIONS
+                path: /v2/foods/{id}/suggested_servings
+                description: OPTIONS /v2/foods/{id}/suggested_servings
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: version
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: suggested_servings
+                pagination: null
+    rum:
+        description: Operations on rum
+        endpoints:
+            create_rum:
+                method: POST
+                path: /api/v2/rum
+                description: POST /api/v2/rum
+                params:
+                    - name: _dd.api
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: batch_time
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dd-evp-origin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dd-evp-origin-version
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dd-request-id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ddsource
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: rum
+                pagination: null
+    services:
+        description: Operations on progress
+        endpoints:
+            get_Net Calories:
+                method: GET
+                path: /api/services/reports/results/nutrition/Net Calories/{id}
+                description: GET /api/services/reports/results/nutrition/Net Calories/{id}
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: report_name
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Net Calories
+                pagination: null
+            get_progress:
+                method: GET
+                path: /api/services/reports/results/progress/{id}/{id}
+                description: GET /api/services/reports/results/progress/{id}/{id}
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: report_name
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: progress
+                pagination: null
+            list_top_foods:
+                method: GET
+                path: /api/services/top_foods
+                description: GET /api/services/top_foods
+                params:
+                    - name: from
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lists[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: to
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: top_foods
+                pagination: null
+    stats:
+        description: Operations on stats
+        endpoints:
+            create_stats:
+                method: POST
+                path: /stats
+                description: POST /stats
+                params: []
+                body:
+                    - name: event
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: attrs
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: diary_owner
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: diary_sharing_setting
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: diary_version
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: type
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: user_agent
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: stats
+                pagination: null
+    user:
+        description: Operations on auth_token
+        endpoints:
+            list_auth_token:
+                method: GET
+                path: /user/auth_token
+                description: GET /user/auth_token
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: auth_token
+                pagination: null
+    user-measurements:
+        description: Operations on types
+        endpoints:
+            list_types:
+                method: GET
+                path: /api/user-measurements/measurements/types
+                description: GET /api/user-measurements/measurements/types
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: types
+                pagination: null
+    users:
+        description: Operations on users
+        endpoints:
+            get_users:
+                method: GET
+                path: /v2/users/{id}
+                description: GET /v2/users/{id}
+                params:
+                    - name: fields[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: users
+                pagination: null
+            options_users:
+                method: OPTIONS
+                path: /v2/users/{id}
+                description: OPTIONS /v2/users/{id}
+                params:
+                    - name: fields[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: users
+                pagination: null
+    wrapper:
+        description: Operations on meta-data
+        endpoints:
+            create_pv_data:
+                method: POST
+                path: /wrapper/v2/pv-data
+                description: POST /wrapper/v2/pv-data
+                params:
+                    - name: ch
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: env
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hasCsp
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptType
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptVersion
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: gdpr
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: accountId
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: applies
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: propertyId
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pubData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sampleRate
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: siteId
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: uuid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: withSiteActions
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: pv_data
+                pagination: null
+            list_messages:
+                method: GET
+                path: /wrapper/v2/messages
+                description: GET /wrapper/v2/messages
+                params:
+                    - name: body
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ch
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: env
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hasCsp
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: localState
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptType
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptVersion
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: messages
+                pagination: null
+            list_meta_data:
+                method: GET
+                path: /wrapper/v2/meta-data
+                description: GET /wrapper/v2/meta-data
+                params:
+                    - name: accountId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: env
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hasCsp
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: propertyId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptType
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scriptVersion
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: meta_data
+                pagination: null
+types: {}

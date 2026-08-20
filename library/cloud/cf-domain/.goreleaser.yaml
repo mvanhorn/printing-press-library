@@ -1,0 +1,51 @@
+version: 2
+project_name: cf-domain-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cf-domain-pp-cli
+    main: ./cmd/cf-domain-pp-cli
+    binary: cf-domain-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X cf-domain-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cf-domain-pp-mcp
+    main: ./cmd/cf-domain-pp-mcp
+    binary: cf-domain-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cf-domain-pp-cli
+    repository:
+      owner: danny-shmueli
+      name: homebrew-tap
+    homepage: "https://github.com/danny-shmueli/cf-domain-pp-cli"
+    description: "Agent-native CLI for Cloudflare Registrar domain search, check, and registration."
+    install: |
+      bin.install "cf-domain-pp-cli"
+      bin.install "cf-domain-pp-mcp"

@@ -1,0 +1,13 @@
+# Compiled binary — never commit
+grants.exe
+grants
+*.exe
+
+# Go build/test output
+/build/
+*.out
+*.test
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

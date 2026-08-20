@@ -1,0 +1,517 @@
+name: shopper
+description: "Shopper (shopper.com.br) — Brazilian online supermarket. Six storefronts: recurring smart-grocery baskets (Compra Programada, Fresh, Pet), one-time orders (Compra Única), and ultra-fast delivery (Shopper Now, Now Bebidas). Full customer journey: storefront discovery, catalog search, cart management, delivery schedule, orders history, and charge-calendar awareness."
+version: 0.2.0
+category: commerce
+base_url: https://siteapi.shopper.com.br
+spec_source: sniffed
+http_transport: standard
+auth:
+    type: bearer_token
+    header: Authorization
+    in: header
+    format: "Bearer {token}"
+    env_vars:
+        - SHOPPER_TOKEN
+config:
+    format: toml
+    path: ~/.config/shopper-pp-cli/config.toml
+
+# Store scoping: the API routes reads to storefronts via x-store-id/x-cluster-id
+# request headers — NOT by POST /features/stores/select (no-op for reads).
+# Every request must carry both headers. The global --store flag sets them.
+# Store map confirmed live from GET /features/stores (2026-08-03):
+#   programada (mensal): store_id=1, cluster_id=1, with_recurrence=true
+#   fresh:               store_id=2, cluster_id=1, with_recurrence=true
+#   unica (pontual):     store_id=3, cluster_id=3, with_recurrence=false  (cluster was wrongly 1)
+#   pet:                 store_id=5, cluster_id=3, with_recurrence=true
+#   now:                 store_id=6, cluster_id=11, with_recurrence=false, ultra_fast=true  (NEW)
+#   now-bebidas:         store_id=8, cluster_id=11, with_recurrence=false, ultra_fast=true  (NEW)
+
+mcp:
+    transport: [stdio, http]
+    orchestration: code
+    endpoint_tools: hidden
+    intents:
+        - name: build_and_review_basket
+          description: "Search catalog for products, add items to cart, and review basket totals before the edit window closes"
+          params:
+              - name: query
+                type: string
+                required: true
+                description: "Product search term (e.g. 'arroz', 'detergente')"
+              - name: store
+                type: string
+                required: false
+                description: "Store to shop in: programada, fresh, pet, unica, now, now-bebidas"
+          steps:
+              - endpoint: catalog.create_search
+                bind:
+                    query: ${input.query}
+                capture: search_results
+              - endpoint: cart.list_summary
+                capture: cart
+          returns: cart
+        - name: check_upcoming_charges
+          description: "Get charge date, edit-lock deadline, and delivery date for a store's next cycle"
+          params:
+              - name: store
+                type: string
+                required: false
+                description: "Store to check: programada, fresh, pet (subscription stores only)"
+          steps:
+              - endpoint: delivery.list_summary
+                capture: delivery
+              - endpoint: delivery.list_calendar
+                capture: calendar
+          returns: delivery
+        - name: order_history_and_spend
+          description: "List past orders and compute month-over-month spend across all storefronts"
+          params:
+              - name: months
+                type: integer
+                required: false
+                description: "Number of months to look back (default 6)"
+          steps:
+              - endpoint: orders.list_orders
+                capture: orders
+          returns: orders
+
+cache:
+    enabled: true
+    stale_after: 24h
+
+learn:
+    entity_lookup_seeds:
+        store:
+            - canonical: Compra Programada
+              aliases: [programada, mensal, monthly, programada mensal]
+            - canonical: Programada Fresh
+              aliases: [fresh, fresco, fresh shopper]
+            - canonical: Compra Única
+              aliases: [unica, única, pontual, one-time]
+            - canonical: Pet.Shopper
+              aliases: [pet, pet shopper, animais]
+            - canonical: Shopper Now
+              aliases: [now, rapido, expresso, ultrafast]
+            - canonical: Now Bebidas
+              aliases: [now-bebidas, bebidas, now bebidas, drinks]
+    synonyms:
+        "este mes": "programada"
+        "mercado mensal": "programada"
+        "entrega rapida": "now"
+
+resources:
+    address:
+        description: "Saved delivery addresses with per-address available-store information"
+        endpoints:
+            list_address:
+                method: GET
+                path: /address/
+                description: "List delivery addresses and which stores are available at each address"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: address
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    session:
+        description: "Session and social-login validation"
+        endpoints:
+            list_social:
+                method: GET
+                path: /auth/validation/social
+                description: "Validate social-login session status"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: social
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    cart:
+        description: "Cart: view summary, add products, remove products"
+        endpoints:
+            add:
+                method: POST
+                path: /cart/add
+                description: "Add a product to the cart or increase its quantity"
+                params: []
+                body:
+                    - name: id
+                      type: integer
+                      required: true
+                      description: "Product ID to add"
+                    - name: quantity
+                      type: integer
+                      required: true
+                      description: "Quantity to add (increments existing)"
+                    - name: engine
+                      type: string
+                      required: false
+                      description: "Catalog engine (default SHOPPER)"
+                response:
+                    type: object
+                    item: cart
+                pagination: null
+            remove:
+                method: POST
+                path: /cart/remove
+                description: "Remove a product from the cart or decrease its quantity"
+                params: []
+                body:
+                    - name: id
+                      type: integer
+                      required: true
+                      description: "Product ID to remove"
+                    - name: quantity
+                      type: integer
+                      required: true
+                      description: "Quantity to remove (decrements; full qty removes the line)"
+                response:
+                    type: object
+                    item: cart
+                pagination: null
+            list_summary:
+                method: GET
+                path: /cart/summary
+                description: "Show current basket: items, quantities, totals, cashback, and minimum-order status"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: summary
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    catalog:
+        description: "Product catalog: search, departments, banners, suggestions"
+        endpoints:
+            create_count:
+                method: POST
+                path: /catalog/search/count
+                description: "Count products matching a search query and optional filters"
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      description: "Search query"
+                body:
+                    - name: brands
+                      type: array
+                      required: false
+                      description: "Brand filter list"
+                    - name: metadata
+                      type: array
+                      required: false
+                      description: "Metadata filter list"
+                    - name: types
+                      type: array
+                      required: false
+                      description: "Product type filter list"
+                response:
+                    type: object
+                    item: count
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_filters:
+                method: POST
+                path: /catalog/search/filters
+                description: "Get available filter options for a search query"
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      description: "Search query"
+                body:
+                    - name: brands
+                      type: array
+                      required: false
+                      description: "Brand filter list"
+                    - name: metadata
+                      type: array
+                      required: false
+                      description: "Metadata filter list"
+                    - name: types
+                      type: array
+                      required: false
+                      description: "Product type filter list"
+                response:
+                    type: object
+                    item: filters
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_search:
+                method: POST
+                path: /catalog/search
+                description: "Search the product catalog by query with optional brand/type/metadata filters"
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      description: "Page number"
+                    - name: query
+                      type: string
+                      required: false
+                      description: "Search query"
+                body:
+                    - name: brands
+                      type: array
+                      required: false
+                      description: "Brand filter list (optional)"
+                    - name: metadata
+                      type: array
+                      required: false
+                      description: "Metadata filter list (optional)"
+                    - name: types
+                      type: array
+                      required: false
+                      description: "Product type filter list (optional)"
+                response:
+                    type: object
+                    item: search
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_view:
+                method: GET
+                path: /catalog/banners/{banner_id}/view
+                description: "Get details for a specific catalog banner"
+                params:
+                    - name: banner_id
+                      type: string
+                      required: true
+                      positional: true
+                      description: "Banner ID"
+                body: []
+                response:
+                    type: object
+                    item: view
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_banners:
+                method: GET
+                path: /catalog/banners
+                description: "List promotional banners for the current store"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: banners
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_departments:
+                method: GET
+                path: /catalog/departments
+                description: "List product departments/categories for the current store"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: departments
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_news:
+                method: GET
+                path: /catalog/products/news
+                description: "List new product arrivals for the current store"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: news
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_suggest:
+                method: GET
+                path: /catalog/search/suggest
+                description: "Get search suggestions for a query prefix"
+                params:
+                    - name: query
+                      type: string
+                      required: true
+                      description: "Partial search query for suggestions"
+                body: []
+                response:
+                    type: object
+                    item: suggest
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    delivery:
+        description: "Delivery schedule: upcoming delivery date, edit-lock window, and reschedule calendar"
+        endpoints:
+            list_summary:
+                method: GET
+                path: /delivery/summary
+                description: "Show scheduled delivery date, current delivery status, and store message"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: summary
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_calendar:
+                method: GET
+                path: /delivery/v2/calendar
+                description: "Get delivery reschedule calendar — allowed date range and disabled days"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: calendar
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    features:
+        description: "Storefront configuration, feature toggles, and timer state"
+        hidden: true
+        endpoints:
+            create_select:
+                method: POST
+                path: /features/stores/select
+                description: "Select active store (sets session context; no-op for header-scoped reads)"
+                params: []
+                body:
+                    - name: store_id
+                      type: integer
+                      required: true
+                      description: "Store ID to select"
+                response:
+                    type: object
+                    item: select
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_start:
+                method: POST
+                path: /features/timer/start
+                description: "Start a named feature timer"
+                params: []
+                body:
+                    - name: name
+                      type: string
+                      required: true
+                      description: "Timer name"
+                response:
+                    type: object
+                    item: start
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_view:
+                method: POST
+                path: /features/toggle/view
+                description: "Mark a feature toggle as viewed"
+                params: []
+                body:
+                    - name: toggle
+                      type: string
+                      required: true
+                      description: "Toggle name"
+                response:
+                    type: object
+                    item: view
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_stores:
+                method: GET
+                path: /features/stores
+                description: "List all available storefronts with store IDs, cluster IDs, payment parameters, and feature flags"
+                params:
+                    - name: toggles
+                      type: string
+                      required: false
+                      description: "Comma-separated toggle names to include"
+                body: []
+                response:
+                    type: object
+                    item: stores
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_tick:
+                method: GET
+                path: /features/timer/tick
+                description: "Get current timer state"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: tick
+                pagination: null
+                observed_auth:
+                    - authorization
+            list_toggle:
+                method: GET
+                path: /features/toggle
+                description: "Get active feature toggles for the current store"
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: toggle
+                pagination: null
+                observed_auth:
+                    - authorization
+
+    orders:
+        description: "Purchase history and spend — reads from GET /orders/orders (web 'Histórico de compras')"
+        endpoints:
+            list_orders:
+                method: GET
+                path: /orders/orders
+                description: "List past orders for the active store (newest-first, paginated by size)"
+                params:
+                    - name: size
+                      type: integer
+                      required: false
+                      description: "Number of orders to return (default 20)"
+                body: []
+                response:
+                    type: object
+                    item: orders
+                pagination: null
+                observed_auth:
+                    - authorization
+
+extra_commands:
+    - name: stores
+      description: "List all available Shopper storefronts with IDs, cluster IDs, payment parameters, and capability flags"
+    - name: checkout preview
+      description: "Pre-checkout summary: basket totals, delivery date, charge date, min-order status, and accepted payment types (read-only; opens browser for payment)"
+    - name: checkout open
+      description: "Open the Shopper checkout page in the system browser (subscription-based payment via session login)"
+    - name: delivery reschedule
+      description: "Open the delivery reschedule calendar in the browser (POST /shop/minha-conta/alterar-data requires session cookie)"
+      args: "[--store <store>]"
+    - name: delivery skip
+      description: "Open the skip-delivery page in the browser — subscription stores only (POST /shop/minha-conta/pular-entrega/ requires session cookie)"
+    - name: delivery suspend
+      description: "Open the suspend-subscription page in the browser (POST /shop/minha-conta/suspender-entrega requires session cookie)"
+    - name: delivery boleto
+      description: "Open the boleto-retrieval page in the browser to get the bank slip for the current order"
+    - name: subscription pause
+      description: "Open the subscription-pause page in the browser (POST /shop/carrinho/pause/ requires session cookie)"
+    - name: subscription resume
+      description: "Open the subscription-resume page in the browser (POST /shop/carrinho/play/ requires session cookie)"
+    - name: payment cards
+      description: "Show saved payment card count and open card-management in the browser (card add/delete is browser-required; CLI never handles raw card numbers)"
+
+types: {}

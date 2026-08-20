@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "usgs-earthquakes-pp-mcp",
+  "display_name": "USGS Earthquakes",
+  "version": "4.9.0",
+  "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/usgs-earthquakes-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/usgs-earthquakes-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

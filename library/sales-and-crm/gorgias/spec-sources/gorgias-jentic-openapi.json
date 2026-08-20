@@ -1,0 +1,722 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Gorgias API",
+    "version": "1.0.0",
+    "description": "The Gorgias API is a RESTful API for helpdesk and customer support management. Includes tickets, customers, macros, integrations, and more.",
+    "x-jentic-source-url": "https://developers.gorgias.com/reference/introduction",
+    "contact": {}
+  },
+  "paths": {
+    "/account": {
+      "get": {
+        "summary": "Get account",
+        "description": "Retrieve account information",
+        "operationId": "getAccount",
+        "responses": {
+          "200": {
+            "description": "Account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/tickets": {
+      "get": {
+        "summary": "List tickets",
+        "description": "List all tickets",
+        "operationId": "listTickets",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created_datetime",
+                "updated_datetime"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tickets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Ticket"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      },
+      "post": {
+        "summary": "Create ticket",
+        "description": "Create a new ticket",
+        "operationId": "createTicket",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "messages"
+                ],
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "body_text": {
+                          "type": "string"
+                        },
+                        "from_agent": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  },
+                  "customer": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ticket created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/tickets/{id}": {
+      "get": {
+        "summary": "Get ticket",
+        "description": "Retrieve a specific ticket",
+        "operationId": "getTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      },
+      "put": {
+        "summary": "Update ticket",
+        "description": "Update a ticket",
+        "operationId": "updateTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "closed",
+                      "pending"
+                    ]
+                  },
+                  "assignee_user_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket updated"
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/tickets/{id}/messages": {
+      "get": {
+        "summary": "List ticket messages",
+        "description": "Get all messages for a ticket",
+        "operationId": "listTicketMessages",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Message"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      },
+      "post": {
+        "summary": "Create ticket message",
+        "description": "Add a message to a ticket",
+        "operationId": "createTicketMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "body_text"
+                ],
+                "properties": {
+                  "body_text": {
+                    "type": "string"
+                  },
+                  "from_agent": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message created"
+          }
+        },
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "List customers",
+        "description": "List all customers",
+        "operationId": "listCustomers",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of customers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Customer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "customers"
+        ]
+      },
+      "post": {
+        "summary": "Create customer",
+        "description": "Create a new customer",
+        "operationId": "createCustomer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "customers"
+        ]
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "summary": "Get customer",
+        "description": "Retrieve a specific customer",
+        "operationId": "getCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "customers"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "List users",
+        "description": "List all users (agents)",
+        "operationId": "listUsers",
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/macros": {
+      "get": {
+        "summary": "List macros",
+        "description": "List all macros",
+        "operationId": "listMacros",
+        "responses": {
+          "200": {
+            "description": "List of macros"
+          }
+        },
+        "tags": [
+          "macros"
+        ]
+      },
+      "post": {
+        "summary": "Create macro",
+        "description": "Create a new macro",
+        "operationId": "createMacro",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Macro created"
+          }
+        },
+        "tags": [
+          "macros"
+        ]
+      }
+    },
+    "/tags": {
+      "get": {
+        "summary": "List tags",
+        "description": "List all tags",
+        "operationId": "listTags",
+        "responses": {
+          "200": {
+            "description": "List of tags"
+          }
+        },
+        "tags": [
+          "tags"
+        ]
+      },
+      "post": {
+        "summary": "Create tag",
+        "description": "Create a new tag",
+        "operationId": "createTag",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tag created"
+          }
+        },
+        "tags": [
+          "tags"
+        ]
+      }
+    },
+    "/integrations": {
+      "get": {
+        "summary": "List integrations",
+        "description": "List all integrations",
+        "operationId": "listIntegrations",
+        "responses": {
+          "200": {
+            "description": "List of integrations"
+          }
+        },
+        "tags": [
+          "integrations"
+        ]
+      }
+    },
+    "/teams": {
+      "get": {
+        "summary": "List teams",
+        "description": "List all teams",
+        "operationId": "listTeams",
+        "responses": {
+          "200": {
+            "description": "List of teams"
+          }
+        },
+        "tags": [
+          "teams"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed",
+              "pending"
+            ]
+          },
+          "subject": {
+            "type": "string"
+          },
+          "customer_id": {
+            "type": "integer"
+          },
+          "assignee_user_id": {
+            "type": "integer"
+          },
+          "created_datetime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_datetime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "body_text": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          },
+          "from_agent": {
+            "type": "boolean"
+          },
+          "created_datetime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "created_datetime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "BasicAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "account"
+    },
+    {
+      "name": "customers"
+    },
+    {
+      "name": "integrations"
+    },
+    {
+      "name": "macros"
+    },
+    {
+      "name": "tags"
+    },
+    {
+      "name": "teams"
+    },
+    {
+      "name": "tickets"
+    },
+    {
+      "name": "users"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://app.gorgias.com/api",
+      "description": "Gorgias REST API; override with GORGIAS_BASE_URL=https://<tenant>.gorgias.com/api"
+    }
+  ]
+}

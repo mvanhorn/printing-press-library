@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "chrome-history-accumulating-archive-slice-1",
+  "applied_at": "2026-06-12T00:00:00Z",
+  "base_run_id": "20260524-023512",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Adds sticky accumulating archive storage, scoped active read routing, sync --accumulate, and archive status.",
+  "reason": "The browser's local History DB is pruned by Chrome; an opt-in archive preserves visits while rich Chrome-only commands keep reading the snapshot to avoid silent archive degradation.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/store/archive_test.go",
+    "internal/cli/archive.go",
+    "internal/cli/path.go",
+    "internal/cli/path_test.go",
+    "internal/cli/root.go",
+    "internal/cli/list.go",
+    "internal/cli/domains.go",
+    "internal/cli/searches.go",
+    "internal/cli/downloads.go",
+    "internal/cli/devices.go",
+    "internal/cli/visited.go",
+    "internal/cli/report.go",
+    "internal/cli/heatmap.go",
+    "internal/cli/journeys.go",
+    "internal/cli/timeline.go",
+    "internal/cli/rabbitholes.go",
+    "internal/cli/dwell.go",
+    "internal/cli/graph.go",
+    "internal/cli/profile.go",
+    "internal/cli/topic.go",
+    "internal/mcp/server.go"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "medium-reader-mcp-positional-query",
+  "applied_at": "2026-07-01",
+  "base_run_id": "20260616-pp-medium-8f59d2cb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Surface a named 'query' MCP tool property for the search and corpus commands so an agent can call them directly, instead of having to smuggle the term through the generic 'args' string.",
+  "reason": "The generated cobratree MCP mirror (printing-press 4.24.0) exposes only a generic 'args' string for a command's positional arguments. For search (Use: 'search <query>') and corpus (Use: 'corpus <query>') this means an MCP client cannot discover the command needs a query and must pass it through 'args' (finding N1; upstream problem report cli-printing-press#2517). Printing-press 4.27.1 fixes this generically (cli-printing-press#3332, 'preserve mcp mirror positional args'), but ships it welded into a larger cobratree rewrite (a new internal/mcp/bound output-bounding package, MCP argument-name validation, write-sink annotations, changed shellOutToCLI signature) that cannot be rendered by hand without a reprint and would clobber this fork's hand-added cookie-file MCP-block patch (medium-reader-mcp-block-cookie-file). So this fork ports only the narrow, low-risk slice: a per-command allowlist (search, corpus) that surfaces a required named 'query' string property and drops the generic 'args' property for those two commands only. Every other positional command (read <url|id>, feed <@user|publication|tag>, author-archive <user-id>, author-compare <a> <b>) keeps the proven 'args' fallback, avoiding pipe-style or ordered multi-token property names and the multi-positional ordering edge cases. The positional value is consumed out of a COPY of the MCP argument map BEFORE cliArgsFromMCP runs, so it is appended as a bare positional argv token and never re-emitted as --query (the double-emit trap); flag-like positional values are rejected exactly like the existing 'args'-field guard. The cookie-file MCP-block patch is untouched (cliArgsFromMCP, blockedRootFlags and toolOptionsForFlags are unchanged), and old MCP clients that still pass the query via 'args' keep working because the raw 'args' fallback still fires.",
+  "files": [
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/cobratree/walker.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap_test.go",
+    "internal/mcp/cobratree/shellout_test.go",
+    "internal/mcp/cobratree/walker_test.go"
+  ],
+  "validated_outcome": "go build ./... and go test ./internal/mcp/cobratree/ green; gofmt and go vet clean. Unit tests assert search/corpus surface a required 'query' property and that the value is appended as a bare positional token, never as --query, with flag-like values rejected. An in-process integration test (TestRegisterAll_NarrowNamedPositionals) drives the real RegisterAll walker and inspects the registered tool schemas via the mcp-go ListTools accessor: search and corpus advertise a required 'query' and no 'args', while read (outside the allowlist) keeps 'args' and gains no 'query'. The existing cookie-file MCP-block regression tests (TestCliArgsFromMCP_BlocksRootFlags, TestToolOptionsForFlags_OmitsBlockedRootFlags) remain green, confirming no conflict with that patch. Full live MCP tools/list parity against the registered 'medium-reader' server is scheduled for a fresh session per specs/test-protocol.md Phase 5 (the server must reload).",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generic named-positional MCP surface for every command (the printing-press >=4.27.x cobratree rewrite).",
+      "reason": "The full generic fix ships upstream but is entangled with the bound/validation cobratree rewrite; this narrow hand-port covers only search/corpus. A future reprint onto the newer generator supersedes this patch with the generic behavior for all commands."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/pull/3332"
+}

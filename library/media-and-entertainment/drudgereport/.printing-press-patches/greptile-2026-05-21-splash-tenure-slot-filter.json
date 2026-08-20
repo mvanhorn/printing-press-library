@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-2026-05-21-splash-tenure-slot-filter",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260521-061607",
+  "base_printing_press_version": "4.10.0",
+  "summary": "`splash` computes tenure from first SPLASH appearance (contiguous run), not first appearance in any slot.",
+  "reason": "splashTenureSeconds queried MIN(captured_at) without a slot filter, inflating tenure for stories promoted to splash from columns. Applied the same contiguous-run pattern used in tenure.go: smallest splash captured_at strictly after the most recent non-splash row.",
+  "files": [
+    "internal/cli/splash.go"
+  ]
+}

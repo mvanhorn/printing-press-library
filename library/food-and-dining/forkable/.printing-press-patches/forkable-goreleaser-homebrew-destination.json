@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forkable-goreleaser-homebrew-destination",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": ".goreleaser.yaml's brews.repository.owner must be the printer's GitHub handle and homepage must point at the printing-press-library repo, matching every sibling CLI's release config; an empty owner breaks Homebrew tap publication and produces an invalid double-slash homepage URL.",
+  "reason": "This CLI's .goreleaser.yaml was emitted with an empty repository.owner and homepage \"https://github.com//forkable-pp-cli\" — confirmed against 4 sibling food-and-dining CLIs (anylist, cookunity, dominos, wolt), all of which have owner: <printer-handle> and homepage: https://github.com/mvanhorn/printing-press-library. The stale read-only brews.description (predating the meal-management write surface) was also updated to match the current root Short/README subtitle.",
+  "files": [".goreleaser.yaml"],
+  "validated_outcome": "python3 yaml.safe_load confirms valid YAML with owner: enlewof and the corrected homepage.",
+  "upstream_issue": ""
+}

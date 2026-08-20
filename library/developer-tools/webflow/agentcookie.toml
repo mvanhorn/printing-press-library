@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "webflow-pp-cli"
+display_name = "Webflow"
+description = "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/webflow-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WEBFLOW_API_TOKEN = true
+WEBFLOW_OAUTH2 = true

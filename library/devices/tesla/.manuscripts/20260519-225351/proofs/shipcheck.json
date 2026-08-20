@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "api_name": "tesla",
+  "run_id": "20260519-225351",
+  "status": "ship",
+  "captured_at": "2026-05-22T10:00:00Z",
+  "live_evidence": {
+    "auth_path": "Tesla iOS-app OAuth + Fleet API partner-app (registered at developer.tesla.com)",
+    "vehicles_under_test": [
+      {
+        "model": "Model 3 Highland",
+        "command_signing": "required",
+        "verified_paths": ["hermes", "fleet", "ble"]
+      },
+      {
+        "model": "Model X",
+        "command_signing": "off",
+        "verified_paths": ["rest"]
+      }
+    ],
+    "novel_commands_dogfooded": [
+      "ready",
+      "cost ledger",
+      "supercharger watch",
+      "timeline",
+      "vampire",
+      "keys audit",
+      "doctor",
+      "reachability",
+      "agent-context",
+      "auth fleet-template",
+      "auth fleet-register",
+      "auth fleet-login",
+      "auth fleet-refresh",
+      "auth fleet-status",
+      "auth ble-pair",
+      "auth export",
+      "auth import",
+      "relay start",
+      "relay stop",
+      "relay status",
+      "relay doctor",
+      "command unlock --send",
+      "command lock --send",
+      "command set-charge-limit --send",
+      "command honk-horn --send"
+    ],
+    "command_roundtrips_verified": [
+      "lock -> unlock -> lock (Fleet path, signed-cmd-required vehicle, locked-state transition observed)",
+      "set_charge_limit 100 -> 81 -> 100 (Hermes path, infotainment domain)",
+      "honk_horn (Hermes path, audible)",
+      "vehicle_data (Hermes path, full payload received)"
+    ]
+  },
+  "polish_summary": {
+    "scorecard_grade": "A",
+    "scorecard_score": 90,
+    "verify_pct": 100,
+    "scope": "publish-ready",
+    "all_hard_gates_passed": true
+  },
+  "greptile_review_round_2": {
+    "p1_findings_resolved": [
+      "config.Load empty path in fleet-refresh (threaded cfg through runFleetLoginFlow)",
+      "ctx discarded in fetchProductsList (now select on ctx.Done with goroutine)"
+    ],
+    "p2_findings_resolved": [
+      "Silent InsecureSkipVerify fallback on relay cert parse failure (now returns explicit error)",
+      "GCM additionalData was nil (now binds magic header bytes into the tag)"
+    ]
+  },
+  "patch_set_snapshot": {
+    "new_patches_in_this_publish": [
+      "u1-eager-auth-migrate",
+      "u2a-fleet-template-scaffolder",
+      "u2-fleet-oauth-flow",
+      "u2b-ble-pair-walkthrough",
+      "u2c-creds-export-import",
+      "u3-hermes-relay-management",
+      "u4-unified-command-router",
+      "u5-discovery-surfaces-schema-v4",
+      "u7-pii-scrub",
+      "u9-greptile-round2-fixes"
+    ],
+    "test_counts": {
+      "internal/cli": 148,
+      "internal/config": 6,
+      "total_passing_across_packages": 447
+    }
+  },
+  "notes": "First-publish shipcheck. The CLI was used end-to-end during the print session against a real Highland Model 3 and a real Model X. Lock/unlock/charge-limit/honk roundtrips all succeeded over their respective signed-command paths. Round-2 Greptile review identified 2 P1 + 2 P2 findings; all resolved before merge."
+}

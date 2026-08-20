@@ -1,0 +1,80 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://app.greatclips.com/",
+    "captured_at": "2026-05-11T17:00:00Z",
+    "entry_count": 22,
+    "api_entry_count": 9,
+    "noise_entry_count": 13,
+    "host_distribution": {
+      "webservices.greatclips.com": 6,
+      "www.stylewaretouch.net": 2,
+      "cid.greatclips.com": 2,
+      "app.greatclips.com": 1
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.9,
+    "reasons": [
+      "All API calls returned 2xx with no challenge/captcha evidence",
+      "Auth0 Bearer JWT replays cleanly from a plain HTTP client",
+      "No cf-mitigated/x-vercel-challenge headers observed"
+    ]
+  },
+  "protocols": [
+    {"protocol": "https", "host": "webservices.greatclips.com", "entry_count": 6},
+    {"protocol": "https", "host": "www.stylewaretouch.net", "entry_count": 2},
+    {"protocol": "https", "host": "cid.greatclips.com", "entry_count": 2}
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "scheme": "oauth2_bearer",
+        "in": "header",
+        "name": "Authorization",
+        "format": "Bearer <jwt>",
+        "evidence": ["Auth0 PKCE flow at cid.greatclips.com/oauth/token; single Bearer JWT reused across webservices.greatclips.com AND www.stylewaretouch.net"],
+        "issuer": "https://cid.greatclips.com"
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "webservices.greatclips.com",
+      "base_path": "/cmp2",
+      "purpose": "Customer profile and favorites",
+      "endpoints": [
+        {"method": "GET", "path": "/cmp2/profile/get"}
+      ]
+    },
+    {
+      "host": "webservices.greatclips.com",
+      "base_path": "/customer",
+      "purpose": "Salon metadata, geocoding, hours forecast",
+      "endpoints": [
+        {"method": "POST", "path": "/customer/salon-search/term"},
+        {"method": "POST", "path": "/customer/salon-search/salon"},
+        {"method": "POST", "path": "/customer/geo-names/postal-code"},
+        {"method": "POST", "path": "/customer/geo-names/term"},
+        {"method": "GET",  "path": "/customer/salon-hours/upcoming"}
+      ]
+    },
+    {
+      "host": "www.stylewaretouch.net",
+      "base_path": "/api",
+      "purpose": "ICS Net Check-In: wait times and check-in submission",
+      "endpoints": [
+        {"method": "POST", "path": "/api/store/waitTime"},
+        {"method": "POST", "path": "/api/customer/checkIn"},
+        {"method": "GET",  "path": "/api/customer/status"},
+        {"method": "POST", "path": "/api/customer/cancel"}
+      ]
+    }
+  ],
+  "generation_hints": [
+    "Two-host single-auth: emit one bearer-token client that handles both webservices.greatclips.com and www.stylewaretouch.net.",
+    "POST /api/store/waitTime takes a JSON array body of {storeNumber} objects, not a single object. Single-salon call sends an array of length 1.",
+    "Auth captured live via Claude-in-Chrome MCP from a logged-in Chrome session; the printed CLI should ship a `auth login --chrome` helper command for the equivalent flow."
+  ]
+}

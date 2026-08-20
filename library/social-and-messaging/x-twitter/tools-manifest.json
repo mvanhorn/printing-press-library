@@ -1,0 +1,5324 @@
+{
+  "api_name": "x-twitter",
+  "base_url": "https://api.x.com",
+  "description": "X API v2 available endpoints",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "X_BEARER_TOKEN",
+      "X_OAUTH2_USER_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "X_BEARER_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "App-only Bearer token for public reads (tweet/user lookup, recent search, lists, spaces). Required minimum - nothing works without it. Get one at https://console.x.com/ (app, then Keys and Tokens, then Bearer Token)."
+      },
+      {
+        "name": "X_OAUTH2_USER_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Optional OAuth2 user-context token. Unlocks v2 writes (post, like, repost, bookmark, follow, DM) and personal reads (me, mentions, home timeline, bookmarks). Sent as Authorization Bearer; obtain via auth login (OAuth2 + PKCE)."
+      }
+    ],
+    "key_url": "https://console.x.com/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account-activity_create-subscription",
+      "description": "Creates an Account Activity subscription for the user and the given webhook. Required: webhook_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to check subscription against.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account-activity_delete-subscription",
+      "description": "Deletes an Account Activity subscription for the given webhook and user ID. Required: webhook_id, user_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/{user_id}/all",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to check subscription against.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID to unsubscribe from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account-activity_get-subscription-count",
+      "description": "Retrieves a count of currently active Account Activity subscriptions. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/account_activity/subscriptions/count",
+      "params": []
+    },
+    {
+      "name": "account-activity_get-subscriptions",
+      "description": "Retrieves a list of all active subscriptions for a given webhook. Required: webhook_id. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all/list",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to pull subscriptions for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account-activity_validate-subscription",
+      "description": "Checks a user’s Account Activity subscription for a given webhook. Required: webhook_id. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/account_activity/webhooks/{webhook_id}/subscriptions/all",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to check subscription against.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activity_create-subscription",
+      "description": "Creates a subscription for an X activity event. Required: event_type, filter. Optional: tag, webhook_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/activity/subscriptions",
+      "params": [
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Event type",
+          "required": true
+        },
+        {
+          "name": "filter-direction",
+          "wire_name": "filter.direction",
+          "type": "string",
+          "location": "body",
+          "description": "Optional direction filter for directional events."
+        },
+        {
+          "name": "filter-keyword",
+          "wire_name": "filter.keyword",
+          "type": "string",
+          "location": "body",
+          "description": "A keyword to filter on."
+        },
+        {
+          "name": "filter-user-id",
+          "wire_name": "filter.user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers."
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag"
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this webhook config."
+        }
+      ]
+    },
+    {
+      "name": "activity_delete-subscription",
+      "description": "Deletes a subscription for an X activity event. Required: subscription_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/activity/subscriptions/{subscription_id}",
+      "params": [
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the subscription to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activity_delete-subscriptions-by-ids",
+      "description": "Deletes multiple subscriptions for X activity events by their IDs. Required: ids. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/activity/subscriptions",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of subscription IDs to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activity_get-subscriptions",
+      "description": "Get a list of active subscriptions for XAA. Optional: max_results (default: 1000), pagination_token. Returns array of ActivitySubscription.",
+      "method": "GET",
+      "path": "/2/activity/subscriptions",
+      "params": [
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return per page. Defaults to 1000 when unspecified; use pagination_token (from response meta.next_token) to fetch additional pages."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        }
+      ]
+    },
+    {
+      "name": "activity_update-subscription",
+      "description": "Updates a subscription for an X activity event. Required: subscription_id. Optional: tag, webhook_id. Returns the updated ActivitySubscriptionUpdateResponse.",
+      "method": "PUT",
+      "path": "/2/activity/subscriptions/{subscription_id}",
+      "params": [
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the subscription to update.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag"
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this webhook config."
+        }
+      ]
+    },
+    {
+      "name": "chat_add-group-members",
+      "description": "Adds one or more members to an existing encrypted Chat group conversation, rotating the conversation key. Required: id, user_ids. Optional: action_signatures, conversation_key_version, conversation_participant_keys (plus 2 more). Returns array of string.",
+      "method": "POST",
+      "path": "/2/chat/conversations/{id}/members",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Chat group conversation ID.",
+          "required": true
+        },
+        {
+          "name": "action_signatures",
+          "type": "array",
+          "location": "body",
+          "description": "Cryptographic signatures for the add-members action."
+        },
+        {
+          "name": "conversation_key_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the new rotated conversation key."
+        },
+        {
+          "name": "conversation_participant_keys",
+          "type": "array",
+          "location": "body",
+          "description": "Encrypted conversation keys for each new participant after key rotation."
+        },
+        {
+          "name": "encrypted_avatar_url",
+          "type": "string",
+          "location": "body",
+          "description": "Re-encrypted group avatar URL with new conversation key."
+        },
+        {
+          "name": "encrypted_title",
+          "type": "string",
+          "location": "body",
+          "description": "Re-encrypted group title with new conversation key."
+        },
+        {
+          "name": "user_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of user IDs to add to the group conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_create-conversation",
+      "description": "Creates a new encrypted Chat group conversation on behalf of the authenticated user. Required: conversation_id, conversation_key_version, conversation_participant_keys, group_members. Optional: action_signatures, base64_encoded_key_rotation, group_admins (plus 4 more). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/conversations/group",
+      "params": [
+        {
+          "name": "action_signatures",
+          "type": "array",
+          "location": "body",
+          "description": "Cryptographic signatures for the create action."
+        },
+        {
+          "name": "base64_encoded_key_rotation",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded key rotation payload."
+        },
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client-generated conversation ID.",
+          "required": true
+        },
+        {
+          "name": "conversation_key_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the conversation encryption key.",
+          "required": true
+        },
+        {
+          "name": "conversation_participant_keys",
+          "type": "array",
+          "location": "body",
+          "description": "Encrypted conversation keys for each participant.",
+          "required": true
+        },
+        {
+          "name": "group_admins",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "User IDs of group admins. Defaults to the creator if omitted."
+        },
+        {
+          "name": "group_avatar_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the avatar image for the group conversation."
+        },
+        {
+          "name": "group_description",
+          "type": "string",
+          "location": "body",
+          "description": "Description for the group conversation."
+        },
+        {
+          "name": "group_members",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "User IDs of group members to include in the conversation.",
+          "required": true
+        },
+        {
+          "name": "group_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name for the group conversation."
+        },
+        {
+          "name": "ttl_msec",
+          "type": "string",
+          "location": "body",
+          "description": "Message time-to-live in milliseconds. Messages expire after this duration."
+        }
+      ]
+    },
+    {
+      "name": "chat_get-conversation",
+      "description": "Returns metadata for a Chat conversation including type, muted status, and group details. Use chat_conversation.fields to select which fields are returned. Use expansions to hydrate member, admin, or participant user objects. Use user.fields to control which profile fields are returned for expanded users. Required: id. Optional: chat_conversation.fields, expansions, user.fields.",
+      "method": "GET",
+      "path": "/2/chat/conversations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The conversation ID. For 1:1 conversations, use the recipient user ID or dash-separated canonical ID. For group conversations, use the group ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "chat_conversation.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ChatConversation fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "chat_get-conversation-events",
+      "description": "Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Optional: max_results (default: 10), pagination_token, chat_message_event.fields. Returns array of ChatMessageEvent.",
+      "method": "GET",
+      "path": "/2/chat/conversations/{id}/events",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of message events to return."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Token for pagination to retrieve the next page of results."
+        },
+        {
+          "name": "chat_message_event.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ChatMessageEvent fields to display."
+        }
+      ]
+    },
+    {
+      "name": "chat_get-conversations",
+      "description": "Retrieves a list of Chat conversations for the authenticated user's inbox. Optional: max_results (default: 10), pagination_token, chat_conversation.fields (plus 2 more). Returns array of ChatConversation.",
+      "method": "GET",
+      "path": "/2/chat/conversations",
+      "params": [
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of conversations to return."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Token for pagination to retrieve the next page of results."
+        },
+        {
+          "name": "chat_conversation.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ChatConversation fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "chat_initialize-conversation-keys",
+      "description": "Initializes encryption keys for a Chat conversation. This is the first step before sending messages in a new 1:1 conversation. For 1:1 conversations, provide the recipient's user ID as the conversation_id. The server constructs the canonical conversation ID from the authenticated user and recipient. The request body must contain the conversation key version and participant keys (the conversation key encrypted for each participant using their public key). **Workflow (1:1 conversation):** 1. Generate a conversation key using the SDK 2. Encrypt the key for both participants using their public keys 3. Call this endpoint to register the keys 4. Send messages using `POST /chat/conversations/{id}/messages` **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scopes: `tweet.read`, `users.read`, `dm.write`. Required: id, conversation_key_version, conversation_participant_keys. Optional: action_signatures, base64_encoded_key_rotation. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/conversations/{id}/keys",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "action_signatures",
+          "type": "array",
+          "location": "body",
+          "description": "Cryptographic signatures for the key initialization action."
+        },
+        {
+          "name": "base64_encoded_key_rotation",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded key rotation payload for ratchet tree key management."
+        },
+        {
+          "name": "conversation_key_version",
+          "type": "string",
+          "location": "body",
+          "description": "Version of the conversation encryption key (typically a timestamp in milliseconds).",
+          "required": true
+        },
+        {
+          "name": "conversation_participant_keys",
+          "type": "array",
+          "location": "body",
+          "description": "The conversation key encrypted for each participant using their public key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_initialize-group",
+      "description": "Initializes a new XChat group conversation and returns a unique conversation ID. This endpoint is the first step in creating a group chat. The returned conversation_id should be used in subsequent calls to POST /chat/conversations/group to fully create and configure the group with members, admins, encryption keys, and other settings. **Workflow:** 1. Call this endpoint to get a `conversation_id` 2. Use that `conversation_id` when calling `POST /chat/conversations/group` to create the group **Authentication:** - Requires OAuth 1.0a User Context or OAuth 2.0 User Context - Required scope: `dm.write`.",
+      "method": "POST",
+      "path": "/2/chat/conversations/group/initialize",
+      "params": []
+    },
+    {
+      "name": "chat_mark-conversation-read",
+      "description": "Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, seen_until_sequence_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/conversations/{id}/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "seen_until_sequence_id",
+          "type": "string",
+          "location": "body",
+          "description": "The sequence ID of the last message to mark as read up to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_media-download",
+      "description": "Downloads encrypted media bytes from an XChat conversation. The response body contains raw binary bytes. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, media_hash_key.",
+      "method": "GET",
+      "path": "/2/chat/media/{id}/{media_hash_key}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "media_hash_key",
+          "type": "string",
+          "location": "path",
+          "description": "The media hash key returned from the upload initialize step.",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "chat_media-upload-append",
+      "description": "Appends media data to an XChat upload session. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/media/upload/{id}/append",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The session/resume id from initialize.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_media-upload-finalize",
+      "description": "Finalizes an XChat media upload session. Required: id. Optional: conversation_id, media_hash_key, message_id (plus 2 more). Returns the new ChatMediaUploadFinalizeResponse.",
+      "method": "POST",
+      "path": "/2/chat/media/upload/{id}/finalize",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The session/resume id from initialize.",
+          "required": true
+        },
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "body",
+          "description": "XChat conversation identifier for the upload."
+        },
+        {
+          "name": "media_hash_key",
+          "type": "string",
+          "location": "body",
+          "description": "Media hash key returned from initialize."
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Optional message identifier associated with the upload."
+        },
+        {
+          "name": "num_parts",
+          "type": "string",
+          "location": "body",
+          "description": "Total number of uploaded parts as a numeric string."
+        },
+        {
+          "name": "ttl_msec",
+          "type": "string",
+          "location": "body",
+          "description": "Optional TTL for the media in milliseconds."
+        }
+      ]
+    },
+    {
+      "name": "chat_media-upload-initialize",
+      "description": "Initializes an XChat media upload session. Optional: conversation_id, total_bytes. Returns the new ChatMediaUploadInitializeResponse.",
+      "method": "POST",
+      "path": "/2/chat/media/upload/initialize",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "body",
+          "description": "XChat conversation identifier for the upload."
+        },
+        {
+          "name": "total_bytes",
+          "type": "int",
+          "location": "body",
+          "description": "Total size of the media upload in bytes."
+        }
+      ]
+    },
+    {
+      "name": "chat_send-message",
+      "description": "Sends an encrypted message to a specific Chat conversation. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id, encoded_message_create_event, message_id. Optional: conversation_token, encoded_message_event_signature. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/conversations/{id}/messages",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        },
+        {
+          "name": "conversation_token",
+          "type": "string",
+          "location": "body",
+          "description": "Optional conversation token."
+        },
+        {
+          "name": "encoded_message_create_event",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded Thrift MessageCreateEvent containing encrypted message contents.",
+          "required": true
+        },
+        {
+          "name": "encoded_message_event_signature",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded Thrift MessageEventSignature for message verification."
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for this message.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chat_send-typing-indicator",
+      "description": "Sends a typing indicator to a specific Chat conversation on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/chat/conversations/{id}/typing",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The recipient's user ID for a 1:1 conversation, or a group conversation ID (prefixed with 'g').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "communities_get-by-id",
+      "description": "Retrieves details of a specific Community by its ID. Required: id. Optional: community.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/communities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Community.",
+          "required": true
+        },
+        {
+          "name": "community.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Community fields to display."
+        }
+      ]
+    },
+    {
+      "name": "communities_search",
+      "description": "Retrieves a list of Communities matching the specified search query. Required: query. Optional: max_results (default: 10), next_token, pagination_token (plus 1 more). Returns array of Community.",
+      "method": "GET",
+      "path": "/2/communities/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search communities.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of search results to be returned by a request."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "community.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Community fields to display."
+        }
+      ]
+    },
+    {
+      "name": "compliance_create-jobs",
+      "description": "Creates a new Compliance Job for the specified job type. Required: type. Optional: name, resumable. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/compliance/jobs",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided name for a compliance job."
+        },
+        {
+          "name": "resumable",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, this endpoint will return a pre-signed URL with resumable uploads enabled."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of compliance job to list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "compliance_get-jobs",
+      "description": "Retrieves a list of Compliance Jobs filtered by job type and optional status. Required: type. Optional: status, compliance_job.fields. Returns array of ComplianceJob.",
+      "method": "GET",
+      "path": "/2/compliance/jobs",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of Compliance Job to list.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status of Compliance Job to list."
+        },
+        {
+          "name": "compliance_job.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ComplianceJob fields to display."
+        }
+      ]
+    },
+    {
+      "name": "compliance_get-jobs-by-id",
+      "description": "Retrieves details of a specific Compliance Job by its ID. Required: id. Optional: compliance_job.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/compliance/jobs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Compliance Job to retrieve.",
+          "required": true
+        },
+        {
+          "name": "compliance_job.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of ComplianceJob fields to display."
+        }
+      ]
+    },
+    {
+      "name": "connections_delete-all",
+      "description": "Terminates all active streaming connections for the authenticated application. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/connections/all",
+      "params": []
+    },
+    {
+      "name": "connections_delete-by-endpoint",
+      "description": "Terminates all streaming connections for a specific endpoint ID for the authenticated application. Required: endpoint_id (default: filtered_stream). Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/connections/{endpoint_id}",
+      "params": [
+        {
+          "name": "endpoint_id",
+          "type": "string",
+          "location": "path",
+          "description": "The endpoint ID to terminate connections for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_delete-by-uuids",
+      "description": "Terminates multiple streaming connections by their UUIDs for the authenticated application. Required: uuids. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/connections",
+      "params": [
+        {
+          "name": "uuids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of connection UUIDs to terminate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_get-history",
+      "description": "Returns active and historical streaming connections with disconnect reasons for the authenticated application. Optional: status (default: active), endpoints, max_results (default: 10) (plus 2 more).",
+      "method": "GET",
+      "path": "/2/connections",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by connection status. Use 'active' for current connections, 'inactive' for historical/disconnected connections, or 'all' for both."
+        },
+        {
+          "name": "endpoints",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by streaming endpoint. Specify one or more endpoint names to filter results."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to return per page."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Token for paginating through results. Use the value from 'next_token' in the previous response."
+        },
+        {
+          "name": "connection.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Connection fields to display."
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_create-direct-messages-by-participant-id",
+      "description": "Sends a new direct message to a specific participant by their ID. Required: participant_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/dm_conversations/with/{participant_id}/messages",
+      "params": [
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the recipient user that will receive the DM.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_create-direct-messages-conversation",
+      "description": "Initiates a new direct message conversation with specified participants. Required: conversation_type, message, participant_ids. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/dm_conversations",
+      "params": [
+        {
+          "name": "conversation_type",
+          "type": "string",
+          "location": "body",
+          "description": "The conversation type that is being created.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message",
+          "required": true
+        },
+        {
+          "name": "participant_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Participants for the DM Conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_get-direct-messages-events-by-participant-id",
+      "description": "Retrieves direct message events for a specific conversation. Required: participant_id. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent.",
+      "method": "GET",
+      "path": "/2/dm_conversations/with/{participant_id}/dm_events",
+      "params": [
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the participant user for the One to One DM conversation.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "The set of event_types to include in the results."
+        },
+        {
+          "name": "dm_event.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of DmEvent fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_media-download",
+      "description": "Downloads media attached to a legacy Direct Message. The requesting user must be a participant in the conversation containing the specified DM event. The response body contains raw binary bytes. Required: dm_id, media_id, resource_id.",
+      "method": "GET",
+      "path": "/2/dm_conversations/media/{dm_id}/{media_id}/{resource_id}",
+      "params": [
+        {
+          "name": "dm_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the Direct Message event containing the media.",
+          "required": true
+        },
+        {
+          "name": "media_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the media attached to the Direct Message.",
+          "required": true
+        },
+        {
+          "name": "resource_id",
+          "type": "string",
+          "location": "path",
+          "description": "The resource identifier of the media file, including file extension (e.g. 'hVJQTwig.jpg').",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_dm-events_get-direct-messages-events-by-conversation-id",
+      "description": "Retrieves direct message events for a specific conversation. Required: id. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent.",
+      "method": "GET",
+      "path": "/2/dm_conversations/{id}/dm_events",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The DM conversation ID.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "The set of event_types to include in the results."
+        },
+        {
+          "name": "dm_event.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of DmEvent fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "dm-conversations_messages_create-direct-by-conversation-id",
+      "description": "Sends a new direct message to a specific conversation by its ID. Required: dm_conversation_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/dm_conversations/{dm_conversation_id}/messages",
+      "params": [
+        {
+          "name": "dm_conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The DM Conversation ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dm-events_delete-direct-messages-events",
+      "description": "Deletes a specific direct message event by its ID, if owned by the authenticated user. Required: event_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/dm_events/{event_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the direct-message event to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dm-events_get-direct-messages-events",
+      "description": "Retrieves a list of recent direct message events across all conversations. Optional: max_results (default: 100), pagination_token, event_types (plus 5 more). Returns array of DmEvent.",
+      "method": "GET",
+      "path": "/2/dm_events",
+      "params": [
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "query",
+          "description": "The set of event_types to include in the results."
+        },
+        {
+          "name": "dm_event.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of DmEvent fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "dm-events_get-direct-messages-events-by-id",
+      "description": "Retrieves details of a specific direct message event by its ID. Required: event_id. Optional: dm_event.fields, expansions, media.fields (plus 2 more). Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/dm_events/{event_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "dm event id.",
+          "required": true
+        },
+        {
+          "name": "dm_event.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of DmEvent fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "evaluate-note_evaluate-community-notes",
+      "description": "Endpoint to evaluate a community note. Required: note_text, post_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/evaluate_note",
+      "params": [
+        {
+          "name": "note_text",
+          "type": "string",
+          "location": "body",
+          "description": "Text for the community note.",
+          "required": true
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "insights_get-historical",
+      "description": "Retrieves historical engagement metrics for specified Posts within a defined time range. Required: tweet_ids, end_time, start_time, granularity, requested_metrics. Optional: engagement.fields. Returns array of Engagement.",
+      "method": "GET",
+      "path": "/2/insights/historical",
+      "params": [
+        {
+          "name": "tweet_ids",
+          "type": "array",
+          "location": "query",
+          "description": "List of PostIds for historical metrics.",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.",
+          "required": true
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "granularity of metrics response.",
+          "required": true
+        },
+        {
+          "name": "requested_metrics",
+          "type": "array",
+          "location": "query",
+          "description": "request metrics for historical request.",
+          "required": true
+        },
+        {
+          "name": "engagement.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Engagement fields to display."
+        }
+      ]
+    },
+    {
+      "name": "insights_get-insights28-hr",
+      "description": "Retrieves engagement metrics for specified Posts over the last 28 hours. Required: tweet_ids, granularity, requested_metrics. Optional: engagement.fields. Returns array of Engagement.",
+      "method": "GET",
+      "path": "/2/insights/28hr",
+      "params": [
+        {
+          "name": "tweet_ids",
+          "type": "array",
+          "location": "query",
+          "description": "List of PostIds for 28hr metrics.",
+          "required": true
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "granularity of metrics response.",
+          "required": true
+        },
+        {
+          "name": "requested_metrics",
+          "type": "array",
+          "location": "query",
+          "description": "request metrics for historical request.",
+          "required": true
+        },
+        {
+          "name": "engagement.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Engagement fields to display."
+        }
+      ]
+    },
+    {
+      "name": "lists_create",
+      "description": "Creates a new List for the authenticated user. Required: name. Optional: description, private (default: false). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/lists",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "private",
+          "type": "bool",
+          "location": "body",
+          "description": "Private"
+        }
+      ]
+    },
+    {
+      "name": "lists_delete",
+      "description": "Deletes a specific List owned by the authenticated user by its ID. Required: id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_get-by-id",
+      "description": "Retrieves details of a specific List by its ID. Required: id. Optional: list.fields, expansions, user.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List.",
+          "required": true
+        },
+        {
+          "name": "list.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of List fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "lists_update",
+      "description": "Updates the details of a specific List owned by the authenticated user by its ID. Required: id. Optional: description, name, private. Returns array of Problem.",
+      "method": "PUT",
+      "path": "/2/lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List to modify.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "private",
+          "type": "bool",
+          "location": "body",
+          "description": "Private"
+        }
+      ]
+    },
+    {
+      "name": "lists_followers_get-lists",
+      "description": "Retrieves a list of Users who follow a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/lists/{id}/followers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "lists_members_add-lists",
+      "description": "Adds a User to a specific List by its ID. Required: id, user_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/lists/{id}/members",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List for which to add a member.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_members_get-lists",
+      "description": "Retrieves a list of Users who are members of a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/lists/{id}/members",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "lists_members_remove-lists-by-user-id",
+      "description": "Removes a User from a specific List by its ID and the User’s ID. Required: id, user_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/lists/{id}/members/{user_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List to remove a member.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of User that will be removed from the List.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_tweets_get-lists-posts",
+      "description": "Retrieves a list of Posts associated with a specific List by its ID. Required: id. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/lists/{id}/tweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "media_append-upload",
+      "description": "Appends data to a Media upload request. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/upload/{id}/append",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The media identifier for the media to perform the append operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_create-metadata",
+      "description": "Creates metadata for a Media file. Required: id. Optional: metadata. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/metadata",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media.",
+          "required": true
+        },
+        {
+          "name": "metadata-allow-download-status-allow-download",
+          "wire_name": "metadata.allow_download_status.allow_download",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow download"
+        },
+        {
+          "name": "metadata-alt-text-text",
+          "wire_name": "metadata.alt_text.text",
+          "type": "string",
+          "location": "body",
+          "description": "Description of media ( <= 1000 characters )",
+          "required": true
+        },
+        {
+          "name": "metadata-audience-policy-creator-subscriptions",
+          "wire_name": "metadata.audience_policy.creator_subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Creator subscriptions"
+        },
+        {
+          "name": "metadata-audience-policy-x-subscriptions",
+          "wire_name": "metadata.audience_policy.x_subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "X subscriptions"
+        },
+        {
+          "name": "metadata-content-expiration-timestamp-sec",
+          "wire_name": "metadata.content_expiration.timestamp_sec",
+          "type": "float",
+          "location": "body",
+          "description": "Expiration time for content as a Unix timestamp in seconds",
+          "required": true
+        },
+        {
+          "name": "metadata-domain-restrictions-whitelist",
+          "wire_name": "metadata.domain_restrictions.whitelist",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of whitelisted domains",
+          "required": true
+        },
+        {
+          "name": "metadata-found-media-origin-id",
+          "wire_name": "metadata.found_media_origin.id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique Identifier of media within provider ( <= 24 characters ))",
+          "required": true
+        },
+        {
+          "name": "metadata-found-media-origin-provider",
+          "wire_name": "metadata.found_media_origin.provider",
+          "type": "string",
+          "location": "body",
+          "description": "The media provider (e.g., 'giphy') that sourced the media ( <= 8 Characters )",
+          "required": true
+        },
+        {
+          "name": "metadata-geo-restrictions",
+          "wire_name": "metadata.geo_restrictions",
+          "type": "string",
+          "location": "body",
+          "description": "Geo restrictions"
+        },
+        {
+          "name": "metadata-management-info-managed",
+          "wire_name": "metadata.management_info.managed",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the media is managed by Media Studio",
+          "required": true
+        },
+        {
+          "name": "metadata-sensitive-media-warning-adult-content",
+          "wire_name": "metadata.sensitive_media_warning.adult_content",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content contains adult material"
+        },
+        {
+          "name": "metadata-sensitive-media-warning-graphic-violence",
+          "wire_name": "metadata.sensitive_media_warning.graphic_violence",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content depicts graphic violence"
+        },
+        {
+          "name": "metadata-sensitive-media-warning-other",
+          "wire_name": "metadata.sensitive_media_warning.other",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the content has other sensitive characteristics"
+        },
+        {
+          "name": "metadata-shared-info-shared",
+          "wire_name": "metadata.shared_info.shared",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the media is shared in direct messages",
+          "required": true
+        },
+        {
+          "name": "metadata-sticker-info-stickers",
+          "wire_name": "metadata.sticker_info.stickers",
+          "type": "array",
+          "location": "body",
+          "description": "Stickers list must not be empty and should not exceed 25",
+          "required": true
+        },
+        {
+          "name": "metadata-upload-source-upload-source",
+          "wire_name": "metadata.upload_source.upload_source",
+          "type": "string",
+          "location": "body",
+          "description": "Records the source (e.g., app, device) from which the media was uploaded",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_create-subtitles",
+      "description": "Creates subtitles for a specific Media file. Optional: id, media_category, subtitles. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/subtitles",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "media_category",
+          "type": "string",
+          "location": "body",
+          "description": "The media category of uploaded media to which subtitles should be added/deleted"
+        },
+        {
+          "name": "subtitles-display-name",
+          "wire_name": "subtitles.display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Language name in a human readable form"
+        },
+        {
+          "name": "subtitles-id",
+          "wire_name": "subtitles.id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "subtitles-language-code",
+          "wire_name": "subtitles.language_code",
+          "type": "string",
+          "location": "body",
+          "description": "The language code should be a BCP47 code (e.g. 'EN', 'SP')"
+        }
+      ]
+    },
+    {
+      "name": "media_delete-subtitles",
+      "description": "Deletes subtitles for a specific Media file. Optional: id, language_code, media_category. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/media/subtitles",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "language_code",
+          "type": "string",
+          "location": "body",
+          "description": "The language code should be a BCP47 code (e.g. 'EN', 'SP')"
+        },
+        {
+          "name": "media_category",
+          "type": "string",
+          "location": "body",
+          "description": "The media category of uploaded media to which subtitles should be added/deleted"
+        }
+      ]
+    },
+    {
+      "name": "media_finalize-upload",
+      "description": "Finalizes a Media upload request. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/upload/{id}/finalize",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The media id of the targeted media to finalize.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_get-analytics",
+      "description": "Retrieves analytics data for media. Required: media_keys, end_time, start_time, granularity (default: daily). Optional: media_analytics.fields. Returns array of MediaGetAnalyticsItem.",
+      "method": "GET",
+      "path": "/2/media/analytics",
+      "params": [
+        {
+          "name": "media_keys",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media Keys. Up to 100 are allowed in a single request.",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.",
+          "required": true
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity for the search counts results.",
+          "required": true
+        },
+        {
+          "name": "media_analytics.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of MediaAnalytics fields to display."
+        }
+      ]
+    },
+    {
+      "name": "media_get-by-key",
+      "description": "Retrieves details of a specific Media file by its media key. Required: media_key. Optional: media.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/media/{media_key}",
+      "params": [
+        {
+          "name": "media_key",
+          "type": "string",
+          "location": "path",
+          "description": "A single Media Key.",
+          "required": true
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        }
+      ]
+    },
+    {
+      "name": "media_get-by-keys",
+      "description": "Retrieves details of Media files by their media keys. Required: media_keys. Optional: media.fields. Returns array of Media.",
+      "method": "GET",
+      "path": "/2/media",
+      "params": [
+        {
+          "name": "media_keys",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media Keys. Up to 100 are allowed in a single request.",
+          "required": true
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        }
+      ]
+    },
+    {
+      "name": "media_get-upload-status",
+      "description": "Retrieves the status of a Media upload by its ID. Required: media_id. Optional: command. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/media/upload",
+      "params": [
+        {
+          "name": "media_id",
+          "type": "string",
+          "location": "query",
+          "description": "Media id for the requested media upload status.",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "query",
+          "description": "The command for the media upload request."
+        }
+      ]
+    },
+    {
+      "name": "media_initialize-upload",
+      "description": "Initializes a media upload. Optional: additional_owners, media_category, media_type (plus 2 more). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/upload/initialize",
+      "params": [
+        {
+          "name": "additional_owners",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Additional owners"
+        },
+        {
+          "name": "media_category",
+          "type": "string",
+          "location": "body",
+          "description": "A string enum value which identifies a media use-case. This identifier is used to enforce use-case specific constraints (e.g. file size, video duration) and enable advanced features."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of media."
+        },
+        {
+          "name": "shared",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this media is shared or not."
+        },
+        {
+          "name": "total_bytes",
+          "type": "int",
+          "location": "body",
+          "description": "The total size of the media upload in bytes."
+        }
+      ]
+    },
+    {
+      "name": "media_upload",
+      "description": "Uploads a media file for use in posts or other content. Required: media, media_category. Optional: additional_owners, media_type, shared (default: false). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/media/upload",
+      "params": [
+        {
+          "name": "additional_owners",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Additional owners"
+        },
+        {
+          "name": "media",
+          "type": "string",
+          "location": "body",
+          "description": "Media",
+          "required": true
+        },
+        {
+          "name": "media_category",
+          "type": "string",
+          "location": "body",
+          "description": "A string enum value which identifies a media use-case. This identifier is used to enforce use-case specific constraints (e.g. file size) and enable advanced features.",
+          "required": true
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of image or subtitle."
+        },
+        {
+          "name": "shared",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this media is shared or not."
+        }
+      ]
+    },
+    {
+      "name": "news_get",
+      "description": "Retrieves news story by its ID. Required: id. Optional: news.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/news/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the news story.",
+          "required": true
+        },
+        {
+          "name": "news.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of News fields to display."
+        }
+      ]
+    },
+    {
+      "name": "news_search",
+      "description": "Retrieves a list of News stories matching the specified search query. Required: query. Optional: max_results (default: 10), max_age_hours (default: 168), news.fields. Returns array of News.",
+      "method": "GET",
+      "path": "/2/news/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return."
+        },
+        {
+          "name": "max_age_hours",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum age of the News story to search for."
+        },
+        {
+          "name": "news.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of News fields to display."
+        }
+      ]
+    },
+    {
+      "name": "notes_create-community",
+      "description": "Creates a community note endpoint for LLM use case. Required: info, post_id, test_mode. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/notes",
+      "params": [
+        {
+          "name": "info-classification",
+          "wire_name": "info.classification",
+          "type": "string",
+          "location": "body",
+          "description": "Community Note classification type.",
+          "required": true
+        },
+        {
+          "name": "info-is-media-note",
+          "wire_name": "info.is_media_note",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the note is a media note."
+        },
+        {
+          "name": "info-misleading-tags",
+          "wire_name": "info.misleading_tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Misleading tags",
+          "required": true
+        },
+        {
+          "name": "info-text",
+          "wire_name": "info.text",
+          "type": "string",
+          "location": "body",
+          "description": "The text summary in the Community Note.",
+          "required": true
+        },
+        {
+          "name": "info-trustworthy-sources",
+          "wire_name": "info.trustworthy_sources",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the note provided trustworthy links.",
+          "required": true
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        },
+        {
+          "name": "test_mode",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the note being submitted is only for testing the capability of the bot, and won't be publicly visible. If false, the note being submitted will be a new proposed note on the product.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_delete-community",
+      "description": "Deletes a community note. Required: id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/notes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The community note id to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_search-community-written",
+      "description": "Returns all the community notes written by the user. Required: test_mode. Optional: pagination_token, max_results (default: 10), note.fields.",
+      "method": "GET",
+      "path": "/2/notes/search/notes_written",
+      "params": [
+        {
+          "name": "test_mode",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return the notes the caller wrote for the test. If false, return the notes the caller wrote on the product.",
+          "required": true
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to get next set of posts eligible for notes."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return."
+        },
+        {
+          "name": "note.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Note fields to display."
+        }
+      ]
+    },
+    {
+      "name": "notes_search-eligible-posts",
+      "description": "Returns all the posts that are eligible for community notes. Required: test_mode. Optional: pagination_token, max_results (default: 10), post_selection (plus 6 more).",
+      "method": "GET",
+      "path": "/2/notes/search/posts_eligible_for_notes",
+      "params": [
+        {
+          "name": "test_mode",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return a list of posts that are for the test. If false, return a list of posts that the bots can write proposed notes on the product.",
+          "required": true
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to get next set of posts eligible for notes."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return."
+        },
+        {
+          "name": "post_selection",
+          "type": "string",
+          "location": "query",
+          "description": "The selection of posts to return. Valid values are 'feed_size: [small|large|xl|xxl], feed_lang: [en|es|...|all]'. Default (if not specified) is 'feed_size: small, feed_lang: en'. Only top AI writers have access to large, xl, and xxl size feeds."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "openapi-json_get-open-api-spec",
+      "description": "Retrieves the full OpenAPI Specification in JSON format. (See https://github.com/OAI/OpenAPI-Specification/blob/master/README.md). Returns the OpenapiJsonGetOpenApiSpecResponse.",
+      "method": "GET",
+      "path": "/2/openapi.json",
+      "params": []
+    },
+    {
+      "name": "spaces_get-by-creator-ids",
+      "description": "Retrieves details of Spaces created by specified User IDs. Required: user_ids. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Space.",
+      "method": "GET",
+      "path": "/2/spaces/by/creator_ids",
+      "params": [
+        {
+          "name": "user_ids",
+          "type": "array",
+          "location": "query",
+          "description": "The IDs of Users to search through.",
+          "required": true
+        },
+        {
+          "name": "space.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Space fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "topic.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Topic fields to display."
+        }
+      ]
+    },
+    {
+      "name": "spaces_get-by-id",
+      "description": "Retrieves details of a specific space by its ID. Required: id. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/spaces/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Space to be retrieved.",
+          "required": true
+        },
+        {
+          "name": "space.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Space fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "topic.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Topic fields to display."
+        }
+      ]
+    },
+    {
+      "name": "spaces_get-by-ids",
+      "description": "Retrieves details of multiple Spaces by their IDs. Required: ids. Optional: space.fields, expansions, user.fields (plus 1 more). Returns array of Space.",
+      "method": "GET",
+      "path": "/2/spaces",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "The list of Space IDs to return.",
+          "required": true
+        },
+        {
+          "name": "space.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Space fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "topic.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Topic fields to display."
+        }
+      ]
+    },
+    {
+      "name": "spaces_search",
+      "description": "Retrieves a list of Spaces matching the specified search query. Required: query. Optional: state (default: all), max_results (default: 100), space.fields (plus 3 more). Returns array of Space.",
+      "method": "GET",
+      "path": "/2/spaces/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query.",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "The state of Spaces to search for."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The number of results to return."
+        },
+        {
+          "name": "space.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Space fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "topic.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Topic fields to display."
+        }
+      ]
+    },
+    {
+      "name": "spaces_buyers_get-spaces",
+      "description": "Retrieves a list of Users who purchased tickets to a specific Space by its ID. Required: id. Optional: pagination_token, max_results (default: 100), user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/spaces/{id}/buyers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Space to be retrieved.",
+          "required": true
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "spaces_tweets_get-spaces-posts",
+      "description": "Retrieves a list of Posts shared in a specific Space by its ID. Required: id. Optional: max_results (default: 100), tweet.fields, expansions (plus 4 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/spaces/{id}/tweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Space to be retrieved.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The number of Posts to fetch from the provided space. If not provided, the value will default to the maximum of 100."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "trends_get-by-woeid",
+      "description": "Retrieves trending topics for a specific location identified by its WOEID. Required: woeid. Optional: max_trends (default: 20), trend.fields. Returns array of Trend.",
+      "method": "GET",
+      "path": "/2/trends/by/woeid/{woeid}",
+      "params": [
+        {
+          "name": "woeid",
+          "type": "int",
+          "location": "path",
+          "description": "The WOEID of the place to lookup a trend for.",
+          "required": true
+        },
+        {
+          "name": "max_trends",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "trend.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Trend fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_create-posts",
+      "description": "Creates a new Post for the authenticated user, or edits an existing Post when edit_options are provided. Supports paid partnership disclosure via the paid_partnership field. Optional: card_uri, community_id, direct_message_deep_link (plus 13 more). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/tweets",
+      "params": [
+        {
+          "name": "card_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Card Uri Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link."
+        },
+        {
+          "name": "community_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Community."
+        },
+        {
+          "name": "direct_message_deep_link",
+          "type": "string",
+          "location": "body",
+          "description": "Link to take the conversation from the public timeline to a private Direct Message."
+        },
+        {
+          "name": "edit-options-previous-post-id",
+          "wire_name": "edit_options.previous_post_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        },
+        {
+          "name": "for_super_followers_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Exclusive Tweet for super followers."
+        },
+        {
+          "name": "geo-place-id",
+          "wire_name": "geo.place_id",
+          "type": "string",
+          "location": "body",
+          "description": "Place id"
+        },
+        {
+          "name": "made_with_ai",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this Post contains AI-generated media. When true, the Post will be labeled accordingly."
+        },
+        {
+          "name": "media-description",
+          "wire_name": "media.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description for the media. Rendered on the Post card for video and Amplify content."
+        },
+        {
+          "name": "media-embeddable",
+          "wire_name": "media.embeddable",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, the media's asset URLs do not expire and external syndicated playback is allowed."
+        },
+        {
+          "name": "media-media-ids",
+          "wire_name": "media.media_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of Media Ids to be attached to a created Tweet.",
+          "required": true
+        },
+        {
+          "name": "media-preview-media-id",
+          "wire_name": "media.preview_media_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this Media."
+        },
+        {
+          "name": "media-tagged-user-ids",
+          "wire_name": "media.tagged_user_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of User Ids to be tagged in the media for created Tweet."
+        },
+        {
+          "name": "media-title",
+          "wire_name": "media.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the media. Rendered on the Post card for video and Amplify content."
+        },
+        {
+          "name": "nullcast",
+          "type": "bool",
+          "location": "body",
+          "description": "Nullcasted (promoted-only) Posts do not appear in the public timeline and are not served to followers."
+        },
+        {
+          "name": "paid_partnership",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this Post is a paid partnership. When true, the Post will be labeled as a paid promotion."
+        },
+        {
+          "name": "poll-duration-minutes",
+          "wire_name": "poll.duration_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of the poll in minutes.",
+          "required": true
+        },
+        {
+          "name": "poll-options",
+          "wire_name": "poll.options",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Options",
+          "required": true
+        },
+        {
+          "name": "poll-reply-settings",
+          "wire_name": "poll.reply_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Settings to indicate who can reply to the Tweet."
+        },
+        {
+          "name": "quote_tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers."
+        },
+        {
+          "name": "reply-auto-populate-reply-metadata",
+          "wire_name": "reply.auto_populate_reply_metadata",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, reply metadata will be automatically populated."
+        },
+        {
+          "name": "reply-exclude-reply-user-ids",
+          "wire_name": "reply.exclude_reply_user_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of User Ids to be excluded from the reply Tweet."
+        },
+        {
+          "name": "reply-in-reply-to-tweet-id",
+          "wire_name": "reply.in_reply_to_tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        },
+        {
+          "name": "reply_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Settings to indicate who can reply to the Tweet."
+        },
+        {
+          "name": "share_with_followers",
+          "type": "bool",
+          "location": "body",
+          "description": "Share community post with followers too."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The content of the Tweet."
+        }
+      ]
+    },
+    {
+      "name": "tweets_create-webhooks-stream-link",
+      "description": "Creates a link to deliver FilteredStream events to the given webhook. Required: webhook_id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/tweets/search/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to link to your FilteredStream ruleset.",
+          "required": true
+        },
+        {
+          "name": "tweet.fields",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_delete-posts",
+      "description": "Deletes a specific Post by its ID, if owned by the authenticated user. Required: id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/tweets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Post to be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_delete-webhooks-stream-link",
+      "description": "Deletes a link from FilteredStream events to the given webhook. Required: webhook_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/tweets/search/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The webhook ID to link to your FilteredStream ruleset.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-posts-analytics",
+      "description": "Retrieves analytics data for specified Posts within a defined time range. Required: ids, end_time, start_time, granularity (default: total). Optional: analytics.fields. Returns array of TweetsGetPostsAnalyticsItem.",
+      "method": "GET",
+      "path": "/2/tweets/analytics",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Post IDs. Up to 100 are allowed in a single request.",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the end of the time range.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The UTC timestamp representing the start of the time range.",
+          "required": true
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity for the search counts results.",
+          "required": true
+        },
+        {
+          "name": "analytics.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Analytics fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-posts-by-id",
+      "description": "Retrieves details of a specific Post by its ID. Required: id. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/tweets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "A single Post ID.",
+          "required": true
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-posts-by-ids",
+      "description": "Retrieves details of multiple Posts by their IDs. Required: ids. Optional: tweet.fields, expansions, media.fields (plus 3 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Post IDs. Up to 100 are allowed in a single request.",
+          "required": true
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-posts-counts-all",
+      "description": "Retrieves the count of Posts matching a search query from the full archive. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount.",
+      "method": "GET",
+      "path": "/2/tweets/counts/all",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One query/rule/filter for matching Posts.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity for the search counts results."
+        },
+        {
+          "name": "search_count.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of SearchCount fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-posts-counts-recent",
+      "description": "Retrieves the count of Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 5 more). Returns array of SearchCount.",
+      "method": "GET",
+      "path": "/2/tweets/counts/recent",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One query/rule/filter for matching Posts.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp (from most recent 7 days) from which the Posts will be provided. Timestamp is in second granularity and is inclusive (i.e. 12:00:01 includes the first second of the minute)."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity for the search counts results."
+        },
+        {
+          "name": "search_count.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of SearchCount fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-rule-counts",
+      "description": "Retrieves the count of rules in the active rule set for the filtered stream. Optional: rules_count.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/tweets/search/stream/rules/counts",
+      "params": [
+        {
+          "name": "rules_count.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of RulesCount fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-rules",
+      "description": "Retrieves the active rule set or a subset of rules for the filtered stream. Optional: ids, max_results (default: 1000), pagination_token. Returns array of Rule.",
+      "method": "GET",
+      "path": "/2/tweets/search/stream/rules",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A comma-separated list of Rule IDs."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This value is populated by passing the 'next_token' returned in a request to paginate through results."
+        }
+      ]
+    },
+    {
+      "name": "tweets_get-webhooks-stream-links",
+      "description": "Get a list of webhook links associated with a filtered stream ruleset. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/tweets/search/webhooks",
+      "params": []
+    },
+    {
+      "name": "tweets_search-posts-all",
+      "description": "Retrieves Posts from the full archive matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets/search/all",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One query/rule/filter for matching Posts.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of search results to be returned by a request."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "This order in which to return results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_search-posts-recent",
+      "description": "Retrieves Posts from the last 7 days matching a search query. Required: query. Optional: start_time, end_time, since_id (plus 11 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets/search/recent",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One query/rule/filter for matching Posts.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The oldest UTC timestamp from which the Posts will be provided...."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The newest, most recent UTC timestamp to which the Posts will be..."
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID greater than (that is, more recent than) the specified ID."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "Returns results with a Post ID less than (that is, older than) the specified ID."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of search results to be returned by a request."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "This order in which to return results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_update-rules",
+      "description": "Adds or deletes rules from the active rule set for the filtered stream. Optional: dry_run, delete_all. Returns array of Rule.",
+      "method": "POST",
+      "path": "/2/tweets/search/stream/rules",
+      "params": [
+        {
+          "name": "dry_run",
+          "type": "bool",
+          "location": "query",
+          "description": "Dry Run can be used with both the add and delete action, with the expected result given, but without actually taking any action in the system (meaning the end state will always be as it was when the request was submitted). This is particularly useful to validate rule changes."
+        },
+        {
+          "name": "delete_all",
+          "type": "bool",
+          "location": "query",
+          "description": "Delete All can be used to delete all of the rules associated this client app, it should be specified with no other parameters. Once deleted, rules cannot be recovered."
+        }
+      ]
+    },
+    {
+      "name": "tweets_hidden_hide-posts-reply",
+      "description": "Hides or unhides a reply to a conversation owned by the authenticated user. Required: tweet_id, hidden. Returns the updated TweetHideResponse.",
+      "method": "PUT",
+      "path": "/2/tweets/{tweet_id}/hidden",
+      "params": [
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the reply that you want to hide or unhide.",
+          "required": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Hidden",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tweets_liking-users_get-posts",
+      "description": "Retrieves a list of Users who liked a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/tweets/{id}/liking_users",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "A single Post ID.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_quote-tweets_get-posts-quoted-posts",
+      "description": "Retrieves a list of Posts that quote a specific Post by its ID. Required: id. Optional: max_results (default: 10), pagination_token, exclude (plus 6 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets/{id}/quote_tweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "A single Post ID.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to be returned."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "exclude",
+          "type": "array",
+          "location": "query",
+          "description": "The set of entities to exclude (e.g. 'replies' or 'retweets')."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_retweeted-by_get-posts-reposted-by",
+      "description": "Retrieves a list of Users who reposted a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/tweets/{id}/retweeted_by",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "A single Post ID.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "tweets_retweets_get-posts-reposts",
+      "description": "Retrieves a list of Posts that repost a specific Post by its ID. Required: id. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/tweets/{id}/retweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "A single Post ID.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "usage_get",
+      "description": "Retrieves usage statistics for Posts over a specified number of days. Optional: days (default: 7), usage.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/usage/tweets",
+      "params": [
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "The number of days for which you need usage for."
+        },
+        {
+          "name": "usage.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Usage fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-by-id",
+      "description": "Retrieves details of a specific User by their ID. Required: id. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-by-ids",
+      "description": "Retrieves details of multiple Users by their IDs. Required: ids. Optional: user.fields, expansions, tweet.fields. Returns array of User.",
+      "method": "GET",
+      "path": "/2/users",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A list of User IDs, comma-separated. You can specify up to 100 IDs.",
+          "required": true
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-by-username",
+      "description": "Retrieves details of a specific User by their username. Required: username. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/users/by/username/{username}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "A username.",
+          "required": true
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-by-usernames",
+      "description": "Retrieves details of multiple Users by their usernames. Required: usernames. Optional: user.fields, expansions, tweet.fields. Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/by",
+      "params": [
+        {
+          "name": "usernames",
+          "type": "array",
+          "location": "query",
+          "description": "A list of usernames, comma-separated.",
+          "required": true
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-me",
+      "description": "Retrieves details of the authenticated user. Optional: user.fields, expansions, tweet.fields. Returns array of Problem.",
+      "method": "GET",
+      "path": "/2/users/me",
+      "params": [
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-public-keys",
+      "description": "Returns the public keys and Juicebox configuration for the specified users. Required: ids. Optional: public_key.fields.",
+      "method": "GET",
+      "path": "/2/users/public_keys",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "A list of User IDs, comma-separated. You can specify up to 100 IDs.",
+          "required": true
+        },
+        {
+          "name": "public_key.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of PublicKey fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-reposts-of-me",
+      "description": "Retrieves a list of Posts that repost content from the authenticated user. Optional: max_results (default: 100), pagination_token, tweet.fields (plus 5 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/reposts_of_me",
+      "params": [
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_get-trends-personalized-trends",
+      "description": "Retrieves personalized trending topics for the authenticated user. Optional: personalized_trend.fields. Returns array of PersonalizedTrend.",
+      "method": "GET",
+      "path": "/2/users/personalized_trends",
+      "params": [
+        {
+          "name": "personalized_trend.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of PersonalizedTrend fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_search",
+      "description": "Retrieves a list of Users matching a search query. Required: query. Optional: max_results (default: 100), next_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "TThe the query string by which to query for users.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_affiliates_get-users",
+      "description": "Retrieves a list of Users who are affiliated with a specific organization User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/{id}/affiliates",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_blocking_get-users",
+      "description": "Retrieves a list of Users blocked by the specified User ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/{id}/blocking",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_bookmarks_create-users",
+      "description": "Adds a post to the authenticated user’s bookmarks. Required: id, tweet_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/bookmarks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to add bookmarks.",
+          "required": true
+        },
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_bookmarks_delete-users",
+      "description": "Removes a Post from the authenticated user’s Bookmarks by its ID. Required: id, tweet_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{id}/bookmarks/{tweet_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User whose bookmark is to be removed.",
+          "required": true
+        },
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Post that the source User is removing from bookmarks.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_bookmarks_get-users",
+      "description": "Retrieves a list of Posts bookmarked by the authenticated user. Required: id. Optional: max_results, pagination_token, tweet.fields (plus 5 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/{id}/bookmarks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_bookmarks_get-users-by-folder-id",
+      "description": "Retrieves Posts in a specific Bookmark folder by its ID for the authenticated user. Required: id, folder_id. Returns array of BookmarksGetUsersByFolderIdItem.",
+      "method": "GET",
+      "path": "/2/users/{id}/bookmarks/folders/{folder_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Bookmark Folder that the authenticated User is trying to fetch Posts for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_bookmarks_get-users-folders",
+      "description": "Retrieves a list of Bookmark folders created by the authenticated user. Required: id. Optional: max_results, pagination_token. Returns array of BookmarksGetUsersFoldersItem.",
+      "method": "GET",
+      "path": "/2/users/{id}/bookmarks/folders",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        }
+      ]
+    },
+    {
+      "name": "users_dm_block-users",
+      "description": "Blocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/dm/block",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the target User that the authenticated user requesting to block dms for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_dm_unblock-users",
+      "description": "Unblocks direct messages to or from a specific User by their ID for the authenticated user. Required: id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/dm/unblock",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the target User that the authenticated user requesting to unblock dms for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_followed-lists_follow-list",
+      "description": "Causes the authenticated user to follow a specific List by its ID. Required: id, list_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/followed_lists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that will follow the List.",
+          "required": true
+        },
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this List.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_followed-lists_get-users",
+      "description": "Retrieves a list of Lists followed by a specific User by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List.",
+      "method": "GET",
+      "path": "/2/users/{id}/followed_lists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "list.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of List fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_followed-lists_unfollow-list",
+      "description": "Causes the authenticated user to unfollow a specific List by its ID. Required: id, list_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{id}/followed_lists/{list_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that will unfollow the List.",
+          "required": true
+        },
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List to unfollow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_followers_get-users",
+      "description": "Retrieves a list of Users who follow a specific User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/{id}/followers",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_following_follow-user",
+      "description": "Causes the authenticated user to follow a specific user by their ID. Required: id, target_user_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/following",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to follow the target User.",
+          "required": true
+        },
+        {
+          "name": "target_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_following_get-users",
+      "description": "Retrieves a list of Users followed by a specific User by their ID. Required: id. Optional: max_results, pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/{id}/following",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_following_unfollow-user",
+      "description": "Causes the authenticated user to unfollow a specific user by their ID. Required: source_user_id, target_user_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{source_user_id}/following/{target_user_id}",
+      "params": [
+        {
+          "name": "source_user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to unfollow the target User.",
+          "required": true
+        },
+        {
+          "name": "target_user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User that the source User is requesting to unfollow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_liked-tweets_get-users-liked-posts",
+      "description": "Retrieves a list of Posts liked by a specific User by their ID. Required: id. Optional: max_results, pagination_token, tweet.fields (plus 5 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/{id}/liked_tweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_likes_post",
+      "description": "Causes the authenticated user to Like a specific Post by its ID. Required: id, tweet_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/likes",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to like the Post.",
+          "required": true
+        },
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_likes_unlike-post",
+      "description": "Causes the authenticated user to Unlike a specific Post by its ID. Required: id, tweet_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{id}/likes/{tweet_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to unlike the Post.",
+          "required": true
+        },
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Post that the User is requesting to unlike.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list-memberships_get-users",
+      "description": "Retrieves a list of Lists that a specific User is a member of by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List.",
+      "method": "GET",
+      "path": "/2/users/{id}/list_memberships",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "list.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of List fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_mentions_get-users",
+      "description": "Retrieves a list of Posts that mention a specific User by their ID. Required: id. Optional: since_id, until_id, max_results (plus 9 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/{id}/mentions",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "The minimum Post ID to be included in the result set."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "The maximum Post ID to be included in the result set."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The..."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The..."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_muting_get-users",
+      "description": "Retrieves a list of Users muted by the authenticated user. Required: id. Optional: max_results (default: 100), pagination_token, user.fields (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/2/users/{id}/muting",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_muting_mute-user",
+      "description": "Causes the authenticated user to mute a specific User by their ID. Required: id, target_user_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/muting",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to mute the target User.",
+          "required": true
+        },
+        {
+          "name": "target_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_muting_unmute-user",
+      "description": "Causes the authenticated user to unmute a specific user by their ID. Required: source_user_id, target_user_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{source_user_id}/muting/{target_user_id}",
+      "params": [
+        {
+          "name": "source_user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to unmute the target User.",
+          "required": true
+        },
+        {
+          "name": "target_user_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User that the source User is requesting to unmute.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_owned-lists_get-users",
+      "description": "Retrieves a list of Lists owned by a specific User by their ID. Required: id. Optional: max_results (default: 100), pagination_token, list.fields (plus 2 more). Returns array of List.",
+      "method": "GET",
+      "path": "/2/users/{id}/owned_lists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get a specified 'page' of results."
+        },
+        {
+          "name": "list.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of List fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_pinned-lists_get-users",
+      "description": "Retrieves a list of Lists pinned by the authenticated user. Required: id. Optional: list.fields, expansions, user.fields. Returns array of List.",
+      "method": "GET",
+      "path": "/2/users/{id}/pinned_lists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "list.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of List fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_pinned-lists_pin-list",
+      "description": "Causes the authenticated user to pin a specific List by its ID. Required: id, list_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/pinned_lists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that will pin the List.",
+          "required": true
+        },
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this List.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_pinned-lists_unpin-list",
+      "description": "Causes the authenticated user to unpin a specific List by its ID. Required: id, list_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{id}/pinned_lists/{list_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User for whom to return results.",
+          "required": true
+        },
+        {
+          "name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the List to unpin.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_public-keys_add-user",
+      "description": "Registers a user's public key for X Chat encryption. Required: id, public_key, version. Optional: generate_version. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/public_keys",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the requesting user.",
+          "required": true
+        },
+        {
+          "name": "generate_version",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, the server generates a new version."
+        },
+        {
+          "name": "public-key-identity-public-key-signature",
+          "wire_name": "public_key.identity_public_key_signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature over the identity public key."
+        },
+        {
+          "name": "public-key-public-key",
+          "wire_name": "public_key.public_key",
+          "type": "string",
+          "location": "body",
+          "description": "Identity public key (base64 encoded)."
+        },
+        {
+          "name": "public-key-public-key-fingerprint",
+          "wire_name": "public_key.public_key_fingerprint",
+          "type": "string",
+          "location": "body",
+          "description": "Fingerprint of the identity public key."
+        },
+        {
+          "name": "public-key-registration-method",
+          "wire_name": "public_key.registration_method",
+          "type": "string",
+          "location": "body",
+          "description": "Registration method for the public key."
+        },
+        {
+          "name": "public-key-signing-public-key",
+          "wire_name": "public_key.signing_public_key",
+          "type": "string",
+          "location": "body",
+          "description": "Signing public key (base64 encoded)."
+        },
+        {
+          "name": "public-key-signing-public-key-signature",
+          "wire_name": "public_key.signing_public_key_signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature over the signing public key."
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Public key version.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_public-keys_get-users",
+      "description": "Returns the public keys and Juicebox configuration for the specified user. Required: id. Optional: public_key.fields.",
+      "method": "GET",
+      "path": "/2/users/{id}/public_keys",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "public_key.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of PublicKey fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_retweets_repost-post",
+      "description": "Causes the authenticated user to repost a specific Post by its ID. Required: id, tweet_id. Returns array of Problem.",
+      "method": "POST",
+      "path": "/2/users/{id}/retweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to repost the Post.",
+          "required": true
+        },
+        {
+          "name": "tweet_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of this Tweet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_retweets_unrepost-post",
+      "description": "Causes the authenticated user to unrepost a specific Post by its ID. Required: id, source_tweet_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/users/{id}/retweets/{source_tweet_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User that is requesting to repost the Post.",
+          "required": true
+        },
+        {
+          "name": "source_tweet_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Post that the User is requesting to unretweet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_timelines_get-users",
+      "description": "Retrieves a reverse chronological list of Posts in the authenticated User’s Timeline. Required: id. Optional: since_id, until_id, max_results (plus 10 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/{id}/timelines/reverse_chronological",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the authenticated source User to list Reverse Chronological Timeline Posts of.",
+          "required": true
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "The minimum Post ID to be included in the result set."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "The maximum Post ID to be included in the result set."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "exclude",
+          "type": "array",
+          "location": "query",
+          "description": "The set of entities to exclude (e.g. 'replies' or 'retweets')."
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The..."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The..."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "users_tweets_get-users-posts",
+      "description": "Retrieves a list of posts authored by a specific User by their ID. Required: id. Optional: since_id, until_id, max_results (plus 10 more). Returns array of Tweet.",
+      "method": "GET",
+      "path": "/2/users/{id}/tweets",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the User to lookup.",
+          "required": true
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "The minimum Post ID to be included in the result set."
+        },
+        {
+          "name": "until_id",
+          "type": "string",
+          "location": "query",
+          "description": "The maximum Post ID to be included in the result set."
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results."
+        },
+        {
+          "name": "pagination_token",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter is used to get the next 'page' of results."
+        },
+        {
+          "name": "exclude",
+          "type": "array",
+          "location": "query",
+          "description": "The set of entities to exclude (e.g. 'replies' or 'retweets')."
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The earliest UTC timestamp from which the Posts will be provided. The..."
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DDTHH:mm:ssZ. The latest UTC timestamp to which the Posts will be provided. The..."
+        },
+        {
+          "name": "tweet.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Tweet fields to display."
+        },
+        {
+          "name": "expansions",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of fields to expand."
+        },
+        {
+          "name": "media.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Media fields to display."
+        },
+        {
+          "name": "poll.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Poll fields to display."
+        },
+        {
+          "name": "user.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of User fields to display."
+        },
+        {
+          "name": "place.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of Place fields to display."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Creates a new webhook configuration. Required: url. Returns the new WebhookConfigCreateResponse.",
+      "method": "POST",
+      "path": "/2/webhooks",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create-replay-job",
+      "description": "Creates a replay job to retrieve events from up to the past 24 hours for all events delivered or attempted to be delivered to the webhook. Required: from_date, to_date, webhook_id. Returns the new ReplayJobCreateResponse.",
+      "method": "POST",
+      "path": "/2/webhooks/replay",
+      "params": [
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "body",
+          "description": "The oldest (starting) UTC timestamp (inclusive) from which events will be provided, in yyyymmddhhmm format.",
+          "required": true
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "body",
+          "description": "The oldest (starting) UTC timestamp (inclusive) from which events will be provided, in yyyymmddhhmm format.",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of this webhook config.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Deletes an existing webhook configuration. Required: webhook_id. Returns array of Problem. Destructive.",
+      "method": "DELETE",
+      "path": "/2/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get a list of webhook configs associated with a client app. Optional: webhook_config.fields. Returns array of WebhookConfig.",
+      "method": "GET",
+      "path": "/2/webhooks",
+      "params": [
+        {
+          "name": "webhook_config.fields",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of WebhookConfig fields to display."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_validate",
+      "description": "Triggers a CRC check for a given webhook. Required: webhook_id. Returns array of Problem.",
+      "method": "PUT",
+      "path": "/2/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook to check.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

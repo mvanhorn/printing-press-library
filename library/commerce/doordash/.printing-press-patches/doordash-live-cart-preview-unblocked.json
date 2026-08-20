@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "doordash-live-cart-preview-unblocked",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Verify live guarded cart add/remove and checkout preview with the refreshed full DoorDash session.",
+  "reason": "The previous live-cart blocker was a lite-guest session with consumer_id_present=false; current doctor reports consumer_id_present=true, so Phase 5/6 could be safely revalidated without order placement.",
+  "files": [
+    "DOORDASH_CLI_STATUS.md",
+    "PHASE5_PAUSE_HANDOFF.md"
+  ],
+  "validated_outcome": "2026-05-14T11:52Z: active wrapper doctor/help passed; session dir/file modes 0700/0600; go test -vet=off ./... passed; Go CLI/MCP builds passed; live read-only smoke passed; dry-run/no-yes/order gates passed; guarded Pizza Hut Garlic Dip add/remove returned cart/item IDs and final store-scoped cart count 0; checkout preview returned safety.placesOrder=false, fees/totals present, and final cleanup verified. Raw preview containing address/payment metadata was deleted after sanitizing. 2026-05-14T11:56Z recheck: absolute installed wrapper doctor/help passed with authenticated=true, csrf_present=true, consumer_id_present=true; Go test/build passed; live read-only smoke passed; cart add --dry-run, cart add without --yes rejection, and order place without ALLOW_DOORDASH_ORDERING rejection all passed without live order placement."
+}

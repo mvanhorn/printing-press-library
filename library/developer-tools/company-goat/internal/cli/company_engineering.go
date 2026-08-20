@@ -40,9 +40,9 @@ func newEngineeringCmd(flags *rootFlags) *cobra.Command {
 	var t targetFlags
 
 	cmd := &cobra.Command{
-		Use:   "engineering [co]",
+		Use:         "engineering [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "GitHub org metadata: repo count, contributor count, commit cadence, top languages.",
+		Short:       "GitHub org metadata: repo count, contributor count, commit cadence, top languages.",
 		Long: `engineering surfaces a GitHub org's public footprint: number of public repos, top repos by recent activity, language mix, and how many repos have seen commits in the last 90 days.
 
 Useful as an "is this team actually building?" signal. A company with 200 public repos but zero pushed in 18 months is a different signal than one with 12 repos all updated this month.

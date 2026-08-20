@@ -1,0 +1,1062 @@
+{
+  "schema_version": 1,
+  "generated_from": "ashah360/doordash-mcp queries plus sniffed traffic analysis",
+  "operation_count": 19,
+  "operations": [
+    {
+      "operation": "autocompleteFacetFeed",
+      "file": "autocompleteFacetFeed.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $query: String!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "2fa2862a6a72525d450345962604b0c848922c2d066c604794121c75ec6becdf"
+    },
+    {
+      "operation": "storepageFeed",
+      "file": "storepageFeed.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $storeId: ID!",
+          "fields": []
+        },
+        {
+          "name": "isMerchantPreview",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isMerchantPreview: Boolean",
+          "fields": []
+        }
+      ],
+      "query_sha256": "143131dcf2395d2fd8d30342f82509374cf149d04a90f829b862c2f69b44385d"
+    },
+    {
+      "operation": "itemPage",
+      "file": "itemPage.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $storeId: ID!",
+          "fields": []
+        },
+        {
+          "name": "itemId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $itemId: ID!",
+          "fields": []
+        },
+        {
+          "name": "isMerchantPreview",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isMerchantPreview: Boolean",
+          "fields": []
+        },
+        {
+          "name": "isNested",
+          "type": "boolean",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isNested: Boolean!",
+          "fields": []
+        },
+        {
+          "name": "fulfillmentType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $fulfillmentType: FulfillmentType",
+          "fields": []
+        }
+      ],
+      "query_sha256": "c0e76ecaa1aa6f04bd5d65aa30a8085020ca0c4d0de2dc8d2d75b4293af16af8"
+    },
+    {
+      "operation": "convenienceSearchQuery",
+      "file": "convenienceSearchQuery.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "input",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $input: RetailSearchInput!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "24d1b46cb8032387cb0073aaa37cd8de028f7154f9b3ae49f31d6002d346c9b5"
+    },
+    {
+      "operation": "listCarts",
+      "file": "listCarts.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "input",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $input: ListCartsInput!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "d745c95711ac8c700b30b3abcc1fdfa1ac53359671630812f2ffeaa1383f2e6c"
+    },
+    {
+      "operation": "consumerOrderCart",
+      "file": "consumerOrderCart.graphql",
+      "kind": "query",
+      "fields": [],
+      "query_sha256": "595745b0a2bc1b8f5b2c24b6dfee3bc158a3e24584eb189b23e028959109bd92"
+    },
+    {
+      "operation": "getOpenCartsCount",
+      "file": "getOpenCartsCount.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "input",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $input: GetOpenCartsCountInput!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "39f6e07fdfef63c44b95a19707b5a39bd7b04a0686c7a16d8de9061f02ab68f1"
+    },
+    {
+      "operation": "detailedCartItems",
+      "file": "detailedCartItems.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "orderCartId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $orderCartId: ID!",
+          "fields": []
+        },
+        {
+          "name": "corporateIndividualOrdersEnabled",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $corporateIndividualOrdersEnabled: Boolean",
+          "fields": []
+        },
+        {
+          "name": "deliveryOptionType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryOptionType: DeliveryOptionType",
+          "fields": []
+        },
+        {
+          "name": "isCardPayment",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isCardPayment: Boolean",
+          "fields": []
+        }
+      ],
+      "query_sha256": "c41445f453eb74c338e841cbbbba064019386b8bd8e2e2f60d7fc3b90e53623d"
+    },
+    {
+      "operation": "addCartItem",
+      "file": "addCartItem.graphql",
+      "kind": "mutation",
+      "fields": [
+        {
+          "name": "addCartItemInput",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $addCartItemInput: AddCartItemInput!",
+          "fields": []
+        },
+        {
+          "name": "fulfillmentContext",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $fulfillmentContext: FulfillmentContextInput!",
+          "fields": []
+        },
+        {
+          "name": "cartContext",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartContext: CartContextInput",
+          "fields": []
+        },
+        {
+          "name": "returnCartFromOrderService",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $returnCartFromOrderService: Boolean",
+          "fields": []
+        },
+        {
+          "name": "monitoringContext",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $monitoringContext: MonitoringContextInput",
+          "fields": []
+        },
+        {
+          "name": "lowPriorityBatchAddCartItemInput",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $lowPriorityBatchAddCartItemInput: [AddCartItemInput!]",
+          "fields": []
+        },
+        {
+          "name": "shouldKeepOnlyOneActiveCart",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $shouldKeepOnlyOneActiveCart: Boolean",
+          "fields": []
+        }
+      ],
+      "query_sha256": "c4676a392b9062ab0e4c55a01090b934eeccafa8ccd606d35e4549475b8f2dba"
+    },
+    {
+      "operation": "removeCartItemV2",
+      "file": "removeCartItemV2.graphql",
+      "kind": "mutation",
+      "fields": [
+        {
+          "name": "cartId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartId: ID!",
+          "fields": []
+        },
+        {
+          "name": "itemId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $itemId: ID!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "85bd88a23be822a7d4a4b69e158a6cc36fc1ee12ca683d31d8ccf963b8417580"
+    },
+    {
+      "operation": "updateCartItemV2",
+      "file": "updateCartItemV2.graphql",
+      "kind": "mutation",
+      "fields": [
+        {
+          "name": "updateCartItemInput",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $updateCartItemInput: UpdateCartItemInput!",
+          "fields": []
+        },
+        {
+          "name": "fulfillmentContext",
+          "type": "object",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $fulfillmentContext: FulfillmentContextInput!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "acedef13ddb13530ac0dad8e936278c82239cb4cce830f57f7b27aec7b817147"
+    },
+    {
+      "operation": "deleteCart",
+      "file": "deleteCart.graphql",
+      "kind": "mutation",
+      "fields": [
+        {
+          "name": "cartId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartId: ID!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "0538d7fe3bba8fc693debedb88ba9dd44e822651c43fc37983abc9046e0261af"
+    },
+    {
+      "operation": "checkout",
+      "file": "checkout.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "orderCartId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $orderCartId: ID!",
+          "fields": []
+        },
+        {
+          "name": "corporateIndividualOrdersEnabled",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $corporateIndividualOrdersEnabled: Boolean",
+          "fields": []
+        },
+        {
+          "name": "includeCompanyPaymentInfo",
+          "type": "boolean",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $includeCompanyPaymentInfo: Boolean!",
+          "fields": []
+        },
+        {
+          "name": "deliveryOptionType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryOptionType: DeliveryOptionType",
+          "fields": []
+        },
+        {
+          "name": "isCardPayment",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isCardPayment: Boolean",
+          "fields": []
+        },
+        {
+          "name": "programId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $programId: String",
+          "fields": []
+        },
+        {
+          "name": "isDashPassUpsellSelected",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isDashPassUpsellSelected: Boolean",
+          "fields": []
+        },
+        {
+          "name": "routineReorderItemIds",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $routineReorderItemIds: [String]",
+          "fields": []
+        },
+        {
+          "name": "selectedBudgetId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $selectedBudgetId: String",
+          "fields": []
+        },
+        {
+          "name": "scheduledTime",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $scheduledTime: String",
+          "fields": []
+        },
+        {
+          "name": "supplementalPaymentDetailsList",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $supplementalPaymentDetailsList: [SupplementalPaymentDetails!]",
+          "fields": []
+        },
+        {
+          "name": "includeRewardBalanceAvailable",
+          "type": "boolean",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $includeRewardBalanceAvailable: Boolean!",
+          "fields": []
+        },
+        {
+          "name": "deliveryOptionInfo",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryOptionInfo: DeliveryOptionInfo",
+          "fields": []
+        },
+        {
+          "name": "landingPageType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $landingPageType: LandingPageType",
+          "fields": []
+        },
+        {
+          "name": "shouldApplyCredits",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $shouldApplyCredits: Boolean",
+          "fields": []
+        },
+        {
+          "name": "paymentMethodUuid",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethodUuid: String",
+          "fields": []
+        },
+        {
+          "name": "paymentMethodType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethodType: PaymentMethodType",
+          "fields": []
+        }
+      ],
+      "query_sha256": "1ba1639d3aa54fdd91b9a3bafeb28792b3aaa90b1b37409f8089729343ab93a7"
+    },
+    {
+      "operation": "totalFeeTally",
+      "file": "totalFeeTally.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "consumerId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $consumerId: ID!",
+          "fields": []
+        },
+        {
+          "name": "cartId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartId: ID",
+          "fields": []
+        },
+        {
+          "name": "storeId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $storeId: ID",
+          "fields": []
+        },
+        {
+          "name": "submarketId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $submarketId: ID",
+          "fields": []
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $currency: String",
+          "fields": []
+        },
+        {
+          "name": "isCardPayment",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isCardPayment: Boolean",
+          "fields": []
+        }
+      ],
+      "query_sha256": "f1f4c714c5d55ee6c828f223245a49bdbacd47723acd2b5414c734fe27a8fe7f"
+    },
+    {
+      "operation": "createOrderFromCart",
+      "file": "createOrderFromCart.graphql",
+      "kind": "mutation",
+      "fields": [
+        {
+          "name": "cartId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartId: ID!",
+          "fields": []
+        },
+        {
+          "name": "total",
+          "type": "integer",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $total: Int!",
+          "fields": []
+        },
+        {
+          "name": "sosDeliveryFee",
+          "type": "integer",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $sosDeliveryFee: Int!",
+          "fields": []
+        },
+        {
+          "name": "isPickupOrder",
+          "type": "boolean",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isPickupOrder: Boolean!",
+          "fields": []
+        },
+        {
+          "name": "verifiedAgeRequirement",
+          "type": "boolean",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $verifiedAgeRequirement: Boolean!",
+          "fields": []
+        },
+        {
+          "name": "deliveryTime",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryTime: String!",
+          "fields": []
+        },
+        {
+          "name": "menuOptions",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $menuOptions: [String]",
+          "fields": []
+        },
+        {
+          "name": "stripeToken",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $stripeToken: String",
+          "fields": []
+        },
+        {
+          "name": "attributionData",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $attributionData: String",
+          "fields": []
+        },
+        {
+          "name": "fulfillsOwnDeliveries",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $fulfillsOwnDeliveries: Boolean",
+          "fields": []
+        },
+        {
+          "name": "budgetId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $budgetId: String",
+          "fields": []
+        },
+        {
+          "name": "teamId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $teamId: String",
+          "fields": []
+        },
+        {
+          "name": "giftOptions",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $giftOptions: GiftOptionsInput",
+          "fields": []
+        },
+        {
+          "name": "recipientShippingDetails",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $recipientShippingDetails: RecipientShippingDetails",
+          "fields": []
+        },
+        {
+          "name": "storeId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $storeId: String",
+          "fields": []
+        },
+        {
+          "name": "tipAmounts",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $tipAmounts: [TipAmount!]",
+          "fields": []
+        },
+        {
+          "name": "paymentMethod",
+          "type": "integer",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethod: Int",
+          "fields": []
+        },
+        {
+          "name": "deliveryOptionType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryOptionType: DeliveryOptionType",
+          "fields": []
+        },
+        {
+          "name": "workOrderOptions",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $workOrderOptions: WorkOrderOptionsInput",
+          "fields": []
+        },
+        {
+          "name": "isCardPayment",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isCardPayment: Boolean",
+          "fields": []
+        },
+        {
+          "name": "clientFraudContext",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $clientFraudContext: PaymentClientFraudContextInput",
+          "fields": []
+        },
+        {
+          "name": "programId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $programId: String",
+          "fields": []
+        },
+        {
+          "name": "membershipId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $membershipId: String",
+          "fields": []
+        },
+        {
+          "name": "dropoffPreferences",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $dropoffPreferences: String",
+          "fields": []
+        },
+        {
+          "name": "routineReorderDetails",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $routineReorderDetails: RoutineReorderDetails",
+          "fields": []
+        },
+        {
+          "name": "supplementalPaymentDetailsList",
+          "type": "array",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $supplementalPaymentDetailsList: [SupplementalPaymentDetails!]",
+          "fields": []
+        },
+        {
+          "name": "monitoringContext",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $monitoringContext: CreateOrderFromCartMonitoringContextInput",
+          "fields": []
+        },
+        {
+          "name": "rewardBalanceApplied",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $rewardBalanceApplied: RewardBalanceDetailsInput",
+          "fields": []
+        },
+        {
+          "name": "deliveryOptionInfo",
+          "type": "object",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deliveryOptionInfo: DeliveryOptionInfo",
+          "fields": []
+        },
+        {
+          "name": "hasAccessibilityRequirements",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $hasAccessibilityRequirements: Boolean",
+          "fields": []
+        },
+        {
+          "name": "shouldApplyCredits",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $shouldApplyCredits: Boolean",
+          "fields": []
+        },
+        {
+          "name": "dasherPickupInstructions",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $dasherPickupInstructions: String",
+          "fields": []
+        },
+        {
+          "name": "paymentMethodUuid",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethodUuid: String",
+          "fields": []
+        },
+        {
+          "name": "paymentMethodType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethodType: PaymentMethodType",
+          "fields": []
+        },
+        {
+          "name": "deviceTimezone",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $deviceTimezone: String",
+          "fields": []
+        },
+        {
+          "name": "paymentMethodBrand",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $paymentMethodBrand: String",
+          "fields": []
+        },
+        {
+          "name": "submitPlatform",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $submitPlatform: String",
+          "fields": []
+        }
+      ],
+      "query_sha256": "e18cea7ea9caaf27e2d45c559f0fc5a1a83f6dc551909cac0e545d3ead5b0830"
+    },
+    {
+      "operation": "pollOrderPaymentStatus",
+      "file": "pollOrderPaymentStatus.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "orderId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $orderId: ID!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "14e0d1d4620867be222aaff8fc345d5db7ca2c71017dfad1c7e0c1e7124ea89a"
+    },
+    {
+      "operation": "getHasNewNotifications",
+      "file": "getHasNewNotifications.graphql",
+      "kind": "query",
+      "fields": [],
+      "query_sha256": "74086176c1dc06cddd44dc82adb75ee99bd84402534a897f1ebd9085325f8f7c"
+    },
+    {
+      "operation": "promoStickyFooter",
+      "file": "promoStickyFooter.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "consumerId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $consumerId: ID!",
+          "fields": []
+        },
+        {
+          "name": "cartId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartId: ID",
+          "fields": []
+        },
+        {
+          "name": "storeId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $storeId: ID",
+          "fields": []
+        },
+        {
+          "name": "submarketId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $submarketId: ID",
+          "fields": []
+        },
+        {
+          "name": "menuId",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $menuId: ID",
+          "fields": []
+        },
+        {
+          "name": "subtotal",
+          "type": "integer",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $subtotal: Int",
+          "fields": []
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $currency: String",
+          "fields": []
+        },
+        {
+          "name": "isDYFCart",
+          "type": "boolean",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $isDYFCart: Boolean",
+          "fields": []
+        },
+        {
+          "name": "cartStatusType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $cartStatusType: CartStatusType",
+          "fields": []
+        },
+        {
+          "name": "landingPageType",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $landingPageType: PromoLandingPageTypeMap",
+          "fields": []
+        },
+        {
+          "name": "micStickyFooterState",
+          "type": "string",
+          "required": false,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $micStickyFooterState: MICStickyFooterState",
+          "fields": []
+        }
+      ],
+      "query_sha256": "be69ccc98a864d0102ba0b38f985de471cabbf94803ba763c5734d6702efcf69"
+    },
+    {
+      "operation": "validateConsumerAddressWithAddressLinkId",
+      "file": "validateConsumerAddressWithAddressLinkId.graphql",
+      "kind": "query",
+      "fields": [
+        {
+          "name": "addressLinkId",
+          "type": "string",
+          "required": true,
+          "positional": false,
+          "default": null,
+          "description": "GraphQL variable $addressLinkId: ID!",
+          "fields": []
+        }
+      ],
+      "query_sha256": "707ec9a3944b9ea2dd3e28f8944819faaac7aaaf31776fbd360c67918b50c205"
+    }
+  ],
+  "safety_notes": [
+    "No credentials, cookies, CSRF tokens, addresses, card details, or live traffic payloads are stored here.",
+    "Cart mutations and order placement are present only as low-level GraphQL skeleton operations; later phases must add hard gates before live use.",
+    "Actual transport/session handling belongs to Phase 3."
+  ]
+}

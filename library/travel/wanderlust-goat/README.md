@@ -1,26 +1,41 @@
 # Wanderlust GOAT CLI
 
-**What a knowledgeable local with great taste would tell you to walk to from here — fused across editorial, local-language, and crowd layers no single tool ranks together.**
+**What a knowledgeable local with great taste would tell you to walk to from here.**
 
-Most 'near me' tools return the 40 closest results. Wanderlust GOAT returns the 3 results that match your stated identity and criteria. It fuses Nominatim, OSRM walking time, OSM Overpass, Wikipedia, Wikivoyage, Atlas Obscura, Reddit, editorial scrapes (Eater, Time Out, NYT 36 Hours, Michelin), and language-aware regional sources (Tabelog, Naver, Le Fooding) through one trust-weighted score, with local-language names preserved alongside transliterations. Free, no API keys, with an offline SQLite store and a JSON `research-plan` surface for agent orchestration.
+Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.
+
+Created by [@jheitzeb](https://github.com/jheitzeb) (Joe Heitzeberg).
 
 ## Install
 
-The recommended path installs both the `wanderlust-goat-pp-cli` binary and the `pp-wanderlust-goat` agent skill in one shot:
+The recommended path installs both the `wanderlust-goat-pp-cli` binary and the `pp-wanderlust-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install wanderlust-goat
+npx -y @mvanhorn/printing-press-library install wanderlust-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install wanderlust-goat --cli-only
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-cli@latest
@@ -35,6 +50,14 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
+Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+
+```bash
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --cli-only
+```
+
+Then install the focused Hermes skill.
+
 From the Hermes CLI:
 
 ```bash
@@ -47,39 +70,76 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-wanderlust-goat --force
 ```
 
+Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
+```bash
+npx -y @mvanhorn/printing-press-library install wanderlust-goat --agent openclaw
 ```
-Install the pp-wanderlust-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-wanderlust-goat. The skill defines how its required CLI can be installed.
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/wanderlust-goat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-mcp@latest
 ```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "wanderlust-goat": {
+      "command": "wanderlust-goat-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
 
 ## Authentication
 
-wanderlust-goat is intentionally key-less. Every v1 source is a free public API or a politely-rate-limited public scrape. OSRM uses the project-osrm.org public demo; the README documents how to point at a self-hosted OSRM. Set a contact-bearing User-Agent via `WANDERLUST_GOAT_UA` env var (Nominatim policy requires a real contact URL or email).
+GOOGLE_PLACES_API_KEY is required for live Stage-1 seeding. Get a key at https://developers.google.com/maps/documentation/places/web-service/get-api-key (free $200/mo credit). ANTHROPIC_API_KEY is optional and enables sharper criteria judgment via --llm; without it, the free heuristic path runs.
 
 ## Quick Start
 
 ```bash
-# Pre-cache Tokyo's editorial + Reddit + Wikipedia + OSM + Tabelog layers into the local SQLite store.
-wanderlust-goat-pp-cli sync-city tokyo --layers all
+# verify Nominatim/OSRM reachable and required env vars set
+wanderlust-goat-pp-cli doctor
 
+# the headline workflow: identity + criteria + walking radius
+wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten with no tourists" --identity "coffee snob into 70s Japanese kissaten culture" --minutes 15
 
-# Persona-shaped 15-minute walk: 3-5 ranked picks with local-language names and one-line 'why it's special'.
-wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten, no tourists, great pour-over" --identity "coffee snob, into 70s Japanese kissaten culture" --minutes 15
+# no-LLM path; same shape, free, deterministic
+wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria "high-end seafood with counter seating" --minutes 12
 
+# audit a ranking — every source, weight, and contribution
+wanderlust-goat-pp-cli why "Bear Pond Espresso" --json
 
-# Emit the typed JSON query plan an agent should execute — narrowed to client and source list.
-wanderlust-goat-pp-cli research-plan "Bukchon Hanok Village" --criteria "hand-pulled noodles, locals only" --json --select sources,calls.client
+# is this place still open? cross-source verdict
+wanderlust-goat-pp-cli status "Sushi Saito" --json
 
-
-# Tonight's blue-hour windows + the photographer-known viewpoints inside a 20-minute walking radius.
-wanderlust-goat-pp-cli golden-hour "Eiffel Tower" --date 2026-06-15 --minutes 20
-
-
-# Audit the goat-score breakdown for any place the persona is curious about.
-wanderlust-goat-pp-cli why "珈琲 美美"
+# pre-cache before the trip — offline-ready
+wanderlust-goat-pp-cli sync-city "Tokyo" --country JP
 
 ```
 
@@ -109,7 +169,7 @@ These capabilities aren't available in any other tool for this API.
   _Drop this into an agent loop to let the agent run multi-source travel research without re-deriving the fanout plan every call._
 
   ```bash
-  wanderlust-goat-pp-cli research-plan "Bukchon Hanok Village, Seoul" --criteria "hand-pulled noodles, locals only" --identity "food traveler" --json
+  wanderlust-goat-pp-cli research-plan "hand-pulled noodles, locals only" --anchor "Bukchon Hanok Village, Seoul" --country KR --json
   ```
 
 ### Cross-source walks
@@ -148,7 +208,7 @@ These capabilities aren't available in any other tool for this API.
   _Agents working offline or with flaky connectivity need a synced local store; this populates it._
 
   ```bash
-  wanderlust-goat-pp-cli sync-city tokyo --layers all --agent
+  wanderlust-goat-pp-cli sync-city "Tokyo" --country JP --json
   ```
 - **`why`** — Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.
 
@@ -180,11 +240,10 @@ Run `wanderlust-goat-pp-cli --help` for the full command reference and flag list
 
 ### places
 
-Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT stack).
+Geocode addresses and look up canonical place coordinates via Nominatim (anchor-resolution layer for the two-stage GOAT funnel).
 
 - **`wanderlust-goat-pp-cli places reverse`** - Reverse geocode lat/lng to a structured address.
 - **`wanderlust-goat-pp-cli places search`** - Forward geocode an address, place name, or business to lat/lng candidates.
-
 
 ## Output Formats
 
@@ -219,67 +278,6 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-wanderlust-goat -g
-```
-
-Then invoke `/pp-wanderlust-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add wanderlust-goat wanderlust-goat-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/wanderlust-goat-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "wanderlust-goat": {
-      "command": "wanderlust-goat-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
-
 ## Health Check
 
 ```bash
@@ -299,25 +297,11 @@ Config file: `~/.config/wanderlust-goat-pp-cli/config.toml`
 
 ### API-specific
 
-- **Nominatim returns 403** — Set WANDERLUST_GOAT_UA to a string with your real contact URL or email — Nominatim blocks placeholder UAs (no `example.com`).
-- **Tabelog or Michelin returns 202/AWS-WAF challenge** — These sources use Surf (Chrome TLS fingerprint) by default; if a corporate proxy strips TLS extensions, run `wanderlust-goat-pp-cli doctor` to confirm Surf transport.
-- **Atlas Obscura entries empty** — AO sometimes adds Cloudflare gates regionally; rerun with `--data-source local` to use cached entries from the last `sync-city` pass.
-- **OSRM public demo is slow or 5xx** — Set WANDERLUST_GOAT_OSRM_BASE_URL to a self-hosted OSRM endpoint; instructions in README under 'Self-host OSRM'.
-- **near returns 40 results instead of 3-5** — Add a stronger --criteria — narrow phrasing forces persona-shaped scoring. Add --identity for a +0.05 trust boost on local-language sources.
+- **exit code 4: Google Places auth missing** — export GOOGLE_PLACES_API_KEY=<your-key>; get one at https://developers.google.com/maps/documentation/places/web-service/get-api-key
+- **near returns 0 results in country X** — country X may not have a Stage-2 region row yet — run `coverage <city> --json` to see the active region; add a row to internal/regions/regions.go to extend
+- **Atlas Obscura returns nothing for my city** — Atlas Obscura's slug index doesn't cover every city; this is expected, the dispatcher falls through silently
+- **Tabelog/Naver/Le Fooding returns nothing for a place that exists** — Stage-2 lookup is by name; the source's anti-bot mitigation may have intercepted. Run with --verbose to see per-source HTTP status; rate-limit backoff is per-source
 
 ---
-
-## Sources & Inspiration
-
-This CLI was built by studying these projects and resources:
-
-- [**Mapbox MCP Server**](https://github.com/mapbox/mapbox-mcp-server) — TypeScript
-- [**AWS Location MCP Server**](https://github.com/awslabs/mcp) — Python
-- [**google-maps-mcp**](https://github.com/modelcontextprotocol/servers) — TypeScript
-- [**atlas-obscura-api**](https://github.com/bartholomej/atlas-obscura-api) — JavaScript
-- [**gurume**](https://github.com/narumiruna/gurume) — Python
-- [**Naver-Place-scraper**](https://github.com/seolhalee/Naver-Place-scraper) — Python
-- [**trip-planner**](https://github.com/adl1995/trip-planner) — Python
-- [**query-overpass**](https://github.com/perliedman/query-overpass) — JavaScript
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

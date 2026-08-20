@@ -1,0 +1,14 @@
+{
+  "api_name": "ordertogo",
+  "base_url": "https://www.ordertogo.com",
+  "description": "OrderToGo.com pickup ordering platform - browse restaurants, manage carts, place orders with budget gates and headless Braintree drive",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": ".ordertogo.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

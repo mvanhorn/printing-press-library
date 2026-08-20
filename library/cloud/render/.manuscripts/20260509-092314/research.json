@@ -1,0 +1,368 @@
+{
+  "api_name": "render",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "render-oss/cli",
+      "url": "https://github.com/render-oss/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 93,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "render-oss/render-mcp-server",
+      "url": "https://github.com/render-oss/render-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 129,
+      "last_updated": "",
+      "command_count": 31,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "render-oss/terraform-provider-render",
+      "url": "https://github.com/render-oss/terraform-provider-render",
+      "language": "Go",
+      "install_method": "",
+      "stars": 51,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "niyogi/render-mcp",
+      "url": "https://github.com/niyogi/render-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kurtbuilds/render",
+      "url": "https://github.com/kurtbuilds/render",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "render-oss/skills",
+      "url": "https://github.com/render-oss/skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T14:58:37Z",
+  "novel_features": [
+    {
+      "name": "Env-var diff across services and env-groups",
+      "command": "env diff",
+      "description": "Compare env vars between any two services, env-groups, or a service vs an env-group, three-way diff style.",
+      "rationale": "Every surveyed tool (OFC, OMCP, TF) treats env-vars as per-resource lists; none diff them. Only possible because we cache env_vars and env_group_vars locally.",
+      "example": "render-pp-cli env diff srv-staging-api srv-prod-api --json",
+      "why_it_matters": "Reach for this when promoting config across environments — it's the cheapest way to see what's actually different without click-through.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Env-var promotion with allow/deny lists",
+      "command": "env promote",
+      "description": "Copy env vars from a source service or env-group to a target with --only/--exclude/--dry-run.",
+      "rationale": "OFC has no promote; OMCP only has per-key update. We diff first, then issue scoped PUTs.",
+      "example": "render-pp-cli env promote --from srv-staging-api --to srv-prod-api --exclude DEBUG_TOKEN --dry-run",
+      "why_it_matters": "Use when shipping a known-good staging config to prod without dragging dev-only keys along.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blueprint drift detection",
+      "command": "drift",
+      "description": "Compare a checked-in render.yaml against live workspace state and report added/removed/modified entities by name.",
+      "rationale": "Render's blueprint sync is opaque and silently swallows manual dashboard edits. No surveyed tool surfaces drift.",
+      "example": "render-pp-cli drift --blueprint render.yaml --json",
+      "why_it_matters": "Run this in CI to fail builds when someone edits prod through the dashboard instead of the blueprint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost rollup across services and datastores",
+      "command": "cost",
+      "description": "Sum monthly cost across services, postgres, key-value, redis, and disks; group by project, environment, or owner.",
+      "rationale": "Render's dashboard shows per-resource cost only. We join plan tiers from a curated price table against the local resource cache.",
+      "example": "render-pp-cli cost --group-by project --json",
+      "why_it_matters": "Reach for this on the Friday cost-review or when finance asks 'what would happen if we downsized these three services?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale preview environment cleanup",
+      "command": "preview-cleanup",
+      "description": "List preview services older than --stale-days N; delete in bulk on --confirm.",
+      "rationale": "Render auto-cleans on PR-close but inactivity-stale previews accumulate. The dashboard makes you click into each preview to see when it last deployed.",
+      "example": "render-pp-cli preview-cleanup --stale-days 14 --confirm",
+      "why_it_matters": "Use when the monthly bill spikes and you suspect orphaned preview envs.",
+      "group": "Lifecycle hygiene"
+    },
+    {
+      "name": "Orphan resource sweep",
+      "command": "orphans",
+      "description": "Find unattached disks, empty env-groups, custom-domains pointing at deleted services, registry credentials referenced by no service, and disk snapshots beyond retention.",
+      "rationale": "No surveyed tool joins these resource types against their parent linkage; only a local store can answer 'is this really used'.",
+      "example": "render-pp-cli orphans --json",
+      "why_it_matters": "Audit cleanup, billing review, and SOC 2 evidence-gathering all start here.",
+      "group": "Lifecycle hygiene"
+    },
+    {
+      "name": "Cross-resource env-var locator",
+      "command": "env where",
+      "description": "For a given env-var key, list every service and env-group that defines it with hash, length, and last-modified timestamp (never raw value).",
+      "rationale": "FTS5 query across env_vars.key + env_group_vars.key — the killer cross-resource search the brief calls out. Dashboard makes you click into each resource.",
+      "example": "render-pp-cli env where STRIPE_KEY --json",
+      "why_it_matters": "First call during a credential rotation or a 'who uses this secret' audit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Incident timeline merge",
+      "command": "incident-timeline",
+      "description": "Merge deploys, events, and audit-logs for one service into one chronological table for a given window.",
+      "rationale": "OFC/OMCP each list these in isolation. Nothing joins them by time — Persona B has three browser tabs open during every incident.",
+      "example": "render-pp-cli incident-timeline srv-checkout-api --since 2h --json",
+      "why_it_matters": "First command on-call should run during a 2am page after a deploy.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Audit-log forensic search",
+      "command": "audit search",
+      "description": "FTS5 search across cached audit logs by actor, target, action, and time window.",
+      "rationale": "OFC has no audit command; OMCP has list_audit_logs only — no FTS, no actor/target filter.",
+      "example": "render-pp-cli audit search --actor riley@example.com --target STRIPE_KEY --since 30d --json",
+      "why_it_matters": "Use during SOC 2 evidence-gathering or to answer 'who rotated this key last quarter'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Deploy-to-deploy diff",
+      "command": "deploys diff",
+      "description": "Show commit range, env-var changes, image-tag changes, and plan/region/scale changes between two deploys of one service.",
+      "rationale": "No surveyed tool diffs deploys; only list/get.",
+      "example": "render-pp-cli deploys diff srv-checkout-api dep-aaa dep-bbb --json",
+      "why_it_matters": "First command in a post-deploy regression triage — answers 'what actually changed'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Rightsizing recommendations from metrics",
+      "command": "rightsize",
+      "description": "For each service, fetch last --since 7d of CPU and memory; compute p95 utilization; flag services breaching --high or --low thresholds against plan capacity.",
+      "rationale": "No tool joins metrics with plan tiers. The cost rollup workflow depends on this signal.",
+      "example": "render-pp-cli rightsize --since 7d --high 80 --low 20 --json",
+      "why_it_matters": "Run this before the cost rollup to find quick downsizing wins or services about to throttle.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Env-var diff across services and env-groups",
+      "command": "env diff",
+      "description": "Compare env vars between any two services, env-groups, or a service vs an env-group, three-way diff style.",
+      "rationale": "Every surveyed tool (OFC, OMCP, TF) treats env-vars as per-resource lists; none diff them. Only possible because we cache env_vars and env_group_vars locally.",
+      "example": "render-pp-cli env diff srv-staging-api srv-prod-api --json",
+      "why_it_matters": "Reach for this when promoting config across environments — it's the cheapest way to see what's actually different without click-through.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Env-var promotion with allow/deny lists",
+      "command": "env promote",
+      "description": "Copy env vars from a source service or env-group to a target with --only/--exclude/--dry-run.",
+      "rationale": "OFC has no promote; OMCP only has per-key update. We diff first, then issue scoped PUTs.",
+      "example": "render-pp-cli env promote --from srv-staging-api --to srv-prod-api --exclude DEBUG_TOKEN --dry-run",
+      "why_it_matters": "Use when shipping a known-good staging config to prod without dragging dev-only keys along.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blueprint drift detection",
+      "command": "drift",
+      "description": "Compare a checked-in render.yaml against live workspace state and report added/removed/modified entities by name.",
+      "rationale": "Render's blueprint sync is opaque and silently swallows manual dashboard edits. No surveyed tool surfaces drift.",
+      "example": "render-pp-cli drift --blueprint render.yaml --json",
+      "why_it_matters": "Run this in CI to fail builds when someone edits prod through the dashboard instead of the blueprint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost rollup across services and datastores",
+      "command": "cost",
+      "description": "Sum monthly cost across services, postgres, key-value, redis, and disks; group by project, environment, or owner.",
+      "rationale": "Render's dashboard shows per-resource cost only. We join plan tiers from a curated price table against the local resource cache.",
+      "example": "render-pp-cli cost --group-by project --json",
+      "why_it_matters": "Reach for this on the Friday cost-review or when finance asks 'what would happen if we downsized these three services?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale preview environment cleanup",
+      "command": "preview-cleanup",
+      "description": "List preview services older than --stale-days N; delete in bulk on --confirm.",
+      "rationale": "Render auto-cleans on PR-close but inactivity-stale previews accumulate. The dashboard makes you click into each preview to see when it last deployed.",
+      "example": "render-pp-cli preview-cleanup --stale-days 14 --confirm",
+      "why_it_matters": "Use when the monthly bill spikes and you suspect orphaned preview envs.",
+      "group": "Lifecycle hygiene"
+    },
+    {
+      "name": "Orphan resource sweep",
+      "command": "orphans",
+      "description": "Find unattached disks, empty env-groups, custom-domains pointing at deleted services, registry credentials referenced by no service, and disk snapshots beyond retention.",
+      "rationale": "No surveyed tool joins these resource types against their parent linkage; only a local store can answer 'is this really used'.",
+      "example": "render-pp-cli orphans --json",
+      "why_it_matters": "Audit cleanup, billing review, and SOC 2 evidence-gathering all start here.",
+      "group": "Lifecycle hygiene"
+    },
+    {
+      "name": "Cross-resource env-var locator",
+      "command": "env where",
+      "description": "For a given env-var key, list every service and env-group that defines it with hash, length, and last-modified timestamp (never raw value).",
+      "rationale": "FTS5 query across env_vars.key + env_group_vars.key — the killer cross-resource search the brief calls out. Dashboard makes you click into each resource.",
+      "example": "render-pp-cli env where STRIPE_KEY --json",
+      "why_it_matters": "First call during a credential rotation or a 'who uses this secret' audit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Incident timeline merge",
+      "command": "incident-timeline",
+      "description": "Merge deploys, events, and audit-logs for one service into one chronological table for a given window.",
+      "rationale": "OFC/OMCP each list these in isolation. Nothing joins them by time — Persona B has three browser tabs open during every incident.",
+      "example": "render-pp-cli incident-timeline srv-checkout-api --since 2h --json",
+      "why_it_matters": "First command on-call should run during a 2am page after a deploy.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Audit-log forensic search",
+      "command": "audit search",
+      "description": "FTS5 search across cached audit logs by actor, target, action, and time window.",
+      "rationale": "OFC has no audit command; OMCP has list_audit_logs only — no FTS, no actor/target filter.",
+      "example": "render-pp-cli audit search --actor riley@example.com --target STRIPE_KEY --since 30d --json",
+      "why_it_matters": "Use during SOC 2 evidence-gathering or to answer 'who rotated this key last quarter'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Deploy-to-deploy diff",
+      "command": "deploys diff",
+      "description": "Show commit range, env-var changes, image-tag changes, and plan/region/scale changes between two deploys of one service.",
+      "rationale": "No surveyed tool diffs deploys; only list/get.",
+      "example": "render-pp-cli deploys diff srv-checkout-api dep-aaa dep-bbb --json",
+      "why_it_matters": "First command in a post-deploy regression triage — answers 'what actually changed'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Rightsizing recommendations from metrics",
+      "command": "rightsize",
+      "description": "For each service, fetch last --since 7d of CPU and memory; compute p95 utilization; flag services breaching --high or --low thresholds against plan capacity.",
+      "rationale": "No tool joins metrics with plan tiers. The cost rollup workflow depends on this signal.",
+      "example": "render-pp-cli rightsize --since 7d --high 80 --low 20 --json",
+      "why_it_matters": "Run this before the cost rollup to find quick downsizing wins or services about to throttle.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Render",
+    "headline": "Every Render endpoint, plus diff, drift, cost, audit, and orphan analytics no other Render tool ships.",
+    "value_prop": "This CLI is the only Render CLI that lets you reason about your full Render footprint offline. It absorbs every command from the official CLI, MCP server, and Terraform provider, then adds the analytical primitives the dashboard refuses to: env-var diff/promote across environments, blueprint drift vs live state, cost rollups grouped by project, preview cleanup by age, and incident timelines merging deploys + events + audit logs.",
+    "auth_narrative": "Render uses bearer-token auth. Set RENDER_API_KEY (generate one at https://dashboard.render.com/u/settings#api-keys), or run `render-pp-cli auth set-token \u003ctoken\u003e` to save it to the config file. Every command sends `Authorization: Bearer \u003ckey\u003e`; doctor verifies the key is live.",
+    "quickstart": [
+      {
+        "command": "render-pp-cli auth set-token \u003cRENDER_API_KEY\u003e",
+        "comment": "Save your token (or set RENDER_API_KEY env var instead)."
+      },
+      {
+        "command": "render-pp-cli doctor",
+        "comment": "Confirm auth + reachability before doing anything else."
+      },
+      {
+        "command": "render-pp-cli sync",
+        "comment": "Populate the local SQLite store so cross-resource commands work offline."
+      },
+      {
+        "command": "render-pp-cli services list --json",
+        "comment": "Smoke-check that data made it into the cache."
+      },
+      {
+        "command": "render-pp-cli drift --blueprint render.yaml",
+        "comment": "First analytical command — flags any dashboard-edited resources."
+      },
+      {
+        "command": "render-pp-cli cost --group-by project --json",
+        "comment": "Friday cost rollup."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Run `render-pp-cli doctor`. If it reports `auth: failed`, regenerate the API key at dashboard.render.com/u/settings#api-keys and re-export RENDER_API_KEY."
+      },
+      {
+        "symptom": "drift / cost / orphans return empty results",
+        "fix": "Run `render-pp-cli sync` to populate the local cache; then re-run the command."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "Pass `--rate-limit 10` to slow the cursor walker, or wait 60s. Render rate-limits are not documented but the CLI surfaces the `render-request-id` header in the error for support."
+      },
+      {
+        "symptom": "logs tail disconnects after a few minutes",
+        "fix": "The /v1/logs/subscribe SSE stream times out periodically; re-run the command."
+      }
+    ],
+    "when_to_use": "Use render-pp-cli when you need to reason about your Render footprint as a whole, not one resource at a time. It shines for env-var promotion across environments, blueprint drift checks in CI, monthly cost rollups, preview cleanup, and audit-log forensics. For one-off interactive workflows like `render psql` or `render ssh`, the official CLI is fine — render-pp-cli covers those too but its real value is the analytical commands the dashboard hides.",
+    "recipes": [
+      {
+        "title": "Promote staging env to prod (excluding dev keys)",
+        "command": "render-pp-cli env promote --from srv-staging --to srv-prod --exclude DEBUG_TOKEN,SENTRY_DEV_DSN",
+        "explanation": "Diffs the source vs target then promotes only-in-source and changed keys, except dev-only ones. Default is plan-only; add --apply to actually write."
+      },
+      {
+        "title": "Find every service that uses a secret before rotating it",
+        "command": "render-pp-cli env where STRIPE_KEY --json --select 'service.name,service.id,updatedAt'",
+        "explanation": "Returns service names, IDs, and timestamps for every place STRIPE_KEY is referenced — your rotation checklist."
+      },
+      {
+        "title": "Friday cost rollup grouped by project",
+        "command": "render-pp-cli cost --group-by project --json --select 'project,monthly_usd,resource_count'",
+        "explanation": "Joins cached service/postgres/kv/disk plans against a curated price table; export to CSV for finance."
+      },
+      {
+        "title": "Detect blueprint drift in CI",
+        "command": "render-pp-cli drift --blueprint render.yaml --json --quiet || exit 1",
+        "explanation": "Exits non-zero when the live workspace diverges from the checked-in blueprint; wire it into your CI pipeline."
+      },
+      {
+        "title": "Incident timeline for a service over the last 2 hours",
+        "command": "render-pp-cli incident-timeline srv-checkout-api --since 2h --json --select 'timestamp,kind,actor,summary'",
+        "explanation": "Merges deploys + events + audit-logs into one chronological table — answers 'what changed' during an on-call page."
+      }
+    ],
+    "trigger_phrases": [
+      "diff render env vars",
+      "promote env vars between render services",
+      "check render blueprint drift",
+      "render monthly cost",
+      "clean up stale render preview environments",
+      "where is this render env var used",
+      "render incident timeline",
+      "render audit log search",
+      "use render",
+      "run render-pp-cli"
+    ]
+  }
+}

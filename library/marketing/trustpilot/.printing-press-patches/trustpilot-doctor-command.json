@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "trustpilot-doctor-command",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Adds doctor-tp for Trustpilot-specific cache health because generated doctor has no extension hook.",
+  "reason": "The generated doctor checks generic sync tables while this CLI stores reviews in tp_* tables.",
+  "files": [
+    "internal/cli/tp_doctor.go",
+    "internal/cli/root.go",
+    "README.md"
+  ],
+  "validated_outcome": "Path 3 taken: doctor.go is sealed, so doctor-tp was added as a sibling command. go build ./... and go vet ./... pass."
+}

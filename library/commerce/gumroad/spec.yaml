@@ -1,0 +1,987 @@
+openapi: 3.0.3
+info:
+  title: Gumroad
+  version: 1.0.0
+  description: Gumroad OAuth 2.0 API for products, sales, subscribers, licenses, payouts, tax data, and resource subscriptions.
+servers:
+  - url: https://api.gumroad.com/v2
+security:
+  - accessToken: []
+components:
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true
+    SuccessEnvelope:
+      type: object
+      additionalProperties: true
+      properties:
+        success:
+          type: boolean
+    ProductInput:
+      type: object
+      additionalProperties: true
+      properties:
+        native_type:
+          type: string
+          enum: [digital, course, ebook, membership, bundle, coffee, call, commission]
+        name:
+          type: string
+        description:
+          type: string
+          description: HTML description.
+        custom_permalink:
+          type: string
+        price:
+          type: integer
+          description: Price in the smallest currency unit, for example cents.
+        price_currency_type:
+          type: string
+          description: ISO currency code.
+        subscription_duration:
+          type: string
+          enum: [monthly, quarterly, biannually, yearly, every_two_years]
+        customizable_price:
+          type: boolean
+        suggested_price_cents:
+          type: integer
+        max_purchase_count:
+          type: integer
+        quantity_enabled:
+          type: boolean
+        is_adult:
+          type: boolean
+        display_product_reviews:
+          type: boolean
+        should_show_sales_count:
+          type: boolean
+        taxonomy_id:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        custom_receipt:
+          type: string
+        custom_summary:
+          type: string
+        cover_ids:
+          type: array
+          items:
+            type: string
+        rich_content:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        has_same_rich_content_for_all_variants:
+          type: boolean
+        files:
+          type: array
+          description: Files to attach. Use file_url values returned by /files/complete.
+          items:
+            type: object
+            additionalProperties: true
+    FileCompletePart:
+      type: object
+      required: [part_number, etag]
+      properties:
+        part_number:
+          type: integer
+        etag:
+          type: string
+  parameters:
+    ProductID:
+      name: product_id
+      in: path
+      required: true
+      schema:
+        type: string
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    PageKey:
+      name: page_key
+      in: query
+      schema:
+        type: string
+      description: Opaque pagination cursor returned as next_page_key.
+    After:
+      name: after
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Return records after this date.
+    Before:
+      name: before
+      in: query
+      schema:
+        type: string
+        format: date
+      description: Return records before this date.
+  responses:
+    JSON:
+      description: JSON response envelope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessEnvelope'
+paths:
+  /user:
+    get:
+      tags: [user]
+      operationId: getUser
+      summary: Retrieve the authenticated user's data.
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products:
+    get:
+      tags: [products]
+      operationId: listProducts
+      summary: Retrieve all existing products for the authenticated user.
+      parameters:
+        - $ref: '#/components/parameters/PageKey'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    post:
+      tags: [products]
+      operationId: createProduct
+      summary: Create a new product as a draft. Requires edit_products or account scope.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{id}:
+    get:
+      tags: [products]
+      operationId: getProduct
+      summary: Retrieve details of a product.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    put:
+      tags: [products]
+      operationId: updateProduct
+      summary: Update an existing product. Collection fields such as files, tags, and rich_content replace the full collection.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    delete:
+      tags: [products]
+      operationId: deleteProduct
+      summary: Permanently delete a product.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{id}/enable:
+    put:
+      tags: [products]
+      operationId: enableProduct
+      summary: Enable an existing product.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{id}/disable:
+    put:
+      tags: [products]
+      operationId: disableProduct
+      summary: Disable an existing product.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /files/presign:
+    post:
+      tags: [files]
+      operationId: presignFile
+      summary: Start a multipart upload and return presigned URLs for each part. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [filename, file_size]
+              properties:
+                filename:
+                  type: string
+                file_size:
+                  type: integer
+                  description: File size in bytes, max 20 GB.
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /files/complete:
+    post:
+      tags: [files]
+      operationId: completeFile
+      summary: Finalize a multipart upload started by /files/presign. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [upload_id, key, parts]
+              properties:
+                upload_id:
+                  type: string
+                key:
+                  type: string
+                parts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FileCompletePart'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /files/abort:
+    post:
+      tags: [files]
+      operationId: abortFile
+      summary: Cancel a multipart upload started by /files/presign. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [upload_id, key]
+              properties:
+                upload_id:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/covers:
+    post:
+      tags: [covers]
+      operationId: createCover
+      summary: Add a cover to a product from a publicly accessible URL. Requires edit_products scope.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/covers/{id}:
+    delete:
+      tags: [covers]
+      operationId: deleteCover
+      summary: Delete a cover from a product. Requires edit_products scope.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/variant_categories:
+    get:
+      tags: [variant-categories]
+      operationId: listVariantCategories
+      summary: Retrieve all existing variant categories of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    post:
+      tags: [variant-categories]
+      operationId: createVariantCategory
+      summary: Create a new variant category on a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/variant_categories/{id}:
+    get:
+      tags: [variant-categories]
+      operationId: getVariantCategory
+      summary: Retrieve details of a variant category of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    put:
+      tags: [variant-categories]
+      operationId: updateVariantCategory
+      summary: Edit a variant category of an existing product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    delete:
+      tags: [variant-categories]
+      operationId: deleteVariantCategory
+      summary: Permanently delete a variant category of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/variant_categories/{variant_category_id}/variants:
+    get:
+      tags: [variants]
+      operationId: listVariants
+      summary: Retrieve all existing variants in a variant category.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: variant_category_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    post:
+      tags: [variants]
+      operationId: createVariant
+      summary: Create a new variant of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: variant_category_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                price_difference_cents:
+                  type: integer
+                max_purchase_count:
+                  type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/variant_categories/{variant_category_id}/variants/{id}:
+    get:
+      tags: [variants]
+      operationId: getVariant
+      summary: Retrieve details of a variant of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: variant_category_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    put:
+      tags: [variants]
+      operationId: updateVariant
+      summary: Edit a variant of an existing product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: variant_category_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price_difference_cents:
+                  type: integer
+                max_purchase_count:
+                  type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    delete:
+      tags: [variants]
+      operationId: deleteVariant
+      summary: Permanently delete a variant of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: variant_category_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/offer_codes:
+    get:
+      tags: [offer-codes]
+      operationId: listOfferCodes
+      summary: Retrieve all existing offer codes for a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    post:
+      tags: [offer-codes]
+      operationId: createOfferCode
+      summary: Create a new offer code for a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                amount_cents:
+                  type: integer
+                percent_off:
+                  type: integer
+                max_purchase_count:
+                  type: integer
+                universal:
+                  type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/offer_codes/{id}:
+    get:
+      tags: [offer-codes]
+      operationId: getOfferCode
+      summary: Retrieve details of a specific offer code of a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    put:
+      tags: [offer-codes]
+      operationId: updateOfferCode
+      summary: Edit an existing product offer code.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              properties:
+                name:
+                  type: string
+                amount_cents:
+                  type: integer
+                percent_off:
+                  type: integer
+                max_purchase_count:
+                  type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    delete:
+      tags: [offer-codes]
+      operationId: deleteOfferCode
+      summary: Permanently delete a product offer code.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/custom_fields:
+    get:
+      tags: [custom-fields]
+      operationId: listCustomFields
+      summary: Retrieve all existing custom fields for a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    post:
+      tags: [custom-fields]
+      operationId: createCustomField
+      summary: Create a new custom field for a product.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                required:
+                  type: boolean
+                type:
+                  type: string
+                  enum: [text, checkbox, terms]
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/custom_fields/{name}:
+    put:
+      tags: [custom-fields]
+      operationId: updateCustomField
+      summary: Edit an existing product custom field.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                required:
+                  type: boolean
+                type:
+                  type: string
+                  enum: [text, checkbox, terms]
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    delete:
+      tags: [custom-fields]
+      operationId: deleteCustomField
+      summary: Permanently delete a product custom field.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /resource_subscriptions:
+    get:
+      tags: [resource-subscriptions]
+      operationId: listResourceSubscriptions
+      summary: Show active subscriptions for the input resource. Requires view_sales scope.
+      parameters:
+        - name: resource_name
+          in: query
+          schema:
+            type: string
+            enum: [sale, refund, dispute, dispute_won, cancellation, subscription_updated, subscription_ended, subscription_restarted]
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+    put:
+      tags: [resource-subscriptions]
+      operationId: createResourceSubscription
+      summary: Subscribe to a resource webhook. Requires view_sales scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resource_name, post_url]
+              properties:
+                resource_name:
+                  type: string
+                  enum: [sale, refund, dispute, dispute_won, cancellation, subscription_updated, subscription_ended, subscription_restarted]
+                post_url:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /resource_subscriptions/{id}:
+    delete:
+      tags: [resource-subscriptions]
+      operationId: deleteResourceSubscription
+      summary: Unsubscribe from a resource.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /sales:
+    get:
+      tags: [sales]
+      operationId: listSales
+      summary: Retrieve successful sales by the authenticated user. Requires view_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Before'
+        - name: product_id
+          in: query
+          schema:
+            type: string
+        - name: email
+          in: query
+          schema:
+            type: string
+        - name: order_id
+          in: query
+          schema:
+            type: string
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: license_key
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageKey'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /sales/{id}:
+    get:
+      tags: [sales]
+      operationId: getSale
+      summary: Retrieve details of a sale. Requires view_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /sales/{id}/mark_as_shipped:
+    put:
+      tags: [sales]
+      operationId: markSaleAsShipped
+      summary: Mark a sale as shipped. Requires mark_sales_as_shipped scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tracking_url:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /sales/{id}/refund:
+    put:
+      tags: [sales]
+      operationId: refundSale
+      summary: Refund a sale. Requires refund_sales or edit_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount_cents:
+                  type: integer
+                comment:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /sales/{id}/resend_receipt:
+    post:
+      tags: [sales]
+      operationId: resendReceipt
+      summary: Resend the purchase receipt to the customer's email. Requires edit_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /products/{product_id}/subscribers:
+    get:
+      tags: [subscribers]
+      operationId: listSubscribers
+      summary: Retrieve active subscribers for one product. Requires view_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/ProductID'
+        - name: email
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageKey'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /subscribers/{id}:
+    get:
+      tags: [subscribers]
+      operationId: getSubscriber
+      summary: Retrieve details of a subscriber. Requires view_sales scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /licenses/verify:
+    post:
+      tags: [licenses]
+      operationId: verifyLicense
+      summary: Verify a license key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, license_key]
+              properties:
+                product_id:
+                  type: string
+                license_key:
+                  type: string
+                increment_uses_count:
+                  type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /licenses/enable:
+    put:
+      tags: [licenses]
+      operationId: enableLicense
+      summary: Enable a license. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, license_key]
+              properties:
+                product_id:
+                  type: string
+                license_key:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /licenses/disable:
+    put:
+      tags: [licenses]
+      operationId: disableLicense
+      summary: Disable a license. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, license_key]
+              properties:
+                product_id:
+                  type: string
+                license_key:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /licenses/decrement_uses_count:
+    put:
+      tags: [licenses]
+      operationId: decrementUsesCount
+      summary: Decrement the uses count of a license. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, license_key]
+              properties:
+                product_id:
+                  type: string
+                license_key:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /licenses/rotate:
+    put:
+      tags: [licenses]
+      operationId: rotateLicense
+      summary: Rotate a license key. The old key will no longer be valid. Requires edit_products scope.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, license_key]
+              properties:
+                product_id:
+                  type: string
+                license_key:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /payouts:
+    get:
+      tags: [payouts]
+      operationId: listPayouts
+      summary: Retrieve payouts for the authenticated user. Requires view_payouts scope.
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Before'
+        - $ref: '#/components/parameters/PageKey'
+        - name: include_upcoming
+          in: query
+          schema:
+            type: boolean
+          description: Set false to exclude the upcoming payout.
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /payouts/upcoming:
+    get:
+      tags: [payouts]
+      operationId: getUpcomingPayouts
+      summary: Retrieve upcoming payouts. Requires view_payouts scope.
+      parameters:
+        - name: include_sales
+          in: query
+          schema:
+            type: boolean
+        - name: include_transactions
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /payouts/{id}:
+    get:
+      tags: [payouts]
+      operationId: getPayout
+      summary: Retrieve details of a payout. Requires view_payouts scope.
+      parameters:
+        - $ref: '#/components/parameters/ID'
+        - name: include_sales
+          in: query
+          schema:
+            type: boolean
+        - name: include_transactions
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /tax_forms:
+    get:
+      tags: [tax-forms]
+      operationId: listTaxForms
+      summary: Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope.
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: Optional four-digit tax year.
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'
+  /earnings:
+    get:
+      tags: [earnings]
+      operationId: getEarnings
+      summary: Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Four-digit tax year.
+      responses:
+        '200':
+          $ref: '#/components/responses/JSON'

@@ -1,0 +1,11 @@
+{
+  "run_id": "20260513-075126",
+  "sources": [
+    {
+      "source_name": "bandsintown",
+      "decision": "skip-silent",
+      "reason": "spec-complete: apis.guru has full OpenAPI 2.0 spec (2 endpoints); 403 is partner-key gateway deny, not bot detection. Browser session unlocks user-account features, not server API access.",
+      "asked_at": "2026-05-13T00:54:07Z"
+    }
+  ]
+}

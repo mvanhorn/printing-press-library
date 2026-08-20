@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "coupon-pool-monitor",
+  "applied_at": "2026-05-27",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Add a read-only coupon pool monitor that counts remaining unassigned coupon codes and flags low pools.",
+  "reason": "Klaviyo flow emails can render broken coupon tags when a referenced pool runs out of usable codes; this command exposes a scriptable threshold check.",
+  "files": [
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "internal/cli/coupons.go"
+  ],
+  "validated_outcome": "go test ./internal/cli"
+}

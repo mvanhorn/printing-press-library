@@ -1,0 +1,1353 @@
+{
+  "dir": "C:/Users/harve/printing-press/library/ticktick",
+  "binary": "C:\\Users\\harve\\printing-press\\library\\ticktick\\ticktick-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 88,
+  "passed": 88,
+  "failed": 0,
+  "skipped": 49,
+  "commands": [
+    "agenda",
+    "api",
+    "completed",
+    "doctor",
+    "export",
+    "feedback list",
+    "focus stats",
+    "habits checkin",
+    "habits checkins",
+    "habits list",
+    "habits streaks",
+    "import",
+    "load",
+    "note edit",
+    "orphans",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "projects",
+    "review",
+    "search",
+    "stale",
+    "sync",
+    "tags",
+    "tasks batch",
+    "tasks get",
+    "tasks list",
+    "user",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "agenda",
+      "kind": "help",
+      "args": [
+        "agenda",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "agenda",
+      "kind": "happy_path",
+      "args": [
+        "agenda",
+        "--json",
+        "--select",
+        "tasks,focus_minutes"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "agenda",
+      "kind": "json_fidelity",
+      "args": [
+        "agenda",
+        "--json",
+        "--select",
+        "tasks,focus_minutes"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "agenda",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "completed",
+      "kind": "help",
+      "args": [
+        "completed",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "completed",
+      "kind": "happy_path",
+      "args": [
+        "completed",
+        "list",
+        "--from",
+        "2026-07-01 00:00:00",
+        "--to",
+        "2026-07-07 23:59:59",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "completed",
+      "kind": "json_fidelity",
+      "args": [
+        "completed",
+        "list",
+        "--from",
+        "2026-07-01 00:00:00",
+        "--to",
+        "2026-07-07 23:59:59",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "completed",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "focus stats",
+      "kind": "help",
+      "args": [
+        "focus",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "focus stats",
+      "kind": "happy_path",
+      "args": [
+        "focus",
+        "stats",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "focus stats",
+      "kind": "json_fidelity",
+      "args": [
+        "focus",
+        "stats",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "focus stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "habits checkin",
+      "kind": "help",
+      "args": [
+        "habits",
+        "checkin",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkin",
+      "kind": "happy_path",
+      "args": [
+        "habits",
+        "checkin",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkin",
+      "kind": "json_fidelity",
+      "args": [
+        "habits",
+        "checkin",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkin",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "habits checkin",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "habits checkins",
+      "kind": "help",
+      "args": [
+        "habits",
+        "checkins",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkins",
+      "kind": "happy_path",
+      "args": [
+        "habits",
+        "checkins",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkins",
+      "kind": "json_fidelity",
+      "args": [
+        "habits",
+        "checkins",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits checkins",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "habits checkins",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "habits list",
+      "kind": "help",
+      "args": [
+        "habits",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits list",
+      "kind": "happy_path",
+      "args": [
+        "habits",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits list",
+      "kind": "json_fidelity",
+      "args": [
+        "habits",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "habits streaks",
+      "kind": "help",
+      "args": [
+        "habits",
+        "streaks",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits streaks",
+      "kind": "happy_path",
+      "args": [
+        "habits",
+        "streaks",
+        "--json",
+        "--select",
+        "name,current_streak,at_risk"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits streaks",
+      "kind": "json_fidelity",
+      "args": [
+        "habits",
+        "streaks",
+        "--json",
+        "--select",
+        "name,current_streak,at_risk"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "habits streaks",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "load",
+      "kind": "help",
+      "args": [
+        "load",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "load",
+      "kind": "happy_path",
+      "args": [
+        "load"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "load",
+      "kind": "json_fidelity",
+      "args": [
+        "load",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "load",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "note edit",
+      "kind": "help",
+      "args": [
+        "note",
+        "edit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "note edit",
+      "kind": "happy_path",
+      "args": [
+        "note",
+        "edit",
+        "--date",
+        "today",
+        "--append",
+        "20:15 wrapped the printing-press build",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "note edit",
+      "kind": "json_fidelity",
+      "args": [
+        "note",
+        "edit",
+        "--date",
+        "today",
+        "--append",
+        "20:15 wrapped the printing-press build",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "note edit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "note edit",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "orphans",
+      "kind": "help",
+      "args": [
+        "orphans",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "orphans",
+      "kind": "happy_path",
+      "args": [
+        "orphans"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "orphans",
+      "kind": "json_fidelity",
+      "args": [
+        "orphans",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "orphans",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "projects",
+      "kind": "help",
+      "args": [
+        "projects",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "projects",
+      "kind": "happy_path",
+      "args": [
+        "projects"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "projects",
+      "kind": "json_fidelity",
+      "args": [
+        "projects",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "projects",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "review",
+      "kind": "help",
+      "args": [
+        "review",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "review",
+      "kind": "happy_path",
+      "args": [
+        "review",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "review",
+      "kind": "json_fidelity",
+      "args": [
+        "review",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "review",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "stale",
+      "kind": "help",
+      "args": [
+        "stale",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "stale",
+      "kind": "happy_path",
+      "args": [
+        "stale"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "stale",
+      "kind": "json_fidelity",
+      "args": [
+        "stale",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "stale",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tags",
+      "kind": "help",
+      "args": [
+        "tags",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tags",
+      "kind": "happy_path",
+      "args": [
+        "tags"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tags",
+      "kind": "json_fidelity",
+      "args": [
+        "tags",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tags",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tasks batch",
+      "kind": "help",
+      "args": [
+        "tasks",
+        "batch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks batch",
+      "kind": "happy_path",
+      "args": [
+        "tasks",
+        "batch",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks batch",
+      "kind": "json_fidelity",
+      "args": [
+        "tasks",
+        "batch",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks batch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tasks batch",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "tasks get",
+      "kind": "help",
+      "args": [
+        "tasks",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "tasks get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "tasks get",
+      "kind": "error_path",
+      "args": [
+        "tasks",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks list",
+      "kind": "help",
+      "args": [
+        "tasks",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks list",
+      "kind": "happy_path",
+      "args": [
+        "tasks",
+        "list",
+        "--json",
+        "--select",
+        "title,dueDate"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks list",
+      "kind": "json_fidelity",
+      "args": [
+        "tasks",
+        "list",
+        "--json",
+        "--select",
+        "title,dueDate"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "tasks list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "user",
+      "kind": "help",
+      "args": [
+        "user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "user",
+      "kind": "happy_path",
+      "args": [
+        "user"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "user",
+      "kind": "json_fidelity",
+      "args": [
+        "user",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live account output removed before publish]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-08T02:14:21.5532517Z"
+}

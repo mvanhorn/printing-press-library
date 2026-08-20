@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "hackernews-story-list-sync-scalar-ids",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260504-190931",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Hacker News story-list sync must fetch each Firebase list endpoint and store bare story IDs as canonical stories rows.",
+  "reason": "HN exposes top/new/best/ask/show/job as separate JSON arrays of scalar item IDs, so a single aggregate stories endpoint silently misses most lists and scalar batches must be normalized before storage.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/data_source.go",
+    "internal/store/store.go"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "workflow-archive-exclude-mutation",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Removed message-mark-all-as-read from the workflow archive resource list.",
+  "reason": "Greptile P1: same mutation hazard fixed in defaultSyncResources persisted in this second hardcoded list.",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ]
+}

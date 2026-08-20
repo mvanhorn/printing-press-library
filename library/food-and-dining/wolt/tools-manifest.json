@@ -1,0 +1,137 @@
+{
+  "api_name": "wolt",
+  "base_url": "https://restaurant-api.wolt.com",
+  "description": "Browse-only Wolt consumer CLI. Lists cities, finds venues near a lat/lon,\nsearches venues and items, and pulls per-venue delivery/ETA snapshots.\n\nBuilt on Wolt's unauthenticated consumer endpoints discovered via reverse\nengineering (OzTamir gist + live browser-sniff). No login, no cart, no orders.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cities_list",
+      "description": "Returns the global list of Wolt cities with country code, slug, timezone, and coordinates. Backbone of the local store.",
+      "method": "GET",
+      "path": "/v1/cities",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "order-xp_get-venue-dynamic",
+      "description": "Per-venue dynamic snapshot: open_status, delivery_open_status, time_slots_schedule, delivery_configs, banners. Combined with LD+JSON SSR scrape in Phase 3 for full venue metadata (name, address, phone, rating, cuisine). Required: slug. Optional: selected_delivery_method (default: homedelivery). Returns the VenueDynamic.",
+      "method": "GET",
+      "path": "/order-xp/web/v1/venue/slug/{slug}/dynamic/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Venue slug from search results",
+          "required": true
+        },
+        {
+          "name": "selected_delivery_method",
+          "type": "string",
+          "location": "query",
+          "description": "Selected delivery method"
+        }
+      ]
+    },
+    {
+      "name": "pages_list-restaurants-near",
+      "description": "Returns the discovery page for a given location: venues organized in sections with name, slug, online status, ETA, delivery fee, rating, tags. Required: lat, lon.",
+      "method": "GET",
+      "path": "/v1/pages/restaurants",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_search",
+      "description": "POST with body {q, target, lat, lon}. Set target='venues' to search restaurants, target='items' to search dishes across venues. Required: lat, lon, q, target. Returns the new SearchResult.",
+      "method": "POST",
+      "path": "/v1/pages/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "body",
+          "description": "Lat",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "body",
+          "description": "Lon",
+          "required": true
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "body",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "body",
+          "description": "What to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_get-menu",
+      "description": "Documented community endpoint. As of the last sniff, returns HTTP 200 with empty body via CloudFront cache. The CLI surfaces this honestly and includes --debug to capture the failing request for upstream investigation. Required: slug. Optional: unit_prices (default: true), show_weighted_items (default: true), show_subcategories (default: true).",
+      "method": "GET",
+      "path": "/v4/venues/slug/{slug}/menu/data",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "unit_prices",
+          "type": "bool",
+          "location": "query",
+          "description": "Unit prices"
+        },
+        {
+          "name": "show_weighted_items",
+          "type": "bool",
+          "location": "query",
+          "description": "Show weighted items"
+        },
+        {
+          "name": "show_subcategories",
+          "type": "bool",
+          "location": "query",
+          "description": "Show subcategories"
+        }
+      ]
+    }
+  ]
+}

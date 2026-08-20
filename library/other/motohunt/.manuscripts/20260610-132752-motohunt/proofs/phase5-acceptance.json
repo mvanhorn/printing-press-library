@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "motohunt",
+  "run_id": "20260610-132752-motohunt",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 53,
+  "tests_passed": 53,
+  "tests_skipped": 33,
+  "auth_context": {
+    "type": "none"
+  }
+}

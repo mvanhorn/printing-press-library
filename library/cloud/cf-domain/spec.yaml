@@ -1,0 +1,152 @@
+openapi: 3.1.0
+info:
+  title: Cloudflare Registrar Domains
+  version: 0.1.0
+  description: Agent-native CLI for Cloudflare Registrar domain search, check, and registration.
+servers:
+  - url: https://api.cloudflare.com/client/v4
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    CloudflareEnvelope:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+        messages:
+          type: array
+          items:
+            type: object
+        result:
+          type: object
+    DomainSearchResponse:
+      allOf:
+        - $ref: '#/components/schemas/CloudflareEnvelope'
+        - type: object
+          properties:
+            result:
+              type: object
+              additionalProperties: true
+    DomainCheckRequest:
+      type: object
+      required: [domains]
+      properties:
+        domains:
+          type: array
+          items:
+            type: string
+          description: Fully qualified domain name(s) to check, e.g. ["example.dev"].
+    DomainCheckResponse:
+      allOf:
+        - $ref: '#/components/schemas/CloudflareEnvelope'
+        - type: object
+          properties:
+            result:
+              type: object
+              additionalProperties: true
+    RegistrationRequest:
+      type: object
+      required: [domain_name]
+      properties:
+        domain_name:
+          type: string
+          description: Fully qualified domain name to register.
+    RegistrationResponse:
+      allOf:
+        - $ref: '#/components/schemas/CloudflareEnvelope'
+        - type: object
+          properties:
+            result:
+              type: object
+              additionalProperties: true
+paths:
+  /accounts/{account_id}/registrar/domain-search:
+    get:
+      operationId: domainSearch
+      summary: Search available domain names
+      description: Search Cloudflare Registrar for domain suggestions and availability hints. Use domain-check for live final pricing before registering.
+      tags: [registrar]
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: query
+          in: query
+          required: true
+          schema: { type: string }
+          description: Search query or base name.
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainSearchResponse'
+  /accounts/{account_id}/registrar/domain-check:
+    post:
+      operationId: domainCheck
+      summary: Check domain availability and live price
+      description: Real-time domain availability and pricing check. Must be run immediately before registration.
+      tags: [registrar]
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainCheckRequest'
+      responses:
+        '200':
+          description: Availability and pricing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainCheckResponse'
+  /accounts/{account_id}/registrar/registrations:
+    post:
+      operationId: domainRegister
+      summary: Register a domain
+      description: "Register a domain through Cloudflare Registrar using account default registrant/payment settings. Dangerous: caller must confirm exact domain and price before this request."
+      tags: [registrar]
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '201':
+          description: Registration completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponse'
+        '202':
+          description: Registration accepted and processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponse'

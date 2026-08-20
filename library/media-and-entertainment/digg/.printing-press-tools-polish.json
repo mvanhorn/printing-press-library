@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-09T14:16:42.378461Z",
+  "cli_dir": "/Users/mvanhorn/printing-press/library/digg",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-09T14:10:33.012216Z"
+  }
+}

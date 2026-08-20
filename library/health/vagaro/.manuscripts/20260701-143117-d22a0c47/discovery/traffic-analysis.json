@@ -1,0 +1,6 @@
+{
+  "reachability": { "mode": "standard_http", "note": "probe false-positive browser_clearance_http from embedded reCAPTCHA form widget; curl/python/chrome all get 200+full SSR" },
+  "primary_host": "www.vagaro.com",
+  "response_format_hint": "html+jsonld+json",
+  "endpoint_clusters": []
+}

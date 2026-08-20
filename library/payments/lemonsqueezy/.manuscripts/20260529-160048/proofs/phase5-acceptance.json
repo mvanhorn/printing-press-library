@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "lemonsqueezy",
+  "run_id": "20260529-160048",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 179,
+  "tests_passed": 179,
+  "tests_skipped": 128,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

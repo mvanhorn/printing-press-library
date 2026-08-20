@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/simplefin",
+  "research_dir": "\u003ccli-dir\u003e/20260629-003945-08da1322",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

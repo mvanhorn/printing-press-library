@@ -1,0 +1,79 @@
+name: loopnet
+description: LoopNet commercial real estate marketplace — search inventory and pull listing detail from server-rendered pages with embedded schema.org JSON-LD.
+version: 0.1.0
+base_url: https://www.loopnet.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/loopnet-pp-cli/config.toml
+resources:
+    inventory:
+        description: Search LoopNet commercial real estate inventory by location, property type, and sale/lease.
+        endpoints:
+            listings:
+                method: GET
+                path: /search/{property_type}/{location}/{listing_type}/
+                description: Search LoopNet listings for a location, property type, and sale-or-lease. Returns a server-rendered results page carrying a schema.org CollectionPage JSON-LD block with one RealEstateListing per result.
+                no_auth: true
+                params:
+                    - name: property_type
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Property type slug (office-buildings, retail, industrial-properties, multifamily, land, hospitality, health-care, special-purpose, or commercial-real-estate for all).
+                      fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Location slug (city-state like 'los-angeles-ca', a state like 'ma', or a 5-digit zip).
+                      fields: []
+                    - name: listing_type
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Listing type — for-sale or for-lease.
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 100
+                pagination: null
+    property:
+        description: Fetch the full detail record for a single LoopNet listing.
+        endpoints:
+            detail:
+                method: GET
+                path: /Listing/{id}/
+                description: Fetch one LoopNet listing's detail page. The page carries a schema.org RealEstateListing/Product JSON-LD block plus a property-facts table (price, cap rate, building class, zoning, year built, parcel numbers, tax assessments).
+                no_auth: true
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: LoopNet listing id (the numeric id at the end of a /Listing/ URL, e.g. 38523625).
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

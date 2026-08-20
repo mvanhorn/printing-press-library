@@ -1,0 +1,542 @@
+{
+  "api_name": "tsdr",
+  "base_url": "https://tsdrapi.uspto.gov/ts/cd",
+  "description": "Beginning on October 2, 2020, you will need an API key to access the TSDR REST API See https://account.uspto.gov/api-manager and the uspto's TSDR Data API webpage for more information on retrieving bulk data.\n\n Click on the Authorize box and enter your api key.  It is required and will be sent on all requests.\n\n This uses the uspto's swagger object with a number of changes.  The uspto's api does not allow browser request (CORS issues) so requests from this page will not actually work.  The generated curl commands will work and the modified swagger object can be imported into postman.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "USPTO-API-KEY",
+    "in": "header",
+    "env_vars": [
+      "TSDR_APIKEY_HEADER"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TSDR_APIKEY_HEADER",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://account.uspto.gov/api-manager"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "case-multi-status_get-list",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/caseMultiStatus/sn?ids=78787878,76767676. Required: ids, type (default: sn). Optional: from, to. Returns the TransactionBag.",
+      "method": "GET",
+      "path": "/caseMultiStatus/{type}",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "from is one of the number types listed above"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "to is one of the number types listed above"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "can be serial numbers, ref numbers, reg numbers seperated by commas",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "type: * `sn` - serial number(s) * `rn` - registration number(s) * `ref` - reference number(s) * `ir` - Madrid number(s)"
+        }
+      ]
+    },
+    {
+      "name": "casedoc_content-pdf_get-document",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/content.pdf. Required: caseid, docid. Returns the Document.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/content.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedoc_content-zip_get-document",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/content.zip. Required: caseid, docid. Returns the Document.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/content.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedoc_download-pdf_get-document-content-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/download.pdf. Required: caseid, docid. Returns the Document.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/download.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedoc_download-zip_get-document-content-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/download.zip. Required: caseid, docid. Returns the Document.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/download.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedoc_info_get-document-xml",
+      "description": "Returns the metadata of a Document in XML for case identified by case ID. Required: caseid, docid.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/info",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedoc_media_get-page-content",
+      "description": "Returns the page content as a NATIVE format. Required: caseid, docid, pageid.",
+      "method": "GET",
+      "path": "/casedoc/{caseid}/{docid}/{pageid}/media",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        },
+        {
+          "name": "docid",
+          "type": "string",
+          "location": "path",
+          "description": "Auto generated Unique Document ID",
+          "required": true
+        },
+        {
+          "name": "pageid",
+          "type": "string",
+          "location": "path",
+          "description": "Page Number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_get-bundle-info-pdf",
+      "description": "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Examples: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=75757575,78787878 or https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=72131351,76515878\u0026type=SPE Documents sent/received on Nov 30th, 2003 for Serial Number 72-131351 as a PDF https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=72131351\u0026date=2003-11-30 Note: exactly one of rn,sn,ref,ir must be specified, like sn in the examples. Optional: rn, sn, ref (plus 4 more).",
+      "method": "GET",
+      "path": "/casedocs/bundle.pdf",
+      "params": [
+        {
+          "name": "rn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US registration nbr(s)"
+        },
+        {
+          "name": "sn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US serial number(s)"
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        },
+        {
+          "name": "ir",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "set to RC to retrieve only registration certificate(s)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "set to SPE to retrieve only specimens"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "specific send/receive date"
+        }
+      ]
+    },
+    {
+      "name": "casedocs_get-bundle-info-xml",
+      "description": "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Examples: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?sn=75757575,78787878 Metadata (in XML) about all documents for Serial Number 75008897 sent/received during 2006 https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?sn=75008897\u0026fromdate=2006-01-01\u0026todate=2006-12-31 Metadata (in XML) about all documents for International Registration Number 0835690 sorted from earliest to latest https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?ir=0835690\u0026sort=date:A Note: exactly one of rn,sn,ref,ir must be specified, like sn or ir in the examples. Optional: rn, sn, ref (plus 4 more). Returns array of CasedocsGetBundleInfoXmlItem.",
+      "method": "GET",
+      "path": "/casedocs/bundle.xml",
+      "params": [
+        {
+          "name": "rn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US registration nbr(s)"
+        },
+        {
+          "name": "sn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US serial number(s)"
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        },
+        {
+          "name": "ir",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "start of date range"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "end of date range"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "sort field:[A|D] for ascending or descending"
+        }
+      ]
+    },
+    {
+      "name": "casedocs_get-bundle-info-zip",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.zip?sn=75757575,78787878 Note: only one parameter can be specified, like sn in the example. Optional: rn, sn, ref (plus 1 more). Returns array of CasedocsGetBundleInfoZipItem.",
+      "method": "GET",
+      "path": "/casedocs/bundle.zip",
+      "params": [
+        {
+          "name": "rn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US registration nbr(s)"
+        },
+        {
+          "name": "sn",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated US serial number(s)"
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        },
+        {
+          "name": "ir",
+          "type": "string",
+          "location": "query",
+          "description": "comma separated Madrid number(s)"
+        }
+      ]
+    },
+    {
+      "name": "casedocs_bundle_get-case-content-xml",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/bundle. Required: caseid. Returns array of BundleGetCaseContentXmlItem.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/bundle",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_content-pdf_get-case-docs-pdf",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/content.pdf. Required: caseid. Returns array of ContentPdfGetCaseDocsPdfItem.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/content.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_content-zip_get-case-docs-zip",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/content.zip. Required: caseid. Returns array of ContentZipGetCaseDocsZipItem.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/content.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_download-pdf_get-case-docs-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/download.pdf. Required: caseid. Returns array of DownloadPdfGetCaseDocsPdfDownloadItem.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/download.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_download-zip_get-case-docs-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/download.zip. Required: caseid. Returns array of DownloadZipGetCaseDocsZipDownloadItem.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/download.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casedocs_info_get-case-docs-xml",
+      "description": "Returns information about all documents in the case in XML format. Required: caseid.",
+      "method": "GET",
+      "path": "/casedocs/{caseid}/info",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_content-html_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.html. Required: caseid. Returns the Transaction.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/content.html",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_content-pdf_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.pdf. Required: caseid. Returns the Transaction.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/content.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_content-zip_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.zip. Required: caseid. Returns the Transaction.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/content.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_download-pdf_get-case-status-info-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/download.pdf. Required: caseid. Returns the Transaction.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/download.pdf",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_download-zip_get-case-status-info-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/download.zip. Required: caseid. Returns the Transaction.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/download.zip",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_info_load-xml",
+      "description": "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML. Required: caseid.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/info",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "casestatus_v1_load-old-xml",
+      "description": "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML. Required: caseid.",
+      "method": "GET",
+      "path": "/casestatus/{caseid}/v1/info",
+      "params": [
+        {
+          "name": "caseid",
+          "type": "string",
+          "location": "path",
+          "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw-image_get-image",
+      "description": "Parameter is the digits only of the serial number, no leading sn. Example: https://tsdrapi.uspto.gov/ts/cd/rawImage/78787878. Required: serial_number.",
+      "method": "GET",
+      "path": "/rawImage/{serial_number}",
+      "params": [
+        {
+          "name": "serial_number",
+          "type": "string",
+          "location": "path",
+          "description": "digits only",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

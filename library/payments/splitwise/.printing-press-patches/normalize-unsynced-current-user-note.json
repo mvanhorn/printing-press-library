@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "normalize-unsynced-current-user-note",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "normalize emits a stderr note when the current user is unsynced (youID==0) so a silently-zero Spend total is explained.",
+  "reason": "Consistency with balances --by-group; without it a 0.00 Spend reads as a real total rather than an unknown-identity artifact.",
+  "files": [
+    "internal/cli/splitwise_normalize.go",
+    "internal/cli/splitwise_normalize_test.go"
+  ]
+}

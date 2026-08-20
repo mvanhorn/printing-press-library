@@ -1,0 +1,117 @@
+{
+  "dir": "\u003ccli-dir\u003e",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 3,
+    "valid": 3,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 61,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 99,
+      "registered": 99
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 9,
+    "found": 9
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 9,
+    "exempted_via_store": 9
+  },
+  "source_client_check": {
+    "checked": 3,
+    "findings": [
+      {
+        "package": "source/kalshi",
+        "file": "internal/source/kalshi/sync.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 87
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 87
+  },
+  "issues": [
+    "1 source client file(s) without rate-limit handling: internal/source/kalshi/sync.go — outbound HTTP without rate limiter or typed 429 handling"
+  ],
+  "learn_loop_backport_validation": {
+    "date": "2026-05-26",
+    "plan": "docs/plans/2026-05-25-001-feat-prediction-goat-learn-loop-backport-plan.md",
+    "report": "docs/decisions/2026-05-26-prediction-goat-learn-loop-backport-findings.md",
+    "branch": "feat/prediction-goat",
+    "verdict": "PASS",
+    "test_suite": "699/699 green; go vet clean; go build clean",
+    "queries_exercised": 8,
+    "playbook_attach_rate": "3/3 hand-authored shapes attached on first canonical example",
+    "slot_binding_success": "$TEAM bound to Brazil on Q1; series_summary entity_slots=[] so n/a; event_markets attached without slot binding (no \"NBA Draft\" in entity_lookups, intended)",
+    "cross_alias_validated": "Lusitania -> Portugal canonical promotes EntityMatch to Exact and emits cross_alias_match warning",
+    "similar_shape_validated": "Brazil-recall against Portugal-taught row drops correctly with similar_shape_different_entity:Portugal warning (replaces misleading no_learnings_for_query_family)",
+    "ambiguous_alias_validated": "Single-entity Cards->{Arizona,St.Louis} fires ambiguous_alias; multi-entity Brazil-vs-Portugal does NOT (Greptile round 2 narrow-trigger guard exercised)",
+    "amend_validated": "playbook amend writes [amend 2026-05-26THH:MMZ]: marker visible in playbook list --agent",
+    "sentinel_validated": "playbook list --agent returns 4 rows; zero __-prefixed sentinel families surfaced",
+    "tool_call_compression": {
+      "odds_for_team": "cold ~4-5 calls -> warm 2 calls (2.5-5x)",
+      "event_markets": "cold ~3-4 calls -> warm 1 call (3-4x)",
+      "series_summary": "cold ~4-5 calls -> warm 2-3 calls (~2x)"
+    },
+    "recommendation": "ship to PR #780",
+    "network_disclosure": "dogfood exercised recall/envelope/teach against local SQLite + embedded seed; cold-vs-warm tool-call counts derived from playbook expected_tool_calls and analyst count of the cold path, not from live Polymarket/Kalshi HTTP"
+  }
+}

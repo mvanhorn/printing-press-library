@@ -1,0 +1,790 @@
+{
+  "cli_dir": "/Users/charlesg77/printing-press/library/yahoo-finance",
+  "fresh_dir": "/Users/charlesg77/printing-press/.runstate/charlesg77-f2620910/runs/20260524-221143/working/yahoo-finance-pp-cli",
+  "applied": false,
+  "files": [
+    {
+      "path": "cmd/yahoo-finance-pp-cli/main.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "main": [
+            "Error",
+            "Fprintln"
+          ]
+        }
+      }
+    },
+    {
+      "path": "cmd/yahoo-finance-pp-mcp/main.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "main": [
+            "RegisterNovelFeatureTools"
+          ]
+        }
+      }
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAPICmd": [
+            "Sprintf",
+            "Strings"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/autocomplete.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newWorkflowArchiveCmd": [
+            "Get",
+            "GetSyncState",
+            "Open",
+            "Sprintf",
+            "Unmarshal",
+            "Upsert"
+          ],
+          "newWorkflowStatusCmd": [
+            "Open"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/chart.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "openStoreForRead": [
+            "Open"
+          ],
+          "resolveRead": [
+            "Get"
+          ],
+          "writeThroughCache": [
+            "Open",
+            "Trim",
+            "Upsert",
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newDoctorCmd": [
+            "Crumb",
+            "Error",
+            "Stat",
+            "printJSON",
+            "yahooSessionPath"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFeedbackCmd": [
+            "printJSON"
+          ],
+          "newFeedbackListCmd": [
+            "printJSON"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/fundamentals.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "classifyAPIError": [
+            "Fprintln"
+          ],
+          "paginatedGet": [
+            "Get"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/import.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newImportCmd": {
+            "published": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\n\tcmd := ...",
+            "fresh": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\n\tcmd := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/insiders_net_buying.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/insiders_net_buying_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/insights.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/options.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/options_covered_calls.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/options_covered_calls_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/portfolio_dividends.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/portfolio_dividends_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newProfileListCmd": [
+            "printJSON"
+          ],
+          "newProfileSaveCmd": [
+            "printJSON"
+          ],
+          "newProfileShowCmd": [
+            "printJSON"
+          ],
+          "newProfileUseCmd": [
+            "printJSON"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_autocomplete.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_chart.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_fundamentals.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_insights.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_lookup.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_options.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_recommendations.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_screener.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_trending.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/quote.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newQuotePromotedCmd"
+        ],
+        "in_fresh_not_published": [
+          "newQuoteCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/quote_list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/quote_summary.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newQuoteSummaryCmd": {
+            "published": "func newQuoteSummaryCmd(flags *rootFlags) *cobra.Command {\n\tvar flagModules string\n\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"su...",
+            "fresh": "func newQuoteSummaryCmd(flags *rootFlags) *cobra.Command {\n\tvar flagModules string\n\n\tcmd := \u0026cobra.Command{\n\t\tUse:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/recommendations.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*rootFlags).printJSON": [
+            "Encode",
+            "NewEncoder",
+            "SetIndent"
+          ],
+          "Execute": [
+            "AddCommand",
+            "ApplyProfileToFlags",
+            "BoolVar",
+            "Changed",
+            "Commands",
+            "DurationVar",
+            "Flags",
+            "Float64Var",
+            "GetProfile",
+            "MultiWriter",
+            "ParseDeliverSink",
+            "PersistentFlags",
+            "SetOut",
+            "SetVersionTemplate",
+            "StringVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/screen_local.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/screen_local_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/screener.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSearchCmd": [
+            "Open"
+          ],
+          "outputSearchResults": [
+            "RawMessage"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "determineSinceParam"
+        ],
+        "in_fresh_not_published": [
+          "criticalResources",
+          "discriminatorDispatch",
+          "discriminatorDispatchers",
+          "findCursorInMap",
+          "genericIDFieldFallbacks",
+          "isDryRunResponse",
+          "isEmptyPageResponse",
+          "isJSONNull",
+          "knownSyncResourceNames",
+          "nextCursorFromLinks",
+          "pageItemKeys",
+          "resolveDiscriminatedResource",
+          "resourceIDFieldOverrides",
+          "resourceSupportsPagination",
+          "syncResourceSinceParam",
+          "unresolvedPathKeyRE",
+          "upsertResourceBatch"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trending.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/watchlist.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newAuthChromeCmd"
+        ],
+        "in_fresh_not_published": [
+          "chromeCookie",
+          "chromeSession",
+          "compareReturnRow",
+          "defaultSessionFile",
+          "dividendsInWindow",
+          "historyClosestClose",
+          "newAuthCmd",
+          "newAuthLoginCmd",
+          "parseRangeToTime",
+          "totalReturnsFromStore"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/watchlist_correlate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/watchlist_correlate_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Client).Crumb",
+          "(*Client).InvalidateCrumb",
+          "(*Client).SetChromeCookies",
+          "(*Client).dryRunWithCrumb",
+          "(*Client).ensureCrumb",
+          "(*Client).loadCookiesFromDisk",
+          "(*Client).refreshAccessToken",
+          "(*Client).saveCookiesToDisk",
+          "(*Client).yahooCookieFile",
+          "(*adaptiveLimiter).OnRateLimit",
+          "(*adaptiveLimiter).OnSuccess",
+          "(*adaptiveLimiter).Rate",
+          "(*adaptiveLimiter).Wait",
+          "adaptiveLimiter",
+          "cookieRecord",
+          "dryRunDisplayURL",
+          "maxRetryWait",
+          "newAdaptiveLimiter",
+          "retryAfter",
+          "sessionFile",
+          "yahooBootstrapURL",
+          "yahooCrumbURL",
+          "yahooUserAgent"
+        ],
+        "in_fresh_not_published": [
+          "(*Client).ConfiguredTimeout",
+          "(*Client).DeleteWithBody",
+          "(*Client).DeleteWithBodyAndHeaders",
+          "(*Client).DeleteWithParams",
+          "(*Client).DeleteWithParamsAndBody",
+          "(*Client).DeleteWithParamsAndBodyAndHeaders",
+          "(*Client).DeleteWithParamsAndHeaders",
+          "(*Client).GetNoCache",
+          "(*Client).GetWithHeadersNoCache",
+          "(*Client).PatchWithParams",
+          "(*Client).PatchWithParamsAndHeaders",
+          "(*Client).PostQueryWithParams",
+          "(*Client).PostQueryWithParamsAndHeaders",
+          "(*Client).PostWithParams",
+          "(*Client).PostWithParamsAndHeaders",
+          "(*Client).ProbeGet",
+          "(*Client).PutWithParams",
+          "(*Client).PutWithParamsAndHeaders",
+          "(*Client).displayURL",
+          "(*Client).doInternal",
+          "(*Client).doRead",
+          "(*Client).maskCredentialText",
+          "(*Client).maskError",
+          "(*Client).responseCacheEnabled",
+          "(*Client).validateCachedRequestAuth",
+          "(*Client).wantsBinaryResponse",
+          "(maskedError).Error",
+          "BinaryResponseHeader",
+          "binaryResponseEnvelope",
+          "binaryResponseHeaderValue",
+          "isBinaryResponseContentType",
+          "isMutatingVerb",
+          "maskedError",
+          "newHTTPClient",
+          "sleepContext",
+          "verifyShortCircuitEnvelope",
+          "wrapBinaryResponse"
+        ]
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Config).ClearTokens",
+          "(*Config).SaveTokens"
+        ]
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "handleSync"
+        ],
+        "in_fresh_not_published": [
+          "mcpParamBinding",
+          "stripLeadingSQLNoise",
+          "validateReadOnlyQuery"
+        ]
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/optionsmath/optionsmath.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/optionsmath/optionsmath_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/portstats/portstats.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/portstats/portstats_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).UpsertBatch": [
+            "Exec",
+            "Sprintf",
+            "ftsRowID",
+            "lookupFieldValue",
+            "string"
+          ],
+          "(*Store).migrate": [
+            "Exec"
+          ],
+          "Open": [
+            "Close",
+            "Dir",
+            "Errorf",
+            "MkdirAll",
+            "Open",
+            "SetMaxOpenConns",
+            "migrate"
+          ],
+          "ftsRowID": [
+            "uint64"
+          ],
+          "lookupFieldValue": [
+            "Join",
+            "Split",
+            "ToUpper",
+            "len"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    }
+  ],
+  "go_mod": {
+    "merged": false,
+    "preserved_module_path": "yahoo-finance-pp-cli",
+    "added_requires": [
+      "github.com/google/jsonschema-go v0.4.2"
+    ]
+  }
+}

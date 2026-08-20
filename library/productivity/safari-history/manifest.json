@@ -1,0 +1,25 @@
+{
+  "manifest_version": "0.3",
+  "name": "safari-history-pp-mcp",
+  "display_name": "Safari History",
+  "version": "4.13.0",
+  "description": "Query local Safari browsing history from a snapshot index; no remote API spec.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/safari-history-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/safari-history-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-06-04T07:55:43Z",
+  "elapsed_ms": 13276,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:43Z",
+      "elapsed_ms": 7775,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press verify --dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli --spec /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/research/x-enriched-openapi.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:51Z",
+      "elapsed_ms": 200,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press validate-narrative --strict --full-examples --research /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/research.json --binary /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli/x-twitter-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:51Z",
+      "elapsed_ms": 2453,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press dogfood --dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli --spec /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/research/x-enriched-openapi.json --research-dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:53Z",
+      "elapsed_ms": 13,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press workflow-verify --dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:53Z",
+      "elapsed_ms": 1790,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press verify-skill --dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-06-04T07:55:55Z",
+      "elapsed_ms": 1042,
+      "command": "/Users/tmchow/orca/workspaces/cli-printing-press/skipjack/cli-printing-press scorecard --dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/working/x-twitter-pp-cli --research-dir /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951 --spec /Users/tmchow/printing-press/.runstate/skipjack-2e4ae0f1/runs/20260603-230951/research/x-enriched-openapi.json --live-check"
+    }
+  ]
+}

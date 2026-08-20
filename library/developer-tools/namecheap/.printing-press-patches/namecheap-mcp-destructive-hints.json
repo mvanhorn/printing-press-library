@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-mcp-destructive-hints",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Mark Namecheap paid and DNS-changing MCP tools as destructive and non-read-only.",
+  "reason": "MCP hosts use read-only/destructive annotations for auto-approval decisions; DNS changes and domain registration/renewal/lock changes must require confirmation.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Focused source scan and go test ./... verify mutation tools use ReadOnly=false and Destructive=true."
+}

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<!-- saved from url=(0069)https://gisis.imo.org/Public/SHIPS/ShipDetails.aspx?IMONumber=9866641 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>
+	GISIS - Ship and Company Particulars
+</title><link href="./GISIS - Ship and Company Particulars_files/GISIS.css" type="text/css" rel="stylesheet"><link href="./GISIS - Ship and Company Particulars_files/Theme.css" type="text/css" rel="stylesheet"><link href="./GISIS - Ship and Company Particulars_files/GridViewer.css" type="text/css" rel="stylesheet"><link href="./GISIS - Ship and Company Particulars_files/select2.css" type="text/css" rel="stylesheet"><link href="./GISIS - Ship and Company Particulars_files/jquery.tooltipster.css" type="text/css" rel="stylesheet">
+
+    <script src="./GISIS - Ship and Company Particulars_files/jquery.min.js"></script>
+    <link href="./GISIS - Ship and Company Particulars_files/semantic.min.css" rel="stylesheet" type="text/css">
+    <script src="./GISIS - Ship and Company Particulars_files/semantic.min.js"></script>
+
+	<script>
+		var webroot = "/Public/";
+		var scrollToAnchor = null;
+
+		
+		
+    </script>
+	<script src="./GISIS - Ship and Company Particulars_files/GISIS.js"></script>
+	
+	<script src="./GISIS - Ship and Company Particulars_files/select2.min.js"></script>
+	<script src="./GISIS - Ship and Company Particulars_files/jquery.tooltipster.min.js"></script>
+	<script src="./GISIS - Ship and Company Particulars_files/autosize.min.js"></script>
+	<script src="./GISIS - Ship and Company Particulars_files/URI.js"></script>
+	
+	
+	<link href="./GISIS - Ship and Company Particulars_files/datatables.min.css" rel="stylesheet">
+	<script src="./GISIS - Ship and Company Particulars_files/pdfmake.min.js"></script>
+	<script src="./GISIS - Ship and Company Particulars_files/vfs_fonts.js"></script>
+	<script src="./GISIS - Ship and Company Particulars_files/datatables.min.js"></script>
+
+	
+		
+		
+		
+		<script src="./GISIS - Ship and Company Particulars_files/jquery.dropdown.js"></script>
+		<link href="./GISIS - Ship and Company Particulars_files/jquery.dropdown.css" type="text/css" rel="stylesheet">
+	</head>
+
+<body onload="PageLoad();ScrollToAnchor();" onbeforeunload="PageBeforeUnload();" onunload="PageUnload();">
+
+<a id="top"></a>
+<div id="ctl00_divWaitMessage">
+    <script src="./GISIS - Ship and Company Particulars_files/WaitMessage.js"></script>
+    <div id="pageOverlay" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:5000; background-color:#000; -moz-opacity:0.5; opacity:.50; filter:alpha(opacity=50); display:none; width:100%; height:100%;">
+	    <script language="javascript" type="text/javascript">
+	document.write( "<table style='height:" + GetWindowHeight() + "px;width:" + GetWindowWidth() + "px' border='0' cellpadding='0' cellspacing='0'>" );
+</script><table style="height:895px;width:1721px" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr><td> </td></tr></tbody></table>
+    </div>
+    <div id="waitMessageBox" style="position:absolute; top:0; left:0; z-index:5001; display:none;">
+	    <div class="floater" style="background-color:#4284d0;color:White;padding:20px">
+		    Searching, please wait...
+	    </div>
+    </div>
+</div>
+
+
+
+
+<form method="post" action="https://gisis.imo.org/Public/SHIPS/ShipDetails.aspx?IMONumber=9866641" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="./GISIS - Ship and Company Particulars_files/WebResource.axd" type="text/javascript"></script>
+
+
+<script src="./GISIS - Ship and Company Particulars_files/WebResource(1).axd" type="text/javascript"></script>
+<script src="./GISIS - Ship and Company Particulars_files/ScriptResource.axd" type="text/javascript"></script>
+<script src="./GISIS - Ship and Company Particulars_files/ScriptResource(1).axd" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="20C9D685">
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="">
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="8Ck1PkGir322M0KGpypbO+AtaTTT0Psfe+mTsgL0eeq1oxarlF8PMjuekQzg0qcXZ3ZRwgKt6wNdCUDX3ZhrgWqt4+wFQGuxrCNbIaFLAjo/WHMB">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$scriptManager', 'aspnetForm', [], ['ctl00$scriptManager',''], [], 90, 'ctl00');
+//]]>
+</script>
+<input type="hidden" name="ctl00$scriptManager" id="ctl00_scriptManager">
+<script type="text/javascript">
+//<![CDATA[
+Sys.Application.setServerId("ctl00_scriptManager", "ctl00$scriptManager");
+Sys.Application._enableHistoryInScriptManager();
+//]]>
+</script>
+
+
+
+<div class="imo-theme-header">
+    <div class="imo-theme-appsbar" onclick="$(this).children().first().toggleClass(&#39;xmark&#39;);$(&#39;#gisis-imo-apps&#39;).fadeToggle();">
+        <i class="navbar-toggler-icon"></i>
+    </div>
+    <div class="imo-theme-logo">
+		<a href="https://gisis.imo.org/Public/"><img title="GISIS Homepage" alt="IMO logo" src="./GISIS - Ship and Company Particulars_files/IMOLogo.png"></a>
+    </div>
+    <div class="imo-theme-title">
+        <h1>GISIS: Ship and Company Particulars</h1>
+    </div>
+	
+		<div class="imo-theme-login userdetails" onclick="$(&#39;#gisis-user-profile&#39;).flyout(&#39;toggle&#39;);">
+			<div class="imo-theme-user-name">
+				<span>Henning Fotland</span>
+				<br>
+				<span class="authoritydetails">Public User / capt_origin</span>
+			</div>
+		</div>
+		<div class="imo-theme-login" onclick="$(&#39;#gisis-user-profile&#39;).flyout(&#39;toggle&#39;);">
+			<img src="./GISIS - Ship and Company Particulars_files/ProfileImage.jpg">
+		</div>
+	
+	
+</div>
+
+<!-- IMO Apps drawer -->
+<div id="gisis-imo-apps" class="imo-theme-appsdrawer">
+    <p>IMO Apps</p>
+
+    <ul>
+        <li><a href="https://webaccounts.imo.org/"><i class="icon-computer-2 main-icon bg-indigo-opa"></i>IMO Portal</a></li>
+        <li><a href="https://docs.imo.org/"><i class="icon-insert-drive-file main-icon bg-green-opa"></i>IMODOCS</a></li>
+        <li><a href="https://gisis.imo.org/"><i class="icon-directions-boat main-icon bg-indigo-opa"></i>GISIS</a></li>
+        <li><a href="https://streaming.imo.org/meetings"><i class="icon-settings-input-antenna main-icon bg-pink-opa"></i>Streaming</a></li>
+        <li><a href="https://lms.imo.org/moodle310"><i class="icon-explicit main-icon bg-red-opa"></i>IMO e-Learning</a></li>
+        <li><a href="https://roster.imo.org/"><i class="icon-explicit main-icon bg-red-opa"></i>eRoster of Consultants</a></li>
+        <li><a href="https://imospace.imo.org/"><i class="icon-group main-icon bg-pink-opa"></i>IMO Space</a></li>
+        <li><a href="https://vp.imo.org/"><i class="icon-e-learning main-icon bg-brand-blue-opa"></i>Virtual Publications</a></li>
+        <li><a href="https://archives.imo.org/"><i class="icon-archives main-icon bg-indigo-opa"></i>IMO Archives</a></li>
+        <li><a href="https://www.imo.org/"><i class="icon-language main-icon bg-indigo-opa"></i>IMO Website</a></li>
+    </ul>
+</div>
+
+<!-- Account drawer -->
+<div id="gisis-user-profile" class="ui right position flyout">
+	<i class="close icon"></i>
+	<div class="content left">
+		<img id="ctl00_imgProfileImage2" class="ui circular small image" src="./GISIS - Ship and Company Particulars_files/ProfileImage.jpg">
+
+		<h2>Henning Fotland</h2>
+		<h5>Public User / capt_origin</h5>
+		<h5>capt.origin@gmail.com</h5>
+
+		<i class="edit outline icon"></i><a id="ctl00_hlManageAccount" class="profile-link" href="https://webaccounts.imo.org/Common/ManageAccount.aspx" target="_blank">Manage your account</a>
+		<br>
+		<i class="sign out alternate icon"></i><a class="profile-link" href="https://gisis.imo.org/Public/Shared/Public/Logout.aspx">Log out</a>
+	</div>
+</div>
+
+
+
+
+<table id="gisis-trailbar">
+<tbody><tr>
+	<td class="gisis-sitemappath">
+		<span id="ctl00_SiteMapPath"><span><a href="https://gisis.imo.org/Public/Default.aspx">Public Area</a></span><span> &gt; </span><span><a href="https://gisis.imo.org/Public/SHIPS/Default.aspx">Ship and Company Particulars</a></span><span> &gt; </span><span>Ship details</span></span>
+	</td>
+	
+</tr>
+</tbody></table>
+
+
+<table id="gisis-menu">
+<tbody><tr>
+	<td>
+		<ul id="gisis-menulist"></ul>
+	</td>
+</tr>
+</tbody></table>
+
+
+<table id="gisis-wrapper">
+<tbody><tr>
+	
+	
+	
+	<td style="vertical-align:top">
+		<table style="width:100%">
+			<tbody><tr id="ctl00_meta">
+	<td class="gisis-meta" colspan="3">Updated: <span class="value tipsterise noline tooltipstered">2026-05-26</span>&nbsp;&nbsp;</td>
+</tr>
+
+			<tr>
+				<td id="content">
+
+					
+
+					
+
+	
+		<table style="width: 800px">
+			<tbody><tr>
+				<td style="width: 650px">
+					<div id="bodyheading"><h1>Ship Particulars / <span class="selectablecontainer"><span>IMO 9866641</span></span></h1><span class="desc ">SIDER ABIDJAN</span></div>
+				</td>
+				<td>
+					
+					<div class="topspace10">
+						
+					</div>
+				</td>
+			</tr>
+		</tbody></table>
+
+		<div class="h2content minwide">
+			<table class="table">
+				<tbody><tr>
+					<td class="label top" style="width: 200px">
+						<span class="infoicon tooltipstered">Name:</span>
+					</td>
+					<td class="content top" style="width: 400px">
+						<span id="sNameCur">
+							SIDER ABIDJAN
+						</span>
+						<table class="blank" id="sNameHistory" style="display: none">
+							<tbody><tr><td style="white-space:nowrap;">SIDER ABIDJAN&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2025-05</i>)</span></td></tr><tr><td style="white-space:nowrap;">Nord Abidjan&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2020-01</i>)</span></td></tr>
+						</tbody></table>
+					</td>
+					<td class="content top">
+						<img id="sName" src="./GISIS - Ship and Company Particulars_files/Expand.gif">
+					</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">IMO Number:</span>
+					</td>
+					<td class="content top">IMO
+						9866641
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Flag:</span>
+					</td>
+					<td class="content top">
+						<span id="sFlagCur">
+							MAR (Portugal)
+						</span>
+						<table class="blank" id="sFlagHistory" style="display: none">
+							<tbody><tr><td style="white-space:nowrap;">MAR (Portugal)&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2025-12</i>)</span></td></tr><tr><td style="white-space:nowrap;">Panama&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2025-05</i>)</span></td></tr><tr><td style="white-space:nowrap;">Marshall Islands&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2025-02</i>)</span></td></tr><tr><td style="white-space:nowrap;">Singapore&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2020-01</i>)</span></td></tr>
+						</tbody></table>
+					</td>
+					<td class="content top">
+						<img id="sFlag" src="./GISIS - Ship and Company Particulars_files/Expand.gif">
+					</td>
+				</tr>
+
+				
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Call sign:</span>
+					</td>
+					<td class="content top">
+						CQ2842
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">MMSI:</span>
+					</td>
+					<td class="content top">
+						255916593
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+				
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Ship UN Sanction:</span>
+					</td>
+					<td class="content top">
+						Not on list
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Owning/operating entity under UN Sanction:</span>
+					</td>
+					<td class="content top">
+						Not on list
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+
+				
+
+				
+			</tbody></table>
+
+			<h3>Characteristics</h3>
+
+			<table class="table">
+				<tbody><tr>
+					<td class="label top" style="width: 230px">
+						<span class="infoicon tooltipstered">Type:</span>
+					</td>
+					<td class="content top" style="width: 370px">
+						<span id="sTypeCur">
+							General Cargo Ship (Open Hatch)
+						</span>
+						<table class="blank" id="sTypeHistory" style="display: none">
+							<tbody><tr><td style="white-space:nowrap;">General Cargo Ship (Open Hatch)&nbsp;&nbsp;</td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2020-01</i>)</span></td></tr>
+						</tbody></table>
+					</td>
+					<td class="content top">
+						<img id="sType" src="./GISIS - Ship and Company Particulars_files/Expand.gif">
+					</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Date of build:</span>
+					</td>
+					<td class="content top">
+						<span id="sBuildDateCur">
+							2020-01
+						</span>
+						<table class="blank" id="sBuildDateHistory" style="display: none">
+							
+						</table>
+					</td>
+					<td class="content top">
+						
+					</td>
+				</tr>
+
+				<tr>
+					<td class="label top">
+						<span class="infoicon tooltipstered">Gross tonnage:</span>
+					</td>
+					<td class="content top">
+						23,232
+					</td>
+					<td class="content top">&nbsp;</td>
+				</tr>
+
+				
+
+				
+
+				
+
+				
+
+				
+
+				
+
+				
+
+				
+
+				
+			</tbody></table>
+
+			<h3>Companies</h3>
+
+			<table class="table">
+				
+
+				<tbody><tr>
+					<td class="label top" style="width: 180px">
+						<span class="infoicon tooltipstered">Registered owner:</span>
+					</td>
+					<td class="content top" style="width: 420px">
+						<span id="sRegOwnerCur">
+							KIVIK SHIPPING LTD (<a href="https://gisis.imo.org/Public/SHIPS/CompanyDetails.aspx?IMOCompanyNumber=6101937">6101937</a>)
+						</span>
+						<table class="blank" id="sRegOwnerHistory" style="display: none">
+							<tbody><tr><td style="white-space:nowrap;">Kivik Shipping Ltd&nbsp;&nbsp;</td><td><i></i></td><td style="white-space:nowrap;"><span class="disabled">(<i>effective 2025-12-15</i>)</span></td></tr><tr><td style="white-space:nowrap;padding-left:20px !important;padding-bottom:0px !important" colspan="2"><i>IMO Company Number</i></td><td style="white-space:nowrap;padding-left:10px !important"><a href="https://gisis.imo.org/Public/SHIPS/CompanyDetails.aspx?IMOCompanyNumber=6101937">6101937</a></td></tr><tr><td style="white-space:nowrap;padding-left:20px !important;padding-bottom:0px !important" colspan="2"><i>Nationality of registration</i></td><td style="white-space:nowrap;padding-left:10px !important">Malta</td></tr><tr><td style="white-space:nowrap;padding-left:20px !important;padding-bottom:0px !important" colspan="2"><i>Address</i></td><td style="white-space:nowrap;padding-left:10px !important">C/O: NovaAlgoma Short-Sea Carriers SA (NASC) Via Bagutti 5, 6900, Lugano, Switzerland.</td></tr><tr><td style="white-space:nowrap;padding-left:20px !important;padding-bottom:10px !important" colspan="2"><i>Company status</i></td><td style="white-space:nowrap;padding-left:10px !important">Active</td></tr>
+						</tbody></table>
+					</td>
+					<td class="content top">
+						<img id="sRegOwner" src="./GISIS - Ship and Company Particulars_files/Expand.gif">
+					</td>
+				</tr>
+
+				
+
+				
+
+				
+			</tbody></table>
+
+			<script type="text/javascript">
+				$('img[id^="s"]').click(function () {
+					$('#' + this.id + 'Cur').toggle();
+					$('#' + this.id + 'History').toggle();
+					toggleImgSrc($(this));
+				}).mouseover(function () {
+					$(this).css('cursor', 'pointer');
+				});
+
+				function toggleImgSrc(img) {
+					var src = $(img).attr('src');
+
+					if (src.match(/Collapse/)) src = src.replace("Collapse", "Expand");
+					else if (src.match(/Expand/)) src = src.replace("Expand", "Collapse");
+
+					$(img).attr('src', src);
+				}
+
+				
+				$('.infoicon').tooltipster({maxWidth: 220, position: 'right', interactive: true, contentAsHTML: true});
+			</script>
+		</div>
+	
+
+<br>
+
+
+
+
+				</td>
+				
+			</tr>
+			<tr id="ctl00_contentFootnote">
+	<td><div style="padding:10px">Information on ship and company particulars is made available under the terms of the Shipping Information Agreement between S&amp;P Global and the IMO Secretariat.<br>Please <a href="https://www.spglobal.com/market-intelligence/en/info/contact-us">contact S&amp;P Global Market Intelligence</a> for queries relating to ship and company particulars.</div></td>
+</tr>
+
+		</tbody></table>
+	</td>
+</tr>
+</tbody></table>
+
+
+<div class="gisis-footer">
+	<span class="floatleft">
+		©2026 
+		<a href="http://www.imo.org/" target="_blank" style="text-decoration:none">International Maritime Organization</a>
+		&nbsp;&nbsp;[ 
+			<a id="ctl00_lnkDisclaimer" href="https://gisis.imo.org/Public/Shared/Public/Disclaimer.aspx">Disclaimer</a>
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a href="https://webaccounts.imo.org/Common/PrivacyPolicy.aspx">Privacy Policy</a>
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a id="ctl00_lnkContactUs" href="https://gisis.imo.org/Public/Shared/Public/Feedback.aspx">Contact Us</a> 
+		]
+	</span>
+	<span class="floatright tipsterise tooltipstered">‡ Notes on nomenclature</span>
+</div>
+
+<input type="hidden" name="ctl00$hidGisisFormChanged" id="ctl00_hidGisisFormChanged">
+
+</form>
+
+<script src="./GISIS - Ship and Company Particulars_files/GATag.min.js"></script>
+
+<script>
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="./GISIS - Ship and Company Particulars_files/ga.js" type="text/javascript"></script>
+<script>
+var pageTracker = _gat._getTracker("UA-465405-2");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+
+<script>
+	$(function () {
+		autosize(document.querySelectorAll('textarea:not(.noresize)'));
+		initUI(); 
+	});
+</script>
+
+</body></html>

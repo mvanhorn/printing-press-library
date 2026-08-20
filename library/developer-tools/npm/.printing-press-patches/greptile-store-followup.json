@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-16T18:35:00Z",
+  "base_run_id": "20260615T060451Z-5f992152",
+  "base_printing_press_version": "4.24.0",
+  "reason": "Address Greptile follow-up on npm store safety, local read behavior, package risk scoring, generated catalog drift, and custom registry intelligence behavior.",
+  "changes": [
+    {
+      "path": "internal/store/store.go",
+      "summary": "Whitelist domain tables before constructing ListIDs table queries, fix last_week upsert value ordering, and reject unsafe ResolveByName JSON field names before constructing json_extract paths."
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "summary": "Open existing local stores with OpenReadOnly for local read paths."
+    },
+    {
+      "path": "internal/cli/intel.go",
+      "summary": "Return npm downloads lookup failures instead of silently dropping them, surface npm deprecation metadata in package risk scoring, skip public download lookups for non-default registries unless a downloads API override is configured, and avoid scoring low-download risk when download counts are unknown."
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "summary": "Add regressions for last_week versions_id storage, ListIDs fallback behavior with untrusted resource names, and ResolveByName JSON-field validation."
+    },
+    {
+      "path": "internal/cli/intel_test.go",
+      "summary": "Add regressions for package summary download lookup errors, deprecated-package risk signals, custom-registry package summaries without public download counts, and custom-registry risk scores that must not emit false low-download signals."
+    }
+  ],
+  "validated_outcome": "go test ./..., go vet ./..., go build ./..., govulncheck ./..., publish validate, verify-publish-package, verify-skill, and live risk smoke rerun after patch"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "usgs-earthquakes",
+  "run_id": "20260519-002226",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 89,
+  "tests_passed": 89,
+  "tests_skipped": 52,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "api_name": "twelvelabs",
+  "novelty_score": 8,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Upload and wait for indexing",
+      "command": "upload-video",
+      "description": "Upload a local video file or register a public URL, then poll Twelve Labs until indexing reaches a terminal status.",
+      "rationale": "Editors need one reliable command that gets a long video into an index before downstream analysis begins.",
+      "example": "twelvelabs-pp-cli upload-video --index-id IDX --file ./long-video.mp4 --wait --json --dry-run",
+      "why_it_matters": "Use this before analysis when you need the CLI to wait until the video is usable.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Editor-ready video brief",
+      "command": "video-brief",
+      "description": "Generate a deterministic JSON or Markdown editing plan with title, topics, hashtags, chapters, highlights, and recommended cuts.",
+      "rationale": "The raw API returns analysis primitives; this command shapes them into an output an editor can use directly.",
+      "example": "twelvelabs-pp-cli video-brief --video-id VID --format json --json --dry-run",
+      "why_it_matters": "Use this when you want to avoid manually watching a long video just to find the strongest moments.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Video embedding workflow",
+      "command": "embed",
+      "description": "Create a video embedding task from a local file or public URL and optionally wait for ready results.",
+      "rationale": "A simplified embedding workflow hides the raw endpoint split and polling mechanics for semantic video workflows.",
+      "example": "twelvelabs-pp-cli embed --video-file ./long-video.mp4 --model marengo3.0 --wait --json --dry-run",
+      "why_it_matters": "Use this when you need embeddings for deeper search, matching, or semantic workflows.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Local clip cutting from plans",
+      "command": "clips",
+      "description": "Cut local clip files with ffmpeg from a video-brief JSON plan without inventing timestamps.",
+      "rationale": "The API finds the moments; this command turns those ranges into files for downstream editing.",
+      "example": "twelvelabs-pp-cli clips --dry-run --json",
+      "why_it_matters": "Use this after video-brief when you have the source video locally and want clip files immediately.",
+      "group": "Editor workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Upload and wait for indexing",
+      "command": "upload-video",
+      "description": "Upload a local video file or register a public URL, then poll Twelve Labs until indexing reaches a terminal status.",
+      "rationale": "Editors need one reliable command that gets a long video into an index before downstream analysis begins.",
+      "example": "twelvelabs-pp-cli upload-video --index-id IDX --file ./long-video.mp4 --wait --json --dry-run",
+      "why_it_matters": "Use this before analysis when you need the CLI to wait until the video is usable.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Editor-ready video brief",
+      "command": "video-brief",
+      "description": "Generate a deterministic JSON or Markdown editing plan with title, topics, hashtags, chapters, highlights, and recommended cuts.",
+      "rationale": "The raw API returns analysis primitives; this command shapes them into an output an editor can use directly.",
+      "example": "twelvelabs-pp-cli video-brief --video-id VID --format json --json --dry-run",
+      "why_it_matters": "Use this when you want to avoid manually watching a long video just to find the strongest moments.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Video embedding workflow",
+      "command": "embed",
+      "description": "Create a video embedding task from a local file or public URL and optionally wait for ready results.",
+      "rationale": "A simplified embedding workflow hides the raw endpoint split and polling mechanics for semantic video workflows.",
+      "example": "twelvelabs-pp-cli embed --video-file ./long-video.mp4 --model marengo3.0 --wait --json --dry-run",
+      "why_it_matters": "Use this when you need embeddings for deeper search, matching, or semantic workflows.",
+      "group": "Editor workflows"
+    },
+    {
+      "name": "Local clip cutting from plans",
+      "command": "clips",
+      "description": "Cut local clip files with ffmpeg from a video-brief JSON plan without inventing timestamps.",
+      "rationale": "The API finds the moments; this command turns those ranges into files for downstream editing.",
+      "example": "twelvelabs-pp-cli clips --dry-run --json",
+      "why_it_matters": "Use this after video-brief when you have the source video locally and want clip files immediately.",
+      "group": "Editor workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Twelve Labs",
+    "headline": "Turn long videos into editor-ready cut plans.",
+    "value_prop": "This CLI wraps the Twelve Labs API and adds workflow commands for video upload, indexing waits, structured briefs, embeddings, and local clip cutting. Agents can go from a long source video to JSON or Markdown editing guidance without manually watching the whole file."
+  }
+}

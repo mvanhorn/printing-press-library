@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "airframe-pp-mcp",
+  "display_name": "airframe",
+  "version": "4.2.2",
+  "description": "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology. Offline-first SQLite, no API key required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airframe-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airframe-pp-mcp",
+      "args": [],
+      "env": {}
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

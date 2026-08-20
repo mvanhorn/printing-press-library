@@ -1,0 +1,312 @@
+{
+  "api_name": "edgar",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "edgartools",
+      "url": "https://github.com/dgunning/edgartools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2100,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sec-edgar-mcp",
+      "url": "https://github.com/stefanoamorelli/sec-edgar-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 265,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "secedgar",
+      "url": "https://github.com/sec-edgar/sec-edgar",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1400,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sec-edgar-toolkit",
+      "url": "https://github.com/stefanoamorelli/sec-edgar-toolkit",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jadchaar/sec-edgar-downloader",
+      "url": "https://github.com/jadchaar/sec-edgar-downloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "palafrank/edgar",
+      "url": "https://github.com/palafrank/edgar",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T17:00:00Z",
+  "novel_features": [
+    {
+      "name": "Recheck delta cursor",
+      "command": "since",
+      "description": "Return only the filings filed since a given timestamp, using a per-CIK local cursor — the entire LODESTAR /$recheck loop in one call.",
+      "rationale": "Requires a local SQLite filings table with last_seen_accession; no SEC endpoint returns 'what's new since DATE.'",
+      "example": "edgar-pp-cli since AAPL --as-of 2026-05-08 --json",
+      "why_it_matters": "For quarterly thesis rechecks, reach for this before fetching the full submissions index — it eliminates re-paying token cost on filings already seen.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "8-K material-item enumeration",
+      "command": "eightk-items",
+      "description": "Enumerate 8-Ks with parsed Item numbers and a --material-only flag that excludes exhibits-only (Item 9.01 alone) refilings.",
+      "rationale": "Requires 8-K body parse for Item-number taxonomy; the SEC endpoint returns body HTML, not the structured Item list with material classification.",
+      "example": "edgar-pp-cli eightk-items AAPL --since 2026-05-08 --material-only --json",
+      "why_it_matters": "Use this instead of pulling 8-K bodies when you need 'has anything material happened?' — answers in one call without reading filing text.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Insider follow-through join",
+      "command": "insider-followthrough",
+      "description": "For every senior-officer code-S sale of ≥$1M, scan the next 90 days of 8-Ks for material items and emit (sale, subsequent material 8-K, days-between) pairs.",
+      "rationale": "Requires a local join of insider_transactions × filings by date proximity; no SEC endpoint returns this correlation.",
+      "example": "edgar-pp-cli insider-followthrough AAPL --json",
+      "why_it_matters": "Reach for this in LODESTAR Gate 2 execution-validation when an insider sale precedes material disclosures — surface management exits before bad news.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Cross-sectional XBRL pivot",
+      "command": "xbrl-pivot",
+      "description": "Multi-ticker XBRL pivot that resolves concept aliases (Revenues ↔ RevenueFromContractWithCustomerExcludingAssessedTax ↔ SalesRevenueNet) into a flat ticker×quarter×concept table.",
+      "rationale": "companyfacts is single-ticker and exposes raw concept names; same economic quantity reports under 3-4 different US-GAAP tags depending on filer's accountant.",
+      "example": "edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL --concepts Revenues,NetIncomeLoss --quarters 8 --csv",
+      "why_it_matters": "For cross-sectional quality screens — pivot before parsing 50 companyfacts JSON blobs by hand.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Item-scoped section extraction",
+      "command": "sections",
+      "description": "Extract requested Items from a 10-K or 10-Q with byte-offset boundaries; emits ONLY the requested items in compact JSON instead of the full 100KB-10MB HTML body.",
+      "rationale": "SEC returns the full undifferentiated HTML body; agent consumers need item-scoped output to stay within context budget. Anchored on the Item NA regex with byte offsets.",
+      "example": "edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json",
+      "why_it_matters": "Use this instead of fetching the raw 10-K body — saves an order of magnitude in tokens when you only need Risk Factors and MD\u0026A.",
+      "group": "Token-efficient extraction"
+    },
+    {
+      "name": "Ownership-cross enumeration",
+      "command": "ownership-crosses",
+      "description": "Enumerate 13D and 13G filings against an issuer (when someone else crosses 5% of the ticker), with filer name, percent owned, and filed-at.",
+      "rationale": "Service-specific 5%-cross taxonomy; submissions index filter to 13D/G/-A plus cover-page percent parse, which no community wrapper exposes structured.",
+      "example": "edgar-pp-cli ownership-crosses AAPL --json",
+      "why_it_matters": "Use in LODESTAR Gate 3 asymmetric-structure checks to spot activist or institutional concentration without scrolling submissions.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Governance red flags",
+      "command": "governance-flags",
+      "description": "Compose three independent service-specific signals into one call: 8-K Item 4.01 auditor changes, Item 4.02 non-reliance restatements, and NT-10-K late-filing notices (Form 12b-25).",
+      "rationale": "No wrapper bundles these three signals; they map directly onto LODESTAR Gate 2 immediate disqualifiers and need to be a one-call check during research and recheck.",
+      "example": "edgar-pp-cli governance-flags AAPL --since 2y --json",
+      "why_it_matters": "Use as an early disqualifier check — if any flag fires, surface to LODESTAR before spending tokens on the full thesis.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Offline FTS over cached bodies",
+      "command": "fts",
+      "description": "Full-text search over locally-cached filing bodies via FTS5 — ticker- and form-scoped — with snippet windows and byte offsets for precise re-read.",
+      "rationale": "Distinct from `search` (which hits efts.sec.gov): never re-hits the SEC endpoint for cached bodies; token-cheap for repeated queries during a single research session.",
+      "example": "edgar-pp-cli fts \"going concern\" --ticker AAPL --form 10-Q --json",
+      "why_it_matters": "Reach for fts during deep-dives where you re-query the same filing body multiple times; reach for the absorbed `search` command for the first lookup or for cross-issuer queries.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recheck delta cursor",
+      "command": "since",
+      "description": "Return only the filings filed since a given timestamp, using a per-CIK local cursor — the entire LODESTAR /$recheck loop in one call.",
+      "rationale": "Requires a local SQLite filings table with last_seen_accession; no SEC endpoint returns 'what's new since DATE.'",
+      "example": "edgar-pp-cli since AAPL --as-of 2026-05-08 --json",
+      "why_it_matters": "For quarterly thesis rechecks, reach for this before fetching the full submissions index — it eliminates re-paying token cost on filings already seen.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "8-K material-item enumeration",
+      "command": "eightk-items",
+      "description": "Enumerate 8-Ks with parsed Item numbers and a --material-only flag that excludes exhibits-only (Item 9.01 alone) refilings.",
+      "rationale": "Requires 8-K body parse for Item-number taxonomy; the SEC endpoint returns body HTML, not the structured Item list with material classification.",
+      "example": "edgar-pp-cli eightk-items AAPL --since 2026-05-08 --material-only --json",
+      "why_it_matters": "Use this instead of pulling 8-K bodies when you need 'has anything material happened?' — answers in one call without reading filing text.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Insider follow-through join",
+      "command": "insider-followthrough",
+      "description": "For every senior-officer code-S sale of ≥$1M, scan the next 90 days of 8-Ks for material items and emit (sale, subsequent material 8-K, days-between) pairs.",
+      "rationale": "Requires a local join of insider_transactions × filings by date proximity; no SEC endpoint returns this correlation.",
+      "example": "edgar-pp-cli insider-followthrough AAPL --json",
+      "why_it_matters": "Reach for this in LODESTAR Gate 2 execution-validation when an insider sale precedes material disclosures — surface management exits before bad news.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Cross-sectional XBRL pivot",
+      "command": "xbrl-pivot",
+      "description": "Multi-ticker XBRL pivot that resolves concept aliases (Revenues ↔ RevenueFromContractWithCustomerExcludingAssessedTax ↔ SalesRevenueNet) into a flat ticker×quarter×concept table.",
+      "rationale": "companyfacts is single-ticker and exposes raw concept names; same economic quantity reports under 3-4 different US-GAAP tags depending on filer's accountant.",
+      "example": "edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL --concepts Revenues,NetIncomeLoss --quarters 8 --csv",
+      "why_it_matters": "For cross-sectional quality screens — pivot before parsing 50 companyfacts JSON blobs by hand.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Item-scoped section extraction",
+      "command": "sections",
+      "description": "Extract requested Items from a 10-K or 10-Q with byte-offset boundaries; emits ONLY the requested items in compact JSON instead of the full 100KB-10MB HTML body.",
+      "rationale": "SEC returns the full undifferentiated HTML body; agent consumers need item-scoped output to stay within context budget. Anchored on the Item NA regex with byte offsets.",
+      "example": "edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json",
+      "why_it_matters": "Use this instead of fetching the raw 10-K body — saves an order of magnitude in tokens when you only need Risk Factors and MD\u0026A.",
+      "group": "Token-efficient extraction"
+    },
+    {
+      "name": "Ownership-cross enumeration",
+      "command": "ownership-crosses",
+      "description": "Enumerate 13D and 13G filings against an issuer (when someone else crosses 5% of the ticker), with filer name, percent owned, and filed-at.",
+      "rationale": "Service-specific 5%-cross taxonomy; submissions index filter to 13D/G/-A plus cover-page percent parse, which no community wrapper exposes structured.",
+      "example": "edgar-pp-cli ownership-crosses AAPL --json",
+      "why_it_matters": "Use in LODESTAR Gate 3 asymmetric-structure checks to spot activist or institutional concentration without scrolling submissions.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Governance red flags",
+      "command": "governance-flags",
+      "description": "Compose three independent service-specific signals into one call: 8-K Item 4.01 auditor changes, Item 4.02 non-reliance restatements, and NT-10-K late-filing notices (Form 12b-25).",
+      "rationale": "No wrapper bundles these three signals; they map directly onto LODESTAR Gate 2 immediate disqualifiers and need to be a one-call check during research and recheck.",
+      "example": "edgar-pp-cli governance-flags AAPL --since 2y --json",
+      "why_it_matters": "Use as an early disqualifier check — if any flag fires, surface to LODESTAR before spending tokens on the full thesis.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Offline FTS over cached bodies",
+      "command": "fts",
+      "description": "Full-text search over locally-cached filing bodies via FTS5 — ticker- and form-scoped — with snippet windows and byte offsets for precise re-read.",
+      "rationale": "Distinct from `search` (which hits efts.sec.gov): never re-hits the SEC endpoint for cached bodies; token-cheap for repeated queries during a single research session.",
+      "example": "edgar-pp-cli fts \"going concern\" --ticker AAPL --form 10-Q --json",
+      "why_it_matters": "Reach for fts during deep-dives where you re-query the same filing body multiple times; reach for the absorbed `search` command for the first lookup or for cross-issuer queries.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "SEC EDGAR",
+    "headline": "An agent-native CLI for SEC EDGAR — six sanctioned endpoints, SQLite-cached filings with FTS5, and LODESTAR-shaped compound bundles (primary-sources, insider-summary) that no other EDGAR tool emits.",
+    "value_prop": "Built for a Claude Code agent doing conviction research on public-company filings. Compound commands collapse a ticker's full primary-source pull into one structured response; insider-summary distinguishes discretionary code-S sales from RSU-tax code-F noise and flags senior officers separately. Local SQLite cache with tiered TTLs makes re-reads near-free; FTS5 over cached bodies eliminates re-hitting EDGAR for the same query.",
+    "auth_narrative": "No API key — SEC EDGAR is publicly accessible. Identity is the User-Agent: set COMPANY_PP_CONTACT_EMAIL once and every request goes out as `lodestar-edgar-pp-cli \u003cemail\u003e`. The CLI refuses to run if the env var is unset, with a clear error pointing at setup. Rate-limited to ≤2 req/sec sustained (well under SEC's 10 req/sec ceiling) with adaptive backoff on 429.",
+    "quickstart": [
+      {
+        "command": "edgar-pp-cli doctor",
+        "comment": "Verifies COMPANY_PP_CONTACT_EMAIL is set (required for SEC fair-access User-Agent), runs a reachability probe against data.sec.gov, opens the SQLite store, confirms FTS5."
+      },
+      {
+        "command": "edgar-pp-cli primary-sources AAPL --json",
+        "comment": "LODESTAR primary-source bundle: latest 10-K, four 10-Qs, 90-day 8-Ks, 12-month Form 4s with senior-officer flag, latest DEF 14A — all in one structured response."
+      },
+      {
+        "command": "edgar-pp-cli insider-summary AAPL --senior-only --since 12mo --json",
+        "comment": "Form 4 aggregator with code-S (discretionary) vs code-F (RSU tax) separated and senior officers flagged."
+      },
+      {
+        "command": "edgar-pp-cli since AAPL --as-of 2026-05-08 --json",
+        "comment": "Recheck delta — only filings filed after the supplied timestamp, using the local cursor."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Exit code 4 with 'COMPANY_PP_CONTACT_EMAIL not set'",
+        "fix": "export COMPANY_PP_CONTACT_EMAIL=user[at]example.com — SEC fair-access requires identification in the User-Agent."
+      },
+      {
+        "symptom": "Exit code 3 with 'rate limited (HTTP 429)'",
+        "fix": "The 2 req/sec limiter is conservative but adaptive backoff is in play; if persistent, your IP may be in a 10-minute SEC penalty box — wait, then retry."
+      },
+      {
+        "symptom": "Exit code 7 with 'cache miss and --offline'",
+        "fix": "Drop --offline or run edgar-pp-cli sync \u003cTICKER\u003e first to warm the local SQLite store."
+      },
+      {
+        "symptom": "Wrong ticker → CIK after corporate action",
+        "fix": "edgar-pp-cli sync-tickers — refreshes company_tickers.json (24h TTL)."
+      },
+      {
+        "symptom": "Form 4 amounts look wrong",
+        "fix": "Use --senior-only and verify the column is is_discretionary; code F (RSU tax withholding) is non-directional and should be excluded from net sells."
+      }
+    ],
+    "when_to_use": "Use edgar-pp-cli when an agent needs structured SEC filing data shaped for token-efficient consumption — primary-source bundles, insider-summary with S/F discrimination, cross-quarter MD\u0026A diffs, or local FTS5 over cached filings. The compound primary-sources command is the LODESTAR shape: one call returns the full evidence pack for a Gate 1/2/3 thesis. Do not use this CLI for Federal Register searches, regulations.gov dockets, activist short reports, or NASDAQ short interest — those are out of scope and handled elsewhere.",
+    "recipes": [
+      {
+        "title": "Full LODESTAR research pull",
+        "command": "edgar-pp-cli primary-sources AAPL --json --select shares_outstanding,senior_insider_sales,recent_eightk_items,def14a_governance",
+        "explanation": "Compact JSON for an agent — primary-sources returns the full bundle; --select narrows to only the fields LODESTAR Gate evaluations actually need, dropping boilerplate."
+      },
+      {
+        "title": "Quarterly recheck delta",
+        "command": "edgar-pp-cli since AAPL --as-of 2026-05-08 --json",
+        "explanation": "Only filings filed after the supplied timestamp. Local cursor — no SEC round-trip when the cache is warm. Pair with eightk-items --material-only when the delta includes 8-Ks."
+      },
+      {
+        "title": "Insider follow-through pattern",
+        "command": "edgar-pp-cli insider-followthrough AAPL --json",
+        "explanation": "Cross-entity join: senior-officer code-S sales of ≥$1M paired with subsequent material 8-K items within 90 days. Surfaces management exits before bad news."
+      },
+      {
+        "title": "Cross-sectional XBRL screen",
+        "command": "edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL,META --concepts Revenues,NetIncomeLoss --quarters 8 --csv",
+        "explanation": "Multi-ticker pivot with concept-alias resolution — flat table for downstream screening or spreadsheet load. Use --csv for tabular pipes."
+      },
+      {
+        "title": "Token-efficient 10-K item extraction",
+        "command": "edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json --select item,text_offset,text",
+        "explanation": "Pulls only Risk Factors (1A), MD\u0026A (7), and Quantitative Disclosures (7A) with byte offsets — order of magnitude fewer tokens than the full filing body."
+      },
+      {
+        "title": "Local FTS5 deep-dive",
+        "command": "edgar-pp-cli fts \"going concern\" --ticker AAPL --form 10-Q --json",
+        "explanation": "Offline FTS5 over cached filing bodies; emits snippet + byte offsets for precise re-read. Run sync first if cache is cold."
+      }
+    ],
+    "trigger_phrases": [
+      "primary sources for \u003cticker\u003e",
+      "insider summary \u003cticker\u003e",
+      "recheck delta for \u003cticker\u003e",
+      "eightk items \u003cticker\u003e",
+      "xbrl pivot",
+      "use edgar-pp-cli",
+      "run edgar"
+    ]
+  }
+}

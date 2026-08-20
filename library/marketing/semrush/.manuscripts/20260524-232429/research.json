@@ -1,0 +1,389 @@
+{
+  "api_name": "semrush",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "mrkooblu/semrush-mcp",
+      "url": "https://github.com/mrkooblu/semrush-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 77,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "osodevops/semrush-cli",
+      "url": "https://github.com/osodevops/semrush-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@ilker10/semrush-mcp",
+      "url": "https://www.npmjs.com/package/@ilker10/semrush-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ithinkdancan/node-semrush",
+      "url": "https://github.com/ithinkdancan/node-semrush",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "silktide/semrush-api",
+      "url": "https://github.com/silktide/semrush-api",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "arambert/semrush",
+      "url": "https://github.com/arambert/semrush",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T23:30:00Z",
+  "novel_features": [
+    {
+      "name": "Weekly Drift Report",
+      "command": "drift",
+      "description": "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled.",
+      "rationale": "Requires two persisted snapshots in the local SQLite store; Semrush keeps history server-side but does not expose row-level diffs as an API call.",
+      "example": "semrush-pp-cli drift apple.com --since 7d --agent",
+      "why_it_matters": "When an agent is asked 'what changed for this domain this week', this is the single command that answers it from the local store with no API spend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot Tag + Diff",
+      "command": "snapshot",
+      "description": "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them.",
+      "rationale": "Pure local SQLite — adds a snapshot_labels table; no upstream endpoint required.",
+      "example": "semrush-pp-cli snapshot tag monday \u0026\u0026 semrush-pp-cli snapshot diff monday today --select phrase,position --agent",
+      "why_it_matters": "Lets an agent reason about state across multiple weeks of conversations without re-paying for the same data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Backlink Delta Since Last Sync",
+      "command": "backlink new",
+      "description": "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner.",
+      "rationale": "Uses the first_seen column persisted by the backlinks sync; no Semrush endpoint computes this delta.",
+      "example": "semrush-pp-cli backlink new apple.com --since 7d --json",
+      "why_it_matters": "Saves an agent from re-pulling and diffing two full backlink reports to answer a recency question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget Ledger",
+      "command": "budget",
+      "description": "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe.",
+      "rationale": "Synthesizes per-call cost into a queryable credit_log table the Semrush API does not expose; balance probe is free.",
+      "example": "semrush-pp-cli budget --since 30d --group-by command --agent",
+      "why_it_matters": "Tells an agent before a request 'this would cost N units' and after a month 'here is where the units went' — neither answerable from the upstream alone.",
+      "group": "Cost transparency"
+    },
+    {
+      "name": "Keyword Gap",
+      "command": "keyword gap",
+      "description": "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes.",
+      "rationale": "The Semrush API has no set-difference endpoint; this joins two domain-keyword responses locally.",
+      "example": "semrush-pp-cli keyword gap myco.com competitor1.com competitor2.com --database us --kd-max 40 --agent",
+      "why_it_matters": "Replaces the manual two-CSV VLOOKUP that every SEO consultant does by hand.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "Backlink Gap",
+      "command": "backlink gap",
+      "description": "Find referring domains that link to a competitor but not to you, filtered by authority score.",
+      "rationale": "Left-anti-join across two persisted referring_domains rowsets — single API calls cannot return this.",
+      "example": "semrush-pp-cli backlink gap myco.com competitor.com --min-ascore 70 --agent",
+      "why_it_matters": "Directly surfaces link-building targets an agent can hand to an outreach workflow.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "Audit Triage",
+      "command": "audit triage",
+      "description": "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first.",
+      "rationale": "Joins audit_issues x audit_pages x issue catalog locally; the upstream returns raw counts but no weighted page ranking.",
+      "example": "semrush-pp-cli audit triage 12345 --top 20 --agent",
+      "why_it_matters": "Turns a Site Audit dump into a prioritized action list an agent can hand to the next step.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Position Drift",
+      "command": "tracking drift",
+      "description": "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device.",
+      "rationale": "Requires multiple tracking_positions snapshots joined locally; the upstream gives latest-only or static emails.",
+      "example": "semrush-pp-cli tracking drift 12345 --since 30d --min-delta 3 --agent",
+      "why_it_matters": "Answers 'what tracked keywords moved this month' in one command — the question Position Tracking emails fail to answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Country Fan-out",
+      "command": "domain regions",
+      "description": "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work.",
+      "rationale": "Sequential fan-out across N database values with composite-key persistence; the upstream endpoint is single-database per call.",
+      "example": "semrush-pp-cli domain regions apple.com --databases us,uk,de,fr,it --agent",
+      "why_it_matters": "Lets an agent answer 'how does this domain perform across our top 5 markets' as one call rather than five.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "SERP Feature Monitor",
+      "command": "serp-features",
+      "description": "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword.",
+      "rationale": "Surfaces the SERP-feature flag columns already persisted by keyword organic-serp as a time series; the upstream returns latest-only.",
+      "example": "semrush-pp-cli serp-features 'best running shoes' --since 30d --agent",
+      "why_it_matters": "Tells a content-strategy agent when an opportunity (e.g. featured snippet slot opening) appeared or closed.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Cannibalization Detector",
+      "command": "cannibalization",
+      "description": "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions.",
+      "rationale": "Pure local GROUP BY phrase HAVING count(distinct url) \u003e 1 over keyword_positions; not an API endpoint.",
+      "example": "semrush-pp-cli cannibalization apple.com --database us --agent",
+      "why_it_matters": "Surfaces a high-value SEO problem in one command — most consultants charge to find this.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Audit Regression Watch",
+      "command": "audit regression",
+      "description": "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity.",
+      "rationale": "Pure local diff over two audit_snapshots rows; upstream emails are static and don't expose issue-ID-level deltas.",
+      "example": "semrush-pp-cli audit regression 12345 --agent",
+      "why_it_matters": "Lets an agent tell you exactly what your tech-SEO state regressed on between two crawls.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Weekly Drift Report",
+      "command": "drift",
+      "description": "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled.",
+      "rationale": "Requires two persisted snapshots in the local SQLite store; Semrush keeps history server-side but does not expose row-level diffs as an API call.",
+      "example": "semrush-pp-cli drift apple.com --since 7d --agent",
+      "why_it_matters": "When an agent is asked 'what changed for this domain this week', this is the single command that answers it from the local store with no API spend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot Tag + Diff",
+      "command": "snapshot",
+      "description": "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them.",
+      "rationale": "Pure local SQLite — adds a snapshot_labels table; no upstream endpoint required.",
+      "example": "semrush-pp-cli snapshot tag monday \u0026\u0026 semrush-pp-cli snapshot diff monday today --select phrase,position --agent",
+      "why_it_matters": "Lets an agent reason about state across multiple weeks of conversations without re-paying for the same data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Backlink Delta Since Last Sync",
+      "command": "backlink new",
+      "description": "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner.",
+      "rationale": "Uses the first_seen column persisted by the backlinks sync; no Semrush endpoint computes this delta.",
+      "example": "semrush-pp-cli backlink new apple.com --since 7d --json",
+      "why_it_matters": "Saves an agent from re-pulling and diffing two full backlink reports to answer a recency question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget Ledger",
+      "command": "budget",
+      "description": "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe.",
+      "rationale": "Synthesizes per-call cost into a queryable credit_log table the Semrush API does not expose; balance probe is free.",
+      "example": "semrush-pp-cli budget --since 30d --group-by command --agent",
+      "why_it_matters": "Tells an agent before a request 'this would cost N units' and after a month 'here is where the units went' — neither answerable from the upstream alone.",
+      "group": "Cost transparency"
+    },
+    {
+      "name": "Keyword Gap",
+      "command": "keyword gap",
+      "description": "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes.",
+      "rationale": "The Semrush API has no set-difference endpoint; this joins two domain-keyword responses locally.",
+      "example": "semrush-pp-cli keyword gap myco.com competitor1.com competitor2.com --database us --kd-max 40 --agent",
+      "why_it_matters": "Replaces the manual two-CSV VLOOKUP that every SEO consultant does by hand.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "Backlink Gap",
+      "command": "backlink gap",
+      "description": "Find referring domains that link to a competitor but not to you, filtered by authority score.",
+      "rationale": "Left-anti-join across two persisted referring_domains rowsets — single API calls cannot return this.",
+      "example": "semrush-pp-cli backlink gap myco.com competitor.com --min-ascore 70 --agent",
+      "why_it_matters": "Directly surfaces link-building targets an agent can hand to an outreach workflow.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "Audit Triage",
+      "command": "audit triage",
+      "description": "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first.",
+      "rationale": "Joins audit_issues x audit_pages x issue catalog locally; the upstream returns raw counts but no weighted page ranking.",
+      "example": "semrush-pp-cli audit triage 12345 --top 20 --agent",
+      "why_it_matters": "Turns a Site Audit dump into a prioritized action list an agent can hand to the next step.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Position Drift",
+      "command": "tracking drift",
+      "description": "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device.",
+      "rationale": "Requires multiple tracking_positions snapshots joined locally; the upstream gives latest-only or static emails.",
+      "example": "semrush-pp-cli tracking drift 12345 --since 30d --min-delta 3 --agent",
+      "why_it_matters": "Answers 'what tracked keywords moved this month' in one command — the question Position Tracking emails fail to answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Country Fan-out",
+      "command": "domain regions",
+      "description": "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work.",
+      "rationale": "Sequential fan-out across N database values with composite-key persistence; the upstream endpoint is single-database per call.",
+      "example": "semrush-pp-cli domain regions apple.com --databases us,uk,de,fr,it --agent",
+      "why_it_matters": "Lets an agent answer 'how does this domain perform across our top 5 markets' as one call rather than five.",
+      "group": "Cross-domain joins the API can't do"
+    },
+    {
+      "name": "SERP Feature Monitor",
+      "command": "serp-features",
+      "description": "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword.",
+      "rationale": "Surfaces the SERP-feature flag columns already persisted by keyword organic-serp as a time series; the upstream returns latest-only.",
+      "example": "semrush-pp-cli serp-features 'best running shoes' --since 30d --agent",
+      "why_it_matters": "Tells a content-strategy agent when an opportunity (e.g. featured snippet slot opening) appeared or closed.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Cannibalization Detector",
+      "command": "cannibalization",
+      "description": "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions.",
+      "rationale": "Pure local GROUP BY phrase HAVING count(distinct url) \u003e 1 over keyword_positions; not an API endpoint.",
+      "example": "semrush-pp-cli cannibalization apple.com --database us --agent",
+      "why_it_matters": "Surfaces a high-value SEO problem in one command — most consultants charge to find this.",
+      "group": "SEO content patterns no competitor exposes"
+    },
+    {
+      "name": "Audit Regression Watch",
+      "command": "audit regression",
+      "description": "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity.",
+      "rationale": "Pure local diff over two audit_snapshots rows; upstream emails are static and don't expose issue-ID-level deltas.",
+      "example": "semrush-pp-cli audit regression 12345 --agent",
+      "why_it_matters": "Lets an agent tell you exactly what your tech-SEO state regressed on between two crawls.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Semrush",
+    "headline": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+    "value_prop": "Wraps the Semrush v3 Analytics + Projects APIs with a real local store so weekly drift, keyword gap, backlink gap, and Site Audit triage become one-shot queries instead of multi-tab CSV diffs. Every API unit you spend is logged to a queryable budget ledger, and offline FTS5 search over everything you've ever synced means follow-up questions cost zero credits.",
+    "auth_narrative": "Set `SEMRUSH_API_KEY` from your Subscription Info → API Units page. The CLI uses the same v3 query-param auth as the official docs and the free balance endpoint as its doctor check, so you never spend credits to verify the key works.",
+    "quickstart": [
+      {
+        "command": "semrush-pp-cli doctor",
+        "comment": "free — verifies the API key and prints remaining unit balance"
+      },
+      {
+        "command": "semrush-pp-cli domain overview apple.com --database us",
+        "comment": "one-row Domain Overview, 10 units, persisted to the local store"
+      },
+      {
+        "command": "semrush-pp-cli domain organic-keywords apple.com --database us --limit 50",
+        "comment": "top 50 organic keywords, persisted for later drift queries"
+      },
+      {
+        "command": "semrush-pp-cli snapshot tag baseline",
+        "comment": "tag current store state so you can diff against it next week"
+      },
+      {
+        "command": "semrush-pp-cli drift apple.com --since 7d --agent",
+        "comment": "after a second sync: structured diff of what moved"
+      },
+      {
+        "command": "semrush-pp-cli budget --since 30d --group-by command",
+        "comment": "where did your credits go this month"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "ERROR 132 :: API UNITS BALANCE IS ZERO",
+        "fix": "Out of credits. Run `semrush-pp-cli account balance` to confirm, then top up at https://www.semrush.com/billing-admin/profile/subscription/api-units"
+      },
+      {
+        "symptom": "ERROR 131 :: LIMIT EXCEEDED on a single report",
+        "fix": "Per-report quota hit. Re-run with `--limit` lower than the default, or wait for the report-level limit to reset."
+      },
+      {
+        "symptom": "ERROR 429 :: Too Many Requests",
+        "fix": "Rate-limited at 10 RPS. The CLI's built-in limiter handles this; if you see it persistently, drop concurrency below 10."
+      },
+      {
+        "symptom": "doctor reports auth_invalid (HTTP 200 but empty body)",
+        "fix": "Key is malformed or revoked. Re-copy from Subscription Info → API Units."
+      },
+      {
+        "symptom": "Local drift query returns 'no prior snapshot'",
+        "fix": "Run `semrush-pp-cli sync --resources domain,keyword` at least twice with a gap between, or use `snapshot tag` to record an explicit baseline."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to query Semrush data the same way more than once — weekly drift, keyword gap, backlink gap, Site Audit regression — or when you're orchestrating Semrush through an agent that should not re-spend credits on data already pulled. It's not the right tool for one-off ad-hoc lookups (the official Semrush UI is faster) or for Trends API workflows (out of scope by design).",
+    "recipes": [
+      {
+        "title": "Monday baseline + Friday diff",
+        "command": "semrush-pp-cli snapshot tag monday-baseline",
+        "explanation": "After syncing your tracked domains and keywords, tag the snapshot. Re-sync on Friday and run `snapshot diff monday-baseline today` to see the week`s movement."
+      },
+      {
+        "title": "Find keyword opportunities your competitor ranks for",
+        "command": "semrush-pp-cli keyword gap myco.com competitor.com --database us --kd-max 40 --json --select phrase,nq,kd",
+        "explanation": "Set-difference query in one shot — narrowed to keywords with realistic difficulty that the competitor ranks for but you don't."
+      },
+      {
+        "title": "Build a link-prospect list from a competitor",
+        "command": "semrush-pp-cli backlink gap myco.com competitor.com --min-ascore 70 --json --select domain,domain_ascore,backlinks_num",
+        "explanation": "Authority-70+ referring domains linking to the competitor but not to you, ready to pipe into an outreach workflow."
+      },
+      {
+        "title": "Triage the latest Site Audit",
+        "command": "semrush-pp-cli audit triage 12345 --top 20 --agent",
+        "explanation": "Once a Site Audit snapshot exists, get the 20 highest-impact pages weighted by errors x3 + warnings x1 + notices x0.1."
+      },
+      {
+        "title": "Where did this month's credits go",
+        "command": "semrush-pp-cli budget --since 30d --group-by command --agent",
+        "explanation": "Local credit_log rolled up by command; surfaces the top spenders so you can throttle or cache them."
+      }
+    ],
+    "trigger_phrases": [
+      "show me what changed for \u003cdomain\u003e this week",
+      "find the keyword gap between \u003cmy domain\u003e and \u003ccompetitor\u003e",
+      "show me new referring domains for \u003cdomain\u003e",
+      "triage my Site Audit",
+      "what did Semrush cost me this month",
+      "detect keyword cannibalization on \u003cdomain\u003e",
+      "track SERP feature changes for \u003ckeyword\u003e",
+      "use semrush",
+      "run semrush"
+    ]
+  }
+}

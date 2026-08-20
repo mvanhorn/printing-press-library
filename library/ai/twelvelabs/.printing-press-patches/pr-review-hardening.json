@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "pr-review-hardening",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260605-150627",
+  "base_printing_press_version": "4.21.0",
+  "summary": "Bounds recursive JSON search, fully escapes path segments, escapes MCP orchestration path params, avoids multipart retry body copies, blocks credential forwarding on scheme-downgrade redirects, and removes small review-time inefficiencies.",
+  "reason": "Greptile review identified hardening opportunities in the generated Twelve Labs workflow, MCP orchestration, config, and client code. These changes reduce adversarial-response stack risk, prevent malformed path IDs with special characters, avoid agent-supplied MCP path/query injection through orchestration endpoints, avoid duplicating large upload bodies during retries, prevent API-key forwarding to plaintext downgrade redirects, remove dead auth-header code, and avoid recompiling the clip-name sanitizer regex per clip.",
+  "files": [
+    "internal/cli/workflow_novel.go",
+    "internal/cli/workflow_novel_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/code_orch_writebody_test.go",
+    "internal/client/client.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "The Twelve Labs package still passes gofmt, go test, go vet, go build, govulncheck, publish-package verification, supply-chain scan, skill verification, manifest verification, and git diff whitespace checks."
+}

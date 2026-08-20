@@ -1,0 +1,51 @@
+version: 2
+project_name: ordertogo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ordertogo-pp-cli
+    main: ./cmd/ordertogo-pp-cli
+    binary: ordertogo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ordertogo-pp-mcp
+    main: ./cmd/ordertogo-pp-mcp
+    binary: ordertogo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ordertogo-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal — pure-Go agent-native client..."
+    install: |
+      bin.install "ordertogo-pp-cli"
+      bin.install "ordertogo-pp-mcp"

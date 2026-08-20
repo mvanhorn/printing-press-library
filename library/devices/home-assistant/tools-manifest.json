@@ -1,0 +1,261 @@
+{
+  "api_name": "home-assistant",
+  "base_url": "",
+  "description": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "HOME_ASSISTANT_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HOME_ASSISTANT_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendars_list",
+      "description": "List calendar entities that this token can access, so an agent can select a calendar before retrieving or changing its events.",
+      "method": "GET",
+      "path": "/api/calendars",
+      "params": []
+    },
+    {
+      "name": "calendars_list-events",
+      "description": "Retrieve events from one calendar entity during the required start and end time window; use this to inspect scheduling conflicts or upcoming commitments. Required: calendarId, start, end.",
+      "method": "GET",
+      "path": "/api/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_list",
+      "description": "List integrations currently loaded by this Home Assistant instance to diagnose availability and choose supported capabilities.",
+      "method": "GET",
+      "path": "/api/components",
+      "params": []
+    },
+    {
+      "name": "config_get-system-info",
+      "description": "Get Home Assistant configuration and version. Returns the Json.",
+      "method": "GET",
+      "path": "/api/config",
+      "params": []
+    },
+    {
+      "name": "config_validate",
+      "description": "Ask Home Assistant to validate its configuration before a reload or restart, returning server-side syntax and setup errors.",
+      "method": "POST",
+      "path": "/api/config/core/check_config",
+      "params": []
+    },
+    {
+      "name": "error-log_get",
+      "description": "Retrieve the current Home Assistant error log for diagnosing failing integrations, automations, and service calls.",
+      "method": "GET",
+      "path": "/api/error_log",
+      "params": []
+    },
+    {
+      "name": "events_fire",
+      "description": "Fire the required named Home Assistant event with an optional JSON body, for testing automations or notifying event listeners. Required: eventType.",
+      "method": "POST",
+      "path": "/api/events/{eventType}",
+      "params": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "path",
+          "description": "Event type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List the event types currently exposed by Home Assistant before subscribing to or firing an event.",
+      "method": "GET",
+      "path": "/api/events",
+      "params": []
+    },
+    {
+      "name": "history_list",
+      "description": "Get entity history for a time window. Required: timestamp. Optional: filter_entity_id, end_time.",
+      "method": "GET",
+      "path": "/api/history/period/{timestamp}",
+      "params": [
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "path",
+          "description": "Timestamp",
+          "required": true
+        },
+        {
+          "name": "filter_entity_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entity id"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "intent_handle",
+      "description": "Send a natural-language request to Home Assistant Assist and return the resolved intent response for the configured conversation agent.",
+      "method": "POST",
+      "path": "/api/intent/handle",
+      "params": []
+    },
+    {
+      "name": "logbook_list",
+      "description": "Get a logbook time window. Required: timestamp. Optional: entity, end_time.",
+      "method": "GET",
+      "path": "/api/logbook/{timestamp}",
+      "params": [
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "path",
+          "description": "Timestamp",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query",
+          "description": "Entity"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "services_call",
+      "description": "Call a Home Assistant service. Required: domain, service.",
+      "method": "POST",
+      "path": "/api/services/{domain}/{service}",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain",
+          "required": true
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "path",
+          "description": "Service",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_list",
+      "description": "List callable Home Assistant service domains and actions so an agent can validate a service before issuing a mutation.",
+      "method": "GET",
+      "path": "/api/services",
+      "params": []
+    },
+    {
+      "name": "states_delete",
+      "description": "Remove a custom entity state. Required: entityId. Destructive.",
+      "method": "DELETE",
+      "path": "/api/states/{entityId}",
+      "params": [
+        {
+          "name": "entityId",
+          "type": "string",
+          "location": "path",
+          "description": "Entity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "states_get",
+      "description": "Retrieve one live entity state and attributes by the required entity ID, suitable for checking a device before taking action. Required: entityId.",
+      "method": "GET",
+      "path": "/api/states/{entityId}",
+      "params": [
+        {
+          "name": "entityId",
+          "type": "string",
+          "location": "path",
+          "description": "Entity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "states_list",
+      "description": "List all current entity states and attributes for inventory, filtering, and state-based household analysis.",
+      "method": "GET",
+      "path": "/api/states",
+      "params": []
+    },
+    {
+      "name": "states_set",
+      "description": "Set a state for a custom entity. Required: entityId.",
+      "method": "POST",
+      "path": "/api/states/{entityId}",
+      "params": [
+        {
+          "name": "entityId",
+          "type": "string",
+          "location": "path",
+          "description": "Entity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "template_render",
+      "description": "Render a Home Assistant Jinja template against the live state machine to safely inspect a computed value before automation use.",
+      "method": "POST",
+      "path": "/api/template",
+      "params": []
+    }
+  ]
+}

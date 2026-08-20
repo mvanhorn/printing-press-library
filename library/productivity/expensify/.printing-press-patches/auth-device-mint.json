@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "auth-device-mint",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "`auth login --device` mints a fresh session authToken from device credentials (partnerUserID+partnerUserSecret) via the Authenticate command, and the client auto-refreshes on jsonCode 407 when those creds are configured.",
+  "reason": "New Expensify (NewDot) keeps its live session in IndexedDB, not the www.expensify.com authToken cookie that --from-chrome reads — so the cookie is a stale classic-session token and 407s. Minting from device creds (the same mechanism the app uses) plus auto-refresh keeps the CLI working without manual re-auth.",
+  "files": [
+    "internal/client/expensify_auth.go",
+    "internal/client/client.go",
+    "internal/cli/auth_login.go"
+  ],
+  "validated_outcome": "auth login --device against a mock Authenticate persists the minted token and doctor reports configured; real Authenticate returns jsonCode 200 for these device creds."
+}

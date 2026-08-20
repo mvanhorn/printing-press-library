@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "shopify-pp-mcp",
   "display_name": "Shopify",
-  "version": "3.2.1",
-  "description": "Shopify API surface as MCP tools.",
+  "version": "4.14.0",
+  "description": "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -33,7 +33,6 @@
       "type": "string",
       "title": "SHOPIFY_API_VERSION",
       "description": "Sets SHOPIFY_API_VERSION for the endpoint template variable {api_version}.",
-      "required": true,
       "default": "2026-04"
     },
     "shopify_shop": {

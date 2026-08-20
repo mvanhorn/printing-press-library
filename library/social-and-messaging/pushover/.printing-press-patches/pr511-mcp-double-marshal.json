@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pr511-mcp-double-marshal",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Drop the pre-marshal of bodyArgs in makeAPIHandler so MCP POST/PUT/PATCH send JSON objects, not base64 strings.",
+  "reason": "client.Post/Put/Patch take `body any` and json-marshal it inside do(). makeAPIHandler was calling `json.Marshal(bodyArgs)` first and passing the resulting []byte; Go re-encodes []byte as a base64 JSON string, so every mutating MCP tool sent a quoted base64 blob (e.g. \"eyJ0b2tlbiI6Li4ufQ==\") instead of the intended JSON object — Pushover rejected all ~20 mutating MCP tools (messages.send, groups.add_user, licenses.assign, etc). Same pre-marshal pattern reproduces in 38 published CLIs; this is a template-level bug filed upstream (cli-printing-press#TBD) but patched locally first so the published pushover MCP works.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/body_shape_test.go"
+  ],
+  "validated_outcome": "go test ./internal/mcp -run TestMCPBodyIsJSONObjectNotBase64 -count=1 stands up an httptest server, drives c.Post(_, map[string]any{...}), and asserts the captured request body parses as a JSON object containing the bound keys."
+}

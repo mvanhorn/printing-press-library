@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-17T22:15:20.021727314Z",
+  "cli_dir": "\u003ccli-dir\u003e/tenderned",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-17T20:28:59.827055443Z"
+  }
+}

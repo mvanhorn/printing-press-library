@@ -1,0 +1,1534 @@
+{
+  "api_name": "openalex",
+  "base_url": "https://api.openalex.org",
+  "description": "The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions, topics, keywords, publishers, and funders. OpenAlex indexes over 250 million scholarly works.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "OPENALEX_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OPENALEX_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "authors_get",
+      "description": "Retrieve a single author by OpenAlex ID or ORCID. Required: id. Returns the Author.",
+      "method": "GET",
+      "path": "/authors/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., A5023888391) or ORCID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "authors_list",
+      "description": "Get a list of authors with optional filtering, searching, sorting, and pagination. Optional: filter, sort, group_by (plus 5 more). Returns the AuthorsListResponse.",
+      "method": "GET",
+      "path": "/authors",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter authors. Examples: `has_orcid:true`, `last_known_institutions.id:I27837315`, `works_count:\u003e100`, `affiliations.institution.country_code:US` See [all Author fields](/api-reference/authors#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `summary_stats.h_index`, `summary_stats.i10_index`. Prefix with `-` for descending. See [all Author fields](/api-reference/authors#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `last_known_institutions.country_code`, `last_known_institutions.type`, `has_orcid` See [all Author fields](/api-reference/authors#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "autocomplete_autocomplete",
+      "description": "Fast typeahead search returning up to 10 results. Use for search-as-you-type interfaces. Required: entity_type (default: works), q. Optional: filter. Returns the AutocompleteResponse.",
+      "method": "GET",
+      "path": "/autocomplete/{entity_type}",
+      "params": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "path",
+          "description": "Type of entity to search"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results using field:value syntax. Multiple filters can be combined with commas (AND) or pipes (OR). Available fields vary by entity type."
+        }
+      ]
+    },
+    {
+      "name": "awards_get",
+      "description": "Retrieve a single award by its OpenAlex ID. Required: id. Returns the AwardFull.",
+      "method": "GET",
+      "path": "/awards/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., G5859020988)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "awards_list",
+      "description": "Get a list of research grants and funding awards. Optional: filter, sort, group_by (plus 5 more). Returns the AwardsListResponse.",
+      "method": "GET",
+      "path": "/awards",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter awards. Examples: `funder.id:F4320306076`, `start_year:2023`, `funded_outputs_count:\u003e10` See [all Award fields](/api-reference/awards#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `funded_outputs_count`, `amount`, `start_year`. Prefix with `-` for descending. See [all Award fields](/api-reference/awards#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `funder.id`, `start_year`, `currency` See [all Award fields](/api-reference/awards#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "changefiles_get",
+      "description": "Get details for a specific date's changefile, including which entity types changed, how many records, and download links in JSONL and Parquet formats. For a full guide on using changefiles to keep your local data current, see [Download Changefiles](/download/changefiles). **Requires a paid plan** — contact sales@openalex.org or see [pricing](https://openalex.org/pricing). Required: date. Returns the ChangefilesGetResponse.",
+      "method": "GET",
+      "path": "/changefiles/{date}",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "The changefile date in YYYY-MM-DD format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changefiles_list",
+      "description": "List all available changefile dates. Each date has downloadable files containing every entity record that was created or modified on that day. For a full guide on using changefiles to keep your local data current, see [Download Changefiles](/download/changefiles). **Requires a paid plan** — contact sales@openalex.org or see [pricing](https://openalex.org/pricing). Returns the ChangefilesListResponse.",
+      "method": "GET",
+      "path": "/changefiles",
+      "params": []
+    },
+    {
+      "name": "concepts_get",
+      "description": "**DEPRECATED:** Use Topics instead. Retrieve a single concept by OpenAlex ID. Required: id. Returns the Concept.",
+      "method": "GET",
+      "path": "/concepts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., C41008148 for Computer Science)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "concepts_list",
+      "description": "**DEPRECATED:** Use Topics instead. Get a list of concepts from the legacy taxonomy. Optional: filter, sort, group_by (plus 5 more). Returns the ConceptsListResponse.",
+      "method": "GET",
+      "path": "/concepts",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter concepts. Examples: `level:0` (top-level), `ancestors.id:C41008148`, `wikidata_id:Q21198` See [all Concept fields](/api-reference/concepts#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `level`. Prefix with `-` for descending. See [all Concept fields](/api-reference/concepts#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `level` See [all Concept fields](/api-reference/concepts#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "continents_get",
+      "description": "Retrieve a single continent by its Wikidata Q-ID. Required: id. Returns the Continent.",
+      "method": "GET",
+      "path": "/continents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Wikidata Q-ID (e.g., Q49 for North America)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "continents_list",
+      "description": "Get a list of continents (7 total). Optional: filter, sort, search (plus 5 more). Returns the ContinentsListResponse.",
+      "method": "GET",
+      "path": "/continents",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter continents. Examples: `id:Q46` (Europe), `works_count:\u003e10000000` See [all Continent fields](/api-reference/continents#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Continent fields](/api-reference/continents#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all Continent fields](/api-reference/continents#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "countries_get-country",
+      "description": "Retrieve a single country by its ISO 3166-1 alpha-2 code. Required: id. Returns the Country.",
+      "method": "GET",
+      "path": "/countries/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 3166-1 alpha-2 country code (e.g., US, GB, CN)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries_list",
+      "description": "Get a list of countries. Useful for filtering works by author affiliation country. Optional: filter, sort, search (plus 5 more). Returns the CountriesListResponse.",
+      "method": "GET",
+      "path": "/countries",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter countries. Examples: `id:US`, `works_count:\u003e1000000` See [all Country fields](/api-reference/countries#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Country fields](/api-reference/countries#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all Country fields](/api-reference/countries#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Retrieve a single domain by its ID (1-4). Required: id. Returns the Domain.",
+      "method": "GET",
+      "path": "/domains/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Domain ID (1-4)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Get a list of domains (top-level topic categories). There are only 4 domains: Life Sciences, Social Sciences, Physical Sciences, and Health Sciences. Optional: filter, sort, search (plus 5 more). Returns the DomainsListResponse.",
+      "method": "GET",
+      "path": "/domains",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter domains. Examples: `id:1`, `works_count:\u003e10000000` See [all Domain fields](/api-reference/domains#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Domain fields](/api-reference/domains#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all Domain fields](/api-reference/domains#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "fields_get",
+      "description": "Retrieve a single field by its ID. Required: id. Returns the Field.",
+      "method": "GET",
+      "path": "/fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Field ID (e.g., 27 for Medicine)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fields_list",
+      "description": "Get a list of fields (second-level topic categories). There are 26 fields spread across 4 domains. Optional: filter, sort, group_by (plus 5 more). Returns the FieldsListResponse.",
+      "method": "GET",
+      "path": "/fields",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter fields. Examples: `domain.id:1`, `works_count:\u003e1000000` See [all Field fields](/api-reference/fields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Field fields](/api-reference/fields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `domain.id` See [all Field fields](/api-reference/fields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "funders_get",
+      "description": "Retrieve a single funder by OpenAlex ID or Crossref Funder ID. Required: id. Returns the Funder.",
+      "method": "GET",
+      "path": "/funders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., F4320306076) or Crossref Funder ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "funders_list",
+      "description": "Get a list of funders with optional filtering, searching, sorting, and pagination. Optional: filter, sort, group_by (plus 5 more). Returns the FundersListResponse.",
+      "method": "GET",
+      "path": "/funders",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter funders. Examples: `country_code:US`, `is_global_south:true`, `continent:Q46` See [all Funder fields](/api-reference/funders#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `awards_count`. Prefix with `-` for descending. See [all Funder fields](/api-reference/funders#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `country_code`, `continent`, `is_global_south` See [all Funder fields](/api-reference/funders#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "institution-types_list",
+      "description": "Get a list of institution types (education, healthcare, company, etc.). Optional: filter, sort, search (plus 5 more). Returns the InstitutionTypesListResponse.",
+      "method": "GET",
+      "path": "/institution-types",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter institution types. Examples: `id:education`, `works_count:\u003e1000000`"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type."
+        }
+      ]
+    },
+    {
+      "name": "institutions_get",
+      "description": "Retrieve a single institution by OpenAlex ID or ROR. Required: id. Returns the Institution.",
+      "method": "GET",
+      "path": "/institutions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., I27837315) or ROR",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "institutions_list",
+      "description": "Get a list of institutions with optional filtering, searching, sorting, and pagination. Optional: filter, sort, group_by (plus 5 more). Returns the InstitutionsListResponse.",
+      "method": "GET",
+      "path": "/institutions",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter institutions. Examples: `country_code:US`, `type:education`, `is_global_south:true`, `continent:Q46`, `has_ror:true` See [all Institution fields](/api-reference/institutions#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `summary_stats.h_index`. Prefix with `-` for descending. See [all Institution fields](/api-reference/institutions#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `country_code`, `type`, `continent`, `is_global_south` See [all Institution fields](/api-reference/institutions#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "keywords_get",
+      "description": "Retrieve a single keyword by OpenAlex ID. Required: id. Returns the Keyword.",
+      "method": "GET",
+      "path": "/keywords/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., K12345)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keywords_list",
+      "description": "Get a list of keywords with optional filtering, searching, sorting, and pagination. Optional: filter, sort, search (plus 5 more). Returns the KeywordsListResponse.",
+      "method": "GET",
+      "path": "/keywords",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter keywords. Examples: `works_count:\u003e100`, `cited_by_count:\u003e1000` See [all Keyword fields](/api-reference/keywords#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Keyword fields](/api-reference/keywords#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all Keyword fields](/api-reference/keywords#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "languages_get",
+      "description": "Retrieve a single language by its ISO 639-1 code. Required: id. Returns the Language.",
+      "method": "GET",
+      "path": "/languages/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 639-1 language code (e.g., en, zh, es)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "languages_list",
+      "description": "Get a list of languages used in scholarly works. Optional: filter, sort, search (plus 5 more). Returns the LanguagesListResponse.",
+      "method": "GET",
+      "path": "/languages",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter languages. Examples: `id:en` (English), `works_count:\u003e100000` See [all Language fields](/api-reference/languages#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Language fields](/api-reference/languages#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all Language fields](/api-reference/languages#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "licenses_list",
+      "description": "Get a list of open access licenses (CC BY, CC BY-SA, etc.). Optional: filter, sort, search (plus 5 more). Returns the LicensesListResponse.",
+      "method": "GET",
+      "path": "/licenses",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter licenses. Examples: `id:cc-by`, `works_count:\u003e100000`"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type."
+        }
+      ]
+    },
+    {
+      "name": "publishers_get",
+      "description": "Retrieve a single publisher by OpenAlex ID. Required: id. Returns the Publisher.",
+      "method": "GET",
+      "path": "/publishers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., P4310319965)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishers_list",
+      "description": "Get a list of publishers with optional filtering, searching, sorting, and pagination. Optional: filter, sort, group_by (plus 5 more). Returns the PublishersListResponse.",
+      "method": "GET",
+      "path": "/publishers",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter publishers. Examples: `country_codes:US`, `hierarchy_level:0`, `lineage:P4310319965` See [all Publisher fields](/api-reference/publishers#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `summary_stats.h_index`. Prefix with `-` for descending. See [all Publisher fields](/api-reference/publishers#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `country_codes`, `hierarchy_level` See [all Publisher fields](/api-reference/publishers#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "rate-limit_get",
+      "description": "Check your current rate limit status including usage and remaining allowance. Returns the RateLimitResponse.",
+      "method": "GET",
+      "path": "/rate-limit",
+      "params": []
+    },
+    {
+      "name": "sdgs_get",
+      "description": "Retrieve a single Sustainable Development Goal by its ID (1-17). Required: id. Returns the Sdg.",
+      "method": "GET",
+      "path": "/sdgs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "SDG ID (1-17)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdgs_list",
+      "description": "Get a list of UN Sustainable Development Goals. There are 17 SDGs. Optional: filter, sort, search (plus 5 more). Returns the SdgsListResponse.",
+      "method": "GET",
+      "path": "/sdgs",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter SDGs. Examples: `id:3` (Good Health), `works_count:\u003e100000` See [all SDG fields](/api-reference/sdgs#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all SDG fields](/api-reference/sdgs#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type. See [all SDG fields](/api-reference/sdgs#available-filter-sort-and-group_by-fields)."
+        }
+      ]
+    },
+    {
+      "name": "source-types_list",
+      "description": "Get a list of source types (journal, repository, conference, etc.). Optional: filter, sort, search (plus 5 more). Returns the SourceTypesListResponse.",
+      "method": "GET",
+      "path": "/source-types",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter source types. Examples: `id:journal`, `works_count:\u003e100000`"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type."
+        }
+      ]
+    },
+    {
+      "name": "sources_get",
+      "description": "Retrieve a single source by OpenAlex ID or ISSN. Required: id. Returns the Source.",
+      "method": "GET",
+      "path": "/sources/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., S1983995261) or ISSN",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sources_list",
+      "description": "Get a list of sources (journals, repositories, conferences) with optional filtering, searching, sorting, and pagination. Optional: filter, sort, group_by (plus 5 more). Returns the SourcesListResponse.",
+      "method": "GET",
+      "path": "/sources",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter sources. Examples: `is_oa:true`, `is_in_doaj:true`, `type:journal`, `country_code:US`, `host_organization:P4310320595` See [all Source fields](/api-reference/sources#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`, `summary_stats.h_index`. Prefix with `-` for descending. See [all Source fields](/api-reference/sources#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `type`, `country_code`, `is_oa`, `is_in_doaj` See [all Source fields](/api-reference/sources#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "subfields_get",
+      "description": "Retrieve a single subfield by its ID. Required: id. Returns the Subfield.",
+      "method": "GET",
+      "path": "/subfields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Subfield ID (e.g., 1702 for Artificial Intelligence)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subfields_list",
+      "description": "Get a list of subfields (third-level topic categories). There are 254 subfields spread across 26 fields. Optional: filter, sort, group_by (plus 5 more). Returns the SubfieldsListResponse.",
+      "method": "GET",
+      "path": "/subfields",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subfields. Examples: `field.id:17`, `domain.id:3`, `works_count:\u003e100000` See [all Subfield fields](/api-reference/subfields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Subfield fields](/api-reference/subfields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `field.id`, `domain.id` See [all Subfield fields](/api-reference/subfields#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "text_classify",
+      "description": "**DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or support. Classify arbitrary text to find relevant OpenAlex topics. Costs $0.01 per request. Optional: title, abstract. Returns the TextClassificationResponse.",
+      "method": "GET",
+      "path": "/text/topics",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Title text to classify"
+        },
+        {
+          "name": "abstract",
+          "type": "string",
+          "location": "query",
+          "description": "Abstract text to classify"
+        }
+      ]
+    },
+    {
+      "name": "topics_get",
+      "description": "Retrieve a single topic by OpenAlex ID. Required: id. Returns the Topic.",
+      "method": "GET",
+      "path": "/topics/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., T12419)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "Get a list of topics with optional filtering, searching, sorting, and pagination. Topics are research areas automatically assigned to works. Optional: filter, sort, group_by (plus 5 more). Returns the TopicsListResponse.",
+      "method": "GET",
+      "path": "/topics",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter topics. Examples: `domain.id:1`, `field.id:17`, `subfield.id:1702`, `works_count:\u003e1000` See [all Topic fields](/api-reference/topics#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending. See [all Topic fields](/api-reference/topics#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `domain.id`, `field.id`, `subfield.id` See [all Topic fields](/api-reference/topics#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    },
+    {
+      "name": "work-types_list",
+      "description": "Get a list of work types (article, book, dataset, etc.). Optional: filter, sort, search (plus 5 more). Returns the WorkTypesListResponse.",
+      "method": "GET",
+      "path": "/work-types",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter work types. Examples: `id:article`, `works_count:\u003e1000000`"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `works_count`, `cited_by_count`. Prefix with `-` for descending."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group results by a field and return counts. Available fields vary by entity type."
+        }
+      ]
+    },
+    {
+      "name": "works_get",
+      "description": "Retrieve a single work by its OpenAlex ID or external ID (DOI, PMID, PMCID, MAG ID). External IDs can be passed as full URLs or URN format (e.g., `doi:10.1234/example` or `pmid:12345678`). Required: id. Returns the Work.",
+      "method": "GET",
+      "path": "/works/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "OpenAlex ID (e.g., W2741809807) or external ID (DOI, PMID, PMCID, MAG)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "works_list",
+      "description": "Get a list of scholarly works with optional filtering, searching, sorting, and pagination. Works include journal articles, books, datasets, theses, and more. Optional: filter, sort, group_by (plus 5 more). Returns the WorksListResponse.",
+      "method": "GET",
+      "path": "/works",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter works. Examples: `publication_year:2023`, `type:article`, `open_access.is_oa:true`, `author.id:A5023888391`, `institutions.id:I27837315`, `cited_by_count:\u003e100` See [all Work fields](/api-reference/works#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by: `cited_by_count`, `publication_date`, `relevance_score` (with search). Prefix with `-` for descending. See [all Work fields](/api-reference/works#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by: `publication_year`, `type`, `open_access.is_oa`, `authorships.institutions.country_code` See [all Work fields](/api-reference/works#available-filter-sort-and-group_by-fields)."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across titles, abstracts, and other text fields."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (1-100, default 25)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination. Use cursor for deep pagination beyond 10,000 results."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for deep pagination. Use `cursor=*` to start, then use the `next_cursor` from the response."
+        },
+        {
+          "name": "sample",
+          "type": "int",
+          "location": "query",
+          "description": "Return a random sample of N results (max 10,000). Cannot be used with sort or page."
+        }
+      ]
+    }
+  ]
+}

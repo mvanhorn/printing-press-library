@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "greatclips-pp-mcp",
+  "display_name": "Greatclips",
+  "version": "4.2.2",
+  "description": "First CLI for Great Clips Online Check-In: wait times, party check-in, and local wait history no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/greatclips-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/greatclips-pp-mcp",
+      "args": [],
+      "env": {
+        "GREATCLIPS_TOKEN": "${user_config.greatclips_token}"
+      }
+    }
+  },
+  "user_config": {
+    "greatclips_token": {
+      "type": "string",
+      "title": "GREATCLIPS_TOKEN",
+      "description": "Auth0 Bearer JWT from cid.greatclips.com tenant. Recommended onboarding:\n`auth login --chrome` to extract the token from a logged-in Chrome session.\nAlternatively, `auth login --token <jwt>` to paste an existing token,\nor set GREATCLIPS_TOKEN in the environment.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

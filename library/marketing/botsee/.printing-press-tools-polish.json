@@ -1,0 +1,249 @@
+{
+  "timestamp": "2026-05-22T23:21:00.667528Z",
+  "cli_dir": "\u003ccli-dir\u003e/botsee-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "analysis",
+      "file": "analysis.go",
+      "line": 11,
+      "evidence": "Manage analysis",
+      "status": "accepted",
+      "note": "Hidden parent grouper in DO-NOT-EDIT generated file; analysis subcommands carry real Shorts. Retro candidate: generator template should emit verb-led Shorts for analysis-domain parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "competitors",
+      "file": "analysis_competitors.go",
+      "line": 11,
+      "evidence": "Manage competitors",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper in DO-NOT-EDIT generated file; competitors leaf carries the real action description. Retro candidate: generator should derive parent Shorts from the leaf set."
+    },
+    {
+      "kind": "thin-short",
+      "command": "content",
+      "file": "analysis_content.go",
+      "line": 11,
+      "evidence": "Manage content",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for content listings in DO-NOT-EDIT generated file; leaves carry the real Shorts. Retro candidate: parent-grouper template should compose from child summaries."
+    },
+    {
+      "kind": "thin-short",
+      "command": "keyword-opportunities",
+      "file": "analysis_keyword-opportunities.go",
+      "line": 11,
+      "evidence": "Manage keyword opportunities",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for keyword-opportunity reads in DO-NOT-EDIT generated file. Retro candidate: hyphen-cased multi-word resources need a richer default than 'Manage \u003cwords\u003e'."
+    },
+    {
+      "kind": "thin-short",
+      "command": "keywords",
+      "file": "analysis_keywords.go",
+      "line": 11,
+      "evidence": "Manage keywords",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for keyword reads in DO-NOT-EDIT generated file. Retro candidate: read-only resource groupers should land on 'Browse \u003cresource\u003e' over 'Manage \u003cresource\u003e'."
+    },
+    {
+      "kind": "thin-short",
+      "command": "recommendations",
+      "file": "analysis_recommendations.go",
+      "line": 11,
+      "evidence": "Manage recommendations",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for recommendation reads/generation in DO-NOT-EDIT generated file. Retro candidate: when a grouper has both read and POST leaves, the Short should hint at both."
+    },
+    {
+      "kind": "thin-short",
+      "command": "responses",
+      "file": "analysis_responses.go",
+      "line": 11,
+      "evidence": "Manage responses",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for AI-response artifact reads in DO-NOT-EDIT generated file. Retro candidate: 'responses' is generic; generator could pull the resource description from spec tags."
+    },
+    {
+      "kind": "thin-short",
+      "command": "source-opportunities",
+      "file": "analysis_source-opportunities.go",
+      "line": 11,
+      "evidence": "Manage source opportunities",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for source-opportunity reads in DO-NOT-EDIT generated file. Retro candidate: novel-feature-shaped groupers should pull description from research narrative."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sources",
+      "file": "analysis_sources.go",
+      "line": 11,
+      "evidence": "Manage sources",
+      "status": "accepted",
+      "note": "Visible analysis-subdomain parent grouper for citation-source reads in DO-NOT-EDIT generated file. Retro candidate: ambiguous single-word resource names (sources/responses) need disambiguation in the template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "api-keys",
+      "file": "api-keys.go",
+      "line": 11,
+      "evidence": "Manage api keys",
+      "status": "accepted",
+      "note": "Hidden top-level parent grouper for credential management in DO-NOT-EDIT generated file. Retro candidate: hidden parents shouldn't trigger the tools-audit thin-short rule at all."
+    },
+    {
+      "kind": "thin-short",
+      "command": "rotate",
+      "file": "api-keys_rotate.go",
+      "line": 11,
+      "evidence": "Manage rotate",
+      "status": "accepted",
+      "note": "Visible api-keys-subdomain parent grouper containing rotation lifecycle leaves in DO-NOT-EDIT generated file. Retro candidate: 'Manage rotate' reads nonsensically; generator should detect single-leaf parents and inline."
+    },
+    {
+      "kind": "thin-short",
+      "command": "billing",
+      "file": "billing.go",
+      "line": 11,
+      "evidence": "Manage billing",
+      "status": "accepted",
+      "note": "Hidden top-level parent grouper for billing settings + x402 top-off in DO-NOT-EDIT generated file. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "customer-types",
+      "file": "customer-types.go",
+      "line": 11,
+      "evidence": "Manage customer types",
+      "status": "accepted",
+      "note": "Hidden top-level customer-types parent grouper in DO-NOT-EDIT generated file; canonical entry is via sites customer-types. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "personas",
+      "file": "customer-types_personas.go",
+      "line": 11,
+      "evidence": "Manage personas",
+      "status": "accepted",
+      "note": "Visible customer-types subdomain parent grouper containing persona CRUD under a customer type in DO-NOT-EDIT generated file. Retro candidate: nested resource groupers should reflect ownership in Short."
+    },
+    {
+      "kind": "thin-short",
+      "command": "personas",
+      "file": "personas.go",
+      "line": 11,
+      "evidence": "Manage personas",
+      "status": "accepted",
+      "note": "Hidden top-level personas parent grouper in DO-NOT-EDIT generated file; canonical entry is via customer-types personas. Retro candidate: hidden duplicate-resource parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "questions",
+      "file": "personas_questions.go",
+      "line": 11,
+      "evidence": "Manage questions",
+      "status": "accepted",
+      "note": "Visible personas-subdomain parent grouper containing question CRUD under a persona in DO-NOT-EDIT generated file. Retro candidate: nested resource groupers should reflect ownership in Short."
+    },
+    {
+      "kind": "thin-short",
+      "command": "questions",
+      "file": "questions.go",
+      "line": 11,
+      "evidence": "Manage questions",
+      "status": "accepted",
+      "note": "Hidden top-level questions parent grouper in DO-NOT-EDIT generated file; canonical entry is via personas questions. Retro candidate: hidden duplicate-resource parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "results",
+      "file": "questions_results.go",
+      "line": 11,
+      "evidence": "Manage results",
+      "status": "accepted",
+      "note": "Visible questions-subdomain parent grouper for question-result reads in DO-NOT-EDIT generated file. Retro candidate: result-shaped groupers should default to 'Read' not 'Manage'."
+    },
+    {
+      "kind": "thin-short",
+      "command": "signup",
+      "file": "signup.go",
+      "line": 11,
+      "evidence": "Manage signup",
+      "status": "accepted",
+      "note": "Hidden top-level signup parent grouper for onboarding-payment flows in DO-NOT-EDIT generated file. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "pay-usdc",
+      "file": "signup_pay-usdc.go",
+      "line": 11,
+      "evidence": "Manage pay usdc",
+      "status": "accepted",
+      "note": "Visible signup-subdomain parent grouper for USDC payment lifecycle in DO-NOT-EDIT generated file. Retro candidate: 'Manage pay usdc' reads as broken English; generator should detect verb-phrase resource names and compose differently."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "signup_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Visible signup-subdomain parent grouper for onboarding-status reads in DO-NOT-EDIT generated file. Retro candidate: status-shaped reads should default to 'Check' not 'Manage'."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sites",
+      "file": "sites.go",
+      "line": 11,
+      "evidence": "Manage sites",
+      "status": "accepted",
+      "note": "Hidden top-level sites parent grouper in DO-NOT-EDIT generated file; canonical site CRUD lives at this path. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "analysis",
+      "file": "sites_analysis.go",
+      "line": 11,
+      "evidence": "Manage analysis",
+      "status": "accepted",
+      "note": "Visible sites-subdomain parent grouper for site-level analysis lifecycle in DO-NOT-EDIT generated file. Retro candidate: lifecycle-shaped groupers (analyze, run, get) need richer defaults."
+    },
+    {
+      "kind": "thin-short",
+      "command": "customer-types",
+      "file": "sites_customer-types.go",
+      "line": 11,
+      "evidence": "Manage customer types",
+      "status": "accepted",
+      "note": "Visible sites-subdomain parent grouper containing the canonical customer-type CRUD path in DO-NOT-EDIT generated file. Retro candidate: when the same resource appears as both a top-level (hidden) and a nested (visible) grouper, the visible one should get a fuller Short."
+    },
+    {
+      "kind": "thin-short",
+      "command": "usage",
+      "file": "usage.go",
+      "line": 11,
+      "evidence": "Manage usage",
+      "status": "accepted",
+      "note": "Hidden top-level usage parent grouper for usage-metric reads in DO-NOT-EDIT generated file. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "Hidden top-level webhooks parent grouper for webhook CRUD + test-fire in DO-NOT-EDIT generated file. Retro candidate: hidden parents shouldn't trigger the rule."
+    },
+    {
+      "kind": "thin-short",
+      "command": "test",
+      "file": "webhooks_test_cmd.go",
+      "line": 11,
+      "evidence": "Manage test",
+      "status": "accepted",
+      "note": "Visible webhooks-subdomain parent grouper for test-fire commands in DO-NOT-EDIT generated file. Retro candidate: 'Manage test' is ambiguous against go test; generator should namespace single-word leaf-resources."
+    }
+  ]
+}

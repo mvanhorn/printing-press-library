@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "greptile-sql-readonly-cte",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-221143",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Open sql command's SQLite connection in read-only mode so CTE-wrapped writes are rejected at the driver layer.",
+  "reason": "Greptile P1 (security) flagged that the keyword-prefix DML blocklist could be bypassed with `WITH x AS (INSERT INTO ...) SELECT 1` — the head extracted from such a query is 'WITH X AS', which matches none of the banned prefixes. Because the `sql` command is annotated mcp:read-only, an MCP agent advertising this tool as non-destructive could be tricked into mutating the local store. Fix: open the connection via store.OpenReadOnly() which uses mode=ro at the driver, so writes are rejected regardless of how the SQL is shaped. The keyword prefix gate is kept only as a friendlier error for the common direct cases.",
+  "files": [
+    "library/commerce/yahoo-finance/internal/cli/watchlist.go"
+  ],
+  "validated_outcome": "Behavior tests: 'SELECT name FROM sqlite_master' succeeds; 'DROP TABLE x' rejected with the friendly DML error; 'WITH x AS (INSERT INTO watchlists(name) VALUES(...)) SELECT 1' rejected by the read-only driver."
+}

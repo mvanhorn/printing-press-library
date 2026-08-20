@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "conform-cobra-constructor-convention",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260515-014700",
+  "base_printing_press_version": "manual-go-cobra",
+  "summary": "Renamed every command constructor to the canonical newXxxCmd form and rebuilt the root command via one-per-line rootCmd.AddCommand(newXxxCmd()) calls.",
+  "reason": "The non-standard shape (xxxCmd() constructors and cmd.AddCommand(...) inside func rootCmd()) forced verify_skill.py into its glob-order-dependent legacy fallback, which mis-resolved the colliding `list`/`show` leaves and produced a platform-dependent false positive ('questions list expects 1-1 positional args') that failed verify-skills CI on Linux while passing on macOS. Conforming to the convention routes resolution through the deterministic command-tree walker.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/questions.go",
+    "internal/cli/auth.go",
+    "internal/cli/sync_go.go",
+    "internal/cli/version.go"
+  ],
+  "validated_outcome": "go build/vet pass, 13 tests pass, and verify_skill.py reports 0 errors (only the pre-existing `auth login` false-positive warnings remain)."
+}

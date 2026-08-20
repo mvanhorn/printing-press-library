@@ -1,0 +1,294 @@
+{
+  "api_name": "lda-gov",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "lobbyR",
+      "url": "https://github.com/Lobbying-DisclosuRe/lobbyr",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lobby",
+      "url": "https://github.com/christopherkenny/lobby",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lobbying_disclosure_client",
+      "url": "https://github.com/dl-ee/lobbying_disclosure_client",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "us-gov-open-data-mcp",
+      "url": "https://github.com/lzinga/us-gov-open-data-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "LegisMCP",
+      "url": "https://github.com/ruchit-p/LegisMCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scraper_senate-lobbying-disclosures",
+      "url": "https://github.com/The-Politico/scraper_senate-lobbying-disclosures",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T01:05:00Z",
+  "novel_features": [
+    {
+      "name": "Filing Anomaly Audit",
+      "command": "audit filings",
+      "description": "Flag amendments, terminations, duplicate-risk filings, client/registrant conflicts, and missing source URLs.",
+      "rationale": "Requires local joins across filings, registrants, clients, lobbyists, and constants.",
+      "example": "lda-gov-pp-cli audit filings --agent --limit 25",
+      "why_it_matters": "Use this when an agent needs reproducible watchdog flags instead of raw filing rows.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Entity Resolve Dossier",
+      "command": "entities resolve",
+      "description": "Rank matching registrants, clients, and lobbyists with official IDs, counts, last activity, and source URLs.",
+      "rationale": "Requires a multi-resource local FTS index and normalized entity relationships.",
+      "example": "lda-gov-pp-cli entities resolve Boeing --agent --limit 10",
+      "why_it_matters": "Use this before citing or joining an ambiguous company, firm, or lobbyist name.",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Lobbying Spend Timeline",
+      "command": "audit spend",
+      "description": "Aggregate disclosed lobbying income and expenses by client, registrant, issue, year, and quarter.",
+      "rationale": "Requires longitudinal local aggregation over nested filing detail and issue data.",
+      "example": "lda-gov-pp-cli audit spend --client Boeing --from-year 2020 --to-year 2025 --csv",
+      "why_it_matters": "Use this when an agent needs analysis-ready spend totals rather than individual filings.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Relationship Graph Export",
+      "command": "graph export",
+      "description": "Export client-registrant-lobbyist-issue-government entity edges for graph analysis.",
+      "rationale": "Requires joining synced filing detail into reusable relationship edges.",
+      "example": "lda-gov-pp-cli graph export --client Boeing --format csv",
+      "why_it_matters": "Use this when an agent needs a relationship graph for downstream NetworkX, Gephi, or SQL work.",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Contribution Counterparty Totals",
+      "command": "contributions totals",
+      "description": "Aggregate LD-203 contribution items by contributor, recipient, payee, item type, year, and report.",
+      "rationale": "Requires flattening and summing nested contribution item arrays across local contribution reports.",
+      "example": "lda-gov-pp-cli contributions totals --year 2024 --csv",
+      "why_it_matters": "Use this when an agent needs contribution totals without writing a custom flattener.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Quarterly Activity Report",
+      "command": "reports quarter",
+      "description": "Produce quarter stats for filings, amendments, terminations, top issues, top entities, spend, and LD-203 totals.",
+      "rationale": "Requires combining filings, contributions, constants, source URLs, and local stale-data checks.",
+      "example": "lda-gov-pp-cli reports quarter --year 2024 --period year_end --agent --select top_issue,top_government_entity,filings",
+      "why_it_matters": "Use this after quarterly deadlines when an agent needs a compact, source-linked snapshot.",
+      "group": "Period monitoring"
+    },
+    {
+      "name": "Covered Positions Map",
+      "command": "lobbyists covered-positions",
+      "description": "List lobbyists' covered government positions connected to clients, registrants, and filing periods.",
+      "rationale": "Requires joining lobbyist covered-position fields to filing relationships and source records.",
+      "example": "lda-gov-pp-cli lobbyists covered-positions --client Boeing --csv",
+      "why_it_matters": "Use this when an agent needs exact official covered-position evidence tied to active lobbying records.",
+      "group": "Entity intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Filing Anomaly Audit",
+      "command": "audit filings",
+      "description": "Flag amendments, terminations, duplicate-risk filings, client/registrant conflicts, and missing source URLs.",
+      "rationale": "Requires local joins across filings, registrants, clients, lobbyists, and constants.",
+      "example": "lda-gov-pp-cli audit filings --agent --limit 25",
+      "why_it_matters": "Use this when an agent needs reproducible watchdog flags instead of raw filing rows.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Entity Resolve Dossier",
+      "command": "entities resolve",
+      "description": "Rank matching registrants, clients, and lobbyists with official IDs, counts, last activity, and source URLs.",
+      "rationale": "Requires a multi-resource local FTS index and normalized entity relationships.",
+      "example": "lda-gov-pp-cli entities resolve Boeing --agent --limit 10",
+      "why_it_matters": "Use this before citing or joining an ambiguous company, firm, or lobbyist name.",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Lobbying Spend Timeline",
+      "command": "audit spend",
+      "description": "Aggregate disclosed lobbying income and expenses by client, registrant, issue, year, and quarter.",
+      "rationale": "Requires longitudinal local aggregation over nested filing detail and issue data.",
+      "example": "lda-gov-pp-cli audit spend --client Boeing --from-year 2020 --to-year 2025 --csv",
+      "why_it_matters": "Use this when an agent needs analysis-ready spend totals rather than individual filings.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Relationship Graph Export",
+      "command": "graph export",
+      "description": "Export client-registrant-lobbyist-issue-government entity edges for graph analysis.",
+      "rationale": "Requires joining synced filing detail into reusable relationship edges.",
+      "example": "lda-gov-pp-cli graph export --client Boeing --format csv",
+      "why_it_matters": "Use this when an agent needs a relationship graph for downstream NetworkX, Gephi, or SQL work.",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Contribution Counterparty Totals",
+      "command": "contributions totals",
+      "description": "Aggregate LD-203 contribution items by contributor, recipient, payee, item type, year, and report.",
+      "rationale": "Requires flattening and summing nested contribution item arrays across local contribution reports.",
+      "example": "lda-gov-pp-cli contributions totals --year 2024 --csv",
+      "why_it_matters": "Use this when an agent needs contribution totals without writing a custom flattener.",
+      "group": "Evidence-grade local audits"
+    },
+    {
+      "name": "Quarterly Activity Report",
+      "command": "reports quarter",
+      "description": "Produce quarter stats for filings, amendments, terminations, top issues, top entities, spend, and LD-203 totals.",
+      "rationale": "Requires combining filings, contributions, constants, source URLs, and local stale-data checks.",
+      "example": "lda-gov-pp-cli reports quarter --year 2024 --period year_end --agent --select top_issue,top_government_entity,filings",
+      "why_it_matters": "Use this after quarterly deadlines when an agent needs a compact, source-linked snapshot.",
+      "group": "Period monitoring"
+    },
+    {
+      "name": "Covered Positions Map",
+      "command": "lobbyists covered-positions",
+      "description": "List lobbyists' covered government positions connected to clients, registrants, and filing periods.",
+      "rationale": "Requires joining lobbyist covered-position fields to filing relationships and source records.",
+      "example": "lda-gov-pp-cli lobbyists covered-positions --client Boeing --csv",
+      "why_it_matters": "Use this when an agent needs exact official covered-position evidence tied to active lobbying records.",
+      "group": "Entity intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "LDA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "LDA.gov",
+    "headline": "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports.",
+    "value_prop": "Search the official Lobbying Disclosure Act API, sync public filings into SQLite, and turn nested lobbying records into source-linked audits. The CLI keeps anonymous reads safe by default, supports optional registered API keys, and adds commands for entity resolution, anomaly checks, spend timelines, contribution totals, and graph exports.",
+    "auth_narrative": "LDA.gov works anonymously at a lower rate limit. For higher throughput, register for an API key at https://lda.gov/api/register/ and set LDA_API_KEY to the key value; the CLI sends it as Authorization: Token \u003ckey\u003e. Legacy scripts may use SENATE_LDA_API_KEY or USSLDA_KEY, but new usage should prefer LDA_API_KEY.",
+    "quickstart": [
+      {
+        "command": "lda-gov-pp-cli doctor --dry-run",
+        "comment": "Check CLI configuration without making a network request."
+      },
+      {
+        "command": "lda-gov-pp-cli sync --resources filings,contributions,registrants,clients,lobbyists --resource-param filings:filing_year=2024 --resource-param contributions:filing_year=2024 --max-pages 1 --db ./lda.db",
+        "comment": "Seed a bounded local mirror for analysis without exhausting anonymous quota."
+      },
+      {
+        "command": "lda-gov-pp-cli search Boeing --type filings --limit 10 --db ./lda.db",
+        "comment": "Search the synced filing corpus locally."
+      },
+      {
+        "command": "lda-gov-pp-cli entities resolve Boeing --agent --limit 10 --db ./lda.db",
+        "comment": "Resolve an ambiguous name across registrants, clients, and lobbyists."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "Wait for the Retry-After window, lower --max-pages, or use a registered key with LDA_API_KEY."
+      },
+      {
+        "symptom": "Pagination fails after page 1 for filings or contributions",
+        "fix": "Add a filter such as --filing-year 2024 or sync with --resource-param filings:filing_year=2024."
+      },
+      {
+        "symptom": "Old examples point at lda.senate.gov",
+        "fix": "Use the default lda.gov base URL; lda.senate.gov is deprecated and sunsets in 2026."
+      },
+      {
+        "symptom": "Audit command returns an empty JSON array",
+        "fix": "Run sync first with the resources named by the command and pass the same --db path."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need official LDA.gov records, local analysis, repeatable watchdog checks, or agent-friendly evidence exports. It is strongest for lobbying filings, contribution reports, registrant/client/lobbyist lookup, source citation, and longitudinal analysis across synced data.",
+    "anti_triggers": [
+      "Do not use this CLI for FEC campaign-finance data; use a dedicated FEC source.",
+      "Do not use this CLI for legal advice about LDA filing obligations.",
+      "Do not use this CLI for live bill status or congressional vote data; use Congress.gov or another legislative API.",
+      "Do not use this CLI to infer missed filing obligations without corroborating records."
+    ],
+    "recipes": [
+      {
+        "title": "Resolve a company before joining records",
+        "command": "lda-gov-pp-cli entities resolve Boeing --agent --limit 10 --db ./lda.db",
+        "explanation": "Ranks official registrant, client, and lobbyist matches so an agent can pick the right ID."
+      },
+      {
+        "title": "Build a source-linked quarter snapshot",
+        "command": "lda-gov-pp-cli reports quarter --year 2024 --period year_end --agent --select top_issue,top_government_entity,filings --db ./lda.db",
+        "explanation": "Narrows a potentially large report to the fields an agent needs in context."
+      },
+      {
+        "title": "Audit filings for cleanup flags",
+        "command": "lda-gov-pp-cli audit filings --agent --limit 25 --db ./lda.db",
+        "explanation": "Flags amendments, terminations, duplicate risks, and client/registrant conflicts."
+      },
+      {
+        "title": "Export a lobbying relationship graph",
+        "command": "lda-gov-pp-cli graph export --client Boeing --format csv --db ./lda.db",
+        "explanation": "Creates edge rows connecting clients, registrants, lobbyists, issues, and government entities."
+      },
+      {
+        "title": "Summarize LD-203 contribution counterparties",
+        "command": "lda-gov-pp-cli contributions totals --year 2024 --csv --db ./lda.db",
+        "explanation": "Flattens contribution items and aggregates them by counterparty and item type."
+      }
+    ],
+    "trigger_phrases": [
+      "search lobbying filings",
+      "resolve an LDA client",
+      "audit lobbying spend",
+      "check LD-203 contributions",
+      "export lobbying graph",
+      "use LDA.gov",
+      "run lda-gov"
+    ]
+  }
+}

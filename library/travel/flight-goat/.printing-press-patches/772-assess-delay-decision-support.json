@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "772-assess-delay-decision-support",
+  "applied_at": "2026-06-08",
+  "base_run_id": "",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/772",
+  "files": [
+    "internal/cli/assess.go",
+    "internal/cli/assess_test.go",
+    "internal/cli/transcend.go",
+    "internal/cli/which.go",
+    "README.md",
+    "SKILL.md",
+    ".printing-press-patches/_meta.json",
+    ".printing-press-patches/772-assess-delay-decision-support.json"
+  ],
+  "summary": "Add `flight-goat-pp-cli assess`, a compound delay decision report that classifies systemic vs flight-specific risk and ranks route alternatives using AeroAPI airport conditions, disruption counts, weather, route segments, delayed-flight/inbound aircraft status, FAA NAS Status, and optional Google Flights price context.",
+  "reason": "Issue #772 remained valid against the live Flight Goat CLI: digest, compare, and reliability expose useful primitives but do not produce a single passenger-facing route delay decision. The live route endpoint also returns alternatives under `flights[].segments[]`, so the shared scheduled-departure parser now flattens that shape before reliability/assess consume it. `assess` keeps upstream failures visible in `sources` and `decision.missing_evidence` so partial reports are explicit instead of being mistaken for all-clear results. FAA NOTAM data is intentionally out of scope until Flight Goat has a real NOTAM source.",
+  "validated_outcome": "GOCACHE=/private/tmp/flight-goat-assess-gocache go test ./... passed for the Flight Goat module, including focused assess tests for FAA NAS XML parsing, route `flights[].segments[]` flattening, mixed systemic/flight-specific verdicts, empty route alternatives as explicit missing evidence, delayed-flight candidate selection by route/time window, dry-run request rendering, and a mocked end-to-end assess report. go build -o ./flight-goat-pp-cli ./cmd/flight-goat-pp-cli passed. CLI smoke checks confirmed `assess --help`, `which \"is my delay systemic should I rebook\" --limit 1` -> assess, and dry-run request disclosure. Live SFO->JFK smokes with the locally configured AeroAPI key confirmed AeroAPI airport delays/weather/disruption counts, FAA NAS Status parsing, route alternatives, inbound lookup, bounded delayed-flight selection for DAL365, partial-source 429 reporting, and Google Flights price context (150 live options returned with prices skipped/available reflected in `sources`). Post-Greptile follow-up added regression coverage for strict METAR gust detection, symmetric destination airport-delay missing evidence, empty route-segment responses, and hard signal-collection limits. Rebase follow-up added regression coverage so failed AeroAPI delay sources are not double-counted as availability misses and landed inbound aircraft report `inbound_arrived_at_origin` readiness. Validation after the rebase follow-up: focused assess tests, go test ./..., go build ./..., go vet ./..., verify_skill.py, verify_release_ledger.py --base-ref upstream/main, and git diff --check passed."
+}

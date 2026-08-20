@@ -1,0 +1,225 @@
+{
+  "api_name": "ucp",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Universal-Commerce-Protocol/python-sdk",
+      "url": "https://github.com/Universal-Commerce-Protocol/python-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 76,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Universal-Commerce-Protocol/js-sdk",
+      "url": "https://github.com/Universal-Commerce-Protocol/js-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 37,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Universal-Commerce-Protocol/samples",
+      "url": "https://github.com/Universal-Commerce-Protocol/samples",
+      "language": "Python",
+      "install_method": "",
+      "stars": 206,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "OmnixHQ/ucp-client",
+      "url": "https://github.com/OmnixHQ/ucp-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "awesomeucp/ucp-doctor",
+      "url": "https://github.com/awesomeucp/ucp-doctor",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "davillafer/UCP-Compliance-Checker",
+      "url": "https://github.com/davillafer/UCP-Compliance-Checker",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dhananjay2021/ucp-go-sdk",
+      "url": "https://github.com/dhananjay2021/ucp-go-sdk",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Upsonic/UCP-Agent",
+      "url": "https://github.com/Upsonic/UCP-Agent",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "MCP transport client not implemented — only REST-transport merchants supported in v0.1",
+    "Cross-merchant parallel search deferred to v0.2",
+    "Historical price/availability drift watch deferred to v0.2",
+    "Multi-merchant cart optimizer deferred to v0.2",
+    "Merchant capability diff deferred to v0.2",
+    "AP2 mandate full preflight deferred to v0.2 — `checkout prep` emits a draft envelope only",
+    "Conformance test runner deferred to v0.2",
+    "Spec-version schema diff + auto-migration deferred to v0.2",
+    "Order-status watch loop + webhook receiver deferred to v0.2",
+    "Identity linking OAuth flow not implemented"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T00:43:58Z",
+  "novel_features": [
+    {
+      "name": "UCP merchant manifest validator",
+      "command": "check",
+      "description": "Fetch `/.well-known/ucp` for any domain and return a graded report covering schema validity, advertised transports, and capability coverage — works against any merchant publishing a UCP manifest, including MCP-only Shopify-hosted stores.",
+      "rationale": "Existing UCP tooling requires a configured merchant deployment; this CLI grades any public domain in one call so an agent can decide whether to engage before committing to a transaction flow.",
+      "example": "ucp-pp-cli check checkout.coffeecircle.com --json",
+      "why_it_matters": "Lets an agent screen a domain for UCP viability without standing up an SDK or hand-rolling manifest parsing.",
+      "group": "Cross-merchant discovery"
+    },
+    {
+      "name": "Bundled pure-Go mock UCP merchant",
+      "command": "mock serve",
+      "description": "Spawn a UCP-compliant reference merchant locally (pure-Go, no external runtime) so `ucp check`, `search`, `cart`, and `checkout prep` flows work end-to-end without a third-party UCP merchant or extra language toolchains.",
+      "rationale": "No other CLI ships a runnable merchant in-binary; existing UCP work requires deploying a server. The pure-Go mock means a single `go install` gets you a working end-to-end loop.",
+      "example": "ucp-pp-cli mock serve --port 8080",
+      "why_it_matters": "Lets an agent verify its UCP integration without coordinating with a live merchant or waiting for Google AI Mode approval.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "UCP merchant manifest validator",
+      "command": "check",
+      "description": "Fetch `/.well-known/ucp` for any domain and return a graded report covering schema validity, advertised transports, and capability coverage — works against any merchant publishing a UCP manifest, including MCP-only Shopify-hosted stores.",
+      "rationale": "Existing UCP tooling requires a configured merchant deployment; this CLI grades any public domain in one call so an agent can decide whether to engage before committing to a transaction flow.",
+      "example": "ucp-pp-cli check checkout.coffeecircle.com --json",
+      "why_it_matters": "Lets an agent screen a domain for UCP viability without standing up an SDK or hand-rolling manifest parsing.",
+      "group": "Cross-merchant discovery"
+    },
+    {
+      "name": "Bundled pure-Go mock UCP merchant",
+      "command": "mock serve",
+      "description": "Spawn a UCP-compliant reference merchant locally (pure-Go, no external runtime) so `ucp check`, `search`, `cart`, and `checkout prep` flows work end-to-end without a third-party UCP merchant or extra language toolchains.",
+      "rationale": "No other CLI ships a runnable merchant in-binary; existing UCP work requires deploying a server. The pure-Go mock means a single `go install` gets you a working end-to-end loop.",
+      "example": "ucp-pp-cli mock serve --port 8080",
+      "why_it_matters": "Lets an agent verify its UCP integration without coordinating with a live merchant or waiting for Google AI Mode approval.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "narrative": {
+    "display_name": "UCP",
+    "headline": "A Go CLI for Google's Universal Commerce Protocol — validate UCP merchant manifests, run REST searches, build local carts, and prep AP2-ready checkout drafts against any UCP merchant.",
+    "value_prop": "UCP-pp-cli is the terminal-grade tool the official Python and JS SDKs don't ship. It grades any UCP merchant manifest in one call, transacts against REST-transport merchants, and bundles a pure-Go reference merchant so an agent can prove its UCP wiring works end-to-end without deploying a server.",
+    "auth_narrative": "UCP has no global API key. Each merchant declares its own auth shape; the CLI identifies itself via the `UCP-Agent: profile=\"\u003curl\u003e\"` header and signs requests with a per-agent ECDSA-P256 key. Run `ucp profile init` once to generate your profile. For account-linked flows, `ucp auth link \u003cmerchant\u003e` walks an OAuth 2.0 flow per merchant (v1: print-mode — agent pastes the redirect URL back).",
+    "quickstart": [
+      {
+        "command": "ucp-pp-cli mock serve --port 8080",
+        "comment": "Run in another terminal — pure-Go reference merchant, no external deps."
+      },
+      {
+        "command": "ucp-pp-cli check 127.0.0.1:8080 --json",
+        "comment": "Probe the mock manifest end-to-end."
+      },
+      {
+        "command": "ucp-pp-cli search \"coffee\" --merchant 127.0.0.1:8080 --limit 5 --json",
+        "comment": "Search the mock merchant's catalog."
+      },
+      {
+        "command": "ucp-pp-cli cart add --merchant 127.0.0.1:8080 --sku coffee_001 --title \"Coffee\" --price 1500 --qty 2",
+        "comment": "Add a line item; creates a new cart and prints its ID."
+      },
+      {
+        "command": "ucp-pp-cli cart list",
+        "comment": "List local carts."
+      },
+      {
+        "command": "ucp-pp-cli checkout prep --cart $(ucp-pp-cli cart list --json | jq -r '.[0].id')",
+        "comment": "Produce a checkout draft (JSON) ready for an AP2 CLI to authorize."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "ucp check returns HTTP 404",
+        "fix": "The domain hosts a UCP docs site, not a UCP merchant. Confirm the merchant publishes `/.well-known/ucp`; many real-world UCP retailers (Etsy, Wayfair) are gated to approved Google/Microsoft agents and won't respond to unapproved profiles."
+      },
+      {
+        "symptom": "request fails with 'unsupported transport'",
+        "fix": "The merchant only advertises MCP (e.g., coffeecircle.com). Re-run with `--transport mcp` or omit; the CLI picks the negotiated intersection automatically."
+      },
+      {
+        "symptom": "checkout prep fails with 'missing identity_linking'",
+        "fix": "Run `ucp auth link \u003cmerchant\u003e` first, or skip account-linking with `--guest` if the merchant allows guest checkout (declared in its manifest)."
+      },
+      {
+        "symptom": "mock serve fails with 'address already in use'",
+        "fix": "Port 8080 is taken. Pass `--port 9090` (or any free port) and update downstream commands to point at the new address."
+      }
+    ],
+    "when_to_use": "Use ucp-pp-cli when an agent needs to interact with UCP merchants directly: probe a manifest, build a multi-merchant cart, run a search across known UCP-supporting stores, or prep a checkout draft for an AP2 mandate. It is the natural local pair to an AP2 CLI for the search-and-buy half of an agentic shopping flow. Skip it when you only need ChatGPT-side checkout (use an ACP-flavored tool) or when you only need merchant-side validation (use awesomeucp/ucp-doctor).",
+    "recipes": [
+      {
+        "title": "Boot a UCP test environment from scratch",
+        "command": "ucp-pp-cli mock serve --port 8080",
+        "explanation": "Start the bundled pure-Go reference merchant; then run `check 127.0.0.1:8080` from another shell."
+      },
+      {
+        "title": "End-to-end search-to-checkout against the mock merchant",
+        "command": "ucp-pp-cli search \"coffee\" --merchant 127.0.0.1:8080 --json",
+        "explanation": "Fan out a query, normalize results, and pipe the first product into `cart add` then `checkout prep`."
+      },
+      {
+        "title": "Validate a real public UCP merchant manifest",
+        "command": "ucp-pp-cli check checkout.coffeecircle.com --json",
+        "explanation": "Probe a Shopify-hosted UCP merchant. Returns a graded report even though the merchant advertises MCP-only transport (REST-only commands won't transact against it in v0.1)."
+      }
+    ],
+    "trigger_phrases": [
+      "check this UCP store",
+      "search UCP merchant",
+      "add to my UCP cart",
+      "prep a UCP checkout",
+      "use ucp",
+      "run ucp"
+    ]
+  }
+}

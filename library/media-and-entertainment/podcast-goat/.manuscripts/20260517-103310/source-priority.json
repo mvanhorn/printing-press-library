@@ -1,0 +1,23 @@
+{
+  "sources": [
+    "member.huberman",
+    "member.acquired",
+    "member.founders",
+    "member.peterattia",
+    "dwarkesh",
+    "rss",
+    "youtube",
+    "spotify",
+    "spoken",
+    "taddy",
+    "whisperapi"
+  ],
+  "confirmed_at": "2026-05-17T17:33:10Z",
+  "raw_user_phrasing": "Sources, priority-ordered: Cookie-first, free-next, paid-last. (1) member.huberman cookie (2) member.acquired cookie (3) member.founders cookie (4) member.peterattia cookie (5) dwarkesh free scrape (6) rss free (7) youtube yt-dlp (8) spoken.md paid (9) taddy paid bulk (10) whisperapi paid audio - explicit ordered list in brief at /Users/mvanhorn/docs/plans/2026-05-17-005-pp-brief-podcast-goat.md | mid-run addition: user added Spotify Premium as source #11 (slotted between youtube and spoken) \u2014 free transcripts via user's Spotify Premium cookie session.",
+  "auth_scoping": {
+    "primary_free": true,
+    "cookie_first_dispatch": true,
+    "note": "Primary chain (1-4) is cookie-based user-supplied; #5-7 are free public; #8-10 are paid scoped to their own commands. No paid key required for headline commands.",
+    "spotify_note": "Spotify cookie tier \u2014 same shape as the 4 member publishers but for non-member free content. ToS-grey, user-side risk only."
+  }
+}

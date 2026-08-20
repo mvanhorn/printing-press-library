@@ -1,0 +1,338 @@
+{
+  "api_name": "substack",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "ma2za/python-substack",
+      "url": "https://github.com/ma2za/python-substack",
+      "language": "Python",
+      "install_method": "",
+      "stars": 149,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "NHagar/substack_api",
+      "url": "https://github.com/NHagar/substack_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 194,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jakub-k-slys/substack-api",
+      "url": "https://github.com/jakub-k-slys/substack-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 71,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "alexferrari88/sbstck-dl",
+      "url": "https://github.com/alexferrari88/sbstck-dl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 216,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ty13r/substack-mcp-plus",
+      "url": "https://github.com/ty13r/substack-mcp-plus",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "arthurcolle/substack-mcp",
+      "url": "https://github.com/arthurcolle/substack-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nanameru/substack-mcp",
+      "url": "https://github.com/nanameru/substack-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jakub-k-slys/n8n-nodes-substack",
+      "url": "https://github.com/jakub-k-slys/n8n-nodes-substack",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 24,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Substack Chat / DM endpoints are unmapped (NHagar PR #19 stale); deferred to a follow-up run with browser-sniff.",
+    "LinkedIn / X cross-post bridges deferred — require external auth not provisioned this run."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T10:32:30Z",
+  "novel_features": [
+    {
+      "name": "Note-to-subscriber attribution ledger",
+      "command": "growth attribution",
+      "description": "Connect every Note you posted to the paid and free subscribers that actually arrived in the 24-hour window after, so you stop guessing which content drove growth.",
+      "rationale": "Requires a local-store join across notes, daily subscriber-count snapshots, and engagement events that no single Substack API call returns.",
+      "example": "substack-pp-cli growth attribution --days 30 --json --select rank,note_id,note_excerpt,subs_acquired,paid_subs_acquired",
+      "why_it_matters": "Pick this over a generic stats call when an agent needs to decide which Note formats to repeat next week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Engagement reciprocity ledger",
+      "command": "engage reciprocity",
+      "description": "See net-give/net-take per writer you engage with — who reciprocates your restacks/comments, who quietly free-rides on yours.",
+      "rationale": "Joins outgoing engagements (by_self=true) against incoming engagements grouped by target_handle; the API exposes neither side as a single resource.",
+      "example": "substack-pp-cli engage reciprocity --days 30 --agent --select handle,outgoing,incoming,net,drift",
+      "why_it_matters": "Use when an agent is deciding whether to keep investing in a swap partner; surfaces relationships before they go stale.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cadence guard",
+      "command": "notes schedule --guard",
+      "description": "Refuse to fire (or queue) a Note that lands less than 30 minutes after your last own-Note or violates your time-of-day rotation. Returns typed exit 2 with a JSON diagnosis.",
+      "rationale": "Substack's algorithm de-prioritizes burst posts; the rule is service-specific and only enforceable by joining queue and posted_at history locally.",
+      "example": "substack-pp-cli notes schedule --at 2026-05-10T13:00:00Z --body \"hook line\\n\\nbody\" --guard --json",
+      "why_it_matters": "Stops an agent from accidentally torching its own reach by dumping a queue all at once.",
+      "group": "Algorithm-aware automation"
+    },
+    {
+      "name": "Goal-aware best-time recommender",
+      "command": "growth best-time",
+      "description": "Top day-of-week × hour cells ranked for whichever growth signal you pick (paid subs, likes, restacks, or comments) — not a single average.",
+      "rationale": "Aggregates own Notes × engagement events × per-day subscriber deltas into reach_windows; goal-conditioning is impossible from any single endpoint.",
+      "example": "substack-pp-cli growth best-time --days 90 --for-goal subs --json --select day_of_week,hour,rate,sample_size",
+      "why_it_matters": "An agent picking when to schedule tomorrow's Notes can ask for the goal it's optimizing instead of guessing.",
+      "group": "Algorithm-aware automation"
+    },
+    {
+      "name": "Hook-pattern miner",
+      "command": "discover patterns",
+      "description": "Mechanically extracts which hook patterns (curiosity-gap colon, 3-sentence formula, em-dash reframe, question opener) actually rank in a niche, with restack/comment ratios.",
+      "rationale": "Pure regex/tokenize over cached inspiration_notes; the API returns Notes content but no aggregation by pattern shape.",
+      "example": "substack-pp-cli discover patterns --niche productivity --sort restacks --since 14d --agent --select pattern,sample_count,avg_restacks,avg_comments,top_example",
+      "why_it_matters": "An agent drafting Notes can ask which hook shape currently outperforms in this niche before generating.",
+      "group": "Pattern intelligence"
+    },
+    {
+      "name": "Swap-partner finder",
+      "command": "recs find-partners",
+      "description": "Score candidate publications for a Substack Recommendations swap by mutual-overlap density across followee + recommendation graphs.",
+      "rationale": "Joins recommendations × my subscriptions/followees × profiles tables; the score requires data from three endpoints plus my own graph.",
+      "example": "substack-pp-cli recs find-partners --my-pub on --top 20 --json --select rank,handle,pub,overlap_score,shared_followees",
+      "why_it_matters": "An agent running a weekly cross-promo pass can rank candidates instead of pitching cold.",
+      "group": "Network leverage"
+    },
+    {
+      "name": "Pod restack scoreboard",
+      "command": "growth pod",
+      "description": "Given a list of handles, render a member × member engagement matrix — last 30 days of restacks/comments/likes between every pair.",
+      "rationale": "Joins engagements over a passed handle set; the scoreboard view requires pair-wise aggregation no API exposes.",
+      "example": "substack-pp-cli growth pod --members maya,devon,priya,jordan --days 30 --json",
+      "why_it_matters": "An agent organizing a mutual-aid pod can see who's net-positive vs free-riding without a spreadsheet.",
+      "group": "Network leverage"
+    },
+    {
+      "name": "Voice fingerprint",
+      "command": "voice fingerprint",
+      "description": "Measurable voice profile — sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness — for any handle, with --diff to compare against another writer.",
+      "rationale": "Pure mechanical extraction over cached Notes/posts; gives a numerical fingerprint that voice-matched generation can target.",
+      "example": "substack-pp-cli voice fingerprint --handle maya --diff devon --json --select metric,self,other,delta",
+      "why_it_matters": "An agent drafting Notes for a ghostwriter client can verify the output stays inside the client's voice envelope.",
+      "group": "Pattern intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Note-to-subscriber attribution ledger",
+      "command": "growth attribution",
+      "description": "Connect every Note you posted to the paid and free subscribers that actually arrived in the 24-hour window after, so you stop guessing which content drove growth.",
+      "rationale": "Requires a local-store join across notes, daily subscriber-count snapshots, and engagement events that no single Substack API call returns.",
+      "example": "substack-pp-cli growth attribution --days 30 --json --select rank,note_id,note_excerpt,subs_acquired,paid_subs_acquired",
+      "why_it_matters": "Pick this over a generic stats call when an agent needs to decide which Note formats to repeat next week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Engagement reciprocity ledger",
+      "command": "engage reciprocity",
+      "description": "See net-give/net-take per writer you engage with — who reciprocates your restacks/comments, who quietly free-rides on yours.",
+      "rationale": "Joins outgoing engagements (by_self=true) against incoming engagements grouped by target_handle; the API exposes neither side as a single resource.",
+      "example": "substack-pp-cli engage reciprocity --days 30 --agent --select handle,outgoing,incoming,net,drift",
+      "why_it_matters": "Use when an agent is deciding whether to keep investing in a swap partner; surfaces relationships before they go stale.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cadence guard",
+      "command": "notes schedule --guard",
+      "description": "Refuse to fire (or queue) a Note that lands less than 30 minutes after your last own-Note or violates your time-of-day rotation. Returns typed exit 2 with a JSON diagnosis.",
+      "rationale": "Substack's algorithm de-prioritizes burst posts; the rule is service-specific and only enforceable by joining queue and posted_at history locally.",
+      "example": "substack-pp-cli notes schedule --at 2026-05-10T13:00:00Z --body \"hook line\\n\\nbody\" --guard --json",
+      "why_it_matters": "Stops an agent from accidentally torching its own reach by dumping a queue all at once.",
+      "group": "Algorithm-aware automation"
+    },
+    {
+      "name": "Goal-aware best-time recommender",
+      "command": "growth best-time",
+      "description": "Top day-of-week × hour cells ranked for whichever growth signal you pick (paid subs, likes, restacks, or comments) — not a single average.",
+      "rationale": "Aggregates own Notes × engagement events × per-day subscriber deltas into reach_windows; goal-conditioning is impossible from any single endpoint.",
+      "example": "substack-pp-cli growth best-time --days 90 --for-goal subs --json --select day_of_week,hour,rate,sample_size",
+      "why_it_matters": "An agent picking when to schedule tomorrow's Notes can ask for the goal it's optimizing instead of guessing.",
+      "group": "Algorithm-aware automation"
+    },
+    {
+      "name": "Hook-pattern miner",
+      "command": "discover patterns",
+      "description": "Mechanically extracts which hook patterns (curiosity-gap colon, 3-sentence formula, em-dash reframe, question opener) actually rank in a niche, with restack/comment ratios.",
+      "rationale": "Pure regex/tokenize over cached inspiration_notes; the API returns Notes content but no aggregation by pattern shape.",
+      "example": "substack-pp-cli discover patterns --niche productivity --sort restacks --since 14d --agent --select pattern,sample_count,avg_restacks,avg_comments,top_example",
+      "why_it_matters": "An agent drafting Notes can ask which hook shape currently outperforms in this niche before generating.",
+      "group": "Pattern intelligence"
+    },
+    {
+      "name": "Swap-partner finder",
+      "command": "recs find-partners",
+      "description": "Score candidate publications for a Substack Recommendations swap by mutual-overlap density across followee + recommendation graphs.",
+      "rationale": "Joins recommendations × my subscriptions/followees × profiles tables; the score requires data from three endpoints plus my own graph.",
+      "example": "substack-pp-cli recs find-partners --my-pub on --top 20 --json --select rank,handle,pub,overlap_score,shared_followees",
+      "why_it_matters": "An agent running a weekly cross-promo pass can rank candidates instead of pitching cold.",
+      "group": "Network leverage"
+    },
+    {
+      "name": "Pod restack scoreboard",
+      "command": "growth pod",
+      "description": "Given a list of handles, render a member × member engagement matrix — last 30 days of restacks/comments/likes between every pair.",
+      "rationale": "Joins engagements over a passed handle set; the scoreboard view requires pair-wise aggregation no API exposes.",
+      "example": "substack-pp-cli growth pod --members maya,devon,priya,jordan --days 30 --json",
+      "why_it_matters": "An agent organizing a mutual-aid pod can see who's net-positive vs free-riding without a spreadsheet.",
+      "group": "Network leverage"
+    },
+    {
+      "name": "Voice fingerprint",
+      "command": "voice fingerprint",
+      "description": "Measurable voice profile — sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness — for any handle, with --diff to compare against another writer.",
+      "rationale": "Pure mechanical extraction over cached Notes/posts; gives a numerical fingerprint that voice-matched generation can target.",
+      "example": "substack-pp-cli voice fingerprint --handle maya --diff devon --json --select metric,self,other,delta",
+      "why_it_matters": "An agent drafting Notes for a ghostwriter client can verify the output stays inside the client's voice envelope.",
+      "group": "Pattern intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Substack",
+    "headline": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+    "value_prop": "Substack has no public API and the closed-source tools that work around it (WriteStack, StackSweller) stop at Notes scheduling and a heatmap. This CLI covers the read endpoints the community has reverse-engineered across the 8 wrappers we studied, plus print-curl scaffolding for the writes nobody has mapped, then adds local-SQLite analytics: per-Note subscriber attribution (`growth attribution`), engagement reciprocity tracking (`engage reciprocity`), and a goal-aware best-time recommender (`growth best-time`). Every command is MCP-callable so an agent can drive the full publish → engage → measure → swap loop.",
+    "auth_narrative": "Substack uses a session cookie (substack.sid). The only path today is `auth login --chrome` (also accepts `--browser` as an alias) — it reads the cookie from your logged-in Chrome via pycookiecheat / cookies / cookie-scoop-cli and stores it in the OS keyring. There is no password login and no manual cookie-paste subcommand. If your cookie expires, re-run `auth login --chrome`.",
+    "quickstart": [
+      {
+        "command": "substack-pp-cli auth login --chrome",
+        "comment": "Reads your logged-in Substack session out of Chrome and stores it in the OS keyring."
+      },
+      {
+        "command": "substack-pp-cli doctor",
+        "comment": "Probes all three Substack bases plus the RSS path to surface auth or Cloudflare issues early."
+      },
+      {
+        "command": "substack-pp-cli sync --since 30d",
+        "comment": "Pulls posts, drafts, your Notes, comments, profiles, and subscriber-count snapshots into the local store."
+      },
+      {
+        "command": "substack-pp-cli notes new --body \"Stop refreshing the feed. Spend 15 minutes in your inbox replying to commenters and you'll outgrow 90% of writers who don't.\" --dry-run",
+        "comment": "Dry-run prints the request without firing; drop --dry-run to publish."
+      },
+      {
+        "command": "substack-pp-cli growth attribution --days 30 --agent --select rank,note_excerpt,subs_acquired",
+        "comment": "Surfaces which of your last 30 days of Notes brought subs."
+      },
+      {
+        "command": "substack-pp-cli recs find-partners --my-pub on --top 10 --json",
+        "comment": "Ranks candidate publications for a recommendation swap by audience overlap."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any write command",
+        "fix": "Cookie expired. Run `substack-pp-cli auth login --chrome` to re-import (also aliased as `--browser`)."
+      },
+      {
+        "symptom": "RSS / `posts feed` returns 403 with 'Just a moment...' HTML",
+        "fix": "Cloudflare TLS fingerprinting. Run `substack-pp-cli doctor` to confirm; if it reports the RSS leg blocked, retry from a different IP or use `posts archive` (uses the JSON API which Cloudflare doesn't gate as aggressively)."
+      },
+      {
+        "symptom": "Notes posted at the same minute fail or get hidden by the algorithm",
+        "fix": "Re-run with `--guard` (default in `notes schedule`); the cadence guard will reject sub-30-min spacing with exit 2 and a JSON diagnosis explaining the violation."
+      },
+      {
+        "symptom": "`engage like` / `engage restack` printed a curl-equivalent instead of firing",
+        "fix": "That's the default — these endpoints aren't in any community wrapper, so the CLI prints the request shape so you can preflight it. Add `--send` to actually fire."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to operate a Substack publication end-to-end: posting Notes on a cadence, drafting and publishing long-form, engaging with niche writers, finding swap partners, and measuring which content actually drove subs. It is the right pick over WriteStack/StackSweller when you need agent-native plumbing (--json, --select, --dry-run, typed exit codes), offline-first analytics (every join runs locally over SQLite), or coverage of the writer surface those tools don't expose. Engage write actions (`engage like`, `engage restack`, `engage restack-with-comment`) print a curl-equivalent by default and only fire with `--send`; treat the print-curl output as a preflight, not a live action.",
+    "recipes": [
+      {
+        "title": "Daily growth-loop morning ritual",
+        "command": "substack-pp-cli growth attribution --days 7 --agent --select rank,note_excerpt,subs_acquired",
+        "explanation": "Surfaces yesterday's Note→sub winners. Pair with `substack-pp-cli engage reciprocity --days 7 --agent` to see whose engagement reciprocates yours, and `substack-pp-cli sync --since 24h` ahead of time to keep the local store fresh."
+      },
+      {
+        "title": "Schedule a Note with the cadence guard",
+        "command": "substack-pp-cli notes schedule --at 2030-05-13T09:00:00Z --body 'Tuesday hook line' --guard --json",
+        "explanation": "Queues the Note locally; --guard refuses scheduling if it lands within 30 min of an existing own-Note (typed exit 2 + JSON diagnosis). Drop --guard or add --send to fire immediately."
+      },
+      {
+        "title": "Find this week's swap partners",
+        "command": "substack-pp-cli recs find-partners --my-pub on --top 5 --json --select rank,handle,pub,overlap_score",
+        "explanation": "Ranks candidate publications by audience overlap; pipe to your draft-outreach tool of choice (substack-pp-cli does the ranking; outreach drafting is left to your agent's prompt)."
+      },
+      {
+        "title": "Capture a writer's voice fingerprint as JSON",
+        "command": "substack-pp-cli voice fingerprint --handle alice --diff bob --json",
+        "explanation": "Mechanical voice metrics for the named handle, with a delta against another writer when --diff is set. Save the JSON yourself; agent generation prompts can ingest it."
+      },
+      {
+        "title": "Surface deeply nested Note metadata with --select",
+        "command": "substack-pp-cli notes get c-12345 --agent --select id,body,attachments.url,attachments.image_url,attachments.published_bylines.name,attachments.published_bylines.handle,context.users.name",
+        "explanation": "Notes responses are deeply nested (attachments, bylines, contextual users). Dotted --select narrows the payload so an agent doesn't burn context parsing 30KB of JSON it doesn't need."
+      }
+    ],
+    "trigger_phrases": [
+      "post a substack note",
+      "schedule a week of substack notes",
+      "find substack swap partners",
+      "which of my notes drove subs",
+      "what's my engagement reciprocity",
+      "voice-match a substack note",
+      "best time to post on substack",
+      "use substack",
+      "run substack"
+    ]
+  }
+}

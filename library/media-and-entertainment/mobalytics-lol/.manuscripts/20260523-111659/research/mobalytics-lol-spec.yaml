@@ -1,0 +1,361 @@
+openapi: "3.0.3"
+info:
+  title: Mobalytics LoL CLI
+  description: |
+    League of Legends data CLI combining Riot Data Dragon (reference data —
+    champions, items, runes, summoner spells, patches) with Mobalytics
+    aggregator data (tier list, champion builds, counters, matchups — hand-built
+    via the discovered GraphQL endpoints at mobalytics.gg/api/lol/graphql/v1/query).
+
+    No authentication required for either data source. Mobalytics Plus is a
+    user-overlay product and does not gate champion-page data.
+
+    The base spec covers Riot Data Dragon at ddragon.leagueoflegends.com. The
+    Mobalytics-specific commands (tier-list, champion-build, counters, matchups,
+    meta-shift, compare, power-spike, counter-pool, one-trick) are added as
+    novel features in Phase 3 hand-built code, posting to the Mobalytics
+    GraphQL endpoint with queries extracted from the JS bundle during browser-sniff.
+  version: "0.1.0"
+  contact:
+    name: Mobalytics LoL Community
+  x-display-name: Mobalytics LoL
+  x-website: https://mobalytics.gg/lol
+  x-spec-provenance:
+    source: sniffed
+    notes: |
+      Reference base is Riot Data Dragon (public CDN, plain HTTP, no auth).
+      Mobalytics aggregator surface discovered via browser-sniff: 86 GraphQL
+      operations extracted from JS bundles, two confirmed reachable GraphQL
+      endpoints (dynamic + static).
+
+servers:
+  - url: https://ddragon.leagueoflegends.com
+    description: Riot Data Dragon (public LoL CDN)
+
+tags:
+  - name: versions
+    description: Patch / data version catalog
+  - name: champions
+    description: Champion reference data — list, details, abilities, lore
+  - name: items
+    description: Item catalog — stats, costs, build paths
+  - name: runes
+    description: Rune trees (Precision, Domination, Sorcery, Resolve, Inspiration) and shards
+  - name: summoner-spells
+    description: Summoner spells (Flash, Ignite, etc.)
+
+paths:
+  /api/versions.json:
+    get:
+      operationId: listVersions
+      summary: List all Data Dragon versions
+      description: |
+        Returns the full list of LoL patch versions known to Data Dragon, newest
+        first. The first element is the current patch.
+      tags: [versions]
+      responses:
+        "200":
+          description: Newest-first array of version strings (e.g., "16.10.1").
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /cdn/{version}/data/{locale}/champion.json:
+    get:
+      operationId: listChampions
+      summary: List all champions for a given patch
+      description: |
+        Returns champion summary records keyed by champion id. Includes name,
+        title, blurb, tags (roles), info (attack/defense/magic/difficulty),
+        partype (mana/energy/none), and image references.
+      tags: [champions]
+      parameters:
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Locale'
+      responses:
+        "200":
+          description: Champion list keyed by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChampionListResponse'
+
+  /cdn/{version}/data/{locale}/champion/{championId}.json:
+    get:
+      operationId: getChampion
+      summary: Get full details for a single champion
+      description: |
+        Returns the full champion record including abilities (passive + Q/W/E/R
+        with descriptions and tooltips), skins, lore, allytips, enemytips, stats,
+        and image data. The championId is the canonical Riot id (PascalCase, no
+        spaces or apostrophes — e.g., `Aatrox`, `KaiSa`, `MonkeyKing` for Wukong).
+      tags: [champions]
+      parameters:
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Locale'
+        - name: championId
+          in: path
+          required: true
+          description: Riot champion id in PascalCase (`Aatrox`, `KaiSa`, `MonkeyKing`).
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Full champion record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChampionDetailResponse'
+
+  /cdn/{version}/data/{locale}/item.json:
+    get:
+      operationId: listItems
+      summary: List all items for a given patch
+      description: |
+        Returns the full item catalog including stats, gold cost, build paths
+        (`from` and `into`), tags, descriptions, and image references.
+      tags: [items]
+      parameters:
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Locale'
+      responses:
+        "200":
+          description: Item catalog keyed by item id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemListResponse'
+
+  /cdn/{version}/data/{locale}/runesReforged.json:
+    get:
+      operationId: listRunes
+      summary: List all rune trees and slots
+      description: |
+        Returns the 5 rune trees (Precision, Domination, Sorcery, Resolve,
+        Inspiration) and each tree's keystone, slot 1/2/3, and shards. Each
+        rune has id, name, icon, shortDesc, longDesc.
+      tags: [runes]
+      parameters:
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Locale'
+      responses:
+        "200":
+          description: Array of rune trees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /cdn/{version}/data/{locale}/summoner.json:
+    get:
+      operationId: listSummonerSpells
+      summary: List all summoner spells for a given patch
+      description: |
+        Returns the summoner spell catalog (Flash, Ignite, Teleport, etc.)
+        keyed by spell id, including cooldown, range, modes (CLASSIC, ARAM),
+        description, and image data.
+      tags: [summoner-spells]
+      parameters:
+        - $ref: '#/components/parameters/Version'
+        - $ref: '#/components/parameters/Locale'
+      responses:
+        "200":
+          description: Summoner spell catalog
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  parameters:
+    Version:
+      name: version
+      in: path
+      required: true
+      description: |
+        Data Dragon version (e.g., `16.10.1`). Use `listVersions` to get the
+        newest version, or pass `latest` to have the CLI resolve it automatically.
+      schema:
+        type: string
+        default: latest
+    Locale:
+      name: locale
+      in: path
+      required: true
+      description: Data locale (`en_US`, `ko_KR`, `ja_JP`, `zh_CN`, etc.). Defaults to `en_US`.
+      schema:
+        type: string
+        default: en_US
+
+  schemas:
+    ChampionListResponse:
+      type: object
+      description: Wrapper with `data` keyed by champion id
+      properties:
+        type:
+          type: string
+        format:
+          type: string
+        version:
+          type: string
+        data:
+          type: object
+          description: Map of championId → champion summary
+          additionalProperties:
+            $ref: '#/components/schemas/ChampionSummary'
+
+    ChampionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: PascalCase Riot id
+        key:
+          type: string
+          description: Numeric id (as a string)
+        name:
+          type: string
+          description: Display name (e.g., `Kai'Sa`)
+        title:
+          type: string
+          description: Title (e.g., `the Darkin Blade`)
+        blurb:
+          type: string
+        info:
+          type: object
+          properties:
+            attack: {type: integer}
+            defense: {type: integer}
+            magic: {type: integer}
+            difficulty: {type: integer}
+        image:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+          description: Roles (`Fighter`, `Tank`, `Mage`, `Assassin`, `Marksman`, `Support`)
+        partype:
+          type: string
+          description: Resource (`Mana`, `Energy`, `None`, `Blood Well`, etc.)
+        stats:
+          type: object
+
+    ChampionDetailResponse:
+      type: object
+      properties:
+        type: {type: string}
+        format: {type: string}
+        version: {type: string}
+        data:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChampionDetail'
+
+    ChampionDetail:
+      type: object
+      properties:
+        id: {type: string}
+        key: {type: string}
+        name: {type: string}
+        title: {type: string}
+        lore: {type: string}
+        blurb: {type: string}
+        allytips:
+          type: array
+          items: {type: string}
+        enemytips:
+          type: array
+          items: {type: string}
+        tags:
+          type: array
+          items: {type: string}
+        partype: {type: string}
+        info:
+          type: object
+        stats:
+          type: object
+        spells:
+          type: array
+          description: Q, W, E, R abilities
+          items:
+            type: object
+            properties:
+              id: {type: string}
+              name: {type: string}
+              description: {type: string}
+              tooltip: {type: string}
+              cooldown:
+                type: array
+                items: {type: number}
+              cost:
+                type: array
+                items: {type: number}
+              range:
+                type: array
+                items: {type: number}
+        passive:
+          type: object
+          properties:
+            name: {type: string}
+            description: {type: string}
+        skins:
+          type: array
+          items:
+            type: object
+
+    ItemListResponse:
+      type: object
+      properties:
+        type: {type: string}
+        version: {type: string}
+        basic: {type: object}
+        data:
+          type: object
+          description: Map of itemId → item record
+          additionalProperties:
+            $ref: '#/components/schemas/Item'
+        groups:
+          type: array
+          items: {type: object}
+        tree:
+          type: array
+          items: {type: object}
+
+    Item:
+      type: object
+      properties:
+        name: {type: string}
+        description: {type: string}
+        colloq: {type: string}
+        plaintext: {type: string}
+        from:
+          type: array
+          items: {type: string}
+          description: Item ids this builds from
+        into:
+          type: array
+          items: {type: string}
+          description: Item ids this builds into
+        gold:
+          type: object
+          properties:
+            base: {type: integer}
+            total: {type: integer}
+            sell: {type: integer}
+            purchasable: {type: boolean}
+        tags:
+          type: array
+          items: {type: string}
+        stats:
+          type: object
+        maps:
+          type: object
+          description: Map availability (`11`=SR, `12`=ARAM, etc.)
+        image:
+          type: object

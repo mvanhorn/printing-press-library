@@ -4,8 +4,21 @@
   "printing_press_version": "3.8.0",
   "api_name": "tiktok-shop",
   "display_name": "TikTok Shop",
+  "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and refresh, read-only shops, orders, products, inventory search, fulfillment packages, and warehouses.",
   "cli_name": "tiktok-shop-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "library/commerce/tiktok-shop/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:81f4420a65ed74b213a5512ac56073aab47a2b21d425b459957b0fa9e483783f",
@@ -38,5 +51,6 @@
       "command": "inventory update",
       "description": "Expose the confirmed inventory update endpoint as an explicit deferred-mutation status instead of executing stock changes before idempotency and retry safety are designed."
     }
-  ]
+  ],
+  "catalog_description": "Use TikTok Shop Seller API workflows for auth, shops, orders, products, inventory search, fulfillment, warehouses, and safe write preflights."
 }

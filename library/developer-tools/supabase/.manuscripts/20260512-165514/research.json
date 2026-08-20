@@ -1,0 +1,338 @@
+{
+  "api_name": "supabase",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "supabase/cli",
+      "url": "https://github.com/supabase/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 9000,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase/supabase-js",
+      "url": "https://github.com/supabase/supabase-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4400,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase/supabase-py",
+      "url": "https://github.com/supabase/supabase-py",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase-community/supabase-mcp",
+      "url": "https://github.com/supabase-community/supabase-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2700,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "alexander-zuev/supabase-mcp-server",
+      "url": "https://github.com/alexander-zuev/supabase-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 820,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase-community/supabase-go",
+      "url": "https://github.com/supabase-community/supabase-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nedpals/supabase-go",
+      "url": "https://github.com/nedpals/supabase-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 350,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase/auth",
+      "url": "https://github.com/supabase/auth",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Local-dev Docker stack and migrations are out of scope — use the official supabase CLI for `supabase start`, `supabase db push`, `supabase gen types`",
+    "Realtime WebSocket subscribe is out of scope (doesn't fit one-shot CLI shape)",
+    "Auth user PII is never synced to the local SQLite store; live queries only"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T22:35:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-project secret-name audit",
+      "command": "secrets where-name",
+      "description": "Find every project (across orgs) holding a secret with a given name, plus when each was last synced.",
+      "rationale": "Requires a LEFT JOIN over locally-synced secret_names + projects + organizations tables; no Management API endpoint answers this in one call.",
+      "example": "supabase-pp-cli secrets where-name STRIPE_KEY --json",
+      "why_it_matters": "Use when an agent needs cross-project security posture answers ('which clients have STRIPE_KEY', 'is this secret name leaked anywhere'). The supabase-community MCP cannot answer this without per-project iteration.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Function inventory rollup",
+      "command": "functions inventory",
+      "description": "Per-project, per-org rollup of every edge function with slug, version, status, and last-deployed timestamp.",
+      "rationale": "Aggregates locally-synced project_functions rows by project_ref and org_id; live API only lists functions per project.",
+      "example": "supabase-pp-cli functions inventory --org acme --json",
+      "why_it_matters": "Use during deploy review ('which projects deployed stripe-webhook?') or stale-function audits ('which functions haven't redeployed in 90 days?').",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Branch-drift sweep",
+      "command": "branches drift",
+      "description": "List preview branches older than N days that haven't been merged or deleted, grouped by parent project.",
+      "rationale": "Age filter over locally-synced project_branches; live Mgmt API has no stale-branch filter.",
+      "example": "supabase-pp-cli branches drift --older-than 7d --json",
+      "why_it_matters": "Use during weekly cleanup to prevent preview-branch sprawl that costs DB resources.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Auth user lookup with context",
+      "command": "auth-admin lookup",
+      "description": "Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.",
+      "rationale": "Pairs Auth Admin /admin/users?email= with optional PostgREST select on a user table; neither surface exists in the official CLI or in supabase-community MCP.",
+      "example": "supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json",
+      "why_it_matters": "Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "RLS-aware schema introspection",
+      "command": "pgrst schema",
+      "description": "Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning.",
+      "rationale": "Uses Management API GET /v1/projects/{ref}/api/rest, the documented replacement for the anon-key /rest/v1/ OpenAPI fetch being removed April 2026.",
+      "example": "supabase-pp-cli pgrst schema --table profiles --json",
+      "why_it_matters": "Use before authoring a typed query so an agent knows the table's column types and constraints without trial-and-error.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Project estate rollup",
+      "command": "projects estate",
+      "description": "One-row-per-project rollup of function count, branch count, api-key count, secret-name count, and last-synced-at.",
+      "rationale": "LEFT JOIN across four locally-synced entity tables; no live endpoint answers this aggregation. Named `estate` to avoid collision with the spec-derived `projects health` (Management /health/services).",
+      "example": "supabase-pp-cli projects estate --json",
+      "why_it_matters": "Use for the Monday morning estate review; one screen replaces 12 dashboard tabs.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Storage bucket usage rollup",
+      "command": "storage usage",
+      "description": "For each bucket, list objects and aggregate file count, total bytes, and largest object.",
+      "rationale": "Pages the real Storage list endpoint and aggregates; surfaces 'is my free tier full' without writing a script.",
+      "example": "supabase-pp-cli storage usage --bucket avatars --json",
+      "why_it_matters": "Use when an agent needs to answer 'how close are we to the storage ceiling' or 'which bucket is biggest'.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Cross-project recent signups",
+      "command": "auth-admin recent",
+      "description": "Iterate synced projects, call Auth Admin per project, aggregate users created within the window into one table.",
+      "rationale": "Fan-out over per-project Auth Admin calls + cross-project aggregation; no single competitor surfaces this view.",
+      "example": "supabase-pp-cli auth-admin recent --since 7d --json",
+      "why_it_matters": "Use for weekly user-growth review across an entire org portfolio.",
+      "group": "Cross-project rollups"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-project secret-name audit",
+      "command": "secrets where-name",
+      "description": "Find every project (across orgs) holding a secret with a given name, plus when each was last synced.",
+      "rationale": "Requires a LEFT JOIN over locally-synced secret_names + projects + organizations tables; no Management API endpoint answers this in one call.",
+      "example": "supabase-pp-cli secrets where-name STRIPE_KEY --json",
+      "why_it_matters": "Use when an agent needs cross-project security posture answers ('which clients have STRIPE_KEY', 'is this secret name leaked anywhere'). The supabase-community MCP cannot answer this without per-project iteration.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Function inventory rollup",
+      "command": "functions inventory",
+      "description": "Per-project, per-org rollup of every edge function with slug, version, status, and last-deployed timestamp.",
+      "rationale": "Aggregates locally-synced project_functions rows by project_ref and org_id; live API only lists functions per project.",
+      "example": "supabase-pp-cli functions inventory --org acme --json",
+      "why_it_matters": "Use during deploy review ('which projects deployed stripe-webhook?') or stale-function audits ('which functions haven't redeployed in 90 days?').",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Branch-drift sweep",
+      "command": "branches drift",
+      "description": "List preview branches older than N days that haven't been merged or deleted, grouped by parent project.",
+      "rationale": "Age filter over locally-synced project_branches; live Mgmt API has no stale-branch filter.",
+      "example": "supabase-pp-cli branches drift --older-than 7d --json",
+      "why_it_matters": "Use during weekly cleanup to prevent preview-branch sprawl that costs DB resources.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Auth user lookup with context",
+      "command": "auth-admin lookup",
+      "description": "Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.",
+      "rationale": "Pairs Auth Admin /admin/users?email= with optional PostgREST select on a user table; neither surface exists in the official CLI or in supabase-community MCP.",
+      "example": "supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json",
+      "why_it_matters": "Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "RLS-aware schema introspection",
+      "command": "pgrst schema",
+      "description": "Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning.",
+      "rationale": "Uses Management API GET /v1/projects/{ref}/api/rest, the documented replacement for the anon-key /rest/v1/ OpenAPI fetch being removed April 2026.",
+      "example": "supabase-pp-cli pgrst schema --table profiles --json",
+      "why_it_matters": "Use before authoring a typed query so an agent knows the table's column types and constraints without trial-and-error.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Project estate rollup",
+      "command": "projects estate",
+      "description": "One-row-per-project rollup of function count, branch count, api-key count, secret-name count, and last-synced-at.",
+      "rationale": "LEFT JOIN across four locally-synced entity tables; no live endpoint answers this aggregation. Named `estate` to avoid collision with the spec-derived `projects health` (Management /health/services).",
+      "example": "supabase-pp-cli projects estate --json",
+      "why_it_matters": "Use for the Monday morning estate review; one screen replaces 12 dashboard tabs.",
+      "group": "Cross-project rollups"
+    },
+    {
+      "name": "Storage bucket usage rollup",
+      "command": "storage usage",
+      "description": "For each bucket, list objects and aggregate file count, total bytes, and largest object.",
+      "rationale": "Pages the real Storage list endpoint and aggregates; surfaces 'is my free tier full' without writing a script.",
+      "example": "supabase-pp-cli storage usage --bucket avatars --json",
+      "why_it_matters": "Use when an agent needs to answer 'how close are we to the storage ceiling' or 'which bucket is biggest'.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Cross-project recent signups",
+      "command": "auth-admin recent",
+      "description": "Iterate synced projects, call Auth Admin per project, aggregate users created within the window into one table.",
+      "rationale": "Fan-out over per-project Auth Admin calls + cross-project aggregation; no single competitor surfaces this view.",
+      "example": "supabase-pp-cli auth-admin recent --since 7d --json",
+      "why_it_matters": "Use for weekly user-growth review across an entire org portfolio.",
+      "group": "Cross-project rollups"
+    }
+  ],
+  "narrative": {
+    "display_name": "Supabase",
+    "headline": "Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke — plus the full Management API and a local SQLite cache of orgs, projects, functions, branches, and secret names.",
+    "value_prop": "The official supabase CLI is local-dev tooling (Docker, migrations, types). This CLI is the runtime API surface it omits, with `--json --select --dry-run` consistency across every command. The local store enables cross-project queries (`secrets where-name STRIPE_KEY`, `branches drift --older-than 7d`, `functions inventory --org acme`) that no single live API call answers.",
+    "auth_narrative": "Supabase has three credential types across two API hosts. The Management API at api.supabase.com uses a Personal Access Token (`SUPABASE_ACCESS_TOKEN`, header `Authorization: Bearer \u003cPAT\u003e`). Project APIs at `\u003cref\u003e.supabase.co` use the `apikey:` header — set `SUPABASE_PUBLISHABLE_KEY` (or legacy `SUPABASE_ANON_KEY`) for RLS-respecting calls, or `SUPABASE_SERVICE_ROLE_KEY` (or new `SUPABASE_SECRET_KEY`) for server-side calls that bypass RLS and unlock Auth Admin endpoints. Also set `SUPABASE_URL=https://\u003cref\u003e.supabase.co`. Edge Functions gotcha: keys go in `apikey:`, never `Authorization: Bearer`.",
+    "quickstart": [
+      {
+        "command": "supabase-pp-cli doctor",
+        "comment": "Verify both Management and project credentials are wired and reachable."
+      },
+      {
+        "command": "supabase-pp-cli projects list --json",
+        "comment": "List your Supabase projects via the Management API (requires SUPABASE_ACCESS_TOKEN)."
+      },
+      {
+        "command": "supabase-pp-cli sync --json",
+        "comment": "Populate the local SQLite store with orgs/projects/functions/branches/secrets for cross-project queries."
+      },
+      {
+        "command": "supabase-pp-cli secrets where-name STRIPE_KEY --json",
+        "comment": "Cross-project audit: every project holding the named secret."
+      },
+      {
+        "command": "supabase-pp-cli pgrst schema --table profiles --json",
+        "comment": "Fetch the per-project PostgREST schema via Management API (replacement for the anon-key path being removed April 2026)."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on Auth Admin or RLS-bypassing PostgREST calls",
+        "fix": "These endpoints require the service_role key. Set `SUPABASE_SERVICE_ROLE_KEY` (or new `SUPABASE_SECRET_KEY`); the publishable/anon key is RLS-only."
+      },
+      {
+        "symptom": "401 Unauthorized on Edge Function invoke",
+        "fix": "Keys go in the `apikey:` header, not `Authorization: Bearer`. The CLI sets this correctly by default; check that you haven't overridden the auth header via --header."
+      },
+      {
+        "symptom": "403 Forbidden on Management API",
+        "fix": "Management API needs a Personal Access Token (sbp_...), not a project key. Generate one at supabase.com/dashboard/account/tokens and `export SUPABASE_ACCESS_TOKEN=...`."
+      },
+      {
+        "symptom": "Empty results from `pgrst select` despite knowing rows exist",
+        "fix": "Row-Level Security is filtering them out. Either use the service_role key (bypasses RLS) or sign in as a user whose JWT passes the table's RLS policy."
+      },
+      {
+        "symptom": "`branches drift` returns nothing",
+        "fix": "Sync at least once: `supabase-pp-cli sync` populates the local store. Drift compares synced rows to filter conditions; an empty store has nothing to compare."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to interact with Supabase at runtime — query user tables, manage Auth users, upload Storage objects, invoke Edge Functions, sweep Management API entities across orgs — with consistent `--json --select --dry-run` ergonomics. For local Docker + migration workflows (`supabase start`, `supabase db push`, `supabase gen types`), use the official supabase CLI; this CLI focuses on what the official one explicitly omits.",
+    "recipes": [
+      {
+        "title": "Cross-project secret audit",
+        "command": "supabase-pp-cli sync \u0026\u0026 supabase-pp-cli secrets where-name STRIPE_KEY --json",
+        "explanation": "Sync the local store, then list every project across every org holding a secret named STRIPE_KEY — the Monday-morning security sweep in one shell call."
+      },
+      {
+        "title": "Support ticket triage",
+        "command": "supabase-pp-cli auth-admin lookup <your-user-email> --json --select user.id,user.email,user.last_sign_in_at",
+        "explanation": "Look up an Auth user by email; --select narrows the payload to identity fields. Add --context-table \u003ctable\u003e --context-key \u003ccol\u003e to join a domain row."
+      },
+      {
+        "title": "Stale preview branches",
+        "command": "supabase-pp-cli branches drift --older-than 14d --json",
+        "explanation": "Surface preview branches older than 14 days that have not been merged or deleted, grouped by parent project — the Tuesday cleanup target list."
+      },
+      {
+        "title": "Storage ceiling check",
+        "command": "supabase-pp-cli storage usage --json | jq '.[] | select(.total_bytes \u003e 100000000)'",
+        "explanation": "List every bucket over 100MB; pipe through jq to filter on byte thresholds."
+      },
+      {
+        "title": "PostgREST schema before query",
+        "command": "supabase-pp-cli pgrst schema --table orders --agent --select tables.columns.name,tables.columns.type,tables.columns.nullable",
+        "explanation": "Get just the column types of the orders table from the Management-API-routed schema endpoint, so an agent can author a typed PostgREST query without trial-and-error."
+      }
+    ],
+    "trigger_phrases": [
+      "supabase auth admin",
+      "list supabase users",
+      "query supabase table",
+      "supabase storage signed url",
+      "secrets across supabase projects",
+      "supabase branches drift",
+      "use supabase",
+      "run supabase"
+    ]
+  }
+}

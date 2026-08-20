@@ -1,0 +1,156 @@
+{
+  "api_name": "facebook-marketplace",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Facebook exposes Marketplace as a browser GraphQL surface rather than a stable public OpenAPI.",
+    "The raw HAR-to-spec pass collapsed many captured GraphQL operations into a single HTML endpoint, so this run uses an augmented internal spec from HAR operation names and document ids.",
+    "Live write verification is intentionally deferred until a human approves disposable real-account actions."
+  ],
+  "patterns": [
+    "Read-mostly defaults lower account risk.",
+    "Local mirror and watch commands turn volatile search results into repeatable agent workflows.",
+    "Explicit write checkpoints and idempotency state are required before network mutations."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-18T19:02:19Z",
+  "novel_features": [
+    {
+      "name": "AI listing drafter",
+      "command": "draft",
+      "description": "Draft a Marketplace title, description, and price suggestion from photos and notes.",
+      "rationale": "Combines local seller notes, photo context, and Marketplace composer price evidence into one agent-facing draft.",
+      "example": "facebook-market-pp-cli draft --photos chair-front.jpg,chair-tag.jpg --notes \"walnut dining chair, small scratch on back\" --json",
+      "why_it_matters": "Use this when preparing a seller listing before opening a write-gated post flow.",
+      "group": "Seller workflow"
+    },
+    {
+      "name": "Buy-side watcher",
+      "command": "watch add",
+      "description": "Persist a Marketplace search watch with deterministic keyword, price, and distance filters.",
+      "rationale": "Turns volatile browser search traffic into repeatable local watch criteria that agents can rerun safely.",
+      "example": "facebook-market-pp-cli watch add --name \"eames\" --query \"eames lounge\" --max-price 1500 --radius 60 --must-have-keywords \"chair,lounge\" --json",
+      "why_it_matters": "Use this when the agent needs to monitor Marketplace without deciding relevance on every raw result.",
+      "group": "Buy-side workflow"
+    },
+    {
+      "name": "Watch matches",
+      "command": "matches",
+      "description": "Show new watch matches after deterministic filtering.",
+      "rationale": "Keeps the expensive judgment step bounded to plausible listings instead of running a two-stage LLM filter.",
+      "example": "facebook-market-pp-cli matches --new --json",
+      "why_it_matters": "Use this when an agent needs the shortlist worth showing a human buyer.",
+      "group": "Buy-side workflow"
+    },
+    {
+      "name": "Stale listing query",
+      "command": "stale",
+      "description": "Find local seller listings older than seven days with no engagement.",
+      "rationale": "Requires local listing and engagement history that the live Marketplace page does not expose as one query.",
+      "example": "facebook-market-pp-cli stale --days 7 --json",
+      "why_it_matters": "Use this when deciding which seller listings need price changes or renewal.",
+      "group": "Local mirror"
+    },
+    {
+      "name": "Write-gated seller reply",
+      "command": "reply",
+      "description": "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass.",
+      "rationale": "Adds idempotency, checkpoints, and receipt redaction around a risky Marketplace mutation.",
+      "example": "facebook-market-pp-cli reply --thread 1525836598898750 --message \"Yes, it is still available.\" --write --json",
+      "why_it_matters": "Use this only for human-approved sell-side messaging.",
+      "group": "Seller workflow"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "AI listing drafter",
+      "command": "draft",
+      "description": "Draft a Marketplace title, description, and price suggestion from photos and notes.",
+      "rationale": "Combines local seller notes, photo context, and Marketplace composer price evidence into one agent-facing draft.",
+      "example": "facebook-market-pp-cli draft --photos chair-front.jpg,chair-tag.jpg --notes \"walnut dining chair, small scratch on back\" --json",
+      "why_it_matters": "Use this when preparing a seller listing before opening a write-gated post flow.",
+      "group": "Seller workflow"
+    },
+    {
+      "name": "Buy-side watcher",
+      "command": "watch add",
+      "description": "Persist a Marketplace search watch with deterministic keyword, price, and distance filters.",
+      "rationale": "Turns volatile browser search traffic into repeatable local watch criteria that agents can rerun safely.",
+      "example": "facebook-market-pp-cli watch add --name \"eames\" --query \"eames lounge\" --max-price 1500 --radius 60 --must-have-keywords \"chair,lounge\" --json",
+      "why_it_matters": "Use this when the agent needs to monitor Marketplace without deciding relevance on every raw result.",
+      "group": "Buy-side workflow"
+    },
+    {
+      "name": "Watch matches",
+      "command": "matches",
+      "description": "Show new watch matches after deterministic filtering.",
+      "rationale": "Keeps the expensive judgment step bounded to plausible listings instead of running a two-stage LLM filter.",
+      "example": "facebook-market-pp-cli matches --new --json",
+      "why_it_matters": "Use this when an agent needs the shortlist worth showing a human buyer.",
+      "group": "Buy-side workflow"
+    },
+    {
+      "name": "Stale listing query",
+      "command": "stale",
+      "description": "Find local seller listings older than seven days with no engagement.",
+      "rationale": "Requires local listing and engagement history that the live Marketplace page does not expose as one query.",
+      "example": "facebook-market-pp-cli stale --days 7 --json",
+      "why_it_matters": "Use this when deciding which seller listings need price changes or renewal.",
+      "group": "Local mirror"
+    },
+    {
+      "name": "Write-gated seller reply",
+      "command": "reply",
+      "description": "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass.",
+      "rationale": "Adds idempotency, checkpoints, and receipt redaction around a risky Marketplace mutation.",
+      "example": "facebook-market-pp-cli reply --thread 1525836598898750 --message \"Yes, it is still available.\" --write --json",
+      "why_it_matters": "Use this only for human-approved sell-side messaging.",
+      "group": "Seller workflow"
+    }
+  ],
+  "narrative": {
+    "display_name": "Facebook Marketplace",
+    "headline": "A write-gated Marketplace seller CLI for search, listing creation, photo upload, local watches, and replies.",
+    "value_prop": "Facebook Marketplace is an authenticated browser surface, so this CLI treats the browser session as the credential and keeps writes opt-in. It turns captured Marketplace GraphQL traffic into repeatable commands, then layers local watches, matches, stale listing checks, and seller drafting on top.",
+    "auth_narrative": "Run `facebook-market-pp-cli auth login --chrome` while logged in to Facebook in Chrome. The captured browser session is the credential; do not store session material in the Dropbox project workspace.",
+    "quickstart": [
+      {
+        "command": "facebook-market-pp-cli doctor",
+        "comment": "Confirm the session still reaches Marketplace."
+      },
+      {
+        "command": "facebook-market-pp-cli marketplace-search content --json",
+        "comment": "Run the captured search operation with the HAR-derived default variable payload."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Marketplace commands return a login or checkpoint page.",
+        "fix": "Open Facebook in Chrome, resolve the checkpoint manually, rerun `auth login --chrome`, then rerun `doctor`."
+      },
+      {
+        "symptom": "A write command refuses to run.",
+        "fix": "Rerun `doctor`; writes require both `--write` and a recent passing doctor check."
+      }
+    ],
+    "when_to_use": "Use this CLI for local, human-paced Facebook Marketplace workflows: searching, watching, triaging matches, drafting listings, and replying to seller inbox threads after explicit approval. Avoid using it for bulk automation or cross-platform scraping.",
+    "recipes": [
+      {
+        "title": "Create a buy-side watch",
+        "command": "facebook-market-pp-cli watch add --name \"eames\" --query \"eames lounge\" --max-price 1500 --radius 60 --json",
+        "explanation": "Stores deterministic filter criteria locally so future runs can compare new listings."
+      },
+      {
+        "title": "Draft a seller listing",
+        "command": "facebook-market-pp-cli draft --photos chair-front.jpg,chair-tag.jpg --notes \"walnut dining chair, small scratch\" --json",
+        "explanation": "Produces listing copy before any write-gated Marketplace mutation."
+      }
+    ],
+    "trigger_phrases": [
+      "search Facebook Marketplace",
+      "watch Marketplace listings",
+      "draft a Marketplace listing",
+      "reply to a Marketplace buyer"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "pop-pp-mcp",
+  "display_name": "POP",
+  "version": "4.9.0",
+  "description": "European electronic invoicing API for compliant XML, PEPPOL, PDF, validation, status tracking, and archival workflows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pop-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pop-pp-mcp",
+      "args": [],
+      "env": {
+        "POP_API_KEY": "${user_config.pop_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "pop_api_key": {
+      "type": "string",
+      "title": "POP_API_KEY",
+      "description": "Optional. Sets POP_API_KEY for the POP MCP server. Get a credential from https://popapi.io/en/prices/.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

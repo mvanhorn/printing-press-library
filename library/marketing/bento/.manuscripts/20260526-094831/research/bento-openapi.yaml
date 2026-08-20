@@ -1,0 +1,1336 @@
+openapi: "3.0.0"
+info:
+    description: |
+        Welcome to the Bento API v1 documentation. This API allows you to interact with Bento's powerful email marketing and customer engagement platform.
+
+        Base URL for API v1 calls: https://app.bentonow.com/api/v1/
+
+        API v1 is actively maintained and regularly updated to provide you with the best possible experience.
+
+        ## Important Note
+
+        For the most up-to-date and comprehensive documentation, please visit our official documentation site at https://docs.bentonow.com/
+
+    title: Bento API v1
+    version: "1.0"
+servers:
+    - url: "https://app.bentonow.com"
+      description: Production server
+    - url: "http://app.devbento.localhost/"
+      description: Development server
+tags:
+    - name: subscribers
+      description: Manage your subscriber base, including creation, updates, and retrieval of subscriber information.
+      x-displayName: Subscribers
+    - name: events
+      description: Track and manage events associated with your subscribers.
+      x-displayName: Events
+    - name: emails
+      description: Create, send, and manage email campaigns.
+      x-displayName: Emails
+    - name: tags
+      description: Organize and categorize your subscribers with tags.
+      x-displayName: Tags
+    - name: fields
+      description: Define and manage custom fields for your subscribers.
+      x-displayName: Fields
+    - name: broadcasts
+      description: Create and manage email broadcasts to your subscriber base.
+      x-displayName: Broadcasts
+    - name: experimental
+      description: Access experimental APIs designed for specific use cases. Use with caution as these may change.
+      x-displayName: Experimental API
+    - name: stats
+      description: Retrieve statistical data about your account. IMPORTANT — Never use these endpoints in client-side code.
+      x-displayName: Stats
+paths:
+    /api/v1/batch/subscribers:
+        post:
+            security:
+                - BasicAuth: []
+            tags:
+                - subscribers
+            summary: Import or Update Subscribers in Bulk
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: |
+                This endpoint allows for efficient bulk creation and updating of subscribers. It mimics our import background jobs and is the recommended method for managing your subscriber base at scale.
+                
+                Key features:
+                - Supports both creation and updating of subscribers
+                - Processes data via import queues for optimal performance
+                - Changes are typically instant but may take up to 5 minutes in high-load situations
+                - Ideal for bulk updates, imports, and one-off subscriber modifications
+                - Does not trigger Flows or automations, ensuring minimal side effects
+
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                subscribers:
+                                    type: array
+                                    description: An array containing between 1 and 1000 subscriber objects.
+                                    items:
+                                        type: object
+                                        properties:
+                                            email:
+                                                type: string
+                                                description: The subscriber's email address. Required for each subscriber.
+                                                example: "EMAIL_PLACEHOLDER"
+                                            first_name:
+                                                type: string
+                                                description: The subscriber's first name.
+                                                example: "John"
+                                            last_name:
+                                                type: string
+                                                description: The subscriber's last name.
+                                                example: "Doe"
+                                            tags:
+                                                type: string
+                                                description: Comma-separated list of tags to add to the subscriber.
+                                                example: "newsletter,product_launch"
+                                            remove_tags:
+                                                type: string
+                                                description: Comma-separated list of tags to remove from the subscriber.
+                                                example: "old_customer,inactive"
+                                            custom_field:
+                                                type: string
+                                                description: Any additional custom field you want to add or update for the subscriber.
+                                                example: "preferred_language"
+                                        required:
+                                            - email
+            responses:
+                "200":
+                    description: Successfully processed subscriber data.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    result:
+                                        type: integer
+                                        description: The number of subscribers successfully processed.
+                                        example: 1000
+
+    /api/v1/batch/emails:
+        post:
+            tags:
+                - emails
+            security:
+                - BasicAuth: []
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            summary: Create and Send Emails in Bulk
+            description: |
+                This endpoint allows you to create and send multiple emails efficiently. It's designed for high-priority email sending with quick processing times.
+
+                Key features:
+                - Supports sending up to 60 emails per request
+                - Requests are processed in a priority queue
+                - Most requests are processed within 30 seconds
+                - Ideal for time-sensitive communications like password resets or important notifications
+
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                emails:
+                                    type: array
+                                    description: An array of 1 to 60 email objects to be sent.
+                                    items:
+                                        type: object
+                                        required:
+                                            - to
+                                            - from
+                                        properties:
+                                            to:
+                                                type: string
+                                                description: The recipient's email address.
+                                                example: "EMAIL_PLACEHOLDER"
+                                            from:
+                                                type: string
+                                                description: The sender's email address. Must be an authorized sender in your account.
+                                                example: "EMAIL_PLACEHOLDER"
+                                            subject:
+                                                type: string
+                                                description: The subject line of the email.
+                                                example: "Your Password Reset Link"
+                                            html_body:
+                                                type: string
+                                                description: The HTML content of the email. Can include placeholders for personalization.
+                                                example: "<p>Hello {{name}},</p><p>Click here to reset your password: {{reset_link}}</p>"
+                                            transactional:
+                                                type: boolean
+                                                description: Indicates whether the email is transactional (true) or marketing (false).
+                                                example: true
+                                            personalizations:
+                                                type: object
+                                                description: Custom data to be injected into email placeholders.
+                                                example:
+                                                    name: "John Doe"
+                                                    reset_link: "https://example.com/reset?token=abc123"
+            responses:
+                "200":
+                    description: Successfully processed email requests.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    results:
+                                        type: integer
+                                        description: The number of email requests successfully processed.
+                                        example: 60
+
+    /api/v1/batch/events:
+        post:
+            tags:
+                - events
+            security:
+                - BasicAuth: []
+            summary: Create Events in Bulk
+            description: |
+                This endpoint allows you to send multiple events to your site. It's a powerful tool for tracking user interactions and behaviors.
+
+                Key features:
+                - Can create new users if they don't exist in your account
+                - Supports sending up to 1,000 events per request
+                - Ideal for tracking various user actions like page views, purchases, or custom events
+
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                events:
+                                    type: array
+                                    description: An array of 1 to 1,000 event objects.
+                                    items:
+                                        type: object
+                                        required:
+                                            - type
+                                            - email
+                                        properties:
+                                            type:
+                                                type: string
+                                                description: The name of the event.
+                                            email:
+                                                type: string
+                                                description: The email of the user associated with the event.
+                                            fields:
+                                                type: object
+                                                description: Additional fields related to the user or event.
+                                            details:
+                                                type: object
+                                                description: Specific details about the event.
+                                            date:
+                                                type: string
+                                                format: date-time
+                                                description: The date and time of the event. Use for backfilling historical data.
+                                    example:
+                                        - type: "$completed_onboarding"
+                                          email: "EMAIL_PLACEHOLDER"
+                                        - type: "$completed_onboarding"
+                                          email: "EMAIL_PLACEHOLDER"
+                                          fields:
+                                              first_name: "Jane"
+                                              last_name: "Doe"
+                                        - email: "EMAIL_PLACEHOLDER"
+                                          type: "$purchase"
+                                          fields:
+                                              first_name: "John"
+                                          details:
+                                              unique:
+                                                  key: "order_123"
+                                              value:
+                                                  currency: "USD"
+                                                  amount: 9999
+                                              cart:
+                                                  items:
+                                                      - product_sku: "PROD-001"
+                                                        product_name: "Premium Widget"
+                                                        quantity: 1
+                                                  abandoned_checkout_url: "https://example.com/cart"
+            responses:
+                "200":
+                    description: Successfully processed event data.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    results:
+                                        type: integer
+                                        description: The number of events successfully processed.
+                                        example: 1000
+
+    /api/v1/fetch/broadcasts:
+        get:
+            tags: 
+                - broadcasts
+            security:
+                - BasicAuth: []
+            summary: Retrieve Broadcasts
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: Fetches a list of all broadcasts in your account, providing an overview of your email campaigns.
+            responses:
+                "200":
+                    description: Successfully retrieved broadcasts.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Broadcast"
+
+    /api/v1/batch/broadcasts:
+        post:
+            tags:
+                - broadcasts
+            security:
+                - BasicAuth: []
+            summary: Create Multiple Broadcasts
+            description: |
+                This endpoint allows you to create multiple email broadcasts efficiently. It's ideal for setting up a series of campaigns or A/B tests.
+
+                Key features:
+                - Supports creating up to 100 broadcasts per request
+                - Allows for detailed customization of each broadcast
+                - Useful for scheduling a series of emails or creating variations for testing
+
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                broadcasts:
+                                    type: array
+                                    description: An array of 1 to 100 broadcast objects.
+                                    items:
+                                        type: object
+                                        properties:
+                                            name:
+                                                type: string
+                                                description: The name of the broadcast campaign.
+                                                example: "Summer Sale Announcement"
+                                            subject:
+                                                type: string
+                                                description: The subject line of the email.
+                                                example: "Don't Miss Our Biggest Sale of the Year!"
+                                            content:
+                                                type: string
+                                                description: The HTML content of the email. Can include placeholders for personalization.
+                                                example: "<p>Hello {{ visitor.first_name }},</p><p>Our summer sale starts tomorrow!</p>"
+                                            type:
+                                                type: string
+                                                description: The type of email template to use. Use "plain" for basic CSS or "raw" for custom HTML.
+                                                enum: ["plain", "raw"]
+                                                example: "plain"
+                                            from:
+                                                type: object
+                                                description: The sender's information.
+                                                properties:
+                                                    email:
+                                                        type: string
+                                                        description: The sender's email address. Must be an authorized sender in your account.
+                                                        example: "EMAIL_PLACEHOLDER"
+                                                    name:
+                                                        type: string
+                                                        description: The sender's display name.
+                                                        example: "Your Company Marketing Team"
+                                            inclusive_tags:
+                                                type: string
+                                                description: Comma-separated list of tags. Subscribers must have at least one of these tags to receive the email.
+                                                example: "active_customer,high_value"
+                                            exclusive_tags:
+                                                type: string
+                                                description: Comma-separated list of tags. Subscribers with any of these tags will be excluded.
+                                                example: "unsubscribed,inactive"
+                                            segment_id:
+                                                type: string
+                                                description: The ID of a pre-defined segment to target with this broadcast.
+                                                example: "seg_12345abcde"
+                                            batch_size_per_hour:
+                                                type: integer
+                                                description: The maximum number of emails to send per hour. Use for throttling large campaigns.
+                                                example: 1000
+            responses:
+                "200":
+                    description: Successfully processed broadcast creation requests.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    results:
+                                        type: integer
+                                        description: The number of broadcasts successfully created.
+                                        example: 5
+
+    /api/v1/fetch/fields:
+        get:
+            tags: 
+                - fields
+            security:
+                - BasicAuth: []
+            summary: Retrieve Custom Fields
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: Fetches a list of all custom fields defined in your account. These fields can be used for subscriber data and segmentation.
+            responses:
+                "200":
+                    description: Successfully retrieved custom fields.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Field"
+        post:
+            tags: 
+                - fields
+            security:
+                - BasicAuth: []
+            summary: Create Custom Field
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: Creates a new custom field in your account. Custom fields allow you to store additional data about your subscribers.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                field:
+                                    type: object
+                                    properties:
+                                        key:
+                                            type: string
+                                            description: The unique identifier for the custom field.
+                                            example: "loyalty_points"
+            responses:
+                "201":
+                    description: Custom field successfully created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Field"
+
+    /api/v1/fetch/search:
+        get:
+            security:
+                - BasicAuth: []
+            tags:
+                - subscribers
+            summary: Search Subscribers
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: |
+                This endpoint allows for advanced searching of your subscriber base. It's designed for Bento Enterprise customers and requires special access.
+
+                Key features:
+                - Returns up to 100 subscribers per page
+                - Supports various search criteria including creation date, update date, and custom fields
+                - Ideal for complex segmentation and data analysis tasks
+
+                Note: This is an Enterprise-only feature. Please contact Bento support for access and further details.
+
+            requestBody:
+                required: false
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                page: 
+                                    type: integer
+                                    description: The page number of the search results to retrieve.
+                                    example: 1
+                                created_at:
+                                    type: object
+                                    description: Filter by subscriber creation date.
+                                    properties:
+                                        gt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers created after this date.
+                                        lt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers created before this date.
+                                updated_at:
+                                    type: object
+                                    description: Filter by subscriber last update date.
+                                    properties:
+                                        gt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers updated after this date.
+                                        lt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers updated before this date.
+                                last_event_at:
+                                    type: object
+                                    description: Filter by the date of the subscriber's last recorded event.
+                                    properties:
+                                        gt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers with events after this date.
+                                        lt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers with events before this date.
+                                unsubscribed_at:
+                                    type: object
+                                    description: Filter by unsubscribe date.
+                                    properties:
+                                        gt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers who unsubscribed after this date.
+                                        lt:
+                                            type: string
+                                            format: date-time
+                                            description: Return subscribers who unsubscribed before this date.
+            responses:
+                "200":
+                    description: Successfully retrieved subscriber search results.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SearchResult"
+
+    /api/v1/fetch/subscribers:
+        get:
+            tags: 
+                - subscribers
+            security:
+                - BasicAuth: []
+            summary: Retrieve Subscriber Information
+            description: Fetch detailed information about one or multiple subscribers in your account.
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+                - name: email
+                  in: query
+                  description: The email address of the subscriber to retrieve.
+                  schema:
+                      type: string
+                - name: uuid
+                  in: query
+                  description: The unique identifier of the subscriber. Use this for precise lookups.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Successfully retrieved subscriber information.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Subscriber"
+        post:
+            tags: 
+                - subscribers
+            summary: Create New Subscriber
+            description: Creates a new subscriber in your account and queues them for indexing.
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            security:
+                - BasicAuth: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                subscriber:
+                                    type: object
+                                    properties:
+                                        email:
+                                            type: string
+                                            description: The email address of the new subscriber.
+                                            example: "EMAIL_PLACEHOLDER"
+            responses:
+                "201":
+                    description: Subscriber successfully created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Subscriber"
+
+    /api/v1/fetch/tags:
+        get:
+            tags: 
+                - tags
+            security:
+                - BasicAuth: []
+            summary: Retrieve Tags
+            description: Fetches a list of all tags in your account. Tags are useful for segmenting your subscriber base.
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Successfully retrieved tags.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Tag"
+        post:
+            tags: 
+                - tags
+            security:
+                - BasicAuth: []
+            summary: Create New Tag
+            description: Creates a new tag in your account for subscriber segmentation.
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                tag:
+                                    type: object
+                                    properties:
+                                        name:
+                                            type: string
+                                            description: The name of the new tag.
+                                            example: "vip_customer"
+            responses:
+                "201":
+                    description: Tag successfully created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Tag"
+
+    /api/v1/fetch/commands:
+        post:
+            tags: 
+                - subscribers
+            security:
+                - BasicAuth: []
+            summary: Execute Subscriber Commands
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            description: |
+                This endpoint allows you to execute various commands to modify subscriber data. It's a powerful tool for managing your subscriber base programmatically.
+
+                Available commands:
+                - add_tag: Add a tag to a subscriber
+                - add_tag_via_event: Add a tag to a subscriber and record it as an event
+                - remove_tag: Remove a tag from a subscriber
+                - add_field: Add or update a custom field for a subscriber
+                - remove_field: Remove a custom field from a subscriber
+                - subscribe: Mark a subscriber as subscribed
+                - unsubscribe: Mark a subscriber as unsubscribed
+                - change_email: Change a subscriber's email address
+
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                command:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            command:
+                                                type: string
+                                                description: The command to execute.
+                                                enum:
+                                                    [
+                                                        add_tag,
+                                                        add_tag_via_event,
+                                                        remove_tag,
+                                                        add_field,
+                                                        remove_field,
+                                                        subscribe,
+                                                        unsubscribe,
+                                                        change_email,
+                                                    ]
+                                            email:
+                                                type: string
+                                                description: The email address of the subscriber to modify.
+                                            query:
+                                                oneOf:
+                                                    - type: string
+                                                    - type: object
+                                                description: The data for the command. Format depends on the command type.
+                                    example:
+                                        - command: add_tag
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query: "new_customer"
+                                        - command: add_tag_via_event
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query: "product_viewed"
+                                        - command: remove_tag
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query: "inactive"
+                                        - command: add_field
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query:
+                                              key: "last_purchase_date"
+                                              value: "2023-06-15"
+                                        - command: remove_field
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query: "old_field"
+                                        - command: subscribe
+                                          email: "EMAIL_PLACEHOLDER"
+                                        - command: unsubscribe
+                                          email: "EMAIL_PLACEHOLDER"
+                                        - command: change_email
+                                          email: "EMAIL_PLACEHOLDER"
+                                          query: "EMAIL_PLACEHOLDER"
+            responses:
+                "200":
+                    description: Commands executed successfully.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Command"
+
+    /api/v1/stats/site:
+        get:
+            tags:
+                - stats
+            security:
+                - BasicAuth: []
+            summary: Retrieve Site Statistics
+            description: |
+                Fetches overall statistics for your site. This includes counts of users, subscribers, and unsubscribers.
+
+                IMPORTANT: This endpoint should never be used in client-side code to ensure the privacy and security of your account data.
+
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Successfully retrieved site statistics.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    user_count:
+                                        type: integer
+                                        description: Total number of users in your account.
+                                        example: 10000
+                                    subscriber_count:
+                                        type: integer
+                                        description: Number of active subscribers.
+                                        example: 8500
+                                    unsubscriber_count:
+                                        type: integer
+                                        description: Number of users who have unsubscribed.
+                                        example: 1500
+
+    /api/v1/stats/segment:
+        get:
+            tags:
+                - stats
+            security:
+                - BasicAuth: []
+            summary: Retrieve Segment Statistics
+            description: |
+                Fetches statistics for a specific segment in your account. This includes counts of users, subscribers, and unsubscribers within the segment.
+
+                IMPORTANT: This endpoint should never be used in client-side code to ensure the privacy and security of your account data.
+
+            parameters:
+                - name: site_uuid
+                  in: query
+                  required: true
+                  description: Your site's unique identifier.
+                  schema:
+                      type: string
+                - name: segment_id
+                  in: query
+                  required: true
+                  description: The unique identifier of the segment you want to analyze.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Successfully retrieved segment statistics.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    user_count:
+                                        type: integer
+                                        description: Total number of users in the segment.
+                                        example: 5000
+                                    subscriber_count:
+                                        type: integer
+                                        description: Number of active subscribers in the segment.
+                                        example: 4200
+                                    unsubscriber_count:
+                                        type: integer
+                                        description: Number of users in the segment who have unsubscribed.
+                                        example: 800
+    
+    /api/v1/experimental/blacklist.json:
+        get:
+            tags:
+                - experimental
+            security:
+                - BasicAuth: []
+            summary: Check Domain or IP Blacklist Status
+            description: |
+                This experimental endpoint allows you to check if a domain or IP address is present on various blacklists.
+                You can provide either a domain or an IP address, but not both in the same request.
+
+            parameters:
+                - name: domain
+                  in: query
+                  description: The domain to check (e.g., "example.com"). Do not include the protocol (http:// or https://).
+                  schema:
+                      type: string
+                - name: ip
+                  in: query
+                  description: The IP address to check.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Successfully retrieved blacklist information.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    query:
+                                        type: string
+                                        description: The domain or IP address that was checked.
+                                    description:
+                                        type: string
+                                        description: A brief description of the result.
+                                    results:
+                                        type: object
+                                        properties:
+                                            just_registered:
+                                                type: boolean
+                                                description: Indicates if the domain was recently registered.
+                                            spamhaus:
+                                                type: boolean
+                                                description: Indicates if the domain/IP is listed on Spamhaus.
+                                            nordspam:
+                                                type: boolean
+                                                description: Indicates if the domain/IP is listed on NordSpam.
+                                            spfbl:
+                                                type: boolean
+                                                description: Indicates if the domain/IP is listed on SPFBL.
+                                            sorbs:
+                                                type: boolean
+                                                description: Indicates if the domain/IP is listed on SORBS.
+                                            abusix:
+                                                type: boolean
+                                                description: Indicates if the domain/IP is listed on Abusix.
+
+    /api/v1/experimental/validation:
+        post:
+            tags:
+                - experimental
+            security:
+                - BasicAuth: []
+            summary: Validate Email and User Information
+            description: |
+                This experimental endpoint provides basic validation for email addresses and associated user information.
+                It uses various heuristics to determine the likelihood of the provided information being valid.
+
+            parameters:
+                - name: name
+                  in: query
+                  description: The full name of the contact. Note that this validation is biased towards US Census data and may produce false positives.
+                  schema:
+                      type: string
+                - name: user_agent
+                  in: query
+                  description: The user agent string from the browser or client application.
+                  schema:
+                      type: string
+                - name: ip
+                  in: query
+                  description: The users IP address. Returns false for all countries outside of Tier 1.
+                  schema:
+                      type: string
+                - name: email
+                  required: true
+                  in: query
+                  description: Validates the domains MX records.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Cake successfully retrieved.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    valid:
+                                        type: boolean
+    /api/v1/experimental/content_moderation:
+        post:
+            tags:
+                - experimental
+            security:
+                - BasicAuth: []
+            summary: Moderate Content
+            description: This endpoint will return an opinionated moderation score based on the content provided. This is optimised for small amounts of text content, where you never want a link/XSS/etc inside it.
+            parameters:
+                - name: content
+                  required: true
+                  in: query
+                  description: The content you wish to moderate.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Cake successfully retrieved.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    valid:
+                                        type: boolean
+                                    reasons:
+                                        type: array
+                                        items:
+                                            type: string
+                                    safe_original_content:
+                                        type: string
+    /api/v1/experimental/gender:
+        post:
+            tags:
+                - experimental
+            security:
+                - BasicAuth: []
+            summary: Guess Gender
+            description: This endpoint allows you to guess the gender of a subscriber based on their first name and last name. Works best with US users as we use US Census Data to make our guesses.
+            parameters:
+                - name: name
+                  in: query
+                  required: true
+                  description: This can be the full name of a subscriber or last name.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Gender guessed! The response will always return a confidence level.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    gender:
+                                        type: string
+                                    confidence:
+                                        type: number
+
+    /api/v1/experimental/geolocation:
+        get:
+            tags:
+                - experimental
+            security:
+                - BasicAuth: []
+            summary: Geolocate IP
+            description: This endpoint allows you to geolocate an IP address.
+            parameters:
+                - name: ip
+                  in: query
+                  required: true
+                  description: The IP address you wish to ping.
+                  schema:
+                      type: string
+            responses:
+                "200":
+                    description: Cake successfully retrieved.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    request:
+                                        type: string
+                                    ip:
+                                        type: string
+                                    country_code2:
+                                        type: string
+                                    country_code3:
+                                        type: string
+                                    country_name:
+                                        type: string
+                                    continent_code:
+                                        type: string
+                                    region_name:
+                                        type: string
+                                    city_name:
+                                        type: string
+                                    postal_code:
+                                        type: string
+                                    latitude:
+                                        type: number
+                                    longitude:
+                                        type: number
+                                    dma_code:
+                                        type: string
+                                    area_code:
+                                        type: string
+                                    timezone:
+                                        type: string
+                                    real_region_name:
+                                        type: string
+components:
+    schemas:
+        Broadcast:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: The unique identifier for the broadcast.
+                type:
+                    type: string
+                    description: The type of the broadcast data.
+                attributes:
+                    type: object
+                    properties:
+                        name:
+                            type: string
+                            description: The name of the broadcast.
+                        share_url:
+                            type: string
+                            description: The share URL for the broadcast.
+                        template:
+                            type: object
+                            properties:
+                                subject:
+                                    type: string
+                                    description: The subject of the broadcast email.
+                                to:
+                                    type: string
+                                    description: The recipient placeholder for the email.
+                                html:
+                                    type: string
+                                    description: The HTML content of the email.
+                        created_at:
+                            type: string
+                            format: date-time
+                            description: The creation time of the broadcast.
+                        sent_final_batch_at:
+                            type: string
+                            format: date-time
+                            description: The time when the final batch was sent.
+                        send_at:
+                            type: string
+                            format: date-time
+                            description: The scheduled send time for the broadcast.
+                        stats:
+                            type: object
+                            properties:
+                                open_rate:
+                                    type: number
+                                    format: float
+                                    description: The open rate for the broadcast email.
+
+        Command:
+            type: object
+            properties:
+                data:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                            description: The unique identifier for the command.
+                        type:
+                            type: string
+                            description: The type of the data.
+                        attributes:
+                            type: object
+                            properties:
+                                uuid:
+                                    type: string
+                                    description: The UUID of the visitor.
+                                email:
+                                    type: string
+                                    description: The email of the visitor.
+                                fields:
+                                    type: object
+                                    description: Additional fields related to the visitor.
+                                cached_tag_ids:
+                                    type: array
+                                    items:
+                                        type: string
+                                    description: An array of cached tag IDs associated with the visitor.
+
+        Field:
+            type: object
+            properties:
+                data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                                description: The unique identifier for the field.
+                            type:
+                                type: string
+                                description: The type of the data.
+                            attributes:
+                                type: object
+                                properties:
+                                    name:
+                                        type: string
+                                        description: The name of the field.
+                                    key:
+                                        type: string
+                                        description: The key corresponding to the field name.
+                                    whitelisted:
+                                        type: string
+                                        nullable: true
+                                        description: Information about whether the field is whitelisted or not.
+                                    created_at:
+                                        type: string
+                                        format: date-time
+                                        description: The date and time when the field was created.
+
+        Subscriber:
+            type: object
+            properties:
+                data:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                            description: The unique identifier for the subscriber.
+                        type:
+                            type: string
+                            description: The type of the data.
+                        attributes:
+                            type: object
+                            properties:
+                                uuid:
+                                    type: string
+                                    description: The UUID of the subscriber.
+                                email:
+                                    type: string
+                                    description: The email of the subscriber.
+                                fields:
+                                    type: object
+                                    description: Additional fields related to the subscriber.
+                                cached_tag_ids:
+                                    type: array
+                                    items:
+                                        type: string
+                                    description: An array of cached tag IDs associated with the subscriber.
+        SearchResult:
+            type: object
+            properties:
+                data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                                description: The unique identifier for the visitor.
+                            type:
+                                type: string
+                                description: The type of the data.
+                            attributes:
+                                type: object
+                                properties:
+                                    uuid:
+                                        type: string
+                                        description: The UUID of the visitor.
+                                    email:
+                                        type: string
+                                        description: The email of the visitor.
+                                    fields:
+                                        type: object
+                                        description: Additional fields related to the visitor.
+                                    cached_tag_ids:
+                                        type: array
+                                        items:
+                                            type: string
+                                        description: An array of cached tag IDs associated with the visitor.
+                                    unsubscribed_at:
+                                        type: string
+                                        nullable: true
+                                        description: The date and time when the visitor unsubscribed, if applicable.
+                                    navigation_url:
+                                        type: string
+                                        description: The navigation URL associated with the visitor.
+                meta:
+                    type: object
+                    properties:
+                        page:
+                            type: integer
+                            description: The page number of the search result.
+                        query:
+                            type: object
+                            properties:
+                                email:
+                                    type: object
+                                    properties:
+                                        not:
+                                            type: string
+                                            nullable: true
+                                            description: The condition for the email field in the query.
+
+        Tag:
+            type: object
+            properties:
+                data:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                                description: The unique identifier for the tag.
+                            type:
+                                type: string
+                                description: The type of the data.
+                            attributes:
+                                type: object
+                                properties:
+                                    name:
+                                        type: string
+                                        description: The name of the tag.
+                                    created_at:
+                                        type: string
+                                        format: date-time
+                                        description: The date and time when the tag was created.
+                                    discarded_at:
+                                        type: string
+                                        nullable: true
+                                        description: The date and time when the tag was discarded, if applicable.
+    securitySchemes:
+        BasicAuth:
+            type: http
+            scheme: basic
+            description: Required for all endpoints. Use your publishable_key as the username and your secret_key as the password. Your keys are scoped to your user and give you access to all teams and sites you have access to.
+            x-auth-vars:
+                - name: BENTO_PUBLISHABLE_KEY
+                  kind: per_call
+                  required: true
+                  sensitive: false
+                  description: Basic auth username. Starts with pk_. Available in your Bento dashboard under Settings -> API Keys.
+                - name: BENTO_SECRET_KEY
+                  kind: per_call
+                  required: true
+                  sensitive: true
+                  description: Basic auth password. Starts with sk_. Available in your Bento dashboard under Settings -> API Keys. Never expose client-side.
+                - name: BENTO_SITE_UUID
+                  kind: per_call
+                  required: true
+                  sensitive: false
+                  description: Bento site identifier. Attached to every request as ?site_uuid= on GETs and in the JSON body on POSTs. Available in your Bento dashboard under Account -> Site Settings.
+security:
+    - BasicAuth: [] # <-- use the same name here
+

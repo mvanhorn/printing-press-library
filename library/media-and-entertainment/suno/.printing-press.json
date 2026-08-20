@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T11:02:37.922699Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "suno",
+  "display_name": "Suno",
+  "cli_name": "suno-pp-cli",
+  "contributors": [
+    {
+      "handle": "horknfbr",
+      "name": "Scott Macdonald"
+    }
+  ],
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6a43d9653fe5ed7afe89e74c18fd85a2cd9b5f3d32725c8788eb814b44cf2961",
+  "run_id": "20260528-222057",
+  "category": "media-and-entertainment",
+  "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+  "mcp_binary": "suno-pp-mcp",
+  "mcp_tool_count": 37,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SUNO_TOKEN",
+    "SUNO_JWT"
+  ],
+  "novel_features": [
+    {
+      "name": "Lyric-line grep",
+      "command": "grep",
+      "description": "Find clips by remembered lyric, prompt, or tag phrases via local full-text search."
+    },
+    {
+      "name": "Library analytics",
+      "command": "analytics",
+      "description": "Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field."
+    },
+    {
+      "name": "Variation lineage",
+      "command": "lineage",
+      "description": "Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links."
+    },
+    {
+      "name": "Top tracks",
+      "command": "top",
+      "description": "Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output."
+    },
+    {
+      "name": "Raw SQL",
+      "command": "sql",
+      "description": "Run read-only SQL directly against your local synced clip store."
+    },
+    {
+      "name": "Credit throttle report",
+      "command": "credits --forecast",
+      "description": "Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold."
+    }
+  ]
+}

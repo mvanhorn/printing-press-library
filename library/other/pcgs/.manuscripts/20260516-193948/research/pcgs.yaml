@@ -1,0 +1,302 @@
+name: pcgs
+description: "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget."
+version: "0.1.0"
+base_url: "https://api.pcgs.com/publicapi"
+health_check_path: "/coindetail/GetCoinFactsByGrade?PCGSNo=98836&GradeNo=66&PlusGrade=false"
+http_transport: standard
+
+cli_description: "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget."
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "bearer {token}"
+  in: header
+  env_vars:
+    - PCGS_AUTH_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/pcgs-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  coin:
+    description: "PCGS-graded coin lookups: CoinFacts metadata, Auction Prices Realized (APR), and images."
+    endpoints:
+      facts-cert:
+        method: GET
+        path: "/coindetail/GetCoinFactsByCertNo/{certNo}"
+        description: "Full CoinFacts metadata for one PCGS cert number. The IsValidRequest + ServerMessage envelope tells you if the cert is legitimate."
+        params:
+          - name: certNo
+            flag_name: cert
+            aliases: [cert-no]
+            type: string
+            required: true
+            positional: true
+            description: "PCGS cert number (digits only, no slab-prefix)."
+          - name: retrieveAllData
+            flag_name: retrieve-all-data
+            aliases: []
+            type: bool
+            required: false
+            default: true
+            description: "Ask PCGS to return the full CoinFacts payload (default: true)."
+
+      facts-grade:
+        method: GET
+        path: "/coindetail/GetCoinFactsByGrade"
+        description: "CoinFacts snapshot for a (PCGSNo, GradeNo, PlusGrade) tuple. Used by pop-curve to fan grades 1-70 + Plus + Details (82-98)."
+        params:
+          - name: PCGSNo
+            flag_name: pcgs-no
+            aliases: []
+            type: string
+            required: true
+            description: "PCGS spec number (e.g. 7356 for 1921 Peace Dollar)."
+          - name: GradeNo
+            flag_name: grade
+            aliases: [grade-no]
+            type: int
+            required: true
+            description: "Numeric PCGS grade (1-70 standard, 82-98 Details)."
+          - name: PlusGrade
+            flag_name: plus
+            aliases: [plus-grade]
+            type: bool
+            required: true
+            default: false
+            description: "Plus-grade flag (e.g. MS65+); pass false for standard grades."
+
+      facts-barcode:
+        method: GET
+        path: "/coindetail/GetCoinFactsByBarcode"
+        description: "CoinFacts metadata by holder barcode. Supports PCGS and competitor-service barcodes (NGC, ANACS, ICG, SEGS)."
+        params:
+          - name: barcode
+            flag_name: barcode
+            type: string
+            required: true
+            positional: true
+            description: "Holder barcode as scanned."
+          - name: gradingService
+            flag_name: service
+            aliases: [grading-service]
+            type: string
+            required: true
+            default: "pcgs"
+            enum: ["pcgs", "ngc", "anacs", "icg", "segs"]
+            description: "Which grading service issued the holder."
+
+      apr-cert:
+        method: GET
+        path: "/coindetail/GetAPRByCertNo/{CertNo}"
+        description: "Auction Prices Realized for one PCGS cert number."
+        params:
+          - name: CertNo
+            flag_name: cert
+            aliases: [cert-no]
+            type: string
+            required: true
+            positional: true
+            description: "PCGS cert number."
+
+      apr-grade:
+        method: GET
+        path: "/coindetail/GetAPRByGrade"
+        description: "Auction Prices Realized for a (PCGSNo, GradeNo, PlusGrade) tuple with optional date window and result limit."
+        params:
+          - name: PCGSNo
+            flag_name: pcgs-no
+            aliases: []
+            type: string
+            required: true
+            description: "PCGS spec number."
+          - name: GradeNo
+            flag_name: grade
+            aliases: [grade-no]
+            type: int
+            required: true
+            description: "Numeric PCGS grade."
+          - name: PlusGrade
+            flag_name: plus
+            aliases: []
+            type: bool
+            required: true
+            default: false
+            description: "Plus-grade flag."
+          - name: StartDate
+            flag_name: start
+            aliases: [start-date]
+            type: string
+            required: false
+            format: date
+            description: "Earliest auction date (YYYY-MM-DD)."
+          - name: EndDate
+            flag_name: end
+            aliases: [end-date]
+            type: string
+            required: false
+            format: date
+            description: "Latest auction date (YYYY-MM-DD)."
+          - name: NumberOfRecords
+            flag_name: limit
+            aliases: []
+            type: int
+            required: false
+            default: 50
+            description: "Max number of auction records to return."
+
+      apr-barcode:
+        method: GET
+        path: "/coindetail/GetAPRByBarcode"
+        description: "Auction Prices Realized by holder barcode with optional date window."
+        params:
+          - name: barcode
+            flag_name: barcode
+            type: string
+            required: true
+            positional: true
+            description: "Holder barcode."
+          - name: gradingService
+            flag_name: service
+            aliases: [grading-service]
+            type: string
+            required: true
+            default: "pcgs"
+            enum: ["pcgs", "ngc", "anacs", "icg", "segs"]
+            description: "Grading service that issued the holder."
+          - name: StartDate
+            flag_name: start
+            aliases: []
+            type: string
+            required: false
+            format: date
+            description: "Earliest auction date (YYYY-MM-DD)."
+          - name: EndDate
+            flag_name: end
+            aliases: []
+            type: string
+            required: false
+            format: date
+            description: "Latest auction date (YYYY-MM-DD)."
+
+      images:
+        method: GET
+        path: "/coindetail/GetImagesByCertNo"
+        description: "TrueView and stock images for one PCGS cert (URLs only; no binary download)."
+        params:
+          - name: certNo
+            flag_name: cert
+            aliases: [cert-no]
+            type: string
+            required: true
+            positional: true
+            description: "PCGS cert number."
+
+  banknote:
+    description: "PCGS Banknote lookups: facts and images. Same shape as coins, separate endpoint family."
+    endpoints:
+      facts-cert:
+        method: GET
+        path: "/banknotedetail/GetBanknoteByCertNo"
+        description: "Full banknote metadata for one PCGS Banknote cert. Optional language code for translated text."
+        params:
+          - name: certNo
+            flag_name: cert
+            aliases: []
+            type: string
+            required: true
+            positional: true
+            description: "PCGS Banknote cert number."
+          - name: languageCode
+            flag_name: lang
+            aliases: [language]
+            type: string
+            required: false
+            default: "en"
+            description: "ISO language code for translated CoinFactsNotes (e.g. en, fr, es, de, zh)."
+
+      facts-grade:
+        method: GET
+        path: "/banknotedetail/GetBanknoteByGrade"
+        description: "Banknote snapshot for a (PCGSNo, GradeNo) tuple."
+        params:
+          - name: pcgsNo
+            flag_name: pcgs-no
+            aliases: []
+            type: string
+            required: true
+            description: "PCGS Banknote spec number."
+          - name: gradeNo
+            flag_name: grade
+            aliases: []
+            type: int
+            required: true
+            description: "Banknote grade (1-70 plus banknote-specific codes)."
+
+      images:
+        method: GET
+        path: "/banknotedetail/GetBanknoteImagesByCertNo"
+        description: "Image URLs for one PCGS Banknote cert."
+        params:
+          - name: certNo
+            flag_name: cert
+            aliases: []
+            type: string
+            required: true
+            positional: true
+            description: "PCGS Banknote cert number."
+
+  order:
+    description: "PCGS submission and order lookups for submitters."
+    endpoints:
+      submission:
+        method: GET
+        path: "/orderdetail/GetOrdersBySubmissionNo"
+        description: "Orders associated with one PCGS submission number."
+        params:
+          - name: submissionNo
+            flag_name: submission-no
+            aliases: [submission, sub]
+            type: string
+            required: true
+            positional: true
+            description: "PCGS submission number."
+
+      range:
+        method: GET
+        path: "/orderdetail/GetOrdersByDateRange"
+        description: "Orders within a date window (paginated)."
+        params:
+          - name: startDate
+            flag_name: start
+            aliases: [start-date]
+            type: string
+            required: true
+            format: date
+            description: "Earliest order date (YYYY-MM-DD)."
+          - name: endDate
+            flag_name: end
+            aliases: [end-date]
+            type: string
+            required: true
+            format: date
+            description: "Latest order date (YYYY-MM-DD)."
+          - name: pageNo
+            flag_name: page
+            aliases: []
+            type: int
+            required: false
+            default: 1
+            description: "Page number (1-indexed)."
+          - name: pageSize
+            flag_name: page-size
+            aliases: [limit]
+            type: int
+            required: false
+            default: 100
+            description: "Results per page."

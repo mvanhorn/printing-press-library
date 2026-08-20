@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // stale: find warm intros going cold — people we recently researched or
 // looked up on LinkedIn but haven't actually talked to in a while. Useful for
@@ -38,9 +38,9 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 	var staleDays, limit, lookbackDays int
 
 	cmd := &cobra.Command{
-		Use:   "stale",
+		Use:         "stale",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find warm intros going cold - researched or looked up but not followed up on",
+		Short:       "Find warm intros going cold - researched or looked up but not followed up on",
 		Long: `Find people you've recently shown interest in (via LinkedIn lookup or
 Happenstance research) but haven't touched in at least --days.
 

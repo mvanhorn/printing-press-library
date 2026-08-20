@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sncf-connect-pp-mcp",
+  "display_name": "Navitia",
+  "version": "4.10.1",
+  "description": "navitia.io is the open API for building cool stuff with mobility data.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sncf-connect-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sncf-connect-pp-mcp",
+      "args": [],
+      "env": {
+        "SNCF_API_KEY": "${user_config.sncf_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "sncf_api_key": {
+      "type": "string",
+      "title": "SNCF_API_KEY",
+      "description": "Sets SNCF_API_KEY for the Navitia MCP server. Get a credential from https://numerique.sncf.com/startup/api/token-developpeur/.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

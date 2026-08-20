@@ -1,0 +1,834 @@
+# Bonusly REST v1 internal spec.
+#
+# No OpenAPI/Postman spec exists for REST v1 (confirmed absent -- see brief).
+# This spec is hand-authored from Bonusly's official MCP tool catalog (each
+# tool doc names the REST path it mirrors) plus direct source inspection of
+# the one real third-party client (ajramos/mcp-bonusly, Python, read directly).
+#
+# CONFIRMED paths (explicitly quoted in official docs, or read directly from
+# a working client's source, or verified by this run's own live probe):
+#   GET  /users/me            (probed live: 401 clean JSON, matches doc example)
+#   GET  /companies/show      (probed live: 401 clean JSON)
+#   GET  /bonuses              (confirmed via ajramos/mcp-bonusly client.py)
+#   POST /bonuses              (confirmed via ajramos/mcp-bonusly client.py)
+#   GET  /bonuses/{id}         (confirmed via ajramos/mcp-bonusly client.py)
+#   PATCH  /bonuses/{id}       (confirmed: MCP updateRecognition doc quotes this exact path)
+#   DELETE /bonuses/{id}       (confirmed: MCP deleteRecognition doc quotes this exact path)
+#   GET  /redemptions/{id}                  (confirmed: MCP getRedemption doc quotes this exact path)
+#   GET  /users/{user_id}/redemptions        (confirmed: MCP getMyRedemptions doc quotes this exact path)
+#
+# INFERRED paths (no direct quote found; inferred from the one strong signal
+# available -- /companies/show uses an older Rails action-suffix convention,
+# not path-parameter REST, so other single-record lookups are modeled the
+# same way pending live verification). Marked `# inferred` per endpoint.
+# Phase 5 live dogfood was declined for this run (no token available), so
+# NONE of the inferred paths are empirically confirmed. This is a known,
+# disclosed gap -- see brief's Reachability Risk section and the generated
+# README's Known Gaps block.
+
+name: bonusly
+description: "Bonusly employee-recognition CLI for the non-admin employee: give and search recognition, track your points balance, and compute the participation/equity analytics Bonusly reserves for admin reports"
+version: "0.1.0"
+category: productivity
+base_url: "https://bonus.ly/api/v1"
+health_check_path: "/users/me"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - BONUSLY_API_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/bonusly-pp-cli/config.toml"
+
+# 37 typed endpoints falls in the 30-50 "ask the user" MCP bucket per the
+# skill. Agent judgment call (low-stakes, reversible, disclosed rather than
+# re-asked): enable remote transport for hosted-agent reach. No mcp.intents --
+# this API's value is single-call + local aggregation (the transcendence
+# commands), not multi-step API chains an intent would help orchestrate.
+mcp:
+  transport: [stdio, http]
+
+# No stable, universal entity vocabulary exists across Bonusly installations --
+# hashtags and departments are each company's own values/org-chart, unknowable
+# without live API access to this run's specific company. See Pre-Generation
+# Learn Enrichment "no-entities escape."
+# learn no-entities escape: hashtags and departments are company-specific and unknowable without live access; no universal entity vocabulary exists across Bonusly installations
+
+resources:
+  users:
+    description: "Your own profile and other users in your company"
+    endpoints:
+      me:
+        method: GET
+        path: "/users/me"
+        description: "Get the authenticated user's own profile"
+        response:
+          type: object
+          item: User
+
+      get:
+        method: GET
+        path: "/users/show" # inferred, Rails-action-suffix pattern
+        description: "Resolve a single user by id, email, or display name"
+        params:
+          - name: identifier
+            type: string
+            required: true
+            positional: true
+            description: "User id, email, or full display name"
+        response:
+          type: object
+          item: User
+
+      search:
+        method: GET
+        path: "/users/search" # inferred
+        description: "Search users by name or email, with optional department/location filters"
+        params:
+          - name: query
+            type: string
+            description: "Name or email search term"
+          - name: department
+            type: string
+            description: "Filter by department name (exact match)"
+          - name: location
+            type: string
+            description: "Filter by location name (exact match)"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: User
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      get-bulk:
+        method: GET
+        path: "/users/bulk" # inferred
+        description: "Bulk-fetch users by a list of user IDs"
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated user IDs"
+        response:
+          type: array
+          item: User
+
+  company:
+    description: "Company metadata"
+    endpoints:
+      show:
+        method: GET
+        path: "/companies/show" # confirmed via live probe
+        description: "Company metadata: name, locale, plan, feature flags, subscription state"
+        response:
+          type: object
+          item: Company
+
+  departments:
+    description: "Departments configured for your company, with headcounts"
+    endpoints:
+      list:
+        method: GET
+        path: "/users/departments" # CONFIRMED via live probe during Phase 5.5/5.6 (401, not 404) -- original guess "/departments" was confirmed WRONG (real Bonusly 404)
+        description: "List departments with per-department user counts"
+        params:
+          - name: search
+            type: string
+            description: "Prefix-match search on department name"
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: Department
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      users:
+        method: GET
+        path: "/users/departments/{department}/users" # STILL UNCONFIRMED -- collection base moved to /users/departments (confirmed), but this exact sub-path with the /users/ prefix tested 404; the real sub-path shape is unknown
+        description: "List users belonging to a department (exact match)"
+        params:
+          - name: department
+            type: string
+            required: true
+            positional: true
+            description: "Department name"
+          - name: search
+            type: string
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: User
+
+  locations:
+    description: "Locations configured for your company, with headcounts"
+    endpoints:
+      list:
+        method: GET
+        path: "/users/locations" # CONFIRMED via live probe during Phase 5.5/5.6 (401, not 404) -- original guess "/locations" was confirmed WRONG (real Bonusly 404) via the same probing
+        description: "List locations with per-location user counts"
+        params:
+          - name: search
+            type: string
+            description: "Prefix-match search on location name"
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: Location
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      users:
+        method: GET
+        path: "/users/locations/{location}/users" # STILL UNCONFIRMED -- the collection base moved from /locations to /users/locations (confirmed), but re-probing this exact sub-path with the /users/ prefix was not attempted; treat with the same caution as before, possibly more since the base pattern shifted
+        description: "List users belonging to a location (exact match)"
+        params:
+          - name: location
+            type: string
+            required: true
+            positional: true
+            description: "Location name"
+          - name: search
+            type: string
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: User
+
+  org:
+    description: "Org-chart traversal: top-level users, direct reports, manager chains, reporting trees"
+    endpoints:
+      top:
+        method: GET
+        path: "/users/top_level" # inferred
+        description: "List users with no manager (org-chart entry points)"
+        params:
+          - name: search
+            type: string
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: User
+
+      reports:
+        method: GET
+        path: "/users/{manager}/direct_reports" # inferred
+        description: "List users who report directly to a given manager"
+        params:
+          - name: manager
+            type: string
+            required: true
+            positional: true
+            description: "Manager's user id, email, or name"
+          - name: search
+            type: string
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: User
+
+      chain:
+        method: GET
+        path: "/users/{user}/manager_chain" # inferred
+        description: "Walk the manager chain upward from a user, closest-first"
+        params:
+          - name: user
+            type: string
+            required: true
+            positional: true
+            description: "User's id, email, or name"
+        response:
+          type: array
+          item: User
+
+      tree:
+        method: GET
+        path: "/users/{user}/reporting_tree" # inferred
+        description: "Walk the reporting tree downward from a user"
+        params:
+          - name: user
+            type: string
+            required: true
+            positional: true
+            description: "User's id, email, or name"
+          - name: depth
+            type: int
+            default: 1
+            description: "How many layers deep to walk (max 5)"
+        response:
+          type: object
+          item: ReportingTree
+
+  groups:
+    description: "System (everyone/team/department/location) and custom user groups"
+    endpoints:
+      list-system:
+        method: GET
+        path: "/users/user_groups" # CONFIRMED base (401) via live probe; original "/user_groups/system" 404'd even with /users/ prefix tested. Reusing the confirmed bare collection endpoint and relying on the "type" param below to filter -- same shared-endpoint pattern already used by recognition feed/received/given in this spec
+        description: "List system user groups with member counts"
+        params:
+          - name: type
+            type: string
+            description: "Filter by group type: everyone, team, department, or location"
+        response:
+          type: array
+          item: UserGroup
+
+      get-system:
+        method: GET
+        path: "/users/user_groups/{slug}" # STILL UNCONFIRMED -- collection base confirmed at /users/user_groups, but this sub-path shape (slug suffix) was not individually re-tested with the new prefix
+        description: "Get a system user group's full member list by slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Group slug, e.g. 'everyone', 'engineering.department'"
+        response:
+          type: object
+          item: UserGroup
+
+      list-custom:
+        method: GET
+        path: "/users/user_groups" # CONFIRMED base (401) via live probe, same shared endpoint as list-system above (original "/user_groups/custom" 404'd even with /users/ prefix tested) -- relying on the "kind" param below to filter
+        description: "List admin-defined custom user groups with member counts"
+        params:
+          - name: search
+            type: string
+          - name: kind
+            type: string
+            description: "Filter by kind: derived, explicit, or hybrid"
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: UserGroup
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      get-custom:
+        method: GET
+        path: "/users/user_groups/{group_id}" # STILL UNCONFIRMED -- collection base confirmed at /users/user_groups, but this sub-path shape (id suffix) was not individually re-tested with the new prefix
+        description: "Get a custom user group's full member list by id"
+        params:
+          - name: group_id
+            type: string
+            required: true
+            positional: true
+            description: "Custom group id"
+        response:
+          type: object
+          item: UserGroup
+
+  meetings:
+    description: "Your own V2 1:1 meetings"
+    endpoints:
+      list:
+        method: GET
+        path: "/meetings" # inferred
+        description: "List your 1:1 meetings (upcoming first, then complete, newest first)"
+        params:
+          - name: status
+            type: string
+            description: "Filter: upcoming or complete"
+          - name: archived
+            type: bool
+            default: false
+          - name: start_time
+            type: string
+            description: "ISO 8601 start of range, filters on completed_at"
+          - name: end_time
+            type: string
+            description: "ISO 8601 end of range"
+          - name: limit
+            type: int
+            default: 25
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: Meeting
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      get:
+        method: GET
+        path: "/meetings/{meeting_id}" # inferred
+        description: "Get a single 1:1 meeting including summary and collaborative document"
+        params:
+          - name: meeting_id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Meeting
+
+      transcript:
+        method: GET
+        path: "/meetings/{meeting_id}/transcript" # inferred
+        description: "Get the full transcript of a 1:1 meeting"
+        params:
+          - name: meeting_id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: MeetingTranscript
+
+  balance:
+    description: "Your points balance and lifetime stats"
+    endpoints:
+      show:
+        method: GET
+        path: "/users/points_balance" # CONFIRMED via live probe during Phase 5.5/5.6 (401, not 404) -- original guess "/users/me/points_balance" was confirmed WRONG (real Bonusly 404); dropping the /me/ segment resolved it
+        description: "Your current giving/redeemable balance, monthly budget, and lifetime stats"
+        response:
+          type: object
+          item: Balance
+
+  recognition:
+    description: "Give, browse, and manage recognition (bonuses)"
+    endpoints:
+      feed:
+        method: GET
+        path: "/bonuses" # confirmed via ajramos/mcp-bonusly client.py
+        description: "List/browse the company recognition feed with filters"
+        example: "  bonusly-pp-cli recognition feed --hashtag teamwork --limit 25"
+        params:
+          - name: limit
+            type: int
+            default: 20
+            description: "Max results to return"
+          - name: start_time
+            type: string
+            description: "ISO 8601 start of date range (confirmed param name)"
+          - name: end_time
+            type: string
+            description: "ISO 8601 end of date range (confirmed param name)"
+          - name: giver_email
+            type: string
+            description: "Filter by giver's email (confirmed param name)"
+          - name: receiver_email
+            type: string
+            description: "Filter by a receiver's email (confirmed param name)"
+          - name: user_email
+            flag_name: user-email
+            type: string
+            description: "Filter to recognition involving this user as giver or receiver (confirmed param name)"
+          - name: hashtag
+            type: string
+            description: "Filter by hashtag; leading # is optional (confirmed param name)"
+          - name: include_children
+            type: bool
+            description: "Include add-on/comment rows inline (confirmed param name)"
+        response:
+          type: array
+          item: Recognition
+
+      received:
+        method: GET
+        path: "/bonuses" # inferred reuse of the confirmed list endpoint, scoped via receiver_email
+        description: "List recognition received by a user"
+        params:
+          - name: receiver_email
+            type: string
+            required: true
+            description: "Recipient's email"
+          - name: start_time
+            type: string
+          - name: end_time
+            type: string
+          - name: limit
+            type: int
+            default: 20
+        response:
+          type: array
+          item: Recognition
+
+      given:
+        method: GET
+        path: "/bonuses" # inferred reuse of the confirmed list endpoint, scoped via giver_email
+        description: "List recognition given by a user"
+        params:
+          - name: giver_email
+            type: string
+            required: true
+            description: "Giver's email"
+          - name: start_time
+            type: string
+          - name: end_time
+            type: string
+          - name: limit
+            type: int
+            default: 20
+        response:
+          type: array
+          item: Recognition
+
+      group-count:
+        method: GET
+        path: "/bonuses/group_recipient_count" # inferred
+        description: "Resolve a group (department/location/team) and count how many recipients a post would reach"
+        params:
+          - name: group_name
+            type: string
+            required: true
+            positional: true
+            description: "Group name: 'everyone', a department, a location, or '<manager>'s team'"
+          - name: cursor
+            type: string
+        response:
+          type: object
+          item: GroupRecipientCount
+
+      list-types:
+        method: GET
+        path: "/bonuses/recognition_types" # inferred
+        description: "List the recognition-type values accepted by feed filters (celebrations, awards, incentives, peer, external_recognition)"
+        response:
+          type: array
+          item: RecognitionType
+
+      last-given:
+        method: GET
+        path: "/bonuses/last_given" # inferred
+        description: "Get when you last gave recognition to each of a batch of users (max 20 ids)"
+        params:
+          - name: user_ids
+            flag_name: user-ids
+            type: string
+            required: true
+            description: "Comma-separated user IDs, max 20"
+        response:
+          type: array
+          item: LastGivenEntry
+
+      get:
+        method: GET
+        path: "/bonuses/{id}" # confirmed via ajramos/mcp-bonusly client.py
+        description: "Get a single recognition by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Recognition
+
+      create:
+        method: POST
+        path: "/bonuses" # confirmed via ajramos/mcp-bonusly client.py
+        description: "Give recognition. reason must be the full mini-DSL string: '+N @mention #hashtag your message' -- the promoted 'give' command synthesizes this from structured flags; this raw endpoint is the low-level passthrough"
+        example: "  bonusly-pp-cli recognition create --reason \"+50 @jane.doe Great work on the migration #teamwork\""
+        body:
+          - name: reason
+            type: string
+            required: true
+            description: "Full recognition text: +<amount> @<mention> [@<mention2> ...] <message> #<hashtag>"
+          - name: parent_bonus_id
+            flag_name: parent-bonus-id
+            type: string
+            description: "Reply/add-on to an existing recognition"
+        response:
+          type: object
+          item: Recognition
+
+      update:
+        method: PUT
+        path: "/bonuses/{id}" # path confirmed via MCP doc quoting "PATCH /api/v1/bonuses/:id"; generator supports GET/POST/PUT/DELETE only, no PATCH. Using PUT on the theory that /companies/show's Rails action-suffix convention implies a Rails backend, where `resources :bonuses` routing registers PUT as a long-standing alias for the same update action as PATCH. Plausible, not confirmed -- Phase 5 live testing was declined this run. Flag in build log as unverified; if it 404s/405s against a real account, this must move to a hand-written novel command issuing a raw PATCH.
+        description: "Edit a recognition you gave, within 24 hours of creation. reason REPLACES the entire message -- include the +amount, @mentions, and #hashtag you want to keep"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: reason
+            type: string
+            required: true
+            description: "Complete replacement recognition text"
+        response:
+          type: object
+          item: Recognition
+
+      delete:
+        method: DELETE
+        path: "/bonuses/{id}" # confirmed via MCP doc quoting this exact path
+        description: "Delete (undo) a recognition you gave, within 24 hours of creation"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+
+  awards:
+    description: "Custom awards you can give or claim"
+    endpoints:
+      list:
+        method: GET
+        path: "/users/awards" # CONFIRMED via live probe during Phase 5.5/5.6 (401, not 404) -- original guess "/awards" was confirmed WRONG (real Bonusly 404)
+        description: "List claimable/manual custom awards in your company"
+        params:
+          - name: type
+            type: string
+            description: "Filter: claimable or manual"
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: Award
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+      get:
+        method: GET
+        path: "/users/awards/{id}" # STILL UNCONFIRMED -- collection base moved to /users/awards (confirmed), this sub-path was not individually re-tested
+        description: "Get a single award by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Award
+
+      give:
+        method: POST
+        path: "/users/awards/{id}/give" # STILL WRONG -- tested with /users/ prefix during Phase 5.5/5.6 live probing (curl "/users/awards/x/give") and got 404. The bare collection works at /users/awards but this action sub-path shape is confirmed NOT to be {id}/give under either prefix.
+        description: "Give a custom award to one or more recipients. Creates a pending approval request unless the award auto-approves"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Award id (see 'awards list')"
+        body:
+          - name: recipients
+            type: string
+            required: true
+            description: "Comma-separated user ids, emails, or display names"
+          - name: message
+            type: string
+            description: "Recognition message, only used if the award allows editing its reason"
+          - name: amount
+            type: int
+            description: "Points, only used if the award allows changing the amount"
+
+  incentives:
+    description: "Self-claimable incentives"
+    endpoints:
+      claim:
+        method: POST
+        path: "/users/awards/{id}/claim" # STILL WRONG -- tested with /users/ prefix during Phase 5.5/5.6 live probing (curl "/users/awards/x/claim") and got 404. Same finding as awards give: the collection base is confirmed at /users/awards but this action sub-path shape is wrong under either prefix.
+        description: "Claim a claimable award (incentive) for yourself. Creates a pending approval request unless the incentive auto-approves"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Incentive (award) id -- see 'awards list --type claimable'"
+        body:
+          - name: claim_reason
+            flag_name: claim-reason
+            type: string
+            description: "Note explaining the claim, shown to approvers"
+          - name: privacy
+            type: string
+            description: "publicly_visible, privately_visible, or immediate_team -- only honored if the incentive allows changing privacy"
+        response:
+          type: object
+          item: IncentiveClaimResult
+
+  redemptions:
+    description: "Your own reward redemptions"
+    endpoints:
+      get:
+        method: GET
+        path: "/redemptions/{id}" # confirmed via MCP doc quoting this exact path
+        description: "Get a single reward redemption by id (your own, or any if you have rewards-admin)"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Redemption
+
+      list-mine:
+        method: GET
+        path: "/users/me/redemptions" # confirmed shape via MCP doc quoting /users/:user_id/redemptions
+        description: "List your own reward redemptions, newest first"
+        params:
+          - name: limit
+            type: int
+            default: 20
+            description: "Page size, 1-100"
+          - name: cursor
+            type: string
+        response:
+          type: array
+          item: Redemption
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: meta.has_more
+
+types:
+  User:
+    fields:
+      - {name: id, type: string}
+      - {name: email, type: string}
+      - {name: first_name, type: string}
+      - {name: last_name, type: string}
+      - {name: display_name, type: string}
+      - {name: username, type: string}
+      - {name: locale, type: string}
+      - {name: time_zone, type: string}
+      - {name: country, type: string}
+      - {name: status, type: string}
+      - {name: user_mode, type: string}
+      - {name: profile_pic_url, type: string}
+      - {name: created_at, type: string}
+      - {name: updated_at, type: string}
+
+  Company:
+    fields:
+      - {name: id, type: string}
+      - {name: name, type: string}
+      - {name: locale, type: string}
+      - {name: plan, type: string}
+
+  Department:
+    fields:
+      - {name: name, type: string}
+      - {name: user_count, type: int}
+
+  Location:
+    fields:
+      - {name: name, type: string}
+      - {name: user_count, type: int}
+
+  ReportingTree:
+    fields:
+      - {name: user_id, type: string}
+      - {name: layers, type: string}
+
+  UserGroup:
+    fields:
+      - {name: id, type: string}
+      - {name: slug, type: string}
+      - {name: display_name, type: string}
+      - {name: kind, type: string}
+      - {name: member_count, type: int}
+      - {name: member_ids, type: string}
+
+  Meeting:
+    fields:
+      - {name: id, type: string}
+      - {name: title, type: string}
+      - {name: status, type: string}
+      - {name: participant_ids, type: string}
+      - {name: tags, type: string}
+      - {name: completed_at, type: string}
+
+  MeetingTranscript:
+    fields:
+      - {name: id, type: string}
+      - {name: transcript_text, type: string}
+      - {name: summary_brief, type: string}
+
+  Balance:
+    fields:
+      - {name: giving_balance, type: int}
+      - {name: earning_balance, type: int}
+      - {name: monthly_budget, type: int}
+      - {name: currency, type: string}
+      - {name: exchange_rate, type: float}
+      - {name: lifetime_earned, type: int}
+      - {name: lifetime_given, type: int}
+      - {name: lifetime_redeemed, type: int}
+
+  Recognition:
+    fields:
+      - {name: id, type: string}
+      - {name: giver_id, type: string}
+      - {name: receiver_ids, type: string}
+      - {name: amount, type: int}
+      - {name: reason, type: string}
+      - {name: hashtags, type: string}
+      - {name: category, type: string}
+      - {name: celebration_subtype, type: string}
+      - {name: privacy, type: string}
+      - {name: via, type: string}
+      - {name: created_at, type: string}
+
+  RecognitionType:
+    fields:
+      - {name: value, type: string}
+      - {name: name, type: string}
+
+  GroupRecipientCount:
+    fields:
+      - {name: group_name, type: string}
+      - {name: group_type, type: string}
+      - {name: group_slug, type: string}
+      - {name: recipient_count, type: int}
+      - {name: members, type: string}
+
+  LastGivenEntry:
+    fields:
+      - {name: user_id, type: string}
+      - {name: last_recognized_at, type: string}
+
+  Award:
+    fields:
+      - {name: id, type: string}
+      - {name: name, type: string}
+      - {name: type, type: string}
+      - {name: amount_editable, type: bool}
+      - {name: reason_editable, type: bool}
+      - {name: bonus_privacy_changeable, type: bool}
+
+  IncentiveClaimResult:
+    fields:
+      - {name: bonus_id, type: string}
+      - {name: approval_request_id, type: string}
+      - {name: status, type: string}
+
+  Redemption:
+    fields:
+      - {name: id, type: string}
+      - {name: state, type: string}
+      - {name: reward_name, type: string}
+      - {name: claim_url, type: string}
+      - {name: certificate_url, type: string}
+      - {name: created_at, type: string}

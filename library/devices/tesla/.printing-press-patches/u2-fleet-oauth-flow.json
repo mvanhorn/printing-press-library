@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "u2-fleet-oauth-flow",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Five new tesla auth subcommands (fleet-setup, fleet-register, fleet-login, fleet-refresh, fleet-status) implementing the partner-app OAuth lifecycle. New [fleet] block in config.toml (FleetClientID, FleetClientSecret, FleetAccessToken, FleetRefreshToken, FleetTokenExpiry, FleetPublicKeyDomain, FleetPrivateKeyPath) with SaveFleetTokens() that preserves top-level iOS-app fields. Localhost callback server pattern ported from snowflake-bypass/fleet-oauth helper. Fixed port 8585 (Tesla OAuth enforces exact-match redirect_uri); --client-secret-file preferred over --client-secret to avoid ps-aux visibility.",
+  "reason": "Fleet API is the only path that covers DOMAIN_VEHICLE_SECURITY commands (lock/unlock/trunk) on 2021+ vehicles. The 5-subcommand surface walks a fresh user from app registration through user OAuth to a working signed-command token without leaving the CLI.",
+  "files": [
+    "internal/cli/tesla_fleet_auth.go",
+    "internal/cli/tesla_fleet_auth_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "24 fleet-auth tests + 6 config tests pass; covers CSRF state binding, secret-file mode 600 enforcement, port-8585 in-use error, fleet-status no-secret-leak guard (scans stdout+stderr), verify-mode short-circuit across all 5 subs, SaveTokens/SaveFleetTokens cross-clobber preservation (KD3 invariant).",
+  "upstream_issue": "internal/config/config.go is generator-owned (DO NOT EDIT header); the [fleet] block edit is templated drift. R7 permits this with documentation."
+}

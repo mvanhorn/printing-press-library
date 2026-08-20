@@ -1,0 +1,123 @@
+name: podcast-goat
+display_name: Podcast GOAT
+description: |
+  Pull long-form podcast transcripts as speaker-labeled markdown — cookie-first across
+  the four major paid publishers, free everywhere else, paid only when nothing else
+  works.
+
+  podcast-goat is a synthetic combo CLI. It walks a cookie -> free -> paid dispatch
+  chain across 10 sources (Huberman / Acquired / Founders / Peter Attia member
+  cookies; Dwarkesh Substack; Podcasting 2.0 RSS transcripts; yt-dlp YouTube
+  auto-subs; spoken.md paid API; Taddy paid GraphQL; pluggable Whisper providers).
+  Every source normalizes to the canonical `**Speaker** (MM:SS)` markdown shape,
+  caches to local SQLite + FTS5, and ships an MCP wrapper so agents can drive
+  the whole thing.
+version: 0.1.0
+
+# Synthetic combo CLI: there is no single upstream API. The "base_url" placeholder
+# is the headline target (Huberman public site); each adapter under
+# internal/source/<name>/ chooses its own host. The dispatcher in internal/dispatch/
+# decides which adapter handles a given URL.
+base_url: https://www.hubermanlab.com
+
+# auth.type: composed. Cookie chain for #1-#4, no auth for #5-#7, api_key for #8-#10.
+# The composed declaration tells the press to emit partial-MCP readiness and
+# auth-aware doctor + agent-context.
+auth:
+  type: composed
+  description: |
+    Cookie chain for the four bundled member publishers (set via
+    `auth login --chrome --service <huberman|acquired|founders|peterattia>`),
+    plus optional api_key vars for paid fallbacks. No credential required for the
+    free Dwarkesh / RSS / yt-dlp tier — that's the default dispatch.
+  env_vars:
+    - SPOKEN_API_KEY
+    - TADDY_API_KEY
+    - TADDY_USER_ID
+    - OPENAI_API_KEY
+    - DEEPGRAM_API_KEY
+    - ELEVENLABS_API_KEY
+
+config:
+  format: toml
+  path: ~/.config/podcast-goat/config.toml
+
+# Single resource: episode. The CLI's real surface is much larger (feeds, cache,
+# magic, auth, doctor, budget, source, speakers) — those are hand-authored under
+# internal/cli/ rather than spec-generated because they have no upstream endpoint.
+resources:
+  episode:
+    description: Pull, search, and inspect podcast episode transcripts
+    endpoints:
+      get:
+        method: GET
+        path: /episode/{url}
+        description: Fetch one transcript by URL via the cookie -> free -> paid dispatch chain
+        no_auth: true
+        params:
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: Episode URL (Dwarkesh, Huberman, Acquired, Founders, Peter Attia, YouTube, Apple, Spotify)
+        response:
+          type: object
+          item: Transcript
+
+      latest:
+        method: GET
+        path: /episode/latest
+        description: Pull the most recent episode for a subscribed feed
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: false
+            description: Source name (huberman / acquired / founders / peterattia / dwarkesh)
+        response:
+          type: object
+          item: Transcript
+
+# Top-level schemas for the store and MCP wrapper.
+schemas:
+  Transcript:
+    type: object
+    properties:
+      id:
+        type: string
+        description: SHA-256 of the episode URL
+      source:
+        type: string
+        description: Source name (huberman / acquired / dwarkesh / spoken / yt-dlp / ...)
+      show:
+        type: string
+      url:
+        type: string
+      title:
+        type: string
+      host:
+        type: string
+      guests:
+        type: array
+        item: string
+      published_at:
+        type: string
+      duration_sec:
+        type: integer
+      provider:
+        type: string
+        description: Tier label (cookie | free | paid)
+      cost_credits:
+        type: number
+      transcript_md:
+        type: string
+        description: Canonical speaker-labeled markdown
+      transcript_jsonl:
+        type: string
+        description: One segment per line, {ts_sec, speaker, text}
+      fetched_at:
+        type: string
+
+# MCP enrichment for remote transport reach (scored in mcp_remote_transport).
+mcp:
+  transport: [stdio, http]

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "aol-puglia-pp-mcp",
+  "display_name": "Albo Online Sanità Puglia",
+  "version": "1.0.0",
+  "description": "Accesso pubblico all'Albo Pretorio Online delle 13 aziende sanitarie pugliesi: ricerca atti, download allegati, esportazione CSV. Zero config: autenticazione OAuth2 automatica.",
+  "author": {
+    "name": "aborruso"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/aol-puglia-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/aol-puglia-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

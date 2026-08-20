@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "scientific-consensus-excel-report",
+  "applied_at": "2026-07-05",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-authored 'report' command exports design/stance-analyzed works as a two-sheet Excel workbook (Works + Summary) via excelize; a regen must keep it distinct from the generated raw-dump 'export' command.",
+  "reason": "Researchers hand results to spreadsheet-based screening workflows; the generated 'export' command only dumps raw API JSON/JSONL, so analyzed spreadsheet output needs its own command and the github.com/xuri/excelize/v2 dependency in go.mod.",
+  "files": [
+    "internal/cli/report.go",
+    "internal/cli/export_out.go",
+    "internal/cli/export_test.go",
+    "internal/cli/root.go",
+    "go.mod",
+    "go.sum",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Export produces a valid two-sheet Excel file with bold headers and correct row counts (verified by reopening with excelize in tests); empty result sets still write a valid workbook; bad extension/missing --output/non-positive --limit exit with usage code 2."
+}

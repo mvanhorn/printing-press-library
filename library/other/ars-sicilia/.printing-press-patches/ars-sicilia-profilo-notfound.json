@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-profilo-notfound",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "deputato profilo restituisce exit 3 (not found) quando non trova alcun atto, invece di exit 0 con profilo vuoto; aggiunto helper notFoundErr.",
+  "reason": "Il live gate (error_path) richiede exit non-zero per argomento non valido, coerente con la convenzione exit-code della CLI (3 = not found).",
+  "files": ["internal/cli/deputato_profilo.go", "internal/cli/helpers.go"],
+  "validated_outcome": "deputato profilo __printing_press_invalid__ -> exit 3; nome valido -> exit 0 con atti."
+}

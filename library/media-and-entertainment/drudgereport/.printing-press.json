@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T14:13:19.431818Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "drudgereport",
+  "display_name": "Drudge Report",
+  "cli_name": "drudgereport-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:be3a6c89b4a95c26f2a8270eb5e819d5a60eca41cac0de52e21601b196d9e142",
+  "run_id": "20260521-061607",
+  "description": "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves.",
+  "mcp_binary": "drudgereport-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Splash now",
+      "command": "splash",
+      "description": "Just the current center-slot splash headline with image, outbound URL, red flag, and how long it has been on splash."
+    },
+    {
+      "name": "Breaking (red items)",
+      "command": "breaking",
+      "description": "Every headline currently set in red by Drudge's editor, ordered by slot importance."
+    },
+    {
+      "name": "Ranked headlines",
+      "command": "headlines",
+      "description": "All current headlines ranked by composite editorial weight (slot + red + image), not by chronology."
+    },
+    {
+      "name": "Promotions and demotions since last fetch",
+      "command": "tail",
+      "description": "Slot transitions and color changes between consecutive snapshots: promoted to splash, demoted from splash, went red, disappeared, appeared."
+    },
+    {
+      "name": "Splash tenure",
+      "command": "tenure",
+      "description": "How long the current splash has been the splash, plus the all-time longest-tenured splash leaderboard."
+    },
+    {
+      "name": "Source leaderboard with deltas",
+      "command": "sources",
+      "description": "Outbound-domain frequency leaderboard over a window with rising/falling delta vs the prior window, optionally crosstabbed by slot."
+    },
+    {
+      "name": "On-this-date",
+      "command": "on-date",
+      "description": "Reconstruct Drudge at any past timestamp the CLI has observed: splash, red items, ranked headlines as of that moment."
+    },
+    {
+      "name": "Editorial-bent index",
+      "command": "bent",
+      "description": "Ratio of red items by outbound domain over a window: which outlets Drudge tends to break vs which he tends to merely column."
+    },
+    {
+      "name": "Story timeline",
+      "command": "story",
+      "description": "Every slot_event for one story_id ordered by timestamp: when it appeared, where it moved, when it went red, when it dropped, total tenure."
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "One-pager: splash count, longest-tenured splash, top 5 outbound domains, biggest red-surge stories over the week."
+    }
+  ]
+}

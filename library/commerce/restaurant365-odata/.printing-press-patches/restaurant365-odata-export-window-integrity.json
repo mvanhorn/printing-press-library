@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-odata-export-window-integrity",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Ensure date-window exports fetch every planned backfill chunk, paginate each chunk, preserve full-day upper bounds, avoid partial output files, and keep dry-runs file-free.",
+  "reason": "Multi-month Restaurant365 date exports must not silently stop after the first generated chunk or first OData page, and failed or dry-run exports must not leave misleading generated files in the publish tree.",
+  "files": [
+    "internal/cli/r365_odata.go",
+    "internal/cli/r365_odata_test.go"
+  ],
+  "validated_outcome": "Focused Go regression tests covered multi-chunk export filters, page-by-page export, nanosecond end-of-day bounds, failed-write cleanup, and dry-run export behavior."
+}

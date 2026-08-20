@@ -1,0 +1,251 @@
+{
+  "api_name": "offerup",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pyOfferUp",
+      "url": "https://github.com/oscar0812/pyOfferUp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "planetzero/offerup",
+      "url": "https://github.com/planetzero/offerup",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "OfferupUnofficalAPI",
+      "url": "https://github.com/everettperiman/OfferupUnofficalAPI",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unofficial-offerup-api",
+      "url": "https://github.com/everettcaldwell/unofficial-offerup-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gs-scraper",
+      "url": "https://github.com/jgdigitaljedi/gs-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-01T03:12:00Z",
+  "novel_features": [
+    {
+      "name": "The real going rate",
+      "command": "price-check",
+      "description": "See the real going rate for an item in your area — median, 25th/75th percentile, min, max, and the firm-vs-negotiable split — computed across every listing you've pulled.",
+      "rationale": "No OfferUp page returns price statistics; it requires aggregating across many listings held in the local store.",
+      "example": "offerup-pp-cli price-check \"herman miller aeron\" --zip 85001 --agent",
+      "why_it_matters": "Reach for this before buying or pricing a resale — it answers \"what is this actually worth here\" with a number instead of a scroll.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Spot the underpriced finds",
+      "command": "deals",
+      "description": "Surface listings priced a chosen percentage below the local median for that item — the underpriced finds, ranked by how far under they are.",
+      "rationale": "Requires the computed local median joined against every stored listing — impossible from a single feed that just reshuffles results.",
+      "example": "offerup-pp-cli deals \"dewalt drill\" --zip 98101 --below 25 --agent",
+      "why_it_matters": "The deal-sniping command: it tells an agent which listings are underpriced right now, not just what exists.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "What's new since you looked",
+      "command": "new-since",
+      "description": "Show only the listings that appeared since a cutoff for a saved search, so you never re-scan items you already saw.",
+      "rationale": "Requires tracking first-seen timestamps across sync runs in the local store; OfferUp only reshuffles its feed with no since-cutoff view.",
+      "example": "offerup-pp-cli new-since \"road bike\" --since 24h --agent",
+      "why_it_matters": "Use this for a recurring watch — it answers \"what dropped since I last looked\" in one call.",
+      "group": "Track saved searches"
+    },
+    {
+      "name": "Catch price drops",
+      "command": "price-drops",
+      "description": "Detect listings whose price fell between syncs — the same item, now cheaper — sorted by the size of the drop.",
+      "rationale": "Requires per-listing price history across snapshots; no OfferUp page exposes prior prices for an item.",
+      "example": "offerup-pp-cli price-drops \"macbook pro\" --since 7d --agent",
+      "why_it_matters": "Catches sellers who just cut a price on something you're tracking — the moment to make an offer.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Size up a seller",
+      "command": "seller-scan",
+      "description": "Pull a seller's full synced inventory alongside their reputation badges (business/dealer/TruYou), join date, and the median asking price across their listings.",
+      "rationale": "Joins the seller record to all of their stored listings and aggregates — the seller and item pages never show inventory plus a price aggregate together.",
+      "example": "offerup-pp-cli seller-scan 161842229 --agent",
+      "why_it_matters": "Vet a dealer before buying to flip, or watch a high-volume seller's pricing in one view.",
+      "group": "Seller intelligence"
+    },
+    {
+      "name": "Daily deal briefing",
+      "command": "digest",
+      "description": "A single composite report for a saved search combining what's new, what dropped in price, and what's underpriced.",
+      "rationale": "Composes three local-store reads no single page offers, returned as one agent-friendly payload.",
+      "example": "offerup-pp-cli digest \"snowboard\" --since 24h --agent",
+      "why_it_matters": "The morning-ritual command and the natural single MCP tool call for an agent watching a market.",
+      "group": "Track saved searches"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "The real going rate",
+      "command": "price-check",
+      "description": "See the real going rate for an item in your area — median, 25th/75th percentile, min, max, and the firm-vs-negotiable split — computed across every listing you've pulled.",
+      "rationale": "No OfferUp page returns price statistics; it requires aggregating across many listings held in the local store.",
+      "example": "offerup-pp-cli price-check \"herman miller aeron\" --zip 85001 --agent",
+      "why_it_matters": "Reach for this before buying or pricing a resale — it answers \"what is this actually worth here\" with a number instead of a scroll.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Spot the underpriced finds",
+      "command": "deals",
+      "description": "Surface listings priced a chosen percentage below the local median for that item — the underpriced finds, ranked by how far under they are.",
+      "rationale": "Requires the computed local median joined against every stored listing — impossible from a single feed that just reshuffles results.",
+      "example": "offerup-pp-cli deals \"dewalt drill\" --zip 98101 --below 25 --agent",
+      "why_it_matters": "The deal-sniping command: it tells an agent which listings are underpriced right now, not just what exists.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "What's new since you looked",
+      "command": "new-since",
+      "description": "Show only the listings that appeared since a cutoff for a saved search, so you never re-scan items you already saw.",
+      "rationale": "Requires tracking first-seen timestamps across sync runs in the local store; OfferUp only reshuffles its feed with no since-cutoff view.",
+      "example": "offerup-pp-cli new-since \"road bike\" --since 24h --agent",
+      "why_it_matters": "Use this for a recurring watch — it answers \"what dropped since I last looked\" in one call.",
+      "group": "Track saved searches"
+    },
+    {
+      "name": "Catch price drops",
+      "command": "price-drops",
+      "description": "Detect listings whose price fell between syncs — the same item, now cheaper — sorted by the size of the drop.",
+      "rationale": "Requires per-listing price history across snapshots; no OfferUp page exposes prior prices for an item.",
+      "example": "offerup-pp-cli price-drops \"macbook pro\" --since 7d --agent",
+      "why_it_matters": "Catches sellers who just cut a price on something you're tracking — the moment to make an offer.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Size up a seller",
+      "command": "seller-scan",
+      "description": "Pull a seller's full synced inventory alongside their reputation badges (business/dealer/TruYou), join date, and the median asking price across their listings.",
+      "rationale": "Joins the seller record to all of their stored listings and aggregates — the seller and item pages never show inventory plus a price aggregate together.",
+      "example": "offerup-pp-cli seller-scan 161842229 --agent",
+      "why_it_matters": "Vet a dealer before buying to flip, or watch a high-volume seller's pricing in one view.",
+      "group": "Seller intelligence"
+    },
+    {
+      "name": "Daily deal briefing",
+      "command": "digest",
+      "description": "A single composite report for a saved search combining what's new, what dropped in price, and what's underpriced.",
+      "rationale": "Composes three local-store reads no single page offers, returned as one agent-friendly payload.",
+      "example": "offerup-pp-cli digest \"snowboard\" --since 24h --agent",
+      "why_it_matters": "The morning-ritual command and the natural single MCP tool call for an agent watching a market.",
+      "group": "Track saved searches"
+    }
+  ],
+  "narrative": {
+    "display_name": "OfferUp",
+    "headline": "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+    "value_prop": "OfferUp's web scrapers all dump a one-shot listing array and forget it. This CLI persists every listing in a local SQLite store, then layers on price intelligence no marketplace tool offers: price-check tells you the going rate in your area, deals flags listings below the local median, new-since and price-drops track saved searches over time, and seller-scan profiles a seller's whole inventory. Built for agents too — every command speaks --json, --select, and an MCP surface.",
+    "auth_narrative": "Public commands need no login: search, item detail (listings get), seller lookup, category-scoped browse, and every price-intelligence command (price-check, deals, new-since, price-drops, digest, seller-scan). Set location with --zip (or --lat/--lon), not a credential. Account commands act on your own OfferUp account and require login: account (your profile), my-listings (plus archived, mark-sold, archive), saved, and messages (plus messages read). Auth is your OfferUp web session cookie, captured once via 'auth login --chrome' (the press-auth companion opens a controlled Chrome window; the session is encrypted at rest), checked with 'auth status', and cleared with 'auth logout'. The mutating commands my-listings mark-sold and my-listings archive preview by default and apply only with --confirm. Creating a new listing is not supported — OfferUp's web app posts Jobs only, so listing creation is mobile-app-only.",
+    "quickstart": [
+      {
+        "command": "offerup-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the CLI can reach OfferUp; needs no auth."
+      },
+      {
+        "command": "offerup-pp-cli listings search \"dewalt drill\" --zip 98101 --limit 20",
+        "comment": "Search live listings near a ZIP with no login."
+      },
+      {
+        "command": "offerup-pp-cli price-check \"dewalt drill\" --zip 98101",
+        "comment": "See the local going rate; this fetches and stores listings itself, no separate sync needed."
+      },
+      {
+        "command": "offerup-pp-cli deals \"dewalt drill\" --zip 98101 --below 25",
+        "comment": "Flag listings at least 25% under the local median."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results for a common item",
+        "fix": "Widen the area with a larger --radius or a different --zip, or drop extra keywords from the query."
+      },
+      {
+        "symptom": "Requests slow down or start failing in bursts",
+        "fix": "OfferUp throttles rapid requests; lower --limit/--max-pages and let the built-in pacing back off — the CLI rate-limits per request."
+      },
+      {
+        "symptom": "Results are for the wrong city",
+        "fix": "Location defaults to IP geo; pass --zip (or --lat/--lon) explicitly to scope to your area."
+      },
+      {
+        "symptom": "price-check or deals returns nothing",
+        "fix": "Run sync for that query first — the price commands read the local store, not the live feed."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs local-marketplace data from OfferUp: searching listings near a ZIP, pulling an item's full detail, vetting a seller, or — its real edge — answering price questions (what's the going rate, what's underpriced, what dropped) over a local store of listings. All of that works with no login. When logged in (auth login --chrome), it also manages your own account: your listings (view active and archived, mark sold, archive), saved lists, and messages. It does not create listings (mobile-app-only) or send messages.",
+    "recipes": [
+      {
+        "title": "Narrow a verbose search for an agent",
+        "command": "offerup-pp-cli listings search \"macbook pro\" --zip 98101 --agent --select listingId,title,price,locationName,conditionText",
+        "explanation": "Listing payloads are wide; --agent with --select returns only the fields an agent needs, saving context."
+      },
+      {
+        "title": "Find this week's underpriced finds",
+        "command": "offerup-pp-cli deals \"aeron chair\" --zip 85001 --below 30 --agent",
+        "explanation": "Lists Aeron chairs priced at least 30% below the local median around Phoenix."
+      },
+      {
+        "title": "Daily watch on a saved search",
+        "command": "offerup-pp-cli digest \"road bike\" --since 24h --agent",
+        "explanation": "One call returns what's new, what dropped in price, and what's a deal for road bikes since yesterday."
+      },
+      {
+        "title": "Vet a seller before buying to flip",
+        "command": "offerup-pp-cli seller-scan 161842229 --agent",
+        "explanation": "Shows the seller's badges, join date, full inventory, and median asking price in one view."
+      }
+    ],
+    "trigger_phrases": [
+      "find deals on OfferUp",
+      "what's the going rate for X on OfferUp",
+      "search OfferUp near me",
+      "any new OfferUp listings for X",
+      "check OfferUp prices",
+      "use offerup",
+      "run offerup"
+    ]
+  }
+}

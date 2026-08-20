@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-22T13:51:20.504555Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "isitagentready",
+  "display_name": "Is It Agent Ready",
+  "cli_name": "isitagentready-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "isitagentready-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e2417feeec64ff103065735945cda29ac932e1fc77203383be67fa7ce551030c",
+  "run_id": "20260622-061602-6c74c750",
+  "category": "developer-tools",
+  "description": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+  "mcp_binary": "isitagentready-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "CI readiness gate",
+      "command": "gate",
+      "description": "Fail a build when a site drops below a target readiness level or when a previously-passing check regresses."
+    },
+    {
+      "name": "Cross-site open-advice backlog",
+      "command": "open-advice",
+      "description": "List every still-failing check across all your scanned sites with its fix prompt, so you see exactly what is left to do."
+    },
+    {
+      "name": "Score-over-time history",
+      "command": "history",
+      "description": "Show a site's readiness level across every past scan and flag which checks flipped pass/fail between scans."
+    },
+    {
+      "name": "Two-scan regression diff",
+      "command": "diff",
+      "description": "Diff two scans of a site (default: the latest two) into a per-check regressed/fixed/unchanged table plus the level delta."
+    },
+    {
+      "name": "Competitor standards matrix",
+      "command": "compare",
+      "description": "Scan several sites and print a check-by-check matrix of which agent standards each one implements, plus each site's level."
+    },
+    {
+      "name": "Portfolio batch scan",
+      "command": "batch",
+      "description": "Scan a list of URLs from a file or stdin, persist each, and print a leaderboard ranked by level or failing-check count."
+    }
+  ]
+}

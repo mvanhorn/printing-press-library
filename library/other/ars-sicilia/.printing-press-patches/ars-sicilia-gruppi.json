@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-gruppi",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Nuovo gruppo di comandi `gruppi` (elenco, get): l'anagrafica dei gruppi parlamentari, che sta sul sito istituzionale www.ars.sicilia.it e non sul motore documentale. Nuovo client internal/wwwclient, seconda sorgente della CLI.",
+  "reason": "Fino a qui da un nome di gruppo trovato negli atti non si risaliva a niente: la CLI vive su dati.ars.sicilia.it, dove il gruppo compare solo come stringa accanto a una firma, e `which_assenti` dichiarava esplicitamente la capacita' come mancante. L'anagrafica sta su www.ars.sicilia.it (Drupal 10, nessuna API: /jsonapi, /rest/session/token e /sitemap.xml rispondono 404), quindi si legge HTML e i selettori valgono quanto i Columns degli archivi Icaro — verificati sulle pagine vive e certificati da fixture in internal/wwwclient/testdata. Un'estrazione vuota e' errore e non risultato: il portale non pubblica elenchi di gruppi vuoti, quindi zero righe significa selettore rotto e il test deve fallire invece di passare su una lista vuota. L'invariante che lega elenco e dettaglio: la somma dei componenti dei 10 gruppi della XVIII fa 70, il numero dei deputati ARS. `gruppi elenco --deputato` risponde alla domanda inversa (in quale gruppo sta un parlamentare) a costo di una richiesta per gruppo. La voce corrispondente e' stata tolta da `which_assenti`, che ora non dichiara piu' assente una capacita' presente. Note sulla superficie MCP, corrette in questa stessa patch: i due sottocomandi erano annotati `pp:endpoint`, ma quell'annotazione dichiara «esiste gia' un tool MCP tipizzato per questo comando» e cobratree salta i comandi che la portano (classify -> commandEndpoint); i tool tipizzati sono i 22 degli archivi documentali, quindi l'annotazione toglieva i due comandi dall'MCP senza metterli da nessun'altra parte. Sostituita con `pp:happy-args`, come sugli altri comandi novel. Aggiunti anche il ramo `--dry-run` (prima ignorato: i due comandi andavano in rete lo stesso) che mostra la pagina che verrebbe letta, `MaximumNArgs` su `gruppi get` perche' senza argomenti il verify veda l'aiuto e non un errore di aritmetica degli argomenti, e le voci `command_mirror_capabilities`/`playbook` nel tool `context`, dove un agente scopre le capacita' non tipizzate.",
+  "files": [
+    "internal/wwwclient/www.go",
+    "internal/wwwclient/www_test.go",
+    "internal/wwwclient/gruppi.go",
+    "internal/wwwclient/gruppi_test.go",
+    "internal/wwwclient/testdata/",
+    "internal/cli/gruppi.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/cli/which_assenti.go",
+    "internal/mcp/tools.go",
+    "docs/anagrafiche-www-ars.md",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Sul campo, contro il sito vivo: `gruppi elenco` da' 10 gruppi nella XVIII, 11 nella XVII, 15 nella XVI. La somma dei componenti dei 10 gruppi della XVIII fa esattamente 70, il numero dei deputati ARS (12+11+11+9+6+6+5+4+3+3), che e' l'invariante certificata anche dal test su fixture. `gruppi get XVIII-misto` restituisce 3 componenti con carica, collegio, email e scheda; `gruppi get \"Partito Democratico\"` risolve il nome in slug e da' 11 componenti con le quattro cariche (Presidente, Vice-Presidente, Segretario, Tesoriere). `gruppi elenco --deputato Cracolici` trova «On.Cracolici Antonino» nel PD con collegio Palermo. Exit code: 3 su gruppo inesistente e su slug 404, 2 su nome ambiguo (che elenca i candidati) e su --legisl 15. Superficie MCP verificata a protocollo: prima della correzione dell'annotazione `tools/list` esponeva solo `gruppi` (il padre, che senza sottocomando esce in errore); ora espone `gruppi`, `gruppi_elenco` e `gruppi_get`, con le flag `legisl` e `deputato` nello schema, e una `tools/call` reale su entrambi torna il JSON atteso. go build, go vet, gofmt e go test ./... verdi."
+}

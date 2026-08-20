@@ -1,0 +1,311 @@
+name: everbee
+description: EverBee Research workflows for evidence-aware Etsy product, keyword, and shop research
+version: 0.2.0
+base_url: https://api.everbee.com
+spec_source: sniffed
+category: marketing
+# probe-reachability: standard_http (0.95) — stdlib and surf both reach the API
+# cleanly and there is no bot protection. Browser-impersonation headers make
+# EverBee's Rails API try to render an HTML view for JSON endpoints and 500.
+http_transport: standard
+cli_description: Research Etsy niches with evidence-aware scoring — seeded keyword, product, and shop search with provenance and honest confidence.
+mcp:
+    transport:
+        - stdio
+        - http
+    intents:
+        - name: resolve_shop_identity
+          description: Resolve an Etsy shop handle to its EverBee identity before any shop workflow, so an unknown handle is reported as unresolved rather than as a shop with zero research evidence.
+          params:
+              - name: handle
+                type: string
+                required: true
+                description: "Etsy shop handle, e.g. '3rdprintsDesign'."
+          steps:
+              - endpoint: shops.resolve
+                bind:
+                    query: ${input.handle}
+                capture: identity
+          returns: identity
+
+cache:
+    enabled: true
+    stale_after: 15m
+    refresh_timeout: 30s
+    env_opt_out: EVERBEE_NO_AUTO_REFRESH
+    resources:
+        keyword_research: 15m
+        products: 15m
+        shops: 15m
+learn:
+    entity_lookup_seeds:
+        product_type:
+            - canonical: physical
+              aliases: [apparel, shirt, t-shirt, tee, sweatshirt, hoodie, mug, poster, print, physical product]
+            - canonical: digital
+              aliases: [svg, png, download, digital download, clipart, cut file, printable, digital product]
+        time_range:
+            - canonical: last_1_month
+              aliases: [last month, past month, 30 days, monthly]
+            - canonical: last_3_months
+              aliases: [last 3 months, past quarter, quarterly]
+        sort_field:
+            - canonical: est_mo_revenue
+              aliases: [revenue, monthly revenue, est revenue, earnings]
+            - canonical: est_mo_sales
+              aliases: [sales, monthly sales, units sold]
+            - canonical: new_volume
+              aliases: [volume, search volume, demand]
+            - canonical: competition
+              aliases: [competing listings, competition, saturation]
+    synonyms:
+        "low competition": "competition"
+        "most recent": "latest"
+        "sub-niche": "subniche"
+        "sub niche": "subniche"
+    stopwords:
+        - etsy
+        - listing
+auth:
+    type: api_key
+    header: x-access-token
+    in: header
+    verify_path: /users/show
+    login_url: https://auth.everbee.io/login
+    instructions: Obtain a token after Google SSO with `everbee-pp-cli auth setup`, then store it with `everbee-pp-cli auth set-token <token>`.
+    env_vars:
+        - EVERBEE_ACCESS_TOKEN
+config:
+    format: toml
+    path: ~/.config/everbee-pp-cli/config.toml
+resources:
+    keyword_research:
+        description: Etsy keyword research — volume, competition, score, CPC, and trend
+        endpoints:
+            list:
+                method: GET
+                path: /keyword_research/default_keyword_suggestion
+                description: "Browse EverBee's default keyword feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any seed and returns EverBee's unranked default suggestions. To research a specific keyword use `keyword-research search --keyword`."
+                params:
+                    - name: type_of_search
+                      type: string
+                      required: false
+                      positional: false
+                      default: keywords_suggestion
+                      description: "EverBee keyword search mode."
+                      fields: []
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: new_volume
+                      description: "Sort field: new_volume, competition, or score."
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction: desc or asc."
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page."
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: default_keyword_suggestion
+                pagination: null
+                observed_auth:
+                    - x-access-token
+            search:
+                method: POST
+                path: /keyword_research/keyword_suggestion
+                description: Seeded keyword search. Returns keywords related to the seed with volume, competition, score, CPC, and trend, plus the seed's own demand-vs-competition metrics under `searched_keyword`. This is the endpoint the EverBee UI search box calls. Comma-join the keyword value to research multiple seeds at once.
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      description: "Seed keyword to research, e.g. 'dad shirt'. Comma-join multiple seeds: 'dad shirt,fishing dad shirt'."
+                      fields: []
+                    - name: type_of_search
+                      type: string
+                      required: false
+                      positional: false
+                      default: keywords_suggestion
+                      description: "EverBee keyword search mode. keywords_suggestion returns related-keyword suggestions for the seed."
+                      fields: []
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: new_volume
+                      description: "Sort field: new_volume (search volume), competition, or score."
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction: desc or asc."
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page (20 keywords per page)."
+                      fields: []
+                    - name: count_search
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: true
+                      description: "Count this search against the account's plan quota, matching EverBee UI behavior."
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: keyword_suggestion
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    products:
+        description: Etsy product/listing research — sales, revenue, tags, price, listing type, and age
+        endpoints:
+            list:
+                method: GET
+                path: /product_analytics/default_product_analytics
+                id_field: listing_id
+                description: "Browse EverBee's default product feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any search term. To research a specific product niche use `products search --search-term`."
+                params:
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: est_mo_revenue
+                      description: "Sort field: est_mo_revenue, est_mo_sales, price, or growth_rate."
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction: desc or asc."
+                      fields: []
+                    - name: time_range
+                      type: string
+                      required: false
+                      positional: false
+                      default: last_1_month
+                      description: "Metric window for sales/revenue estimates."
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page."
+                      fields: []
+                    - name: per_page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 20
+                      description: "Results per page."
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: default_product_analytics
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    shops:
+        description: Etsy competitor shop research — revenue, sales, listing counts, conversion, and reviews
+        endpoints:
+            search:
+                method: GET
+                path: /shops
+                description: Search EverBee's Etsy shop database. Pass a search term to find a specific competitor shop, or omit it to browse top shops by revenue.
+                params:
+                    - name: search_term
+                      type: string
+                      required: false
+                      positional: false
+                      description: "Shop name to search for, e.g. '3rdprintsDesign'. Omit to browse the top-shop feed."
+                      fields: []
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: revenue
+                      description: "Sort field: revenue, revenue_30_days, listing_active_count, or review_count."
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction: desc or asc."
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page."
+                      fields: []
+                    - name: per_page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 20
+                      description: "Results per page."
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: shop
+                pagination: null
+                observed_auth:
+                    - x-access-token
+            resolve:
+                method: GET
+                path: /shops/search
+                description: Resolve an Etsy shop handle to its EverBee identity (shop_id, exact shop name, rating, review count, year created). Use this before any shop workflow so an unresolved handle is reported as unresolved rather than as a shop with zero research evidence.
+                params:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      description: "Etsy shop handle to resolve, e.g. '3rdprintsDesign'. Returns near-matches when the exact handle does not exist."
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: shop_match
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    account:
+        description: EverBee account plan and research quota
+        endpoints:
+            show:
+                method: GET
+                path: /users/show
+                description: Show the EverBee account's current plan, research quota, and usage. Use this to check remaining keyword-search quota before a batch run — the free Hobby plan allows only 10 keyword searches per month.
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: account
+                pagination: null
+                observed_auth:
+                    - x-access-token
+types: {}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-30T02:29:13.379835Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "vestaboard",
+  "display_name": "Vestaboard",
+  "cli_name": "vestaboard-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "vestaboard-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b2e20a18fe3c52da715522763fa45887d2eeec42a3583a5a83c41fd179d48bf2",
+  "run_id": "20260529-212647",
+  "catalog_entry": "vestaboard",
+  "category": "devices",
+  "description": "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output.",
+  "mcp_binary": "vestaboard-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "VESTABOARD_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "VESTABOARD_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://web.vestaboard.com",
+  "novel_features": [
+    {
+      "name": "Board preview",
+      "command": "message preview",
+      "description": "See what's on your Vestaboard right now as readable text instead of a raw integer grid."
+    },
+    {
+      "name": "Character-code table",
+      "command": "characters",
+      "description": "Print the full Vestaboard character-code table (code to glyph) for hand-building a character-array message."
+    }
+  ],
+  "catalog_description": "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output."
+}

@@ -1,0 +1,247 @@
+{
+  "api_name": "american-reindustrialization",
+  "novelty_score": 95,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T07:25:00Z",
+  "novel_features": [
+    {
+      "name": "Diff since last sync",
+      "command": "whats-new",
+      "description": "Show companies and jobs added or updated since a date you provide, so a weekly sweep takes one command instead of an eyeball-the-list session.",
+      "rationale": "Compares the current local SQLite store against a prior snapshot keyed by slug and updated_at/posted_at; the public API has no diff endpoint.",
+      "example": "american-reindustrialization-pp-cli whats-new --since 2026-05-12 --json",
+      "why_it_matters": "Reach for this when an analyst or agent needs week-over-week deltas across the directory; the site offers no such view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Composed jobs filter",
+      "command": "openings find",
+      "description": "Filter the jobs board by work_mode, experience_level, salary floor, state, company size, sector, and posted-since in a single query — combinations the website's UI cannot express.",
+      "rationale": "Joins the local jobs table to companies and applies every filter in one SQL pass; the site's /api/jobs silently ignores the state filter and offers no salary or company-size filter at all.",
+      "example": "american-reindustrialization-pp-cli openings find --work-mode remote --experience senior --salary-min 150000 --state TX --json",
+      "why_it_matters": "Use this when a user wants the shortlist instead of 25 paginated pages; cross-resource filters are this CLI's reason to exist.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Sector-by-state heatmap",
+      "command": "analytics sector-heatmap",
+      "description": "Crosstab of primary_sector × HQ state with company counts (optionally weighted by jobs_count or filtered by funding_stage), revealing the geographic shape of each sector.",
+      "rationale": "GROUP BY on local companies; the only counts endpoint the API ships is flat (/categories/counts).",
+      "example": "american-reindustrialization-pp-cli analytics sector-heatmap --funding-stage seed --weight jobs --json",
+      "why_it_matters": "Pull this when answering 'where is sector X clustering' or 'which states are bidding loudest on hiring in sector Y'.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Funding × sector breakdown",
+      "command": "analytics funding-by-sector",
+      "description": "Crosstab of funding_stage × primary_sector with company counts and median employee_range, exposing where capital is concentrating.",
+      "rationale": "Aggregates two service-specific fields that the API exposes per-company but never aggregates server-side.",
+      "example": "american-reindustrialization-pp-cli analytics funding-by-sector --json",
+      "why_it_matters": "Use this when an investor needs the capital map across the reindustrialization directory.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Top hiring companies",
+      "command": "companies top-hiring",
+      "description": "Rank companies by jobs_count descending, with optional filters by sector, state, or funding_stage — the site has no ranking view.",
+      "rationale": "ORDER BY jobs_count DESC on local companies after applying filters; no ranking endpoint exists.",
+      "example": "american-reindustrialization-pp-cli companies top-hiring --sector robotics --limit 10 --json",
+      "why_it_matters": "Reach for this when a job seeker or recruiter wants 'who has the most openings in sector X right now'.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Company profile sheet",
+      "command": "companies profile",
+      "description": "Single-shot rich profile for one company: full fields plus that company's open jobs plus similar companies (same primary_sector and employee_range bucket).",
+      "rationale": "Joins companies, jobs, and a similarity heuristic against the local store in one query; 'similar companies' has no API equivalent.",
+      "example": "american-reindustrialization-pp-cli companies profile harmony-ai --json",
+      "why_it_matters": "Use this when a single named company needs full context plus peers — research, due diligence, competitor scans.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Geographic clusters",
+      "command": "analytics geo-clusters",
+      "description": "Grid-bucket companies by lat/lon (default 50km cells) and emit cluster centroid, member count, member companies, and the dominant sector per cluster.",
+      "rationale": "Exploits the lat/lon fields the API ships but the website never plots; mechanical bucketing has no API equivalent.",
+      "example": "american-reindustrialization-pp-cli analytics geo-clusters --state TX --radius-km 50 --json",
+      "why_it_matters": "Pull this for 'which metro is the densest cluster in sector X' style questions; the site has no map view.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Salary distribution",
+      "command": "openings salary-stats",
+      "description": "p25 / p50 / p75 of midpoint salary across filtered jobs, with null-salary count reported separately so missing data is honest.",
+      "rationale": "Statistics over local jobs rows after applying sector / experience / state filters; no aggregation endpoint.",
+      "example": "american-reindustrialization-pp-cli openings salary-stats --sector robotics --experience senior --json",
+      "why_it_matters": "Use this when a job seeker or comp analyst wants band ranges, not individual postings.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Founded-year cohorts",
+      "command": "companies cohorts",
+      "description": "Bucket companies by founded_year (default 5-year buckets) with company counts and the top-3 sectors per cohort.",
+      "rationale": "GROUP BY on bucketed founded_year and a per-bucket top-sector aggregation against the local store; founded_year is in the payload but never aggregated.",
+      "example": "american-reindustrialization-pp-cli companies cohorts --bucket 5 --json",
+      "why_it_matters": "Reach for this when writing about 'companies founded since 2020 in the reindustrialization wave' or tracking ecosystem age over time.",
+      "group": "Ecosystem analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Diff since last sync",
+      "command": "whats-new",
+      "description": "Show companies and jobs added or updated since a date you provide, so a weekly sweep takes one command instead of an eyeball-the-list session.",
+      "rationale": "Compares the current local SQLite store against a prior snapshot keyed by slug and updated_at/posted_at; the public API has no diff endpoint.",
+      "example": "american-reindustrialization-pp-cli whats-new --since 2026-05-12 --json",
+      "why_it_matters": "Reach for this when an analyst or agent needs week-over-week deltas across the directory; the site offers no such view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Composed jobs filter",
+      "command": "openings find",
+      "description": "Filter the jobs board by work_mode, experience_level, salary floor, state, company size, sector, and posted-since in a single query — combinations the website's UI cannot express.",
+      "rationale": "Joins the local jobs table to companies and applies every filter in one SQL pass; the site's /api/jobs silently ignores the state filter and offers no salary or company-size filter at all.",
+      "example": "american-reindustrialization-pp-cli openings find --work-mode remote --experience senior --salary-min 150000 --state TX --json",
+      "why_it_matters": "Use this when a user wants the shortlist instead of 25 paginated pages; cross-resource filters are this CLI's reason to exist.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Sector-by-state heatmap",
+      "command": "analytics sector-heatmap",
+      "description": "Crosstab of primary_sector × HQ state with company counts (optionally weighted by jobs_count or filtered by funding_stage), revealing the geographic shape of each sector.",
+      "rationale": "GROUP BY on local companies; the only counts endpoint the API ships is flat (/categories/counts).",
+      "example": "american-reindustrialization-pp-cli analytics sector-heatmap --funding-stage seed --weight jobs --json",
+      "why_it_matters": "Pull this when answering 'where is sector X clustering' or 'which states are bidding loudest on hiring in sector Y'.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Funding × sector breakdown",
+      "command": "analytics funding-by-sector",
+      "description": "Crosstab of funding_stage × primary_sector with company counts and median employee_range, exposing where capital is concentrating.",
+      "rationale": "Aggregates two service-specific fields that the API exposes per-company but never aggregates server-side.",
+      "example": "american-reindustrialization-pp-cli analytics funding-by-sector --json",
+      "why_it_matters": "Use this when an investor needs the capital map across the reindustrialization directory.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Top hiring companies",
+      "command": "companies top-hiring",
+      "description": "Rank companies by jobs_count descending, with optional filters by sector, state, or funding_stage — the site has no ranking view.",
+      "rationale": "ORDER BY jobs_count DESC on local companies after applying filters; no ranking endpoint exists.",
+      "example": "american-reindustrialization-pp-cli companies top-hiring --sector robotics --limit 10 --json",
+      "why_it_matters": "Reach for this when a job seeker or recruiter wants 'who has the most openings in sector X right now'.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Company profile sheet",
+      "command": "companies profile",
+      "description": "Single-shot rich profile for one company: full fields plus that company's open jobs plus similar companies (same primary_sector and employee_range bucket).",
+      "rationale": "Joins companies, jobs, and a similarity heuristic against the local store in one query; 'similar companies' has no API equivalent.",
+      "example": "american-reindustrialization-pp-cli companies profile harmony-ai --json",
+      "why_it_matters": "Use this when a single named company needs full context plus peers — research, due diligence, competitor scans.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Geographic clusters",
+      "command": "analytics geo-clusters",
+      "description": "Grid-bucket companies by lat/lon (default 50km cells) and emit cluster centroid, member count, member companies, and the dominant sector per cluster.",
+      "rationale": "Exploits the lat/lon fields the API ships but the website never plots; mechanical bucketing has no API equivalent.",
+      "example": "american-reindustrialization-pp-cli analytics geo-clusters --state TX --radius-km 50 --json",
+      "why_it_matters": "Pull this for 'which metro is the densest cluster in sector X' style questions; the site has no map view.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Salary distribution",
+      "command": "openings salary-stats",
+      "description": "p25 / p50 / p75 of midpoint salary across filtered jobs, with null-salary count reported separately so missing data is honest.",
+      "rationale": "Statistics over local jobs rows after applying sector / experience / state filters; no aggregation endpoint.",
+      "example": "american-reindustrialization-pp-cli openings salary-stats --sector robotics --experience senior --json",
+      "why_it_matters": "Use this when a job seeker or comp analyst wants band ranges, not individual postings.",
+      "group": "Ecosystem analytics"
+    },
+    {
+      "name": "Founded-year cohorts",
+      "command": "companies cohorts",
+      "description": "Bucket companies by founded_year (default 5-year buckets) with company counts and the top-3 sectors per cohort.",
+      "rationale": "GROUP BY on bucketed founded_year and a per-bucket top-sector aggregation against the local store; founded_year is in the payload but never aggregated.",
+      "example": "american-reindustrialization-pp-cli companies cohorts --bucket 5 --json",
+      "why_it_matters": "Reach for this when writing about 'companies founded since 2020 in the reindustrialization wave' or tracking ecosystem age over time.",
+      "group": "Ecosystem analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "American Reindustrialization",
+    "headline": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector heatmaps, and offline SQL no website view shows.",
+    "value_prop": "A read-only CLI for the company directory and jobs board at americanreindustrialization.com. Sync once, then run cross-entity queries (jobs at robotics companies in TX, sector × state heatmaps, funding × sector crosstabs, week-over-week diffs) entirely offline, with agent-native JSON and a local SQLite surface no view on the website exposes.",
+    "quickstart": [
+      {
+        "command": "american-reindustrialization-pp-cli sync",
+        "comment": "Pull every company, job, category, and tag into local SQLite; all subsequent commands run offline."
+      },
+      {
+        "command": "american-reindustrialization-pp-cli companies list --state CA --json",
+        "comment": "Cached list of California companies with full agent-native output."
+      },
+      {
+        "command": "american-reindustrialization-pp-cli openings find --work-mode remote --experience senior --salary-min 150000",
+        "comment": "Composed multi-axis filter no website view exposes."
+      },
+      {
+        "command": "american-reindustrialization-pp-cli analytics sector-heatmap --weight jobs",
+        "comment": "Sector × state crosstab weighted by job openings — pure local SQL."
+      },
+      {
+        "command": "american-reindustrialization-pp-cli whats-new --since 2026-05-12",
+        "comment": "Diff against the prior sync snapshot — companies and jobs that appeared or changed."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search/sql/analytics commands return empty results",
+        "fix": "Run `american-reindustrialization-pp-cli sync` first; every offline command reads the local store, which is empty until sync populates it."
+      },
+      {
+        "symptom": "`--state CA` works on companies but not on jobs",
+        "fix": "The upstream /api/jobs silently ignores state. Use `openings find --state CA` instead — the local join filters on the joined company's state."
+      },
+      {
+        "symptom": "whats-new reports zero changes after sync",
+        "fix": "The first sync establishes a baseline snapshot; run sync again later, then `whats-new --since \u003cprior-sync-date\u003e` will show deltas."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or analyst needs to slice, join, or analyze the americanreindustrialization.com company directory and jobs board beyond what the website's filter UI exposes. The local SQLite store enables composed cross-resource filters (jobs at companies with property X), aggregate analytics (sector × state heatmaps, funding × sector crosstabs, salary distributions), and diff over time (whats-new since a prior sync). Pair `--select` with `--json` whenever an agent only needs a subset of the ~30 fields per company.",
+    "recipes": [
+      {
+        "title": "Where are senior remote robotics roles paying well?",
+        "command": "american-reindustrialization-pp-cli openings find --work-mode remote --experience senior --sector robotics --salary-min 150000 --json --select title,company.name,location_display,salary_min,salary_max,apply_url",
+        "explanation": "Composed filter + field pruning — agent gets a tight shortlist payload instead of 25 paginated full-body responses."
+      },
+      {
+        "title": "Weekly investor sweep",
+        "command": "american-reindustrialization-pp-cli whats-new --since 2026-05-12 --json --select kind,slug,name,primary_sector,funding_stage,hq_state",
+        "explanation": "Diff-since-last-sync limited to the deal-flow fields; one command replaces a Monday morning eyeball-the-list session."
+      },
+      {
+        "title": "Sector geography map",
+        "command": "american-reindustrialization-pp-cli analytics geo-clusters --radius-km 75 --csv",
+        "explanation": "Grid-bucket every company by lat/lon at 75km cells, emit centroid + members + dominant sector as CSV for downstream mapping."
+      },
+      {
+        "title": "Capital map across the directory",
+        "command": "american-reindustrialization-pp-cli analytics funding-by-sector --json",
+        "explanation": "Crosstab of funding_stage × primary_sector — answers 'where is capital concentrating' in one local query."
+      }
+    ],
+    "trigger_phrases": [
+      "look up american reindustrialization companies",
+      "find reindustrialization jobs",
+      "browse american manufacturing directory",
+      "sector heatmap of reindustrialization companies",
+      "use american-reindustrialization",
+      "run american-reindustrialization"
+    ]
+  }
+}

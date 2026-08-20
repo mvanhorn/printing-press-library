@@ -1,0 +1,322 @@
+{
+  "api_name": "servicetitan-pricebook",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T07:42:00Z",
+  "novel_features": [
+    {
+      "name": "Markup drift audit",
+      "command": "markup-audit",
+      "description": "Find every material and equipment SKU whose actual markup has drifted off the materials-markup tier ladder.",
+      "rationale": "Requires joining synced materials and equipment against the markup tier ladder locally; no single ServiceTitan API call returns tier-vs-actual markup.",
+      "example": "servicetitan-pricebook-pp-cli markup-audit --tolerance 5 --agent",
+      "why_it_matters": "Reach for this after any vendor cost change to catch SKUs that are now mispriced for their tier before margin erodes.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Cost-drift report",
+      "command": "cost-drift",
+      "description": "Show every SKU whose cost moved since a given date, with old and new cost, old and new price, and whether the price followed.",
+      "rationale": "Reads the local sku_cost_history snapshot table; the ServiceTitan API exposes no cost history at all.",
+      "example": "servicetitan-pricebook-pp-cli cost-drift --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this to see whether recent vendor cost increases were actually passed through to price.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Missing vendor-part audit",
+      "command": "vendor-part-gaps",
+      "description": "List materials and equipment whose primary vendor part number is empty — the missing 2M Part # sweep.",
+      "rationale": "A null-filter over the primaryVendor.vendorPart field of synced SKUs; the ServiceTitan API has no query for absent vendor parts.",
+      "example": "servicetitan-pricebook-pp-cli vendor-part-gaps --kind material --agent",
+      "why_it_matters": "Reach for this to enforce the 2M Part # discipline before a vendor-quote reconcile, which matches on vendor part.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Warranty attribution lint",
+      "command": "warranty-lint",
+      "description": "Flag equipment whose warranty text is not prefixed Manufacturer's, or that is missing JKA's 1-year parts \u0026 labor line.",
+      "rationale": "Text-pattern lint over synced equipment warranty and description fields against ServiceTitan-pricebook-specific attribution rules.",
+      "example": "servicetitan-pricebook-pp-cli warranty-lint --agent",
+      "why_it_matters": "Reach for this to keep warranty attribution honest — manufacturer warranties clearly labeled, JKA's own offering listed alongside.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Orphan SKU finder",
+      "command": "orphan-skus",
+      "description": "List materials, equipment, and services assigned to inactive or non-existent categories.",
+      "rationale": "Joins synced SKUs against the categories table locally; the ServiceTitan API cannot filter SKUs by their category's active state.",
+      "example": "servicetitan-pricebook-pp-cli orphan-skus --agent",
+      "why_it_matters": "Reach for this during category taxonomy cleanup to find SKUs that fell out of the visible tree.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Vendor quote reconcile",
+      "command": "quote-reconcile",
+      "description": "Match a vendor cost file against synced SKUs by vendor part number and print a no-write diff of proposed cost changes; accepts CSV or Claude-extracted JSON from a quote, order confirmation, or invoice PDF.",
+      "rationale": "Self-healing matches an external file against primaryVendor and otherVendors part numbers in the local store; pure local join, no write unless --apply is passed.",
+      "example": "servicetitan-pricebook-pp-cli quote-reconcile ./2m-quote-2026-05.csv --agent",
+      "why_it_matters": "Reach for this when a vendor quote, order confirmation, or invoice lands; have Claude extract it to JSON, then reconcile against current costs before touching the pricebook.",
+      "group": "Vendor quote workflow"
+    },
+    {
+      "name": "Hold-markup repricer",
+      "command": "reprice",
+      "description": "Compute the tier-correct price for markup-drifted SKUs and emit the exact update payloads; preview by default, --apply to write.",
+      "rationale": "Depends on the markup-audit tier math and the local markup ladder; emits ServiceTitan-shaped update bodies no generic client would build.",
+      "example": "servicetitan-pricebook-pp-cli reprice --tolerance 5 --agent",
+      "why_it_matters": "Reach for this after markup-audit to apply hold-markup pricing in one pass instead of editing each SKU by hand.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Pricebook health summary",
+      "command": "health",
+      "description": "One compact rollup of markup-drift, vendor-part-gap, warranty-lint, cost-drift, orphan-SKU, duplicate, and weak-copy counts.",
+      "rationale": "Aggregates every local audit into a single agent-shaped JSON blob sized for priming; no API equivalent exists.",
+      "example": "servicetitan-pricebook-pp-cli health --agent",
+      "why_it_matters": "Reach for this first in any pricebook session to see what needs attention before drilling into a specific audit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk-write planner",
+      "command": "bulk-plan",
+      "description": "Turn a reviewed cost or copy change file into a single pricebook bulk-update payload instead of N individual update calls.",
+      "rationale": "Transforms a local reconcile, reprice, or copy-audit diff into one ServiceTitan bulk-operation body; matters under ST's ~7k/hr rate limit.",
+      "example": "servicetitan-pricebook-pp-cli bulk-plan ./reviewed-changes.csv --agent",
+      "why_it_matters": "Reach for this to apply a batch of reconciled changes in one rate-limit-friendly call.",
+      "group": "Vendor quote workflow"
+    },
+    {
+      "name": "Duplicate-SKU detector",
+      "command": "dedupe",
+      "description": "Cluster near-duplicate materials and equipment so excess pricebook growth can be collapsed.",
+      "rationale": "Fuzzy-matches synced SKUs against each other on normalized code, display name, description, and vendor part in local SQLite; the ServiceTitan API has no find-SKUs-like-this query.",
+      "example": "servicetitan-pricebook-pp-cli dedupe --kind material --min-score 0.8 --agent",
+      "why_it_matters": "Reach for this to find redundant parts before they multiply — duplicate SKUs scatter estimates and inventory across entries that should be one.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Sales-copy description audit",
+      "command": "copy-audit",
+      "description": "Flag SKUs whose display name or description is empty, too short, ALL-CAPS, a bare part number, or otherwise not customer-facing.",
+      "rationale": "Service-specific content-quality lint over synced SKU text fields; a sales-copy agent rewrites the flagged entries and materials update or bulk-plan writes them back.",
+      "example": "servicetitan-pricebook-pp-cli copy-audit --kind equipment --agent",
+      "why_it_matters": "Reach for this to find pricebook entries that read like internal shorthand instead of customer-facing sales copy.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Natural-language part finder",
+      "command": "find",
+      "description": "Forgiving ranked search over synced SKUs tuned for describing a part you do not know the code for.",
+      "rationale": "Domain-tuned multi-field ranking across code, display name, description, category, and vendor part in the local store, with a tech-facing output shape; more than the generic FTS search command.",
+      "example": "servicetitan-pricebook-pp-cli find \"1 hp submersible pump motor\" --agent",
+      "why_it_matters": "Reach for this when a tech describes a part in plain words — it returns suggested SKUs with the code, price, vendor part, and category they need to pick one.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Markup drift audit",
+      "command": "markup-audit",
+      "description": "Find every material and equipment SKU whose actual markup has drifted off the materials-markup tier ladder.",
+      "rationale": "Requires joining synced materials and equipment against the markup tier ladder locally; no single ServiceTitan API call returns tier-vs-actual markup.",
+      "example": "servicetitan-pricebook-pp-cli markup-audit --tolerance 5 --agent",
+      "why_it_matters": "Reach for this after any vendor cost change to catch SKUs that are now mispriced for their tier before margin erodes.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Cost-drift report",
+      "command": "cost-drift",
+      "description": "Show every SKU whose cost moved since a given date, with old and new cost, old and new price, and whether the price followed.",
+      "rationale": "Reads the local sku_cost_history snapshot table; the ServiceTitan API exposes no cost history at all.",
+      "example": "servicetitan-pricebook-pp-cli cost-drift --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this to see whether recent vendor cost increases were actually passed through to price.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Missing vendor-part audit",
+      "command": "vendor-part-gaps",
+      "description": "List materials and equipment whose primary vendor part number is empty — the missing 2M Part # sweep.",
+      "rationale": "A null-filter over the primaryVendor.vendorPart field of synced SKUs; the ServiceTitan API has no query for absent vendor parts.",
+      "example": "servicetitan-pricebook-pp-cli vendor-part-gaps --kind material --agent",
+      "why_it_matters": "Reach for this to enforce the 2M Part # discipline before a vendor-quote reconcile, which matches on vendor part.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Warranty attribution lint",
+      "command": "warranty-lint",
+      "description": "Flag equipment whose warranty text is not prefixed Manufacturer's, or that is missing JKA's 1-year parts \u0026 labor line.",
+      "rationale": "Text-pattern lint over synced equipment warranty and description fields against ServiceTitan-pricebook-specific attribution rules.",
+      "example": "servicetitan-pricebook-pp-cli warranty-lint --agent",
+      "why_it_matters": "Reach for this to keep warranty attribution honest — manufacturer warranties clearly labeled, JKA's own offering listed alongside.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Orphan SKU finder",
+      "command": "orphan-skus",
+      "description": "List materials, equipment, and services assigned to inactive or non-existent categories.",
+      "rationale": "Joins synced SKUs against the categories table locally; the ServiceTitan API cannot filter SKUs by their category's active state.",
+      "example": "servicetitan-pricebook-pp-cli orphan-skus --agent",
+      "why_it_matters": "Reach for this during category taxonomy cleanup to find SKUs that fell out of the visible tree.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Vendor quote reconcile",
+      "command": "quote-reconcile",
+      "description": "Match a vendor cost file against synced SKUs by vendor part number and print a no-write diff of proposed cost changes; accepts CSV or Claude-extracted JSON from a quote, order confirmation, or invoice PDF.",
+      "rationale": "Self-healing matches an external file against primaryVendor and otherVendors part numbers in the local store; pure local join, no write unless --apply is passed.",
+      "example": "servicetitan-pricebook-pp-cli quote-reconcile ./2m-quote-2026-05.csv --agent",
+      "why_it_matters": "Reach for this when a vendor quote, order confirmation, or invoice lands; have Claude extract it to JSON, then reconcile against current costs before touching the pricebook.",
+      "group": "Vendor quote workflow"
+    },
+    {
+      "name": "Hold-markup repricer",
+      "command": "reprice",
+      "description": "Compute the tier-correct price for markup-drifted SKUs and emit the exact update payloads; preview by default, --apply to write.",
+      "rationale": "Depends on the markup-audit tier math and the local markup ladder; emits ServiceTitan-shaped update bodies no generic client would build.",
+      "example": "servicetitan-pricebook-pp-cli reprice --tolerance 5 --agent",
+      "why_it_matters": "Reach for this after markup-audit to apply hold-markup pricing in one pass instead of editing each SKU by hand.",
+      "group": "Margin discipline"
+    },
+    {
+      "name": "Pricebook health summary",
+      "command": "health",
+      "description": "One compact rollup of markup-drift, vendor-part-gap, warranty-lint, cost-drift, orphan-SKU, duplicate, and weak-copy counts.",
+      "rationale": "Aggregates every local audit into a single agent-shaped JSON blob sized for priming; no API equivalent exists.",
+      "example": "servicetitan-pricebook-pp-cli health --agent",
+      "why_it_matters": "Reach for this first in any pricebook session to see what needs attention before drilling into a specific audit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk-write planner",
+      "command": "bulk-plan",
+      "description": "Turn a reviewed cost or copy change file into a single pricebook bulk-update payload instead of N individual update calls.",
+      "rationale": "Transforms a local reconcile, reprice, or copy-audit diff into one ServiceTitan bulk-operation body; matters under ST's ~7k/hr rate limit.",
+      "example": "servicetitan-pricebook-pp-cli bulk-plan ./reviewed-changes.csv --agent",
+      "why_it_matters": "Reach for this to apply a batch of reconciled changes in one rate-limit-friendly call.",
+      "group": "Vendor quote workflow"
+    },
+    {
+      "name": "Duplicate-SKU detector",
+      "command": "dedupe",
+      "description": "Cluster near-duplicate materials and equipment so excess pricebook growth can be collapsed.",
+      "rationale": "Fuzzy-matches synced SKUs against each other on normalized code, display name, description, and vendor part in local SQLite; the ServiceTitan API has no find-SKUs-like-this query.",
+      "example": "servicetitan-pricebook-pp-cli dedupe --kind material --min-score 0.8 --agent",
+      "why_it_matters": "Reach for this to find redundant parts before they multiply — duplicate SKUs scatter estimates and inventory across entries that should be one.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Sales-copy description audit",
+      "command": "copy-audit",
+      "description": "Flag SKUs whose display name or description is empty, too short, ALL-CAPS, a bare part number, or otherwise not customer-facing.",
+      "rationale": "Service-specific content-quality lint over synced SKU text fields; a sales-copy agent rewrites the flagged entries and materials update or bulk-plan writes them back.",
+      "example": "servicetitan-pricebook-pp-cli copy-audit --kind equipment --agent",
+      "why_it_matters": "Reach for this to find pricebook entries that read like internal shorthand instead of customer-facing sales copy.",
+      "group": "Pricebook hygiene"
+    },
+    {
+      "name": "Natural-language part finder",
+      "command": "find",
+      "description": "Forgiving ranked search over synced SKUs tuned for describing a part you do not know the code for.",
+      "rationale": "Domain-tuned multi-field ranking across code, display name, description, category, and vendor part in the local store, with a tech-facing output shape; more than the generic FTS search command.",
+      "example": "servicetitan-pricebook-pp-cli find \"1 hp submersible pump motor\" --agent",
+      "why_it_matters": "Reach for this when a tech describes a part in plain words — it returns suggested SKUs with the code, price, vendor part, and category they need to pick one.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "ServiceTitan Pricebook",
+    "headline": "A focused per-module ServiceTitan CLI for the Pricebook — sync once, then audit markup, costs, vendor parts, and warranties the ST UI cannot.",
+    "value_prop": "This CLI (servicetitan-pricebook-pp-cli) mirrors every ServiceTitan Pricebook v2 endpoint (categories, client-specific pricing, discounts \u0026 fees, equipment, materials, materials markup, bulk operations, images, services, export feeds) and adds twelve novel commands that join across them in a local SQLite store. It snapshots cost and price history on every sync, so markup-audit, cost-drift, and reprice become one-shot. It is part of a per-module ST CLI family (servicetitan-crm, servicetitan-dispatch, servicetitan-inventory, servicetitan-jpm, servicetitan-pricebook) designed to replace the heavy 600+-tool general ServiceTitan MCP with focused, agent-native binaries.",
+    "auth_narrative": "ServiceTitan uses composed auth: a static ST-App-Key header (set ST_APP_KEY) plus an OAuth2 client-credentials bearer token (set ST_CLIENT_ID and ST_CLIENT_SECRET). Run servicetitan-pricebook-pp-cli auth login to walk the credential setup, then set the three credentials plus ST_TENANT_ID (your numeric tenant ID) in your environment. The client mints and refreshes the bearer token automatically and attaches both headers to every call. Whitespace is stripped defensively from credentials — a known JKA gotcha where a trailing newline in an env file produced opaque invalid_client 400s.",
+    "quickstart": [
+      {
+        "command": "servicetitan-pricebook-pp-cli doctor",
+        "comment": "Confirm ST_APP_KEY, bearer token, ST_TENANT_ID, and base URL before anything else."
+      },
+      {
+        "command": "servicetitan-pricebook-pp-cli sync",
+        "comment": "Pull materials, equipment, services, categories, markup tiers, and rate sheets into the local store and snapshot cost/price history."
+      },
+      {
+        "command": "servicetitan-pricebook-pp-cli health --agent",
+        "comment": "See markup-drift, vendor-part-gap, warranty, cost-drift, and orphan counts in one rollup."
+      },
+      {
+        "command": "servicetitan-pricebook-pp-cli markup-audit --tolerance 5",
+        "comment": "Drill into the SKUs whose markup has drifted off the tier ladder."
+      },
+      {
+        "command": "servicetitan-pricebook-pp-cli quote-reconcile ./2m-quote.csv",
+        "comment": "Diff a vendor quote against current pricebook costs before writing anything back."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth fails with invalid_client 400",
+        "fix": "Check for trailing whitespace or newlines in ST_CLIENT_ID / ST_CLIENT_SECRET; the client strips them, but verify the env var was set cleanly."
+      },
+      {
+        "symptom": "every call returns 401 JWT not present",
+        "fix": "Run doctor — if the bearer token is missing, confirm ST_CLIENT_ID and ST_CLIENT_SECRET are set; the client mints the token on first call."
+      },
+      {
+        "symptom": "sync returns 0 records",
+        "fix": "Confirm ST_TENANT_ID is set to your numeric tenant ID; every pricebook path is tenant-scoped and an unset tenant silently yields no data."
+      },
+      {
+        "symptom": "markup-audit or cost-drift returns nothing",
+        "fix": "Run sync first — these commands read the local store and the sku_cost_history snapshot table, not the live API."
+      },
+      {
+        "symptom": "429 rate-limited during sync",
+        "fix": "ServiceTitan allows ~7,000 req/hr per app key per environment; the client backs off automatically — re-run sync or use --resources to scope it."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs to inspect or maintain the ServiceTitan Pricebook — costs, prices, markup tiers, vendor part numbers, warranty text, category taxonomy — without loading the 600+-tool general ST MCP. It is the right choice for margin-discipline checks after vendor cost changes, vendor-quote reconciliation, and pricebook hygiene audits. Run sync first; the novel audit commands read the local store.",
+    "recipes": [
+      {
+        "title": "Post-vendor-quote margin check",
+        "command": "servicetitan-pricebook-pp-cli markup-audit --tolerance 5 --agent",
+        "explanation": "After a sync, list every SKU whose realised markup drifted more than 5 points off its cost tier — the margin check to run after a vendor cost change."
+      },
+      {
+        "title": "Reconcile a 2M vendor quote",
+        "command": "servicetitan-pricebook-pp-cli quote-reconcile ./2m-quote-2026-05.csv --agent",
+        "explanation": "Match the quote's vendor part numbers against synced SKUs and print the proposed cost diff without writing."
+      },
+      {
+        "title": "Narrow a large material list for an agent",
+        "command": "servicetitan-pricebook-pp-cli materials get-list 42 --active True --agent --select results.data.code,results.data.cost,results.data.primaryVendor.vendorPart",
+        "explanation": "Materials responses are large and deeply nested; --agent with --select dotted paths returns only the fields an agent needs to reason about cost and vendor part. Pass your tenant ID as the first argument."
+      },
+      {
+        "title": "Pre-session pricebook triage",
+        "command": "servicetitan-pricebook-pp-cli health --agent",
+        "explanation": "One rollup of every audit count so an agent knows where to look before drilling in."
+      },
+      {
+        "title": "Find SKUs missing a 2M Part #",
+        "command": "servicetitan-pricebook-pp-cli vendor-part-gaps --kind material --agent",
+        "explanation": "List materials whose primary vendor part number is empty so they can be filled before the next reconcile."
+      }
+    ],
+    "trigger_phrases": [
+      "use servicetitan-pricebook",
+      "run servicetitan-pricebook",
+      "sync the pricebook",
+      "check markup drift",
+      "reconcile a vendor quote",
+      "update pricing from this invoice",
+      "audit warranty text",
+      "find duplicate parts in the pricebook",
+      "find SKUs missing a 2M part number",
+      "rewrite this pricebook description",
+      "find a part for",
+      "pricebook health check",
+      "which prices drifted"
+    ]
+  }
+}

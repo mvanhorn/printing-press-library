@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "cfpb-complaints",
+  "run_id": "20260717-002908-c6f34c82",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 87,
+  "tests_passed": 87,
+  "tests_skipped": 46,
+  "auth_context": {
+    "type": "none"
+  }
+}

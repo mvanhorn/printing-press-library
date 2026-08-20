@@ -15,6 +15,11 @@ metadata:
         bins: [airbnb-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/travel/airbnb/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Airbnb — Printing Press CLI
 
@@ -22,20 +27,20 @@ metadata:
 
 This skill drives the `airbnb-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install airbnb --cli-only
+   npx -y @mvanhorn/printing-press-library install airbnb --cli-only
    ```
 2. Verify: `airbnb-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -89,12 +94,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
-- **`watch`** — Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits.
+- **`watch`** — Add saved listings to a watchlist with target prices; `watch check` re-scrapes each, records a dated price snapshot when a real price comes back, and exits 7 on a genuine drop. Subcommands: `add`, `list`, `remove`, `check`.
 
-  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule watch check daily; act on exit code 7._
+  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule `watch check` daily; act on exit code 7. A listing with no available price for the dates is reported under `no_price` and is never a hit (no false exit 7). Remove with `watch remove <listing-url-or-id>`._
 
   ```bash
   airbnb-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 --checkin 2026-05-16 --checkout 2026-05-19
+  airbnb-pp-cli watch remove 37124493
   ```
 - **`host portfolio`** — Given a host or property management company name, list every known listing under them across Airbnb and VRBO.
 
@@ -196,9 +202,19 @@ Fans out across Airbnb + VRBO + direct discovery; ranks by total savings.
 
 ```bash
 airbnb-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 && airbnb-pp-cli watch check
+airbnb-pp-cli watch remove 'https://www.airbnb.com/rooms/37124493'
 ```
 
-Add to watchlist, then check with cron — exits 7 when any drop is under threshold.
+Add to watchlist, then check with cron — exits 7 only when a real scraped price is at or below the threshold. A listing with no available price for the dates is reported under `no_price` (never a hit, never exit 7). `watch remove` accepts the listing URL or the bare id from `watch list`.
+
+### Keep price history current
+
+```bash
+airbnb-pp-cli sync                                 # re-scrapes watchlist + known listings, persists fresh snapshots
+airbnb-pp-cli sync --resources airbnb_wishlist     # auth-gated wishlist sync (needs auth login --chrome)
+```
+
+`sync` re-scrapes what the store already knows (watchlist entries + previously-scraped listings) and writes fresh price snapshots; on an empty store it reports `empty_store` and makes no network calls. The authenticated wishlist sync is opt-in via `--resources airbnb_wishlist`.
 
 ### Find a Vacasa property in Austin and book direct
 
@@ -300,7 +316,20 @@ Explicit flags always win over profile values; profile values win over defaults.
 | 4 | Authentication required |
 | 5 | API error (upstream issue) |
 | 7 | Rate limited (wait and retry) |
+| 8 | Bot challenge (datadome/Akamai). Wait, or refresh cookies via `airbnb-pp-cli auth login --chrome` |
 | 10 | Config error |
+
+## Rate Limiting
+
+`--rate-limit N` (global flag) caps the request rate to N per second. Applies to BOTH the scrape path (`search`, `get`, `cheapest`, `plan`, `compare`) AND the GraphQL path (`BookingPrice` for pricing, `wishlist list`, `wishlist items`).
+
+- Default (flag unset): 0.5 rps baseline. Non-regressive.
+- `--rate-limit N` with N > 0: sets that as the new cap.
+- `--rate-limit 0`: disables rate limiting.
+
+The limiter is adaptive: on a 429 or a detected datadome/Akamai challenge it halves the current rate and records a ceiling. After 10 consecutive successes it ramps the rate up by 25%, capped at 90% of the discovered ceiling. Retry sleeps include 25% jitter to prevent a fleet of clients from synchronizing.
+
+When sustained challenges fire, the CLI returns a typed `BotChallengeError` with a remediation hint (refresh cookies for datadome; wait for the Akamai sensor cooldown). The CLI does not synthesize fake data on failure.
 
 ## Argument Parsing
 

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/giu/printing-press/.runstate/cli-printing-press-eeffaa17/runs/20260509-092314/working/render-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

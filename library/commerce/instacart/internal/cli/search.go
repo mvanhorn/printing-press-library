@@ -23,9 +23,9 @@ func newSearchCmd() *cobra.Command {
 	var storeFlag string
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "search <query...>",
+		Use:         "search <query...>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Search products at a retailer by natural language",
+		Short:       "Search products at a retailer by natural language",
 		Long: `Search for products at a specific retailer. Uses your saved session to
 bootstrap a retailer inventory token (cached 6h), feeds the query through
 Instacart's autosuggest GraphQL API, extracts productIds from suggestion

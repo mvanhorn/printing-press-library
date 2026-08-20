@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sutra-fitness-analytics-real-status-enums",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-020029-7f8843b9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Use real reservation status semantics in attendance analytics (ATTENDED, no NO_SHOW).",
+  "reason": "The spec declared reservation statuses CHECKED_IN/NO_SHOW, but the live API uses ATTENDED (= checked_in flag), CANCELLED, WAITLISTED and has no NO_SHOW; scorecard/no-shows hardcoded the spec values and always returned 0. No-show is derived as a BOOKED reservation for a class that has already started.",
+  "files": ["internal/cli/scorecard.go", "internal/cli/no_shows.go", "internal/cli/churn.go", "internal/cli/referral_funnel.go"],
+  "validated_outcome": "scorecard on live data shows real attendance (e.g. 717 attended / 534 no-shows); unit test TestNoShowRealSemantics covers it."
+}

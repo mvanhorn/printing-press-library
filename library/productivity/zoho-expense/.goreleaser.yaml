@@ -1,0 +1,51 @@
+version: 2
+project_name: zoho-expense-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: zoho-expense-pp-cli
+    main: ./cmd/zoho-expense-pp-cli
+    binary: zoho-expense-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/zoho-expense/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: zoho-expense-pp-mcp
+    main: ./cmd/zoho-expense-pp-mcp
+    binary: zoho-expense-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: zoho-expense-pp-cli
+    repository:
+      owner: amitav-khandelwal
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Upload receipts, auto-tag expenses from learned merchant memory"
+    install: |
+      bin.install "zoho-expense-pp-cli"
+      bin.install "zoho-expense-pp-mcp"

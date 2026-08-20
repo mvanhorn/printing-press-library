@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "meta-ads-pp-cli"
+display_name = "Meta Ads"
+description = "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/meta-ads-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+META_ACCESS_TOKEN = true

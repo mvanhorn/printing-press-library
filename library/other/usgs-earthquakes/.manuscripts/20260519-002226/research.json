@@ -1,0 +1,302 @@
+{
+  "api_name": "usgs-earthquakes",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "blake365/usgs-quakes-mcp",
+      "url": "https://github.com/blake365/usgs-quakes-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DOI-USGS/dataretrieval-python",
+      "url": "https://github.com/DOI-USGS/dataretrieval-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "obspy/obspy",
+      "url": "https://github.com/obspy/obspy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "usgs-earthquake-api (doojin)",
+      "url": "https://github.com/doojin/usgs-earthquake-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "exxamalte/python-aio-geojson-usgs-earthquakes",
+      "url": "https://github.com/exxamalte/python-aio-geojson-usgs-earthquakes",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T00:25:00Z",
+  "novel_features": [
+    {
+      "name": "Live event watch with dedup + pluggable notifier",
+      "command": "watch",
+      "description": "Long-running poll of a USGS summary feed with deduplication against the local store. Invokes an optional shell hook per new event for custom alerting.",
+      "rationale": "Polls the GeoJSON summary feed, dedups against the local earthquakes table by event ID, and invokes a user-provided shell hook per new event. No competing tool offers polling; competing MCPs are request/response only.",
+      "example": "usgs-earthquakes-pp-cli watch --min-magnitude 5 --notify \"echo {id}: {place}\" --interval 60s",
+      "why_it_matters": "Reach for this when you want a long-running monitor over USGS earthquakes without writing a polling loop. Pluggable shell hook means it composes with notify-send, Slack curl, paging systems, anything.",
+      "group": "Real-time monitoring"
+    },
+    {
+      "name": "Aftershock sequence query",
+      "command": "aftershocks",
+      "description": "Show events within R km and T days after a mainshock, ordered by time. Local SQLite haversine query with FDSN fallback when uncached.",
+      "rationale": "Requires haversine bounded join on (time, latitude, longitude) across the local earthquakes table. Competing MCP exposes only single-event detail; no CLI composes the sequence.",
+      "example": "usgs-earthquakes-pp-cli aftershocks us7000abcd --radius-km 100 --days 30 --min-mag 3.0 --json",
+      "why_it_matters": "Reach for this any time you have a mainshock event ID and need to see what came after. The single-call alternative is dozens of /query invocations stitched in jq.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Spatial-temporal swarm detection",
+      "command": "swarm-detect",
+      "description": "Detect time-space clusters in the local earthquake store. Grid-bucket clustering finds foreshock/aftershock sequences, volcanic swarms, and induced seismicity hotspots.",
+      "rationale": "Local SQLite grouping by 0.1° lat/lon cells × T-hour windows, filtered where event count ≥ N, with contiguous cells merged. No competing tool exposes clustering.",
+      "example": "usgs-earthquakes-pp-cli swarm-detect --bbox -122.5,46.5,-121.5,47.5 --window 7d --min-events 10 --cluster-radius-km 20 --json",
+      "why_it_matters": "Reach for this when monitoring a volcano, fault zone, or fracking region for unusual clustering. The output names each cluster with center, count, peak magnitude, and time range.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Region or period comparison",
+      "command": "compare",
+      "description": "Side-by-side comparison of two regions or two time periods. Returns parallel columns with counts, max magnitude, and total seismic energy.",
+      "rationale": "Two parallel SELECT COUNT, MAX(mag), SUM(energy) aggregations on the local earthquakes table with delta computed. FDSN /count fallback when local data doesn't cover the windows. Research-grade comparison no competitor exposes.",
+      "example": "usgs-earthquakes-pp-cli compare --region-a -122.5,37.5,-122.0,37.9 --region-b -118.5,33.8,-118.0,34.2 --window 30d --json",
+      "why_it_matters": "Reach for this when answering 'is region A more active than region B?' or 'is this region quieter than it used to be?'. Outputs delta percentages and energy ratios.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Newsroom event briefing",
+      "command": "brief",
+      "description": "Agent-ready briefing for a single earthquake: magnitude, place, PAGER alert, DYFI felt count, ShakeMap MMI, tsunami status, and product inventory.",
+      "rationale": "Composes FDSN /query GeoJSON properties and products manifest into a structured Markdown/text/JSON block. Competing MCP returns raw JSON; this is agent-native by construction.",
+      "example": "usgs-earthquakes-pp-cli brief us7000abcd --format markdown",
+      "why_it_matters": "Reach for this in newsroom or Slack contexts where you need a one-event summary an editor or downstream agent can drop straight into copy. Includes the USGS event-page URL.",
+      "group": "Agent-native output"
+    },
+    {
+      "name": "Editorial-rank top events",
+      "command": "top",
+      "description": "Rank recent events by composite editorial score: significance × alert weight × felt count × tsunami flag. Default window 24h, limit 10.",
+      "rationale": "Local earthquakes table ORDER BY (sig * alert_weight(alert) * (1+ln(1+felt)) * (1+2*tsunami)) DESC over a windowed slice. FDSN exposes sig but no composite ranking endpoint.",
+      "example": "usgs-earthquakes-pp-cli top --window 24h --limit 10 --score composite --json",
+      "why_it_matters": "Reach for this when you need 'the events that matter right now' rather than 'all events by magnitude'. The composite score promotes felt + PAGER + tsunami over raw magnitude.",
+      "group": "Agent-native output"
+    },
+    {
+      "name": "Stateful change / revision diff",
+      "command": "changes",
+      "description": "Diff since the last sync: what events appeared, what events had magnitudes/depths/alerts revised, what events were retracted. Tracks USGS solution revisions over time. Returns 'no revisions recorded yet' until at least two sync runs have completed.",
+      "rationale": "Requires a revisions table populated by sync comparing pre/post values per event on (mag, depth, alert, status, updated). Genuinely novel — no existing tool tracks USGS solution revisions.",
+      "example": "usgs-earthquakes-pp-cli changes --since 24h --type revised --min-mag-delta 0.3 --json",
+      "why_it_matters": "Reach for this when a previously-automatic event might have just been reviewed by an analyst (revising magnitude or alert), or to answer 'what's new since I last looked?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "USGS event ID decoder",
+      "command": "decode-id",
+      "description": "Parse a USGS event ID into its source network code, sequence, and operator name. Joins the cached contributors dictionary for the network display name.",
+      "rationale": "String parse of \u003cnetwork\u003e\u003csequence\u003e joined against the cached contributors dictionary (populated by sync from FDSN /contributors). No tool decodes USGS event IDs today; common confusion point for new users.",
+      "example": "usgs-earthquakes-pp-cli decode-id us7000abcd",
+      "why_it_matters": "Reach for this when you see an opaque USGS event ID (e.g. nc73947885, ak0202xyz) and need to know which network reported it before reading the data.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live event watch with dedup + pluggable notifier",
+      "command": "watch",
+      "description": "Long-running poll of a USGS summary feed with deduplication against the local store. Invokes an optional shell hook per new event for custom alerting.",
+      "rationale": "Polls the GeoJSON summary feed, dedups against the local earthquakes table by event ID, and invokes a user-provided shell hook per new event. No competing tool offers polling; competing MCPs are request/response only.",
+      "example": "usgs-earthquakes-pp-cli watch --min-magnitude 5 --notify \"echo {id}: {place}\" --interval 60s",
+      "why_it_matters": "Reach for this when you want a long-running monitor over USGS earthquakes without writing a polling loop. Pluggable shell hook means it composes with notify-send, Slack curl, paging systems, anything.",
+      "group": "Real-time monitoring"
+    },
+    {
+      "name": "Aftershock sequence query",
+      "command": "aftershocks",
+      "description": "Show events within R km and T days after a mainshock, ordered by time. Local SQLite haversine query with FDSN fallback when uncached.",
+      "rationale": "Requires haversine bounded join on (time, latitude, longitude) across the local earthquakes table. Competing MCP exposes only single-event detail; no CLI composes the sequence.",
+      "example": "usgs-earthquakes-pp-cli aftershocks us7000abcd --radius-km 100 --days 30 --min-mag 3.0 --json",
+      "why_it_matters": "Reach for this any time you have a mainshock event ID and need to see what came after. The single-call alternative is dozens of /query invocations stitched in jq.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Spatial-temporal swarm detection",
+      "command": "swarm-detect",
+      "description": "Detect time-space clusters in the local earthquake store. Grid-bucket clustering finds foreshock/aftershock sequences, volcanic swarms, and induced seismicity hotspots.",
+      "rationale": "Local SQLite grouping by 0.1° lat/lon cells × T-hour windows, filtered where event count ≥ N, with contiguous cells merged. No competing tool exposes clustering.",
+      "example": "usgs-earthquakes-pp-cli swarm-detect --bbox -122.5,46.5,-121.5,47.5 --window 7d --min-events 10 --cluster-radius-km 20 --json",
+      "why_it_matters": "Reach for this when monitoring a volcano, fault zone, or fracking region for unusual clustering. The output names each cluster with center, count, peak magnitude, and time range.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Region or period comparison",
+      "command": "compare",
+      "description": "Side-by-side comparison of two regions or two time periods. Returns parallel columns with counts, max magnitude, and total seismic energy.",
+      "rationale": "Two parallel SELECT COUNT, MAX(mag), SUM(energy) aggregations on the local earthquakes table with delta computed. FDSN /count fallback when local data doesn't cover the windows. Research-grade comparison no competitor exposes.",
+      "example": "usgs-earthquakes-pp-cli compare --region-a -122.5,37.5,-122.0,37.9 --region-b -118.5,33.8,-118.0,34.2 --window 30d --json",
+      "why_it_matters": "Reach for this when answering 'is region A more active than region B?' or 'is this region quieter than it used to be?'. Outputs delta percentages and energy ratios.",
+      "group": "Cross-event analysis"
+    },
+    {
+      "name": "Newsroom event briefing",
+      "command": "brief",
+      "description": "Agent-ready briefing for a single earthquake: magnitude, place, PAGER alert, DYFI felt count, ShakeMap MMI, tsunami status, and product inventory.",
+      "rationale": "Composes FDSN /query GeoJSON properties and products manifest into a structured Markdown/text/JSON block. Competing MCP returns raw JSON; this is agent-native by construction.",
+      "example": "usgs-earthquakes-pp-cli brief us7000abcd --format markdown",
+      "why_it_matters": "Reach for this in newsroom or Slack contexts where you need a one-event summary an editor or downstream agent can drop straight into copy. Includes the USGS event-page URL.",
+      "group": "Agent-native output"
+    },
+    {
+      "name": "Editorial-rank top events",
+      "command": "top",
+      "description": "Rank recent events by composite editorial score: significance × alert weight × felt count × tsunami flag. Default window 24h, limit 10.",
+      "rationale": "Local earthquakes table ORDER BY (sig * alert_weight(alert) * (1+ln(1+felt)) * (1+2*tsunami)) DESC over a windowed slice. FDSN exposes sig but no composite ranking endpoint.",
+      "example": "usgs-earthquakes-pp-cli top --window 24h --limit 10 --score composite --json",
+      "why_it_matters": "Reach for this when you need 'the events that matter right now' rather than 'all events by magnitude'. The composite score promotes felt + PAGER + tsunami over raw magnitude.",
+      "group": "Agent-native output"
+    },
+    {
+      "name": "Stateful change / revision diff",
+      "command": "changes",
+      "description": "Diff since the last sync: what events appeared, what events had magnitudes/depths/alerts revised, what events were retracted. Tracks USGS solution revisions over time. Returns 'no revisions recorded yet' until at least two sync runs have completed.",
+      "rationale": "Requires a revisions table populated by sync comparing pre/post values per event on (mag, depth, alert, status, updated). Genuinely novel — no existing tool tracks USGS solution revisions.",
+      "example": "usgs-earthquakes-pp-cli changes --since 24h --type revised --min-mag-delta 0.3 --json",
+      "why_it_matters": "Reach for this when a previously-automatic event might have just been reviewed by an analyst (revising magnitude or alert), or to answer 'what's new since I last looked?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "USGS event ID decoder",
+      "command": "decode-id",
+      "description": "Parse a USGS event ID into its source network code, sequence, and operator name. Joins the cached contributors dictionary for the network display name.",
+      "rationale": "String parse of \u003cnetwork\u003e\u003csequence\u003e joined against the cached contributors dictionary (populated by sync from FDSN /contributors). No tool decodes USGS event IDs today; common confusion point for new users.",
+      "example": "usgs-earthquakes-pp-cli decode-id us7000abcd",
+      "why_it_matters": "Reach for this when you see an opaque USGS event ID (e.g. nc73947885, ak0202xyz) and need to know which network reported it before reading the data.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "USGS Earthquakes",
+    "headline": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode.",
+    "value_prop": "Wraps the full USGS FDSN Event Service and all 20 GeoJSON summary feeds in a single binary. Adds a 30-day rolling local SQLite cache so search, sql, aftershocks, swarm-detect, top, and changes run instantly without the network. Built for seismologists, journalists, emergency managers, and agents that need to reason about earthquake activity programmatically.",
+    "auth_narrative": "No authentication required. USGS earthquake services are fully public; doctor verifies reachability of both the FDSN Event base URL and the summary feeds.",
+    "quickstart": [
+      {
+        "command": "usgs-earthquakes-pp-cli recent --min-magnitude 4.5 --json",
+        "comment": "List M4.5+ earthquakes in the last 24h. Default for newsroom triage."
+      },
+      {
+        "command": "usgs-earthquakes-pp-cli feeds get significant_week --json",
+        "comment": "Pull the pre-built 'past week, significant' summary feed once."
+      },
+      {
+        "command": "usgs-earthquakes-pp-cli sync",
+        "comment": "Populate the local SQLite cache (30 days, M2.5+) so search/sql/aftershocks/top/changes work offline."
+      },
+      {
+        "command": "usgs-earthquakes-pp-cli top --window 24h --limit 10 --json",
+        "comment": "Rank recent events by composite editorial score (sig × alert × felt × tsunami)."
+      },
+      {
+        "command": "usgs-earthquakes-pp-cli brief us7000abcd --format markdown",
+        "comment": "Get a one-event briefing with PAGER, DYFI, tsunami, ShakeMap MMI, and product inventory."
+      },
+      {
+        "command": "usgs-earthquakes-pp-cli aftershocks us7000abcd --radius-km 100 --days 30 --json",
+        "comment": "Investigate a mainshock's aftershock sequence from the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search or sql returns empty rows on a fresh install",
+        "fix": "Run `usgs-earthquakes-pp-cli sync` first — the local SQLite store is empty until sync populates it."
+      },
+      {
+        "symptom": "FDSN /query returns 400 'limit must be ≤ 20000'",
+        "fix": "Lower --limit below 20000 or paginate with --offset; the FDSN cap is a hard ceiling."
+      },
+      {
+        "symptom": "Repeated polling slows down or returns stale data",
+        "fix": "Use `feeds get \u003cfeed\u003e` (e.g. `feeds get all_hour`) for high-cadence monitoring — USGS recommends summary feeds over /query for repeated polls."
+      },
+      {
+        "symptom": "watch keeps exec'ing the notify hook during printing-press verify",
+        "fix": "Already handled: watch checks PRINTING_PRESS_VERIFY=1 and skips the hook in mock-mode subprocesses."
+      }
+    ],
+    "when_to_use": "Reach for this CLI any time an agent needs to answer questions about USGS earthquakes — recent activity, historical search, single-event detail, aftershock sequences, regional comparisons, or live monitoring. It is the right choice when speed matters (offline SQLite cache), when output must be agent-friendly (--json, --select, --compact, --csv on every command), or when the workflow spans multiple events that the raw FDSN API would require stitching together. Not the right choice for non-USGS seismic networks (IRIS event service, EMSC) or for waveform/station data — those need an FDSN station-service client like obspy.",
+    "recipes": [
+      {
+        "title": "Did anything newsworthy happen in the last hour?",
+        "command": "usgs-earthquakes-pp-cli top --window 1h --limit 10 --json --select events.id,events.mag,events.place,events.alert,events.tsunami,events.score",
+        "explanation": "Ranks the past hour's events by composite editorial score (sig × alert × felt × tsunami) and narrows the agent context to just the editorially-relevant fields via --select."
+      },
+      {
+        "title": "Track a swarm at Mount Hood for the past 7 days",
+        "command": "usgs-earthquakes-pp-cli swarm-detect --near 45.3736,-121.6960 --radius-km 25 --window 7d --min-events 5 --json",
+        "explanation": "Spatial-temporal clustering around the Mount Hood coordinate; returns named clusters with center, count, peak magnitude, and time range."
+      },
+      {
+        "title": "Aftershock report for a recent mainshock",
+        "command": "usgs-earthquakes-pp-cli aftershocks us7000abcd --radius-km 100 --days 14 --min-mag 3.0 --json",
+        "explanation": "Local SQLite haversine query bounded by the mainshock's time and location; falls back to FDSN /query when the event isn't cached."
+      },
+      {
+        "title": "Daily newsroom briefing for the top event",
+        "command": "usgs-earthquakes-pp-cli top --window 24h --limit 1 --json --select events.id",
+        "explanation": "Returns just the top-ranked event's ID; pipe to `xargs -I {} usgs-earthquakes-pp-cli brief {} --format markdown` to get a newsroom-ready briefing."
+      },
+      {
+        "title": "Find events that have a ShakeMap product near San Francisco",
+        "command": "usgs-earthquakes-pp-cli events search --latitude 37.7749 --longitude -122.4194 --max-radius-km 200 --product-type shakemap --start 2025-01-01 --json",
+        "explanation": "Uses the FDSN --product-type filter (not exposed by the competing MCP) plus the --latitude/--longitude circle filter to find events that have a ShakeMap polygon since the start of the year."
+      }
+    ],
+    "trigger_phrases": [
+      "any recent earthquakes",
+      "earthquakes near",
+      "aftershocks of",
+      "USGS earthquake feed",
+      "M5 earthquake",
+      "tsunami earthquake",
+      "swarm detection",
+      "use usgs-earthquakes",
+      "run usgs-earthquakes"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "reachability": {
+    "mode": "browser_http",
+    "notes": "All target endpoints return 200 with browser-like User-Agent + Referer headers. Surf transport sufficient."
+  },
+  "discovered_endpoints": [
+    {"method": "GET", "path": "/api/quote-equity", "params": ["symbol"], "response_format": "json", "auth": "none", "notes": "Full equity quote - price, metadata, sector, pre-market"},
+    {"method": "GET", "path": "/api/quote-equity", "params": ["symbol", "section=trade_info"], "response_format": "json", "auth": "none", "notes": "Order book depth, delivery stats, VaR margins"},
+    {"method": "GET", "path": "/api/equity-stockIndices", "params": ["index"], "response_format": "json", "auth": "none", "notes": "Index constituents with live prices"},
+    {"method": "GET", "path": "/api/index-names", "params": [], "response_format": "json", "auth": "none", "notes": "All NSE index names (stn/nts pairs)"},
+    {"method": "GET", "path": "/api/marketStatus", "params": [], "response_format": "json", "auth": "none", "notes": "Market open/closed for all segments + NIFTY"},
+    {"method": "GET", "path": "/api/search/autocomplete", "params": ["q"], "response_format": "json", "auth": "none", "notes": "Symbol search with company names"},
+    {"method": "GET", "path": "/api/corporate-announcements", "params": ["index=equities", "symbol"], "response_format": "json", "auth": "none", "notes": "Corporate filings - 1413 items for ADANIPORTS"},
+    {"method": "GET", "path": "/api/annual-reports", "params": ["index=equities", "symbol"], "response_format": "json", "auth": "none", "notes": "Annual reports with direct PDF URLs"},
+    {"method": "GET", "path": "/api/live-analysis-most-active-securities", "params": ["index=INTRADAY", "key=volume|value"], "response_format": "json", "auth": "none", "notes": "Most active securities by volume/value"}
+  ],
+  "auth_requirements": {
+    "type": "header_based",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Referer": "https://www.nseindia.com/"
+    }
+  }
+}

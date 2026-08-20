@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "recommended": "deepseek-v3.1:671b",
+  "why": "task-hint=coding match=100%; ctx 100/131072; p50 5200ms; strengths=[reasoning,coding,general]",
+  "alternatives": [
+    {
+      "model": "deepseek-v3.2",
+      "score": 0.7259999999999999,
+      "why": "task-hint=coding match=100%; ctx 100/131072; p50 5200ms; strengths=[reasoning,coding,general]",
+      "components": {
+        "coding": 0.5,
+        "cost": 1,
+        "ctx_fit": 0.7,
+        "latency": 0.3,
+        "task_hint": 1,
+        "tool_boost": 0.5
+      }
+    },
+    {
+      "model": "deepseek-v4-flash",
+      "score": 0.7259999999999999,
+      "why": "task-hint=coding match=100%; ctx 100/131072; p50 4800ms; strengths=[reasoning,coding,general]",
+      "components": {
+        "coding": 0.5,
+        "cost": 1,
+        "ctx_fit": 0.7,
+        "latency": 0.3,
+        "task_hint": 1,
+        "tool_boost": 0.5
+      }
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "score": 0.7259999999999999,
+      "why": "task-hint=coding match=100%; ctx 100/131072; p50 4800ms; strengths=[reasoning,coding,general]",
+      "components": {
+        "coding": 0.5,
+        "cost": 1,
+        "ctx_fit": 0.7,
+        "latency": 0.3,
+        "task_hint": 1,
+        "tool_boost": 0.5
+      }
+    }
+  ],
+  "est_input_tokens": 100,
+  "est_output_tokens": 1024,
+  "est_cost_usd": 0,
+  "est_latency_ms": 5200,
+  "fallback": "deepseek-v3.2",
+  "advised_at": "2026-05-23T23:33:07.088991Z"
+}

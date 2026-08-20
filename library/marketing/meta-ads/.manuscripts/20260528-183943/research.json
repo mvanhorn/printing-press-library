@@ -1,0 +1,275 @@
+{
+  "api_name": "meta-ads",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "facebook-business-sdk",
+      "url": "https://github.com/facebook/facebook-python-business-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "facebook-nodejs-business-sdk",
+      "url": "https://github.com/facebook/facebook-nodejs-business-sdk",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T18:40:00Z",
+  "novel_features": [
+    {
+      "name": "Creative-Fatigue Observatory",
+      "command": "fatigue",
+      "description": "Detect ads whose CPM is drifting up, frequency is climbing, and CTR is falling across a configurable window.",
+      "rationale": "Requires daily insights time series joined locally. A single API call returns the current value, never the slope. Local SQLite makes the slope queryable.",
+      "example": "meta-ads-pp-cli fatigue --campaign 23847265 --window 14d --agent",
+      "why_it_matters": "Use this to decide which ads to retire. Spending on a fatigued creative is the highest-leverage waste in any account.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Creative Decay Curve",
+      "command": "decay",
+      "description": "Compare a creative's first-impression CTR against its current CTR, with projected dead-date.",
+      "rationale": "Requires both endpoints of the historical CTR curve, which only exists in the local store. The live API returns only current value.",
+      "example": "meta-ads-pp-cli decay --creative-id 120208734567 --agent",
+      "why_it_matters": "Use for retire/refresh decisions on a single creative. The slope and projected dead-date are the deciding factor.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Audience Overlap Cartographer",
+      "command": "overlap",
+      "description": "Pairwise overlap percentages across custom audiences, with cannibalization recommendations.",
+      "rationale": "Pure API returns pair overlap per call; cross-pair scoring and recommendation requires composing multiple results, only feasible offline.",
+      "example": "meta-ads-pp-cli overlap --audience 23847001 --audience 23847002 --audience 23847003 --agent",
+      "why_it_matters": "Use when ad strategy is mature and ROAS feels diluted across similar audiences. Surfaces consolidate-or-exclude decisions.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Learning-Phase Forensics",
+      "command": "learning",
+      "description": "Surface adsets stuck in algorithmic learning \u003eN days with root-cause hint (budget too low, audience too narrow, events too sparse).",
+      "rationale": "API returns learning_stage_info per adset but not the filter or the cross-field root-cause join. Local store enables both.",
+      "example": "meta-ads-pp-cli learning --account act_4327210487520472 --min-days 7 --agent",
+      "why_it_matters": "Use when ROAS collapses across multiple adsets simultaneously. Stuck-in-learning adsets eat budget without optimizing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Reconciliation",
+      "command": "reconcile",
+      "description": "Per-day diff between Meta-reported account spend and sum-of-insights spend; flags days where attribution drift exceeds threshold.",
+      "rationale": "Reconciliation requires daily series on both sides and a per-day join. The API does not expose 'reported spend vs sum of insights' as a single call.",
+      "example": "meta-ads-pp-cli reconcile --account act_4327210487520472 --since 30d --threshold 5 --agent",
+      "why_it_matters": "Use monthly for attribution audits. Surfaces specific days where Meta and insights disagree, usually delayed conversion attribution.",
+      "group": "Forensic queries"
+    },
+    {
+      "name": "Bottleneck Surfacer",
+      "command": "bottleneck",
+      "description": "Highest-spend adsets with worst ROAS, ranked with 'why' column joining learning state and effective status.",
+      "rationale": "Cross-adset comparison plus multi-field 'why' join cannot be done in one API call.",
+      "example": "meta-ads-pp-cli bottleneck --account act_4327210487520472 --limit 10 --agent",
+      "why_it_matters": "Use weekly to decide what to pause. Highest-leverage targets surface first.",
+      "group": "Forensic queries"
+    },
+    {
+      "name": "Stale Active Ads",
+      "command": "stale",
+      "description": "Active ads with zero impressions in N days.",
+      "rationale": "Requires scanning historical impressions, which is daily-series data the live API doesn't surface in a single call.",
+      "example": "meta-ads-pp-cli stale --days 90 --agent",
+      "why_it_matters": "Use quarterly for account hygiene. Active ads with zero impressions are usually misconfigured or post-deletion zombies.",
+      "group": "Account hygiene"
+    },
+    {
+      "name": "Account Inventory Roll-up",
+      "command": "inventory",
+      "description": "Group every ad in an account by effective_status, surface ads where configured status='ACTIVE' but effective_status='WITH_ISSUES' or 'DISAPPROVED'.",
+      "rationale": "Requires the configured-vs-effective join across all ads in an account, which the Meta UI buries behind per-ad clicks.",
+      "example": "meta-ads-pp-cli inventory --account act_4327210487520472 --by effective_status --agent",
+      "why_it_matters": "Use first thing every morning. DISAPPROVED-but-still-ACTIVE ads cost real spend without delivering.",
+      "group": "Account hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Creative-Fatigue Observatory",
+      "command": "fatigue",
+      "description": "Detect ads whose CPM is drifting up, frequency is climbing, and CTR is falling across a configurable window.",
+      "rationale": "Requires daily insights time series joined locally. A single API call returns the current value, never the slope. Local SQLite makes the slope queryable.",
+      "example": "meta-ads-pp-cli fatigue --campaign 23847265 --window 14d --agent",
+      "why_it_matters": "Use this to decide which ads to retire. Spending on a fatigued creative is the highest-leverage waste in any account.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Creative Decay Curve",
+      "command": "decay",
+      "description": "Compare a creative's first-impression CTR against its current CTR, with projected dead-date.",
+      "rationale": "Requires both endpoints of the historical CTR curve, which only exists in the local store. The live API returns only current value.",
+      "example": "meta-ads-pp-cli decay --creative-id 120208734567 --agent",
+      "why_it_matters": "Use for retire/refresh decisions on a single creative. The slope and projected dead-date are the deciding factor.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Audience Overlap Cartographer",
+      "command": "overlap",
+      "description": "Pairwise overlap percentages across custom audiences, with cannibalization recommendations.",
+      "rationale": "Pure API returns pair overlap per call; cross-pair scoring and recommendation requires composing multiple results, only feasible offline.",
+      "example": "meta-ads-pp-cli overlap --audience 23847001 --audience 23847002 --audience 23847003 --agent",
+      "why_it_matters": "Use when ad strategy is mature and ROAS feels diluted across similar audiences. Surfaces consolidate-or-exclude decisions.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Learning-Phase Forensics",
+      "command": "learning",
+      "description": "Surface adsets stuck in algorithmic learning \u003eN days with root-cause hint (budget too low, audience too narrow, events too sparse).",
+      "rationale": "API returns learning_stage_info per adset but not the filter or the cross-field root-cause join. Local store enables both.",
+      "example": "meta-ads-pp-cli learning --account act_4327210487520472 --min-days 7 --agent",
+      "why_it_matters": "Use when ROAS collapses across multiple adsets simultaneously. Stuck-in-learning adsets eat budget without optimizing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Reconciliation",
+      "command": "reconcile",
+      "description": "Per-day diff between Meta-reported account spend and sum-of-insights spend; flags days where attribution drift exceeds threshold.",
+      "rationale": "Reconciliation requires daily series on both sides and a per-day join. The API does not expose 'reported spend vs sum of insights' as a single call.",
+      "example": "meta-ads-pp-cli reconcile --account act_4327210487520472 --since 30d --threshold 5 --agent",
+      "why_it_matters": "Use monthly for attribution audits. Surfaces specific days where Meta and insights disagree, usually delayed conversion attribution.",
+      "group": "Forensic queries"
+    },
+    {
+      "name": "Bottleneck Surfacer",
+      "command": "bottleneck",
+      "description": "Highest-spend adsets with worst ROAS, ranked with 'why' column joining learning state and effective status.",
+      "rationale": "Cross-adset comparison plus multi-field 'why' join cannot be done in one API call.",
+      "example": "meta-ads-pp-cli bottleneck --account act_4327210487520472 --limit 10 --agent",
+      "why_it_matters": "Use weekly to decide what to pause. Highest-leverage targets surface first.",
+      "group": "Forensic queries"
+    },
+    {
+      "name": "Stale Active Ads",
+      "command": "stale",
+      "description": "Active ads with zero impressions in N days.",
+      "rationale": "Requires scanning historical impressions, which is daily-series data the live API doesn't surface in a single call.",
+      "example": "meta-ads-pp-cli stale --days 90 --agent",
+      "why_it_matters": "Use quarterly for account hygiene. Active ads with zero impressions are usually misconfigured or post-deletion zombies.",
+      "group": "Account hygiene"
+    },
+    {
+      "name": "Account Inventory Roll-up",
+      "command": "inventory",
+      "description": "Group every ad in an account by effective_status, surface ads where configured status='ACTIVE' but effective_status='WITH_ISSUES' or 'DISAPPROVED'.",
+      "rationale": "Requires the configured-vs-effective join across all ads in an account, which the Meta UI buries behind per-ad clicks.",
+      "example": "meta-ads-pp-cli inventory --account act_4327210487520472 --by effective_status --agent",
+      "why_it_matters": "Use first thing every morning. DISAPPROVED-but-still-ACTIVE ads cost real spend without delivering.",
+      "group": "Account hygiene"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "META_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Meta Ads",
+    "headline": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+    "value_prop": "Read-only insights CLI for Meta Marketing API focused on creative-fatigue detection, audience overlap analysis, and attribution forensics. Daily insights land in a local SQLite store so commands like `fatigue`, `decay`, `learning`, and `reconcile` can join across history. Single META_ACCESS_TOKEN env var with `ads_read` scope.",
+    "auth_narrative": "Authenticate with a Meta access token in the META_ACCESS_TOKEN env var. Generate from Graph API Explorer (User Access Token, 1-2h lifespan) for ad-hoc use, or Business Manager System Users (no expiry) for repeat use. Grant ads_read scope only — never ads_management or any write permission. Token discovery via /me/adaccounts lists every account accessible to the token; no account ID configuration required.",
+    "quickstart": [
+      {
+        "command": "meta-ads-pp-cli doctor --dry-run",
+        "comment": "Verify the token and config are wired correctly before any API calls."
+      },
+      {
+        "command": "meta-ads-pp-cli me --agent",
+        "comment": "List every accessible ad account (returns paged data array with id, name, currency, etc.)."
+      },
+      {
+        "command": "meta-ads-pp-cli campaigns act_4327210487520472 --agent",
+        "comment": "List campaigns for the test account. Run live; --data-source auto caches results in the local SQLite store for fatigue/decay/learning/reconcile."
+      },
+      {
+        "command": "meta-ads-pp-cli fatigue --account act_4327210487520472 --window 14d --agent",
+        "comment": "Surface ads with creative-fatigue signals across the last 14 days."
+      },
+      {
+        "command": "meta-ads-pp-cli inventory --account act_4327210487520472 --by effective_status --agent",
+        "comment": "Group every ad by effective_status, flagging configured-vs-effective mismatches."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty ad_accounts list with a valid token",
+        "fix": "Business Manager assignment missing. Open Business Settings → Ad Accounts → Add People and assign your user (or System User) with View permission."
+      },
+      {
+        "symptom": "OAuth error code 190 'session has expired'",
+        "fix": "Token expired. Regenerate a User Access Token in Graph API Explorer, or generate a System User token in Business Manager for long-lived use."
+      },
+      {
+        "symptom": "OAuth error code 200 'API access deactivated'",
+        "fix": "The Meta App backing this token is deactivated. Reactivate at developers.facebook.com/apps/, or generate a token from a different active app."
+      },
+      {
+        "symptom": "Empty insights despite valid token and active ads",
+        "fix": "Insights require time_range or date_preset; there is no default window. Pass --date-preset last_7d or --time-range {\"since\":\"2026-01-01\",\"until\":\"2026-01-31\"}."
+      },
+      {
+        "symptom": "Breakdown returns an error",
+        "fix": "Some breakdown combinations are mutually exclusive. age+gender works; age+placement does not. Use one breakdown group at a time, or split into multiple calls."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need creative-fatigue diagnostics, audience overlap cartography, learning-phase forensics, or attribution drift detection across Meta ad accounts. Best when paired with a daily sync into the local store so trend queries are instant. Read-only by design — never used to modify campaigns, budgets, or audiences.",
+    "anti_triggers": [
+      "Do not use this CLI to create, pause, modify, or delete campaigns, adsets, ads, audiences, or creatives — it is read-only.",
+      "Do not use this CLI for budget management or bid-strategy changes — that is what Meta Ads Manager or facebook-business-sdk are for.",
+      "Do not use this CLI for write-side audience uploads — custom audience creation from customer files is out of scope."
+    ],
+    "recipes": [
+      {
+        "title": "Triage creative fatigue across a campaign",
+        "command": "meta-ads-pp-cli fatigue --campaign 23847265 --window 14d --agent --select ad_id,ad_name,cpm_slope,frequency_now,ctr_slope,verdict",
+        "explanation": "Returns one row per ad with CPM slope, current frequency, CTR slope, and a retire/keep verdict. Narrow output by selecting only the fatigue-relevant fields to keep agent context bounded."
+      },
+      {
+        "title": "Find audience cannibalization risk",
+        "command": "meta-ads-pp-cli overlap --audience 23847001 --audience 23847002 --audience 23847003 --agent",
+        "explanation": "Returns pairwise overlap percentages and a recommendation per pair. Anything above 30% is a candidate for consolidation or exclusion."
+      },
+      {
+        "title": "Spot stuck-in-learning adsets",
+        "command": "meta-ads-pp-cli learning --account act_4327210487520472 --min-days 7 --agent",
+        "explanation": "Surfaces adsets where learning_stage_info has been LEARNING for \u003e7 days. The 'why' column hints at budget/audience/event sparsity."
+      },
+      {
+        "title": "Daily inventory roll-up first thing",
+        "command": "meta-ads-pp-cli inventory --account act_4327210487520472 --by effective_status --agent",
+        "explanation": "Groups every ad by effective_status. The DISAPPROVED-but-configured-ACTIVE class is the highest-leverage daily finding."
+      },
+      {
+        "title": "Monthly spend reconciliation",
+        "command": "meta-ads-pp-cli reconcile --account act_4327210487520472 --since 30d --threshold 5 --agent",
+        "explanation": "Per-day diff between Meta-reported account spend and sum-of-insights spend over the last 30 days. Flags days where drift exceeds 5%."
+      }
+    ],
+    "trigger_phrases": [
+      "find creative fatigue on Meta",
+      "check Facebook ad performance",
+      "which Meta ads should I retire",
+      "Meta audience overlap",
+      "stuck in learning",
+      "use meta-ads",
+      "run meta-ads"
+    ]
+  }
+}

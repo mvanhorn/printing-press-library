@@ -1,0 +1,51 @@
+version: 2
+project_name: eu-tenders-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: eu-tenders-pp-cli
+    main: ./cmd/eu-tenders-pp-cli
+    binary: eu-tenders-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/eu-tenders/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: eu-tenders-pp-mcp
+    main: ./cmd/eu-tenders-pp-mcp
+    binary: eu-tenders-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: eu-tenders-pp-cli
+    repository:
+      owner: mathias-michel
+      name: homebrew-tap
+    homepage: "https://github.com/mathias-michel/eu-tenders-pp-cli"
+    description: "The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for..."
+    install: |
+      bin.install "eu-tenders-pp-cli"
+      bin.install "eu-tenders-pp-mcp"

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "run_id": "20260508-234057",
+  "api_name": "digg",
+  "cli_name": "digg-pp-cli",
+  "level": "quick",
+  "matrix_size": 18,
+  "tests_run": 18,
+  "tests_passed": 18,
+  "tests_failed": 0,
+  "fixes_applied": 2,
+  "fixes": [
+    "Added --alert flag to watch command (verify-skill failure)",
+    "Replaced two recipes that used $() shell substitution (validate-narrative failure)"
+  ],
+  "printing_press_issues_for_retro": [
+    "Generated sync.go produces 0 records for HTML-scrape primary surfaces (Next.js 15 RSC). Needs detection of response_format: html or RawHTML response type and a different scaffold.",
+    "Internal YAML spec format has no first-class response_format: html resource type even though the skill references it."
+  ],
+  "live_api_tested": true,
+  "auth_required": false,
+  "scorecard_total": 80,
+  "scorecard_grade": "A",
+  "shipcheck_legs_passed": 6,
+  "shipcheck_legs_total": 6,
+  "verify_pass_rate": 1.0,
+  "completed_at": "2026-05-09T14:05:00Z"
+}

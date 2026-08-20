@@ -1,0 +1,229 @@
+{
+  "api_name": "amplitude",
+  "base_url": "https://amplitude.com/api/2",
+  "description": "Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {AMPLITUDE_USERNAME}:{AMPLITUDE_PASSWORD}",
+    "env_vars": [
+      "AMPLITUDE_USERNAME",
+      "AMPLITUDE_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AMPLITUDE_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "AMPLITUDE_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "annotations_list",
+      "description": "List project annotations. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/annotations",
+      "params": []
+    },
+    {
+      "name": "cohorts_get",
+      "description": "Get cohort metadata or membership export status. Required: cohort_id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/cohorts/{cohort_id}",
+      "params": [
+        {
+          "name": "cohort_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cohort id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cohorts_list",
+      "description": "List behavioral cohorts. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/cohorts",
+      "params": []
+    },
+    {
+      "name": "event_exports_export-events",
+      "description": "Export raw event data over a time range. Required: start, end. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/export",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Export start timestamp in Amplitude's compact UTC format.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "Export end timestamp in Amplitude's compact UTC format.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List event types tracked in an Amplitude project. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/events/list",
+      "params": []
+    },
+    {
+      "name": "funnels_query",
+      "description": "Query funnel conversion metrics. Optional: e, start, end. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/funnels",
+      "params": [
+        {
+          "name": "e",
+          "type": "string",
+          "location": "query",
+          "description": "E"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        }
+      ]
+    },
+    {
+      "name": "retention_query",
+      "description": "Query retention metrics. Optional: e, start, end. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/retention",
+      "params": [
+        {
+          "name": "e",
+          "type": "string",
+          "location": "query",
+          "description": "E"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        }
+      ]
+    },
+    {
+      "name": "revenue_query",
+      "description": "Query revenue analytics. Optional: start, end. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/revenue",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        }
+      ]
+    },
+    {
+      "name": "segmentation_query",
+      "description": "Query event segmentation metrics. Optional: e, start, end. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/segmentation",
+      "params": [
+        {
+          "name": "e",
+          "type": "string",
+          "location": "query",
+          "description": "E"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user profile by user ID. Required: user_id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usersearch_search-users",
+      "description": "Search users by user ID, device ID, or user property filters. Optional: user, limit. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/usersearch",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "User"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    }
+  ]
+}

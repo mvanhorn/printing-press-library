@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "drudgereport-pp-mcp",
+  "display_name": "Drudge Report",
+  "version": "4.10.0",
+  "description": "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/drudgereport-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/drudgereport-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

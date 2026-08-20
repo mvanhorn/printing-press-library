@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "bonusly-endpoint-fixes",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260810-153232-4e95f81e",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Fix 6 endpoints/bugs found by live dogfood testing: recognition gap's /users/me identity resolution and direct_reports response shape, org top's path, redemptions list-mine's path/identity resolution, balance/balance-history/recognition-audit's nonexistent points_balance endpoint, and two --dry-run --json bugs (give, balance history).",
+  "reason": "Live dogfood testing (139 live command invocations) surfaced multiple commands failing against the real API. Traced each to a root cause via direct reproduction and live endpoint probing (using the authenticated session) rather than guessing: (1) recognition_gap.go unmarshaled the raw /users/me envelope {\"success\":...,\"result\":{...}} directly into a flat types.User, leaving Id empty and producing a malformed /users//direct_reports request; verified live that the correct direct_reports response shape is {\"data\":{\"users\":[...]}}, not a bare array. (2) org_top.go's spec-derived path /users/top_level 404s; verified live that top-level users are actually GET /users?top_level=true. (3) redemptions_list-mine.go's spec-derived path /users/me/redemptions 404s (the literal \"me\" is not accepted on this sub-resource); verified live that GET /users/{real-id}/redemptions works, so added a /users/me resolution step. (4) promoted_balance.go, balance_history.go, and recognition_audit.go all called a nonexistent /users/points_balance; verified live that giving_balance/earning_balance/lifetime_earnings live directly on /users/me instead (also fixed types.Balance's LifetimeEarned tag from the guessed \"lifetime_earned\" to the real \"lifetime_earnings\"; monthly_budget/currency/exchange_rate/lifetime_given/lifetime_redeemed have no known non-admin-accessible source and stay zero-valued rather than guessed). (5) give.go and balance_history.go's --dry-run branches were unconditional Fprintln calls ignoring --json; switched both to the existing writeDryRun helper.",
+  "files": [
+    "internal/cli/recognition_gap.go",
+    "internal/cli/org_top.go",
+    "internal/cli/redemptions_list-mine.go",
+    "internal/cli/give.go",
+    "internal/cli/promoted_balance.go",
+    "internal/cli/balance_history.go",
+    "internal/cli/recognition_audit.go",
+    "internal/types/types.go"
+  ],
+  "validated_outcome": "Live-verified each fix individually post-change: `recognition gap --manager me --days 30 --agent` resolves the real manager_id and returns a correctly-shaped (empty, accurate) neglected-reports list; `org top --agent` and `redemptions list-mine --agent` both return meta.source=live with real data; `balance --agent` and `balance history --agent` return real giving_balance/earning_balance/lifetime_earnings figures; `give`/`balance history` --dry-run --json both now emit valid JSON. Could NOT find working endpoints for groups/awards/meetings despite ~20 live path probes each against plausible REST variants -- these remain broken (see groups_*.go, awards_*.go, promoted_incentives.go, meetings_*.go) and are not covered by this patch.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Spec-accuracy verification for internal/inferred specs before first publish",
+      "reason": "These paths were marked in the original spec as inferred/not yet verified against a real API response. The generator has no mechanism today to flag or gate on that self-reported uncertainty before a CLI reaches dogfood; a live-verification pass against declared-uncertain endpoints during generation would have caught these before this session."
+    }
+  ]
+}

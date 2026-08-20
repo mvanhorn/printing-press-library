@@ -1,0 +1,26 @@
+version: "2"
+
+linters:
+  # PATCH: v2 inherits default linters unless explicitly disabled; keep this
+  # generated CLI on the small lint set we intentionally maintain locally.
+  default: none
+  enable:
+    - errorlint
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+  exclusions:
+    rules:
+      - path: ^internal/types/types\.go$
+        linters:
+          - unused
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - lunch-money-pp-cli

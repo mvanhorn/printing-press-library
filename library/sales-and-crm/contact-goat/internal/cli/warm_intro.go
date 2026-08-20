@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // warm-intro: given a target (LinkedIn URL or "first last" name), find
 // mutual connections across LinkedIn 1st-degree AND Happenstance friends

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "stackadapt-pp-mcp",
+  "display_name": "StackAdapt",
+  "version": "4.18.1",
+  "description": "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/stackadapt-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/stackadapt-pp-mcp",
+      "args": [],
+      "env": {
+        "STACKADAPT_API_TOKEN": "${user_config.stackadapt_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "stackadapt_api_token": {
+      "type": "string",
+      "title": "STACKADAPT_API_TOKEN",
+      "description": "Sets STACKADAPT_API_TOKEN for the StackAdapt MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "tesla-fleet-read-404-fallback",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Reactive owner-api-404 -> Fleet fallback for vehicle reads, plus a Fleet-aware reachability probe. On an owner-api GET to /vehicle_data or /data_request/<name> that 404s while a Fleet token is configured, the client switches to the regional Fleet base + Fleet bearer + Fleet 401-refresh in place and retries once, reusing the existing FleetMode path-rewrite and response-unwrap (Client.FleetFallback/FleetBaseURL/FleetRefresh, ActivateFleetFallback, isVehicleReadPath). newClient arms it whenever Fleet is configured but the owner read path was chosen. reachability now probes owner-api by numeric vehicle_id first (suppressing the transparent fallback), and on a 404 explicitly re-probes Fleet by VIN (classifyViaFleet, looksLikeVIN): a Fleet-only answer classifies SIGNED_COMMAND_REQ, owner-api 200 stays REST_OK, both-fail stays VEHICLE_ASLEEP_OR_OFFLINE. Also factors shared teslaFleetConfigured / teslaFleetHasLocationScope helpers.",
+  "reason": "The per-install teslaShouldUseFleetForReads heuristic (tesla-regional-fleet-reads) routes reads to Fleet only when no usable owner-api token exists. A mixed account with a pre-2021 car (keeps a valid owner token alive) plus a 2021+/non-NA car routed every read through owner-api, so the Fleet-only car returned owner-api 404 unless TESLA_PP_FORCE_FLEET_READS=1 was set by hand. reachability additionally read by the numeric vehicle_id, which the Fleet API (VIN-addressed) 404s, so it mislabeled an online signed-command car as VEHICLE_ASLEEP_OR_OFFLINE. The reactive fallback plus the VIN-aware reachability probe recover both with zero env vars.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_fleet_fallback_test.go",
+    "internal/cli/root.go",
+    "internal/cli/tesla_auth_autorefresh.go",
+    "internal/cli/tesla_fleet_auth.go",
+    "internal/cli/tesla_reachability.go",
+    "internal/cli/tesla_reachability_fleet_test.go"
+  ],
+  "validated_outcome": "New client tests (404 fallback switches base+bearer and unwraps to owner shape; unarmed 404 still errors; non-vehicle 404 does not retry; isVehicleReadPath) and reachability tests (mixed-account owner-404 -> Fleet-by-VIN -> SIGNED_COMMAND_REQ; REST car stays REST_OK and never probes Fleet; both-paths-fail stays asleep; looksLikeVIN) pass. go build/vet green; internal/cli, internal/client, internal/config, and the non-concurrency internal/store tests pass. Verified live against a NA 2023 Model 3 on a mixed account (a 2018 Model X also on owner-api): with a valid owner token and NO env vars, get-vehicle-data, get-data-*, ready, and reachability return real data / correct SIGNED_COMMAND_REQ where the tesla-regional-fleet-reads build 404'd or mislabeled the car asleep. NOTE: the pre-existing internal/store TestMigrate_ConcurrentFreshDB can flake with SQLITE_BUSY under concurrent-open load; unrelated to this patch (internal/store is unchanged). Hardened per Greptile review: the transparent fallback is scoped to a single retry (retryViaFleet saves/restores BaseURL/FleetMode/bearer/refresh) so a reused client in a multi-vehicle command never permanently redirects a pre-2021 (possibly non-Fleet-enrolled) car to Fleet; vehicleReadPathRe subset class widened to [a-zA-Z0-9_-]+; added tests for the /vehicle_data full-snapshot fallback and for state restoration after a retry.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2181"
+}

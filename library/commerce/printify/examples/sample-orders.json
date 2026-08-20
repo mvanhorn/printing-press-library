@@ -1,0 +1,10 @@
+[
+  {
+    "id": "order_sample",
+    "status": "pending",
+    "line_items": [
+      {"product_id": "prod_sample", "variant_id": 101, "quantity": 1}
+    ],
+    "shipments": []
+  }
+]

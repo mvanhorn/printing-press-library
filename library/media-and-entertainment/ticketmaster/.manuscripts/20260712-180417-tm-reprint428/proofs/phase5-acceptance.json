@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "ticketmaster",
+  "run_id": "20260712-180417-tm-reprint428",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 142,
+  "tests_passed": 142,
+  "tests_skipped": 79,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

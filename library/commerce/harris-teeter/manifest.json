@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "harris-teeter-pp-mcp",
+  "display_name": "Harris Teeter",
+  "version": "4.0.2",
+  "description": "Harris Teeter API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/harris-teeter-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/harris-teeter-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T14:06:05.284014Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "digg",
+  "display_name": "Digg",
+  "cli_name": "digg-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "matt-van-horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4605cfe7f157352a4d158f94d022baf20bea43963ad32c9e629c4301b1c4a7d0",
+  "run_id": "20260508-234057",
+  "description": "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.",
+  "mcp_binary": "digg-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Live pipeline event tail",
+      "command": "events",
+      "description": "Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns."
+    },
+    {
+      "name": "Replacement archaeology",
+      "command": "replaced",
+      "description": "Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale."
+    },
+    {
+      "name": "Score component breakdown",
+      "command": "evidence",
+      "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage."
+    },
+    {
+      "name": "Time-windowed sentiment",
+      "command": "sentiment",
+      "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster."
+    },
+    {
+      "name": "Cross-aggregator references",
+      "command": "crossref",
+      "description": "Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there."
+    },
+    {
+      "name": "Influence-ranked author leaderboard",
+      "command": "authors top",
+      "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach."
+    },
+    {
+      "name": "GitHub: top starred AI repos",
+      "command": "github stars",
+      "description": "Top AI repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification."
+    },
+    {
+      "name": "GitHub: newly first-seen repos",
+      "command": "github new",
+      "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator)."
+    },
+    {
+      "name": "GitHub: contributor leaderboard",
+      "command": "github activity",
+      "description": "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window."
+    },
+    {
+      "name": "GitHub: live activity feed",
+      "command": "github recent",
+      "description": "Live GitHub activity feed: per-event entries with the GitHub URL (issue/PR/commit/repo), the user who acted, and a short description of the target."
+    },
+    {
+      "name": "Rank history per cluster",
+      "command": "history",
+      "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history."
+    },
+    {
+      "name": "Author surfacing record",
+      "command": "author",
+      "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply)."
+    },
+    {
+      "name": "Rank-movement watcher",
+      "command": "watch",
+      "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks."
+    },
+    {
+      "name": "Pipeline status dashboard",
+      "command": "pipeline status",
+      "description": "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events."
+    }
+  ]
+}

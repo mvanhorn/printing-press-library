@@ -1,0 +1,94 @@
+# BotSee CLI — Absorb Manifest (FINAL)
+
+## Absorbed (match or beat everything that exists)
+
+No competing CLI exists for BotSee. The OpenClaw `grahac/botsee` Python skill is the prior art; this CLI mirrors its full surface as a single Go binary + adds SQLite + agent-native output + the 4 novel commands below.
+
+The 58 absorbed features below are spec-emitted by the generator from `botsee-openapi.json` — no hand-coding required.
+
+| #  | Feature                                  | Best Source                                  | Our Implementation                                                                 | Added Value                                                |
+|----|------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------|
+| 1  | Get account info                         | BotSee `/account`                            | `account get`                                                                      | offline cache, --json, --select                            |
+| 2  | Validate API key                         | BotSee `/auth/validate`                      | `auth validate`                                                                    | typed exit codes                                           |
+| 3  | Get pricing (public)                     | BotSee `/pricing`                            | `pricing`                                                                          | no-auth, feeds cost estimator                              |
+| 4  | Rate-limit budget                        | BotSee `/rate-limits`                        | `rate-limits get`                                                                  | --json                                                     |
+| 5  | Usage summary                            | BotSee `/usage`                              | `usage`                                                                            | local cache, group-by                                      |
+| 6  | Usage by API key                         | BotSee `/usage/by-key`                       | `usage by-key`                                                                     | drill-down                                                 |
+| 7  | List sites                               | BotSee `/sites`                              | `sites list`                                                                       | offline + FTS                                              |
+| 8  | Create site                              | BotSee POST `/sites`                         | `sites create`                                                                     | --dry-run                                                  |
+| 9  | Get site                                 | BotSee `/sites/{uuid}`                       | `sites get`                                                                        | offline                                                    |
+| 10 | Archive site                             | BotSee DELETE `/sites/{uuid}`                | `sites delete`                                                                     | --dry-run                                                  |
+| 11 | List customer types                      | BotSee `/sites/{uuid}/customer-types`        | `customer-types list`                                                              | offline + FTS                                              |
+| 12 | Create customer type                     | BotSee POST                                  | `customer-types create`                                                            | --dry-run                                                  |
+| 13 | LLM-generate customer types              | BotSee POST `.../generate`                   | `customer-types generate`                                                          | --dry-run                                                  |
+| 14 | Get customer type                        | BotSee GET                                   | `customer-types get`                                                               | offline                                                    |
+| 15 | Update customer type                     | BotSee PUT                                   | `customer-types update`                                                            | --dry-run                                                  |
+| 16 | Archive customer type                    | BotSee DELETE                                | `customer-types delete`                                                            | --dry-run                                                  |
+| 17 | List personas                            | BotSee GET                                   | `personas list`                                                                    | offline + FTS                                              |
+| 18 | Create persona                           | BotSee POST                                  | `personas create`                                                                  | --dry-run                                                  |
+| 19 | LLM-generate personas                    | BotSee POST `.../generate`                   | `personas generate`                                                                | --dry-run                                                  |
+| 20 | Get persona                              | BotSee GET                                   | `personas get`                                                                     | offline                                                    |
+| 21 | Update persona                           | BotSee PUT                                   | `personas update`                                                                  | --dry-run                                                  |
+| 22 | Archive persona                          | BotSee DELETE                                | `personas delete`                                                                  | --dry-run                                                  |
+| 23 | List questions                           | BotSee GET                                   | `questions list`                                                                   | offline + FTS                                              |
+| 24 | Create question                          | BotSee POST                                  | `questions create`                                                                 | --dry-run                                                  |
+| 25 | LLM-generate questions                   | BotSee POST `.../generate`                   | `questions generate`                                                               | --dry-run                                                  |
+| 26 | Update question                          | BotSee PUT                                   | `questions update`                                                                 | --dry-run                                                  |
+| 27 | Delete question                          | BotSee DELETE                                | `questions delete`                                                                 | --dry-run                                                  |
+| 28 | Get question results                     | BotSee GET                                   | `questions results`                                                                | join local                                                 |
+| 29 | Run analysis                             | BotSee POST `/analysis`                      | `analysis run`                                                                     | --dry-run                                                  |
+| 30 | Get analysis status                      | BotSee GET                                   | `analysis get`                                                                     | --watch                                                    |
+| 31 | List analyses                            | BotSee GET                                   | `analysis list`                                                                    | offline cache                                              |
+| 32 | Competitors                              | BotSee GET                                   | `analysis competitors`                                                             | upsert local                                               |
+| 33 | Keywords                                 | BotSee GET                                   | `analysis keywords`                                                                | upsert local                                               |
+| 34 | Keyword opportunities                    | BotSee GET                                   | `analysis keyword-opportunities`                                                   | upsert local                                               |
+| 35 | Sources                                  | BotSee GET                                   | `analysis sources`                                                                 | feeds sites-summary                                        |
+| 36 | Source opportunities                     | BotSee GET                                   | `analysis source-opportunities`                                                    | upsert local                                               |
+| 37 | Raw responses                            | BotSee GET                                   | `analysis responses`                                                               | FTS5 locally                                               |
+| 38 | Recommendations (raw)                    | BotSee POST `.../recommendations`            | `analysis recommendations`                                                         | spec emit; also exposed top-level as #62                   |
+| 39 | Blog content                             | BotSee POST `.../content`                    | `analysis content --output post.md`                                                | file output                                                |
+| 40 | List API keys                            | BotSee GET                                   | `api-keys list`                                                                    | --json                                                     |
+| 41 | Create API key                           | BotSee POST                                  | `api-keys create`                                                                  | --dry-run                                                  |
+| 42 | Rotate API key                           | BotSee POST                                  | `api-keys rotate`                                                                  | --dry-run                                                  |
+| 43 | Reset API key                            | BotSee POST                                  | `api-keys reset`                                                                   | --dry-run                                                  |
+| 44 | Revoke API key                           | BotSee DELETE                                | `api-keys delete`                                                                  | --dry-run                                                  |
+| 45 | Billing settings get                     | BotSee GET                                   | `billing settings get`                                                             | --json                                                     |
+| 46 | Billing settings update                  | BotSee PATCH                                 | `billing settings update`                                                          | --dry-run                                                  |
+| 47 | USDC top-up via x402                     | BotSee POST                                  | `billing topup-usdc`                                                               | --dry-run, two-step                                        |
+| 48 | Signup credit card                       | BotSee POST                                  | `signup cc`                                                                        | --dry-run                                                  |
+| 49 | Signup USDC token                        | BotSee POST                                  | `signup usdc`                                                                      | --dry-run                                                  |
+| 50 | Signup pay via x402                      | BotSee POST                                  | `signup pay-usdc`                                                                  | --dry-run, two-step                                        |
+| 51 | Signup status                            | BotSee GET                                   | `signup status`                                                                    | --watch                                                    |
+| 52 | List webhooks                            | BotSee GET                                   | `webhooks list`                                                                    | --json                                                     |
+| 53 | Create webhook                           | BotSee POST                                  | `webhooks create`                                                                  | --dry-run                                                  |
+| 54 | Delete webhook                           | BotSee DELETE                                | `webhooks delete`                                                                  | --dry-run                                                  |
+| 55 | Test webhook                             | BotSee POST                                  | `webhooks test`                                                                    | --dry-run                                                  |
+| 56 | Webhook event catalog                    | BotSee GET                                   | `webhooks events`                                                                  | offline cache                                              |
+| 57 | Framework: sync                          | generator                                    | `sync --resources <csv> [--since 7d]`                                              | full SQLite cache                                          |
+| 58 | Framework: search                        | generator                                    | `search "term" --type <resource>`                                                  | FTS5                                                       |
+| 59 | Framework: SQL                           | generator                                    | `sql "SELECT ..."`                                                                 | read-only                                                  |
+| 60 | Framework: doctor                        | generator                                    | `doctor`                                                                           | auth + reachability                                        |
+| 61 | Framework: stale                         | generator                                    | `stale --days 7`                                                                   | overdue records                                            |
+
+## Transcendence (only possible with our approach)
+
+| # | Feature | Command | Score | Buildability | How It Works | Evidence |
+|---|---------|---------|-------|--------------|--------------|----------|
+| 62 | AI Visibility Audit (flagship) | `ai-visibility-audit <url>` + alias `analyze` | 10/10 | hand-code | Idempotent: normalizes domain → `GET /sites` to find existing match → reuses or creates site → chains CT-generate → personas-generate per CT → questions-generate per persona (skipped if structure already exists or `--reuse-latest`) → estimates cost via cached `/pricing` (with dynamic `cost_multiplier`, default 1) → posts `/analysis` → polls `/analysis/{uuid}` with exponential backoff matching the Python script → parallel-fetches all 6 result types → upserts to SQLite → prints structured visibility report. Mimics the Python `cmd_create_site + cmd_analyze` chain as a single Go command. | API owner explicitly named this as the flagship; matches existing `/ai-visibility-audit` skill name; mirrors proven Python create-site+analyze flow at lines 822-1071 of `~/.claude/skills/botsee/scripts/botsee.py` |
+| 63 | Top-level recommendations | `recommendations <analysis_uuid>` | 7/10 | hand-code | Promoted top-level wrapper around `POST /analysis/{uuid}/recommendations` with local caching so the second call hits the SQLite cache instead of re-spending. | API owner explicitly named this as a command users should discover at top level |
+| 64 | Site config tree | `site-config --site $UUID` | 8/10 | hand-code | Walks `customer_types → personas → questions` from the local store (sync first if missing), renders nested tree with UUIDs, includes actionable edit-command hints below. `--json` produces structured tree for agents. `--depth personas` truncates at personas. | User-named missing piece: "something that creates customer types and personas and questions and lets them edit/add/remove those" — this command surfaces the structure so the spec-emitted CRUD commands can edit it |
+| 65 | Cross-site source rollup | `sites-summary` | 8/10 | hand-code | Cross-site SQLite aggregation of `analysis_sources` grouped by domain, returning `domain / citation_count / distinct_sites_citing / first_seen`. Useful for agencies (Dana persona) AND single-users with multiple brands. | API owner confirmed agency users exist; BotSee's API is strictly per-site so this is impossible without local cache |
+
+All 4 transcendence features are `hand-code`. Total ~510 LoC across 4 files.
+
+## Cut from earlier iterations
+- `analysis estimate` (folded into `--estimate-only` flag on audit/analyze, not its own command)
+- `analysis divergence` (user deprioritized in favor of workflow commands)
+- `delta --since 7d` (user said "4-6 don't seem as important")
+- `scorecard --sites all` (same)
+- `opportunities top` (wrapper-shaped, the BotSee opportunities endpoint already returns ranked)
+- `usage bottleneck` (monthly cadence, not weekly)
+- `questions audit` (niche; ships as a SKILL recipe instead)
+- `webhooks listen --local` (API owner uncertain whether events are emitted vs request/response only)
+
+No reprint verdicts (first print).

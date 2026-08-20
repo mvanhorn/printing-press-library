@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-13T09:17:50.799534856Z",
+  "cli_dir": "/home/mark/printing-press/library/freshservice",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-05-12T21:01:39.586387204Z"
+  }
+}

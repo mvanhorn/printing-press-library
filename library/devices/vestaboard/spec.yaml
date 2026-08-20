@@ -1,0 +1,95 @@
+name: vestaboard
+description: "Read and write messages on a Vestaboard split-flap display, with transition control and VBML text formatting."
+version: "0.1.0"
+spec_source: docs
+category: devices
+# New Cloud API (verified at docs.vestaboard.com/docs/read-write-api/endpoints).
+base_url: "https://cloud.vestaboard.com"
+
+auth:
+  type: api_key
+  header: "X-Vestaboard-Token"
+  env_vars: [VESTABOARD_API_KEY]
+
+# The VBML formatter lives on a different origin and takes no credentials.
+# Modeling it as a no-auth tier is what actually suppresses X-Vestaboard-Token
+# on the second host at request time (a plain resource `base_url` + `no_auth`
+# does NOT — no_auth is not consumed by the client request path). Untiered
+# resources (message, transition) fall through to the default: cloud host + api_key.
+tier_routing:
+  tiers:
+    vbml:
+      base_url: "https://vbml.vestaboard.com"
+      auth:
+        type: none
+
+config:
+  format: toml
+  path: "~/.config/vestaboard-pp-cli/config.toml"
+
+resources:
+  message:
+    description: "The message currently shown on the Vestaboard."
+    endpoints:
+      get:
+        method: GET
+        path: "/"
+        description: "Read the message currently displayed on the board. The layout is a JSON-encoded 2D array of character codes whose dimensions depend on the board type."
+      send:
+        method: POST
+        path: "/"
+        description: "Send a new message to the board. Provide --text (plain text / VBML) or --characters (a JSON 2D array of character codes). Rate limited to 1 message per 15 seconds."
+        # Body accepts {text} | {characters:[[int]]} | {text,forced}. The generated
+        # --body-json / --stdin flags take a JSON object (the documented {text}/{characters}
+        # shapes); the bare top-level array form is not exposed as a flag.
+        body_json_fallback: true
+        body:
+          - name: text
+            type: string
+            description: "Plain text or VBML to display."
+          - name: characters
+            type: array
+            description: "A board-sized 2D array of Vestaboard character codes (JSON), e.g. [[0,8,5,...],...]."
+          - name: forced
+            type: boolean
+            description: "Send even during configured quiet hours."
+  transition:
+    description: "Transition animation settings for the board (Flagship and Note devices)."
+    endpoints:
+      get:
+        method: GET
+        path: "/transition"
+        description: "Get the current transition style and speed."
+      set:
+        method: PUT
+        path: "/transition"
+        description: "Set the transition style and speed. Both fields are required."
+        body_required: true
+        body:
+          - name: transition
+            type: string
+            required: true
+            description: "Transition style: classic, wave, drift, or curtain."
+          - name: transitionSpeed
+            type: string
+            required: true
+            description: "Transition speed: gentle or fast."
+  vbml:
+    # Routed to the no-auth second-host tier above.
+    tier: vbml
+    description: "Vestaboard Markup Language (VBML) text formatting service."
+    endpoints:
+      format:
+        method: POST
+        path: "/format"
+        description: "Convert a text string into a 2D array of Vestaboard character codes."
+        # /format is a pure transform on a POST verb: route it through doRead()
+        # (bypassing the verify-mode write gate) and emit readOnlyHint on the MCP tool.
+        meta:
+          "mcp:read-only": "true"
+        body_required: true
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The text string to format into character codes."

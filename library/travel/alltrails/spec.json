@@ -1,0 +1,124 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AllTrails Unofficial Seed API Map",
+    "version": "0.1.0",
+    "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract."
+  },
+  "servers": [
+    {
+      "url": "https://www.alltrails.com"
+    }
+  ],
+  "x-printing-press": {
+    "venue": "alltrails",
+    "evidenceDate": "2026-05-26",
+    "defaultMode": "live_read_write_capable",
+    "labels": [
+      "official_export",
+      "browser_observed",
+      "community_inferred",
+      "subscription_gated",
+      "mutation_unverified",
+      "unverified"
+    ]
+  },
+  "paths": {
+    "/api/alltrails/v3/trails/{trail_id}": {
+      "get": {
+        "summary": "Trail detail payload",
+        "parameters": [
+          {
+            "name": "trail_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "detail",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "offline"
+              ]
+            }
+          }
+        ],
+        "x-labels": [
+          "community_inferred",
+          "browser_observed"
+        ]
+      }
+    },
+    "/api/alltrails/v3/trails/{trail_id}/static_map": {
+      "get": {
+        "summary": "Trail static map image metadata/render endpoint",
+        "x-labels": [
+          "browser_observed"
+        ]
+      }
+    },
+    "/api/alltrails/v3/maps/{map_id}/static_map": {
+      "get": {
+        "summary": "Map static image metadata/render endpoint",
+        "x-labels": [
+          "browser_observed",
+          "subscription_gated"
+        ]
+      }
+    },
+    "/api/alltrails/v3/trails/search": {
+      "get": {
+        "summary": "Trail search by text, location, and filters",
+        "x-labels": [
+          "unverified"
+        ]
+      }
+    },
+    "/api/alltrails/v3/user/me": {
+      "get": {
+        "summary": "Current account profile",
+        "x-labels": [
+          "unverified"
+        ]
+      }
+    },
+    "/api/alltrails/v3/user/{user_id}/activities": {
+      "get": {
+        "summary": "User activity list",
+        "x-labels": [
+          "unverified"
+        ]
+      }
+    },
+    "/api/alltrails/v3/activities/{activity_id}": {
+      "get": {
+        "summary": "Activity detail with GPS/stat surfaces",
+        "x-labels": [
+          "unverified"
+        ]
+      }
+    },
+    "/api/alltrails/v3/activities/upload": {
+      "post": {
+        "summary": "Upload a new activity recording",
+        "x-labels": [
+          "mutation_unverified",
+          "unverified"
+        ]
+      }
+    },
+    "/api/alltrails/v3/maps/offline/{region}": {
+      "get": {
+        "summary": "Offline map metadata",
+        "x-labels": [
+          "subscription_gated",
+          "unverified"
+        ]
+      }
+    }
+  }
+}

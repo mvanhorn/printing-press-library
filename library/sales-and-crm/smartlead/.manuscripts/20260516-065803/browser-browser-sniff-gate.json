@@ -1,0 +1,11 @@
+{
+  "run_id": "20260516-065803",
+  "sources": [
+    {
+      "source_name": "smartlead",
+      "decision": "skip-silent",
+      "reason": "spec-complete: official documented SmartLead REST API; OpenAPI spec authored from official docs + verified Python SDK source covering all 41 public endpoints. Browser-sniffing the web app would surface the internal BFF, not the public API the user wants a CLI for.",
+      "asked_at": "2026-05-16T14:04:35Z"
+    }
+  ]
+}

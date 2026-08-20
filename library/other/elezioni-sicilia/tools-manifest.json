@@ -1,0 +1,122 @@
+{
+  "api_name": "elezioni-sicilia",
+  "base_url": "https://www.elezioni.regione.sicilia.it",
+  "description": "Estrai dati strutturati sulle elezioni comunali siciliane dal sito ufficiale della Regione Siciliana.",
+  "mcp_ready": "full",
+  "http_transport": "browser-http",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "affluenza_tabella",
+      "description": "Tabella regionale completa dell'affluenza con tutti i rilevamenti orari e confronto con elezioni precedenti.",
+      "method": "GET",
+      "path": "/ReportTabellaAffluenza.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "candidati_get",
+      "description": "Voti per ogni candidato sindaco in un comune specifico. Required: provincia, codice.",
+      "method": "GET",
+      "path": "/{provincia}/ReportCandidati{provincia}{codice}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "type": "string",
+          "location": "path",
+          "description": "Codice provincia (AG, CL, CT, EN, ME, PA, RG, SR, TP)",
+          "required": true
+        },
+        {
+          "name": "codice",
+          "type": "string",
+          "location": "path",
+          "description": "Codice interno comune (dal dropdown del sito)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comuni_list",
+      "description": "Lista comuni con dropdown per navigazione, con codici interni del sito. Required: provincia.",
+      "method": "GET",
+      "path": "/{provincia}/ReportDatiLista{provincia}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "liste_get",
+      "description": "Voti per lista collegata a ciascun candidato sindaco in un comune. Required: provincia, codice.",
+      "method": "GET",
+      "path": "/{provincia}/ReportCandidatiListe{provincia}{codice}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "codice",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "risultati_get",
+      "description": "Risultato finale del comune: sindaco eletto, sezioni, votanti, seggi per lista. Required: provincia, codice.",
+      "method": "GET",
+      "path": "/{provincia}/ReportRisultati{provincia}{codice}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "codice",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "seggi_get",
+      "description": "Ripartizione seggi in Consiglio Comunale per ogni lista. Required: provincia, codice.",
+      "method": "GET",
+      "path": "/{provincia}/ReportSeggi{provincia}{codice}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "codice",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

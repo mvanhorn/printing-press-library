@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-schema-adapt",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Adapt the hand-authored relations/module commands to the reprinted engine: workspace-relative request paths (BaseURL now carries /api/v1/workspaces/{slug}) and the projects_issues table/projects_id FK that the reprinted sync writes to.",
+  "reason": "The pre-reprint novels were written when BaseURL was the bare host and issues synced to an `issues`/`project_id` table. The restructured spec moved the workspace scope into servers:{slug} (so the client doubles the prefix on a full path) and the reprinted sync stores issues in projects_issues. Without these, `relations`/`module` calls 404 and module enrichment patches 0 issues.",
+  "files": [
+    "internal/cli/relations.go",
+    "internal/cli/modules_novel.go"
+  ],
+  "validated_outcome": "Isolated live sync: module_membership_synced reports modules 17, links 384, issues_patched 383 (baseline 17/383/382); 383 projects_issues rows carry non-empty module_ids. Pre-fix the enrichment 404'd then patched 0."
+}

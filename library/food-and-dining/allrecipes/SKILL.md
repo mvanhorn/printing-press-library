@@ -1,6 +1,6 @@
 ---
 name: pp-allrecipes
-description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, one-line grocery lists, and Cloudflare clearance. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
+description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, and one-line grocery lists. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -22,20 +22,20 @@ metadata:
 
 This skill drives the `allrecipes-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install allrecipes --cli-only
+   npx -y @mvanhorn/printing-press-library install allrecipes --cli-only
    ```
 2. Verify: `allrecipes-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

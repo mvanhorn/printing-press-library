@@ -1,0 +1,228 @@
+{
+  "api_name": "slickdeals",
+  "base_url": "https://slickdeals.net",
+  "description": "Discovered API spec for slickdeals",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ad-stats_create_ad_events",
+      "description": "POST /ad-stats/{id}/ad-events. Required: id, breakpoint, event, eventRuntime, pageName, platform, timestamp. Returns the new ad_events.",
+      "method": "POST",
+      "path": "/ad-stats/{id}/ad-events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The id path segment",
+          "required": true
+        },
+        {
+          "name": "breakpoint",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "eventRuntime",
+          "type": "number",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "pageName",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ajax_create_threadrate.php",
+      "description": "POST /ajax/threadrate.php. Required: securitytoken, ti[]. Returns array of threadrate.php.",
+      "method": "POST",
+      "path": "/ajax/threadrate.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "securitytoken",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "ti[]",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ajax_list_b_sub_nav_placement.php",
+      "description": "GET /ajax/bSubNavPlacement.php. Optional: nuxt, section, url. Returns the bSubNavPlacement.php.",
+      "method": "GET",
+      "path": "/ajax/bSubNavPlacement.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nuxt",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "section",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "frontpage_list_json",
+      "description": "GET /frontpage/promoted-content/json. Optional: nuxt. Returns array of json.",
+      "method": "GET",
+      "path": "/frontpage/promoted-content/json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nuxt",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "frontpage_list_recommendations",
+      "description": "GET /frontpage/recommendation-carousel/recommendations. Optional: count, nuxt, useCategoryBadge (plus 2 more). Returns the recommendations.",
+      "method": "GET",
+      "path": "/frontpage/recommendation-carousel/recommendations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "nuxt",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "useCategoryBadge",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "useForYouBadge",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "useFrontpageBadge",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "web-api_list_featured_coupons",
+      "description": "GET /web-api/frontpage/featured-coupons/. Required: code, discount, id, outclickUrl, storeLogoUrl, title, views. Returns array of featured_coupons.",
+      "method": "GET",
+      "path": "/web-api/frontpage/featured-coupons/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "discount",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "outclickUrl",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "storeLogoUrl",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "views",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "web-api_list_missed_deals",
+      "description": "GET /web-api/frontpage/missed-deals/. Optional: isReturningVisitor, showExpired. Returns the missed_deals.",
+      "method": "GET",
+      "path": "/web-api/frontpage/missed-deals/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "isReturningVisitor",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "showExpired",
+          "type": "boolean",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}

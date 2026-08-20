@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "empty-stdin-guard-require-body-flag",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Seven mutation commands with all-optional body fields whose defaults are empty/zero now require at least one body flag (or --stdin) instead of silently sending an empty {} body.",
+  "reason": "Repo-wide sweep of the change-password empty-'!stdinBody' pattern: these commands had no-op empty guards, so running them with no flags and no --stdin sent {} to the API and produced a cryptic 400. Commands whose flag defaults already populate the body (e.g. certificates renew/reissue with non-empty common-name/csr/root-type defaults) were left unchanged because they never emit an empty body.",
+  "files": [
+    "internal/cli/agents_certificates_submit-server-renewal.go",
+    "internal/cli/domains_update.go",
+    "internal/cli/domains-customers_domains_update-customers.go",
+    "internal/cli/domains-customers_domains_update-customers-3.go",
+    "internal/cli/domains_renew_renew.go",
+    "internal/cli/shoppers_update.go",
+    "internal/cli/subscriptions_update.go"
+  ]
+}

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/algolia"
+	"github.com/spf13/cobra"
 )
 
 // hnSearchCmd is a hand-built replacement for the generated search.

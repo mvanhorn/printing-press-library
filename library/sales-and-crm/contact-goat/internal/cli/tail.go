@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // tail: poll LinkedIn + Happenstance (and optionally Deepline) every interval,
 // diff against the previous snapshot in the local store, and emit NEW items
@@ -37,9 +37,9 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	var includeDeepline bool
 
 	cmd := &cobra.Command{
-		Use:   "tail [resource]",
+		Use:         "tail [resource]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Stream NEW items across LinkedIn + Happenstance (and optionally Deepline)",
+		Short:       "Stream NEW items across LinkedIn + Happenstance (and optionally Deepline)",
 		Long: `Tail polls each configured source at --interval and emits only items that
 weren't in the previous snapshot, as NDJSON on stdout. Gracefully shuts down
 on SIGTERM / SIGINT.

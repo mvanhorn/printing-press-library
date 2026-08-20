@@ -1,0 +1,84 @@
+{
+  "dir": "/tmp/codex-oss/printing-press-library/library/media-and-entertainment/marginalrevolution",
+  "spec_path": "/tmp/codex-oss/printing-press-library/library/media-and-entertainment/marginalrevolution/spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 1,
+    "valid": 1,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 51,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 7,
+    "with_examples": 7,
+    "valid_examples": 7,
+    "detail": "7/7 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 26,
+      "registered": 26
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 16
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 16
+  },
+  "issues": null
+}

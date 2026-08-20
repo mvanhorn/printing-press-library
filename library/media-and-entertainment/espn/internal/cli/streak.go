@@ -14,9 +14,9 @@ func newStreakCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "streak <sport> <league>",
+		Use:         "streak <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Current win/loss streak for a team from synced data",
+		Short:       "Current win/loss streak for a team from synced data",
 		Example: `  espn-pp-cli streak football nfl --team KC
   espn-pp-cli streak basketball nba --team LAL --limit 30
   espn-pp-cli streak baseball mlb --team NYY --json`,

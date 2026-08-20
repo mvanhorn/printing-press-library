@@ -25,9 +25,9 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 	var sportFilter string
 
 	cmd := &cobra.Command{
-		Use:   "today",
+		Use:         "today",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Today's scores across all major sports",
+		Short:       "Today's scores across all major sports",
 		Example: `  espn-pp-cli today
   espn-pp-cli today --sport nba
   espn-pp-cli today --json`,
@@ -59,7 +59,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 				go func(idx int, sl sportLeague) {
 					defer wg.Done()
 					path := fmt.Sprintf("/%s/%s/scoreboard", sl.Sport, sl.League)
-					data, fetchErr := c.Get(path, nil)
+					data, fetchErr := c.Get(cmd.Context(), path, nil)
 					if fetchErr != nil {
 						results[idx] = result{SL: sl, Err: fetchErr}
 						return

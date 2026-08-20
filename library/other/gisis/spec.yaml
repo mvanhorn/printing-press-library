@@ -1,0 +1,87 @@
+name: gisis
+description: "GISIS — IMO Global Integrated Shipping Information System CLI for authoritative vessel particulars from the IMO public modules."
+version: "0.1.0"
+base_url: "https://gisis.imo.org/Public"
+health_check_path: "/SHIPS/Default.aspx"
+category: other
+
+cli_description: "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index."
+
+required_headers:
+  - name: User-Agent
+    value: "gisis-pp-cli/0.1 (+https://github.com/openclaw/vessel-mcp)"
+
+auth:
+  type: cookie
+  cookie_domain: gisis.imo.org
+  cookies:
+    - ASP.NET_SessionId
+    - .ASPXAUTH
+  login_url: "https://webaccounts.imo.org/Login.aspx?App=GISISPublic"
+  login_complete_selector: "a[href*=Logoff]"
+  jwt_carrier_cookie: "ASP.NET_SessionId"
+
+config:
+  format: toml
+  path: "~/.config/gisis-pp-cli/config.toml"
+
+resources:
+  ship:
+    description: "Ship particulars — authoritative IMO vessel registry data (name, flag, type, gross tonnage, ownership, classification society)."
+    endpoints:
+      get:
+        method: GET
+        path: "/SHIPS/ShipDetails.aspx"
+        description: "Get ship particulars by IMO number from the IMO Ship and Company Particulars module."
+        params:
+          - name: IMONumber
+            flag_name: imo
+            aliases: []
+            type: string
+            required: true
+            positional: true
+            description: "IMO ship identification number (7 digits, e.g. 9966233)."
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: Ship
+
+types:
+  Ship:
+    fields:
+      - name: imo_number
+        type: string
+      - name: name
+        type: string
+      - name: call_sign
+        type: string
+      - name: flag
+        type: string
+      - name: ship_type
+        type: string
+      - name: gross_tonnage
+        type: int
+      - name: deadweight
+        type: int
+      - name: year_built
+        type: int
+      - name: builder
+        type: string
+      - name: classification_society
+        type: string
+      - name: registered_owner
+        type: string
+      - name: operator
+        type: string
+      - name: ship_manager
+        type: string
+      - name: doc_company
+        type: string
+      - name: status
+        type: string
+      - name: source_url
+        type: string
+      - name: fetched_at
+        type: string

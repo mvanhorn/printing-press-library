@@ -1,0 +1,193 @@
+name: Publish discovery skill to ClawHub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/printing-press-library/**'
+      - '.github/workflows/publish-clawhub-discovery-skill.yml'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish printing-press-library skill
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout library
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check whether discovery skill changed
+        id: changes
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "${BEFORE_SHA:-}" ] || [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! git cat-file -e "$BEFORE_SHA^{commit}" || ! git cat-file -e "$AFTER_SHA^{commit}"; then
+            echo "Could not resolve push boundary; publishing defensively."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- skills/printing-press-library; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Extract ClawHub version from skill frontmatter
+        if: steps.changes.outputs.changed == 'true'
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          from pathlib import Path
+          import re
+          import sys
+
+          skill = Path('skills/printing-press-library/SKILL.md')
+          if not skill.is_file():
+              print(f'::error::Missing {skill}', file=sys.stderr)
+              sys.exit(1)
+
+          text = skill.read_text(encoding='utf-8')
+          match = re.match(r'^---\n(.*?)\n---\n', text, re.S)
+          if not match:
+              print('::error::SKILL.md must start with YAML frontmatter containing version:', file=sys.stderr)
+              sys.exit(1)
+
+          version = None
+          for line in match.group(1).splitlines():
+              if re.match(r'^version\s*:', line):
+                  version = line.split(':', 1)[1].strip().strip('"\'')
+                  break
+
+          if not version:
+              print('::error::ClawHub publish requires a semver frontmatter field: version: x.y.z', file=sys.stderr)
+              sys.exit(1)
+
+          if not re.match(r'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$', version):
+              print(f'::error::Invalid semver for ClawHub: {version}', file=sys.stderr)
+              sys.exit(1)
+
+          print(f'version={version}')
+          PY
+
+      - name: Authenticate ClawHub CLI
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          CLAW_TOKEN: ${{ secrets.CLAW_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CLAW_TOKEN:-}" ]; then
+            echo "::error::Missing CLAW_TOKEN repository secret"
+            exit 1
+          fi
+          npx -y clawhub@0.20.0 --no-input login --token "$CLAW_TOKEN"
+          npx -y clawhub@0.20.0 --no-input whoami
+
+      - name: Ensure ClawHub version is new
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npx -y clawhub@0.20.0 --no-input inspect printing-press-library --versions --limit 200 --json > /tmp/clawhub-existing.json 2>/tmp/clawhub-existing.err
+          rc=$?
+          set -e
+
+          if [ "$rc" -ne 0 ]; then
+            if grep -qi "Skill not found" /tmp/clawhub-existing.err /tmp/clawhub-existing.json 2>/dev/null; then
+              echo "Skill is not published yet; initial publish will create version $VERSION."
+              exit 0
+            fi
+            echo "::error::Could not inspect existing ClawHub versions"
+            cat /tmp/clawhub-existing.err || true
+            cat /tmp/clawhub-existing.json || true
+            exit "$rc"
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          target = os.environ["VERSION"]
+          raw = Path("/tmp/clawhub-existing.json").read_text(encoding="utf-8")
+          # clawhub may print progress lines before the JSON payload; strip them.
+          starts = [idx for idx in (raw.find("{"), raw.find("[")) if idx != -1]
+          if not starts:
+              print("::error::clawhub inspect did not return JSON", file=sys.stderr)
+              print(raw, file=sys.stderr)
+              sys.exit(1)
+
+          payload = raw[min(starts):]
+          try:
+              data = json.loads(payload)
+          except json.JSONDecodeError as exc:
+              print(f"::error::Could not parse clawhub inspect JSON: {exc}", file=sys.stderr)
+              print(payload, file=sys.stderr)
+              sys.exit(1)
+
+          if isinstance(data, dict):
+              version_items = data.get("versions") or []
+          elif isinstance(data, list):
+              version_items = data
+          else:
+              print(f"::error::Unexpected clawhub inspect JSON root: {type(data).__name__}", file=sys.stderr)
+              sys.exit(1)
+
+          versions = [item.get("version") for item in version_items if isinstance(item, dict)]
+          version_strings = [version for version in versions if isinstance(version, str) and version]
+          if target in version_strings:
+              print(f"::error::ClawHub version {target} already exists for printing-press-library. Bump version: in skills/printing-press-library/SKILL.md before publishing.", file=sys.stderr)
+              sys.exit(1)
+          print(f"ClawHub version {target} is new. Existing versions: {', '.join(version_strings) or 'none'}")
+          PY
+
+      - name: Publish discovery skill to ClawHub
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # clawhub >=0.19 removed --clawscan-note. Former scanner note, kept for
+          # when an equivalent returns: "Catalog/discovery skill only. It may
+          # instruct agents to run npx @mvanhorn/printing-press-library commands
+          # and install focused pp-* skills, but this package itself does not
+          # include executable code or credentials."
+          npx -y clawhub@0.20.0 --no-input skill publish skills/printing-press-library \
+            --slug printing-press-library \
+            --name "Printing Press Library" \
+            --version "${{ steps.version.outputs.version }}" \
+            --changelog "Publish Printing Press Library discovery skill from ${GITHUB_SHA}"
+
+      - name: Skip publish
+        if: steps.changes.outputs.changed != 'true'
+        run: echo "No changes under skills/printing-press-library; skipping ClawHub publish."

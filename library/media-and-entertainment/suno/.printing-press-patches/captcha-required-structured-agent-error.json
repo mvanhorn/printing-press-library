@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "captcha-required-structured-agent-error",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "On the adaptive gate, JSON/agent mode emits a structured envelope with error_type \"captcha_required\"; a regen must keep agents able to branch on a field, not prose.",
+  "reason": "The friendly captcha guidance was prose-only on stderr, so an --agent/JSON consumer could not distinguish the retriable captcha gate from other failures. The envelope (error_type, retriable, hint, code) rides the existing writeAPIErrorEnvelope pattern; human mode is unchanged. Exit code stays 2 (usage) in both modes.",
+  "files": [
+    "internal/cli/suno_generate_run.go"
+  ],
+  "validated_outcome": "generate describe --no-captcha --agent (gate tripped) emits parseable JSON {error_type:captcha_required,retriable:true,code:2} on stdout; human mode keeps stdout clean with prose on stderr."
+}

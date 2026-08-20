@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-sync-gate-completeness-guard",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Keep sign-in-gated partial catalog walks out of authoritative sync snapshots.",
+  "reason": "A catalog walk can collect rows from one location before a later class, camp, or booking-menu request hits a customer sign-in gate. Promoting that partial result made drift report unseen entities as removed.",
+  "files": [
+    "internal/cli/iclasspro_common.go",
+    "internal/cli/iclasspro_sync.go",
+    "internal/cli/iclasspro_sync_test.go"
+  ],
+  "validated_outcome": "PASS: focused gate-completeness regressions, full Go tests, go vet, go build, 134/134 live dogfood checks, verify-skill, PII audit, supply-chain scan, and publish validation passed.",
+  "findings_addressed": [
+    "Greptile P1: sign-in-gated partial catalog walks could create false removals in drift"
+  ],
+  "publication_status": "pr_open",
+  "reapply_notes": "Preserve icpCollection.Gated across location, class, camp, and booking-menu reads. An authoritative snapshot requires both resource kinds, no page truncation, and no sign-in gate. Re-run TestIcpCollectMarksPartialSignInGateIncomplete and TestIcpSyncSnapshotCompleteRequiresWholeCatalog."
+}

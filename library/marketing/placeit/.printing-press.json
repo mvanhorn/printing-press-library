@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T08:26:04.099345Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "placeit",
+  "display_name": "Placeit",
+  "cli_name": "placeit-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d2ed0b93305241370777116a8aca53bca860c7a9a2b984b38dd1f9226bba2338",
+  "run_id": "20260616-010520-922cfd05",
+  "category": "marketing",
+  "description": "Every one of Placeit's 164k mockup, logo, video, and design templates — searchable, sortable by real popularity, and cached offline from your terminal, with catalog analytics Placeit's own UI can't do.",
+  "mcp_binary": "placeit-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Best-seller rank within a niche",
+      "command": "top",
+      "description": "Rank matching templates by real purchase count, not opaque relevance."
+    },
+    {
+      "name": "Printify POD-ready filter",
+      "command": "pod",
+      "description": "Return only Printify-compatible mockups for a query with deep links for a listing pipeline."
+    },
+    {
+      "name": "Twitch matched-kit builder",
+      "command": "kit",
+      "description": "Assemble a coherent streamer kit (overlay, panels, emotes, frame) and flag missing slots."
+    },
+    {
+      "name": "Industry taxonomy map",
+      "command": "industry-map",
+      "description": "Map the 152-entry industry taxonomy with template counts from your synced mirror."
+    },
+    {
+      "name": "Saved search watchlist",
+      "command": "watch",
+      "description": "Persist named searches and report templates newly matching since the last sync."
+    },
+    {
+      "name": "Cross-facet gap finder",
+      "command": "gaps",
+      "description": "Pivot the catalog across two tag facets to surface under-served template combinations."
+    },
+    {
+      "name": "Template popularity percentile",
+      "command": "rank",
+      "description": "Show a template's purchase percentile within its category and tag cohort."
+    }
+  ]
+}

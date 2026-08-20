@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-01T00:29:55.136649Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "breezedoc",
+  "display_name": "BreezeDoc",
+  "cli_name": "breezedoc-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://breezedoc.com/developer/docs/",
+  "spec_path": "breezedoc-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:533224bf0635c40be52e8276cb04686f986df44f09784baff7d0e70da56979a1",
+  "run_id": "20260601-002955",
+  "catalog_entry": "breezedoc",
+  "category": "productivity",
+  "description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups.",
+  "mcp_binary": "breezedoc-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "BREEZEDOC_API_TOKEN",
+    "BREEZEDOC_BEARER_TOKEN",
+    "BREEZEDOC_BEARER_AUTH"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "BREEZEDOC_API_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "BREEZEDOC_BEARER_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "BREEZEDOC_BEARER_AUTH",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Invoice lifecycle",
+      "command": "workflow invoice-lifecycle",
+      "description": "Create, update, optionally send, and refetch BreezeDoc invoices as one structured agent workflow."
+    },
+    {
+      "name": "Client workspace snapshot",
+      "command": "workflow client-workspace-snapshot",
+      "description": "Collect a compact account snapshot across user, documents, templates, recipients, invoices, and optional teams."
+    },
+    {
+      "name": "Document follow-up",
+      "command": "workflow document-follow-up",
+      "description": "Inspect a document and its recipients, derive follow-up statuses, and optionally resend with explicit opt-in."
+    },
+    {
+      "name": "Signature packet prep",
+      "command": "workflow signature-packet-prep",
+      "description": "Prepare a signature packet from a template or raw document payload and optionally send it with explicit opt-in."
+    }
+  ],
+  "auth_key_url": "https://breezedoc.com/integrations/api",
+  "catalog_description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups."
+}

@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "cli_name": "openalex-pp-cli",
+  "api_name": "openalex",
+  "help_output": "Openalex CLI\n\nHighlights (not in the official API docs):\n  • works list   Search scholarly works with compact JSON, field selection, filters, sorting, and live API fallback.\n  • authors list   Search authors and retrieve canonical OpenAlex author records for citation and collaborator research.\n  • institutions list   Search institutions with country/type metadata for affiliation and ecosystem analysis.\n  • sources list   Search journals, repositories, and venues with compact agent-oriented output.\n  • topics list   Explore OpenAlex topics for research-area discovery and downstream filtering.\n\nAgent mode: add --agent to any command for JSON output + non-interactive mode.\nHealth check: run 'openalex-pp-cli doctor' to verify auth and connectivity.\nSee README.md or the bundled SKILL.md for recipes.\n\nUsage:\n  openalex-pp-cli [command]\n\nAvailable Commands:\n  agent-context     Emit structured JSON describing this CLI for agents\n  analytics         Run analytics queries on locally synced data\n  api               Browse all API endpoints by interface name\n  auth              Manage authentication for Openalex\n  authors           People who create scholarly works\n  autocomplete      Fast typeahead search returning up to 10 results. Use for search-as-you-type interfaces.\n  awards            Research grants and funding awards\n  changefiles       Manage changefiles\n  completion        Generate the autocompletion script for the specified shell\n  concepts          Legacy taxonomy of research areas (deprecated - use Topics instead)\n  continents        Geographic continents (7 total)\n  countries         Geographic countries for filtering research by location\n  doctor            Check CLI health\n  domains           Top-level categories in the topic hierarchy (4 total)\n  export            Export data to JSONL or JSON for backup, migration, or analysis\n  feedback          Record feedback about this CLI (local by default; upstream opt-in)\n  fields            Second-level categories in the topic hierarchy (26 total)\n  funders           Organizations that fund research\n  help              Help about any command\n  import            Import data from JSONL file via API create/upsert calls\n  institution-types Get a list of institution types (education, healthcare, company, etc.).\n  institutions      Universities, research organizations, and other affiliations\n  keywords          Short phrases identified from works' topics\n  languages         Languages of scholarly works\n  licenses          Get a list of open access licenses (CC BY, CC BY-SA, etc.).\n  profile           Named sets of flags saved for reuse\n  publishers        Companies and organizations that publish scholarly works\n  rate-limit        Check your current rate limit status including usage and remaining allowance.\n  sdgs              UN Sustainable Development Goals (17 total)\n  search            Full-text search across synced data or live API\n  source-types      Get a list of source types (journal, repository, conference, etc.).\n  sources           Journals, repositories, and other venues where works are hosted\n  subfields         Third-level categories in the topic hierarchy (254 total)\n  sync              Sync API data to local SQLite for offline search and analysis\n  tail              Stream live changes by polling the API at regular intervals\n  text              **DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or...\n  topics            Research topics automatically assigned to works\n  version           Print version\n  which             Find the command that implements a capability\n  work-types        Get a list of work types (article, book, dataset, etc.).\n  workflow          Compound workflows that combine multiple API operations\n  works             Scholarly documents like journal articles, books, datasets, and theses\n\nFlags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n  -h, --help                 help for openalex-pp-cli\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'openalex-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n  -v, --version              version for openalex-pp-cli\n      --yes                  Skip confirmation prompts (for agents and scripts)\n\nUse \"openalex-pp-cli [command] --help\" for more information about a command.\n",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true,
+      "warning": "no manuscripts found"
+    }
+  ]
+}

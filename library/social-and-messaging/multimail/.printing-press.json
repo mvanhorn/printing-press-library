@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T04:19:00Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "multimail",
+  "display_name": "MultiMail",
+  "cli_name": "multimail-pp-cli",
+  "owner": "h179922",
+  "printer": "H179922",
+  "printer_name": "H179922",
+  "creator": {
+    "handle": "H179922",
+    "name": "H179922"
+  },
+  "spec_path": "multimail-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d89ac9638ffefdccc4bfe393809f984634965f061190085c9bd4df060b193583",
+  "run_id": "20260527-225904",
+  "category": "social-and-messaging",
+  "mcp_binary": "multimail-pp-mcp",
+  "mcp_tool_count": 86,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MULTIMAIL_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits."
+    },
+    {
+      "name": "Bulk oversight decide",
+      "command": "oversight bulk-decide",
+      "description": "Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command."
+    },
+    {
+      "name": "Oversight velocity",
+      "command": "oversight velocity",
+      "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet."
+    },
+    {
+      "name": "Trust ladder status",
+      "command": "trust status",
+      "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility."
+    },
+    {
+      "name": "Trust timeline",
+      "command": "trust timeline",
+      "description": "Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it."
+    },
+    {
+      "name": "Send and wait",
+      "command": "emails send-and-wait",
+      "description": "Send an email and block until a reply arrives or timeout — the agent test loop in one command."
+    },
+    {
+      "name": "Allowlist coverage",
+      "command": "mailboxes allowlist coverage",
+      "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated."
+    },
+    {
+      "name": "Inbox health",
+      "command": "inbox health",
+      "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth."
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "threads stale",
+      "description": "List conversation threads with no reply in N days — surfaces dropped conversations."
+    },
+    {
+      "name": "Compliance snapshot",
+      "command": "audit compliance",
+      "description": "Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox."
+    },
+    {
+      "name": "Webhook health",
+      "command": "webhooks health",
+      "description": "Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak."
+    }
+  ]
+}

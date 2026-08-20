@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/working/nse-india-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

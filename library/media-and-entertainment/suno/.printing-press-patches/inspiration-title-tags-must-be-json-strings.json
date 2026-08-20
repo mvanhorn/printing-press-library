@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "inspiration-title-tags-must-be-json-strings",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "title and tags in the generate body must serialize as JSON strings, never null; a regen must keep them non-nil.",
+  "reason": "The Suno API rejects a null title with 422 [{loc:[body,params,title],msg:Input should be a valid string}] before the captcha gate is evaluated, which broke every inspiration-mode (describe) request that did not pass an explicit --title. The browser sends \"\" for both fields in inspiration mode. strPtr(\"\") returning nil for these two fields is the trap.",
+  "files": [
+    "internal/cli/suno_generate_types.go"
+  ],
+  "validated_outcome": "After the fix, `generate describe --prompt X --no-captcha` reaches the captcha gate (friendly hCaptcha error) instead of a params.title body-validation 422."
+}

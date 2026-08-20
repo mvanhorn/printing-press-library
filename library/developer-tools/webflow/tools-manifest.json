@@ -1,0 +1,3879 @@
+{
+  "api_name": "webflow",
+  "base_url": "https://api.webflow.com/v2",
+  "description": "The whole Webflow Data API, plus a local database that lets you audit SEO, diff staging against live, and preview a publish before you trigger it.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "WEBFLOW_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WEBFLOW_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "asset-folders_get",
+      "description": "Get details about a specific Asset Folder Required scope | `assets:read`. Required: asset_folder_id. Returns array of string.",
+      "method": "GET",
+      "path": "/asset_folders/{asset_folder_id}",
+      "params": [
+        {
+          "name": "asset_folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Asset Folder",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_delete",
+      "description": "Delete an Asset Required Scope: `assets: write`. Required: asset_id. Destructive.",
+      "method": "DELETE",
+      "path": "/assets/{asset_id}",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Asset on a site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_get",
+      "description": "Get details about an asset Required scope | `assets:read`. Required: asset_id. Optional: localeId. Returns array of AssetsGetItem.",
+      "method": "GET",
+      "path": "/assets/{asset_id}",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Asset on a site",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        }
+      ]
+    },
+    {
+      "name": "assets_patch",
+      "description": "Update details of an Asset. Required scope | `assets:write`. Required: asset_id. Optional: localeId, altText, displayName. Returns array of AssetsPatchItem.",
+      "method": "PATCH",
+      "path": "/assets/{asset_id}",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Asset on a site",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "altText",
+          "type": "string",
+          "location": "body",
+          "description": "Alternate text describing the image"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "A human readable name for the asset. This value is not localizable."
+        }
+      ]
+    },
+    {
+      "name": "collections_delete",
+      "description": "Delete a collection using its ID. Required scope | `cms:write`. Required: collection_id. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_details",
+      "description": "Get the full details of a collection from its ID. Required scope | `cms:read`. Required: collection_id. Returns array of CollectionsDetailsItem.",
+      "method": "GET",
+      "path": "/collections/{collection_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_fields_create",
+      "description": "Create a custom field in a collection. Field validation is currently not available through the API. Bulk creation of fields is not supported with this endpoint. To add multiple fields at once, include them when you [create the collection.](/data/v2.0.0/reference/cms/collections/create) Required scope | `cms:write`. Required: collection_id.",
+      "method": "POST",
+      "path": "/collections/{collection_id}/fields",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_fields_delete",
+      "description": "Delete a custom field in a collection. This endpoint does not currently support bulk deletion. Required scope | `cms:write`. Required: collection_id, field_id. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}/fields/{field_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "field_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Field in a collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_fields_update",
+      "description": "Update a custom field in a collection. Required scope | `cms:write`. Required: collection_id, field_id. Optional: displayName, helpText, isRequired. Returns the updated FieldsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/collections/{collection_id}/fields/{field_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "field_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Field in a collection",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "The name of a field"
+        },
+        {
+          "name": "helpText",
+          "type": "string",
+          "location": "body",
+          "description": "Additional text to help anyone filling out this field"
+        },
+        {
+          "name": "isRequired",
+          "type": "bool",
+          "location": "body",
+          "description": "Define whether a field is required in a collection"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_create",
+      "description": "Create Item(s) in a Collection. To create items across multiple locales, please use [this endpoint.](/data/reference/cms/collection-items/staged-items/create-items) Required scope | `CMS:write`. Required: collection_id. Optional: skipInvalidFiles (default: true). Returns the new CollectionItem.",
+      "method": "POST",
+      "path": "/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_create-collections",
+      "description": "Create an item or multiple items in a CMS Collection across multiple corresponding locales. \u003cNote\u003e - This endpoint can create up to 100 items in a request. - If the `cmsLocaleIds` parameter is not included in the request, an item will only be created in the primary locale. \u003c/Note\u003e Required scope | `CMS:write`. Required: collection_id, fieldData. Optional: skipInvalidFiles (default: true), cmsLocaleIds, createdOn (plus 4 more). Returns array of string.",
+      "method": "POST",
+      "path": "/collections/{collection_id}/items/bulk",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        },
+        {
+          "name": "cmsLocaleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of identifiers for the locales where the item will be created"
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date and time when the item was created."
+        },
+        {
+          "name": "fieldData",
+          "type": "string",
+          "location": "body",
+          "description": "Field data",
+          "required": true
+        },
+        {
+          "name": "isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether the item is archived."
+        },
+        {
+          "name": "isDraft",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether the item is in draft state."
+        },
+        {
+          "name": "lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date and time when the item was last published."
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date and time when the item was last updated."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_create-live",
+      "description": "Create item(s) in a collection that will be immediately published to the live site. To create items across multiple locales, [please use this endpoint.](/data/reference/cms/collection-items/staged-items/create-items) Required scope | `CMS:write`. Required: collection_id. Optional: skipInvalidFiles (default: true). Returns the new CollectionItem.",
+      "method": "POST",
+      "path": "/collections/{collection_id}/items/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_delete",
+      "description": "Delete Items from a Collection. \u003cTip title='Localization Tip'\u003eItems will only be deleted in the primary locale unless a `cmsLocaleId` is included in the request.\u003c/Tip\u003e Required scope | `CMS:write`. Required: collection_id, items. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items_delete-collections",
+      "description": "Delete an item from a collection. Required scope | `CMS:write`. Required: collection_id, item_id. Optional: cmsLocaleId. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}/items/{item_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_delete-live",
+      "description": "Unpublish up to 100 items from the live site and set the `isDraft` property to `true`. \u003cTip title='Localization Tip'\u003eItems will only be unpublished in the primary locale unless a `cmsLocaleId` is included in the request.\u003c/Tip\u003e Required scope | `CMS:write`. Required: collection_id, items. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}/items/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items_delete-live-collections",
+      "description": "Unpublish a live item from the site and set the `isDraft` property to `true`. For bulk unpublishing, please use [this endpoint.](/data/v2.0.0/reference/cms/collection-items/live-items/delete-items-live) Required scope | `CMS:write`. Required: collection_id, item_id. Optional: cmsLocaleId. Destructive.",
+      "method": "DELETE",
+      "path": "/collections/{collection_id}/items/{item_id}/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_get",
+      "description": "Get details of a selected Collection Item. Required scope | `CMS:read`. Required: collection_id, item_id. Optional: cmsLocaleId. Returns the CollectionItem.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/items/{item_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_get-live",
+      "description": "Get details of a selected Collection live Item. \u003cTip title='Serve data with the Content Delivery API'\u003e Serving data to applications in real-time? Use the Content Delivery API at `api-cdn.webflow.com` for better performance. The CDN-backed endpoint is optimized for high-volume reads, while the Data API is designed for writes and management operations. \u003c/Tip\u003e Required scope | `CMS:read`. Required: collection_id, item_id. Optional: cmsLocaleId. Returns the CollectionItem.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/items/{item_id}/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_list-collection",
+      "description": "List of all Items within a Collection. Required scope | `CMS:read`. Required: collection_id. Optional: cmsLocaleId, offset, limit (plus 7 more). Returns array of CollectionItem.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the exact name of the item(s)"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the exact slug of the item"
+        },
+        {
+          "name": "createdOn",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the creation date of the item(s)"
+        },
+        {
+          "name": "lastPublished",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the last published date of the item(s)"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the last updated date of the item(s)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort results by the provided value"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_list-collection-live",
+      "description": "List all published items in a collection. \u003cTip title='Serve data with the Content Delivery API'\u003e Serving data to applications in real-time? Use the Content Delivery API at `api-cdn.webflow.com` for better performance. The CDN-backed endpoint is optimized for high-volume reads, while the Data API is designed for writes and management operations. \u003c/Tip\u003e Required scope | `CMS:read`. Required: collection_id. Optional: cmsLocaleId, offset, limit (plus 7 more). Returns array of CollectionItem.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/items/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a CMS Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the exact name of the item(s)"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the exact slug of the item"
+        },
+        {
+          "name": "createdOn",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the creation date of the item(s)"
+        },
+        {
+          "name": "lastPublished",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the last published date of the item(s)"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "object",
+          "location": "query",
+          "description": "Filter by the last updated date of the item(s)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort results by the provided value"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_list-inventory",
+      "description": "List the current inventory levels for a particular SKU item. Required scope | `ecommerce:read`. Required: sku_collection_id, sku_id. Returns the ItemsListInventoryResponse.",
+      "method": "GET",
+      "path": "/collections/{sku_collection_id}/items/{sku_id}/inventory",
+      "params": [
+        {
+          "name": "sku_collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a SKU collection. Use the List Collections API to find this ID.",
+          "required": true
+        },
+        {
+          "name": "sku_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a SKU",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items_publish",
+      "description": "Publish an item or multiple items. Required scope | `cms:write`. Required: collection_id. Returns the new ItemsPublishResponse.",
+      "method": "POST",
+      "path": "/collections/{collection_id}/items/publish",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items_update",
+      "description": "Update a single item or multiple items in a Collection. The limit for this endpoint is 100 items. \u003cTip title='Localization Tip'\u003eItems will only be updated in the primary locale, unless a `cmsLocaleId` is included in the request.\u003c/Tip\u003e Required scope | `CMS:write`. Required: collection_id. Optional: skipInvalidFiles (default: true), items. Partial update.",
+      "method": "PATCH",
+      "path": "/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_update-collections",
+      "description": "Update a selected Item in a Collection. Required scope | `CMS:write`. Required: collection_id, item_id. Optional: skipInvalidFiles (default: true), cmsLocaleId, createdOn (plus 6 more). Returns the updated CollectionItem.",
+      "method": "PATCH",
+      "path": "/collections/{collection_id}/items/{item_id}",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the locale of the CMS item"
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was created"
+        },
+        {
+          "name": "field-data-name",
+          "wire_name": "fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Item"
+        },
+        {
+          "name": "field-data-slug",
+          "wire_name": "fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Item in your site. Note: Updates to an item slug will break all links referencing the old slug."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Item"
+        },
+        {
+          "name": "isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Item is set to archived"
+        },
+        {
+          "name": "isDraft",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Item is set to draft"
+        },
+        {
+          "name": "lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was last published"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was last updated"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_update-inventory",
+      "description": "Updates the current inventory levels for a particular SKU item. Updates may be given in one or two methods, absolutely or incrementally. - Absolute updates are done by setting `quantity` directly. - Incremental updates are by specifying the inventory delta in `updateQuantity` which is then added to the `quantity` stored on the server. Required scope | `ecommerce:write`. Required: sku_collection_id, sku_id, inventoryType. Optional: quantity, updateQuantity. Returns the updated ItemsUpdateInventoryResponse.",
+      "method": "PATCH",
+      "path": "/collections/{sku_collection_id}/items/{sku_id}/inventory",
+      "params": [
+        {
+          "name": "sku_collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a SKU collection. Use the List Collections API to find this ID.",
+          "required": true
+        },
+        {
+          "name": "sku_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a SKU",
+          "required": true
+        },
+        {
+          "name": "inventoryType",
+          "type": "string",
+          "location": "body",
+          "description": "infinite or finite",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "float",
+          "location": "body",
+          "description": "Immediately sets quantity to this value."
+        },
+        {
+          "name": "updateQuantity",
+          "type": "float",
+          "location": "body",
+          "description": "Adds this quantity to currently store quantity. Can be negative."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_update-live",
+      "description": "Update a single published item or multiple published items (up to 100) in a Collection \u003cTip title='Localization Tip'\u003eItems will only be updated in the primary locale, unless a `cmsLocaleId` is included in the request.\u003c/Tip\u003e Required scope | `CMS:write`. Required: collection_id. Optional: skipInvalidFiles (default: true), items. Returns array of CollectionItem.",
+      "method": "PATCH",
+      "path": "/collections/{collection_id}/items/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        }
+      ]
+    },
+    {
+      "name": "collections_items_update-live-collections",
+      "description": "Update a selected live Item in a Collection. The updates for this Item will be published to the live site. Required scope | `CMS:write`. Required: collection_id, item_id. Optional: skipInvalidFiles (default: true), cmsLocaleId, createdOn (plus 6 more). Returns the updated CollectionItem.",
+      "method": "PATCH",
+      "path": "/collections/{collection_id}/items/{item_id}/live",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Collection",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Item",
+          "required": true
+        },
+        {
+          "name": "skipInvalidFiles",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, invalid files are skipped and processing continues."
+        },
+        {
+          "name": "cmsLocaleId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the locale of the CMS item"
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was created"
+        },
+        {
+          "name": "field-data-name",
+          "wire_name": "fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Item"
+        },
+        {
+          "name": "field-data-slug",
+          "wire_name": "fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Item in your site. Note: Updates to an item slug will break all links referencing the old slug."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Item"
+        },
+        {
+          "name": "isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Item is set to archived"
+        },
+        {
+          "name": "isDraft",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Item is set to draft"
+        },
+        {
+          "name": "lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was last published"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date the item was last updated"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions_delete",
+      "description": "Delete a form submission Required scope | `forms:write`. Required: form_submission_id. Destructive.",
+      "method": "DELETE",
+      "path": "/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "form-submissions_get",
+      "description": "Get information about a given form submissio. Required scope | `forms:read`. Required: form_submission_id. Returns the FormSubmissionsGetResponse.",
+      "method": "GET",
+      "path": "/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "form-submissions_modify",
+      "description": "Update hidden fields on a form submission Required scope | `forms:write`. Required: form_submission_id. Optional: formSubmissionData. Returns the updated FormSubmissionsModifyResponse.",
+      "method": "PATCH",
+      "path": "/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        },
+        {
+          "name": "formSubmissionData",
+          "type": "object",
+          "location": "body",
+          "description": "An existing **hidden field** defined on the form schema, and the corresponding value to set"
+        }
+      ]
+    },
+    {
+      "name": "forms_get-schema",
+      "description": "Get information about a given form. Required scope | `forms:read`. Required: form_id. Returns the FormsGetSchemaResponse.",
+      "method": "GET",
+      "path": "/forms/{form_id}",
+      "params": [
+        {
+          "name": "form_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_submissions_list",
+      "description": "List form submissions for a given form \u003cNote title='Forms in components'\u003e When a form is used in a component definition, each instance of the form is considered a unique form. To get a combined list of submissions for a form that appears across multiple component instances, use the [List Form Submissions by Site](/data/reference/forms/form-submissions/list-submissions-by-site) endpoint. \u003c/Note\u003e Required scope | `forms:read`. Required: form_id. Optional: offset, limit. Returns array of SubmissionsListItem.",
+      "method": "GET",
+      "path": "/forms/{form_id}/submissions",
+      "params": [
+        {
+          "name": "form_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "pages_get-metadata",
+      "description": "Get metadata information for a single page. Required scope | `pages:read`. Required: page_id. Optional: localeId. Returns the PagesGetMetadataResponse.",
+      "method": "GET",
+      "path": "/pages/{page_id}",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        }
+      ]
+    },
+    {
+      "name": "pages_update-settings",
+      "description": "Update Page-level metadata, including SEO and Open Graph fields. Required scope | `pages:write`. Required: page_id. Optional: localeId, openGraph, seo (plus 2 more). Returns the updated PagesUpdateSettingsResponse.",
+      "method": "PUT",
+      "path": "/pages/{page_id}",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "open-graph-description",
+          "wire_name": "openGraph.description",
+          "type": "string",
+          "location": "body",
+          "description": "The description supplied to Open Graph annotations"
+        },
+        {
+          "name": "open-graph-description-copied",
+          "wire_name": "openGraph.descriptionCopied",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates the Open Graph description was copied from the SEO description"
+        },
+        {
+          "name": "open-graph-title",
+          "wire_name": "openGraph.title",
+          "type": "string",
+          "location": "body",
+          "description": "The title supplied to Open Graph annotations"
+        },
+        {
+          "name": "open-graph-title-copied",
+          "wire_name": "openGraph.titleCopied",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates the Open Graph title was copied from the SEO title"
+        },
+        {
+          "name": "seo-description",
+          "wire_name": "seo.description",
+          "type": "string",
+          "location": "body",
+          "description": "The Page description shown in search engine results"
+        },
+        {
+          "name": "seo-title",
+          "wire_name": "seo.title",
+          "type": "string",
+          "location": "body",
+          "description": "The Page title shown in search engine results"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug for the page. **Note:** The slug field is ignored in the following cases — all other fields in the same request still apply: - The site's home page, collection template pages, and utility pages (e.g. 404, password, search). - For secondary locales, updating the slug requires an Advanced or Enterprise localization add-on plan ."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the page"
+        }
+      ]
+    },
+    {
+      "name": "pages_custom-code_add-to-page",
+      "description": "Apply registered scripts to a page. If you have multiple scripts your App needs to apply or maintain on a page, ensure they are always included in the request body for this endpoint. To remove individual scripts, simply call this endpoint without the script in the request body. \u003cNote title='Script Registration'\u003e To apply a script to a page, the script must first be registered to a Site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: page_id. Optional: createdOn, lastUpdated, scripts. Returns array of CustomCodeAddToPageItem.",
+      "method": "PUT",
+      "path": "/pages/{page_id}/custom_code",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "Date when the Site's scripts were created"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date when the Site's scripts were last updated"
+        },
+        {
+          "name": "scripts",
+          "type": "array",
+          "location": "body",
+          "description": "A list of scripts applied to a Site or a Page"
+        }
+      ]
+    },
+    {
+      "name": "pages_custom-code_delete-page",
+      "description": "Remove all scripts from a page applied by the App. This endpoint will not remove scripts from the site's registered scripts. To remove individual scripts applied by the App, use the [Add/Update Custom Code](/data/reference/custom-code/custom-code-pages/upsert-custom-code) endpoint. \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: page_id. Destructive.",
+      "method": "DELETE",
+      "path": "/pages/{page_id}/custom_code",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_custom-code_get-page",
+      "description": "Get all scripts applied to a page. \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:read`. Required: page_id. Returns array of CustomCodeGetPageItem.",
+      "method": "GET",
+      "path": "/pages/{page_id}/custom_code",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_dom_get-static-content",
+      "description": "Get text and component instance content from a static page. \u003cBadge intent='info'\u003eLocalization\u003c/Badge\u003e Required scope | `pages:read`. Required: page_id. Optional: localeId, limit, offset. Returns array of DomGetStaticContentItem.",
+      "method": "GET",
+      "path": "/pages/{page_id}/dom",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "pages_dom_update-static-content",
+      "description": "This endpoint updates content on a static page in **secondary locales**. It supports updating up to 1000 nodes in a single request. Before making updates: 1. Use the [get page content](/data/reference/pages-and-components/pages/get-content) endpoint to identify available content nodes and their types. 2. If the page has component instances, retrieve the component's properties that you'll override using the [get component properties](/data/reference/pages-and-components/components/get-properties) endpoint. 3. DOM elements may include a `data-w-id` attribute. This attribute is used by Webflow to maintain custom attributes and links across locales. Always include the original `data-w-id` value in your update requests to ensure consistent behavior across all locales. \u003cNote\u003e This endpoint is specifically for localized pages. Ensure that the specified `localeId` is a valid **secondary locale** for the site otherwise the request will fail. \u003c/Note\u003e Required scope | `pages:write`. Required: page_id, localeId, nodes. Returns array of string.",
+      "method": "POST",
+      "path": "/pages/{page_id}/dom",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Page",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "The locale identifier.",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "array",
+          "location": "body",
+          "description": "List of DOM Nodes with the new content that will be updated in each node.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_delete",
+      "description": "Delete a site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `sites:write`. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_get",
+      "description": "Get details of a site. Required scope | `sites:read`. Required: site_id. Returns array of SitesGetItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "List of all sites the provided access token is able to access. Required scope | `sites:read`. Returns array of SitesListItem.",
+      "method": "GET",
+      "path": "/sites",
+      "params": []
+    },
+    {
+      "name": "sites_update",
+      "description": "Update a site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `sites:write`. Required: site_id. Optional: name, parentFolderId. Returns array of SitesUpdateItem.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the site"
+        },
+        {
+          "name": "parentFolderId",
+          "type": "string",
+          "location": "body",
+          "description": "The parent folder ID of the site"
+        }
+      ]
+    },
+    {
+      "name": "sites_activity-logs_get-site",
+      "description": "Retrieve Activity Logs for a specific Site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `site_activity:read`. Required: site_id. Optional: limit, offset. Returns array of ActivityLogsGetSiteItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/activity_logs",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_asset-folders_create",
+      "description": "Create an Asset Folder within a given site Required scope | `assets:write`. Required: site_id, displayName. Optional: parentFolder. Returns array of string.",
+      "method": "POST",
+      "path": "/sites/{site_id}/asset_folders",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "A human readable name for the Asset Folder",
+          "required": true
+        },
+        {
+          "name": "parentFolder",
+          "type": "string",
+          "location": "body",
+          "description": "An (optional) pointer to a parent Asset Folder (or null for root)"
+        }
+      ]
+    },
+    {
+      "name": "sites_asset-folders_list",
+      "description": "List Asset Folders within a given site Required scope | `assets:read`. Required: site_id. Returns array of AssetFoldersListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/asset_folders",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_create",
+      "description": "The first step in uploading an asset to a site. This endpoint generates a response with the following information: `uploadUrl` and `uploadDetails`. Use these properties in the header of a [POST request to Amazson s3](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPOST.html) to complete the upload. To learn more about how to upload assets to Webflow, see our [assets guide](/data/docs/working-with-assets). Required scope | `assets:write`. Required: site_id, fileHash, fileName. Optional: parentFolder. Returns the new AssetsCreateResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/assets",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "fileHash",
+          "type": "string",
+          "location": "body",
+          "description": "MD5 hash of the file",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "location": "body",
+          "description": "File name including file extension. File names must be less than 100 characters.",
+          "required": true
+        },
+        {
+          "name": "parentFolder",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the Asset folder (optional)"
+        }
+      ]
+    },
+    {
+      "name": "sites_assets_list",
+      "description": "List of assets uploaded to a site Required scope | `assets:read`. Required: site_id. Optional: localeId, offset, limit (plus 1 more). Returns array of AssetsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/assets",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter assets to those in the specified folder and all descendant folders. Must be a 24-character hex ObjectId."
+        }
+      ]
+    },
+    {
+      "name": "sites_collections_create",
+      "description": "Create a Collection for a site with collection fields. Each collection includes the required _name_ and _slug_ fields, which are generated automatically. You can update the `displayName` of these fields, but the slug for them cannot be changed. Fields slugs are automatically converted to lowercase. Spaces in slugs are replaced with hyphens. Required scope | `cms:write`. Required: site_id, displayName, singularName. Optional: fields, slug. Returns array of CollectionsCreateItem.",
+      "method": "POST",
+      "path": "/sites/{site_id}/collections",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the collection. Each collection name must be distinct.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom fields to add to the collection"
+        },
+        {
+          "name": "singularName",
+          "type": "string",
+          "location": "body",
+          "description": "Singular name of each item.",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Part of a URL that identifier"
+        }
+      ]
+    },
+    {
+      "name": "sites_collections_list",
+      "description": "List of all Collections within a Site. Required scope | `cms:read`. Required: site_id. Returns array of CollectionsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/collections",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_comments_get-thread",
+      "description": "Get details of a specific comment thread. \u003cNote title='Timing of comment threads'\u003e There may be a delay of up to 5 minutes before new comments appear in the system. \u003c/Note\u003e Required scope | `comments:read`. Required: site_id, comment_thread_id. Optional: localeId, offset, limit (plus 2 more). Returns array of CommentsGetThreadItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/comments/{comment_thread_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "comment_thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Comment Thread",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort results by the provided value. Only allowed when sortOrder is provided."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "sites_comments_list-replies",
+      "description": "List all replies to a specific comment thread. \u003cNote title='Timing of comment threads'\u003e There may be a delay of up to 5 minutes before new comments appear in the system. \u003c/Note\u003e Required scope | `comments:read`. Required: site_id, comment_thread_id. Optional: localeId, offset, limit (plus 2 more). Returns array of CommentsListRepliesItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/comments/{comment_thread_id}/replies",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "comment_thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Comment Thread",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort results by the provided value. Only allowed when sortOrder is provided."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "sites_comments_list-threads",
+      "description": "List all comment threads for a site. \u003cNote title='Timing of comment threads'\u003e There may be a delay of up to 5 minutes before new comments appear in the system. \u003c/Note\u003e Required scope | `comments:read`. Required: site_id. Optional: localeId, offset, limit (plus 2 more). Returns array of CommentsListThreadsItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/comments",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort results by the provided value. Only allowed when sortOrder is provided."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "sites_components_get-content",
+      "description": "Get static content from a component definition. This includes text nodes, image nodes, select nodes, text input nodes, submit button nodes, and nested component instances. To retrieve dynamic content set by component properties, use the [get component properties](/data/reference/pages-and-components/components/get-properties) endpoint. \u003cNote\u003eIf you do not provide a Locale ID in your request, the response will return any content that can be localized from the Primary locale.\u003c/Note\u003e Required scope | `components:read`. Required: site_id, component_id. Optional: localeId, branchId, limit (plus 1 more). Returns array of ComponentsGetContentItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/components/{component_id}/dom",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "component_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Component",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "branchId",
+          "type": "string",
+          "location": "query",
+          "description": "Scope the operation to work on a specific branch."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_components_get-properties",
+      "description": "Get the default property values of a component definition. \u003cNote\u003eIf you do not include a `localeId` in your request, the response will return any properties that can be localized from the Primary locale.\u003c/Note\u003e Required scope | `components:read`. Required: site_id, component_id. Optional: localeId, branchId, limit (plus 1 more). Returns array of ComponentsGetPropertiesItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/components/{component_id}/properties",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "component_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Component",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "branchId",
+          "type": "string",
+          "location": "query",
+          "description": "Scope the operation to work on a specific branch."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_components_list",
+      "description": "List of all components for a site. Required scope | `components:read`. Required: site_id. Optional: branchId, limit, offset. Returns array of ComponentsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/components",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "branchId",
+          "type": "string",
+          "location": "query",
+          "description": "Scope the operation to work on a specific branch."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_components_update-content",
+      "description": "This endpoint updates content within a component defintion for **secondary locales**. It supports updating up to 1000 nodes in a single request. Before making updates: 1. Use the [get component content](/data/reference/pages-and-components/components/get-content) endpoint to identify available content nodes and their types. 2. If your component definition has a component instance nested within it, retrieve the nested component instance's properties that you'll override using the [get component properties](/data/reference/pages-and-components/components/get-properties) endpoint. 3. DOM elements may include a `data-w-id` attribute. This attribute is used by Webflow to maintain custom attributes and links across locales. Always include the original `data-w-id` value in your update requests to ensure consistent behavior across all locales. \u003cNote\u003e This endpoint is specifically for localizing component definitions. Ensure that the specified `localeId` is a valid **secondary locale** for the site otherwise the request will fail. \u003c/Note\u003e Required scope | `components:write`. Required: site_id, component_id, nodes. Optional: localeId, branchId. Returns array of string.",
+      "method": "POST",
+      "path": "/sites/{site_id}/components/{component_id}/dom",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "component_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Component",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "branchId",
+          "type": "string",
+          "location": "query",
+          "description": "Scope the operation to work on a specific branch."
+        },
+        {
+          "name": "nodes",
+          "type": "array",
+          "location": "body",
+          "description": "List of DOM Nodes with the new content that will be updated in each node.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_components_update-properties",
+      "description": "Update the default property values of a component definition in a specificed locale. Before making updates: 1. Use the [get component properties](/data/reference/pages-and-components/components/get-properties) endpoint to identify properties that can be updated in a secondary locale. 2. Rich Text properties may include a `data-w-id` attribute. This attribute is used by Webflow to maintain links across locales. Always include the original `data-w-id` value in your update requests to ensure consistent behavior across all locales. \u003cNote\u003eThe request requires a secondary locale ID. If a `localeId` is missing, the request will not be processed and will result in an error.\u003c/Note\u003e Required scope | `components:write`. Required: site_id, component_id, properties. Optional: localeId, branchId. Returns array of string.",
+      "method": "POST",
+      "path": "/sites/{site_id}/components/{component_id}/properties",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "component_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Component",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "branchId",
+          "type": "string",
+          "location": "query",
+          "description": "Scope the operation to work on a specific branch."
+        },
+        {
+          "name": "properties",
+          "type": "array",
+          "location": "body",
+          "description": "A list of component properties to update within the specified secondary locale.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-code_add-tosite",
+      "description": "Apply registered scripts to a site. If you have multiple scripts your App needs to apply or maintain on a site, ensure they are always included in the request body for this endpoint. To remove individual scripts, simply call this endpoint without the script in the request body. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: site_id. Optional: createdOn, lastUpdated, scripts. Returns array of CustomCodeAddTositeItem.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/custom_code",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "Date when the Site's scripts were created"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date when the Site's scripts were last updated"
+        },
+        {
+          "name": "scripts",
+          "type": "array",
+          "location": "body",
+          "description": "A list of scripts applied to a Site or a Page"
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-code_delete-site",
+      "description": "Remove all scripts from a site applied by the App. This endpoint will not remove scripts from the site's registered scripts. To remove individual scripts applied by the App, use the [Add/Update Custom Code](/data/reference/custom-code/custom-code-sites/upsert-custom-code) endpoint. \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/custom_code",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-code_get-site",
+      "description": "Get all scripts applied to a site by the App. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:read`. Required: site_id. Returns array of CustomCodeGetSiteItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/custom_code",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-code_get-site-blocks",
+      "description": "Get a list of scripts that have been applied to a site and/or individual pages. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:read`. Required: site_id. Optional: offset, limit. Returns array of CustomCodeGetSiteBlocksItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/custom_code/blocks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-domains_get",
+      "description": "Get a list of all custom domains related to site. Required scope | `sites:read`. Required: site_id. Returns array of CustomDomainsGetItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/custom_domains",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_batch-delete",
+      "description": "Delete 1-100 custom fonts in a single request. The response is always `200 OK` for a valid request body. Per-font results are reported in the `deleted` and `failed` arrays. The endpoint is idempotent: fonts that do not exist appear in `failed` with `name: 'NotFound'` rather than failing the entire request. You can safely retry a partial failure by re-sending only the IDs that did not appear in `deleted`. Required scope | `sites:write`. Required: site_id, items. Returns the new CustomFontsBatchDeleteResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/custom_fonts/batchDelete",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_create",
+      "description": "Register a custom font on a site and get a presigned S3 URL to upload the font binary. The response includes a `customFont` object and an `upload` object. Use the `upload.url` and `upload.fields` to POST the font binary directly to S3 as `multipart/form-data`. The binary must go in a field named `file` and must be the last field in the form (an AWS S3 requirement). S3 returns `201 Created` on a successful upload. To learn more, see [Custom fonts](/data/docs/custom-fonts). Required scope | `sites:write`. Required: site_id, fileHash, fileName, fontDisplay, fontFamily, italic, weight. Optional: axes.",
+      "method": "POST",
+      "path": "/sites/{site_id}/custom_fonts",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "axes",
+          "type": "array",
+          "location": "body",
+          "description": "Variable font axes. Omit or pass an empty array for static fonts."
+        },
+        {
+          "name": "fileHash",
+          "type": "string",
+          "location": "body",
+          "description": "Lowercase hex MD5 hash of the font binary (exactly 32 characters)",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "location": "body",
+          "description": "File name including extension. Accepted extensions are `.woff2`, `.woff`, `.ttf`, `.otf`, and `.eot`. Maximum 256 characters.",
+          "required": true
+        },
+        {
+          "name": "fontDisplay",
+          "type": "string",
+          "location": "body",
+          "description": "CSS font-display value",
+          "required": true
+        },
+        {
+          "name": "fontFamily",
+          "type": "string",
+          "location": "body",
+          "description": "The CSS font-family name (1-256 characters). Commas are stripped server-side.",
+          "required": true
+        },
+        {
+          "name": "italic",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the font is italic",
+          "required": true
+        },
+        {
+          "name": "weight",
+          "type": "int",
+          "location": "body",
+          "description": "CSS font-weight value (1-1000)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_delete",
+      "description": "Delete a custom font from a site. Required scope | `sites:write`. Required: site_id, font_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/custom_fonts/{font_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "font_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a custom font on a site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_get",
+      "description": "Get details about a custom font on a site. Required scope | `sites:read`. Required: site_id, font_id. Returns the CustomFontsGetResponse.",
+      "method": "GET",
+      "path": "/sites/{site_id}/custom_fonts/{font_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "font_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a custom font on a site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_list",
+      "description": "List the custom fonts uploaded to a site. Required scope | `sites:read`. Required: site_id. Optional: offset, limit. Returns array of CustomFontsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/custom_fonts",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_replace-file",
+      "description": "Replace the binary of an existing custom font while preserving its ID and any references to it. The upload handshake is identical to [Create custom font](#operation/create-custom-font). If the existing font has a non-empty `axes` array (a variable font), you must include an `axes` field in the request. Send `axes: []` to declare that the new binary is a static font, or send the new variable axes to declare it is still variable. Omitting `axes` when the existing font is variable returns `400`. Required scope | `sites:write`. Required: site_id, font_id, fileHash, fileName. Optional: axes.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/custom_fonts/{font_id}/file",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "font_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a custom font on a site",
+          "required": true
+        },
+        {
+          "name": "axes",
+          "type": "array",
+          "location": "body",
+          "description": "Variable font axes for the replacement binary. Required when the existing font has a non-empty `axes` array."
+        },
+        {
+          "name": "fileHash",
+          "type": "string",
+          "location": "body",
+          "description": "Lowercase hex MD5 hash of the font binary (exactly 32 characters)",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "location": "body",
+          "description": "File name including extension. Accepted extensions are `.woff2`, `.woff`, `.ttf`, `.otf`, and `.eot`. Maximum 256 characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_custom-fonts_update",
+      "description": "Update the metadata of a custom font. The font binary is not changed by this endpoint. To replace the binary, use [Replace custom font file](#operation/replace-custom-font-file). The request body must include at least one of `fontFamily`, `weight`, `italic`, or `fontDisplay`. Required scope | `sites:write`. Required: site_id, font_id. Optional: fontDisplay, fontFamily, italic (plus 1 more). Returns the updated CustomFontsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/custom_fonts/{font_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "font_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a custom font on a site",
+          "required": true
+        },
+        {
+          "name": "fontDisplay",
+          "type": "string",
+          "location": "body",
+          "description": "CSS font-display value"
+        },
+        {
+          "name": "fontFamily",
+          "type": "string",
+          "location": "body",
+          "description": "The CSS font-family name (1-256 characters)"
+        },
+        {
+          "name": "italic",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the font is italic"
+        },
+        {
+          "name": "weight",
+          "type": "int",
+          "location": "body",
+          "description": "CSS font-weight value (1-1000)"
+        }
+      ]
+    },
+    {
+      "name": "sites_ecommerce_settings",
+      "description": "Retrieve ecommerce settings for a site. Required scope | `ecommerce:read`. Required: site_id. Returns the EcommerceSettingsResponse.",
+      "method": "GET",
+      "path": "/sites/{site_id}/ecommerce/settings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_form-submissions_delete-by-site",
+      "description": "Delete a form submission within a specific site. Required scope | `forms:write`. Required: site_id, form_submission_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_form-submissions_get-by-site",
+      "description": "Get information about a form submission within a specific site. Required scope | `forms:read`. Required: site_id, form_submission_id. Returns the FormSubmissionsGetBySiteResponse.",
+      "method": "GET",
+      "path": "/sites/{site_id}/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_form-submissions_list-submissions-by-site",
+      "description": "List all form submissions for a given site with the ability to filter submissions by a centralized `elementId`. Add `elementId` when you want to filter form submissions to a specific form in a site. You can get the `elementId` from the [List forms endpoint](/data/reference/forms/forms/list) (displayed as `formElementId` in the response). \u003cNote title='Forms in components'\u003e When a form is used in a Webflow component definition, each instance of the component will yield a unique form. Adding the `elementId` in this request ensures this API response includes all submissions from that core form, wherever that form is used in instantiated components. \u003c/Note\u003e Use the [List Form Submissions endpoint](/data/reference/forms/form-submissions/list-submissions) to list form submissions for a given form ID. Required scope | `forms:read`. Required: site_id. Optional: elementId, offset, limit. Returns array of FormSubmissionsListSubmissionsBySiteItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/form_submissions",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "elementId",
+          "type": "string",
+          "location": "query",
+          "description": "Identifier for an element"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_form-submissions_modify-by-site",
+      "description": "Update hidden fields on a form submission within a specific site. Required scope | `forms:write`. Required: site_id, form_submission_id. Optional: formSubmissionData. Returns the updated FormSubmissionsModifyBySiteResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/form_submissions/{form_submission_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "form_submission_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form Submission",
+          "required": true
+        },
+        {
+          "name": "formSubmissionData",
+          "type": "object",
+          "location": "body",
+          "description": "An existing **hidden field** defined on the form schema, and the corresponding value to set"
+        }
+      ]
+    },
+    {
+      "name": "sites_forms_list",
+      "description": "List forms for a given site. Required scope | `forms:read`. Required: site_id. Optional: limit, offset. Returns array of FormsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/forms",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_forms_list-submissions",
+      "description": "List form submissions for a given form ID within a specific site. Use the [List Form Submissions by Site endpoint](/data/reference/forms/form-submissions/list-submissions-by-site) to list form submissions for a given site with the ability to filter by a `formElementId`. Required scope | `forms:read`. Required: site_id, form_id. Optional: offset, limit. Returns array of FormsListSubmissionsItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/forms/{form_id}/submissions",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "form_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Form",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_integrations_delete-google-tag",
+      "description": "Delete a single Google Tag ID from a site. The `order` values of the remaining tags are renormalized after deletion. Required scope: `sites:write`. Required: site_id, tag_id. Returns array of IntegrationsDeleteGoogleTagItem. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/integrations/google_tags/{tag_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Google Tag ID (e.g. G-XXXXXXXXXX)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_integrations_delete-google-tags",
+      "description": "Delete all Google Tag IDs from a site. Required scope: `sites:write`. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/integrations/google_tags",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_integrations_list-google-tags",
+      "description": "List all Google Tag IDs configured for a site, sorted by order. Required scope: `sites:read`. Required: site_id. Returns array of IntegrationsListGoogleTagsItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/integrations/google_tags",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_integrations_upsert-google-tags",
+      "description": "Add or update Google Tag IDs for a site. Existing tags not referenced in the request are preserved. A site may have a maximum of 25 tags total. `order` is optional on input — it is auto-assigned for new tags and returned on all tags in the response. Required scope: `sites:write`. Required: site_id, googleTagIds. Returns array of IntegrationsUpsertGoogleTagsItem.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/integrations/google_tags",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "googleTagIds",
+          "type": "array",
+          "location": "body",
+          "description": "List of Google Tags configured for a site, sorted by order.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_fulfill",
+      "description": "Updates an order's status to fulfilled Required scope | `ecommerce:write`. Required: site_id, order_id. Optional: sendOrderFulfilledEmail (default: false). Returns the new OrdersFulfillResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/orders/{order_id}/fulfill",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Order",
+          "required": true
+        },
+        {
+          "name": "sendOrderFulfilledEmail",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the Order Fulfilled email should be sent"
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_get",
+      "description": "Retrieve a single product by its ID. All of its SKUs will also be retrieved. Required scope | `ecommerce:read`. Required: site_id, order_id. Returns the OrdersGetResponse.",
+      "method": "GET",
+      "path": "/sites/{site_id}/orders/{order_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_list",
+      "description": "List all orders created for a given site. Required scope | `ecommerce:read`. Required: site_id. Optional: status, offset, limit. Returns array of OrdersListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/orders",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter the orders by status"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_refund",
+      "description": "This API will reverse a Stripe charge and refund an order back to a customer. It will also set the order's status to `refunded`. Required scope | `ecommerce:write`. Required: site_id, order_id. Optional: reason. Returns the new OrdersRefundResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/orders/{order_id}/refund",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Order",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "The reason for the refund"
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_unfulfill",
+      "description": "Updates an order's status to unfulfilled Required scope | `ecommerce:write`. Required: site_id, order_id. Returns the new OrdersUnfulfillResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/orders/{order_id}/unfulfill",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_orders_update",
+      "description": "This API lets you update the fields, `comment`, `shippingProvider`, and/or `shippingTracking` for a given order. All three fields can be updated simultaneously or independently. Required scope | `ecommerce:write`. Required: site_id, order_id. Optional: comment, shippingProvider, shippingTracking (plus 1 more). Returns the updated OrdersUpdateResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/orders/{order_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for an Order",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary data for your records"
+        },
+        {
+          "name": "shippingProvider",
+          "type": "string",
+          "location": "body",
+          "description": "Company or method used to ship order"
+        },
+        {
+          "name": "shippingTracking",
+          "type": "string",
+          "location": "body",
+          "description": "Tracking number for order shipment"
+        },
+        {
+          "name": "shippingTrackingURL",
+          "type": "string",
+          "location": "body",
+          "description": "URL to track order shipment"
+        }
+      ]
+    },
+    {
+      "name": "sites_pages_list",
+      "description": "List of all pages for a site. Required scope | `pages:read`. Required: site_id. Optional: localeId, limit, offset. Returns array of PagesListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/pages",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "localeId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for a specific Locale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        }
+      ]
+    },
+    {
+      "name": "sites_plan_get-site",
+      "description": "Get site plan details for the specified Site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `sites:read`. Required: site_id. Returns the PlanGetSiteResponse.",
+      "method": "GET",
+      "path": "/sites/{site_id}/plan",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_products_create",
+      "description": "Create a new ecommerce product and defaultSKU. A product, at minimum, must have a single SKU. To create a product with multiple SKUs: - First, create a list of `sku-properties`, also known as [product options](https://help.webflow.com/hc/en-us/articles/33961334531347-Create-product-options-and-variants). For example, a T-shirt product may have a 'color' `sku-property`, with a list of enum values: red, yellow, and blue, another `sku-property` may be 'size', with a list of enum values: small, medium, and large. - Once, a product is created with a list of `sku-properties`, Webflow will create a **default SKU**, which is always a combination of the first `enum` values of each `sku-property`. (e.g. Small - Red - T-Shirt) - After creation, you can create additional SKUs for the product, using the [Create SKUs endpoint.](/data/reference/ecommerce/products/create-sku) Upon creation, the default product type will be `Advanced`, which ensures all Product and SKU fields will be shown to users in the Designer. Required scope | `ecommerce:write`. Required: site_id, product, sku. Optional: publishStatus (default: staging). Returns array of ProductsCreateItem.",
+      "method": "POST",
+      "path": "/sites/{site_id}/products",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "product-field-data-category",
+          "wire_name": "product.fieldData.category",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The category your product belongs to."
+        },
+        {
+          "name": "product-field-data-default-sku",
+          "wire_name": "product.fieldData.default-sku",
+          "type": "string",
+          "location": "body",
+          "description": "The default SKU associated with this product."
+        },
+        {
+          "name": "product-field-data-description",
+          "wire_name": "product.fieldData.description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of your product"
+        },
+        {
+          "name": "product-field-data-ec-product-type",
+          "wire_name": "product.fieldData.ec-product-type",
+          "type": "string",
+          "location": "body",
+          "description": "Product types. Enums reflect the following values in order: Physical, Digital, Service, Advanced'"
+        },
+        {
+          "name": "product-field-data-name",
+          "wire_name": "product.fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Product"
+        },
+        {
+          "name": "product-field-data-shippable",
+          "wire_name": "product.fieldData.shippable",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Product is shippable"
+        },
+        {
+          "name": "product-field-data-sku-properties",
+          "wire_name": "product.fieldData.sku-properties",
+          "type": "array",
+          "location": "body",
+          "description": "Variant types to include in SKUs"
+        },
+        {
+          "name": "product-field-data-slug",
+          "wire_name": "product.fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Product in your site."
+        },
+        {
+          "name": "product-field-data-tax-category",
+          "wire_name": "product.fieldData.tax-category",
+          "type": "string",
+          "location": "body",
+          "description": "Product tax class"
+        },
+        {
+          "name": "publishStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Indicate whether your Product should be set as 'staging' or 'live'"
+        },
+        {
+          "name": "sku-field-data-ec-sku-billing-method",
+          "wire_name": "sku.fieldData.ec-sku-billing-method",
+          "type": "string",
+          "location": "body",
+          "description": "[Billing method](https://help.webflow.com/hc/en-us/articles/33961432087955-Add-and-manage-products-and-categories#billing-methods)for the SKU"
+        },
+        {
+          "name": "sku-field-data-main-image",
+          "wire_name": "sku.fieldData.main-image",
+          "type": "string",
+          "location": "body",
+          "description": "The URL for the main image of the SKU"
+        },
+        {
+          "name": "sku-field-data-name",
+          "wire_name": "sku.fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Product",
+          "required": true
+        },
+        {
+          "name": "sku-field-data-sku",
+          "wire_name": "sku.fieldData.sku",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier for the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-properties",
+          "wire_name": "sku.fieldData.sku-properties",
+          "type": "array",
+          "location": "body",
+          "description": "The properties of the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-values",
+          "wire_name": "sku.fieldData.sku-values",
+          "type": "object",
+          "location": "body",
+          "description": "A mapping between SKU properties and their values, represented as key-value pairs. Each key represents a SKU Property ID (e.g. 'color') and maps to its corresponding SKU Value ID (e.g. 'blue'). This structure defines the specific variant combination for a SKU."
+        },
+        {
+          "name": "sku-field-data-slug",
+          "wire_name": "sku.fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Product in your site.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_products_create-skus",
+      "description": "Create additional SKUs to manage every [option and variant of your Product.](https://help.webflow.com/hc/en-us/articles/33961334531347-Create-product-options-and-variants) Creating SKUs through the API will set the product type to `Advanced`, which ensures all Product and SKU fields will be shown to users in the Designer. Required scope | `ecommerce:write`. Required: site_id, product_id, skus. Optional: publishStatus (default: staging). Returns array of ProductsCreateSkusItem.",
+      "method": "POST",
+      "path": "/sites/{site_id}/products/{product_id}/skus",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Product",
+          "required": true
+        },
+        {
+          "name": "publishStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Indicate whether your Product should be set as 'staging' or 'live'"
+        },
+        {
+          "name": "skus",
+          "type": "array",
+          "location": "body",
+          "description": "An array of the SKU data your are adding",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_products_get",
+      "description": "Retrieve a single product by its ID. All of its SKUs will also be retrieved. Required scope | `ecommerce:read`. Required: site_id, product_id. Returns array of ProductsGetItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_products_list",
+      "description": "Retrieve all products for a site. Use `limit` and `offset` to page through all products with subsequent requests. All SKUs for each product will also be fetched and returned. The `limit`, `offset` and `total` values represent Products only and do not include any SKUs. Required scope | `ecommerce:read`. Required: site_id. Optional: offset, limit. Returns array of ProductsListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/products",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        }
+      ]
+    },
+    {
+      "name": "sites_products_update",
+      "description": "Update an existing Product. Updating an existing Product will set the product type to `Advanced`, which ensures all Product and SKU fields will be shown to users in the Designer. Required scope | `ecommerce:write`. Required: site_id, product_id. Optional: product, publishStatus (default: staging), sku. Returns the updated ProductsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Product",
+          "required": true
+        },
+        {
+          "name": "product-cms-locale-id",
+          "wire_name": "product.cmsLocaleId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the locale of the CMS item"
+        },
+        {
+          "name": "product-created-on",
+          "wire_name": "product.createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was created"
+        },
+        {
+          "name": "product-field-data-category",
+          "wire_name": "product.fieldData.category",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The category your product belongs to."
+        },
+        {
+          "name": "product-field-data-default-sku",
+          "wire_name": "product.fieldData.default-sku",
+          "type": "string",
+          "location": "body",
+          "description": "The default SKU associated with this product."
+        },
+        {
+          "name": "product-field-data-description",
+          "wire_name": "product.fieldData.description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of your product"
+        },
+        {
+          "name": "product-field-data-ec-product-type",
+          "wire_name": "product.fieldData.ec-product-type",
+          "type": "string",
+          "location": "body",
+          "description": "Product types. Enums reflect the following values in order: Physical, Digital, Service, Advanced'"
+        },
+        {
+          "name": "product-field-data-name",
+          "wire_name": "product.fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Product"
+        },
+        {
+          "name": "product-field-data-shippable",
+          "wire_name": "product.fieldData.shippable",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Product is shippable"
+        },
+        {
+          "name": "product-field-data-sku-properties",
+          "wire_name": "product.fieldData.sku-properties",
+          "type": "array",
+          "location": "body",
+          "description": "Variant types to include in SKUs"
+        },
+        {
+          "name": "product-field-data-slug",
+          "wire_name": "product.fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Product in your site."
+        },
+        {
+          "name": "product-field-data-tax-category",
+          "wire_name": "product.fieldData.tax-category",
+          "type": "string",
+          "location": "body",
+          "description": "Product tax class"
+        },
+        {
+          "name": "product-id",
+          "wire_name": "product.id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Product"
+        },
+        {
+          "name": "product-is-archived",
+          "wire_name": "product.isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Product is set to archived"
+        },
+        {
+          "name": "product-is-draft",
+          "wire_name": "product.isDraft",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean determining if the Product is set to draft"
+        },
+        {
+          "name": "product-last-published",
+          "wire_name": "product.lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last published"
+        },
+        {
+          "name": "product-last-updated",
+          "wire_name": "product.lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last updated"
+        },
+        {
+          "name": "publishStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Indicate whether your Product should be set as 'staging' or 'live'"
+        },
+        {
+          "name": "sku-cms-locale-id",
+          "wire_name": "sku.cmsLocaleId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the locale of the CMS item"
+        },
+        {
+          "name": "sku-created-on",
+          "wire_name": "sku.createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was created"
+        },
+        {
+          "name": "sku-field-data-ec-sku-billing-method",
+          "wire_name": "sku.fieldData.ec-sku-billing-method",
+          "type": "string",
+          "location": "body",
+          "description": "[Billing method](https://help.webflow.com/hc/en-us/articles/33961432087955-Add-and-manage-products-and-categories#billing-methods)for the SKU"
+        },
+        {
+          "name": "sku-field-data-main-image",
+          "wire_name": "sku.fieldData.main-image",
+          "type": "string",
+          "location": "body",
+          "description": "The URL for the main image of the SKU"
+        },
+        {
+          "name": "sku-field-data-name",
+          "wire_name": "sku.fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Product",
+          "required": true
+        },
+        {
+          "name": "sku-field-data-sku",
+          "wire_name": "sku.fieldData.sku",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier for the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-properties",
+          "wire_name": "sku.fieldData.sku-properties",
+          "type": "array",
+          "location": "body",
+          "description": "The properties of the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-values",
+          "wire_name": "sku.fieldData.sku-values",
+          "type": "object",
+          "location": "body",
+          "description": "A mapping between SKU properties and their values, represented as key-value pairs. Each key represents a SKU Property ID (e.g. 'color') and maps to its corresponding SKU Value ID (e.g. 'blue'). This structure defines the specific variant combination for a SKU."
+        },
+        {
+          "name": "sku-field-data-slug",
+          "wire_name": "sku.fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Product in your site.",
+          "required": true
+        },
+        {
+          "name": "sku-id",
+          "wire_name": "sku.id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Product"
+        },
+        {
+          "name": "sku-last-published",
+          "wire_name": "sku.lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last published"
+        },
+        {
+          "name": "sku-last-updated",
+          "wire_name": "sku.lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last updated"
+        }
+      ]
+    },
+    {
+      "name": "sites_products_update-sku",
+      "description": "Update a specified SKU. Updating an existing SKU will set the Product type to `Advanced`, which ensures all Product and SKU fields will be shown to users in the Designer. Required scope | `ecommerce:write`. Required: site_id, product_id, sku_id, sku. Optional: publishStatus (default: staging). Returns the updated ProductsUpdateSkuResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/products/{product_id}/skus/{sku_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Product",
+          "required": true
+        },
+        {
+          "name": "sku_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a SKU",
+          "required": true
+        },
+        {
+          "name": "publishStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Indicate whether your Product should be set as 'staging' or 'live'"
+        },
+        {
+          "name": "sku-cms-locale-id",
+          "wire_name": "sku.cmsLocaleId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the locale of the CMS item"
+        },
+        {
+          "name": "sku-created-on",
+          "wire_name": "sku.createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was created"
+        },
+        {
+          "name": "sku-field-data-ec-sku-billing-method",
+          "wire_name": "sku.fieldData.ec-sku-billing-method",
+          "type": "string",
+          "location": "body",
+          "description": "[Billing method](https://help.webflow.com/hc/en-us/articles/33961432087955-Add-and-manage-products-and-categories#billing-methods)for the SKU"
+        },
+        {
+          "name": "sku-field-data-main-image",
+          "wire_name": "sku.fieldData.main-image",
+          "type": "string",
+          "location": "body",
+          "description": "The URL for the main image of the SKU"
+        },
+        {
+          "name": "sku-field-data-name",
+          "wire_name": "sku.fieldData.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the Product",
+          "required": true
+        },
+        {
+          "name": "sku-field-data-sku",
+          "wire_name": "sku.fieldData.sku",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier for the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-properties",
+          "wire_name": "sku.fieldData.sku-properties",
+          "type": "array",
+          "location": "body",
+          "description": "The properties of the SKU"
+        },
+        {
+          "name": "sku-field-data-sku-values",
+          "wire_name": "sku.fieldData.sku-values",
+          "type": "object",
+          "location": "body",
+          "description": "A mapping between SKU properties and their values, represented as key-value pairs. Each key represents a SKU Property ID (e.g. 'color') and maps to its corresponding SKU Value ID (e.g. 'blue'). This structure defines the specific variant combination for a SKU."
+        },
+        {
+          "name": "sku-field-data-slug",
+          "wire_name": "sku.fieldData.slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL structure of the Product in your site.",
+          "required": true
+        },
+        {
+          "name": "sku-id",
+          "wire_name": "sku.id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Product"
+        },
+        {
+          "name": "sku-last-published",
+          "wire_name": "sku.lastPublished",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last published"
+        },
+        {
+          "name": "sku-last-updated",
+          "wire_name": "sku.lastUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "The date the Product was last updated"
+        }
+      ]
+    },
+    {
+      "name": "sites_publish_site",
+      "description": "Publishes a site or an individual page to one or more domains. If multiple individual pages are published to staging, publishing from staging to production publishes all staged changes. To publish to a specific custom domain, use the domain IDs from the [Get Custom Domains](/data/reference/sites/get-custom-domain) endpoint. You must include at least one of the `customDomains` or `publishToWebflowSubdomain` properties in the request body. To publish an individual page instead of the entire site, provide the ID of the page in the `pageId` parameter. \u003cNote title='Rate limit: 1 publish per minute'\u003eThis endpoint has a specific rate limit of one successful publish queue per minute.\u003c/Note\u003e Required scope | `sites:write`. Required: site_id. Optional: customDomains, pageId, publishToWebflowSubdomain (default: false). Returns array of PublishSiteItem.",
+      "method": "POST",
+      "path": "/sites/{site_id}/publish",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "customDomains",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of Custom Domain IDs to publish"
+        },
+        {
+          "name": "pageId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the page to publish"
+        },
+        {
+          "name": "publishToWebflowSubdomain",
+          "type": "bool",
+          "location": "body",
+          "description": "Choice of whether to publish to the default Webflow Subdomain"
+        }
+      ]
+    },
+    {
+      "name": "sites_redirects_create",
+      "description": "Add a new 301 redirection rule to a site. This endpoint allows you to define a source path (`fromUrl`) and its corresponding destination path (`toUrl`), which will dictate how traffic is rerouted on your site. This is useful for managing site changes, restructuring URLs, or handling outdated links. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `sites:write`. Required: site_id. Optional: fromUrl, id, toUrl. Returns the new RedirectsCreateResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/redirects",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "fromUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The source URL path that will be redirected."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the specific redirect rule"
+        },
+        {
+          "name": "toUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The target URL path where the user or client will be redirected."
+        }
+      ]
+    },
+    {
+      "name": "sites_redirects_delete",
+      "description": "Remove a 301 redirection rule from a site. This is useful for cleaning up outdated or unnecessary redirects, ensuring that your site's routing behavior remains efficient and up-to-date. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `sites:write`. Required: site_id, redirect_id. Returns array of RedirectsDeleteItem. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/redirects/{redirect_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "redirect_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier site redirect",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_redirects_get",
+      "description": "Fetch a list of all 301 redirect rules configured for a specific site. Use this endpoint to review, audit, or manage the redirection rules that control how traffic is rerouted on your site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `sites:read`. Required: site_id. Returns array of RedirectsGetItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/redirects",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_redirects_update",
+      "description": "Update a 301 redirection rule from a site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `sites:write`. Required: site_id, redirect_id. Optional: fromUrl, id, toUrl. Returns the updated RedirectsUpdateResponse.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/redirects/{redirect_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "redirect_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier site redirect",
+          "required": true
+        },
+        {
+          "name": "fromUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The source URL path that will be redirected."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the specific redirect rule"
+        },
+        {
+          "name": "toUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The target URL path where the user or client will be redirected."
+        }
+      ]
+    },
+    {
+      "name": "sites_registered-scripts_get-scripts",
+      "description": "Get a list of scripts that have been registered to a site. A site can have a maximum of 800 registered scripts. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:read`. Required: site_id. Returns array of RegisteredScriptsGetScriptsItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/registered_scripts",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_registered-scripts_post-hosted-script",
+      "description": "Register a hosted script to a site. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: site_id, displayName, hostedLocation, integrityHash, version. Optional: canCopy (default: false). Returns the new RegisteredScriptsPostHostedScriptResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/registered_scripts/hosted",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "canCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "Define whether the script can be copied on site duplication and transfer"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "User-facing name for the script. Must be between 1 and 50 alphanumeric characters",
+          "required": true
+        },
+        {
+          "name": "hostedLocation",
+          "type": "string",
+          "location": "body",
+          "description": "URI for an externally hosted script location",
+          "required": true
+        },
+        {
+          "name": "integrityHash",
+          "type": "string",
+          "location": "body",
+          "description": "Sub-Resource Integrity Hash",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "A Semantic Version (SemVer) string, denoting the version of the script",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_registered-scripts_post-inline-scripts",
+      "description": "Register an inline script to a site. Inline scripts are limited to 2000 characters. \u003cNote title='Script Registration'\u003e To apply a script to a site or page, the script must first be registered to a site via the [Register Script](/data/reference/custom-code/custom-code/register-hosted) endpoints. Once registered, the script can be applied to a Site or Page using the appropriate endpoints. See the documentation on [working with Custom Code](/data/docs/custom-code) for more information. \u003c/Note\u003e \u003cNote\u003eAccess to this endpoint requires a bearer token obtained from an [OAuth Code Grant Flow](/data/reference/oauth-app).\u003c/Note\u003e Required scope | `custom_code:write`. Required: site_id, displayName, sourceCode, version. Optional: canCopy (default: false), integrityHash. Returns the new RegisteredScriptsPostInlineScriptsResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/registered_scripts/inline",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "canCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "Define whether the script can be copied on site duplication and transfer"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "User-facing name for the script. Must be between 1 and 50 alphanumeric characters",
+          "required": true
+        },
+        {
+          "name": "integrityHash",
+          "type": "string",
+          "location": "body",
+          "description": "Sub-Resource Integrity Hash. Only required for externally hosted scripts (passed via hostedLocation)"
+        },
+        {
+          "name": "sourceCode",
+          "type": "string",
+          "location": "body",
+          "description": "The code to be added to the site (to be hosted by Webflow).",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "A Semantic Version (SemVer) string, denoting the version of the script",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_robots-txt_delete",
+      "description": "Remove specific rules for a user-agent in your `robots.txt` file. To delete all rules for a user-agent, provide an empty rule set. This will remove the user-agent's entry entirely, leaving it subject to your site's default crawling behavior. **Note:** Deleting a user-agent with no rules will make the user-agent's access unrestricted unless other directives apply. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `site_config:write`. Required: site_id. Optional: rules, sitemap. Returns array of RobotsTxtDeleteItem. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/robots_txt",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "rules",
+          "type": "array",
+          "location": "body",
+          "description": "List of rules for user agents."
+        },
+        {
+          "name": "sitemap",
+          "type": "string",
+          "location": "body",
+          "description": "URL to the sitemap."
+        }
+      ]
+    },
+    {
+      "name": "sites_robots-txt_get",
+      "description": "Retrieve the robots.txt configuration for various user agents. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `site_config:read`. Required: site_id. Returns array of RobotsTxtGetItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/robots_txt",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_robots-txt_replace",
+      "description": "Replace the `robots.txt` configuration for various user agents. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `site_config:write`. Required: site_id. Optional: rules, sitemap. Returns array of RobotsTxtReplaceItem.",
+      "method": "PUT",
+      "path": "/sites/{site_id}/robots_txt",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "rules",
+          "type": "array",
+          "location": "body",
+          "description": "List of rules for user agents."
+        },
+        {
+          "name": "sitemap",
+          "type": "string",
+          "location": "body",
+          "description": "URL to the sitemap."
+        }
+      ]
+    },
+    {
+      "name": "sites_robots-txt_update",
+      "description": "Update the `robots.txt` configuration for various user agents. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `site_config:write`. Required: site_id. Optional: rules, sitemap. Returns array of RobotsTxtUpdateItem.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}/robots_txt",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "rules",
+          "type": "array",
+          "location": "body",
+          "description": "List of rules for user agents."
+        },
+        {
+          "name": "sitemap",
+          "type": "string",
+          "location": "body",
+          "description": "URL to the sitemap."
+        }
+      ]
+    },
+    {
+      "name": "sites_webhooks_create",
+      "description": "Create a new Webhook. Limit of 75 registrations per `triggerType`, per site. \u003cNote\u003eAccess to this endpoint requires a bearer token from a [Data Client App](/data/docs/data-clients/getting-started).\u003c/Note\u003e Required scope | `sites:write`. Required: site_id. Optional: createdOn, filter, id (plus 5 more). Returns the new WebhooksCreateResponse.",
+      "method": "POST",
+      "path": "/sites/{site_id}/webhooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "Date the Webhook registration was created"
+        },
+        {
+          "name": "filter-name",
+          "wire_name": "filter.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the form you'd like to recieve notifications for."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Webhook registration"
+        },
+        {
+          "name": "lastTriggered",
+          "type": "string",
+          "location": "body",
+          "description": "Date the Webhook instance was last triggered"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Site the Webhook is registered in"
+        },
+        {
+          "name": "triggerType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of event that triggered the request. See the the documentation for details on [supported events](/data/reference/all-events)."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to send the Webhook payload to"
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the Workspace the Webhook is registered in"
+        }
+      ]
+    },
+    {
+      "name": "sites_webhooks_list",
+      "description": "List all App-created Webhooks registered for a given site Required scope | `sites:read`. Required: site_id. Returns array of WebhooksListItem.",
+      "method": "GET",
+      "path": "/sites/{site_id}/webhooks",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_well-known_delete",
+      "description": "Delete existing well-known files from a site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `site_config:write`. Required: site_id. Optional: fileNames. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/well_known",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "fileNames",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of file names to delete"
+        }
+      ]
+    },
+    {
+      "name": "sites_well-known_set",
+      "description": "Upload a supported well-known file to a site. The current restrictions on well-known files are as follows: - Each file must be smaller than 100kb - Less than 30 total files - Have one of the following file extensions (or no extension): `.txt`, `.json`, `.noext` \u003cNote title='.noext'\u003e `.noext` is a special file extension that removes other extensions. For example, `apple-app-site-association.noext.txt` will be uploaded as `apple-app-site-association`. Use this extension for tools that have trouble uploading extensionless files. \u003c/Note\u003e \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope: `site_config:write`. Required: site_id, fileData, fileName. Optional: contentType (default: application/json).",
+      "method": "PUT",
+      "path": "/sites/{site_id}/well_known",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Site",
+          "required": true
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "The content type of the file. Defaults to application/json"
+        },
+        {
+          "name": "fileData",
+          "type": "string",
+          "location": "body",
+          "description": "The contents of the file",
+          "required": true
+        },
+        {
+          "name": "fileName",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the file",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "token_authorized-by",
+      "description": "Information about the Authorized User Required Scope | `authorized_user:read`. Returns the TokenAuthorizedByResponse.",
+      "method": "GET",
+      "path": "/token/authorized_by",
+      "params": []
+    },
+    {
+      "name": "token_introspect",
+      "description": "Information about the authorization token \u003cNote\u003eAccess to this endpoint requires a bearer token from a [Data Client App](/data/docs/data-clients/getting-started).\u003c/Note\u003e. Returns the TokenIntrospectResponse.",
+      "method": "GET",
+      "path": "/token/introspect",
+      "params": []
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get a specific Webhook instance Required scope: `sites:read`. Required: webhook_id. Returns the WebhooksGetResponse.",
+      "method": "GET",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_remove",
+      "description": "Remove a Webhook Required scope: `sites:read`. Required: webhook_id. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_audit-logs_get-workspace",
+      "description": "Get audit logs for a workspace. \u003cWarning title='Enterprise \u0026 workspace API token only'\u003eThis endpoint requires an Enterprise workspace and a workspace token with the `workspace_activity:read` scope. Create a workspace token from your workspace dashboard integrations page to use this endpoint.\u003c/Warning\u003e Required scope | `workspace_activity:read`. Required: workspace_id_or_slug. Optional: limit, offset, sortOrder (plus 3 more). Returns array of AuditLogsGetWorkspaceItem.",
+      "method": "GET",
+      "path": "/workspaces/{workspace_id_or_slug}/audit_logs",
+      "params": [
+        {
+          "name": "workspace_id_or_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier or slug for a Workspace",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of records to be returned (max limit: 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset used for pagination if the results have more than limit records"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sorts the results by asc or desc"
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "query",
+          "description": "The event type to filter by"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "The start date to filter by"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "The end date to filter by"
+        }
+      ]
+    },
+    {
+      "name": "workspaces_sites_create",
+      "description": "Create a site. \u003cWarning title='Enterprise Only'\u003eThis endpoint requires an Enterprise workspace.\u003c/Warning\u003e Required scope | `workspace:write`. Required: workspace_id, name. Optional: parentFolderId, templateName. Returns array of SitesCreateItem.",
+      "method": "POST",
+      "path": "/workspaces/{workspace_id}/sites",
+      "params": [
+        {
+          "name": "workspace_id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a Workspace",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the site",
+          "required": true
+        },
+        {
+          "name": "parentFolderId",
+          "type": "string",
+          "location": "body",
+          "description": "MegaDodo Publications - Potential Book Ideas"
+        },
+        {
+          "name": "templateName",
+          "type": "string",
+          "location": "body",
+          "description": "The workspace or marketplace template to use"
+        }
+      ]
+    }
+  ]
+}

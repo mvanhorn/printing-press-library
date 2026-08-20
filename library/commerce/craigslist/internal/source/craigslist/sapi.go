@@ -9,6 +9,15 @@ import (
 	"strings"
 )
 
+const defaultSiteSearchDistanceMi = 60
+
+// QueryParams is the small query-parameter surface needed to apply Craigslist
+// site scoping to both url.Values and generated command parameter maps.
+type QueryParams interface {
+	Get(string) string
+	Set(string, string)
+}
+
 // SearchResults is the typed shape we extract from a sapi response. The wire format
 // is positional arrays plus shared decode tables; we expand into these structs so
 // commands and the local store work with named fields.
@@ -79,17 +88,41 @@ type rawDecode struct {
 	MinPostingID         int64             `json:"minPostingId"`
 }
 
+func (d *rawDecode) UnmarshalJSON(body []byte) error {
+	if len(body) == 0 || string(body) == "null" || body[0] != '{' {
+		*d = rawDecode{}
+		return nil
+	}
+	type rawDecodeAlias rawDecode
+	var alias rawDecodeAlias
+	if err := json.Unmarshal(body, &alias); err != nil {
+		return err
+	}
+	*d = rawDecode(alias)
+	return nil
+}
+
 // Search hits sapi.craigslist.org/web/v8/postings/search/full and returns typed results.
-// host is the area hostname (e.g. "sfbay", "nyc"); the actual API host is always sapi.craigslist.org
-// but Craigslist scopes responses by the `cc` and area-context query params plus the request's
-// implied geo. We pass site through so callers can drive cross-city fan-out.
+// site is the area hostname or abbreviation (e.g. "sfbay", "portland", "nyc").
 func (c *Client) Search(ctx context.Context, site string, q SearchQuery) (*SearchResults, error) {
 	params := q.values()
+	var err error
+	site, err = c.ApplySiteScopeParams(ctx, site, params)
+	if err != nil {
+		return nil, err
+	}
 	body, err := c.RawGet(ctx, HostSAPI, "/postings/search/full", params)
 	if err != nil {
 		return nil, err
 	}
-	return decodeSearchBody(body, site)
+	results, err := decodeSearchBody(body, site)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.enrichSearchURLs(ctx, results); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 // SearchQuery is the typed input. Cross-city callers re-use the same query against multiple sites.
@@ -104,6 +137,8 @@ type SearchQuery struct {
 	HasPic         bool
 	Postal         string
 	SearchDistance int
+	Latitude       float64
+	Longitude      float64
 	TitleOnly      bool
 	Sort           string // date|rel|priceasc|pricedsc; default rel
 	BatchSize      int    // default 360
@@ -145,6 +180,10 @@ func (q SearchQuery) values() url.Values {
 	if q.Postal != "" {
 		v.Set("postal", q.Postal)
 	}
+	if q.Latitude != 0 && q.Longitude != 0 {
+		v.Set("lat", strconv.FormatFloat(q.Latitude, 'f', -1, 64))
+		v.Set("lon", strconv.FormatFloat(q.Longitude, 'f', -1, 64))
+	}
 	if q.SearchDistance > 0 {
 		v.Set("search_distance", strconv.Itoa(q.SearchDistance))
 	}
@@ -155,6 +194,28 @@ func (q SearchQuery) values() url.Values {
 		v.Set("sort", q.Sort)
 	}
 	return v
+}
+
+func (c *Client) ApplySiteScopeParams(ctx context.Context, site string, params QueryParams) (string, error) {
+	site = strings.TrimSpace(site)
+	if site == "" {
+		return site, nil
+	}
+	area, ok, err := c.ResolveArea(ctx, site)
+	if err != nil {
+		return site, fmt.Errorf("resolve craigslist site %q: %w", site, err)
+	}
+	if !ok {
+		return site, fmt.Errorf("unknown craigslist site %q", site)
+	}
+	if params.Get("postal") == "" && (params.Get("lat") == "" || params.Get("lon") == "") {
+		params.Set("lat", strconv.FormatFloat(area.Latitude, 'f', -1, 64))
+		params.Set("lon", strconv.FormatFloat(area.Longitude, 'f', -1, 64))
+		if params.Get("search_distance") == "" {
+			params.Set("search_distance", strconv.Itoa(defaultSiteSearchDistanceMi))
+		}
+	}
+	return area.Hostname, nil
 }
 
 func decodeSearchBody(body []byte, site string) (*SearchResults, error) {
@@ -177,6 +238,7 @@ func decodeSearchBody(body []byte, site string) (*SearchResults, error) {
 		locationDescs: raw.Data.Decode.LocationDescriptions,
 		neighborhoods: raw.Data.Decode.Neighborhoods,
 		maxPostedDate: raw.Data.Decode.MaxPostedDate,
+		minPostingID:  raw.Data.Decode.MinPostingID,
 	}
 	out.Items = make([]Listing, 0, len(raw.Data.Items))
 	for _, item := range raw.Data.Items {
@@ -186,12 +248,6 @@ func decodeSearchBody(body []byte, site string) (*SearchResults, error) {
 			continue
 		}
 		l.Site = site
-		// Compose canonical URL when we know enough.
-		if l.UUID != "" && l.Slug != "" && l.PostingID > 0 {
-			// Without subarea/category abbreviation prefix we can't reconstruct the full HTML URL,
-			// but `<host>/d/<slug>/<id>.html` is also valid and redirects to the canonical form.
-			l.CanonicalURL = fmt.Sprintf("https://%s.craigslist.org/d/%s/%d.html", site, l.Slug, l.PostingID)
-		}
 		out.Items = append(out.Items, l)
 	}
 	return out, nil
@@ -202,6 +258,7 @@ type raw0Decode struct {
 	locationDescs []json.RawMessage
 	neighborhoods []json.RawMessage
 	maxPostedDate int64
+	minPostingID  int64
 }
 
 // decodeItem expands one positional-array item into a typed Listing.
@@ -227,8 +284,13 @@ func decodeItem(raw json.RawMessage, decode *raw0Decode) (Listing, error) {
 		return Listing{}, fmt.Errorf("item has %d fields, need at least 7", len(arr))
 	}
 	var l Listing
-	if err := json.Unmarshal(arr[0], &l.PostingID); err != nil {
+	var postingOffset int64
+	if err := json.Unmarshal(arr[0], &postingOffset); err != nil {
 		return Listing{}, fmt.Errorf("postingId: %w", err)
+	}
+	l.PostingID = postingOffset
+	if decode.minPostingID > 0 {
+		l.PostingID = decode.minPostingID + postingOffset
 	}
 	_ = json.Unmarshal(arr[1], &l.PostedDelta)
 	_ = json.Unmarshal(arr[2], &l.CategoryID)
@@ -288,6 +350,36 @@ func decodeItem(raw json.RawMessage, decode *raw0Decode) (Listing, error) {
 		}
 	}
 	return l, nil
+}
+
+func (c *Client) enrichSearchURLs(ctx context.Context, results *SearchResults) error {
+	categories, err := c.cachedCategoryAbbrs(ctx)
+	if err != nil {
+		return fmt.Errorf("resolve craigslist categories: %w", err)
+	}
+	enrichSearchURLsWithCategories(results, categories)
+	return nil
+}
+
+func enrichSearchURLsWithCategories(results *SearchResults, categories map[int]string) {
+	if results == nil {
+		return
+	}
+	for i := range results.Items {
+		item := &results.Items[i]
+		category := categories[item.CategoryID]
+		item.CanonicalURL = listingURL(item.Site, item.Subarea, category, item.Slug, item.PostingID)
+	}
+}
+
+func listingURL(site, subarea, category, slug string, postingID int64) string {
+	if site == "" || category == "" || slug == "" || postingID <= 0 {
+		return ""
+	}
+	if subarea != "" {
+		return fmt.Sprintf("https://%s.craigslist.org/%s/%s/d/%s/%d.html", site, subarea, category, slug, postingID)
+	}
+	return fmt.Sprintf("https://%s.craigslist.org/%s/d/%s/%d.html", site, category, slug, postingID)
 }
 
 // parseLocation extracts subarea+neighborhood+lat+lng from "<areaIdx>:<subIdx>:<nbhIdx>~<lat>~<lng>".

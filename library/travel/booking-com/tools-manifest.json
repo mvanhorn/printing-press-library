@@ -1,0 +1,549 @@
+{
+  "api_name": "booking-com",
+  "base_url": "https://www.booking.com",
+  "description": "Booking.com hotel search, detail, reviews, trips, wishlist, and rewards from the terminal. Local SQLite price history and cheapest-dates sweep no other Booking.com tool ships.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookies": [
+      "aws-waf-token",
+      "bkng",
+      "bkng_sso_session",
+      "cgumid",
+      "bkng_prue"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "attractions_get",
+      "description": "Fetch full attraction detail (description, inclusions, duration options, meeting point, cancellation policy, reviews summary). Required: country, slug. Returns the AttractionDetail.",
+      "method": "GET",
+      "path": "/attractions/{country}/{slug}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter country code.",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Attraction slug from `attractions search` (e.g. prjyfitkuhfz-one-day-admission-to-disneylandr-paris).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attractions_search",
+      "description": "Search attractions in a city. Returns SSR-extracted activity cards with price, rating, and product slug. Use `attractions get \u003ccountry\u003e \u003cslug\u003e` for full activity detail. Required: country, city. Optional: from, to, currency.",
+      "method": "GET",
+      "path": "/attractions/searchresults/{country}/{city}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter country code (e.g. fr).",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "path",
+          "description": "City slug (lowercase, hyphenated, e.g. paris).",
+          "required": true
+        },
+        {
+          "name": "from",
+          "wire_name": "from_date",
+          "type": "string",
+          "location": "query",
+          "description": "Activity date window start YYYY-MM-DD.",
+          "aliases": [
+            "from-date"
+          ]
+        },
+        {
+          "name": "to",
+          "wire_name": "to_date",
+          "type": "string",
+          "location": "query",
+          "description": "Activity date window end YYYY-MM-DD.",
+          "aliases": [
+            "to-date"
+          ]
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO currency code (default USD)."
+        }
+      ]
+    },
+    {
+      "name": "cars_list",
+      "description": "Read the car-rental landing page: featured deals, supported suppliers, and supported city-level pickup locations. Does NOT return live search results -- Booking.com cars does not support deep-link search URLs, so live pricing requires the web UI. Use this command to enumerate suppliers and locations, then direct the user to the Booking cars page for booking. Returns the CarsLanding.",
+      "method": "GET",
+      "path": "/cars/index.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "destinations_autocomplete",
+      "description": "Trigger Booking.com's destination resolver by posting a search with `ss=\u003ctext\u003e` and parsing the destination context the SSR HTML returns (dest_id, dest_type, country, urlname). Use this once per destination, then cache the result for subsequent search/cheapest-dates commands. Required: query. Optional: lang.",
+      "method": "GET",
+      "path": "/searchresults.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "ss",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text destination (city, region, neighborhood, landmark).",
+          "required": true,
+          "aliases": [
+            "ss"
+          ]
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Booking language code (default en-us)."
+        }
+      ]
+    },
+    {
+      "name": "flights_search",
+      "description": "Search flights between two IATA airport codes. Returns SSR-extracted flight cards with carrier, times, layovers, and price for the requested date range and cabin class. Required: origin, destination, depart. Optional: return-date, trip-type, adults (plus 4 more).",
+      "method": "GET",
+      "path": "/flights/{origin}-{destination}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "path",
+          "description": "Origin IATA airport code (e.g. JFK).",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "path",
+          "description": "Destination IATA airport code (e.g. CDG).",
+          "required": true
+        },
+        {
+          "name": "depart",
+          "type": "string",
+          "location": "query",
+          "description": "Departure date YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "return-date",
+          "wire_name": "return",
+          "type": "string",
+          "location": "query",
+          "description": "Return date YYYY-MM-DD (round-trip only).",
+          "aliases": [
+            "return"
+          ]
+        },
+        {
+          "name": "trip-type",
+          "wire_name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Trip type: ROUNDTRIP, ONEWAY, MULTICITY (default ROUNDTRIP).",
+          "aliases": [
+            "type"
+          ]
+        },
+        {
+          "name": "adults",
+          "type": "int",
+          "location": "query",
+          "description": "Adult passengers (default 1)."
+        },
+        {
+          "name": "cabin",
+          "wire_name": "cabinClass",
+          "type": "string",
+          "location": "query",
+          "description": "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST (default ECONOMY).",
+          "aliases": [
+            "cabin-class"
+          ]
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort: BEST, CHEAPEST, FASTEST, EARLIEST (default BEST)."
+        },
+        {
+          "name": "stops",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stops: NONE, ONE, TWO_PLUS."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO currency code (default USD)."
+        }
+      ]
+    },
+    {
+      "name": "hotels_get",
+      "description": "Fetch full hotel detail for a given country code + property slug. Parses Booking.com's JSON-LD Hotel schema for name, rating, review count, address, geo coordinates, and amenity highlights. Pass dates + guest count to get the live nightly price displayed for that stay. Required: country, slug. Optional: checkin, checkout, adults (plus 3 more). Returns the Property.",
+      "method": "GET",
+      "path": "/hotel/{country}/{slug}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter country code (e.g. fr, us, gb).",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Hotel URL slug (e.g. auliviaopera).",
+          "required": true
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date YYYY-MM-DD (controls displayed price)."
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date YYYY-MM-DD."
+        },
+        {
+          "name": "adults",
+          "wire_name": "group_adults",
+          "type": "int",
+          "location": "query",
+          "description": "Adult guests (default 2).",
+          "aliases": [
+            "group-adults"
+          ]
+        },
+        {
+          "name": "children",
+          "wire_name": "group_children",
+          "type": "int",
+          "location": "query",
+          "description": "Child guests.",
+          "aliases": [
+            "group-children"
+          ]
+        },
+        {
+          "name": "rooms",
+          "wire_name": "no_rooms",
+          "type": "int",
+          "location": "query",
+          "description": "Rooms requested (default 1).",
+          "aliases": [
+            "no-rooms"
+          ]
+        },
+        {
+          "name": "currency",
+          "wire_name": "selected_currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 4217 currency code (default USD).",
+          "aliases": [
+            "selected-currency"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hotels_list",
+      "description": "Search Booking.com hotels by destination + dates + guests + filters. Returns SSR-extracted property cards. Combine with `prices cheapest` (transcendence) to sweep nightly prices across a date window. Required: query. Optional: dest_id, dest_type, checkin (plus 9 more).",
+      "method": "GET",
+      "path": "/searchresults.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "ss",
+          "type": "string",
+          "location": "query",
+          "description": "Destination (city name, region, hotel name) or use `dest_id` after autocomplete.",
+          "required": true,
+          "aliases": [
+            "ss"
+          ]
+        },
+        {
+          "name": "dest_id",
+          "type": "string",
+          "location": "query",
+          "description": "Booking.com numeric destination id (from `destinations autocomplete`)."
+        },
+        {
+          "name": "dest_type",
+          "type": "string",
+          "location": "query",
+          "description": "Destination type tag from autocomplete (city, region, district, landmark, airport, hotel)."
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date YYYY-MM-DD (defaults to tomorrow if absent)."
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date YYYY-MM-DD (defaults to checkin+1 if absent)."
+        },
+        {
+          "name": "adults",
+          "wire_name": "group_adults",
+          "type": "int",
+          "location": "query",
+          "description": "Number of adult guests (default 2).",
+          "aliases": [
+            "group-adults"
+          ]
+        },
+        {
+          "name": "children",
+          "wire_name": "group_children",
+          "type": "int",
+          "location": "query",
+          "description": "Number of child guests (default 0).",
+          "aliases": [
+            "group-children"
+          ]
+        },
+        {
+          "name": "rooms",
+          "wire_name": "no_rooms",
+          "type": "int",
+          "location": "query",
+          "description": "Number of rooms requested (default 1).",
+          "aliases": [
+            "no-rooms"
+          ]
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset, increments of 25 (default 0)."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: popularity, price, review_score_and_price, distance_from_search, class, class_asc, bayesian_review_score (default popularity)."
+        },
+        {
+          "name": "nflt",
+          "type": "string",
+          "location": "query",
+          "description": "Booking filter expression, e.g. `class=4;ht_id=204;review_score=80` (joined by semicolons)."
+        },
+        {
+          "name": "currency",
+          "wire_name": "selected_currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 4217 currency code for displayed prices (default USD).",
+          "aliases": [
+            "selected-currency"
+          ]
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Booking language code (default en-us)."
+        }
+      ]
+    },
+    {
+      "name": "map_markers",
+      "description": "Fetch map-marker data for a destination + date range: per-property latitude, longitude, summary price, and rating. Lighter payload than the full search; useful for spatial filtering before pulling detail. Optional: query, dest_id, dest_type (plus 5 more). Returns array of MapMarker.",
+      "method": "POST",
+      "path": "/dml/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "ss",
+          "type": "string",
+          "location": "body",
+          "description": "Destination (city, region, landmark).",
+          "aliases": [
+            "ss"
+          ]
+        },
+        {
+          "name": "dest_id",
+          "type": "string",
+          "location": "body",
+          "description": "Booking destination id (from autocomplete)."
+        },
+        {
+          "name": "dest_type",
+          "type": "string",
+          "location": "body",
+          "description": "Destination type tag (city, region, district, landmark, airport, hotel)."
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "body",
+          "description": "Check-in date YYYY-MM-DD."
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "body",
+          "description": "Check-out date YYYY-MM-DD."
+        },
+        {
+          "name": "adults",
+          "wire_name": "group_adults",
+          "type": "int",
+          "location": "body",
+          "description": "Adult guests.",
+          "aliases": [
+            "group-adults"
+          ]
+        },
+        {
+          "name": "rooms",
+          "wire_name": "no_rooms",
+          "type": "int",
+          "location": "body",
+          "description": "Rooms requested.",
+          "aliases": [
+            "no-rooms"
+          ]
+        },
+        {
+          "name": "currency",
+          "wire_name": "selected_currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO currency.",
+          "aliases": [
+            "selected-currency"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "Paginated reviews for a hotel. Returns review text, score, traveler type, language, stay date, and reviewer country. Supports score-band, language, and traveler-type filters. Required: slug, country. Optional: page, page-size, order (plus 3 more).",
+      "method": "GET",
+      "path": "/reviewlist.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "wire_name": "pagename",
+          "type": "string",
+          "location": "query",
+          "description": "Hotel slug (the `auliviaopera` part of /hotel/fr/auliviaopera.html).",
+          "required": true,
+          "aliases": [
+            "pagename"
+          ]
+        },
+        {
+          "name": "country",
+          "wire_name": "cc1",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code matching the hotel URL.",
+          "required": true,
+          "aliases": [
+            "cc1"
+          ]
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Review page number (1-indexed)."
+        },
+        {
+          "name": "page-size",
+          "wire_name": "rows",
+          "type": "int",
+          "location": "query",
+          "description": "Reviews per page (Booking default 25).",
+          "aliases": [
+            "rows"
+          ]
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort: featuredreviews, newest_first, oldest_first, scoredesc, scoreasc."
+        },
+        {
+          "name": "score-band",
+          "wire_name": "review_score_filter",
+          "type": "string",
+          "location": "query",
+          "description": "Score band filter: wonderful, good, ok, poor, very_poor.",
+          "aliases": [
+            "review-score-filter"
+          ]
+        },
+        {
+          "name": "language",
+          "wire_name": "review_lang",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter review language filter.",
+          "aliases": [
+            "review-lang"
+          ]
+        },
+        {
+          "name": "traveler-type",
+          "wire_name": "customer_type",
+          "type": "string",
+          "location": "query",
+          "description": "Traveler type filter: solo, couple, family_with_young_children, family_with_older_children, group_of_friends, group, business.",
+          "aliases": [
+            "customer-type"
+          ]
+        }
+      ]
+    }
+  ]
+}

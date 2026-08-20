@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-odata-rowversion-filter-validation",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Validate rowVersion inputs before adding them to generated OData filters.",
+  "reason": "RowVersion filters should reject non-numeric input instead of echoing invalid OData expressions.",
+  "files": [
+    "internal/cli/r365_odata.go",
+    "internal/cli/r365_odata_test.go"
+  ],
+  "validated_outcome": "Focused Go regression tests covered rejection of invalid backfill watermark and deleted-records rowVersion input."
+}

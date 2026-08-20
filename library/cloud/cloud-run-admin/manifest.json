@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "cloud-run-admin-pp-mcp",
+  "display_name": "Cloud Run Admin",
+  "version": "4.0.1",
+  "description": "Cloud Run Admin API for deploying and managing serverless container services, revisions, jobs, and executions",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cloud-run-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cloud-run-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOUD_RUN_ADMIN_OAUTH2C": "${user_config.cloud_run_admin_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "cloud_run_admin_oauth2c": {
+      "type": "string",
+      "title": "CLOUD_RUN_ADMIN_OAUTH2C",
+      "description": "Sets CLOUD_RUN_ADMIN_OAUTH2C for the Cloud Run Admin MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

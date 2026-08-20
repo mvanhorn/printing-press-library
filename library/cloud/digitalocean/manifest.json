@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "digitalocean-pp-mcp",
+  "display_name": "DigitalOcean",
+  "version": "4.2.1",
+  "description": "Cloud infrastructure and developer platform API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/digitalocean-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/digitalocean-pp-mcp",
+      "args": [],
+      "env": {
+        "DIGITALOCEAN_BEARER_AUTH": "${user_config.digitalocean_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "digitalocean_bearer_auth": {
+      "type": "string",
+      "title": "DIGITALOCEAN_BEARER_AUTH",
+      "description": "Sets DIGITALOCEAN_BEARER_AUTH for the DigitalOcean MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

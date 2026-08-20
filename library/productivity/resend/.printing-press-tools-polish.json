@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-14T21:11:42.929232Z",
+  "cli_dir": "\u003ccli-dir\u003e/resend-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-14T21:11:42.929233Z"
+  }
+}

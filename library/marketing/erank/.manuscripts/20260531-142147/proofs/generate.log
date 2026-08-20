@@ -1,0 +1,11 @@
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS erank-pp-cli --help
+PASS erank-pp-cli version
+PASS erank-pp-cli doctor
+Generated erank at /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli
+Bundled /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/build/erank-pp-mcp-darwin-arm64.mcpb

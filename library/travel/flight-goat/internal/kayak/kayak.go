@@ -24,6 +24,16 @@ const (
 		"(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 )
 
+// PATCH(library): retired IATA codes that the gflights package also remaps.
+// Duplicated here (rather than imported) because the gflights -> kayak
+// import direction is the established one in this CLI and we don't want
+// kayak depending on gflights. Keep this table in sync with
+// internal/gflights/airport_alias.go.
+var retiredAirportAliases = map[string]string{
+	"PNH": "KTI",
+	"REP": "SAI",
+}
+
 // Route is one nonstop destination from an origin airport.
 // Field names match Kayak's own internal shape so we can unmarshal directly.
 type Route struct {
@@ -58,10 +68,19 @@ func New() *Client {
 
 // Direct fetches nonstop routes from an origin IATA code.
 // Returns the parsed Route slice along with the raw HTML length for debugging.
+//
+// PATCH(library): retired IATA codes (PNH, REP, ...) remap to the current
+// code before the URL is built. Kayak indexes by current codes only, so a
+// request to /direct/PNH today returns nothing; substituting to /direct/KTI
+// fixes Cambodia exploration. The retiredAirportCode helper lives in this
+// package to avoid an import cycle on internal/gflights.
 func (c *Client) Direct(origin string) ([]Route, error) {
 	origin = strings.ToUpper(strings.TrimSpace(origin))
 	if len(origin) < 3 || len(origin) > 4 {
 		return nil, fmt.Errorf("invalid airport code %q (expected 3-4 letter IATA)", origin)
+	}
+	if current, ok := retiredAirportAliases[origin]; ok {
+		origin = current
 	}
 	url := fmt.Sprintf("%s/%s", c.BaseURL, origin)
 	req, err := http.NewRequest("GET", url, nil)

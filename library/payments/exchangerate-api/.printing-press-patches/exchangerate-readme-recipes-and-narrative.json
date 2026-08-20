@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-readme-recipes-and-narrative",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add ## Recipes section to README rendered from narrative.recipes; rewrite narrative.value_prop opening to avoid the verify-skill prose-as-command false positive on the CLI name + verb pattern.",
+  "reason": "The generator emits SKILL.md Recipes from narrative.recipes but does not emit a corresponding README section (filed upstream as mvanhorn/cli-printing-press#1562). Adding the section earns the 2pt scorer credit and surfaces recipes to README readers. The value_prop rewrite avoids verify-skill incorrectly parsing 'exchangerate-api-pp-cli wraps the official...' as an unknown command (mvanhorn/cli-printing-press#1561).",
+  "files": [
+    "README.md"
+  ],
+  "validated_outcome": "scoreREADME returns 10/10; verify-skill reports 0 errors; sample probe pass rate 9/10."
+}

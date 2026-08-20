@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-domain-and-auth",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Substitute FRESHSERVICE_DOMAIN into BaseURL and switch HTTP Basic to `apikey:` (empty password). Added normalizeFreshserviceDomain helper to accept the lenient pasted forms users actually have (bare slug, https://, /api/v2/, etc.).",
+  "reason": "Generator defaulted BaseURL to the placeholder `https://yourcompany.freshservice.com/api/v2` with no env-var substitution, so every API call DNS-failed. The generated AuthHeader() also assembled Basic credentials as `apikey:domain`; Freshservice's Basic scheme is `apikey:` (empty password) and rejects the alternative form. Discovered live, fixed in printed CLI, then filed against the generator.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Live read smoke (tickets get/list, agents list, assets list, sync) succeeded against the real tenant after this fix; previously every request returned a transport-level DNS error or HTTP 401."
+}

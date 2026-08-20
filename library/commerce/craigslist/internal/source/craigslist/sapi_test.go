@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -46,8 +45,13 @@ func TestDecodeSearchBody_ipadFixture(t *testing.T) {
 	if first.PostingID == 0 {
 		t.Error("first item PostingID zero")
 	}
-	if first.CanonicalURL == "" || !strings.HasPrefix(first.CanonicalURL, "https://sfbay.craigslist.org/") {
-		t.Errorf("first item CanonicalURL unexpected: %q", first.CanonicalURL)
+	if got, want := first.PostingID, int64(7915891289); got != want {
+		t.Errorf("first item PostingID: got %d, want %d", got, want)
+	}
+	enrichSearchURLsWithCategories(results, map[int]string{first.CategoryID: "ele"})
+	first = results.Items[0]
+	if got, want := first.CanonicalURL, "https://sfbay.craigslist.org/sfc/ele/d/san-francisco-apple-smart-folio-for/7915891289.html"; got != want {
+		t.Errorf("first item CanonicalURL: got %q, want %q", got, want)
 	}
 	// Most listings should have at least one image.
 	withImages := 0
@@ -58,6 +62,17 @@ func TestDecodeSearchBody_ipadFixture(t *testing.T) {
 	}
 	if withImages < len(results.Items)/2 {
 		t.Errorf("expected >50%% of items to have images, got %d/%d", withImages, len(results.Items))
+	}
+}
+
+func TestDecodeSearchBody_emptyScalarDecode(t *testing.T) {
+	body := []byte(`{"apiVersion":8,"data":{"apiVersion":8,"categoryAbbr":"sss","canonicalUrl":"//sfbay.craigslist.org/search/sss?query=missing","decode":0,"items":[],"totalResultCount":0},"errors":[]}`)
+	results, err := decodeSearchBody(body, "sfbay")
+	if err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(results.Items) != 0 {
+		t.Fatalf("items: got %d, want 0", len(results.Items))
 	}
 }
 
@@ -90,6 +105,8 @@ func TestSearchQueryValues_filters(t *testing.T) {
 		HasPic:         true,
 		Postal:         "94110",
 		SearchDistance: 25,
+		Latitude:       37.7749,
+		Longitude:      -122.4194,
 		TitleOnly:      true,
 		Sort:           "date",
 		Page:           2,
@@ -110,6 +127,9 @@ func TestSearchQueryValues_filters(t *testing.T) {
 	if v.Get("postal") != "94110" {
 		t.Errorf("postal: %q", v.Get("postal"))
 	}
+	if v.Get("lat") != "37.7749" || v.Get("lon") != "-122.4194" {
+		t.Errorf("lat/lon: %q/%q", v.Get("lat"), v.Get("lon"))
+	}
 	if v.Get("search_distance") != "25" {
 		t.Errorf("search_distance: %q", v.Get("search_distance"))
 	}
@@ -118,6 +138,14 @@ func TestSearchQueryValues_filters(t *testing.T) {
 	}
 	if v.Get("batch") != "2-0-360-0-0" {
 		t.Errorf("batch on page 2: %q", v.Get("batch"))
+	}
+}
+
+func TestListingURL(t *testing.T) {
+	got := listingURL("portland", "mlt", "vgm", "portland-nintendo-switch", 7930350012)
+	want := "https://portland.craigslist.org/mlt/vgm/d/portland-nintendo-switch/7930350012.html"
+	if got != want {
+		t.Fatalf("listingURL: got %q, want %q", got, want)
 	}
 }
 

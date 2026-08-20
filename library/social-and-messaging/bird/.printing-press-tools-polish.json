@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-13T07:44:27.636319Z",
+  "cli_dir": "\u003ccli-dir\u003e/bird-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "reconcile",
+      "file": "sms_reconcile.go",
+      "line": 39,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Command name matches read heuristic but body mutates external state: calls runAudit() against the API for each row and optionally re-sends messages via --retry-failed. Annotation 'mcp:read-only': 'false' is explicitly set (line 51). The heuristic name match is a false positive — reconcile here means 'reconcile delivery state' which involves API calls and conditional writes, not a pure local read."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "2026-05-13T07:43:44.613132Z"
+  }
+}

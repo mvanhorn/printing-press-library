@@ -1,0 +1,3309 @@
+openapi: 3.0.3
+info:
+  title: LemmeBuyIt API
+  description: |
+    Main REST API for accessing LemMeBuyIt's aggregated retail product data.
+    Authenticate requests with the `X-API-Key` header and call the production
+    API at `https://api.lemmebuyit.com/v1`.
+
+    These docs cover direct API access only. MCP access is configured separately
+    and is not documented in this OpenAPI specification.
+  version: 1.0.0 # Corresponds to API version /v1
+  contact:
+    name: LemmeBuyIt API Support
+    url: https://www.lemmebuyit.com/developer
+    email: support@lemmebuyit.com
+
+servers:
+  - url: https://api.lemmebuyit.com/v1 # Corrected server URL
+    description: Production server
+
+# Define global tags for grouping paths
+tags:
+  - name: Retailers
+    description: Operations related to retailers and their products.
+  - name: Status
+    description: API health and status checks.
+
+# All endpoints require the X-API-Key (the live gateway returns 401 even for
+# /status, which the per-operation security blocks below omit). A global
+# security requirement makes every generated command send the key.
+security:
+  - ApiKeyAuth: []
+
+# Define reusable components like security schemes and schemas
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key # As defined in PRD
+      description: API key for authenticating direct REST API requests.
+
+  schemas:
+    # --- Error Schemas --- (Used by public API)
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: A human-readable error message.
+      required:
+        - error
+      example:
+        error: Invalid API key
+
+    # --- Basic Schemas --- (Used by public API)
+    Retailer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the retailer (e.g., 'walmart').
+          example: walmart
+        name:
+          type: string
+          description: The display name of the retailer.
+          example: Walmart
+        product_count:
+          type: integer
+          format: int64
+          description: Total number of products currently indexed for this retailer.
+          example: 115000000
+        last_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of the most recently updated product for this retailer.
+          example: "2026-05-08T12:30:00Z"
+        category:
+          type: string
+          nullable: true
+          description: The retailer's business category (e.g., 'General Merchandise', 'Footwear', 'Beauty').
+          example: "General Merchandise"
+      required:
+        - id
+        - name
+        - product_count
+
+    # --- Product Schemas --- (Used by public API)
+    Product:
+      type: object
+      description: Represents a product listing from a specific retailer.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the product within the retailer's catalog.
+          example: 123456789
+        retailer_id:
+          type: string
+          nullable: true
+          description: Retailer identifier for the product record.
+          example: "walmart"
+        unique_merchant_sku:
+          type: string
+          description: Retailer's specific Stock Keeping Unit (SKU).
+          example: "ABC-12345"
+        product_name:
+          type: string
+          description: The name or title of the product.
+          example: "Example Widget Pro (Red)"
+        product_description:
+          type: string
+          nullable: true
+          description: Detailed description of the product.
+          example: "An improved widget with advanced features..."
+        product_url:
+          type: string
+          format: url
+          nullable: true
+          description: Direct URL to the product page on the retailer's website.
+          example: "https://example-retailer.com/product/abc-12345"
+        image_url:
+          type: string
+          format: url
+          nullable: true
+          description: "URL of the primary product image. (Deprecated: use primary_image_url)"
+          example: "https://images.example-retailer.com/abc-12345.jpg"
+        primary_image_url:
+          type: string
+          nullable: true
+          description: URL of the main product image.
+          example: "https://images.example-retailer.com/main-abc-12345.jpg"
+        additional_images:
+          type: array
+          nullable: true
+          description: Array of additional product image URLs.
+          items:
+            type: string
+          example: ["https://images.example.com/product-2.jpg", "https://images.example.com/product-3.jpg"]
+        current_price:
+          type: number
+          format: double
+          nullable: true
+          description: The current selling price.
+          example: 19.99
+        original_price:
+          type: number
+          format: double
+          nullable: true
+          description: The original price before discounts (MSRP).
+          example: 24.99
+        currency:
+          type: string
+          nullable: true
+          description: Currency code (ISO 4217).
+          example: "USD"
+        discount_percentage:
+          type: number
+          format: double
+          nullable: true
+          description: Calculated discount percentage from original to current price.
+          example: 20.5
+        category:
+          type: string
+          nullable: true
+          description: Product category path or name.
+          example: "Electronics > Gadgets"
+        category_id:
+          type: string
+          nullable: true
+          description: Retailer's specific category ID.
+          example: "CAT123"
+        brand:
+          type: string
+          nullable: true
+          description: The product brand name.
+          example: "Nike"
+        manufacturer:
+          type: string
+          nullable: true
+          description: The product manufacturer.
+          example: "WidgetCorp"
+        sold_by:
+          type: string
+          nullable: true
+          description: The seller or vendor name for the product (e.g., "Walmart.com", "CREAT3D"). Indicates whether the product is sold by the retailer directly or by a third-party marketplace seller.
+          example: "Walmart.com"
+        stock_availability:
+          type: string
+          nullable: true
+          description: Stock status indicator (e.g., 'In Stock', 'Out of Stock').
+          example: "In Stock"
+        upc:
+          type: string
+          nullable: true
+          description: Universal Product Code.
+          example: "123456789012"
+        ean:
+          type: string
+          nullable: true
+          description: European Article Number.
+          example: "1234567890123"
+        mpn:
+          type: string
+          nullable: true
+          description: Manufacturer Part Number.
+          example: "WIDGET-PRO-R"
+        asins:
+          type: array
+          description: Amazon ASIN mappings associated with the retailer product.
+          items:
+            type: string
+          example: ["B0CJMX93TS", "B0CJMX93TT"]
+        subcategory:
+          type: string
+          nullable: true
+          description: Product subcategory.
+          example: "Athletic Socks"
+        in_stock:
+          type: boolean
+          nullable: true
+          description: Boolean indicating if the product is currently in stock.
+          example: true
+        gtin:
+          type: string
+          nullable: true
+          description: Global Trade Item Number.
+          example: "12345678901234"
+        model:
+          type: string
+          nullable: true
+          description: Product model name or number.
+          example: "Pro-2024"
+        condition:
+          type: string
+          nullable: true
+          description: Product condition (e.g., New, Used, Refurbished).
+          example: "New"
+        color:
+          type: string
+          nullable: true
+          description: Product color.
+          example: "Red"
+        size:
+          type: string
+          nullable: true
+          description: Product size.
+          example: "Large"
+        material:
+          type: string
+          nullable: true
+          description: Product material.
+          example: "Cotton"
+        weight:
+          type: number
+          format: double
+          nullable: true
+          description: Product weight (in product's weight unit).
+          example: 2.5
+        rating:
+          type: number
+          format: double
+          nullable: true
+          description: Average product rating (0-5 scale).
+          example: 4.2
+        review_count:
+          type: integer
+          nullable: true
+          description: Number of customer reviews.
+          example: 156
+        shipping_cost:
+          type: number
+          format: double
+          nullable: true
+          description: Shipping cost for the product.
+          example: 7.99
+        amazon_price:
+          type: number
+          format: double
+          nullable: true
+          description: Latest matched Amazon offer price for the mapped ASIN.
+          example: 27.49
+        amazon_reviews:
+          allOf:
+            - $ref: "#/components/schemas/AmazonReviews"
+          nullable: true
+        amazon_marketplace:
+          allOf:
+            - $ref: "#/components/schemas/AmazonMarketplace"
+          nullable: true
+        profitability:
+          allOf:
+            - $ref: "#/components/schemas/Profitability"
+          nullable: true
+        price_averages:
+          allOf:
+            - $ref: "#/components/schemas/PriceAverages"
+          nullable: true
+          description: |
+            Pre-computed lifetime / 30 / 90 / 180 / 365-day averages for
+            Amazon retail / 3P New / Buy Box / monthly_sold and Walmart
+            price. Populated by the daily price-history sampler — fields
+            within each window may be null until enough samples accumulate.
+        canonical_identifier:
+          type: string
+          nullable: true
+          description: Stable canonical identifier derived from internal identifier mapping.
+          example: "WM-ABC-12345"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created in the Linkscopic system.
+          example: "2024-04-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the record was last updated in the Linkscopic system.
+          example: "2024-04-20T15:00:00Z"
+        indexed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the product was last indexed into the search system.
+          example: "2024-04-20T15:05:00Z"
+
+    ShoppingProduct:
+      type: object
+      description: Shopping-safe product response returned by shopping endpoints.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the product within the retailer's catalog.
+          example: 123456789
+        retailer_id:
+          type: string
+          nullable: true
+          description: Retailer identifier for the product record.
+          example: "walmart"
+        unique_merchant_sku:
+          type: string
+          description: Retailer's specific Stock Keeping Unit (SKU).
+          example: "ABC-12345"
+        product_id:
+          type: string
+          nullable: true
+          description: Retailer product identifier when available.
+          example: "ABC-12345"
+        product_name:
+          type: string
+          description: The name or title of the product.
+          example: "Example Widget Pro (Red)"
+        name:
+          type: string
+          description: Alternate product display name when available.
+          example: "Example Widget Pro"
+        product_description:
+          type: string
+          nullable: true
+          description: Detailed description of the product.
+          example: "An improved widget with advanced features..."
+        product_url:
+          type: string
+          format: url
+          nullable: true
+          description: Shopping destination URL for the product.
+          example: "https://example-retailer.com/product/abc-12345"
+        image_url:
+          type: string
+          format: url
+          nullable: true
+          description: "URL of the primary product image. (Deprecated: use primary_image_url)"
+          example: "https://images.example-retailer.com/abc-12345.jpg"
+        primary_image_url:
+          type: string
+          nullable: true
+          description: URL of the main product image.
+          example: "https://images.example-retailer.com/main-abc-12345.jpg"
+        additional_images:
+          type: array
+          nullable: true
+          description: Array of additional product image URLs.
+          items:
+            type: string
+          example: ["https://images.example.com/product-2.jpg", "https://images.example.com/product-3.jpg"]
+        current_price:
+          type: number
+          format: double
+          nullable: true
+          description: The current selling price.
+          example: 19.99
+        original_price:
+          type: number
+          format: double
+          nullable: true
+          description: The original price before discounts.
+          example: 24.99
+        compare_at_price:
+          type: number
+          format: double
+          nullable: true
+          description: Compare-at price when supplied by the retailer.
+          example: 24.99
+        sale_price:
+          type: number
+          format: double
+          nullable: true
+          description: Sale price when supplied by the retailer.
+          example: 19.99
+        currency:
+          type: string
+          nullable: true
+          description: Currency code (ISO 4217).
+          example: "USD"
+        discount:
+          type: number
+          format: double
+          nullable: true
+          description: Discount amount from original to current price.
+          example: 5.0
+        discount_percentage:
+          type: number
+          format: double
+          nullable: true
+          description: Calculated discount percentage from original to current price.
+          example: 20.5
+        category:
+          type: string
+          nullable: true
+          description: Product category path or name.
+          example: "Electronics > Gadgets"
+        category_id:
+          type: string
+          nullable: true
+          description: Retailer's specific category ID.
+          example: "CAT123"
+        subcategory:
+          type: string
+          nullable: true
+          description: Product subcategory.
+          example: "Gadgets"
+        brand:
+          type: string
+          nullable: true
+          description: The product brand name.
+          example: "ExampleCo"
+        manufacturer:
+          type: string
+          nullable: true
+          description: The product manufacturer.
+          example: "WidgetCorp"
+        sold_by:
+          type: string
+          nullable: true
+          description: The seller or vendor name for the product.
+          example: "Example Retailer"
+        stock_availability:
+          type: string
+          nullable: true
+          description: Stock status indicator.
+          example: "In Stock"
+        in_stock:
+          type: boolean
+          nullable: true
+          description: Boolean indicating if the product is currently in stock.
+          example: true
+        upc:
+          type: string
+          nullable: true
+          description: Universal Product Code.
+          example: "123456789012"
+        ean:
+          type: string
+          nullable: true
+          description: European Article Number.
+          example: "1234567890123"
+        gtin:
+          type: string
+          nullable: true
+          description: Global Trade Item Number.
+          example: "12345678901234"
+        barcode:
+          type: string
+          nullable: true
+          description: Barcode value when available.
+          example: "123456789012"
+        mpn:
+          type: string
+          nullable: true
+          description: Manufacturer Part Number.
+          example: "WIDGET-PRO-R"
+        model:
+          type: string
+          nullable: true
+          description: Product model name or number.
+          example: "Pro-2024"
+        condition:
+          type: string
+          nullable: true
+          description: Product condition.
+          example: "New"
+        color:
+          type: string
+          nullable: true
+          description: Product color.
+          example: "Red"
+        size:
+          type: string
+          nullable: true
+          description: Product size.
+          example: "Large"
+        material:
+          type: string
+          nullable: true
+          description: Product material.
+          example: "Cotton"
+        weight:
+          type: number
+          format: double
+          nullable: true
+          description: Product weight.
+          example: 2.5
+        rating:
+          type: number
+          format: double
+          nullable: true
+          description: Average product rating.
+          example: 4.2
+        review_count:
+          type: integer
+          nullable: true
+          description: Number of customer reviews.
+          example: 156
+        shipping_cost:
+          type: number
+          format: double
+          nullable: true
+          description: Shipping cost for the product.
+          example: 7.99
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created in the Linkscopic system.
+          example: "2024-04-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the record was last updated in the Linkscopic system.
+          example: "2024-04-20T15:00:00Z"
+        indexed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the product was last indexed into the search system.
+          example: "2024-04-20T15:05:00Z"
+        price_last_changed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the product price last changed.
+          example: "2024-04-20T15:05:00Z"
+      required:
+        - id
+        - unique_merchant_sku
+        - product_name
+        - created_at
+        - updated_at
+
+    AmazonReviews:
+      type: object
+      properties:
+        count:
+          type: integer
+          nullable: true
+          example: 4187
+        stars:
+          type: number
+          format: double
+          nullable: true
+          example: 4.4
+
+    AmazonFeeBreakdown:
+      type: object
+      properties:
+        closing_fee:
+          type: number
+          format: double
+          nullable: true
+          example: 0.0
+        fulfillment_fee:
+          type: number
+          format: double
+          nullable: true
+          example: 5.22
+        referral_fee:
+          type: number
+          format: double
+          nullable: true
+          example: 4.12
+        storage_fee:
+          type: number
+          format: double
+          nullable: true
+          example: 0.18
+        total_per_unit:
+          type: number
+          format: double
+          nullable: true
+          example: 9.52
+
+    AmazonFeeInputs:
+      type: object
+      properties:
+        actual_weight_lbs:
+          type: number
+          format: double
+          nullable: true
+          example: 1.4
+        dimensional_weight_lbs:
+          type: number
+          format: double
+          nullable: true
+          example: 1.8
+        package_weight_lbs:
+          type: number
+          format: double
+          nullable: true
+          example: 1.5
+        shipping_weight_lbs:
+          type: number
+          format: double
+          nullable: true
+          example: 1.8
+        package_length_in:
+          type: number
+          format: double
+          nullable: true
+          example: 11.2
+        package_width_in:
+          type: number
+          format: double
+          nullable: true
+          example: 8.4
+        package_height_in:
+          type: number
+          format: double
+          nullable: true
+          example: 3.5
+        category:
+          type: string
+          nullable: true
+          example: "Electronics"
+        program:
+          type: string
+          nullable: true
+          example: "fba"
+        size_tier:
+          type: string
+          nullable: true
+          example: "Large Standard-Size"
+
+    AmazonMarketplace:
+      type: object
+      properties:
+        average30:
+          type: number
+          format: double
+          nullable: true
+          example: 28.12
+        average90:
+          type: number
+          format: double
+          nullable: true
+          example: 29.03
+        average180:
+          type: number
+          format: double
+          nullable: true
+          example: 30.44
+        lowest_price:
+          type: number
+          format: double
+          nullable: true
+          example: 24.99
+        highest_price:
+          type: number
+          format: double
+          nullable: true
+          example: 34.99
+        offer_count:
+          type: integer
+          nullable: true
+          example: 17
+        estimated_sales:
+          type: integer
+          nullable: true
+          example: 860
+        sales_rank:
+          type: integer
+          nullable: true
+          example: 2481
+        score:
+          type: number
+          format: double
+          nullable: true
+          example: 82.4
+        buy_box_is_amazon:
+          type: boolean
+          nullable: true
+          example: false
+        sold_by_amazon:
+          type: boolean
+          nullable: true
+          example: false
+        in_stock:
+          type: boolean
+          nullable: true
+          example: true
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-04-20T15:00:00Z"
+        brand:
+          type: string
+          nullable: true
+          example: "Nike"
+        category:
+          type: string
+          nullable: true
+          example: "Clothing"
+        color:
+          type: string
+          nullable: true
+          example: "White/Black"
+        size:
+          type: string
+          nullable: true
+          example: "Large"
+        package_quantity:
+          type: integer
+          nullable: true
+          example: 6
+        title:
+          type: string
+          nullable: true
+          example: "Nike Everyday Cushion Crew Socks"
+        variation_parent_asin:
+          type: string
+          nullable: true
+          example: "B0PARENT1234"
+        variation_title:
+          type: string
+          nullable: true
+          example: "Large / White-Black"
+
+    ProfitabilityAdjustments:
+      type: object
+      properties:
+        shipping_cost:
+          type: number
+          format: double
+          nullable: true
+          example: 1.75
+        fixed_additional_cost:
+          type: number
+          format: double
+          nullable: true
+          example: 0.5
+        percent_additional_cost:
+          type: number
+          format: double
+          nullable: true
+          example: 3.0
+
+    Profitability:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+          example: "profitable"
+        amazon_price:
+          type: number
+          format: double
+          nullable: true
+          example: 27.49
+        retailer_cost:
+          type: number
+          format: double
+          nullable: true
+          example: 13.99
+        profit_per_unit:
+          type: number
+          format: double
+          nullable: true
+          example: 4.23
+        margin:
+          type: number
+          format: double
+          nullable: true
+          example: 15.39
+        roi:
+          type: number
+          format: double
+          nullable: true
+          example: 30.24
+        adjustments:
+          allOf:
+            - $ref: "#/components/schemas/ProfitabilityAdjustments"
+          nullable: true
+
+    ProductDimensions:
+      type: object
+      description: Physical package dimensions in inches.
+      properties:
+        length_in:
+          type: number
+          format: double
+          nullable: true
+          example: 12.3
+        width_in:
+          type: number
+          format: double
+          nullable: true
+          example: 8.4
+        height_in:
+          type: number
+          format: double
+          nullable: true
+          example: 3.5
+
+    PriceWindow:
+      type: object
+      description: |
+        Lifetime + last-N-day averages for a single price metric, sampled
+        daily by the price-history pipeline. Each window is the arithmetic
+        mean of weekly samples that fall within the window relative to `as_of`.
+        Fields are null when no samples cover the window (e.g., on day 1 the
+        365-day field is unpopulated for a freshly-seen ASIN).
+      properties:
+        lifetime:
+          type: number
+          format: double
+          nullable: true
+          example: 48.20
+        last_30_days:
+          type: number
+          format: double
+          nullable: true
+          example: 49.10
+        last_90_days:
+          type: number
+          format: double
+          nullable: true
+          example: 48.50
+        last_180_days:
+          type: number
+          format: double
+          nullable: true
+          example: 47.90
+        last_365_days:
+          type: number
+          format: double
+          nullable: true
+          example: 48.20
+        as_of:
+          type: string
+          format: date
+          nullable: true
+          description: Date of the most recent sample contributing to these averages.
+          example: "2026-05-28"
+
+    MonthlySoldBlock:
+      type: object
+      description: |
+        Estimated-monthly-sold sub-block on `price_averages`. Carries the
+        current value, a percent delta against the 90-day rolling average,
+        and standard windowed means.
+      properties:
+        current:
+          type: integer
+          nullable: true
+          description: Most recent monthly-sold value at the time of sampling.
+          example: 1500
+        change_vs_90d_avg_pct:
+          type: number
+          format: double
+          nullable: true
+          description: |
+            ((current - last_90_days_avg) / last_90_days_avg) * 100.
+            Positive values indicate accelerating sales; negative values a slowdown.
+            Null when the 90-day average is unknown or zero.
+          example: 12.5
+        lifetime:
+          type: number
+          format: double
+          nullable: true
+          example: 1190.0
+        last_30_days:
+          type: number
+          format: double
+          nullable: true
+          example: 1420.0
+        last_90_days:
+          type: number
+          format: double
+          nullable: true
+          example: 1335.0
+        last_180_days:
+          type: number
+          format: double
+          nullable: true
+          example: 1280.0
+        last_365_days:
+          type: number
+          format: double
+          nullable: true
+          example: 1190.0
+        as_of:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-05-28"
+
+    PriceHistoryPoint:
+      type: object
+      description: |
+        One weekly observation in a price-history time series. Any
+        metric field may be null when the underlying source had no
+        observation that week. Amazon-side fields are Amazon retail
+        prices, third-party offer prices, the buy-box landed price,
+        manufacturer list price, plus sales rank (BSR), offer counts,
+        rating (0–5 stars), review count, and estimated monthly sold.
+      properties:
+        ts:
+          type: string
+          format: date-time
+          example: "2026-05-22T00:00:00Z"
+        amz_retail:
+          type: number
+          format: double
+          nullable: true
+          description: Amazon-as-seller retail price (USD).
+          example: 49.99
+        amz_3p_new:
+          type: number
+          format: double
+          nullable: true
+          description: Lowest 3P-New offer including shipping (USD).
+          example: 47.50
+        amz_buy_box:
+          type: number
+          format: double
+          nullable: true
+          description: Buy Box landed price (price + shipping, USD).
+          example: 49.99
+        amz_list_price:
+          type: number
+          format: double
+          nullable: true
+          description: Manufacturer suggested list price (USD).
+          example: 59.99
+        sales_rank:
+          type: integer
+          nullable: true
+          description: Amazon best-sellers rank (BSR). Lower is better.
+          example: 12543
+        offer_count_new:
+          type: integer
+          nullable: true
+          description: Number of New-condition offers active on the listing.
+          example: 8
+        offer_count_used:
+          type: integer
+          nullable: true
+          description: Number of Used-condition offers active on the listing.
+          example: 2
+        rating:
+          type: number
+          format: double
+          nullable: true
+          description: Average customer rating, 0–5 stars (one decimal).
+          example: 4.6
+        review_count:
+          type: integer
+          nullable: true
+          description: Total Amazon customer review count at sample time.
+          example: 2412
+        monthly_sold:
+          type: integer
+          nullable: true
+          description: Estimated monthly units sold at sample time.
+          example: 1500
+        walmart_price:
+          type: number
+          format: double
+          nullable: true
+          description: Walmart current price (USD) on the sample date.
+          example: 41.47
+
+    PriceHistorySeries:
+      type: object
+      description: |
+        Chart-ready price-history response. `series` is sorted ascending by `ts`;
+        weeks with no samples are omitted. `weeks_returned` may be less than
+        `weeks_requested` when the data simply hasn't accumulated yet.
+      properties:
+        retailer_id:
+          type: string
+          example: walmart
+        product_id:
+          type: string
+          example: "100000867"
+        upc:
+          type: string
+          nullable: true
+          example: "886774612614"
+        asin:
+          type: string
+          nullable: true
+          description: Resolved Amazon ASIN when the product's UPC has a mapping; otherwise null.
+          example: "B0XYZ123"
+        weeks_requested:
+          type: integer
+          example: 52
+        weeks_returned:
+          type: integer
+          example: 47
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/PriceHistoryPoint"
+
+    PriceAverages:
+      type: object
+      description: |
+        Pre-computed history averages produced by the price-history
+        sampler, attached to the underlying mapping/products doc. Each
+        sub-block carries lifetime + last-30/90/180/365-day windowed
+        means. Fields are null when the underlying retailer doesn't
+        carry that metric (e.g., a Walmart-only doc will have
+        `walmart_price` populated and all `amz_*` fields null). The
+        `PriceWindow` schema is reused as a generic numeric window;
+        not all fields are prices.
+      properties:
+        amz_retail:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Amazon-as-seller new lowest price averages (USD).
+        amz_3p_new:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Third-party merchant-fulfilled new lowest price averages (USD).
+        amz_buy_box:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Buy Box winner landed-price averages (USD).
+        amz_list_price:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Manufacturer suggested list-price averages (USD).
+        sales_rank:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: |
+            Amazon best-sellers rank (BSR) averages. Lower is better.
+            Values are integer in source samples; averages may be fractional.
+        offer_count_new:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Average number of New-condition offers observed per sample.
+        offer_count_used:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Average number of Used-condition offers observed per sample.
+        rating:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Average customer rating (0–5 stars) over the windowed observations.
+        review_count:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: |
+            Average customer review count observed per sample. Note that
+            review_count is monotonically nondecreasing, so the lifetime
+            mean trails the most-recent observation.
+        monthly_sold:
+          allOf:
+            - $ref: "#/components/schemas/MonthlySoldBlock"
+          nullable: true
+        walmart_price:
+          allOf:
+            - $ref: "#/components/schemas/PriceWindow"
+          nullable: true
+          description: Walmart current-price averages (USD).
+
+    CursorPageInfo:
+      type: object
+      properties:
+        limit_applied: # Renamed from items_per_page
+          type: integer
+          description: The actual number of items requested (limit parameter value).
+          example: 20
+        next_cursor: # Added next_cursor
+          type: string
+          nullable: true # Can be null if it's the last page
+          description: Base64-encoded cursor string containing sort values for search_after pagination. Null if there are no more results. Uses Elasticsearch search_after for efficient cursor-based pagination.
+          example: "WzEyMzQ1LDE2OTkwNjIwMDBd"
+      required:
+        - limit_applied
+
+    PageInfo:
+      type: object
+      description: DEPRECATED - Use CursorPageInfo for cursor-based pagination.
+      properties:
+        current_page:
+          type: integer
+          description: The current page number.
+          example: 1
+        items_per_page:
+          type: integer
+          description: The number of items requested per page.
+          example: 25
+        total_items:
+          type: integer
+          description: The total number of items available.
+          example: 100
+        total_pages:
+          type: integer
+          description: The total number of pages available.
+          example: 4
+      required:
+        - current_page
+        - items_per_page
+        - total_items
+        - total_pages
+
+    ProductListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        page_info:
+          $ref: "#/components/schemas/CursorPageInfo"
+        total_hits:
+          type: integer
+          description: Total number of search results found (only present for search queries)
+          example: 1250
+        took_ms:
+          type: integer
+          description: Elasticsearch query execution time in milliseconds (only present for search queries)
+          example: 45
+      required:
+        - data
+        - page_info
+      example:
+        data:
+          - id: 123456789
+            unique_merchant_sku: "ABC-12345"
+            product_name: "Example Widget Pro (Red)"
+            product_description: "An improved widget with advanced features..."
+            product_url: "https://example-retailer.com/product/abc-12345"
+            image_url: "https://images.example-retailer.com/abc-12345.jpg"
+            current_price: 19.99
+            original_price: 24.99
+            currency: "USD"
+            category: "Electronics > Gadgets"
+            category_id: "CAT123"
+            manufacturer: "WidgetCorp"
+            stock_availability: "In Stock"
+            upc: "123456789012"
+            ean: "1234567890123"
+            mpn: "WIDGET-PRO-R"
+            created_at: "2024-04-15T10:30:00Z"
+            updated_at: "2024-04-20T15:00:00Z"
+        page_info:
+          limit_applied: 25
+          next_cursor: "eyJ1cGRhdGVkX2F0IjoiMjAyNS0wNC0yMFQxNTowMDowMFoiLCJpZCI6MTIzNDV9"
+        total_hits: 1250
+        took_ms: 45
+
+    ShoppingProductListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShoppingProduct"
+        page_info:
+          $ref: "#/components/schemas/CursorPageInfo"
+        total_hits:
+          type: integer
+          description: Total number of search results found (only present for search queries)
+          example: 1250
+        took_ms:
+          type: integer
+          description: Query execution time in milliseconds (only present for search queries)
+          example: 45
+      required:
+        - data
+        - page_info
+      example:
+        data:
+          - id: 123456789
+            retailer_id: "walmart"
+            unique_merchant_sku: "ABC-12345"
+            product_id: "ABC-12345"
+            product_name: "Example Widget Pro (Red)"
+            name: "Example Widget Pro"
+            product_description: "An improved widget with advanced features..."
+            product_url: "https://example-retailer.com/product/abc-12345"
+            image_url: "https://images.example-retailer.com/abc-12345.jpg"
+            primary_image_url: "https://images.example-retailer.com/main-abc-12345.jpg"
+            additional_images:
+              - "https://images.example.com/product-2.jpg"
+            current_price: 19.99
+            original_price: 24.99
+            compare_at_price: 24.99
+            sale_price: 19.99
+            currency: "USD"
+            discount: 5.0
+            discount_percentage: 20.0
+            category: "Electronics > Gadgets"
+            category_id: "CAT123"
+            subcategory: "Gadgets"
+            brand: "ExampleCo"
+            manufacturer: "WidgetCorp"
+            sold_by: "Example Retailer"
+            stock_availability: "In Stock"
+            in_stock: true
+            upc: "123456789012"
+            ean: "1234567890123"
+            gtin: "12345678901234"
+            barcode: "123456789012"
+            mpn: "WIDGET-PRO-R"
+            model: "Pro-2024"
+            condition: "New"
+            color: "Red"
+            size: "Large"
+            material: "Cotton"
+            weight: 2.5
+            rating: 4.2
+            review_count: 156
+            shipping_cost: 7.99
+            created_at: "2024-04-15T10:30:00Z"
+            updated_at: "2024-04-20T15:00:00Z"
+            indexed_at: "2024-04-20T15:05:00Z"
+            price_last_changed_at: "2024-04-20T15:05:00Z"
+        page_info:
+          limit_applied: 25
+          next_cursor: "eyJ1cGRhdGVkX2F0IjoiMjAyNS0wNC0yMFQxNTowMDowMFoiLCJpZCI6MTIzNDV9"
+        total_hits: 1250
+        took_ms: 45
+
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        environment:
+          type: string
+        database_status:
+          type: string
+          enum: [connected, degraded, disconnected, not_configured]
+      required:
+        - status
+        - timestamp
+        - version
+        - environment
+        - database_status
+
+  # Reusable Response Components (Public API)
+  responses:
+    UnauthorizedError: # Public API Unauthorized
+      description: Unauthorized (Invalid or missing API Key).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Invalid API key
+    ForbiddenError:
+      description: Forbidden (API Key lacks permission for the requested resource/retailer).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Access denied to this retailer
+    NotFoundError:
+      description: Not Found (The requested resource, e.g., retailer or product, does not exist).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Retailer not found
+    InternalServerError: # Public API Internal Server Error
+      description: Internal Server Error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: Failed to retrieve data
+
+# Define API paths (endpoints)
+paths:
+  # --- Public API Paths ---
+  /status:
+    get:
+      tags:
+        - Status
+      summary: Service Health Check
+      description: Provides the current operational status of the API service, including database connectivity.
+      operationId: getStatus
+      responses:
+        "200":
+          description: Service is operational.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "503": # Optional if DB check fails and causes 503
+          description: Service Unavailable (e.g., database connection issue).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /retailers:
+    get:
+      tags:
+        - Retailers
+      summary: List Available Retailers
+      description: |
+        Retrieves a list of retailers that the authenticated API key has access to.
+
+        **Currently Supported Retailers (73 total):**
+        This rollout is configured in `configs/retailers.yaml` and may vary by API key permissions.
+        Use this endpoint to fetch the current retailer list available to the authenticated key.
+      operationId: listRetailers
+      security:
+        - ApiKeyAuth: [] # Requires API Key
+      responses:
+        "200":
+          description: A list of retailers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Retailer"
+              examples:
+                current_retailers:
+                  summary: Example Enabled Retailers
+                  description: Sample of enabled retailers currently supported by the API; call this endpoint for the exact retailer list available to the authenticated key
+                  value:
+                    - id: "walmart"
+                      name: "Walmart"
+                    - id: "homedepot"
+                      name: "Home Depot"
+                    - id: "target"
+                      name: "Target"
+                    - id: "ace_hardware"
+                      name: "Ace Hardware"
+                    - id: "bass_pro_shop"
+                      name: "Bass Pro Shop"
+                    - id: "belk"
+                      name: "Belk"
+                    - id: "blain_farm_fleet"
+                      name: "Blain Farm Fleet"
+                    - id: "finish_line"
+                      name: "Finish Line"
+                    - id: "gnc"
+                      name: "GNC"
+                    - id: "jd_sports"
+                      name: "JD Sports"
+                    - id: "kohls"
+                      name: "Kohl's"
+                    - id: "lego"
+                      name: "LEGO"
+                    - id: "macys"
+                      name: "Macy's"
+                    - id: "nike"
+                      name: "Nike"
+                    - id: "nordstrom"
+                      name: "Nordstrom"
+                    - id: "office_depot"
+                      name: "Office Depot"
+                    - id: "rack_room_shoes"
+                      name: "Rack Room Shoes"
+                    - id: "sams_club"
+                      name: "Sam's Club"
+                    - id: "scheels"
+                      name: "Scheels"
+                    - id: "sears"
+                      name: "Sears"
+                    - id: "sephora"
+                      name: "Sephora"
+                    - id: "shop_premium_outlets"
+                      name: "Shop Premium Outlets"
+                    - id: "soccer_com"
+                      name: "Soccer.com"
+                    - id: "tractor_supply"
+                      name: "Tractor Supply"
+                    - id: "vitacost"
+                      name: "Vitacost"
+                    - id: "walgreens"
+                      name: "Walgreens"
+                    - id: "woot"
+                      name: "Woot"
+        "401":
+          description: Unauthorized (Invalid or missing API Key).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /retailers/{retailer_id}/products:
+    get:
+      tags:
+        - Retailers
+      summary: Search/Filter Products by Retailer (Cursor Paginated)
+      description: |
+        Retrieves a paginated list of products for a specific retailer with advanced search and filtering capabilities.
+        The API searches across 115+ million products with sub-second response times.
+
+        ## Search Capabilities
+
+        ## Common Query Patterns
+
+        **Text Search with Auto-Detection (NEW!):**
+        ```
+        GET /retailers/walmart/products?search_query=Nike%20Socks
+        # Auto-detects as text search - Returns 13.6M+ Nike sock products
+
+        GET /retailers/walmart/products?search_query=gaming%20laptop&min_price=500&max_price=2000
+        # Auto-detects as text search - Gaming laptops in $500-2000 price range
+
+        GET /retailers/walmart/products?search_query=08004608232285
+        # Auto-detects as GTIN barcode - Returns specific product
+
+        GET /retailers/walmart/products?search_query=123456789012,987654321098
+        # Auto-detects as multiple GTINs - Returns products matching any barcode
+
+        GET /retailers/walmart/products?lookup_type=text&search_query=12345
+        # Force text search even for numeric queries (optional override)
+        ```
+
+        **Barcode/Identifier Lookups:**
+        ```
+        GET /retailers/walmart/products?upc=123456789012
+        # Filter by UPC barcode (exact match)
+
+        GET /retailers/walmart/products?ean=1234567890123
+        # Filter by EAN barcode (exact match)
+
+        GET /retailers/walmart/products?gtin=12345678901234&condition=New
+        # GTIN filter with condition
+
+        GET /retailers/walmart/products?mpn=WIDGET-PRO-123&brand=Acme
+        # Filter by Manufacturer Part Number with brand
+        ```
+
+        **SKU and Model Searches:**
+        ```
+        GET /retailers/walmart/products/873973300
+        # Get specific product by SKU (direct lookup endpoint)
+
+        GET /retailers/walmart/products?unique_merchant_sku=873973300
+        # Search by SKU using filter parameter
+
+        GET /retailers/walmart/products?model=iPhone-15-Pro&brand=Apple&color=Natural%20Titanium
+        # Find products by model number with attributes
+        ```
+
+        **Category & Subcategory Filtering:**
+        ```
+        GET /retailers/walmart/products?category=Clothing>Fashion%20Brands>Nike
+        # All Nike fashion products
+
+        GET /retailers/walmart/products?subcategory=Athletic%20Socks&color=Black&size=Large
+        # Black athletic socks in large size
+
+        GET /retailers/walmart/products?category=Electronics&subcategory=Gaming%20Laptops&min_price=1000
+        # Gaming laptops over $1000 in Electronics category
+        ```
+
+        **Discount & Sale Filtering (Enhanced!):**
+        ```
+        GET /retailers/walmart/products?on_sale=true&sort_by=discount_desc
+        # All sale items sorted by highest discount percentage first
+
+        GET /retailers/walmart/products?min_discount_percent=30
+        # Products with at least 30% off
+
+        GET /retailers/walmart/products?min_discount_percent=20&max_discount_percent=50
+        # Products with 20-50% discount range
+
+        GET /retailers/walmart/products?min_discount_percent=25&category=Electronics&in_stock=true
+        # Electronics with 25%+ discount that are in stock
+
+        GET /retailers/walmart/products?on_sale=true&min_discount_percent=40&sort_by=price_asc
+        # Sale items with 40%+ off, sorted by lowest price
+
+        GET /retailers/walmart/products?brand=Nike&min_discount_percent=15&max_price=100
+        # Nike products with 15%+ discount under $100
+        ```
+
+        **Advanced Multi-Parameter Filtering:**
+        ```
+        GET /retailers/walmart/products?min_price=10&max_price=50&on_sale=true&in_stock=true&currency=USD
+        # Sale items in stock between $10-50 in USD
+
+        GET /retailers/walmart/products?min_rating=4.5&min_reviews=100&max_shipping=0
+        # Highly rated products with free shipping
+
+        GET /retailers/walmart/products?material=Cotton&size=Large&color=Blue&condition=New&in_stock=true
+        # Specific product attributes with stock availability
+
+        GET /retailers/walmart/products?created_since=2025-01-01T00:00:00Z&min_rating=4.0&min_reviews=50&sort_by=created_at_desc
+        # Recently added well-reviewed products
+
+        GET /retailers/walmart/products?min_weight=1.0&max_weight=5.0&category=Sports%20%26%20Outdoors
+        # Sports equipment within specific weight range
+
+        GET /retailers/walmart/products?stock_availability=In%20Stock&max_shipping=15.99&min_reviews=10
+        # In-stock items with affordable shipping and reviews
+        ```
+
+        **Sorting Options with Examples:**
+        ```
+        GET /retailers/walmart/products?category=Electronics&sort_by=price_asc
+        # Electronics sorted by lowest price first
+
+        GET /retailers/walmart/products?on_sale=true&sort_by=discount_desc
+        # Sale items sorted by highest discount percentage first
+
+        GET /retailers/walmart/products?search_query=laptop&sort_by=price_desc
+        # Laptops sorted by highest price first
+
+        GET /retailers/walmart/products?brand=Nike&sort_by=discount_asc
+        # Nike products sorted by lowest discount first
+
+        GET /retailers/walmart/products?category=Clothing&sort_by=updated_at_desc
+        # Recently updated clothing items first
+
+        GET /retailers/walmart/products?min_rating=4.0&sort_by=created_at_desc
+        # Newest highly-rated products first
+
+        GET /retailers/walmart/products?search_query=shoes
+        # Shoes with relevance-based sorting (default when sort_by omitted)
+        ```
+
+        GET /retailers/walmart/products?search_query=laptop&sort_by=price_desc
+        # Laptops sorted by highest price (premium products first)
+        ```
+
+        ## Pagination Guide
+
+        **Efficient Cursor-Based Pagination:**
+        ```
+        # Step 1: First request (omit 'after' parameter)
+        GET /retailers/walmart/products?lookup_type=text&search_query=laptop&limit=100&sort_by=price_asc
+
+        # Response includes next_cursor: "WzU5OS45OSw3ODkxMjNd"
+
+        # Step 2: Use cursor for next page
+        GET /retailers/walmart/products?lookup_type=text&search_query=laptop&limit=100&sort_by=price_asc&after=WzU5OS45OSw3ODkxMjNd
+
+        # Step 3: Continue until next_cursor is null (last page)
+        ```
+
+        **Pagination Best Practices:**
+        - **Use consistent parameters**: Keep `search_query`, `limit`, and `sort_by` the same across requests
+        - **Handle large datasets**: Maximum 10,000 items per request - paginate for larger datasets
+        - **Performance optimization**: Smaller page sizes (25-100) provide faster response times
+        - **Error handling**: Check for 400 errors if limit exceeds 10,000
+        - **Cursor format**: Base64-encoded sort values ensure stable pagination even with data changes
+
+        **Common Pagination Patterns:**
+        - **Small previews**: `limit=10` for quick product previews
+        - **Standard browsing**: `limit=25-50` for user-facing product lists
+        - **Bulk processing**: `limit=1000-10000` for data analysis or batch operations
+        - **Real-time sync**: Use `sort_by=updated_at_desc` with pagination for incremental updates
+
+      operationId: findRetailerProductsCursor
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: |
+            The ID of the retailer. Use the `/retailers` endpoint for the full current list.
+            Examples: walmart, homedepot, target, nike, kohls, macys, nordstrom, sephora, chewy, uniqlo, carhartt, hugo_boss, alo_yoga, ariat, warby_parker, and more.
+          schema:
+            type: string
+          examples:
+            walmart:
+              summary: Walmart products
+              value: "walmart"
+              description: "Search Walmart's 115+ million product catalog"
+            homedepot:
+              summary: Home Depot products
+              value: "homedepot"
+              description: "Search Home Depot's product catalog"
+            target:
+              summary: Target products
+              value: "target"
+              description: "Search Target's product catalog"
+            ace_hardware:
+              summary: Ace Hardware products
+              value: "ace_hardware"
+              description: "Search Ace Hardware's product catalog"
+        - name: lookup_type
+          in: query
+          description: |
+            **OPTIONAL**: Type of lookup to perform when search_query is provided.
+
+            **Auto-Detection (Recommended)**: When omitted, the API automatically detects the query type:
+            - **Numeric queries** (8-14 digits): Automatically detected as GTIN search
+            - **Text queries**: Automatically detected as text search
+            - **Multiple GTINs**: Comma-separated numeric codes are detected as GTIN search
+
+            **Manual Override**: You can explicitly specify the lookup type:
+            - `gtin`: Force GTIN/UPC/EAN search mode for identifier lookups
+            - `text`: Force text search mode for name/description matching
+
+            **Examples of Auto-Detection**:
+            - `search_query=123456789012` → Auto-detected as `gtin`
+            - `search_query=Nike Shoes` → Auto-detected as `text`
+            - `search_query=123456789012,987654321098` → Auto-detected as `gtin` (multiple)
+          required: false
+          schema:
+            type: string
+            enum: [gtin, text]
+          examples:
+            auto_detection:
+              summary: Auto-detection (recommended)
+              description: "Omit lookup_type to use automatic detection based on query format"
+            gtin_override:
+              summary: Force GTIN search
+              value: gtin
+              description: "Explicitly search as GTIN/UPC/EAN codes"
+            text_override:
+              summary: Force text search
+              value: text
+              description: "Explicitly search as text in product names/descriptions"
+        - name: search_query
+          in: query
+          required: false
+          description: |
+            Search query string with automatic detection of search type.
+
+            **GTIN/Barcode Queries** (automatically detected):
+            - Single GTIN: `123456789012` (8-14 digits)
+            - Multiple GTINs: `123456789012,987654321098` (comma-separated)
+            - Max identifiers per request: 10,000 (configurable)
+            - Searches exact matches in UPC, EAN, GTIN, and MPN fields
+
+            **Text Queries** (automatically detected):
+            - Product searches: `Nike shoes`, `gaming laptop`, `coffee maker`
+            - Brand queries: `Apple`, `Samsung`, `Nike`
+            - Category searches: `wireless headphones`, `kitchen appliances`
+            - Uses fuzzy matching across names, descriptions, brands, and categories
+
+            **Auto-Detection Examples:**
+            - Brand + Product: `Nike shoes` → Text search across 13.6M+ results
+            - GTIN lookup: `123456789012` → Exact barcode match
+            - Category search: `gaming laptops` → Text search with fuzzy matching
+            - Multiple codes: `123456789012,987654321098` → Batch GTIN lookup
+          schema:
+            type: string
+          examples:
+            brand_search:
+              summary: Search for Nike products
+              value: "Nike"
+              description: "Returns 12.7M+ Nike products across all categories"
+            brand_product:
+              summary: Search for Nike socks specifically
+              value: "Nike Socks"
+              description: "Returns 13.6M+ Nike sock products with detailed information"
+            electronics:
+              summary: Search for gaming laptops
+              value: "gaming laptop"
+              description: "Find gaming laptops across different brands and price ranges"
+            appliances:
+              summary: Search for coffee makers
+              value: "coffee maker"
+              description: "Kitchen appliances - coffee makers and espresso machines"
+            clothing:
+              summary: Search for winter jackets
+              value: "winter jacket"
+              description: "Seasonal clothing items with various styles and brands"
+            accessories:
+              summary: Search for wireless headphones
+              value: "wireless headphones"
+              description: "Audio accessories with Bluetooth connectivity"
+            home_goods:
+              summary: Search for memory foam mattress
+              value: "memory foam mattress"
+              description: "Bedding and sleep products with comfort features"
+            single_gtin:
+              summary: Search by a single UPC
+              value: "123456789012"
+              description: "Direct barcode lookup for specific product identification"
+            multiple_gtins:
+              summary: Search by multiple EANs
+              value: "1234567890123,9876543210987"
+              description: "Batch lookup for multiple products by barcode"
+            lego_search:
+              summary: Search for LEGO Star Wars sets
+              value: "LEGO Star Wars"
+              description: "Find LEGO Star Wars building sets and collectibles"
+            sephora_search:
+              summary: Search for Charlotte Tilbury products
+              value: "Charlotte Tilbury"
+              description: "Luxury beauty products from Charlotte Tilbury at Sephora"
+            bass_pro_search:
+              summary: Search for fishing equipment
+              value: "fishing rod"
+              description: "Fishing rods and equipment at Bass Pro Shop"
+            joes_new_balance_outlet_search:
+              summary: Search for New Balance running shoes
+              value: "New Balance running shoes"
+              description: "Footwear search example for Joe's New Balance Outlet"
+        - name: category
+          in: query
+          required: false
+          description: |
+            Filter by product category (exact match). Categories are hierarchical with ">" separators.
+
+            **Common Categories:**
+            - "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+            - "Electronics>Computers & Tablets>Laptops"
+            - "Home & Garden>Kitchen & Dining>Small Kitchen Appliances"
+            - "Sports & Outdoors>Exercise & Fitness>Cardio Equipment"
+          schema:
+            type: string
+          examples:
+            nike_socks:
+              summary: Nike men's socks category
+              value: "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+            electronics:
+              summary: Laptop computers
+              value: "Electronics>Computers & Tablets>Laptops"
+            kitchen:
+              summary: Small kitchen appliances
+              value: "Home & Garden>Kitchen & Dining>Small Kitchen Appliances"
+            lego_category:
+              summary: LEGO Star Wars category
+              value: "Toys>Building Sets>LEGO>Star Wars"
+            sephora_category:
+              summary: Sephora makeup category
+              value: "Beauty>Makeup>Lipstick"
+            gnc_category:
+              summary: GNC vitamins category
+              value: "Health & Wellness>Supplements>Vitamins"
+            tractor_supply_category:
+              summary: Tractor Supply farm equipment
+              value: "Farm & Ranch>Livestock Supplies>Feed"
+            ace_hardware_category:
+              summary: Ace Hardware paint category
+              value: "Paint & Supplies>Interior Paint>Premium Paint"
+        - name: min_price
+          in: query
+          required: false
+          description: |
+            Filter by minimum product price. Useful for finding premium products or setting budget constraints.
+          schema:
+            type: number
+            format: float
+          examples:
+            budget_friendly:
+              summary: Products under $50
+              value: 0
+            mid_range:
+              summary: Products $50 and above
+              value: 50.00
+            premium:
+              summary: Premium products $200+
+              value: 200.00
+        - name: max_price
+          in: query
+          required: false
+          description: |
+            Filter by maximum product price. Combine with min_price for price range filtering.
+          schema:
+            type: number
+            format: float
+          examples:
+            budget_cap:
+              summary: Under $25 budget
+              value: 25.00
+            mid_range_cap:
+              summary: Under $100 range
+              value: 100.00
+            luxury_cap:
+              summary: Under $500 luxury items
+              value: 500.00
+        - name: brand
+          in: query
+          required: false
+          description: |
+            Filter by product brand (exact match). Use exact brand names as they appear in the data.
+
+            **Popular Brands Available:**
+            - Nike, Adidas, Under Armour (Sportswear)
+            - Apple, Samsung, Sony (Electronics)
+            - KitchenAid, Cuisinart, Hamilton Beach (Kitchen)
+            - Levi's, Calvin Klein, Tommy Hilfiger (Fashion)
+          schema:
+            type: string
+          examples:
+            nike:
+              summary: Nike products
+              value: "Nike"
+            apple:
+              summary: Apple products
+              value: "Apple"
+            kitchenaid:
+              summary: KitchenAid appliances
+              value: "KitchenAid"
+            dewalt:
+              summary: DEWALT power tools
+              value: "DEWALT"
+            purina:
+              summary: Purina pet products
+              value: "Purina"
+            shimano:
+              summary: Shimano fishing gear
+              value: "Shimano"
+            new_balance:
+              summary: New Balance footwear
+              value: "New Balance"
+        - name: manufacturer
+          in: query
+          required: false
+          description: |
+            Filter by product manufacturer (exact match). The manufacturer may be different from the brand in some cases.
+
+            **Common Manufacturers:**
+            - Oatey (hardware and plumbing supplies)
+            - Nike, Inc. (athletic apparel and footwear)
+            - Apple Inc. (consumer electronics)
+            - Whirlpool Corporation (home appliances)
+          schema:
+            type: string
+          examples:
+            oatey:
+              summary: Oatey products
+              value: "Oatey"
+              description: "Hardware and plumbing supplies manufacturer"
+            nike_inc:
+              summary: Nike Inc. products
+              value: "Nike"
+              description: "Athletic footwear and apparel manufacturer"
+            apple_inc:
+              summary: Apple Inc. products
+              value: "Apple"
+              description: "Consumer electronics manufacturer"
+        - name: on_sale
+          in: query
+          required: false
+          description: Filter for products that are currently on sale (current_price < original_price).
+          schema:
+            type: boolean
+            example: true
+        - name: min_discount_percent
+          in: query
+          required: false
+          description: |
+            Filter by minimum discount percentage (0-100).
+            Returns products with discount percentage greater than or equal to this value.
+            Discount is calculated as: ((original_price - current_price) / original_price) * 100
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 100
+          examples:
+            small_discount:
+              summary: Products with at least 10% off
+              value: 10.0
+            medium_discount:
+              summary: Products with at least 25% off
+              value: 25.0
+            high_discount:
+              summary: Products with at least 50% off
+              value: 50.0
+        - name: max_discount_percent
+          in: query
+          required: false
+          description: |
+            Filter by maximum discount percentage (0-100).
+            Returns products with discount percentage less than or equal to this value.
+            Useful for finding products within specific discount ranges.
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 100
+          examples:
+            under_20_percent:
+              summary: Products with less than 20% discount
+              value: 20.0
+            under_40_percent:
+              summary: Products with less than 40% discount
+              value: 40.0
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of products to return per page. Defaults to 25, max 10000. Returns 400 error if limit exceeds 10000.
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 10000
+        - name: after
+          in: query
+          required: false
+          description: |
+            **Cursor-based pagination parameter** for fetching the next page of results.
+
+            ## How to Use:
+            1. **First Request**: Omit this parameter to get the first page
+            2. **Subsequent Requests**: Use the `next_cursor` value from the previous response
+            3. **Last Page**: When `next_cursor` is `null`, you've reached the end
+
+            ## Cursor Format:
+            - Base64-encoded string containing sort values for efficient pagination
+            - Uses Elasticsearch `search_after` for consistent results
+            - Format: `[sort_value_1, sort_value_2, ...]` (price, id, etc.)
+
+            ## Example Pagination Flow:
+            ```
+            # Step 1: First page
+            GET /retailers/walmart/products?limit=10&sort_by=price_asc
+            # Returns: next_cursor = "WzE5Ljk5LDEyMzQ1Nl0="
+
+            # Step 2: Second page
+            GET /retailers/walmart/products?limit=10&sort_by=price_asc&after=WzE5Ljk5LDEyMzQ1Nl0=
+            # Returns: next_cursor = "WzI5Ljk5LDc4OTEyM10="
+
+            # Step 3: Continue until next_cursor is null
+            ```
+          schema:
+            type: string
+          examples:
+            first_page:
+              summary: First page (omit cursor)
+              description: "Start pagination by omitting the after parameter"
+            price_sort_cursor:
+              summary: Price-sorted pagination cursor
+              value: "WzE5Ljk5LDEyMzQ1Nl0="
+              description: "Base64 of [19.99, 123456] - price and product ID"
+            default_sort_cursor:
+              summary: Default sort pagination cursor
+              value: "WzAuOTUsIDI5Ljk5LCA3ODkxMjNd"
+              description: "Base64 of [0.95, 29.99, 789123] - score, price, and ID"
+        - name: sort_by
+          in: query
+          required: false
+          description: >
+            Sorting order for the results. When not specified, results are returned in the database's physical order
+            for optimal performance.
+
+            When specified, must be one of the allowed values:
+            - `price_asc`: Sort by price, lowest first
+            - `price_desc`: Sort by price, highest first
+            - `discount_asc`: Sort by discount percentage, lowest first
+            - `discount_desc`: Sort by discount percentage, highest first (best deals first)
+            - `top_seller_rank_asc`: Sort by Amazon sales rank, best rank first
+            - `updated_at_asc/desc`: Sort by last update time
+            - `created_at_asc/desc`: Sort by creation time
+
+            Note that using explicit sorting may impact query performance on large datasets.
+          schema:
+            type: string
+            enum:
+              - "price_asc"
+              - "price_desc"
+              - "discount_asc"
+              - "discount_desc"
+              - "top_seller_rank_asc"
+              - "updated_at_asc"
+              - "updated_at_desc"
+              - "created_at_asc"
+              - "created_at_desc"
+        # --- New Enhanced Query Parameters ---
+        - name: subcategory
+          in: query
+          required: false
+          description: Filter by product subcategory (exact match).
+          schema:
+            type: string
+          example: "Athletic Socks"
+        - name: currency
+          in: query
+          required: false
+          description: Filter by currency code (e.g., USD, EUR, CAD).
+          schema:
+            type: string
+          example: "USD"
+        - name: stock_availability
+          in: query
+          required: false
+          description: Filter by stock availability status.
+          schema:
+            type: string
+          example: "In Stock"
+        - name: in_stock
+          in: query
+          required: false
+          description: Filter for products that are currently in stock (boolean).
+          schema:
+            type: boolean
+          example: true
+        - name: upc
+          in: query
+          required: false
+          description: Filter by UPC barcode (exact match). Comma-separated values supported; max 10,000 (configurable).
+          schema:
+            type: string
+          example: "123456789012"
+        - name: ean
+          in: query
+          required: false
+          description: Filter by EAN barcode (exact match). Comma-separated values supported; max 10,000 (configurable).
+          schema:
+            type: string
+          example: "1234567890123"
+        - name: gtin
+          in: query
+          required: false
+          description: Filter by GTIN code (exact match). Comma-separated values supported; max 10,000 (configurable).
+          schema:
+            type: string
+          example: "12345678901234"
+        - name: asin
+          in: query
+          required: false
+          description: Filter by Amazon ASIN (exact match). Comma-separated values supported; max 10,000 (configurable).
+          schema:
+            type: string
+          example: "B0CJMX93TS,B0CJMX93TT"
+        - name: mpn
+          in: query
+          required: false
+          description: Filter by Manufacturer Part Number (exact match).
+          schema:
+            type: string
+          example: "WIDGET-PRO-123"
+        - name: unique_merchant_sku
+          in: query
+          required: false
+          description: Filter by unique merchant SKU (exact match). Comma-separated values supported; max 10,000 (configurable).
+          schema:
+            type: string
+          example: "4016285"
+        - name: model
+          in: query
+          required: false
+          description: Filter by product model (exact match).
+          schema:
+            type: string
+          example: "Pro-2024"
+        - name: condition
+          in: query
+          required: false
+          description: Filter by product condition (e.g., New, Used, Refurbished).
+          schema:
+            type: string
+          example: "New"
+        - name: color
+          in: query
+          required: false
+          description: Filter by product color (exact match).
+          schema:
+            type: string
+          example: "Red"
+        - name: size
+          in: query
+          required: false
+          description: Filter by product size (exact match).
+          schema:
+            type: string
+          example: "Large"
+        - name: material
+          in: query
+          required: false
+          description: Filter by product material (exact match).
+          schema:
+            type: string
+          example: "Cotton"
+        - name: min_weight
+          in: query
+          required: false
+          description: Filter by minimum weight (in product's weight unit).
+          schema:
+            type: number
+            format: float
+            minimum: 0
+          example: 1.5
+        - name: max_weight
+          in: query
+          required: false
+          description: Filter by maximum weight (in product's weight unit).
+          schema:
+            type: number
+            format: float
+            minimum: 0
+          example: 10.0
+        - name: min_rating
+          in: query
+          required: false
+          description: Filter by minimum product rating (0-5 scale).
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 5
+          example: 4.0
+        - name: max_rating
+          in: query
+          required: false
+          description: Filter by maximum product rating (0-5 scale).
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 5
+          example: 5.0
+        - name: min_reviews
+          in: query
+          required: false
+          description: Filter by minimum number of reviews.
+          schema:
+            type: integer
+            minimum: 0
+          example: 10
+        - name: min_sales_rank
+          in: query
+          required: false
+          description: Filter by minimum Amazon sales rank.
+          schema:
+            type: integer
+            minimum: 0
+          example: 100
+        - name: max_sales_rank
+          in: query
+          required: false
+          description: Filter by maximum Amazon sales rank.
+          schema:
+            type: integer
+            minimum: 0
+          example: 5000
+        - name: max_shipping
+          in: query
+          required: false
+          description: Filter by maximum shipping cost.
+          schema:
+            type: number
+            format: float
+            minimum: 0
+          example: 15.99
+        - name: created_since
+          in: query
+          required: false
+          description: Filter products created since this date (ISO 8601 format).
+          schema:
+            type: string
+            format: date-time
+          example: "2024-01-01T00:00:00Z"
+        - name: updated_since
+          in: query
+          required: false
+          description: Filter products updated since this date (ISO 8601 format).
+          schema:
+            type: string
+            format: date-time
+          example: "2024-01-01T00:00:00Z"
+      responses:
+        "200":
+          description: A list of products with pagination information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  page_info:
+                    $ref: "#/components/schemas/CursorPageInfo"
+                  total_hits:
+                    type: integer
+                    description: Total number of matching products (for search queries)
+                    example: 13597160
+                  took_ms:
+                    type: integer
+                    description: Search execution time in milliseconds
+                    example: 45
+              examples:
+                nike_socks_search:
+                  summary: Nike Socks Text Search
+                  description: Text search for "Nike Socks" returning 13.6M+ results with fuzzy matching
+                  value:
+                    data:
+                      - id: 226595547
+                        retailer_id: "walmart"
+                        unique_merchant_sku: "226595547"
+                        product_name: "Nike Everyday Cushion Crew Socks Unisex Nike Socks White/Black Size Large"
+                        product_description: "Men s Nike 6-Pack Everyday Cushioned Crew Training Socks Color: White Size: 8-12"
+                        current_price: 30.00
+                        currency: "USD"
+                        manufacturer: "Nike"
+                        category: "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+                        subcategory: "Athletic Socks"
+                        color: "White"
+                        size: "Large"
+                        material: "Cotton"
+                        condition: "New"
+                        in_stock: true
+                        stock_availability: "In Stock"
+                        rating: 4.3
+                        review_count: 247
+                        upc: "196607052280"
+                        asins: ["B0CJMX93TS"]
+                        amazon_price: 27.49
+                        amazon_reviews:
+                          count: 4187
+                          stars: 4.4
+                        amazon_marketplace:
+                          average30: 28.12
+                          offer_count: 17
+                          in_stock: true
+                        profitability:
+                          status: "profitable"
+                          amazon_price: 27.49
+                          retailer_cost: 18.25
+                          profit_per_unit: 2.13
+                        canonical_identifier: "WM-226595547"
+                        created_at: "2024-04-15T10:30:00Z"
+                        updated_at: "2024-04-20T15:00:00Z"
+                    page_info:
+                      limit_applied: 10
+                      next_cursor: "eyJ1cGRhdGVkX2F0IjoiMjAyNS0wNC0yMFQxNTowMDowMFoiLCJpZCI6MTIzNDV9"
+                    total_hits: 13597160
+                    took_ms: 1108
+                electronics_search:
+                  summary: Gaming Laptop Price Range Search
+                  description: Electronics search with price filtering showing enhanced product data
+                  value:
+                    data:
+                      - id: 987654321
+                        unique_merchant_sku: "ASUS-ROG-G15-2024"
+                        product_name: 'ASUS ROG Strix G15 Gaming Laptop 15.6" 144Hz RTX 3060'
+                        product_description: "High-performance gaming laptop with AMD Ryzen 7, 16GB RAM, 512GB SSD"
+                        current_price: 1299.99
+                        original_price: 1599.99
+                        currency: "USD"
+                        manufacturer: "ASUS"
+                        category: "Electronics>Computers & Tablets>Laptops>Gaming Laptops"
+                        model: "ROG-G15-2024"
+                        condition: "New"
+                        color: "Black"
+                        weight: 5.3
+                        in_stock: true
+                        stock_availability: "In Stock"
+                        rating: 4.7
+                        review_count: 892
+                        shipping_cost: 0.0
+                        gtin: "4711081948353"
+                        mpn: "G513RC-ES73"
+                        created_at: "2024-03-20T08:45:00Z"
+                        updated_at: "2024-04-22T16:30:00Z"
+                    page_info:
+                      limit_applied: 25
+                      next_cursor: "eyJjcmVhdGVkX2F0IjoiMjAyNC0wMy0yMFQwODo0NTowMFoiLCJpZCI6OTg3NjU0MzIxfQ=="
+                    total_hits: 45782
+                    took_ms: 23
+                upc_lookup:
+                  summary: UPC Barcode Lookup
+                  description: Direct UPC lookup returning specific product match
+                  value:
+                    data:
+                      - id: 123456789
+                        unique_merchant_sku: "WM-NIKE-SOCK-001"
+                        product_name: "Nike Elite Basketball Crew Socks"
+                        product_description: "Premium basketball socks with Dri-FIT technology for moisture management"
+                        current_price: 18.99
+                        original_price: 22.99
+                        currency: "USD"
+                        manufacturer: "Nike"
+                        category: "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+                        subcategory: "Basketball Socks"
+                        color: "Black"
+                        size: "Medium"
+                        material: "Polyester"
+                        condition: "New"
+                        in_stock: true
+                        stock_availability: "In Stock"
+                        rating: 4.6
+                        review_count: 156
+                        weight: 0.2
+                        shipping_cost: 5.99
+                        upc: "196607052280"
+                        ean: "0196607052280"
+                        gtin: "00196607052280"
+                        mpn: "SX7627-010"
+                        model: "Elite-Crew-2024"
+                        created_at: "2024-01-15T10:30:00Z"
+                        updated_at: "2024-04-20T15:00:00Z"
+                    page_info:
+                      limit_applied: 1
+                      next_cursor: null
+                    total_hits: 1
+                    took_ms: 12
+                ean_filter_search:
+                  summary: EAN Filter with Additional Filters
+                  description: EAN barcode filter combined with condition and brand filters
+                  value:
+                    data:
+                      - id: 555123789
+                        unique_merchant_sku: "APPLE-IPHONE15-PRO-256"
+                        product_name: "Apple iPhone 15 Pro 256GB Natural Titanium"
+                        product_description: "iPhone 15 Pro with A17 Pro chip, 48MP camera system, and titanium design"
+                        current_price: 1199.99
+                        currency: "USD"
+                        manufacturer: "Apple"
+                        category: "Electronics>Cell Phones>Smartphones>iPhone"
+                        model: "iPhone-15-Pro"
+                        condition: "New"
+                        color: "Natural Titanium"
+                        weight: 0.41
+                        in_stock: true
+                        stock_availability: "In Stock"
+                        rating: 4.8
+                        review_count: 2341
+                        shipping_cost: 0.0
+                        upc: "194253435747"
+                        ean: "0194253435747"
+                        gtin: "00194253435747"
+                        mpn: "MTV63LL/A"
+                        created_at: "2023-09-22T08:00:00Z"
+                        updated_at: "2024-04-25T12:30:00Z"
+                    page_info:
+                      limit_applied: 25
+                      next_cursor: null
+                    total_hits: 1
+                    took_ms: 8
+                advanced_filtering:
+                  summary: Advanced Multi-Parameter Filtering
+                  description: Complex query combining multiple enhanced filters for precise product discovery
+                  value:
+                    data:
+                      - id: 789654123
+                        unique_merchant_sku: "COTTON-SHIRT-LG-BLU"
+                        product_name: "Premium Cotton T-Shirt - Large Blue"
+                        product_description: "100% organic cotton t-shirt with superior comfort and durability"
+                        current_price: 24.99
+                        original_price: 29.99
+                        currency: "USD"
+                        manufacturer: "EcoWear"
+                        category: "Clothing>Mens Clothing>Tops>T-Shirts"
+                        subcategory: "Casual T-Shirts"
+                        color: "Blue"
+                        size: "Large"
+                        material: "Cotton"
+                        condition: "New"
+                        weight: 0.3
+                        in_stock: true
+                        stock_availability: "In Stock"
+                        rating: 4.5
+                        review_count: 127
+                        shipping_cost: 7.99
+                        created_at: "2024-02-10T14:20:00Z"
+                        updated_at: "2024-04-18T09:15:00Z"
+                    page_info:
+                      limit_applied: 25
+                      next_cursor: "eyJjcmVhdGVkX2F0IjoiMjAyNC0wMi0xMFQxNDoyMDowMFoiLCJpZCI6Nzg5NjU0MTIzfQ=="
+                    total_hits: 1850
+                    took_ms: 35
+                pagination_example:
+                  summary: Pagination Flow Example
+                  description: |
+                    **Complete pagination workflow** showing how to navigate through large result sets.
+
+                    **API Call Sequence:**
+                    ```
+                    # Request 1: First page
+                    GET /retailers/walmart/products?lookup_type=text&search_query=laptop&limit=5&sort_by=price_asc
+
+                    # Request 2: Second page (using next_cursor from Request 1)
+                    GET /retailers/walmart/products?lookup_type=text&search_query=laptop&limit=5&sort_by=price_asc&after=WzU5OS45OSw3ODkxMjNd
+
+                    # Request 3: Continue until next_cursor is null
+                    ```
+
+                    **Key Points:**
+                    - Always use the same `search_query`, `limit`, and `sort_by` parameters
+                    - The `next_cursor` contains sort values: `[price, product_id]`
+                    - Cursor format ensures consistent results even if data changes
+                    - Maximum 10,000 items per request, paginate for larger datasets
+                  value:
+                    data:
+                      - id: 567891234
+                        unique_merchant_sku: "BASIC-LAPTOP-001"
+                        product_name: "Budget Laptop 14-inch"
+                        current_price: 299.99
+                        currency: "USD"
+                        manufacturer: "TechBrand"
+                        category: "Electronics>Computers & Tablets>Laptops"
+                        condition: "New"
+                        in_stock: true
+                        created_at: "2024-03-01T10:00:00Z"
+                        updated_at: "2024-04-15T14:30:00Z"
+                      - id: 678912345
+                        unique_merchant_sku: "MID-LAPTOP-002"
+                        product_name: "Business Laptop 15-inch"
+                        current_price: 599.99
+                        currency: "USD"
+                        manufacturer: "ProTech"
+                        category: "Electronics>Computers & Tablets>Laptops"
+                        condition: "New"
+                        in_stock: true
+                        created_at: "2024-03-05T11:20:00Z"
+                        updated_at: "2024-04-18T16:45:00Z"
+                      - id: 789123456
+                        unique_merchant_sku: "GAMING-LAPTOP-003"
+                        product_name: "Gaming Laptop RTX 4060"
+                        current_price: 1199.99
+                        currency: "USD"
+                        manufacturer: "GameTech"
+                        category: "Electronics>Computers & Tablets>Laptops>Gaming Laptops"
+                        condition: "New"
+                        in_stock: true
+                        created_at: "2024-03-10T09:15:00Z"
+                        updated_at: "2024-04-20T12:00:00Z"
+                      - id: 891234567
+                        unique_merchant_sku: "PREMIUM-LAPTOP-004"
+                        product_name: "Workstation Laptop 17-inch"
+                        current_price: 1899.99
+                        currency: "USD"
+                        manufacturer: "WorkPro"
+                        category: "Electronics>Computers & Tablets>Laptops"
+                        condition: "New"
+                        in_stock: true
+                        created_at: "2024-03-15T13:45:00Z"
+                        updated_at: "2024-04-22T10:30:00Z"
+                      - id: 912345678
+                        unique_merchant_sku: "ULTRABOOK-005"
+                        product_name: "Ultrabook 13-inch Portable"
+                        current_price: 2299.99
+                        currency: "USD"
+                        manufacturer: "UltraTech"
+                        category: "Electronics>Computers & Tablets>Laptops"
+                        condition: "New"
+                        in_stock: true
+                        created_at: "2024-03-20T15:30:00Z"
+                        updated_at: "2024-04-25T09:00:00Z"
+                    page_info:
+                      limit_applied: 5
+                      next_cursor: "WzIyOTkuOTksOTEyMzQ1Njc4XQ=="
+                    total_hits: 45782
+                    took_ms: 23
+        "400":
+          description: Bad Request (Invalid filter parameters, search parameter combination, or limit exceeds maximum).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_min_price:
+                  summary: Example of invalid min_price
+                  value:
+                    error: "Invalid min_price format"
+                auto_detection_example:
+                  summary: Auto-detection working correctly
+                  value:
+                    message: "Query type auto-detected successfully based on format"
+                limit_exceeds_maximum:
+                  summary: Limit exceeds maximum allowed
+                  value:
+                    error: "Limit exceeds maximum allowed. Please set limit to 10000 or less."
+                    max_limit: 10000
+                invalid_lookup_type:
+                  summary: Invalid value for lookup_type
+                  value:
+                    error: "lookup_type must be either 'gtin' or 'text'"
+                missing_search_query:
+                  summary: lookup_type provided without search_query
+                  value:
+                    error: "search_query is required when lookup_type is provided"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /retailers/{retailer_id}/shopping/products:
+    get:
+      tags:
+        - Retailers
+      summary: Search Shopping Products by Retailer
+      description: |
+        Retrieves a paginated list of shopping products for a specific retailer.
+        Shopping products use a shopping-safe response contract and only include
+        products with a shopping destination URL, returned as `product_url`.
+
+        This endpoint supports the same API-key authentication, rate limiting,
+        usage tracking, and retailer authorization as retailer product endpoints.
+
+        Unsupported shopping query parameters return `400 Bad Request`:
+        - `asin`
+        - `min_sales_rank`
+        - `max_sales_rank`
+        - `sort_by=top_seller_rank_asc`
+      operationId: getRetailerShoppingProducts
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: The ID of the retailer.
+          schema:
+            type: string
+          example: "walmart"
+        - name: search_query
+          in: query
+          required: false
+          description: Text, SKU, UPC, EAN, GTIN, or MPN search query.
+          schema:
+            type: string
+          example: "Nike socks"
+        - name: lookup_type
+          in: query
+          required: false
+          description: Optional lookup mode override. Omit `lookup_type` for auto-detection.
+          schema:
+            type: string
+            enum: [gtin, text]
+        - name: unique_merchant_sku
+          in: query
+          required: false
+          description: Filter by retailer SKU.
+          schema:
+            type: string
+        - name: upc
+          in: query
+          required: false
+          description: Filter by UPC barcode.
+          schema:
+            type: string
+        - name: ean
+          in: query
+          required: false
+          description: Filter by EAN barcode.
+          schema:
+            type: string
+        - name: gtin
+          in: query
+          required: false
+          description: Filter by GTIN barcode.
+          schema:
+            type: string
+        - name: mpn
+          in: query
+          required: false
+          description: Filter by Manufacturer Part Number.
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          required: false
+          description: Minimum current price.
+          schema:
+            type: number
+            format: double
+        - name: max_price
+          in: query
+          required: false
+          description: Maximum current price.
+          schema:
+            type: number
+            format: double
+        - name: brand
+          in: query
+          required: false
+          description: Filter by brand.
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Filter by category.
+          schema:
+            type: string
+        - name: in_stock
+          in: query
+          required: false
+          description: Filter by stock status.
+          schema:
+            type: boolean
+        - name: sort_by
+          in: query
+          required: false
+          description: Sort order. `top_seller_rank_asc` is not supported by shopping endpoints.
+          schema:
+            type: string
+            enum:
+              - "relevance"
+              - "price_asc"
+              - "price_desc"
+              - "discount_desc"
+              - "discount_asc"
+              - "created_at_desc"
+              - "updated_at_desc"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of products to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+        - name: after
+          in: query
+          required: false
+          description: Cursor for the next page of results.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of shopping products with pagination information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingProductListResponse"
+        "400":
+          description: Bad Request (Invalid or unsupported query parameter).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                unsupported_shopping_parameter:
+                  summary: Unsupported Shopping Parameter
+                  value:
+                    error: "asin is not supported for shopping products"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /retailers/{retailer_id}/shopping/products/{product_id}:
+    get:
+      tags:
+        - Retailers
+      summary: Get Shopping Product Details by SKU
+      description: |
+        Retrieves a shopping product within a retailer's catalog by Unique Merchant SKU.
+        The response uses the shopping-safe response contract and includes the
+        shopping destination URL as `product_url`.
+      operationId: getRetailerShoppingProductDetailsBySKU
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: The ID of the retailer.
+          schema:
+            type: string
+          example: "walmart"
+        - name: product_id
+          in: path
+          required: true
+          description: The Unique Merchant SKU of the product.
+          schema:
+            type: string
+          example: "ABC-12345"
+      responses:
+        "200":
+          description: Detailed shopping product information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingProduct"
+        "400":
+          description: Bad Request (Invalid product ID format).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /retailers/{retailer_id}/products/{product_id}:
+    get:
+      tags:
+        - Retailers
+      summary: Get Product Details by SKU
+      description: |
+        Retrieves detailed information for a specific product within a retailer's catalog, looking up by Unique Merchant SKU.
+
+        ## Common Use Cases
+
+        **Direct Product Access:**
+        ```
+        GET /retailers/walmart/products/226595547
+        # Get Nike sock product by SKU
+
+        GET /retailers/walmart/products/ASUS-ROG-G15-2024
+        # Get gaming laptop by alphanumeric SKU
+
+        GET /retailers/homedepot/products/HD-12345-XL
+        # Get Home Depot product by SKU format
+        ```
+
+        **Integration Patterns:**
+        - Product detail pages: Use SKU from search results
+        - Inventory management: Direct SKU lookups
+        - Price monitoring: Regular SKU-based checks
+        - Catalog synchronization: Bulk SKU validation
+
+        **Performance:** Sub-50ms response times for direct SKU lookups with full product details.
+      operationId: getRetailerProductDetailsBySKU
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: |
+            The ID of the retailer. Use the `/retailers` endpoint for the full current list.
+            Examples: walmart, homedepot, target, nike, kohls, macys, nordstrom, sephora, chewy, uniqlo, carhartt, hugo_boss, alo_yoga, ariat, warby_parker, and more.
+          schema:
+            type: string
+          examples:
+            walmart:
+              summary: Walmart products
+              value: "walmart"
+              description: "Access Walmart's 115+ million product catalog"
+            homedepot:
+              summary: Home Depot products
+              value: "homedepot"
+              description: "Access Home Depot's product catalog"
+            target:
+              summary: Target products
+              value: "target"
+              description: "Access Target's product catalog"
+        - name: product_id # Path parameter name remains product_id for URL compatibility
+          in: path
+          required: true
+          description: |
+            The Unique Merchant SKU of the product. SKU formats vary by retailer:
+            - Walmart: Numeric (e.g., "226595547") or alphanumeric (e.g., "ASUS-ROG-G15-2024")
+            - Home Depot: Typically alphanumeric with retailer prefix (e.g., "HD-12345-XL")
+          schema:
+            type: string
+          examples:
+            walmart_numeric:
+              summary: Walmart numeric SKU
+              value: "226595547"
+              description: "Standard Walmart numeric product SKU"
+            walmart_alphanumeric:
+              summary: Walmart alphanumeric SKU
+              value: "ASUS-ROG-G15-2024"
+              description: "Walmart brand-model SKU format"
+            homedepot_sku:
+              summary: Home Depot SKU format
+              value: "HD-12345-XL"
+              description: "Home Depot SKU with size/variant suffix"
+            lego_sku:
+              summary: LEGO set SKU
+              value: "75192"
+              description: "LEGO Millennium Falcon Ultimate Collector Series"
+            sephora_sku:
+              summary: Sephora beauty product SKU
+              value: "P501221"
+              description: "Charlotte Tilbury Pillow Talk Lipstick"
+            gnc_sku:
+              summary: GNC supplement SKU
+              value: "GNC-048107123"
+              description: "GNC Mega Men 50 Plus Multivitamin"
+      responses:
+        "200":
+          description: Detailed product information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+              examples:
+                sku_lookup_example:
+                  summary: Product Lookup by SKU
+                  description: Direct product lookup using unique merchant SKU
+                  value:
+                    id: 987654321
+                    retailer_id: "walmart"
+                    unique_merchant_sku: "ASUS-ROG-G15-2024"
+                    product_name: 'ASUS ROG Strix G15 Gaming Laptop 15.6" 144Hz RTX 3060'
+                    product_description: "High-performance gaming laptop with AMD Ryzen 7 5800H processor, 16GB DDR4 RAM, 512GB PCIe SSD, NVIDIA GeForce RTX 3060 graphics card, 144Hz Full HD display, and RGB backlit keyboard. Perfect for gaming and creative work."
+                    product_url: "https://www.walmart.com/ip/ASUS-ROG-Strix-G15-Gaming-Laptop/987654321"
+                    image_url: "https://i5.walmartimages.com/asr/asus-rog-g15-main.jpg"
+                    current_price: 1299.99
+                    original_price: 1599.99
+                    currency: "USD"
+                    category: "Electronics>Computers & Tablets>Laptops>Gaming Laptops"
+                    category_id: "ELEC_COMP_LAPTOP_GAMING"
+                    manufacturer: "ASUS"
+                    subcategory: "Gaming Laptops"
+                    model: "ROG-G15-2024"
+                    condition: "New"
+                    color: "Eclipse Gray"
+                    weight: 5.3
+                    in_stock: true
+                    stock_availability: "In Stock"
+                    rating: 4.7
+                    review_count: 892
+                    shipping_cost: 0.0
+                    upc: "195553435232"
+                    ean: "0195553435232"
+                    gtin: "00195553435232"
+                    mpn: "G513RC-ES73"
+                    asins: ["B0CXYZ1234"]
+                    amazon_price: 1249.99
+                    amazon_reviews:
+                      count: 821
+                      stars: 4.6
+                    amazon_marketplace:
+                      average30: 1278.55
+                      lowest_price: 1229.99
+                      highest_price: 1399.99
+                      sales_rank: 184
+                      buy_box_is_amazon: false
+                    profitability:
+                      status: "profitable"
+                      amazon_price: 1249.99
+                      retailer_cost: 999.99
+                      profit_per_unit: 51.05
+                      roi: 5.11
+                    canonical_identifier: "WM-ASUS-ROG-G15-2024"
+                    created_at: "2024-03-20T08:45:00Z"
+                    updated_at: "2024-04-22T16:30:00Z"
+                nike_sock_sku:
+                  summary: Nike Sock Product by SKU (Walmart)
+                  description: Specific Nike sock product accessed by unique merchant SKU from Walmart
+                  value:
+                    id: 226595547
+                    unique_merchant_sku: "226595547"
+                    product_name: "Nike Everyday Cushion Crew Socks Unisex Nike Socks White/Black Size Large"
+                    product_description: "Men's Nike 6-Pack Everyday Cushioned Crew Training Socks with cushioning in the heel and forefoot for impact protection. Dri-FIT technology helps feet stay dry and comfortable. Color: White/Black Size: Large (8-12)"
+                    product_url: "https://www.walmart.com/ip/Nike-Everyday-Cushion-Crew-Socks/226595547"
+                    image_url: "https://i5.walmartimages.com/asr/nike-crew-socks-white-black.jpg"
+                    current_price: 30.00
+                    currency: "USD"
+                    category: "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+                    category_id: "CLOTH_NIKE_MENS_SOCKS"
+                    manufacturer: "Nike"
+                    subcategory: "Athletic Socks"
+                    color: "White"
+                    size: "Large"
+                    material: "Cotton"
+                    condition: "New"
+                    weight: 0.3
+                    in_stock: true
+                    stock_availability: "In Stock"
+                    rating: 4.3
+                    review_count: 247
+                    shipping_cost: 5.99
+                    upc: "196607052280"
+                    ean: "0196607052280"
+                    gtin: "00196607052280"
+                    mpn: "SX7627-001"
+                    model: "Everyday-Cushion-2024"
+                    created_at: "2024-04-15T10:30:00Z"
+                    updated_at: "2024-04-20T15:00:00Z"
+                lego_product_sku:
+                  summary: LEGO Product by SKU
+                  description: LEGO Star Wars set accessed by unique SKU
+                  value:
+                    id: 751920000
+                    unique_merchant_sku: "75192"
+                    product_name: "LEGO Star Wars Millennium Falcon Ultimate Collector Series"
+                    product_description: "Build and display the iconic Millennium Falcon with this 7,541-piece Ultimate Collector Series set featuring incredible detail, rotating cannons, and removable hull plates."
+                    product_url: "https://www.lego.com/product/millennium-falcon-75192"
+                    image_url: "https://www.lego.com/cdn/product-assets/product.img.pri/75192_Prod.jpg"
+                    current_price: 849.99
+                    original_price: 849.99
+                    currency: "USD"
+                    category: "Toys>Building Sets>LEGO>Star Wars>Ultimate Collector Series"
+                    category_id: "LEGO_SW_UCS"
+                    brand: "LEGO"
+                    manufacturer: "The LEGO Group"
+                    subcategory: "Ultimate Collector Series"
+                    model: "75192"
+                    condition: "New"
+                    weight: 37.5
+                    in_stock: true
+                    stock_availability: "In Stock"
+                    rating: 4.9
+                    review_count: 2847
+                    shipping_cost: 0.0
+                    upc: "673419264617"
+                    ean: "5702015869966"
+                    gtin: "05702015869966"
+                    mpn: "75192"
+                    created_at: "2017-09-01T08:00:00Z"
+                    updated_at: "2024-04-25T10:00:00Z"
+                sephora_product_sku:
+                  summary: Sephora Beauty Product by SKU
+                  description: Charlotte Tilbury lipstick from Sephora
+                  value:
+                    id: 5012210000
+                    unique_merchant_sku: "P501221"
+                    product_name: "Charlotte Tilbury Matte Revolution Lipstick - Pillow Talk"
+                    product_description: "An award-winning matte lipstick with a long-lasting, buildable, and hydrating formula for fuller-looking lips."
+                    product_url: "https://www.sephora.com/product/charlotte-tilbury-matte-revolution-P501221"
+                    image_url: "https://www.sephora.com/productimages/product/p501221-av-01-zoom.jpg"
+                    current_price: 35.00
+                    currency: "USD"
+                    category: "Beauty>Makeup>Lips>Lipstick"
+                    category_id: "BEAUTY_LIPS_LIPSTICK"
+                    brand: "Charlotte Tilbury"
+                    manufacturer: "Charlotte Tilbury Beauty Ltd"
+                    subcategory: "Matte Lipstick"
+                    color: "Pillow Talk"
+                    condition: "New"
+                    in_stock: true
+                    stock_availability: "In Stock"
+                    rating: 4.6
+                    review_count: 1823
+                    shipping_cost: 6.95
+                    created_at: "2020-03-15T09:00:00Z"
+                    updated_at: "2024-04-24T14:30:00Z"
+                homedepot_product_sku:
+                  summary: Home Depot Product by SKU
+                  description: Home Depot product accessed by unique merchant SKU with Home Depot's specific format
+                  value:
+                    id: 891234567
+                    unique_merchant_sku: "HD-DRILL-CORDLESS-20V"
+                    product_name: "DEWALT 20V MAX Cordless Drill"
+                    product_description: "20V MAX Lithium-Ion Cordless Drill/Driver with 2 batteries, charger and contractor bag. Perfect for drilling and driving applications."
+                    product_url: "https://www.homedepot.com/p/dewalt-20v-max-cordless-drill/891234567"
+                    image_url: "https://images.homedepot.com/productimages/dewalt-drill-main.jpg"
+                    current_price: 99.00
+                    original_price: 149.99
+                    currency: "USD"
+                    category: "Tools>Power Tools>Drills>Cordless Drills"
+                    category_id: "HD_TOOLS_DRILLS"
+                    brand: "DEWALT"
+                    manufacturer: "DEWALT"
+                    subcategory: "Cordless Drills"
+                    color: "Yellow"
+                    condition: "New"
+                    weight: 3.5
+                    in_stock: true
+                    stock_availability: "In Stock"
+                    rating: 4.6
+                    review_count: 1254
+                    shipping_cost: 0.0
+                    upc: "885911577540"
+                    ean: "0885911577540"
+                    gtin: "00885911577540"
+                    mpn: "DCD771C2"
+                    model: "DCD771C2"
+                    created_at: "2024-02-28T11:15:00Z"
+                    updated_at: "2024-04-19T14:22:00Z"
+        "400":
+          description: Bad Request (Invalid product ID format).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          description: Not Found (Retailer or Product ID not found).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /amazon/asins/{asin}/price-history:
+    get:
+      tags:
+        - Retailers
+      summary: Get Weekly Amazon Price History by ASIN
+      description: |
+        Returns chart-ready weekly Amazon-side time-series data for a
+        specific ASIN — direct access to amazon_price_history without
+        going through a retailer's product_id. Useful when the consumer
+        already knows the ASIN (e.g., charting the historical-backfill
+        data without a Walmart UPC mapping in the path).
+
+        The returned series carries Amazon retail / 3P-new / Buy Box
+        prices plus monthly_sold per week, sorted ascending by `ts`.
+        Weeks with no observed samples are omitted.
+
+        For Walmart-side or merged history, use
+        `/v1/retailers/walmart/products/{product_id}/price-history` instead.
+      operationId: getAmazonPriceHistory
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: asin
+          in: path
+          required: true
+          description: Amazon Standard Identification Number (e.g., "B082H4RKQQ").
+          schema:
+            type: string
+          example: "B082H4RKQQ"
+        - name: weeks
+          in: query
+          required: false
+          description: Number of weeks of history to return (1..104). Defaults to 52.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 104
+            default: 52
+      responses:
+        "200":
+          description: Weekly Amazon time-series, sorted ascending by ts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceHistorySeries"
+        "400":
+          description: Invalid weeks parameter or missing asin.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: ASIN not found in price-history index.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /retailers/{retailer_id}/products/{product_id}/price-history:
+    get:
+      tags:
+        - Retailers
+      summary: Get Weekly Price History for a Product
+      description: |
+        Returns chart-ready weekly time-series data for a product, sourced from
+        the daily price-history sampler + the one-time historical backfill. When the
+        product's UPC maps to a resolved Amazon ASIN, Amazon retail / 3P-new /
+        Buy-Box / monthly-sold series are merged on weekly timestamps alongside
+        Walmart's own price series. Weeks with no observed samples are omitted.
+
+        Use the rolled-up averages on the `Product.price_averages` block when
+        you just need the lifetime / 30 / 90 / 180 / 365-day means. Use this
+        endpoint when you actually want to plot a chart.
+      operationId: getProductPriceHistory
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: Retailer ID. Use the `/retailers` endpoint for the full list.
+          schema:
+            type: string
+          example: walmart
+        - name: product_id
+          in: path
+          required: true
+          description: Retailer-native product identifier (Walmart product_id, Home Depot SKU, etc.).
+          schema:
+            type: string
+          example: "100000867"
+        - name: weeks
+          in: query
+          required: false
+          description: Number of weeks of history to return (1..104). Defaults to 52.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 104
+            default: 52
+          example: 52
+      responses:
+        "200":
+          description: Weekly time-series, sorted ascending by ts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceHistorySeries"
+        "400":
+          description: Invalid weeks parameter or missing product_id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /retailers/{retailer_id}/categories:
+    get:
+      tags:
+        - Retailers
+      summary: List Retailer Categories
+      description: |
+        Retrieves a list of distinct product categories for a specific retailer.
+        Categories are hierarchical with ">" separators and are retailer-specific.
+
+        ## Common Use Cases
+
+        **Category Discovery:**
+        ```
+        GET /retailers/walmart/categories
+        # Get all Walmart categories for filtering
+
+        GET /retailers/homedepot/categories
+        # Get all Home Depot categories for navigation
+        ```
+
+        **Integration Patterns:**
+        - Product filtering: Use categories as filter options
+        - Navigation menus: Build hierarchical category trees
+        - Analytics: Category-based reporting
+        - Search refinement: Narrow search results by category
+
+        **Category Structure Examples:**
+        - "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing"
+        - "Electronics>Computers & Tablets>Laptops>Gaming Laptops"
+        - "Home & Garden>Kitchen & Dining>Small Kitchen Appliances"
+
+        **Performance:** Categories are cached and typically return in under 25ms.
+      operationId: getRetailerCategories
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: retailer_id
+          in: path
+          required: true
+          description: |
+            The ID of the retailer. Use the `/retailers` endpoint for the full current list.
+            Examples: walmart, homedepot, target, nike, kohls, macys, nordstrom, sephora, chewy, uniqlo, carhartt, hugo_boss, alo_yoga, ariat, warby_parker, and more.
+          schema:
+            type: string
+          examples:
+            walmart:
+              summary: Walmart categories
+              value: "walmart"
+              description: "Get Walmart's product category hierarchy"
+            homedepot:
+              summary: Home Depot categories
+              value: "homedepot"
+              description: "Get Home Depot's product category structure"
+            target:
+              summary: Target categories
+              value: "target"
+              description: "Get Target's product category structure"
+      responses:
+        "200":
+          description: A list of category names.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["Electronics", "Clothing", "Home Goods"]
+              examples:
+                walmart_categories:
+                  summary: Walmart Category Sample
+                  description: Sample of Walmart's hierarchical category structure
+                  value:
+                    - "Clothing>Fashion Brands>Nike"
+                    - "Clothing>Fashion Brands>Nike>Nike Mens"
+                    - "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing"
+                    - "Clothing>Fashion Brands>Nike>Nike Mens>Nike Mens Clothing>Nike Mens Socks"
+                    - "Electronics>Computers & Tablets"
+                    - "Electronics>Computers & Tablets>Laptops"
+                    - "Electronics>Computers & Tablets>Laptops>Gaming Laptops"
+                    - "Electronics>Cell Phones>Smartphones"
+                    - "Electronics>Cell Phones>Smartphones>iPhone"
+                    - "Home & Garden>Kitchen & Dining"
+                    - "Home & Garden>Kitchen & Dining>Small Kitchen Appliances"
+                    - "Sports & Outdoors>Exercise & Fitness"
+                    - "Sports & Outdoors>Exercise & Fitness>Cardio Equipment"
+                target_categories:
+                  summary: Target Category Sample
+                  description: Sample of Target's category organization
+                  value:
+                    - "Clothing>Women's>Dresses"
+                    - "Clothing>Women's>Dresses>Casual Dresses"
+                    - "Baby>Nursery>Cribs"
+                    - "Baby>Nursery>Cribs>Convertible Cribs"
+                    - "Home>Bedding>Sheets"
+                    - "Home>Bedding>Sheets>Queen Sheets"
+                    - "Toys>Action Figures"
+                    - "Toys>Action Figures>Marvel"
+                    - "Beauty>Skincare>Face Moisturizers"
+                    - "Grocery>Snacks>Chips"
+                lego_categories:
+                  summary: LEGO Category Sample
+                  description: Sample of LEGO's category structure
+                  value:
+                    - "Building Sets>Star Wars"
+                    - "Building Sets>Star Wars>Ultimate Collector Series"
+                    - "Building Sets>City"
+                    - "Building Sets>City>Police"
+                    - "Building Sets>Technic"
+                    - "Building Sets>Technic>Cars"
+                    - "Building Sets>Creator"
+                    - "Building Sets>Creator>3-in-1"
+                    - "Building Sets>Architecture"
+                    - "Building Sets>Harry Potter"
+                sephora_categories:
+                  summary: Sephora Category Sample
+                  description: Sample of Sephora's beauty categories
+                  value:
+                    - "Makeup>Face>Foundation"
+                    - "Makeup>Eyes>Eyeshadow Palettes"
+                    - "Makeup>Lips>Lipstick"
+                    - "Makeup>Lips>Lipstick>Matte Lipstick"
+                    - "Skincare>Moisturizers>Face Moisturizers"
+                    - "Skincare>Cleansers>Face Wash"
+                    - "Fragrance>Women's Perfume"
+                    - "Fragrance>Women's Perfume>Floral"
+                    - "Hair>Shampoo>Color Safe Shampoo"
+                    - "Tools & Brushes>Makeup Brushes"
+                homedepot_categories:
+                  summary: Home Depot Category Sample
+                  description: Sample of Home Depot's category organization
+                  value:
+                    - "Tools>Power Tools"
+                    - "Tools>Power Tools>Drills"
+                    - "Tools>Power Tools>Drills>Cordless Drills"
+                    - "Tools>Hand Tools"
+                    - "Tools>Hand Tools>Hammers"
+                    - "Building Materials>Lumber"
+                    - "Building Materials>Lumber>Plywood"
+                    - "Hardware>Fasteners"
+                    - "Hardware>Fasteners>Screws"
+                    - "Electrical>Wire & Cable"
+                    - "Electrical>Switches & Outlets"
+                    - "Plumbing>Pipes & Fittings"
+                    - "Paint>Interior Paint"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError" # Retailer ID not found
+        "500":
+          $ref: "#/components/responses/InternalServerError"

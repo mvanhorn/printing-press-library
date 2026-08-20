@@ -1,0 +1,51 @@
+version: 2
+project_name: fireflies-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: fireflies-pp-cli
+    main: ./cmd/fireflies-pp-cli
+    binary: fireflies-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: fireflies-pp-mcp
+    main: ./cmd/fireflies-pp-mcp
+    binary: fireflies-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: fireflies-pp-cli
+    repository:
+      owner: nikica-jokic
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool..."
+    install: |
+      bin.install "fireflies-pp-cli"
+      bin.install "fireflies-pp-mcp"

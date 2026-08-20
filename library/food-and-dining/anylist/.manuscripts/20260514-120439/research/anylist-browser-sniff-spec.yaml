@@ -1,0 +1,42 @@
+name: anylist
+description: Discovered API spec for anylist
+version: 0.1.0
+base_url: https://www.anylist.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/anylist-pp-cli/config.toml
+resources:
+    auth:
+        description: Operations on refresh
+        endpoints:
+            create_refresh:
+                method: POST
+                path: /auth/token/refresh
+                description: POST /auth/token/refresh
+                params:
+                    - name: access_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: refresh_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: refresh
+                pagination: null
+types: {}

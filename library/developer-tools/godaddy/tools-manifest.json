@@ -1,0 +1,4593 @@
+{
+  "api_name": "godaddy",
+  "base_url": "https://api.godaddy.com",
+  "description": "Combined CLI for multiple API services",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "sso-key",
+    "env_vars": [
+      "GODADDY_API_KEY",
+      "GODADDY_API_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GODADDY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": false
+      },
+      {
+        "name": "GODADDY_API_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": false
+      },
+      {
+        "name": "GODADDY_AUTH_HEADER",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": false
+      }
+    ],
+    "header": "Authorization",
+    "format": "sso-key KEY:SECRET"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "abuse_create-ticket",
+      "description": "Create a new abuse ticket. Required: source, type. Optional: info, infoUrl, intentional (default: false) (plus 2 more). Returns the new AbuseTicketId.",
+      "method": "POST",
+      "path": "/v1/abuse/tickets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "info",
+          "type": "string",
+          "location": "body",
+          "description": "Additional information that may assist the abuse investigator. ie: server logs or email headers/body for SPAM"
+        },
+        {
+          "name": "infoUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Reporter URL if housing additional information that may assist the abuse investigator"
+        },
+        {
+          "name": "intentional",
+          "type": "bool",
+          "location": "body",
+          "description": "Do you believe this is intentional abuse by the domain holder?"
+        },
+        {
+          "name": "proxy",
+          "type": "string",
+          "location": "body",
+          "description": "The Proxy information required to view the abuse being reported. ie: Specific IP used, or country of IP viewing from"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "The URL or IP where live abuse content is located at. ie: https://www.example.com/bad_stuff/bad.php",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "body",
+          "description": "The brand/company the abuse is targeting. ie: brand name/bank name"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of abuse being reported.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "abuse_create-ticket-v2",
+      "description": "Create a new abuse ticket. Required: source, type. Optional: info, infoUrl, proxy (plus 2 more). Returns the new AbuseTicketId.",
+      "method": "POST",
+      "path": "/v2/abuse/tickets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "info",
+          "type": "string",
+          "location": "body",
+          "description": "Additional information that may assist the abuse investigator. ie: server logs or email headers/body for SPAM"
+        },
+        {
+          "name": "infoUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Reporter URL if housing additional information that may assist the abuse investigator"
+        },
+        {
+          "name": "proxy",
+          "type": "string",
+          "location": "body",
+          "description": "The regional location that the content needs to be viewed from. Here is a mapping of the regional codes to common countries. ARE - Pakistan, Israel, Turkey, Azerbaijan SGP - Japan, Tokyo, AU, Australia, Sydney, Singapore, India, Mumbai, New Zealand, Philippines, Korea, Indonesia, China, Malaysia, Taiwan, India ZAF - South Africa USA - Canada, United States BRA - Brazil, Argentina, Ecuador, Mexico, Peru, South America, Colombia, Chile, Guatemala, Panama DEU - Germany, France, United Kingdom, London, Italy, Belgium, Netherlands, Spain, Ukraine, Austria, Switzerland, Frankfurt, Denmark, Norway, Sweden, Finland, Iceland, Slovakia, Romania, Luxembourg, Poland, Ireland, Portugal, Moldova, Bulgaria, Slovenia, Serbia, Hungary, Lithuania, Malta, Morocco, Latvia, Estonia, Russian Federation, Sweden"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "The URL or IP where live abuse content is located at. ie: https://www.example.com/bad_stuff/bad.php",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "body",
+          "description": "The brand/company the abuse is targeting. ie: brand name/bank name"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of abuse being reported.",
+          "required": true
+        },
+        {
+          "name": "useragent",
+          "type": "string",
+          "location": "body",
+          "description": "The user-agent required to view the content."
+        }
+      ]
+    },
+    {
+      "name": "abuse_get-ticket-info",
+      "description": "Return the abuse ticket data for a given ticket id. Required: ticketId. Returns the AbuseTicketLegacy.",
+      "method": "GET",
+      "path": "/v1/abuse/tickets/{ticketId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticketId",
+          "type": "string",
+          "location": "path",
+          "description": "A unique abuse ticket identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "abuse_get-ticket-info-v2",
+      "description": "Return the abuse ticket data for a given ticket id. Required: ticketId. Returns the AbuseTicket.",
+      "method": "GET",
+      "path": "/v2/abuse/tickets/{ticketId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticketId",
+          "type": "string",
+          "location": "path",
+          "description": "A unique abuse ticket identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "abuse_get-tickets",
+      "description": "List all abuse tickets ids that match user provided filters. Optional: type, closed (default: false), sourceDomainOrIp (plus 5 more). Returns the AbuseTicketList.",
+      "method": "GET",
+      "path": "/v1/abuse/tickets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of abuse."
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Is this abuse ticket closed?"
+        },
+        {
+          "name": "sourceDomainOrIp",
+          "type": "string",
+          "location": "query",
+          "description": "The domain name or ip address the abuse originated from"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "The brand/company the abuse is targeting. ie: brand name/bank name"
+        },
+        {
+          "name": "createdStart",
+          "type": "string",
+          "location": "query",
+          "description": "The earliest abuse ticket creation date to pull abuse tickets for"
+        },
+        {
+          "name": "createdEnd",
+          "type": "string",
+          "location": "query",
+          "description": "The latest abuse ticket creation date to pull abuse tickets for"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of abuse ticket numbers to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest result set record number to pull abuse tickets for"
+        }
+      ]
+    },
+    {
+      "name": "abuse_get-tickets-v2",
+      "description": "List all abuse tickets ids that match user provided filters. Optional: type, closed (default: false), sourceDomainOrIp (plus 5 more). Returns the AbuseTicketList.",
+      "method": "GET",
+      "path": "/v2/abuse/tickets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of abuse."
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Is this abuse ticket closed?"
+        },
+        {
+          "name": "sourceDomainOrIp",
+          "type": "string",
+          "location": "query",
+          "description": "The domain name or ip address the abuse originated from"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "The brand/company the abuse is targeting. ie: brand name/bank name"
+        },
+        {
+          "name": "createdStart",
+          "type": "string",
+          "location": "query",
+          "description": "The earliest abuse ticket creation date to pull abuse tickets for"
+        },
+        {
+          "name": "createdEnd",
+          "type": "string",
+          "location": "query",
+          "description": "The latest abuse ticket creation date to pull abuse tickets for"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of abuse ticket numbers to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "The earliest result set record number to pull abuse tickets for"
+        }
+      ]
+    },
+    {
+      "name": "aftermarket_add-expiry-listings",
+      "description": "Add expiry listings into GoDaddy Auction. Returns the new AftermarketListingAction.",
+      "method": "POST",
+      "path": "/v1/aftermarket/listings/expiry",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "aftermarket_delete-listings",
+      "description": "Remove listings from GoDaddy Auction. Required: domains. Returns the AftermarketListingAction. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/aftermarket/listings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domains",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of domain names",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_get",
+      "description": "Retrieves detailed information about a registered agent. Required: agentId. Returns the AgentDetails.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_get-events",
+      "description": "Returns a paginated, strictly ordered list of ANS events. When providerId is omitted, the API returns events for all providers; when providerId is provided, only events associated with that provider are returned. Pagination is driven by an opaque cursor token returned in each response. Optional: providerId, lastLogId, limit (default: 100).",
+      "method": "GET",
+      "path": "/v1/agents/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "providerId",
+          "type": "string",
+          "location": "query",
+          "description": "Optional provider identifier. If omitted, global mode is used and the API returns events for all providers from the primary global stream. When provided, results are filtered to only events associated with that provider."
+        },
+        {
+          "name": "lastLogId",
+          "type": "string",
+          "location": "query",
+          "description": "Optional log id for the last viewed event from a previous request. If not provided, the API returns the first page of results from the start of the event stream. Events are only stored for 30 days."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of events to return (1-200, default 100)"
+        }
+      ]
+    },
+    {
+      "name": "agents_register",
+      "description": "Registers a new agent with the Agent Name Service. Supports three registration flows: 1. GoDaddy domains with CSRs (synchronous) - Returns 202 immediately with wait instruction 2. External domains with CSRs (async ACME) or BYOC - Returns 202 with validation requirements Note: BYOC is permitted for server certificates only. Identity certificates are ALWAYS issued by the RA. The Registration Authority (RA) validates the agent's identity and submitted information, then interacts with the CA to issue certificates or validates provided server certificates. Required: agentDisplayName, agentHost, endpoints, identityCsrPEM, version. Optional: agentDescription, serverCertificateChainPEM, serverCertificatePEM (plus 1 more).",
+      "method": "POST",
+      "path": "/v1/agents/register",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentDescription",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the agent"
+        },
+        {
+          "name": "agentDisplayName",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable display name for the agent",
+          "required": true
+        },
+        {
+          "name": "agentHost",
+          "type": "string",
+          "location": "body",
+          "description": "The fully qualified domain name (FQDN) where the agent is hosted",
+          "required": true
+        },
+        {
+          "name": "endpoints",
+          "type": "array",
+          "location": "body",
+          "description": "Array of agent endpoints with protocol-specific configuration",
+          "required": true
+        },
+        {
+          "name": "identityCsrPEM",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 encoded PEM certificate signing request (CSR).",
+          "required": true
+        },
+        {
+          "name": "serverCertificateChainPEM",
+          "type": "string",
+          "location": "body",
+          "description": "Optional - Base64 encoded PEMs of cert-chain of a server certificate. When this field is present, serverCertificatePEM must be specified. Both fields are used when client chooses BYOC for server certificate."
+        },
+        {
+          "name": "serverCertificatePEM",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 encoded PEM server certificate. Required when BYOC is used for server certificate."
+        },
+        {
+          "name": "serverCsrPEM",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 encoded PEM certificate signing request (CSR). Required when not using BYOC"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Semantic Versioning format (major.minor.patch)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_resolve-ansname",
+      "description": "Resolves an ANSName to an actionable endpoint reference. The query includes the ANSName of the target agent and can optionally incorporate capability filters to refine the search. The ANS service queries the Agent Registry, which returns a digitally signed endpoint record if found. Required: agentHost, version.",
+      "method": "POST",
+      "path": "/v1/agents/resolution",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentHost",
+          "type": "string",
+          "location": "body",
+          "description": "Target agent host domain",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "A Semantic Version range, which is defined to match a set of allowable versions for a software package, following the rules of Semantic Versioning (SemVer). It uses specific operators and formats to express dependencies, - like ^1.2.3 (allowing compatible updates within major version 1) - or ~1.2.3 (allowing compatible patch updates). - wildcard '*' or empty string '' means any version can be matched, it will resolve to the latest version available.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_search-ansname",
+      "description": "Searches the Agent Name Service registry using flexible criteria such as partial agent names, agent host domains, and version ranges. The search can return multiple matching agents along with their metadata and endpoints. Results are paginated to handle large datasets efficiently. Optional: agentDisplayName, version, agentHost (plus 4 more). Returns the AgentSearchResponse.",
+      "method": "GET",
+      "path": "/v1/agents",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentDisplayName",
+          "type": "string",
+          "location": "query",
+          "description": "Agent display name (partial matching supported)"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "Target version (flexible matching supported)"
+        },
+        {
+          "name": "agentHost",
+          "type": "string",
+          "location": "query",
+          "description": "Target agent host domain"
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "query",
+          "description": "Target protocol (optional filter) - valid values are 'A2A', 'MCP', 'HTTP-API'"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return (default 20, max 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination (default 0)"
+        },
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by agent lifecycle status. Can specify multiple values. Defaults to ACTIVE when not provided. Use 'ALL' to return agents of any status. If 'ALL' is included with other status values, only 'ALL' is applied."
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_cancel-server-renewal",
+      "description": "Cancels the pending server certificate renewal for this agent. Use cases: - Client submitted incorrect CSR and wants to retry - Client wants to switch from CSR path to BYOC path (or vice versa) - Client no longer wishes to complete the renewal Side effects: - If renewal type is SERVER_CSR, marks the associated CSR as REJECTED - Removes pending renewal from database - Client can immediately submit a new renewal request. Required: agentId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/agents/{agentId}/certificates/server/renewal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_get-agent-identity-by-agent-id",
+      "description": "Retrieves all identity certificates for the specified agent. Required: agentId. Returns array of CertificateResponse.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}/certificates/identity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_get-agent-server-by-agent-id",
+      "description": "Retrieves all TLS server certificates for the specified agent. Required: agentId. Returns array of CertificateResponse.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}/certificates/server",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_get-server-renewal-status",
+      "description": "Returns current renewal status if one exists. Used for: - Checking if ACME verification is complete - Polling for certificate issuance (CSR path) - Retrieving challenges if client lost the POST response - Getting TLSA record after completion. Required: agentId.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}/certificates/server/renewal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_submit-agent-identity-csr-by-agent-id",
+      "description": "Submits a Certificate Signing Request (CSR) for the agent's identity certificate. The response contains a 'csrId', that is going to match the same field from CertificateResponse. Required: agentId, csrPEM. Returns the new CsrSubmissionResponse.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/certificates/identity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        },
+        {
+          "name": "csrPEM",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 encoded PEM Certificate Signing Request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_submit-server-renewal",
+      "description": "Initiates server certificate renewal. Returns ACME challenges; the caller must verify domain control via POST verify-acme. Supports two paths: - CSR path: RA issues a new certificate. - BYOC path: Client provides a certificate; RA validates and stores it. Only one pending renewal is allowed per agent (409 if one already exists). Required: agentId. Optional: serverCertificateChainPEM, serverCertificatePEM, serverCsrPEM.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/certificates/server/renewal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        },
+        {
+          "name": "serverCertificateChainPEM",
+          "type": "string",
+          "location": "body",
+          "description": "Optional PEM-encoded certificate chain for BYOC. Only valid when serverCertificatePEM is provided."
+        },
+        {
+          "name": "serverCertificatePEM",
+          "type": "string",
+          "location": "body",
+          "description": "PEM-encoded BYOC server certificate. Mutually exclusive with serverCsrPEM."
+        },
+        {
+          "name": "serverCsrPEM",
+          "type": "string",
+          "location": "body",
+          "description": "PEM-encoded CSR for RA to issue new certificate. Mutually exclusive with serverCertificatePEM."
+        }
+      ]
+    },
+    {
+      "name": "agents_certificates_verify-acme-challenges",
+      "description": "Triggers ACME validation for a pending server certificate renewal. Verifies: - DNS-01 challenge (TXT record at _acme-challenge.{agentHost}) - HTTP-01 challenge (file at /.well-known/acme-challenge/{token}) Response depends on renewal type: - SERVER_CSR: Returns 202 (asynchronous certificate issuance). - SERVER_BYOC: Returns 200 (certificate stored; TLSA record ready for DNS update). Required: agentId.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/certificates/server/renewal/verify-acme",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_csrs_get-agent-status-by-agent-id",
+      "description": "Retrieves the current status of a Certificate Signing Request (CSR). This endpoint allows clients to check if a CSR has been signed, is still pending, or has been rejected. The failureReason field provides additional context when a CSR is rejected. Required: agentId, csrId. Returns the CsrStatusResponse.",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}/csrs/{csrId}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent (UUID format)",
+          "required": true
+        },
+        {
+          "name": "csrId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the CSR",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_revoke_agent",
+      "description": "Revokes an active agent or cancels a pending registration. For ACTIVE agents: Revokes the agent due to key compromise, decommissioning, or other security reasons. The certificate is added to the Certificate Revocation List (CRL) and the agent's entry in the registry is flagged. For PENDING registrations (PENDING_CERTS or PENDING_DNS status): Cancels the registration attempt after domain validation has been completed. This will cancel any pending certificate issuance jobs and revoke any already-issued certificates. Note: Registrations in PENDING_VALIDATION status (pre-ACME verification) are not cancellable via this API and will automatically expire if the ACME verification is not completed within specified timeframe. Required: agentId, reason. Optional: comments. Returns the new AgentRevocationResponse.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/revoke",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent",
+          "required": true
+        },
+        {
+          "name": "comments",
+          "type": "string",
+          "location": "body",
+          "description": "Additional comments about revocation"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for revocation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_verify-acme_validate-registration",
+      "description": "Initiates validation of domain control. The AHP calls this after placing the ACME challenge token at the specified location (DNS or HTTP). The RA validates domain control, which is required before issuing both server and identity certificates. A single domain validation is used for both certificates. The RA will automatically determine which validation method to use based on the registration configuration and what is discoverable. Required: agentId. Returns the new AgentStatus.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/verify-acme",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_verify-dns_records",
+      "description": "Verifies that all required DNS records have been configured correctly. The RA knows which records are required based on the registration and will check for all four required records (HTTPS, TLSA, _ans, _ra-badge). This is the final step for external domain registration. Required: agentId. Returns the new AgentStatus.",
+      "method": "POST",
+      "path": "/v1/agents/{agentId}/verify-dns",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the agent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agreements_get",
+      "description": "Retrieve Legal Agreements for provided agreements keys. Required: keys. Returns array of LegalAgreement.",
+      "method": "GET",
+      "path": "/v1/agreements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keys",
+          "type": "array",
+          "location": "query",
+          "description": "Keys for Agreements whose details are to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-customers_certificates_get-acme-external-account-binding",
+      "description": "Use this endpoint to retrieve a key identifier and Hash-based Message Authentication Code (HMAC) key for Automated Certificate Management Environment (ACME) External Account Binding (EAB). These credentials can be used with an ACME client that supports EAB (ex. CertBot) to automate the issuance request and deployment of DV SSL certificates. Required: customerId. Returns the ExternalAccountBinding.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/certificates/acme/externalAccountBinding",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-customers_certificates_get-customer-by-customer-id",
+      "description": "This method can be used to retrieve a list of certificates for a specified customer. **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId. Optional: offset, limit. Returns the CertificateSummariesV2.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/certificates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return"
+        }
+      ]
+    },
+    {
+      "name": "api-customers_certificates_get-detail-by-cert-identifier",
+      "description": "Once the certificate order has been created, this method can be used to check the status of the certificate. This method can also be used to retrieve details of the certificate. **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, certificateId. Returns the CertificateDetailV2.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/certificates/{certificateId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer",
+          "required": true
+        },
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to lookup",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-customers_certificates_get-domain-details-by-domain",
+      "description": "Retrieve detailed information for supplied domain, including domain verification details and Certificate Authority Authorization (CAA) verification details. **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, certificateId, domain. Returns the DomainVerificationDetail.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/certificates/{certificateId}/domainVerifications/{domain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer",
+          "required": true
+        },
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to lookup",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "A valid domain name in the certificate request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-customers_certificates_get-domain-information-by-id",
+      "description": "This method can be used to retrieve the domain verification status for a certificate request. **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) '. Required: customerId, certificateId. Returns array of DomainVerificationSummary.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/certificates/{certificateId}/domainVerifications",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer",
+          "required": true
+        },
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to lookup",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "auctions-aftermarket_place-bids",
+      "description": "Places multiple bids with a single request. Required: customerId. Returns array of BidPlaced.",
+      "method": "POST",
+      "path": "/v1/customers/{customerId}/aftermarket/listings/bids",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_create",
+      "description": "Creating a certificate order can be a long running asynchronous operation in the PKI workflow. The PKI API supports 2 options for getting the completion stateful actions for this asynchronous operations: 1) by polling operations -- see /v1/certificates/{certificateId}/actions 2) via WebHook style callback -- see '/v1/certificates/{certificateId}/callback'. . Required: contact, csr, period, productType. Optional: callbackUrl, commonName, intelVPro (default: false) (plus 4 more). Returns the new CertificateIdentifier.",
+      "method": "POST",
+      "path": "/v1/certificates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Required if client would like to receive stateful actions via callback during certificate lifecyle"
+        },
+        {
+          "name": "commonName",
+          "type": "string",
+          "location": "body",
+          "description": "Name to be secured in certificate. If provided, CN field in CSR will be ignored."
+        },
+        {
+          "name": "contact",
+          "type": "string",
+          "location": "body",
+          "description": "Contact",
+          "required": true
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request",
+          "required": true
+        },
+        {
+          "name": "intelVPro",
+          "type": "bool",
+          "location": "body",
+          "description": "Only used for OV"
+        },
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "body",
+          "description": "Organization"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years for certificate validity period",
+          "required": true
+        },
+        {
+          "name": "productType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of product requesting a certificate. Only required non-renewal",
+          "required": true
+        },
+        {
+          "name": "rootType",
+          "type": "string",
+          "location": "body",
+          "description": "Root Type. Depending on certificate expiration date, SHA_1 not be allowed. Will default to..."
+        },
+        {
+          "name": "slotSize",
+          "type": "string",
+          "location": "body",
+          "description": "Number of subject alternative names(SAN) to be included in certificate"
+        },
+        {
+          "name": "subjectAlternativeNames",
+          "type": "array",
+          "location": "body",
+          "description": "Subject Alternative names. Collection of subjectAlternativeNames to be included in certificate."
+        }
+      ]
+    },
+    {
+      "name": "certificates_create-endpoint",
+      "description": "Creating a certificate order for a subscription can be a long running asynchronous operation in the PKI workflow. The PKI API supports 2 options for getting the completion stateful actions for this asynchronous operations: 1) by polling operations -- see /v1/certificates/{certificateId}/actions 2) via WebHook style callback -- see '/v1/certificates/{certificateId}/callback'. . Optional: callbackUrl, certificateId, commonName (plus 10 more). Returns the new SubscriptionCertificateIdentifier.",
+      "method": "POST",
+      "path": "/v2/certificates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Required if client would like to receive stateful actions via callback during certificate lifecyle"
+        },
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "body",
+          "description": "Id of the existing certificate to renew. If provided, all other fields will be ignored and copied from the existing certificate."
+        },
+        {
+          "name": "commonName",
+          "type": "string",
+          "location": "body",
+          "description": "Name to be secured in certificate. If provided, CN field in CSR will be ignored."
+        },
+        {
+          "name": "contact",
+          "type": "string",
+          "location": "body",
+          "description": "Contact"
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request"
+        },
+        {
+          "name": "intelVPro",
+          "type": "bool",
+          "location": "body",
+          "description": "Only used for OV"
+        },
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "body",
+          "description": "Organization"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years for certificate validity period"
+        },
+        {
+          "name": "productType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of product requesting a certificate. Only required non-renewal"
+        },
+        {
+          "name": "rootType",
+          "type": "string",
+          "location": "body",
+          "description": "Root Type. Depending on certificate expiration date, SHA_1 not be allowed. Will default to..."
+        },
+        {
+          "name": "slotSize",
+          "type": "string",
+          "location": "body",
+          "description": "Number of subject alternative names(SAN) to be included in certificate"
+        },
+        {
+          "name": "subjectAlternativeNames",
+          "type": "array",
+          "location": "body",
+          "description": "Subject Alternative names. Collection of subjectAlternativeNames to be included in certificate."
+        },
+        {
+          "name": "termType",
+          "type": "string",
+          "location": "body",
+          "description": "Determines the temporal unit used for period value."
+        }
+      ]
+    },
+    {
+      "name": "certificates_download-entitlement",
+      "description": "Download certificate by entitlement. Required: entitlementId. Returns the CertificateBundle.",
+      "method": "GET",
+      "path": "/v2/certificates/download",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entitlementId",
+          "type": "string",
+          "location": "query",
+          "description": "Entitlement id to download",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_get",
+      "description": "Once the certificate order has been created, this method can be used to check the status of the certificate. This method can also be used to retrieve details of the certificate. Required: certificateId. Returns the Certificate.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to lookup",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_get-entitlement",
+      "description": "Once the certificate order has been created, this method can be used to check the status of the certificate. This method can also be used to retrieve details of the certificates associated to an entitlement. Required: entitlementId. Optional: latest (default: true). Returns array of Certificate.",
+      "method": "GET",
+      "path": "/v2/certificates",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entitlementId",
+          "type": "string",
+          "location": "query",
+          "description": "Entitlement id to lookup",
+          "required": true
+        },
+        {
+          "name": "latest",
+          "type": "bool",
+          "location": "query",
+          "description": "Fetch only the most recent certificate"
+        }
+      ]
+    },
+    {
+      "name": "certificates_retrieve-ssl-by-domain-reseller",
+      "description": "The pagination starts at page 1. Each page contains a page of *subscriptions*, not certificates. This endpoint is meant for paging the subscriptions under the authorized user's account. Each subscription contains a snapshot of certificates contained within the subscription. To fetch further certificates under a subscription, use the /v2/certificates/subscription/{guid} endpoint with the subscription GUID obtained from this call. If any filtering is applied, subscriptions without any certificates will be omitted. Optional: pageSize (default: 15), page (default: 1), domain (plus 3 more). Returns array of CertificatesByDomainPaged.",
+      "method": "GET",
+      "path": "/v2/certificates/subscriptions/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per query."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number. <b>(First page is <i>one</i> instead of zero.)</b>"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by domain name / common name. This will look for the text inside the content of the domain. This is not a 'find domains that start with x' search."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "The certificate lifecycle stage. Active, Expired, and Revoked are all Issued certificates. Active means the validity period includes today. Expired means the validity period was prior to today. Revoked means that the certificate has been revoked. Pending means that the certificate is still going through the issuance process and has not been signed or issued yet. Denied means that the certificate went from pending to denied for any valid denial reason. (Customer canceled request, CAA records exist for the domain, fraud, etc...)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of certificate in terms of the number of applicable domains."
+        },
+        {
+          "name": "validation",
+          "type": "string",
+          "location": "query",
+          "description": "The validation type for the certificate. Standard/Basic Validation (DV). Organizational/Deluxe Vetting (OV). Extended/Premium Validation (EV)."
+        }
+      ]
+    },
+    {
+      "name": "certificates_retrieve-ssl-by-domain-subscription-reseller",
+      "description": "GET a page of certificates for a specific domain product. Required: guid. Optional: pageSize (default: 15), page (default: 1), domain (plus 3 more). Returns the CertificatesByDomainPaged.",
+      "method": "GET",
+      "path": "/v2/certificates/subscription/{guid}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "guid",
+          "type": "string",
+          "location": "path",
+          "description": "The Subscription GUID containing the certificates being requested.",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per query."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number. <b>(First page is <i>one</i> instead of zero.)</b>"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by domain name / common name. This will look for the text inside the content of the domain. This is not a 'find domains that start with x' search."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "The certificate lifecycle stage. Active, Expired, and Revoked are all Issued certificates. Active means the validity period includes today. Expired means the validity period was prior to today. Revoked means that the certificate has been revoked. Pending means that the certificate is still going through the issuance process and has not been signed or issued yet. Denied means that the certificate went from pending to denied for any valid denial reason. (Customer canceled request, CAA records exist for the domain, fraud, etc...)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of certificate in terms of the number of applicable domains."
+        },
+        {
+          "name": "validation",
+          "type": "string",
+          "location": "query",
+          "description": "The validation type for the certificate. Standard/Basic Validation (DV). Organizational/Deluxe Vetting (OV). Extended/Premium Validation (EV)."
+        }
+      ]
+    },
+    {
+      "name": "certificates_validate",
+      "description": "Validate a pending order for certificate. Required: contact, csr, period, productType. Optional: callbackUrl, commonName, intelVPro (default: false) (plus 4 more).",
+      "method": "POST",
+      "path": "/v1/certificates/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Required if client would like to receive stateful actions via callback during certificate lifecyle"
+        },
+        {
+          "name": "commonName",
+          "type": "string",
+          "location": "body",
+          "description": "Name to be secured in certificate. If provided, CN field in CSR will be ignored."
+        },
+        {
+          "name": "contact",
+          "type": "string",
+          "location": "body",
+          "description": "Contact",
+          "required": true
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request",
+          "required": true
+        },
+        {
+          "name": "intelVPro",
+          "type": "bool",
+          "location": "body",
+          "description": "Only used for OV"
+        },
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "body",
+          "description": "Organization"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years for certificate validity period",
+          "required": true
+        },
+        {
+          "name": "productType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of product requesting a certificate. Only required non-renewal",
+          "required": true
+        },
+        {
+          "name": "rootType",
+          "type": "string",
+          "location": "body",
+          "description": "Root Type. Depending on certificate expiration date, SHA_1 not be allowed. Will default to..."
+        },
+        {
+          "name": "slotSize",
+          "type": "string",
+          "location": "body",
+          "description": "Number of subject alternative names(SAN) to be included in certificate"
+        },
+        {
+          "name": "subjectAlternativeNames",
+          "type": "array",
+          "location": "body",
+          "description": "Subject Alternative names. Collection of subjectAlternativeNames to be included in certificate."
+        }
+      ]
+    },
+    {
+      "name": "certificates_actions_certificate-retrieve",
+      "description": "This method is used to retrieve all stateful actions relating to a certificate lifecycle. Required: certificateId. Returns array of CertificateAction.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}/actions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to register for callback",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_callback_certificate-delete",
+      "description": "Unregister the callback for a particular certificate. Required: certificateId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/certificates/{certificateId}/callback",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to unregister callback",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_callback_certificate-get",
+      "description": "This method is used to retrieve the registered callback url for a certificate. Required: certificateId. Returns the CertificateCallback.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}/callback",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to register for stateful action callback",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_callback_certificate-replace",
+      "description": "This method is used to register/replace url for callbacks for stateful actions relating to a certificate lifecycle. The callback url is a Webhook style pattern and will receive POST http requests with json body defined in the CertificateAction model definition for each certificate action. Only one callback URL is allowed to be registered for each certificateId, so it will replace a previous registration. Required: certificateId, callbackUrl.",
+      "method": "PUT",
+      "path": "/v1/certificates/{certificateId}/callback",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to register/replace for callback",
+          "required": true
+        },
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Callback url registered/replaced to receive stateful actions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_cancel_certificate",
+      "description": "Use the cancel call to cancel a pending certificate order. Required: certificateId.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/cancel",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_download_certificate",
+      "description": "Download certificate. Required: certificateId. Returns the CertificateBundle.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}/download",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to download",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_email_certificate-alternate-address",
+      "description": "This method adds an alternate email address to a certificate order and re-sends all existing request emails to that address. Required: certificateId, emailAddress. Returns the new CertificateEmailHistory.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/email/resend/{emailAddress}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to resend emails",
+          "required": true
+        },
+        {
+          "name": "emailAddress",
+          "type": "string",
+          "location": "path",
+          "description": "Specific email address to resend email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_email_certificate-history",
+      "description": "This method can be used to retrieve all emails sent for a certificate. Required: certificateId. Returns the CertificateEmailHistory.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}/email/history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to retrieve email history",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_email_certificate-resend",
+      "description": "This method can be used to resend emails by providing the certificate id and the email id. Required: certificateId, emailId.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/email/{emailId}/resend",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to resend email",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id for email to resend",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_email_certificate-resend-address",
+      "description": "This method can be used to resend emails by providing the certificate id, the email id, and the recipient email address. Required: certificateId, emailId, emailAddress.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/email/{emailId}/resend/{emailAddress}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to resend emails",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id for email to resend",
+          "required": true
+        },
+        {
+          "name": "emailAddress",
+          "type": "string",
+          "location": "path",
+          "description": "Specific email address to resend email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_reissue_certificate",
+      "description": "Rekeying is the process by which the private and public key is changed for a certificate. It is a simplified reissue,where only the CSR is changed. Reissuing is the process by which domain names are added or removed from a certificate.Once a request is validated and approved, the certificate will be reissued with the new common name and sans specified. Unlimited reissues are available during the lifetime of the certificate.New names added to a certificate that do not share the base domain of the common name may take additional time to validate. If this API call is made before a previous pending reissue has been validated and issued, the previous reissue request is automatically rejected and replaced with the current request. . Required: certificateId. Optional: callbackUrl, commonName (default: Existing common name), csr (default: Existing CSR) (plus 4 more).",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/reissue",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to reissue",
+          "required": true
+        },
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Required if client would like to receive stateful action via callback during certificate lifecyle"
+        },
+        {
+          "name": "commonName",
+          "type": "string",
+          "location": "body",
+          "description": "The common name of certificate to be secured"
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request."
+        },
+        {
+          "name": "delayExistingRevoke",
+          "type": "int",
+          "location": "body",
+          "description": "In hours, time to delay revoking existing certificate after issuance of new certificate. If revokeExistingCertOnIssuance is enabled, this value will be ignored"
+        },
+        {
+          "name": "forceDomainRevetting",
+          "type": "array",
+          "location": "body",
+          "description": "Optional field. Domain verification will be required for each domain listed here. Specify a value of * to indicate that all domains associated with the request should have their domain information reverified."
+        },
+        {
+          "name": "rootType",
+          "type": "string",
+          "location": "body",
+          "description": "Root Type. Depending on certificate expiration date, SHA_1 not be allowed. Will default to..."
+        },
+        {
+          "name": "subjectAlternativeNames",
+          "type": "array",
+          "location": "body",
+          "description": "Only used for UCC products. An array of subject alternative names to include in certificate."
+        }
+      ]
+    },
+    {
+      "name": "certificates_reissue_certificate-certificates",
+      "description": "Rekeying is the process by which the private and public key is changed for a certificate. It is a simplified reissue,where only the CSR is changed. Reissue extends validity of the existing certificate by requesting a new certificate with all the same values as existing issued certificate. Once a request is validated and approved, the certificate will be reissued with the same common name and sans specified from existing certificate. Unlimited reissues are available during the lifetime of the certificate.If this API call is made before a previous pending reissue has been validated and issued, the previous reissue request is automatically rejected and replaced with the current request. . Required: certificateId. Optional: csr, delayExistingRevoke (default: 72), forceDomainRevetting (plus 1 more).",
+      "method": "POST",
+      "path": "/v2/certificates/{certificateId}/reissue",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to reissue",
+          "required": true
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request."
+        },
+        {
+          "name": "delayExistingRevoke",
+          "type": "int",
+          "location": "body",
+          "description": "In hours, time to delay revoking existing certificate after issuance of new certificate. If revokeExistingCertOnIssuance is enabled, this value will be ignored"
+        },
+        {
+          "name": "forceDomainRevetting",
+          "type": "array",
+          "location": "body",
+          "description": "Optional field. Domain verification will be required for each domain listed here. Specify a value of * to indicate that all domains associated with the request should have their domain information reverified."
+        },
+        {
+          "name": "revokeExistingCertificate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to revoke existing certificate upon issuance of new certificate"
+        }
+      ]
+    },
+    {
+      "name": "certificates_renew_certificate",
+      "description": "Renewal is the process by which the validity of a certificate is extended. Renewal is only available 60 days prior to expiration of the previous certificate and 30 days after the expiration of the previous certificate. The renewal supports modifying a set of the original certificate order information. Once a request is validated and approved, the certificate will be issued with extended validity. Since subject alternative names can be removed during a renewal, we require that you provide the subject alternative names you expect in the renewed certificate. New names added to a certificate that do not share the base domain of the common name may take additional time to validate. . Required: certificateId. Optional: callbackUrl, commonName (default: Existing common name), csr (default: Existing CSR) (plus 3 more).",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/renew",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to renew",
+          "required": true
+        },
+        {
+          "name": "callbackUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Required if client would like to receive stateful actions via callback during certificate lifecyle"
+        },
+        {
+          "name": "commonName",
+          "type": "string",
+          "location": "body",
+          "description": "The common name of certificate to be secured"
+        },
+        {
+          "name": "csr",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate Signing Request."
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years for certificate validity period, if different from previous certificate"
+        },
+        {
+          "name": "rootType",
+          "type": "string",
+          "location": "body",
+          "description": "Root Type. Depending on certificate expiration date, SHA_1 not be allowed. Will default to..."
+        },
+        {
+          "name": "subjectAlternativeNames",
+          "type": "array",
+          "location": "body",
+          "description": "Only used for UCC products. An array of subject alternative names to include in certificate. Not including a subject alternative name that was in the previous certificate will remove it from the renewed certificate."
+        }
+      ]
+    },
+    {
+      "name": "certificates_revoke_certificate",
+      "description": "Use revoke call to revoke an active certificate, if the certificate has not been issued a 404 response will be returned. Required: certificateId, reason.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/revoke",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to revoke",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for revocation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificates_site-seal_certificate-get",
+      "description": "This method is used to obtain the site seal information for an issued certificate. A site seal is a graphic that the certificate purchaser can embed on their web site to show their visitors information about their SSL certificate. If a web site visitor clicks on the site seal image, a pop-up page is displayed that contains detailed information about the SSL certificate. The site seal token is used to link the site seal graphic image to the appropriate certificate details pop-up page display when a user clicks on the site seal. The site seal images are expected to be static images and hosted on the reseller's website, to minimize delays for customer page load times. . Required: certificateId. Optional: theme (default: LIGHT), locale (default: en). Returns the CertificateSiteSeal.",
+      "method": "GET",
+      "path": "/v1/certificates/{certificateId}/siteSeal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id",
+          "required": true
+        },
+        {
+          "name": "theme",
+          "type": "string",
+          "location": "query",
+          "description": "This value represents the visual theme of the seal. If seal doesn't exist, default values are used if params not present. If seal does exist, default values will not be used to update unless params present."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Determine locale for text displayed in seal image and verification page. If seal doesn't exist, default values are used if params not present. If seal does exist, default values will not be used to update unless params present."
+        }
+      ]
+    },
+    {
+      "name": "certificates_verify-domain-control_certificate",
+      "description": "Domain control is a means for verifying the domain included in the certificate order. This resource is useful for resellers that control the domains for their customers, and can expedite the verification process. See https://www.godaddy.com/help/verifying-your-domain-ownership-for-ssl-certificate-requests-html-or-dns-7452. Required: certificateId.",
+      "method": "POST",
+      "path": "/v1/certificates/{certificateId}/verifyDomainControl",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "certificateId",
+          "type": "string",
+          "location": "path",
+          "description": "Certificate id to lookup",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries_get",
+      "description": "Retrieves summary country information for the provided marketId and filters. Required: marketId. Returns array of CountrySummary.",
+      "method": "GET",
+      "path": "/v1/countries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "query",
+          "description": "MarketId in which the request is being made, and for which responses should be localized",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries_get-country",
+      "description": "Retrieves country and summary state information for provided countryKey. Required: countryKey, marketId. Returns array of Country.",
+      "method": "GET",
+      "path": "/v1/countries/{countryKey}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "countryKey",
+          "type": "string",
+          "location": "path",
+          "description": "The country key",
+          "required": true
+        },
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "query",
+          "description": "MarketId in which the request is being made, and for which responses should be localized",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_auctions_get-listings",
+      "description": "Get listings from GoDaddy Auctions. Required: customerId. Optional: domains, listingStatus, transferBefore (plus 3 more). Returns the Listings.",
+      "method": "GET",
+      "path": "/v1/customers/{customerId}/auctions/listings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer.",
+          "required": true
+        },
+        {
+          "name": "domains",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results for the specified domains. Use comma-separated string to include more than one domain. For example, `one.com,two.info,three.biz`"
+        },
+        {
+          "name": "listingStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results for the specified listing status."
+        },
+        {
+          "name": "transferBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Domain transfer time before this time, ISO 8601, in UTC. Defaults to last day of the previous month if not provided. Applicable only for listings in `FULFILLED` listingStatus."
+        },
+        {
+          "name": "transferAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Domain transfer time after this time, ISO 8601, in UTC. Defaults to first day of the previous month if not provided. Applicable only for listings in `FULFILLED` listingStatus."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination."
+        }
+      ]
+    },
+    {
+      "name": "domains_available",
+      "description": "Determine whether or not the specified domain is available for purchase. Required: domain. Optional: checkType (default: FAST), forTransfer (default: false). Returns the DomainAvailableResponse.",
+      "method": "GET",
+      "path": "/v1/domains/available",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name whose availability is to be checked",
+          "required": true
+        },
+        {
+          "name": "checkType",
+          "type": "string",
+          "location": "query",
+          "description": "Optimize for time ('FAST') or accuracy ('FULL')"
+        },
+        {
+          "name": "forTransfer",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not to include domains available for transfer. If set to True, checkType is ignored"
+        }
+      ]
+    },
+    {
+      "name": "domains_available-bulk",
+      "description": "Determine whether or not the specified domains are available for purchase. Optional: checkType (default: FAST). Returns the new DomainAvailableBulk.",
+      "method": "POST",
+      "path": "/v1/domains/available",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "checkType",
+          "type": "string",
+          "location": "query",
+          "description": "Optimize for time ('FAST') or accuracy ('FULL')"
+        }
+      ]
+    },
+    {
+      "name": "domains_cancel",
+      "description": "Cancel a purchased domain. Required: domain. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/domains/{domain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_contacts-validate",
+      "description": "All contacts specified in request will be validated against all domains specifed in 'domains'. As an alternative, you can also pass in tlds, with the exception of `uk`, which requires full domain names. Required: domains. Optional: marketId (default: en-US), contactAdmin, contactBilling (plus 4 more).",
+      "method": "POST",
+      "path": "/v1/domains/contacts/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "query",
+          "description": "MarketId in which the request is being made, and for which responses should be localized"
+        },
+        {
+          "name": "contactAdmin",
+          "type": "string",
+          "location": "body",
+          "description": "Contact admin"
+        },
+        {
+          "name": "contactBilling",
+          "type": "string",
+          "location": "body",
+          "description": "Contact billing"
+        },
+        {
+          "name": "contactPresence",
+          "type": "string",
+          "location": "body",
+          "description": "Contact presence"
+        },
+        {
+          "name": "contactRegistrant",
+          "type": "string",
+          "location": "body",
+          "description": "Contact registrant"
+        },
+        {
+          "name": "contactTech",
+          "type": "string",
+          "location": "body",
+          "description": "Contact tech"
+        },
+        {
+          "name": "domains",
+          "type": "array",
+          "location": "body",
+          "description": "An array of domain names to be validated against. Alternatively, you can specify the extracted tlds. However, full domain names are required if the tld is `uk`",
+          "required": true
+        },
+        {
+          "name": "entityType",
+          "type": "string",
+          "location": "body",
+          "description": "Canadian Presence Requirement (CA)"
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Retrieve details for the specified Domain. Required: domain. Returns the DomainDetail.",
+      "method": "GET",
+      "path": "/v1/domains/{domain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain name whose details are to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get-agreement",
+      "description": "Retrieve the legal agreement(s) required to purchase the specified TLD and add-ons. Required: tlds, privacy. Optional: forTransfer. Returns array of LegalAgreement.",
+      "method": "GET",
+      "path": "/v1/domains/agreements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tlds",
+          "type": "array",
+          "location": "query",
+          "description": "list of TLDs whose legal agreements are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not privacy has been requested",
+          "required": true
+        },
+        {
+          "name": "forTransfer",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not domain tranfer has been requested"
+        }
+      ]
+    },
+    {
+      "name": "domains_get-maintenances",
+      "description": "Retrieve the details for an upcoming system Maintenances. Required: maintenanceId. Returns the MaintenanceDetail.",
+      "method": "GET",
+      "path": "/v2/domains/maintenances/{maintenanceId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "maintenanceId",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier for the system maintenance",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get-usage",
+      "description": "Retrieve api usage request counts for a specific year/month. The data is retained for a period of three months. Required: yyyymm. Optional: includes. Returns the UsageMonthly.",
+      "method": "GET",
+      "path": "/v2/domains/usage/{yyyymm}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "yyyymm",
+          "type": "string",
+          "location": "path",
+          "description": "The year/month timeframe for the request counts (in the format yyyy-mm)",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Determines if the detail records (grouped by request path) are included in the response"
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Retrieve a list of Domains for the specified Shopper. Optional: statuses, statusGroups, limit (plus 3 more). Returns array of DomainSummary.",
+      "method": "GET",
+      "path": "/v1/domains",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "statuses",
+          "type": "array",
+          "location": "query",
+          "description": "Only include results with `status` value in the specified set"
+        },
+        {
+          "name": "statusGroups",
+          "type": "array",
+          "location": "query",
+          "description": "Only include results with `status` value in any of the specified groups"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of domains to return"
+        },
+        {
+          "name": "marker",
+          "type": "string",
+          "location": "query",
+          "description": "Marker Domain to use as the offset in results"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional details to be included in the response"
+        },
+        {
+          "name": "modifiedDate",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results that have been modified since the specified date"
+        }
+      ]
+    },
+    {
+      "name": "domains_list-maintenances",
+      "description": "Retrieve a list of upcoming system Maintenances. Optional: status, modifiedAtAfter, startsAtAfter (plus 1 more). Returns the Maintenance.",
+      "method": "GET",
+      "path": "/v2/domains/maintenances",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results with the selected `status` value. Returns all results if omitted ACTIVE - The upcoming maintenance is active. CANCELLED - The upcoming maintenance has been cancelled."
+        },
+        {
+          "name": "modifiedAtAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results with `modifiedAt` after the supplied date"
+        },
+        {
+          "name": "startsAtAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Only include results with `startsAt` after the supplied date"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return"
+        }
+      ]
+    },
+    {
+      "name": "domains_purchase",
+      "description": "Purchase and register the specified Domain. Required: consent, domain. Optional: contactAdmin, contactBilling, contactRegistrant (plus 5 more). Returns the new DomainPurchaseResponse.",
+      "method": "POST",
+      "path": "/v1/domains/purchase",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contactAdmin",
+          "type": "string",
+          "location": "body",
+          "description": "Contact admin"
+        },
+        {
+          "name": "contactBilling",
+          "type": "string",
+          "location": "body",
+          "description": "Contact billing"
+        },
+        {
+          "name": "contactRegistrant",
+          "type": "string",
+          "location": "body",
+          "description": "Contact registrant"
+        },
+        {
+          "name": "contactTech",
+          "type": "string",
+          "location": "body",
+          "description": "Contact tech"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "For internationalized domain names with non-ascii characters, the domain name is converted...",
+          "required": true
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Name servers"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Period"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Privacy"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Renew auto"
+        }
+      ]
+    },
+    {
+      "name": "domains_schema",
+      "description": "Retrieve the schema to be submitted when registering a Domain for the specified TLD. Required: tld. Returns the JsonSchema.",
+      "method": "GET",
+      "path": "/v1/domains/purchase/schema/{tld}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tld",
+          "type": "string",
+          "location": "path",
+          "description": "The Top-Level Domain whose schema should be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_suggest",
+      "description": "Suggest alternate Domain names based on a seed Domain, a set of keywords, or the shopper's purchase history. Optional: query, country, city (plus 6 more). Returns array of DomainSuggestion.",
+      "method": "GET",
+      "path": "/v1/domains/suggest",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name or set of keywords for which alternative domain names will be suggested"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter ISO country code to be used as a hint for target region NOTE: These are sample values, there are many more"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "Name of city to be used as a hint for target region"
+        },
+        {
+          "name": "sources",
+          "type": "array",
+          "location": "query",
+          "description": "Sources to be queried CC_TLD - Varies the TLD using Country Codes EXTENSION - Varies the TLD KEYWORD_SPIN - Identifies keywords and then rotates each one PREMIUM - Includes variations with premium prices"
+        },
+        {
+          "name": "tlds",
+          "type": "array",
+          "location": "query",
+          "description": "Top-level domains to be included in suggestions NOTE: These are sample values, there are many more"
+        },
+        {
+          "name": "lengthMax",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum length of second-level domain"
+        },
+        {
+          "name": "lengthMin",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum length of second-level domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of suggestions to return"
+        },
+        {
+          "name": "waitMs",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum amount of time, in milliseconds, to wait for responses If elapses, return the results compiled up to that point"
+        }
+      ]
+    },
+    {
+      "name": "domains_tlds",
+      "description": "Retrieves a list of TLDs supported and enabled for sale. Returns array of TldSummary.",
+      "method": "GET",
+      "path": "/v1/domains/tlds",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "domains_update",
+      "description": "Update details for the specified Domain. Required: domain. Optional: consent, exposeRegistrantOrganization, exposeWhois (plus 4 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/domains/{domain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose details are to be updated",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent"
+        },
+        {
+          "name": "exposeRegistrantOrganization",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain registrant contact organization field should be shown in the WHOIS"
+        },
+        {
+          "name": "exposeWhois",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain contact details should be shown in the WHOIS"
+        },
+        {
+          "name": "locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain should be locked to prevent transfers"
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Fully-qualified domain names for Name Servers to associate with the domain"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain should be configured to automatically renew"
+        },
+        {
+          "name": "subaccountId",
+          "type": "string",
+          "location": "body",
+          "description": "Reseller subaccount shopperid who can manage the domain"
+        }
+      ]
+    },
+    {
+      "name": "domains_validate",
+      "description": "Validate the request body using the Domain Purchase Schema for the specified TLD. Required: consent, domain. Optional: contactAdmin, contactBilling, contactRegistrant (plus 5 more).",
+      "method": "POST",
+      "path": "/v1/domains/purchase/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contactAdmin",
+          "type": "string",
+          "location": "body",
+          "description": "Contact admin"
+        },
+        {
+          "name": "contactBilling",
+          "type": "string",
+          "location": "body",
+          "description": "Contact billing"
+        },
+        {
+          "name": "contactRegistrant",
+          "type": "string",
+          "location": "body",
+          "description": "Contact registrant"
+        },
+        {
+          "name": "contactTech",
+          "type": "string",
+          "location": "body",
+          "description": "Contact tech"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "For internationalized domain names with non-ascii characters, the domain name is converted...",
+          "required": true
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Name servers"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Period"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Privacy"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Renew auto"
+        }
+      ]
+    },
+    {
+      "name": "domains_contacts_update",
+      "description": "Update domain. Required: domain, contactRegistrant. Optional: contactAdmin, contactBilling, contactTech. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/domains/{domain}/contacts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose Contacts are to be updated.",
+          "required": true
+        },
+        {
+          "name": "contactAdmin",
+          "type": "string",
+          "location": "body",
+          "description": "Contact admin"
+        },
+        {
+          "name": "contactBilling",
+          "type": "string",
+          "location": "body",
+          "description": "Contact billing"
+        },
+        {
+          "name": "contactRegistrant",
+          "type": "string",
+          "location": "body",
+          "description": "Contact registrant",
+          "required": true
+        },
+        {
+          "name": "contactTech",
+          "type": "string",
+          "location": "body",
+          "description": "Contact tech"
+        }
+      ]
+    },
+    {
+      "name": "domains_privacy_cancel",
+      "description": "Submit a privacy cancellation request for the given domain. Required: domain. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/domains/{domain}/privacy",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose privacy is to be cancelled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_privacy_purchase",
+      "description": "Purchase privacy for a specified domain. Required: domain, consent. Returns the new DomainPurchaseResponse.",
+      "method": "POST",
+      "path": "/v1/domains/{domain}/privacy/purchase",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain for which to purchase privacy",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_records_add",
+      "description": "Add the specified DNS Records to the specified Domain. Required: domain. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/domains/{domain}/records",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be augmented",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_records_delete-type-name",
+      "description": "Delete all DNS Records for the specified Domain with the specified Type and Name. Required: domain, type (default: A), name. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/domains/{domain}/records/{type}/{name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be deleted",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Type for which DNS Records are to be deleted",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Name for which DNS Records are to be deleted",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_records_get",
+      "description": "Retrieve DNS Records for the specified Domain, optionally with the specified Type and/or Name. Required: domain, type (default: A), name. Optional: offset, limit. Returns array of Dnsrecord.",
+      "method": "GET",
+      "path": "/v1/domains/{domain}/records/{type}/{name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Type for which DNS Records are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Name for which DNS Records are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return"
+        }
+      ]
+    },
+    {
+      "name": "domains_records_replace",
+      "description": "Replace all DNS Records for the specified Domain. Required: domain.",
+      "method": "PUT",
+      "path": "/v1/domains/{domain}/records",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be replaced",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_records_replace-type",
+      "description": "Replace all DNS Records for the specified Domain with the specified Type. Required: domain, type (default: A).",
+      "method": "PUT",
+      "path": "/v1/domains/{domain}/records/{type}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be replaced",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Type for which DNS Records are to be replaced",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_records_replace-type-name",
+      "description": "Replace all DNS Records for the specified Domain with the specified Type and Name. Required: domain, type (default: A), name.",
+      "method": "PUT",
+      "path": "/v1/domains/{domain}/records/{type}/{name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose DNS Records are to be replaced",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Type for which DNS Records are to be replaced",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "DNS Record Name for which DNS Records are to be replaced",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_renew_renew",
+      "description": "Renew the specified Domain. Required: domain. Optional: period. Returns the new DomainPurchaseResponse.",
+      "method": "POST",
+      "path": "/v1/domains/{domain}/renew",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to renew",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years to extend the Domain. Must not exceed maximum for TLD. When omitted, defaults to `period` specified during original purchase"
+        }
+      ]
+    },
+    {
+      "name": "domains_transfer_in",
+      "description": "Purchase and start or restart transfer process. Required: domain, authCode, consent. Optional: contactAdmin, contactBilling, contactRegistrant (plus 4 more). Returns the new DomainPurchaseResponse.",
+      "method": "POST",
+      "path": "/v1/domains/{domain}/transfer",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to transfer in",
+          "required": true
+        },
+        {
+          "name": "authCode",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization code from registrar for transferring a domain",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contactAdmin",
+          "type": "string",
+          "location": "body",
+          "description": "Contact admin"
+        },
+        {
+          "name": "contactBilling",
+          "type": "string",
+          "location": "body",
+          "description": "Contact billing"
+        },
+        {
+          "name": "contactRegistrant",
+          "type": "string",
+          "location": "body",
+          "description": "Contact registrant"
+        },
+        {
+          "name": "contactTech",
+          "type": "string",
+          "location": "body",
+          "description": "Contact tech"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Can be more than 1 but no more than 10 years total including current registration length"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not privacy has been requested"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain should be configured to automatically renew"
+        }
+      ]
+    },
+    {
+      "name": "domains_verify-registrant-email_verify-email",
+      "description": "Re-send Contact E-mail Verification for specified Domain. Required: domain.",
+      "method": "POST",
+      "path": "/v1/domains/{domain}/verifyRegistrantEmail",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose Contact E-mail should be verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create",
+      "description": "Purchase and register the specified Domain. Required: customerId, consent, domain. Optional: contacts, metadata, nameServers (plus 3 more).",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/register",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contacts-admin",
+          "wire_name": "contacts.admin",
+          "type": "string",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "contacts-admin-id",
+          "wire_name": "contacts.adminId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain admin contact. This can be specified instead of the `admin` property."
+        },
+        {
+          "name": "contacts-billing",
+          "wire_name": "contacts.billing",
+          "type": "string",
+          "location": "body",
+          "description": "Billing"
+        },
+        {
+          "name": "contacts-billing-id",
+          "wire_name": "contacts.billingId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain billing contact. This can be specified instead of the `billing` property."
+        },
+        {
+          "name": "contacts-registrant",
+          "wire_name": "contacts.registrant",
+          "type": "string",
+          "location": "body",
+          "description": "Registrant"
+        },
+        {
+          "name": "contacts-registrant-id",
+          "wire_name": "contacts.registrantId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain registrant contact. This can be specified instead of the `registrant` property."
+        },
+        {
+          "name": "contacts-tech",
+          "wire_name": "contacts.tech",
+          "type": "string",
+          "location": "body",
+          "description": "Tech"
+        },
+        {
+          "name": "contacts-tech-id",
+          "wire_name": "contacts.techId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain tech contact. This can be specified instead of the `tech` property."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "For internationalized domain names with non-ascii characters, the domain name is converted...",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "The domain eligibility data fields as specified by GET..."
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Name servers"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Period"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Privacy"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Renew auto"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers",
+      "description": "Validate the request body using the Domain Registration Schema for the specified TLD. Required: customerId, consent, domain. Optional: contacts, metadata, nameServers (plus 3 more).",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/register/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contacts-admin",
+          "wire_name": "contacts.admin",
+          "type": "string",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "contacts-admin-id",
+          "wire_name": "contacts.adminId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain admin contact. This can be specified instead of the `admin` property."
+        },
+        {
+          "name": "contacts-billing",
+          "wire_name": "contacts.billing",
+          "type": "string",
+          "location": "body",
+          "description": "Billing"
+        },
+        {
+          "name": "contacts-billing-id",
+          "wire_name": "contacts.billingId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain billing contact. This can be specified instead of the `billing` property."
+        },
+        {
+          "name": "contacts-registrant",
+          "wire_name": "contacts.registrant",
+          "type": "string",
+          "location": "body",
+          "description": "Registrant"
+        },
+        {
+          "name": "contacts-registrant-id",
+          "wire_name": "contacts.registrantId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain registrant contact. This can be specified instead of the `registrant` property."
+        },
+        {
+          "name": "contacts-tech",
+          "wire_name": "contacts.tech",
+          "type": "string",
+          "location": "body",
+          "description": "Tech"
+        },
+        {
+          "name": "contacts-tech-id",
+          "wire_name": "contacts.techId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain tech contact. This can be specified instead of the `tech` property."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "For internationalized domain names with non-ascii characters, the domain name is converted...",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "The domain eligibility data fields as specified by GET..."
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Name servers"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Period"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Privacy"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Renew auto"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-10",
+      "description": "Initiate transfer out to another registrar for a .uk domain. Required: customerId, domain, registrar.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferOut",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to initiate the transfer out for",
+          "required": true
+        },
+        {
+          "name": "registrar",
+          "type": "string",
+          "location": "query",
+          "description": "Registrar tag to push transfer to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-11",
+      "description": "Accept transfer out. Required: customerId, domain.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferOutAccept",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to accept the transfer out for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-12",
+      "description": "Reject transfer out. Required: customerId, domain. Optional: reason.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferOutReject",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to reject the transfer out for",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Transfer out reject reason"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-13",
+      "description": "Acknowledge a domain notification. Required: customerId, notificationId.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/notifications/{notificationId}/acknowledge",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "notificationId",
+          "type": "string",
+          "location": "path",
+          "description": "The notification ID to acknowledge",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-14",
+      "description": "Validate the request body using the Domain Transfer Schema for the specified TLD. Required: customerId, domain, authCode, consent. Optional: contacts, identityDocumentId, metadata (plus 3 more).",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transfer/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to transfer in",
+          "required": true
+        },
+        {
+          "name": "authCode",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization code from registrar for transferring a domain",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contacts-admin",
+          "wire_name": "contacts.admin",
+          "type": "string",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "contacts-admin-id",
+          "wire_name": "contacts.adminId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain admin contact. This can be specified instead of the `admin` property."
+        },
+        {
+          "name": "contacts-billing",
+          "wire_name": "contacts.billing",
+          "type": "string",
+          "location": "body",
+          "description": "Billing"
+        },
+        {
+          "name": "contacts-billing-id",
+          "wire_name": "contacts.billingId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain billing contact. This can be specified instead of the `billing` property."
+        },
+        {
+          "name": "contacts-registrant",
+          "wire_name": "contacts.registrant",
+          "type": "string",
+          "location": "body",
+          "description": "Registrant"
+        },
+        {
+          "name": "contacts-registrant-id",
+          "wire_name": "contacts.registrantId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain registrant contact. This can be specified instead of the `registrant` property."
+        },
+        {
+          "name": "contacts-tech",
+          "wire_name": "contacts.tech",
+          "type": "string",
+          "location": "body",
+          "description": "Tech"
+        },
+        {
+          "name": "contacts-tech-id",
+          "wire_name": "contacts.techId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain tech contact. This can be specified instead of the `tech` property."
+        },
+        {
+          "name": "identityDocumentId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the identify document that the user wants to associate with the domain being transferred in. This is required only if the gaining registry has a requirement for an approved identity document"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "The domain eligibility data fields as specified by GET..."
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Can be more than 1 but no more than 10 years total including current registration length"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not privacy has been requested"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain should be configured to automatically renew"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-2",
+      "description": "Purchase a restore for the given domain to bring it out of redemption. Required: customerId, domain, consent.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/redeem",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to request redeem for",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-3",
+      "description": "Regenerate the auth code for the given domain. Required: customerId, domain.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/regenerateAuthCode",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to update authcode for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-4",
+      "description": "Renew the specified Domain. Required: customerId, domain, consent, expires. Optional: period.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/renew",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to be renewed",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "expires",
+          "type": "string",
+          "location": "body",
+          "description": "Current date when this domain will expire",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Number of years to extend the Domain. Must not exceed maximum for TLD. When omitted, defaults to `period` specified during original purchase"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-5",
+      "description": "Purchase and start or restart transfer process. Required: customerId, domain, authCode, consent. Optional: contacts, identityDocumentId, metadata (plus 3 more).",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transfer",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to transfer in",
+          "required": true
+        },
+        {
+          "name": "authCode",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization code from registrar for transferring a domain",
+          "required": true
+        },
+        {
+          "name": "consent",
+          "type": "string",
+          "location": "body",
+          "description": "Consent",
+          "required": true
+        },
+        {
+          "name": "contacts-admin",
+          "wire_name": "contacts.admin",
+          "type": "string",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "contacts-admin-id",
+          "wire_name": "contacts.adminId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain admin contact. This can be specified instead of the `admin` property."
+        },
+        {
+          "name": "contacts-billing",
+          "wire_name": "contacts.billing",
+          "type": "string",
+          "location": "body",
+          "description": "Billing"
+        },
+        {
+          "name": "contacts-billing-id",
+          "wire_name": "contacts.billingId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain billing contact. This can be specified instead of the `billing` property."
+        },
+        {
+          "name": "contacts-registrant",
+          "wire_name": "contacts.registrant",
+          "type": "string",
+          "location": "body",
+          "description": "Registrant"
+        },
+        {
+          "name": "contacts-registrant-id",
+          "wire_name": "contacts.registrantId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain registrant contact. This can be specified instead of the `registrant` property."
+        },
+        {
+          "name": "contacts-tech",
+          "wire_name": "contacts.tech",
+          "type": "string",
+          "location": "body",
+          "description": "Tech"
+        },
+        {
+          "name": "contacts-tech-id",
+          "wire_name": "contacts.techId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain tech contact. This can be specified instead of the `tech` property."
+        },
+        {
+          "name": "identityDocumentId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the identify document that the user wants to associate with the domain being transferred in. This is required only if the gaining registry has a requirement for an approved identity document"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "The domain eligibility data fields as specified by GET..."
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "body",
+          "description": "Can be more than 1 but no more than 10 years total including current registration length"
+        },
+        {
+          "name": "privacy",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not privacy has been requested"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the domain should be configured to automatically renew"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-6",
+      "description": "Accepts the transfer in. Required: customerId, domain, authCode.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferInAccept",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to accept the transfer in for",
+          "required": true
+        },
+        {
+          "name": "authCode",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization code for transferring the Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-7",
+      "description": "Cancels the transfer in. Required: customerId, domain.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferInCancel",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to cancel the transfer in for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-8",
+      "description": "Restarts transfer in request from the beginning. Required: customerId, domain.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferInRestart",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to restart the transfer in",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_create-customers-9",
+      "description": "Retries the current transfer in request with supplied Authorization code. Required: customerId, domain, authCode.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transferInRetry",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to retry the transfer in",
+          "required": true
+        },
+        {
+          "name": "authCode",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization code for transferring the Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_delete",
+      "description": "Cancels a pending change of registrant request for a given domain. Required: customerId, domain. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/customers/{customerId}/domains/{domain}/changeOfRegistrant",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose change of registrant is to be cancelled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_delete-customers",
+      "description": "Remove the specifed DNSSEC record from the domain. Required: customerId, domain. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/customers/{customerId}/domains/{domain}/dnssecRecords",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to delete the DNSSEC record for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_delete-customers-2",
+      "description": "Cancel the most recent user action for the specified domain. Required: customerId, domain, type (default: AUTH_CODE_PURCHASE). Destructive.",
+      "method": "DELETE",
+      "path": "/v2/customers/{customerId}/domains/{domain}/actions/{type}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose action is to be cancelled",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "The type of action to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_forwards-delete",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, fqdn. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/customers/{customerId}/domains/forwards/{fqdn}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "fqdn",
+          "type": "string",
+          "location": "path",
+          "description": "The fully qualified domain name whose forwarding details are to be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_forwards-get",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, fqdn. Optional: includeSubs. Returns array of DomainForwarding.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/forwards/{fqdn}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "fqdn",
+          "type": "string",
+          "location": "path",
+          "description": "The fully qualified domain name whose forwarding details are to be retrieved.",
+          "required": true
+        },
+        {
+          "name": "includeSubs",
+          "type": "bool",
+          "location": "query",
+          "description": "Optionally include all sub domains if the fqdn specified is a domain and not a sub domain."
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_forwards-post",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, fqdn, type (default: REDIRECT_PERMANENT), url. Optional: mask.",
+      "method": "POST",
+      "path": "/v2/customers/{customerId}/domains/forwards/{fqdn}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your customers, you need to specify the Subaccount you're operating on behalf of; otherwise use your own customer id.",
+          "required": true
+        },
+        {
+          "name": "fqdn",
+          "type": "string",
+          "location": "path",
+          "description": "The fully qualified domain name whose forwarding details are to be modified.",
+          "required": true
+        },
+        {
+          "name": "mask",
+          "type": "string",
+          "location": "body",
+          "description": "Mask"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of fowarding to implement MASKED - Prevents the forwarded domain or subdomain URL from displaying in the browser's address bar. REDIRECT_PERMANENT* - Redirects to the url you specified in the forwardTo field using a `301 Moved Permanently` HTTP response. The HTTP 301 response code tells user-agents (including search engines) that the location has permanently moved. REDIRECT_TEMPORARY - Redirects to the url you specified in the forwardTo field using a `302 Found` HTTP response. The HTTP 302 response code tells user-agents (including search engines) that the location has temporarily moved.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Forwards http(s) traffic to this destination url (ex. http://www.somedomain.com/)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_forwards-put",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: customerId, fqdn, type (default: REDIRECT_PERMANENT), url. Optional: mask.",
+      "method": "PUT",
+      "path": "/v2/customers/{customerId}/domains/forwards/{fqdn}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "fqdn",
+          "type": "string",
+          "location": "path",
+          "description": "The fully qualified domain name whose forwarding details are to be modified.",
+          "required": true
+        },
+        {
+          "name": "mask",
+          "type": "string",
+          "location": "body",
+          "description": "Mask"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of fowarding to implement MASKED - Prevents the forwarded domain or subdomain URL from displaying in the browser's address bar. REDIRECT_PERMANENT* - Redirects to the url you specified in the forwardTo field using a `301 Moved Permanently` HTTP response. The HTTP 301 response code tells user-agents (including search engines) that the location has permanently moved. REDIRECT_TEMPORARY - Redirects to the url you specified in the forwardTo field using a `302 Found` HTTP response. The HTTP 302 response code tells user-agents (including search engines) that the location has temporarily moved.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Forwards http(s) traffic to this destination url (ex. http://www.somedomain.com/)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get",
+      "description": "Retrieve the next domain notification. Required: customerId. Returns the DomainNotification.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/notifications",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers",
+      "description": "Retrieve details for the specified Domain. Required: customerId, domain. Optional: includes. Returns the DomainDetailV2.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain name whose details are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional details to be included in the response"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-2",
+      "description": "Retrieve a list of notification types that are opted in. Required: customerId. Returns array of DomainNotification.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/notifications/optIn",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-3",
+      "description": "Retrieves a list of the most recent actions for the specified domain. Required: customerId, domain. Returns array of Action.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}/actions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose actions are to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-4",
+      "description": "Retrieve change of registrant information. Required: customerId, domain. Returns the DomainChangeOfRegistrant.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}/changeOfRegistrant",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose change of registrant information is to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-5",
+      "description": "Query the current transfer status. Required: customerId, domain. Returns the DomainTransferStatus.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}/transfer",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-6",
+      "description": "Retrieve the schema for the notification data for the specified notification type. Required: customerId, type (default: AUTO_RENEWAL). Returns the JsonSchema.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/notifications/schemas/{type}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "The notification type whose schema should be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-7",
+      "description": "Retrieve the schema to be submitted when registering a Domain for the specified TLD. Required: customerId, tld. Returns the JsonSchema.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/register/schema/{tld}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "tld",
+          "type": "string",
+          "location": "path",
+          "description": "The Top-Level Domain whose schema should be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-8",
+      "description": "Retrieves the most recent action for the specified domain. Required: customerId, domain, type (default: AUTH_CODE_PURCHASE). Returns the Action.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}/actions/{type}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose action is to be retrieved",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "The type of action to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_get-customers-9",
+      "description": "Retrieve privacy email forwarding settings showing where emails are delivered. Required: customerId, domain. Returns the DomainPrivacyForwarding.",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/domains/{domain}/privacy/forwarding",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain name whose details are to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_update",
+      "description": "Opt in to recieve notifications for the submitted notification types. Required: customerId, types.",
+      "method": "PUT",
+      "path": "/v2/customers/{customerId}/domains/notifications/optIn",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "location": "query",
+          "description": "The notification types that should be opted in",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_update-customers",
+      "description": "Update domain contacts. Required: customerId, domain. Optional: contacts, identityDocumentId. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/customers/{customerId}/domains/{domain}/contacts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose Contacts are to be updated.",
+          "required": true
+        },
+        {
+          "name": "contacts-admin",
+          "wire_name": "contacts.admin",
+          "type": "string",
+          "location": "body",
+          "description": "Admin"
+        },
+        {
+          "name": "contacts-admin-id",
+          "wire_name": "contacts.adminId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain admin contact. This can be specified instead of the `admin` property."
+        },
+        {
+          "name": "contacts-billing",
+          "wire_name": "contacts.billing",
+          "type": "string",
+          "location": "body",
+          "description": "Billing"
+        },
+        {
+          "name": "contacts-billing-id",
+          "wire_name": "contacts.billingId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain billing contact. This can be specified instead of the `billing` property."
+        },
+        {
+          "name": "contacts-registrant",
+          "wire_name": "contacts.registrant",
+          "type": "string",
+          "location": "body",
+          "description": "Registrant"
+        },
+        {
+          "name": "contacts-registrant-id",
+          "wire_name": "contacts.registrantId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain registrant contact. This can be specified instead of the `registrant` property."
+        },
+        {
+          "name": "contacts-tech",
+          "wire_name": "contacts.tech",
+          "type": "string",
+          "location": "body",
+          "description": "Tech"
+        },
+        {
+          "name": "contacts-tech-id",
+          "wire_name": "contacts.techId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the contact that the user wants to use for the domain tech contact. This can be specified instead of the `tech` property."
+        },
+        {
+          "name": "identityDocumentId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the identify document that the user wants to associate with the domain whose registrant contact is being updated. This is required only if user is trying to update registrant contact and the owning registry has a requirement for an approved identity document"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_update-customers-2",
+      "description": "Add the specifed DNSSEC records to the domain. Required: customerId, domain. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/customers/{customerId}/domains/{domain}/dnssecRecords",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain to add the DNSSEC record for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_update-customers-3",
+      "description": "Replaces the existing name servers on the domain. Required: customerId, domain. Optional: nameServers.",
+      "method": "PUT",
+      "path": "/v2/customers/{customerId}/domains/{domain}/nameServers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain whose name servers are to be replaced",
+          "required": true
+        },
+        {
+          "name": "nameServers",
+          "type": "array",
+          "location": "body",
+          "description": "Fully-qualified domain names for name servers to associate with the domain"
+        }
+      ]
+    },
+    {
+      "name": "domains-customers_domains_update-customers-4",
+      "description": "Update privacy email forwarding settings to determine how emails are delivered. Required: customerId, domain, emailPreference, privateEmailType. Optional: forwardingEmail. Partial update.",
+      "method": "PATCH",
+      "path": "/v2/customers/{customerId}/domains/{domain}/privacy/forwarding",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The Customer identifier Note: For API Resellers, performing actions on behalf of your...",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain name whose details are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "emailPreference",
+          "type": "string",
+          "location": "body",
+          "description": "The email forwarding preference for the domain EMAIL_FILTER - Filter for spam and forward email. EMAIL_SEND_ALL - Forward all email. EMAIL_SEND_NONE - Don't forward email.",
+          "required": true
+        },
+        {
+          "name": "forwardingEmail",
+          "type": "string",
+          "location": "body",
+          "description": "The email that it forwards to"
+        },
+        {
+          "name": "privateEmailType",
+          "type": "string",
+          "location": "body",
+          "description": "The private email type DEFAULT - Use default email address (example: domainname.com@domainsbyproxy.com) RANDOM - Randomize email address, we’ll create a private email address using random characters to further protect you from unwanted spam. (5f9e6c9368a64565bf2b2cf8db91aea4@domainsbyproxy.com)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_get",
+      "description": "API Resellers This endpoint does not support subaccounts and therefore API Resellers should not supply an X-Shopper-Id header . Required: orderId. Returns the Order.",
+      "method": "GET",
+      "path": "/v1/orders/{orderId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "orderId",
+          "type": "string",
+          "location": "path",
+          "description": "Order id whose details are to be retrieved",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_list",
+      "description": "API Resellers This endpoint does not support subaccounts and therefore API Resellers should not supply an X-Shopper-Id header . Optional: periodStart, periodEnd, domain (plus 6 more). Returns the OrderList.",
+      "method": "GET",
+      "path": "/v1/orders",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "periodStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start of range indicating what time-frame should be returned. Inclusive"
+        },
+        {
+          "name": "periodEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End of range indicating what time-frame should be returned. Inclusive"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to use as the filter of results"
+        },
+        {
+          "name": "productGroupId",
+          "type": "int",
+          "location": "query",
+          "description": "Product group id to use as the filter of results"
+        },
+        {
+          "name": "paymentProfileId",
+          "type": "int",
+          "location": "query",
+          "description": "Payment profile id to use as the filter of results"
+        },
+        {
+          "name": "parentOrderId",
+          "type": "string",
+          "location": "query",
+          "description": "Parent order id to use as the filter of results"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Property name that will be used to sort results. '-' indicates descending"
+        }
+      ]
+    },
+    {
+      "name": "parking_get-metrics",
+      "description": "Returns a list of parking metrics for the specified customer, using specified filters. Required: customerId. Optional: periodStartPtz, periodEndPtz, limit (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/customers/{customerId}/parking/metrics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer. A special alias MY is supported when accessing the authenticated customer's own data",
+          "required": true
+        },
+        {
+          "name": "periodStartPtz",
+          "type": "string",
+          "location": "query",
+          "description": "Start of range indicating what time-frame should be returned, ***inclusive***. ISO 8601 date `YYYY-MM-DD` in PT. Default value is the day before current date"
+        },
+        {
+          "name": "periodEndPtz",
+          "type": "string",
+          "location": "query",
+          "description": "End of range indicating what time-frame should be returned, ***inclusive***. ISO 8601 date `YYYY-MM-DD` in PT. Default value is the day before current date"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination"
+        }
+      ]
+    },
+    {
+      "name": "parking_get-metrics-by-domain",
+      "description": "Returns a list of domain metrics for the specified customer and portfolio, using specified filters. Required: customerId, startDate, endDate. Optional: domains, domainLike, portfolioId (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/customers/{customerId}/parking/metricsByDomain",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "An identifier for a customer. A special alias MY is supported when accessing the authenticated customer's own data",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start of range indicating what time-frame should be returned, inclusive. ISO 8601 date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End of range indicating what time-frame should be returned, inclusive. ISO 8601 date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "domains",
+          "type": "string",
+          "location": "query",
+          "description": "An array of domains to filter the results. If this filter is not provided, all domains will be returned"
+        },
+        {
+          "name": "domainLike",
+          "type": "string",
+          "location": "query",
+          "description": "represent search keyword filtering domains. If not null, `domains` will be ignored"
+        },
+        {
+          "name": "portfolioId",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier for the portfolio to filter the results. If not provided, all domains within all porfolios will be returned"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to skip for pagination"
+        }
+      ]
+    },
+    {
+      "name": "shoppers_create-subaccount",
+      "description": "Create a Subaccount owned by the authenticated Reseller. Required: email, nameFirst, nameLast, password. Optional: externalId, marketId (default: en-US). Returns the new ShopperId.",
+      "method": "POST",
+      "path": "/v1/shoppers/subaccount",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "externalId",
+          "type": "int",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "body",
+          "description": "Market id"
+        },
+        {
+          "name": "nameFirst",
+          "type": "string",
+          "location": "body",
+          "description": "Name first",
+          "required": true
+        },
+        {
+          "name": "nameLast",
+          "type": "string",
+          "location": "body",
+          "description": "Name last",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shoppers_delete",
+      "description": "Notes: Shopper deletion is not supported in OTE **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: shopperId, auditClientIp. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/shoppers/{shopperId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shopperId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the shopper to delete. Must agree with the shopper id on the token or header, if present. *Note*: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13)",
+          "required": true
+        },
+        {
+          "name": "auditClientIp",
+          "type": "string",
+          "location": "query",
+          "description": "The client IP of the user who originated the request leading to this call.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shoppers_get",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: shopperId. Optional: includes. Returns the Shopper.",
+      "method": "GET",
+      "path": "/v1/shoppers/{shopperId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shopperId",
+          "type": "string",
+          "location": "path",
+          "description": "Shopper whose details are to be retrieved",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Additional properties to be included in the response shopper object"
+        }
+      ]
+    },
+    {
+      "name": "shoppers_update",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: shopperId. Optional: email, externalId, marketId (plus 2 more). Returns the new ShopperId.",
+      "method": "POST",
+      "path": "/v1/shoppers/{shopperId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shopperId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Shopper to update",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "externalId",
+          "type": "int",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "body",
+          "description": "Market id"
+        },
+        {
+          "name": "nameFirst",
+          "type": "string",
+          "location": "body",
+          "description": "Name first"
+        },
+        {
+          "name": "nameLast",
+          "type": "string",
+          "location": "body",
+          "description": "Name last"
+        }
+      ]
+    },
+    {
+      "name": "shoppers_factors_change-password",
+      "description": "Notes: Password set is only supported by API Resellers setting subaccount passwords. **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: shopperId. Optional: secret. Returns the updated ShopperId.",
+      "method": "PUT",
+      "path": "/v1/shoppers/{shopperId}/factors/password",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shopperId",
+          "type": "string",
+          "location": "path",
+          "description": "Shopper whose password will be set",
+          "required": true
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "The secret value used to set a subaccount's password"
+        }
+      ]
+    },
+    {
+      "name": "shoppers_status_get",
+      "description": "Notes: **shopperId** is **not the same** as **customerId**. **shopperId** is a number of max length 10 digits (*ex:* 1234567890) whereas **customerId** is a UUIDv4 (*ex:* 295e3bc3-b3b9-4d95-aae5-ede41a994d13) . Required: shopperId, auditClientIp. Returns the ShopperStatus.",
+      "method": "GET",
+      "path": "/v1/shoppers/{shopperId}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shopperId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the shopper to retrieve. Must agree with the shopper id on the token or header, if present",
+          "required": true
+        },
+        {
+          "name": "auditClientIp",
+          "type": "string",
+          "location": "query",
+          "description": "The client IP of the user who originated the request leading to this call.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_cancel",
+      "description": "Cancel the specified Subscription. Required: subscriptionId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/subscriptions/{subscriptionId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Subscription to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get",
+      "description": "Retrieve details for the specified Subscription. Required: subscriptionId. Returns the Subscription.",
+      "method": "GET",
+      "path": "/v1/subscriptions/{subscriptionId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Subscription to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_list",
+      "description": "Retrieve a list of Subscriptions for the specified Shopper. Optional: productGroupKeys, includes, offset (default: 0) (plus 2 more). Returns the SubscriptionList.",
+      "method": "GET",
+      "path": "/v1/subscriptions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "productGroupKeys",
+          "type": "array",
+          "location": "query",
+          "description": "Only return Subscriptions with the specified product groups"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Optional details to be included in the response"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of Subscriptions to skip before starting to return paged results (must be a multiple of the limit)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of Subscriptions to retrieve in this page, starting after offset"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Property name that will be used to sort results. '-' indicates descending"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_product-groups",
+      "description": "Retrieve a list of ProductGroups for the specified Shopper. Returns array of ProductGroup.",
+      "method": "GET",
+      "path": "/v1/subscriptions/productGroups",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "subscriptions_update",
+      "description": "Only Subscription properties that can be changed without immediate financial impact can be modified via PATCH, whereas some properties can be changed by purchasing a renewal This endpoint only supports JWT authentication . Required: subscriptionId. Optional: paymentProfileId, renewAuto. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/subscriptions/{subscriptionId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the Subscription to update",
+          "required": true
+        },
+        {
+          "name": "paymentProfileId",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the payment profile you want to be used for automatic renewal"
+        },
+        {
+          "name": "renewAuto",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not you want the Subscription renew automatically"
+        }
+      ]
+    }
+  ]
+}

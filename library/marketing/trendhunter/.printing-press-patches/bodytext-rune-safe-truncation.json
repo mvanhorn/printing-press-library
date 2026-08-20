@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "bodytext-rune-safe-truncation",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260513-134344",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Cap parsed trend BodyText by rune count rather than byte slice so the 4000-char limit doesn't split a multi-byte UTF-8 sequence introduced by html.UnescapeString.",
+  "reason": "Greptile flagged a U+FFFD replacement glyph at the byte boundary on long trend bodies. Adds a shared truncateRunes helper in thparse/common.go and uses it from ParseTrendPage.",
+  "files": [
+    "internal/thparse/common.go",
+    "internal/thparse/html_trend.go"
+  ]
+}

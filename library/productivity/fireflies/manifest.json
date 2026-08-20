@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "fireflies-pp-mcp",
+  "display_name": "Fireflies Pp Cli",
+  "version": "4.0.6",
+  "description": "Fireflies API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fireflies-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fireflies-pp-mcp",
+      "args": [],
+      "env": {
+        "FIREFLIES_PP_CLI_API_KEY": "${user_config.fireflies_pp_cli_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fireflies_pp_cli_api_key": {
+      "type": "string",
+      "title": "FIREFLIES_PP_CLI_API_KEY",
+      "description": "Sets FIREFLIES_PP_CLI_API_KEY for the Fireflies Pp Cli MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

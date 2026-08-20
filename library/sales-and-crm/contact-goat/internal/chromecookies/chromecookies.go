@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package chromecookies reads and decrypts cookies from Chrome's local cookie
 // jar. macOS is the priority target: cookies are stored in a SQLite DB at

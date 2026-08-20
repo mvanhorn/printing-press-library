@@ -1,0 +1,344 @@
+{
+  "api_name": "digg",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "haxor-news",
+      "url": "https://github.com/donnemartin/haxor-news",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4000,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rafaelrinaldi/hn-cli",
+      "url": "https://github.com/rafaelrinaldi/hn-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 700,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "brianlovin/hn-cli",
+      "url": "https://github.com/brianlovin/hn-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "heartleo/hn-cli",
+      "url": "https://github.com/heartleo/hn-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "circumflex",
+      "url": "https://github.com/bensadeh/circumflex",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1900,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hntop-cli",
+      "url": "https://github.com/nilic/hntop-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T23:55:00Z",
+  "novel_features": [
+    {
+      "name": "Live pipeline event tail",
+      "command": "events",
+      "description": "Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns.",
+      "rationale": "Requires reading the public /api/trending/status JSON endpoint that the web UI consumes silently. The web UI shows nothing about pipeline state; this surfaces it.",
+      "example": "digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank",
+      "why_it_matters": "When an agent needs 'tell me when story X just climbed N ranks' or 'what new clusters did Digg detect in the last hour', this is the only way.",
+      "group": "Live pipeline observability"
+    },
+    {
+      "name": "Replacement archaeology",
+      "command": "replaced",
+      "description": "Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.",
+      "rationale": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once a story drops, the rationale is gone. The local snapshot store keeps it.",
+      "example": "digg-pp-cli replaced --since 24h --json",
+      "why_it_matters": "Best-of-feed shifts faster than people remember. This makes 'what did Digg drop and why' queryable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Score component breakdown",
+      "command": "evidence",
+      "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.",
+      "rationale": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score.",
+      "example": "digg-pp-cli evidence iq7usf9e --json",
+      "why_it_matters": "When a user asks 'why is THIS the top story', the answer is structured data; agents can compose with it.",
+      "group": "Transparency"
+    },
+    {
+      "name": "Time-windowed sentiment",
+      "command": "sentiment",
+      "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.",
+      "rationale": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them.",
+      "example": "digg-pp-cli sentiment iq7usf9e --window 6h --json",
+      "why_it_matters": "Tells an agent whether the conversation around a story is still net-positive or has soured; useful before quoting a story.",
+      "group": "Transparency"
+    },
+    {
+      "name": "Cross-aggregator references",
+      "command": "crossref",
+      "description": "Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.",
+      "rationale": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline.",
+      "example": "digg-pp-cli crossref iq7usf9e",
+      "why_it_matters": "Removes the manual 'is HN talking about this too' step from any cross-aggregator research workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Influence-ranked author leaderboard",
+      "command": "authors top",
+      "description": "Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.",
+      "rationale": "Digg AI's product premise is a ranked 1,000-account leaderboard on X. The /ai/influencers page is currently 404; the data is embedded in every feed response.",
+      "example": "digg-pp-cli authors top --by influence --limit 50 --json",
+      "why_it_matters": "Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rank history per cluster",
+      "command": "history",
+      "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.",
+      "rationale": "Local snapshots persist what the web UI overwrites every fetch.",
+      "example": "digg-pp-cli history iq7usf9e --json",
+      "why_it_matters": "'Entered at #18, peaked at #4 over 6h, dropped to #22 by 24h' is impossible to learn from the live site.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author surfacing record",
+      "command": "author",
+      "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).",
+      "rationale": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them per author.",
+      "example": "digg-pp-cli author Scobleizer --since 7d --json",
+      "why_it_matters": "'Show me every story this account surfaced this week' is the investor-scout query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rank-movement watcher",
+      "command": "watch",
+      "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.",
+      "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.",
+      "example": "digg-pp-cli watch --alert 'rank.delta\u003e=10'",
+      "why_it_matters": "Read-only operational watcher; never writes anything back to Digg.",
+      "group": "Live pipeline observability"
+    },
+    {
+      "name": "Pipeline status dashboard",
+      "command": "pipeline status",
+      "description": "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events.",
+      "rationale": "Operational telemetry endpoint exposed publicly; CLI presents it as a dashboard.",
+      "example": "digg-pp-cli pipeline status --watch",
+      "why_it_matters": "Lets ops and power users see when a fresh batch is about to land and what's been ingested in the last hour.",
+      "group": "Live pipeline observability"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live pipeline event tail",
+      "command": "events",
+      "description": "Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns.",
+      "rationale": "Requires reading the public /api/trending/status JSON endpoint that the web UI consumes silently. The web UI shows nothing about pipeline state; this surfaces it.",
+      "example": "digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank",
+      "why_it_matters": "When an agent needs 'tell me when story X just climbed N ranks' or 'what new clusters did Digg detect in the last hour', this is the only way.",
+      "group": "Live pipeline observability"
+    },
+    {
+      "name": "Replacement archaeology",
+      "command": "replaced",
+      "description": "Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.",
+      "rationale": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once a story drops, the rationale is gone. The local snapshot store keeps it.",
+      "example": "digg-pp-cli replaced --since 24h --json",
+      "why_it_matters": "Best-of-feed shifts faster than people remember. This makes 'what did Digg drop and why' queryable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Score component breakdown",
+      "command": "evidence",
+      "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.",
+      "rationale": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score.",
+      "example": "digg-pp-cli evidence iq7usf9e --json",
+      "why_it_matters": "When a user asks 'why is THIS the top story', the answer is structured data; agents can compose with it.",
+      "group": "Transparency"
+    },
+    {
+      "name": "Time-windowed sentiment",
+      "command": "sentiment",
+      "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.",
+      "rationale": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them.",
+      "example": "digg-pp-cli sentiment iq7usf9e --window 6h --json",
+      "why_it_matters": "Tells an agent whether the conversation around a story is still net-positive or has soured; useful before quoting a story.",
+      "group": "Transparency"
+    },
+    {
+      "name": "Cross-aggregator references",
+      "command": "crossref",
+      "description": "Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.",
+      "rationale": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline.",
+      "example": "digg-pp-cli crossref iq7usf9e",
+      "why_it_matters": "Removes the manual 'is HN talking about this too' step from any cross-aggregator research workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Influence-ranked author leaderboard",
+      "command": "authors top",
+      "description": "Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.",
+      "rationale": "Digg AI's product premise is a ranked 1,000-account leaderboard on X. The /ai/influencers page is currently 404; the data is embedded in every feed response.",
+      "example": "digg-pp-cli authors top --by influence --limit 50 --json",
+      "why_it_matters": "Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rank history per cluster",
+      "command": "history",
+      "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.",
+      "rationale": "Local snapshots persist what the web UI overwrites every fetch.",
+      "example": "digg-pp-cli history iq7usf9e --json",
+      "why_it_matters": "'Entered at #18, peaked at #4 over 6h, dropped to #22 by 24h' is impossible to learn from the live site.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author surfacing record",
+      "command": "author",
+      "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).",
+      "rationale": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them per author.",
+      "example": "digg-pp-cli author Scobleizer --since 7d --json",
+      "why_it_matters": "'Show me every story this account surfaced this week' is the investor-scout query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rank-movement watcher",
+      "command": "watch",
+      "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.",
+      "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.",
+      "example": "digg-pp-cli watch --alert 'rank.delta\u003e=10'",
+      "why_it_matters": "Read-only operational watcher; never writes anything back to Digg.",
+      "group": "Live pipeline observability"
+    },
+    {
+      "name": "Pipeline status dashboard",
+      "command": "pipeline status",
+      "description": "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events.",
+      "rationale": "Operational telemetry endpoint exposed publicly; CLI presents it as a dashboard.",
+      "example": "digg-pp-cli pipeline status --watch",
+      "why_it_matters": "Lets ops and power users see when a fresh batch is about to land and what's been ingested in the last hour.",
+      "group": "Live pipeline observability"
+    }
+  ],
+  "narrative": {
+    "display_name": "Digg AI",
+    "headline": "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and rank-history nobody else surfaces.",
+    "value_prop": "Digg AI is a curated leaderboard of 1,000 AI accounts on X and the story clusters they surface. The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, and exposes Digg's own replacement rationale and gravity components so an agent can answer 'why this story?' and 'what got dropped overnight?' with structured data.",
+    "auth_narrative": "No auth required. The CLI uses only public surfaces — the /ai page (HTML+RSC scrape) and /api/trending/status (public JSON). It does not use Clerk session cookies or any authenticated endpoint, by design: this is a read-only research tool, and Digg's parent platform was shut down over AI-agent abuse. The CLI is read-only and identifies itself with a clear User-Agent so Digg ops can rate-limit it cleanly.",
+    "quickstart": [
+      {
+        "command": "digg-pp-cli sync",
+        "comment": "Pull the current /ai feed and /api/trending/status events into the local store"
+      },
+      {
+        "command": "digg-pp-cli top --limit 10 --json",
+        "comment": "Read today's top 10 clusters as structured JSON"
+      },
+      {
+        "command": "digg-pp-cli events --since 1h --type fast_climb",
+        "comment": "See which stories climbed the rankings in the last hour with explicit rank deltas"
+      },
+      {
+        "command": "digg-pp-cli replaced --since 24h",
+        "comment": "What got knocked out of the rankings overnight and Digg's own rationale for each"
+      },
+      {
+        "command": "digg-pp-cli authors top --by influence --limit 25",
+        "comment": "The Digg AI 1000's top influencers by Digg's score"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "All commands return empty after install",
+        "fix": "Run `digg-pp-cli sync` first — the local store is empty until the first sync."
+      },
+      {
+        "symptom": "`events` shows no fast_climb / cluster_detected events",
+        "fix": "The pipeline batches every ~10 minutes. Wait for `nextFetchAt` from `digg-pp-cli pipeline status` or filter by a different `--type`."
+      },
+      {
+        "symptom": "HTTP 429 on sync",
+        "fix": "Adaptive limiter backs off automatically. If it persists, lower the polling rate with `--interval 120s` on `watch` commands."
+      },
+      {
+        "symptom": "Story command returns 'cluster not found'",
+        "fix": "Use `clusterUrlId` (the 8-char alphanumeric short ID), not the UUID-style clusterId. `digg-pp-cli top --json --select clusterUrlId` lists them."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or power user needs structured access to Digg AI's rankings, ranking-change history, pipeline events, or per-cluster transparency record. It is the right tool for tracking AI-news cycle movement, building cross-aggregator research over HN+Techmeme+Digg, or exposing Digg AI signals into a larger automation. Do NOT use it for vote, comment, or post automation — those mutations are explicitly out of scope.",
+    "recipes": [
+      {
+        "title": "What climbed \u003e=10 ranks in the last hour",
+        "command": "digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank",
+        "explanation": "Reads the public events stream, filters to fast-climb events only, and narrows the JSON to the five fields an agent actually needs."
+      },
+      {
+        "title": "Why is a story the top story",
+        "command": "digg-pp-cli evidence 65idu2x5 --json",
+        "explanation": "Print the scoreComponents and evidence array for one cluster. Get a clusterUrlId from `digg-pp-cli top --json --select clusterUrlId`."
+      },
+      {
+        "title": "Show every cluster a given X account contributed to this week",
+        "command": "digg-pp-cli author Scobleizer --since 7d --json --select label,clusterUrlId,activityAt",
+        "explanation": "Queries the local store for clusters where the named author was a contributor; output is narrowed for agent consumption."
+      },
+      {
+        "title": "Cross-reference a story across HN and Techmeme",
+        "command": "digg-pp-cli crossref 65idu2x5",
+        "explanation": "Uses Digg's own hackerNews/techmeme reference fields so you don't have to search those sites manually. Pass any clusterUrlId from `top --json --select clusterUrlId`."
+      },
+      {
+        "title": "Tail the pipeline live",
+        "command": "digg-pp-cli pipeline status --watch",
+        "explanation": "One-screen dashboard of isFetching, nextFetchAt, storiesToday, clustersToday, and the last few pipeline events."
+      }
+    ],
+    "trigger_phrases": [
+      "what's trending on Digg AI",
+      "digg ai top stories",
+      "what climbed the AI news rankings",
+      "Digg AI 1000 leaderboard",
+      "what got replaced on Digg",
+      "tail the Digg pipeline",
+      "use digg",
+      "run digg-pp-cli"
+    ]
+  }
+}

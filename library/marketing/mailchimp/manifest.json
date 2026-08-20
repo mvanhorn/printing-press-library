@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "mailchimp-pp-mcp",
+  "display_name": "Mailchimp Marketing",
+  "version": "4.8.0",
+  "description": "Mailchimp Marketing API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mailchimp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mailchimp-pp-mcp",
+      "args": [],
+      "env": {
+        "MAILCHIMP_PASSWORD": "${user_config.mailchimp_password}",
+        "MAILCHIMP_USERNAME": "${user_config.mailchimp_username}"
+      }
+    }
+  },
+  "user_config": {
+    "mailchimp_password": {
+      "type": "string",
+      "title": "MAILCHIMP_PASSWORD",
+      "description": "Sets MAILCHIMP_PASSWORD for the Mailchimp Marketing MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "mailchimp_username": {
+      "type": "string",
+      "title": "MAILCHIMP_USERNAME",
+      "description": "Sets MAILCHIMP_USERNAME for the Mailchimp Marketing MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

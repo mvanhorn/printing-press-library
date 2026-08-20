@@ -58,8 +58,15 @@ func extractMetricValue(data json.RawMessage, metricName string) int64 {
 
 // openLocalStore opens the standard CLI database. Centralized so every novel
 // command uses the same default path and error message.
-func openLocalStore() (*store.Store, error) {
-	return store.Open(defaultDBPath("postman-explore-pp-cli"))
+func localStorePath(flags *rootFlags) string {
+	if flags != nil {
+		return store.ResolvePath("postman-explore-pp-cli", flags.dbPath)
+	}
+	return store.DefaultPath("postman-explore-pp-cli")
+}
+
+func openLocalStore(flags *rootFlags) (*store.Store, error) {
+	return store.Open(localStorePath(flags))
 }
 
 // queryNetworkEntities runs a SELECT against the synced entity rows and

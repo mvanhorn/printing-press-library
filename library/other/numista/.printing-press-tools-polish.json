@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-05-17T10:20:10.463536Z",
+  "cli_dir": "\u003ccli-dir\u003e/numista",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "mints",
+      "file": "mints.go",
+      "line": 11,
+      "evidence": "Manage mints",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for mints/get and mints/get-mintid; Hidden:true so it isn't user-facing — its real subcommands carry agent-grade descriptions; generator-template fix tracked as retro candidate"
+    },
+    {
+      "kind": "thin-short",
+      "command": "types",
+      "file": "types.go",
+      "line": 11,
+      "evidence": "Manage types",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for coin types (types/get, types/search, types/issues, types/batch, types/series); helps category but agents call the leaf subcommands which are described; retro candidate for richer parent Short in generator"
+    },
+    {
+      "kind": "thin-short",
+      "command": "issues",
+      "file": "types_issues.go",
+      "line": 11,
+      "evidence": "Manage issues",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper nested under types for coin issues (types issues get, types issues get-prices); leaf subcommands carry descriptive Shorts — agents bind tools to the leaves, not this category container"
+    },
+    {
+      "kind": "thin-short",
+      "command": "collected-items",
+      "file": "users_collected-items.go",
+      "line": 11,
+      "evidence": "Manage collected items",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper nested under users for personal collection items (5 subcommands: add, delete, edit, get, get-users); subcommands describe the specific mutation/read action — this entry is a navigation node, not a callable action"
+    },
+    {
+      "kind": "thin-short",
+      "command": "collections",
+      "file": "users_collections.go",
+      "line": 11,
+      "evidence": "Manage collections",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper nested under users for personal collections (get-user plus hydrate workflow); the hydrate transcendence command at this path carries its own rich Short; container itself never invoked as a leaf tool"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-17T10:18:53.014618Z"
+  }
+}

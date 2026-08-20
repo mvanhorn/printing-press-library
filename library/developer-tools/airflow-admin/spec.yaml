@@ -1,0 +1,619 @@
+openapi: 3.0.3
+info:
+  title: Apache Airflow Admin API
+  version: 1.0.0
+  description: >-
+    Focused read-first API surface for inspecting Apache Airflow DAGs, DAG runs,
+    task instances, pools, variables, connections metadata, and runtime health.
+servers:
+  - url: http://localhost:8080
+    description: Local Apache Airflow quick-start server
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: Airflow JWT token authentication.
+  - name: dags
+    description: DAG inventory and metadata.
+  - name: dag-runs
+    description: DAG run history and state.
+  - name: task-instances
+    description: Per-run task state and timing.
+  - name: tasks
+    description: DAG task definitions.
+  - name: pools
+    description: Airflow pool capacity and occupancy.
+  - name: variables
+    description: Airflow variable metadata.
+  - name: connections
+    description: Airflow connection metadata.
+  - name: health
+    description: Runtime health and version checks.
+paths:
+  /auth/token:
+    post:
+      tags: [auth]
+      operationId: createToken
+      summary: Create JWT token
+      description: Authenticate with an Airflow username and password and return a JWT access token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+      responses:
+        '200':
+          description: JWT token created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+  /api/v2/dags:
+    get:
+      tags: [dags]
+      operationId: listDags
+      summary: List DAGs
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: dag_id_pattern
+          in: query
+          schema:
+            type: string
+          description: Optional DAG id pattern filter.
+        - name: paused
+          in: query
+          schema:
+            type: boolean
+          description: Filter DAGs by paused state.
+      responses:
+        '200':
+          description: DAG collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DagCollection'
+  /api/v2/dags/{dag_id}:
+    get:
+      tags: [dags]
+      operationId: getDag
+      summary: Get DAG
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+      responses:
+        '200':
+          description: DAG detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dag'
+  /api/v2/dags/{dag_id}/details:
+    get:
+      tags: [dags]
+      operationId: getDagDetails
+      summary: Get DAG details
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+      responses:
+        '200':
+          description: DAG details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DagDetails'
+  /api/v2/dags/{dag_id}/dagRuns:
+    get:
+      tags: [dag-runs]
+      operationId: listDagRuns
+      summary: List DAG runs
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: state
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more DAG run states.
+        - name: start_date_gte
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Earliest start date.
+        - name: start_date_lte
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Latest start date.
+        - name: order_by
+          in: query
+          schema:
+            type: string
+          description: Sort expression supported by Airflow.
+      responses:
+        '200':
+          description: DAG run collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DagRunCollection'
+  /api/v2/dags/{dag_id}/dagRuns/{dag_run_id}:
+    get:
+      tags: [dag-runs]
+      operationId: getDagRun
+      summary: Get DAG run
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+        - $ref: '#/components/parameters/DagRunID'
+      responses:
+        '200':
+          description: DAG run detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DagRun'
+  /api/v2/dags/{dag_id}/dagRuns/{dag_run_id}/taskInstances:
+    get:
+      tags: [task-instances]
+      operationId: listTaskInstances
+      summary: List task instances
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+        - $ref: '#/components/parameters/DagRunID'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: state
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by task instance state.
+      responses:
+        '200':
+          description: Task instance collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskInstanceCollection'
+  /api/v2/dags/{dag_id}/dagRuns/{dag_run_id}/taskInstances/{task_id}:
+    get:
+      tags: [task-instances]
+      operationId: getTaskInstance
+      summary: Get task instance
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+        - $ref: '#/components/parameters/DagRunID'
+        - $ref: '#/components/parameters/TaskID'
+      responses:
+        '200':
+          description: Task instance detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskInstance'
+  /api/v2/dags/{dag_id}/tasks:
+    get:
+      tags: [tasks]
+      operationId: listTasks
+      summary: List tasks for DAG
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+      responses:
+        '200':
+          description: Task collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCollection'
+  /api/v2/dags/{dag_id}/tasks/{task_id}:
+    get:
+      tags: [tasks]
+      operationId: getTask
+      summary: Get DAG task
+      parameters:
+        - $ref: '#/components/parameters/DagID'
+        - $ref: '#/components/parameters/TaskID'
+      responses:
+        '200':
+          description: Task detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /api/v2/pools:
+    get:
+      tags: [pools]
+      operationId: listPools
+      summary: List pools
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Pool collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolCollection'
+  /api/v2/pools/{pool_name}:
+    get:
+      tags: [pools]
+      operationId: getPool
+      summary: Get pool
+      parameters:
+        - name: pool_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pool detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool'
+  /api/v2/variables:
+    get:
+      tags: [variables]
+      operationId: listVariables
+      summary: List variables
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Variable collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariableCollection'
+  /api/v2/connections:
+    get:
+      tags: [connections]
+      operationId: listConnections
+      summary: List connections
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Connection collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionCollection'
+  /api/v2/monitor/health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      summary: Get health
+      responses:
+        '200':
+          description: Airflow health state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthInfo'
+  /api/v2/version:
+    get:
+      tags: [health]
+      operationId: getVersion
+      summary: Get Airflow version
+      responses:
+        '200':
+          description: Airflow version information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionInfo'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    DagID:
+      name: dag_id
+      in: path
+      required: true
+      schema:
+        type: string
+    DagRunID:
+      name: dag_run_id
+      in: path
+      required: true
+      schema:
+        type: string
+    TaskID:
+      name: task_id
+      in: path
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+      description: Maximum records to return.
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Records to skip.
+  schemas:
+    AuthTokenRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    AuthTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+    DagCollection:
+      type: object
+      properties:
+        dags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dag'
+        total_entries:
+          type: integer
+    Dag:
+      type: object
+      additionalProperties: true
+      properties:
+        dag_id:
+          type: string
+        description:
+          type: string
+        fileloc:
+          type: string
+        is_active:
+          type: boolean
+        is_paused:
+          type: boolean
+        last_parsed_time:
+          type: string
+          format: date-time
+        owners:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    DagDetails:
+      allOf:
+        - $ref: '#/components/schemas/Dag'
+        - type: object
+          additionalProperties: true
+          properties:
+            schedule_interval:
+              nullable: true
+            max_active_runs:
+              type: integer
+            catchup:
+              type: boolean
+    DagRunCollection:
+      type: object
+      properties:
+        dag_runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DagRun'
+        total_entries:
+          type: integer
+    DagRun:
+      type: object
+      additionalProperties: true
+      properties:
+        dag_id:
+          type: string
+        dag_run_id:
+          type: string
+        state:
+          type: string
+        run_type:
+          type: string
+        logical_date:
+          type: string
+          format: date-time
+          nullable: true
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        duration:
+          type: number
+          nullable: true
+    TaskInstanceCollection:
+      type: object
+      properties:
+        task_instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskInstance'
+        total_entries:
+          type: integer
+    TaskInstance:
+      type: object
+      additionalProperties: true
+      properties:
+        dag_id:
+          type: string
+        dag_run_id:
+          type: string
+        task_id:
+          type: string
+        state:
+          type: string
+        try_number:
+          type: integer
+        operator:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        duration:
+          type: number
+          nullable: true
+    TaskCollection:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        total_entries:
+          type: integer
+    Task:
+      type: object
+      additionalProperties: true
+      properties:
+        task_id:
+          type: string
+        owner:
+          type: string
+        retries:
+          type: integer
+        downstream_task_ids:
+          type: array
+          items:
+            type: string
+    PoolCollection:
+      type: object
+      properties:
+        pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pool'
+        total_entries:
+          type: integer
+    Pool:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+        slots:
+          type: integer
+        occupied_slots:
+          type: integer
+        queued_slots:
+          type: integer
+        open_slots:
+          type: integer
+    VariableCollection:
+      type: object
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variable'
+        total_entries:
+          type: integer
+    Variable:
+      type: object
+      additionalProperties: true
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+          nullable: true
+    ConnectionCollection:
+      type: object
+      properties:
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connection'
+        total_entries:
+          type: integer
+    Connection:
+      type: object
+      additionalProperties: true
+      properties:
+        connection_id:
+          type: string
+        conn_type:
+          type: string
+        host:
+          type: string
+          nullable: true
+        port:
+          type: integer
+          nullable: true
+        schema:
+          type: string
+          nullable: true
+    Tag:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+    HealthInfo:
+      type: object
+      additionalProperties: true
+      properties:
+        metadatabase:
+          $ref: '#/components/schemas/HealthComponent'
+        scheduler:
+          $ref: '#/components/schemas/HealthComponent'
+        triggerer:
+          $ref: '#/components/schemas/HealthComponent'
+    HealthComponent:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+        latest_scheduler_heartbeat:
+          type: string
+          nullable: true
+    VersionInfo:
+      type: object
+      additionalProperties: true
+      properties:
+        version:
+          type: string
+        git_version:
+          type: string
+          nullable: true

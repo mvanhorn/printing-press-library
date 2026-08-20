@@ -1,0 +1,29 @@
+{
+  "api_name": "drudgereport",
+  "base_url": "https://drudgereport.com",
+  "description": "Drudge Report from your terminal — with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "feed_rss",
+      "description": "Fetch the unofficial RSS feed mirror. Items embed position labels (Main headline / First column / Second column) in CDATA and use the real outbound URL as the GUID. Pre-parsed by the CLI; most users will not call this directly. Returns the RawHTML.",
+      "method": "GET",
+      "path": "https://feedpress.me/drudgereportfeed",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "page_home",
+      "description": "Fetch the raw drudgereport.com HTML page. The CLI's parser turns this into ranked headlines with slot, is_red, image_url, and outbound_domain fields. Most users do not need to call this directly. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

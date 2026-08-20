@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "linear-pp-mcp",
   "display_name": "Linear",
-  "version": "3.10.0",
+  "version": "4.9.0",
   "description": "Linear API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"

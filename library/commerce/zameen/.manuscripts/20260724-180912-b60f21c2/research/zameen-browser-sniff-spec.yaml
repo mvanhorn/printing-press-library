@@ -1,0 +1,144 @@
+name: zameen
+description: "Zameen.com property search CLI — search Pakistan real-estate listings with a local store, saved searches, and price-drop alerts"
+version: "0.1.0"
+base_url: "https://www.zameen.com"
+http_transport: standard
+health_check_path: "/"
+category: commerce
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/zameen-pp-cli/config.toml"
+
+cli_description: "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers."
+
+learn:
+  entity_lookup_seeds:
+    city:
+      - canonical: Islamabad
+        aliases: [isb, isl, islamabad-3, capital]
+      - canonical: Lahore
+        aliases: [lhr, lahore-1]
+      - canonical: Karachi
+        aliases: [khi, karachi-2]
+      - canonical: Rawalpindi
+        aliases: [rwp, pindi, rawalpindi-41]
+      - canonical: Faisalabad
+        aliases: [fsd, faisalabad-16]
+      - canonical: Multan
+        aliases: [mux, multan-15]
+    category:
+      - canonical: Homes
+        aliases: [home, house, houses, flat, flats, apartment, apartments]
+      - canonical: Plots
+        aliases: [plot, plots, land, file, files]
+      - canonical: Commercial
+        aliases: [commercial, office, shop, warehouse]
+      - canonical: Rentals
+        aliases: [rent, rental, rentals, for-rent]
+  synonyms:
+    "for rent": "rentals"
+    "to rent": "rentals"
+    "for sale": "for-sale"
+    "on sale": "for-sale"
+    "most recent": "newest"
+    "cheapest": "price-low"
+  stopwords:
+    - property
+    - listing
+    - zameen
+
+resources:
+  listings:
+    description: "Search and read Zameen property listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/{category}/{location}-{page}.html"
+        description: "Fetch one page of Zameen search results (server-rendered; listings parsed from the embedded page state)"
+        example: "  zameen-pp-cli search --city Islamabad --purpose buy --min-beds 3 --max-price 30000000"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            default: "Homes"
+            enum: [Homes, Plots, Commercial, Rentals]
+            description: "Property category segment (Homes, Plots, Commercial, Rentals)"
+          - name: location
+            type: string
+            required: true
+            positional: true
+            default: "Islamabad-3"
+            description: "Zameen location slug with numeric id, e.g. Islamabad-3 or Lahore_DHA_Defence-9"
+          - name: page
+            type: int
+            required: true
+            positional: true
+            default: 1
+            description: "1-based results page (25 listings per page)"
+
+types:
+  Listing:
+    fields:
+      - name: external_id
+        type: string
+        description: "Zameen listing external ID (stable public identifier)"
+      - name: title
+        type: string
+        description: "Listing title"
+      - name: purpose
+        type: string
+        description: "for-sale or rent"
+      - name: property_type
+        type: string
+        description: "Homes/Plots/Commercial and subtype"
+      - name: price
+        type: int
+        description: "Price in PKR"
+      - name: area_marla
+        type: float
+        description: "Area in Marla (converted)"
+      - name: beds
+        type: int
+        description: "Number of bedrooms"
+      - name: baths
+        type: int
+        description: "Number of bathrooms"
+      - name: city
+        type: string
+        description: "City name"
+      - name: location
+        type: string
+        description: "Area / society (deepest location name)"
+      - name: agency
+        type: string
+        description: "Listing agency name"
+      - name: is_verified
+        type: bool
+        description: "Whether Zameen has verified the listing"
+      - name: lat
+        type: float
+        description: "Latitude"
+      - name: lng
+        type: float
+        description: "Longitude"
+      - name: created_at
+        type: int
+        description: "Listing creation unix timestamp"
+      - name: updated_at
+        type: int
+        description: "Listing update unix timestamp"
+      - name: url
+        type: string
+        description: "Canonical Zameen listing URL"

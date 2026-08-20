@@ -1,0 +1,593 @@
+{
+  "api_name": "breezedoc",
+  "base_url": "https://breezedoc.com/api",
+  "description": "# Introduction\nBreezeDoc's REST API provides a handful of endpoints which can be used to get information about your account and bookings.  It uses conventional OAuth 2.0 protocol for authentication.\n\n# Authentication\n### Personal Access Token\nCreate a personal access token at https://breezedoc.com/integrations/api.  Once created, it can be used to authenticate requests by passing it in the `Authorization` header.\n```\nAuthorization: Bearer {TOKEN}\n```\n\n### OAuth 2.0 Client\nIf you're building a custom integration to BreezeDoc which requires users to authenticate in order to get access tokens to make API requests on their behalf, you'll need to create an OAuth 2.0 client. This is easy to do from the \\\"OAuth Apps\\\" settings page found here https://breezedoc.com/integrations/api\n\nUsing the `authorization_code` grant type to authenticate users using OAuth 2.0 to retrieve an access token is fairly conventional, more information on that process can be found here: https://www.oauth.com/oauth2-servers/server-side-apps/authorization-code/\n\n\n* Authorization URL: https://breezedoc.com/oauth/authorize\n* Access Token URL: https://breezedoc.com/oauth/token\n\n# Rate Limiting\nThe API currently has a rate limit of 60 requests per minute. If you exceed this limit, you will receive a 429 error.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BREEZEDOC_API_TOKEN",
+      "BREEZEDOC_BEARER_TOKEN",
+      "BREEZEDOC_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BREEZEDOC_API_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "BREEZEDOC_BEARER_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "BREEZEDOC_BEARER_AUTH",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://breezedoc.com/integrations/api"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "documents_get",
+      "description": "Get a specific document. Required: document. Returns the Document.",
+      "method": "GET",
+      "path": "/documents/{document}",
+      "params": [
+        {
+          "name": "document",
+          "type": "int",
+          "location": "path",
+          "description": "Document",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_list",
+      "description": "Get list of documents. Optional: order_by, direction. Returns the DocumentsListResponse.",
+      "method": "GET",
+      "path": "/documents",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Direction"
+        }
+      ]
+    },
+    {
+      "name": "documents_store",
+      "description": "Create a new document. Required: title. Optional: recipients. Returns the new Document.",
+      "method": "POST",
+      "path": "/documents",
+      "params": [
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "Recipients"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_recipients_list-document",
+      "description": "Get recipients for a specific document. Required: document. Optional: order_by, direction, completed. Returns the RecipientsListDocumentResponse.",
+      "method": "GET",
+      "path": "/documents/{document}/recipients",
+      "params": [
+        {
+          "name": "document",
+          "type": "int",
+          "location": "path",
+          "description": "Document",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Direction"
+        },
+        {
+          "name": "completed",
+          "type": "string",
+          "location": "query",
+          "description": "Completed"
+        }
+      ]
+    },
+    {
+      "name": "documents_send_document",
+      "description": "Send a document to its recipients. Required: document, recipients. Returns the new Document.",
+      "method": "POST",
+      "path": "/documents/{document}/send",
+      "params": [
+        {
+          "name": "document",
+          "type": "int",
+          "location": "path",
+          "description": "Document",
+          "required": true
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recipients that must match the number of recipients on the document, provided in ascending order of party.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_create",
+      "description": "Creates a new invoice with line items. Optionally sends the invoice immediately by setting `send: true`. Required: currency, customer_email, description, items, payment_due. Optional: customer_name, footer_note, invoice_number (plus 4 more). Returns the new InvoicesCreateResponse.",
+      "method": "POST",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter ISO currency code (uppercase)",
+          "required": true
+        },
+        {
+          "name": "customer_email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer email",
+          "required": true
+        },
+        {
+          "name": "customer_name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "footer_note",
+          "type": "string",
+          "location": "body",
+          "description": "Footer note"
+        },
+        {
+          "name": "invoice_number",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice reference number."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items",
+          "required": true
+        },
+        {
+          "name": "payment_due",
+          "type": "string",
+          "location": "body",
+          "description": "Payment due",
+          "required": true
+        },
+        {
+          "name": "payment_platform_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of payment platform UUIDs to enable for this invoice."
+        },
+        {
+          "name": "payment_terms",
+          "type": "string",
+          "location": "body",
+          "description": "Optional payment due term label. Clients should still provide the calculated payment_due date."
+        },
+        {
+          "name": "send",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, immediately sends the invoice to the customer"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice title. Omitted or null values use the default title, 'Invoice'."
+        }
+      ]
+    },
+    {
+      "name": "invoices_delete",
+      "description": "Deletes a draft invoice. Cannot delete invoices that have already been sent. Required: invoice. Returns the InvoicesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/invoices/{invoice}",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "int",
+          "location": "path",
+          "description": "The invoice ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_get",
+      "description": "Get a specific invoice. Required: invoice. Returns the InvoicesGetResponse.",
+      "method": "GET",
+      "path": "/invoices/{invoice}",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "int",
+          "location": "path",
+          "description": "The invoice ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "Retrieves a paginated list of invoices for the authenticated user. Optional: order_by, direction, status. Returns the InvoicesListResponse.",
+      "method": "GET",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by invoice status"
+        }
+      ]
+    },
+    {
+      "name": "invoices_patch",
+      "description": "Same as PUT - updates an existing invoice. Cannot update invoices with status paid, uncollectible, or void. Required: invoice. Optional: currency, customer_email, customer_name (plus 8 more). Returns the updated InvoicesPatchResponse.",
+      "method": "PATCH",
+      "path": "/invoices/{invoice}",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "int",
+          "location": "path",
+          "description": "The invoice ID",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter ISO currency code (uppercase)"
+        },
+        {
+          "name": "customer_email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer email"
+        },
+        {
+          "name": "customer_name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "footer_note",
+          "type": "string",
+          "location": "body",
+          "description": "Footer note"
+        },
+        {
+          "name": "invoice_number",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice reference number. Send null to clear it."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        },
+        {
+          "name": "payment_due",
+          "type": "string",
+          "location": "body",
+          "description": "Payment due"
+        },
+        {
+          "name": "payment_platform_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of payment platform UUIDs to enable for this invoice."
+        },
+        {
+          "name": "payment_terms",
+          "type": "string",
+          "location": "body",
+          "description": "Optional payment due term label. Send null to clear it."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice title."
+        }
+      ]
+    },
+    {
+      "name": "invoices_update",
+      "description": "Updates an existing invoice. Cannot update invoices with status: paid, uncollectible, or void. When updating items, the entire items array is replaced. Required: invoice. Optional: currency, customer_email, customer_name (plus 8 more). Returns the updated InvoicesUpdateResponse.",
+      "method": "PUT",
+      "path": "/invoices/{invoice}",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "int",
+          "location": "path",
+          "description": "The invoice ID",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter ISO currency code (uppercase)"
+        },
+        {
+          "name": "customer_email",
+          "type": "string",
+          "location": "body",
+          "description": "Customer email"
+        },
+        {
+          "name": "customer_name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "footer_note",
+          "type": "string",
+          "location": "body",
+          "description": "Footer note"
+        },
+        {
+          "name": "invoice_number",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice reference number. Send null to clear it."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces all existing line items"
+        },
+        {
+          "name": "payment_due",
+          "type": "string",
+          "location": "body",
+          "description": "Payment due"
+        },
+        {
+          "name": "payment_platform_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of payment platform UUIDs to enable for this invoice."
+        },
+        {
+          "name": "payment_terms",
+          "type": "string",
+          "location": "body",
+          "description": "Optional payment due term label. Send null to clear it."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional invoice title."
+        }
+      ]
+    },
+    {
+      "name": "invoices_send_invoice",
+      "description": "Sends (or re-sends) an invoice to the customer via email. Cannot send invoices with status: paid, uncollectible, or void. Required: invoice. Returns the new SendInvoiceResponse.",
+      "method": "POST",
+      "path": "/invoices/{invoice}/send",
+      "params": [
+        {
+          "name": "invoice",
+          "type": "int",
+          "location": "path",
+          "description": "The invoice ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_get-current-user",
+      "description": "Get current user information. Returns the User.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "recipients_list",
+      "description": "Get list of recipients. Optional: order_by, direction. Returns the RecipientsListResponse.",
+      "method": "GET",
+      "path": "/recipients",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Direction"
+        }
+      ]
+    },
+    {
+      "name": "teams_documents_list-team",
+      "description": "Retrieves a list of all documents sent by any member of a given team. This exposes an existing data relationship. Use Case: Enables a team lead or agency owner to build a custom dashboard to monitor their team's signing activities and document statuses. Required: team. Optional: order_by, direction, completed. Returns the DocumentsListTeamResponse.",
+      "method": "GET",
+      "path": "/teams/{team}/documents",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The team ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "completed",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by completion status"
+        }
+      ]
+    },
+    {
+      "name": "teams_templates_list-team",
+      "description": "Retrieves a list of all templates shared with a specific team. Use Case: Allows an organization to programmatically audit their team's available templates to ensure brand and legal compliance. Required: team. Optional: order_by, direction. Returns the TemplatesListTeamResponse.",
+      "method": "GET",
+      "path": "/teams/{team}/templates",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The team ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order by"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        }
+      ]
+    },
+    {
+      "name": "templates_get",
+      "description": "Get a specific template. Required: template. Returns the Template.",
+      "method": "GET",
+      "path": "/templates/{template}",
+      "params": [
+        {
+          "name": "template",
+          "type": "int",
+          "location": "path",
+          "description": "Template",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list",
+      "description": "Get list of templates. Returns the TemplatesListResponse.",
+      "method": "GET",
+      "path": "/templates",
+      "params": []
+    },
+    {
+      "name": "templates_create-document_from-template",
+      "description": "Create a new document from a template. Required: template. Returns the new Document.",
+      "method": "POST",
+      "path": "/templates/{template}/create-document",
+      "params": [
+        {
+          "name": "template",
+          "type": "int",
+          "location": "path",
+          "description": "Template",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

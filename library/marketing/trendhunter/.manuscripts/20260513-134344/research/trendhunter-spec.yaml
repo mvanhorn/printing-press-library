@@ -1,0 +1,192 @@
+name: trendhunter
+display_name: Trend Hunter
+description: "Trend Hunter CLI: sync the global trend feed, search the corpus offline, and pull rich trend metadata (FAQ Q&A, related trends, author, category) from the terminal. Free public-site scrape, no API key."
+version: "0.1.0"
+base_url: "https://www.trendhunter.com"
+website_url: "https://www.trendhunter.com"
+category: research
+spec_source: sniffed
+http_transport: standard
+cli_description: "Search, sync, and explore TrendHunter trends from the terminal - offline FTS, agent-native JSON, FAQ Q&A extraction, no API key."
+
+auth:
+  type: none
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/trendhunter-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio]
+  orchestration: endpoint-mirror
+
+resources:
+  rss:
+    description: "Global RSS feed of the 30 latest trends across the whole site."
+    endpoints:
+      latest:
+        method: GET
+        path: "/rss"
+        description: "Fetch the global RSS 2.0 feed (~30 newest trends). Use 'sync' to land these in the local store; this raw endpoint is for one-off inspection."
+        params: []
+        response:
+          type: object
+          item: RawXML
+        no_auth: true
+
+  trends:
+    description: "Individual trend pages with full metadata, FAQ Q&A, related trends, author, category."
+    endpoints:
+      get:
+        method: GET
+        path: "/trends/{slug}"
+        description: "Fetch the full trend page HTML for a slug. The CLI's 'trend show <slug>' parses this; users should use that instead of calling this directly."
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Trend slug from a /trends/<slug> URL or RSS link, e.g. ai-clone"
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  results:
+    description: "Site search-results endpoint (the framework already provides a hand-built `search` command; this exposes the raw HTML page)."
+    endpoints:
+      query:
+        method: GET
+        path: "/results"
+        description: "Run a TrendHunter search and get the result-page HTML. The CLI's 'search <term>' parses this; pass --raw to get HTML."
+        params:
+          - name: search
+            type: string
+            required: true
+            description: "Search query, e.g. 'AI clone' or 'sustainable fashion'"
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  category:
+    description: "Category index pages (tech, fashion, food, eco, ai, marketing, design, ...)"
+    endpoints:
+      list:
+        method: GET
+        path: "/{category}"
+        description: "Fetch a TrendHunter category index page (~30 trend cards). The CLI's 'category <name>' command parses this."
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            description: "Category slug: tech, fashion, food, eco, ai, marketing, design, lifestyle, autos, gadgets, etc."
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  popular:
+    description: "Curated 'popular right now' index."
+    endpoints:
+      get:
+        method: GET
+        path: "/popular"
+        description: "Fetch the popular-trends index page (~30 cards). Run 'popular' to get parsed JSON."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  scoreboard:
+    description: "Top contributors and trends scoreboard."
+    endpoints:
+      get:
+        method: GET
+        path: "/scoreboard"
+        description: "Fetch the scoreboard page with top contributor handles and recent trends. Run 'scoreboard' to get parsed JSON."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  sitemap:
+    description: "Master sitemap with 430+ URLs (categories, futurists, contributors, hubs)."
+    endpoints:
+      get:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the sitemap.xml. The CLI's 'catalog refresh' uses this; users should use that instead."
+        params: []
+        response:
+          type: object
+          item: RawXML
+        no_auth: true
+
+  megatrends:
+    description: "Megatrend / pattern index pages."
+    endpoints:
+      list:
+        method: GET
+        path: "/megatrends"
+        description: "Fetch the megatrend index page."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+  reports:
+    description: "Trend report index."
+    endpoints:
+      list:
+        method: GET
+        path: "/trendreports"
+        description: "Fetch the trend-reports landing page (titles, descriptions, paid PDF links)."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+        no_auth: true
+
+types:
+  RawHTML:
+    fields:
+      - name: body
+        type: string
+  RawXML:
+    fields:
+      - name: body
+        type: string
+
+extra_commands:
+  - name: sync
+    description: "Sync the global RSS feed (and optional categories) into the local SQLite store. Run nightly; idempotent."
+  - name: search
+    args: "<query>"
+    description: "Full-text search. Local-first (FTS5 over synced trends), with --live to fan-out to the upstream search endpoint and merge."
+  - name: trend
+    description: "Trend detail commands. 'trend show <slug>' parses the page; 'trend faq <slug>' extracts the FAQPage JSON-LD; 'trend related <slug>' walks the related-trend graph."
+  - name: category
+    args: "<name>"
+    description: "Browse a category. Returns the ~30 most recent trend cards as JSON or table. --sync re-fetches and writes into the store."
+  - name: popular
+    description: "Show 'popular right now' trends (parsed from /popular)."
+  - name: scoreboard
+    description: "Show the contributor + trend scoreboard. --top <N> for top contributors only."
+  - name: catalog
+    description: "Sitemap-driven catalog of TrendHunter pages. 'catalog refresh' updates the local copy; 'catalog ls' filters by path pattern; 'catalog futurists' / 'catalog contributors' / 'catalog categories' surface curated subsets."
+  - name: digest
+    description: "Generate a daily-digest of the latest synced trends grouped by category, with FAQ summaries. Optional --since <duration>."
+  - name: graph
+    args: "<slug>"
+    description: "Walk the related-trend graph from a seed slug to a target depth. Returns the cluster as JSON or a Graphviz DOT file."
+  - name: doctor
+    description: "Reachability + DB health check: probe /rss, /sitemap.xml, and the store, surface a green/yellow/red banner."
+  - name: scout
+    args: "--category <name> --business <description>"
+    description: "Business-relevance scout. Pulls top trends from a category, scores each by relevance to a business profile (keyword overlap + TF-IDF, optionally --llm to route through a local LLM via codex/claude). Emits JSON or one-trend-per-line shape for downstream pipes."

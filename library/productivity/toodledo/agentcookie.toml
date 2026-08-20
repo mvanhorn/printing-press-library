@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "toodledo-pp-cli"
+display_name = "Toodledo"
+description = "Every Toodledo feature from the terminal, plus an offline SQLite mirror, GTD reviews, and rate-budget-aware sync that no other Toodledo tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/toodledo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TOODLEDO_CLIENT_ID = true
+TOODLEDO_CLIENT_SECRET = true

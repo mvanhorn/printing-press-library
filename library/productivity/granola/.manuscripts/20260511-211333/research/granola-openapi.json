@@ -1,0 +1,931 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Granola API",
+    "version": "1.0.0",
+    "description": "API for accessing meeting data from Granola"
+  },
+  "servers": [
+    {
+      "url": "https://public-api.granola.ai",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "apiKey",
+        "x-auth-env-vars": [
+          "GRANOLA_API_KEY"
+        ],
+        "x-auth-vars": [
+          {
+            "name": "GRANOLA_API_KEY",
+            "kind": "per_call",
+            "required": false,
+            "sensitive": true,
+            "description": "Granola public API key (Personal or Enterprise). Optional \u2014 only required when using --remote against the public API. Cache and internal API use auto-discovered WorkOS tokens from the local Granola app data."
+          }
+        ]
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The name of the user",
+            "example": "Oat Benson"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The email of the user",
+            "example": "oat-demo@example.com"
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "Folder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^fol_[a-zA-Z0-9]{14}$",
+            "description": "The ID of the folder",
+            "example": "fol_4y6LduVdwSKC27"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "folder"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the folder",
+            "example": "Top secret recipes"
+          },
+          "parent_folder_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^fol_[a-zA-Z0-9]{14}$",
+            "description": "The ID of the parent folder, or null if the folder is top-level.",
+            "example": "fol_a74g2hvl98iUHG"
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "name",
+          "parent_folder_id"
+        ]
+      },
+      "Speaker": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "microphone",
+              "speaker"
+            ],
+            "description": "The source of the speaker. For iOS transcripts, Granola currently returns `microphone` for all transcript items because iOS currently captures a single audio stream. Clients should not assume this will never expand in the future."
+          },
+          "diarization_label": {
+            "type": "string",
+            "description": "The diarized anonymous speaker label assigned in the transcript, such as `Speaker A`. This is currently only present on iOS transcripts when diarization is available.",
+            "example": "Speaker A"
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "Transcript": {
+        "type": "object",
+        "properties": {
+          "speaker": {
+            "$ref": "#/components/schemas/Speaker"
+          },
+          "text": {
+            "type": "string",
+            "description": "The text of the transcript"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The start time of the transcript"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The end time of the transcript"
+          }
+        },
+        "required": [
+          "speaker",
+          "text",
+          "start_time",
+          "end_time"
+        ]
+      },
+      "CalendarInvitee": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The email of the calendar invitee",
+            "example": "raisin-demo@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CalendarEvent": {
+        "type": "object",
+        "properties": {
+          "event_title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The title of the calendar event",
+            "example": "Quarterly yoghurt budget review"
+          },
+          "invitees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarInvitee"
+            }
+          },
+          "organiser": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "email",
+            "description": "The email of the organiser",
+            "example": "oat-demo@example.com"
+          },
+          "calendar_event_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The id of the calendar event",
+            "example": "2su99n6iiik37iiknmb5t4fkfh_20260127T153000Z"
+          },
+          "scheduled_start_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The start time of the calendar event",
+            "example": "2026-01-27T15:30:00Z"
+          },
+          "scheduled_end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The end time of the calendar event",
+            "example": "2026-01-27T16:30:00Z"
+          }
+        },
+        "required": [
+          "event_title",
+          "invitees",
+          "organiser",
+          "calendar_event_id",
+          "scheduled_start_time",
+          "scheduled_end_time"
+        ]
+      },
+      "NoteSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^not_[a-zA-Z0-9]{14}$",
+            "description": "The ID of the note",
+            "example": "not_1d3tmYTlCICgjy"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "note"
+            ],
+            "description": "The object type of the note"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The title of the note",
+            "example": "Quarterly yoghurt budget review"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/User"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation time of the note",
+            "example": "2026-01-27T15:30:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last update time of the note",
+            "example": "2026-01-27T16:45:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "title",
+          "owner",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "NoteDetail": {
+        "type": "object",
+        "properties": {
+          "web_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL to view the note in the Granola web app",
+            "example": "https://notes.granola.ai/d/f3e45e0f-24cc-480b-9a6c-8b1f5e3d7a2c"
+          },
+          "calendar_event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CalendarEvent"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          },
+          "attendees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "The attendees of the meeting",
+            "example": [
+              {
+                "name": "Oat Benson",
+                "email": "oat-demo@example.com"
+              },
+              {
+                "name": "Raisin Patel",
+                "email": "raisin-demo@example.com"
+              }
+            ]
+          },
+          "folder_membership": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Folder"
+            },
+            "description": "The folder membership of the note",
+            "example": [
+              {
+                "id": "fol_4y6LduVdwSKC27",
+                "object": "folder",
+                "name": "Top secret recipes",
+                "parent_folder_id": "fol_a74g2hvl98iUHG"
+              }
+            ]
+          },
+          "summary_text": {
+            "type": "string",
+            "description": "The summary text of the note",
+            "example": "The quarterly yoghurt budget review was a success. We spent $100,000 on yoghurt and made $150,000 in profit."
+          },
+          "summary_markdown": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The summary of the note in markdown format. Can be null if the note has no summary.",
+            "example": "## Quarterly Yoghurt Budget Review\n\nThe quarterly yoghurt budget review was a success.\n\n- Spent **$100,000** on yoghurt\n- Made **$150,000** in profit"
+          },
+          "transcript": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Transcript"
+            },
+            "description": "The transcript of the note. The example below shows a macOS transcript. On iOS, Granola currently returns `speaker.source` as `microphone`, and `diarization_label` can carry anonymous `Speaker A/B/...` buckets when diarization is available.",
+            "example": [
+              {
+                "speaker": {
+                  "source": "microphone"
+                },
+                "text": "I'm done pretending. Greek is the only yoghurt that deserves us.",
+                "start_time": "2026-01-27T15:30:00Z",
+                "end_time": "2026-01-27T16:30:00Z"
+              },
+              {
+                "speaker": {
+                  "source": "speaker"
+                },
+                "text": "Finally. Regular yoghurt is just milk that gave up halfway.",
+                "start_time": "2026-01-27T15:30:00Z",
+                "end_time": "2026-01-27T16:30:00Z"
+              }
+            ]
+          }
+        },
+        "required": [
+          "web_url",
+          "calendar_event",
+          "attendees",
+          "folder_membership",
+          "summary_text",
+          "summary_markdown",
+          "transcript"
+        ]
+      },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^not_[a-zA-Z0-9]{14}$",
+            "description": "The ID of the note",
+            "example": "not_1d3tmYTlCICgjy"
+          },
+          "object": {
+            "type": "string",
+            "enum": [
+              "note"
+            ],
+            "description": "The object type of the note"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The title of the note",
+            "example": "Quarterly yoghurt budget review"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/User"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation time of the note",
+            "example": "2026-01-27T15:30:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last update time of the note",
+            "example": "2026-01-27T16:45:00Z"
+          },
+          "web_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL to view the note in the Granola web app",
+            "example": "https://notes.granola.ai/d/f3e45e0f-24cc-480b-9a6c-8b1f5e3d7a2c"
+          },
+          "calendar_event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CalendarEvent"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          },
+          "attendees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "The attendees of the meeting",
+            "example": [
+              {
+                "name": "Oat Benson",
+                "email": "oat-demo@example.com"
+              },
+              {
+                "name": "Raisin Patel",
+                "email": "raisin-demo@example.com"
+              }
+            ]
+          },
+          "folder_membership": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Folder"
+            },
+            "description": "The folder membership of the note",
+            "example": [
+              {
+                "id": "fol_4y6LduVdwSKC27",
+                "object": "folder",
+                "name": "Top secret recipes",
+                "parent_folder_id": "fol_a74g2hvl98iUHG"
+              }
+            ]
+          },
+          "summary_text": {
+            "type": "string",
+            "description": "The summary text of the note",
+            "example": "The quarterly yoghurt budget review was a success. We spent $100,000 on yoghurt and made $150,000 in profit."
+          },
+          "summary_markdown": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The summary of the note in markdown format. Can be null if the note has no summary.",
+            "example": "## Quarterly Yoghurt Budget Review\n\nThe quarterly yoghurt budget review was a success.\n\n- Spent **$100,000** on yoghurt\n- Made **$150,000** in profit"
+          },
+          "transcript": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Transcript"
+            },
+            "description": "The transcript of the note. The example below shows a macOS transcript. On iOS, Granola currently returns `speaker.source` as `microphone`, and `diarization_label` can carry anonymous `Speaker A/B/...` buckets when diarization is available.",
+            "example": [
+              {
+                "speaker": {
+                  "source": "microphone"
+                },
+                "text": "I'm done pretending. Greek is the only yoghurt that deserves us.",
+                "start_time": "2026-01-27T15:30:00Z",
+                "end_time": "2026-01-27T16:30:00Z"
+              },
+              {
+                "speaker": {
+                  "source": "speaker"
+                },
+                "text": "Finally. Regular yoghurt is just milk that gave up halfway.",
+                "start_time": "2026-01-27T15:30:00Z",
+                "end_time": "2026-01-27T16:30:00Z"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "title",
+          "owner",
+          "created_at",
+          "updated_at",
+          "web_url",
+          "calendar_event",
+          "attendees",
+          "folder_membership",
+          "summary_text",
+          "summary_markdown",
+          "transcript"
+        ]
+      },
+      "GetNotePath": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "pattern": "^not_[a-zA-Z0-9]{14}$",
+            "description": "The ID of the note",
+            "example": "not_1d3tmYTlCICgjy"
+          }
+        },
+        "required": [
+          "note_id"
+        ]
+      },
+      "GetNoteQuery": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "string",
+            "enum": [
+              "transcript"
+            ],
+            "description": "Include the note transcript in the response",
+            "example": "transcript"
+          }
+        }
+      },
+      "ListNotesQuery": {
+        "type": "object",
+        "properties": {
+          "created_before": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "string",
+                "format": "date-time"
+              }
+            ],
+            "description": "Return notes created before this date",
+            "examples": [
+              "2026-01-27",
+              "2026-01-27T15:30:00Z"
+            ]
+          },
+          "created_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "string",
+                "format": "date-time"
+              }
+            ],
+            "description": "Return notes created after this date",
+            "examples": [
+              "2026-01-27",
+              "2026-01-27T15:30:00Z"
+            ]
+          },
+          "updated_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "string",
+                "format": "date-time"
+              }
+            ],
+            "description": "Return notes updated after this date",
+            "examples": [
+              "2026-01-27",
+              "2026-01-27T15:30:00Z"
+            ]
+          },
+          "cursor": {
+            "type": "string",
+            "description": "The cursor to continue from",
+            "example": "eyJjcmVkZW50aWFsfQ=="
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "default": 10,
+            "description": "Maximum number of notes to return per page",
+            "example": 10
+          }
+        }
+      },
+      "ListNotesOutput": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoteSummary"
+            }
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more notes to fetch",
+            "example": true
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The cursor to continue from",
+            "example": "eyJjcmVkZW50aWFsfQ=="
+          }
+        },
+        "required": [
+          "notes",
+          "hasMore",
+          "cursor"
+        ]
+      },
+      "ListFoldersQuery": {
+        "type": "object",
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "The cursor to continue from",
+            "example": "eyJjcmVkZW50aWFsfQ=="
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "default": 10,
+            "description": "Maximum number of folders to return per page",
+            "example": 10
+          }
+        }
+      },
+      "ListFoldersOutput": {
+        "type": "object",
+        "properties": {
+          "folders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Folder"
+            }
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more folders to fetch",
+            "example": true
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The cursor to continue from",
+            "example": "eyJjcmVkZW50aWFsfQ=="
+          }
+        },
+        "required": [
+          "folders",
+          "hasMore",
+          "cursor"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/v1/notes": {
+      "get": {
+        "summary": "List notes",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              ],
+              "description": "Return notes created before this date",
+              "examples": [
+                "2026-01-27",
+                "2026-01-27T15:30:00Z"
+              ]
+            },
+            "required": false,
+            "name": "created_before",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              ],
+              "description": "Return notes created after this date",
+              "examples": [
+                "2026-01-27",
+                "2026-01-27T15:30:00Z"
+              ]
+            },
+            "required": false,
+            "name": "created_after",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              ],
+              "description": "Return notes updated after this date",
+              "examples": [
+                "2026-01-27",
+                "2026-01-27T15:30:00Z"
+              ]
+            },
+            "required": false,
+            "name": "updated_after",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "The cursor to continue from",
+              "example": "eyJjcmVkZW50aWFsfQ=="
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30,
+              "default": 10,
+              "description": "Maximum number of notes to return per page",
+              "example": 10
+            },
+            "required": false,
+            "name": "page_size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of notes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListNotesOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key"
+          }
+        }
+      }
+    },
+    "/v1/notes/{note_id}": {
+      "get": {
+        "summary": "Get note",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^not_[a-zA-Z0-9]{14}$",
+              "description": "The ID of the note",
+              "example": "not_1d3tmYTlCICgjy"
+            },
+            "required": true,
+            "name": "note_id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "transcript"
+              ],
+              "description": "Include the note transcript in the response",
+              "example": "transcript"
+            },
+            "required": false,
+            "name": "include",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Note",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Note"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/v1/folders": {
+      "get": {
+        "summary": "List folders",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "The cursor to continue from",
+              "example": "eyJjcmVkZW50aWFsfQ=="
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30,
+              "default": 10,
+              "description": "Maximum number of folders to return per page",
+              "example": 10
+            },
+            "required": false,
+            "name": "page_size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of folders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListFoldersOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {},
+  "x-cli-description": "Granola meeting CLI: cache-first, agent-native, with cross-meeting analytics."
+}

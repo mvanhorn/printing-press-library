@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "hand-written-sync-for-parent-scoped-resources",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "sync must enumerate profiles and fan out to parent-scoped resources; a flat-path syncer can reach nothing on this API.",
+  "reason": "Every Tiimo resource except /api/profiles lives under /api/profiles/{profile_id}/..., so a syncer that only resolves flat paths hydrates nothing and silently empties every offline command.",
+  "files": ["internal/cli/tiimo_sync.go"],
+  "validated_outcome": "Cold sync mirrors 1190 activity occurrences, 13 to-dos, 14 tags, 2 calendars where the generated syncer mirrored 1 profile and nothing else."
+}

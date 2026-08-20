@@ -1,0 +1,37 @@
+{
+  "id": "prod_sample",
+  "title": "Sample Personalized Mug",
+  "description": "Fixture product for local Printify CLI proofing.",
+  "blueprint_id": 384,
+  "print_provider_id": 1,
+  "variants": [
+    {"id": 101, "price": 2499, "is_enabled": true},
+    {"id": 102, "price": 2699, "is_enabled": true}
+  ],
+  "print_areas": [
+    {
+      "variant_ids": [101, 102],
+      "placeholders": [
+        {
+          "position": "front",
+          "images": [
+            {
+              "id": "img_1",
+              "name": "front art",
+              "type": "text",
+              "input_text": "Sam",
+              "font_family": "Inter",
+              "font_size": 24,
+              "font_color": "#111111",
+              "text_align": "center",
+              "x": 0.5,
+              "y": 0.48,
+              "scale": 1.1,
+              "angle": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: ars-sicilia-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ars-sicilia-pp-cli
+    main: ./cmd/ars-sicilia-pp-cli
+    binary: ars-sicilia-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ars-sicilia-pp-mcp
+    main: ./cmd/ars-sicilia-pp-mcp
+    binary: ars-sicilia-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ars-sicilia-pp-cli
+    repository:
+      owner: aborruso
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "L'unica CLI per il portale dell'Assemblea Regionale Siciliana: cerca"
+    install: |
+      bin.install "ars-sicilia-pp-cli"
+      bin.install "ars-sicilia-pp-mcp"

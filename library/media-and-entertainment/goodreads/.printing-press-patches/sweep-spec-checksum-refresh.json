@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sweep-spec-checksum-refresh",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Refreshed .printing-press.json spec_checksum to match the current spec.yaml (sha256 384c1f5...).",
+  "reason": "spec.yaml had been edited after the manifest was written, leaving a stale checksum (5e817a3...) that the publish-package provenance check would flag. spec_path 'spec.yaml' is a clean relative path (no PII; the cal-com/tmchow path described upstream was already absent), so it was kept rather than blanked.",
+  "files": [
+    ".printing-press.json"
+  ]
+}

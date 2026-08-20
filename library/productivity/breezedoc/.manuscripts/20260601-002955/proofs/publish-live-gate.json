@@ -1,0 +1,1557 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/breezedoc",
+  "binary": "/Users/cathrynlavery/printing-press/library/breezedoc/breezedoc-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 86,
+  "passed": 86,
+  "failed": 0,
+  "skipped": 75,
+  "commands": [
+    "api",
+    "doctor",
+    "documents get",
+    "documents list",
+    "documents recipients list-document",
+    "documents send document",
+    "documents store",
+    "export",
+    "feedback list",
+    "import",
+    "invoices create",
+    "invoices delete",
+    "invoices get",
+    "invoices list",
+    "invoices patch",
+    "invoices send invoice",
+    "invoices update",
+    "me",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recipients",
+    "search",
+    "sync",
+    "teams documents list-team",
+    "teams templates list-team",
+    "templates create-document from-template",
+    "templates get",
+    "templates list",
+    "which",
+    "workflow archive",
+    "workflow client-workspace-snapshot",
+    "workflow document-follow-up",
+    "workflow invoice-lifecycle",
+    "workflow signature-packet-prep",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  breezedoc-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  breezedoc-pp-cli api\n\n  # Show methods for a specific interface\n  breezedoc-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'breezedoc-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  breezedoc-pp-cli doctor [flags]\n\nExamples:\n  breezedoc-pp-cli doctor\n  breezedoc-pp-cli doctor --json\n  breezedoc-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK BREEZEDOC_API_TOKEN optional; BREEZEDOC_BEARER_AUTH optional\n  OK Verify Mode: normal operation\n  OK API: reachable\n  OK Credentials: valid\n  config_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.config/breezedoc-pp-cli/config.toml\n  base_url: https://breezedoc.com\n  auth_source: env:BREEZEDOC_BEARER_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.local/share/breezedoc-pp-cli/data.db\n    hint: Database not created yet; run 'breezedoc-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:BREEZEDOC_BEARER_TOKEN\",\n  \"base_url\": \"https://breezedoc.com\",\n  \"cache\": {\n    \"db_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.local/share/breezedoc-pp-cli/data.db\",\n    \"hint\": \"Database not created yet; run 'breezedoc-pp-cli sync' to hydrate.\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.config/breezedoc-pp-cli/config.toml\",\n  \"credentials\": \"valid\",\n  \"env_vars\": \"OK BREEZEDOC_API_TOKEN optional; BREEZEDOC_BEARER_AUTH optional\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents get",
+      "kind": "help",
+      "args": [
+        "documents",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a specific document\n\nUsage:\n  breezedoc-pp-cli documents get \u003cdocument\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli documents get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents get",
+      "kind": "error_path",
+      "args": [
+        "documents",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /documents/__printing_press_invalid__ returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Document] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "documents list",
+      "kind": "help",
+      "args": [
+        "documents",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get list of documents\n\nUsage:\n  breezedoc-pp-cli documents list [flags]\n\nExamples:\n  breezedoc-pp-cli documents list\n\nFlags:\n      --direction string   Direction (one of: asc, desc)\n  -h, --help               help for list\n      --order-by string    Order by (one of: completed_at, id)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents list",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 381936,\n        \"title\": \"Contract Content Creator Noah Montgomery.pdf\",\n        \"created_at\": \"2026-03-19T18:58:00.000000Z\",\n        \"updated_at\": \"2026-03-19T23:31:07.000000Z\",\n        \"completed_at\": \"2026-03-19T23:31:07.000000Z\",\n        \"redirect_url\": null,\n        \"slug\": \"j1pl2z0\",\n        \"document_files\": [\n          {\n            \"id\": 381585,\n            \"document_file_pages\": [\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T014917Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=fa3c353b0dc61800c156b548a114a5dcfccdef07ec5031dbef88b3e01a1b4192\"\n              },\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T014917Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=6db3dfef73bf3a69cc22abe2e4145b478259a3f65a47e0db3f31246f0c5d0021\"\n              },\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-2.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCX…[truncated]"
+    },
+    {
+      "command": "documents list",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 381936,\n        \"title\": \"Contract Content Creator Noah Montgomery.pdf\",\n        \"created_at\": \"2026-03-19T18:58:00.000000Z\",\n        \"updated_at\": \"2026-03-19T23:31:07.000000Z\",\n        \"completed_at\": \"2026-03-19T23:31:07.000000Z\",\n        \"redirect_url\": null,\n        \"slug\": \"j1pl2z0\",\n        \"document_files\": [\n          {\n            \"id\": 381585,\n            \"document_file_pages\": [\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T014917Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=fa3c353b0dc61800c156b548a114a5dcfccdef07ec5031dbef88b3e01a1b4192\"\n              },\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T014917Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=6db3dfef73bf3a69cc22abe2e4145b478259a3f65a47e0db3f31246f0c5d0021\"\n              },\n              {\n                \"document_file_id\": 381585,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-2.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCX…[truncated]"
+    },
+    {
+      "command": "documents list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents recipients list-document",
+      "kind": "help",
+      "args": [
+        "documents",
+        "recipients",
+        "list-document",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get recipients for a specific document\n\nUsage:\n  breezedoc-pp-cli documents recipients list-document \u003cdocument\u003e [flags]\n\nAliases:\n  list-document, get\n\nExamples:\n  breezedoc-pp-cli documents recipients list-document 42\n\nFlags:\n      --completed string   Completed (one of: true, false)\n      --direction string   Direction (one of: asc, desc)\n  -h, --help               help for list-document\n      --order-by string    Order by (one of: completed_at, id)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents recipients list-document",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents recipients list-document",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents recipients list-document",
+      "kind": "error_path",
+      "args": [
+        "documents",
+        "recipients",
+        "list-document",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /documents/__printing_press_invalid__/recipients returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Document] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "documents send document",
+      "kind": "help",
+      "args": [
+        "documents",
+        "send",
+        "document",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Send a document to its recipients\n\nUsage:\n  breezedoc-pp-cli documents send document \u003cdocument\u003e [flags]\n\nAliases:\n  document, create\n\nExamples:\n  breezedoc-pp-cli documents send document 42\n\nFlags:\n  -h, --help                help for document\n      --recipients string   Array of recipients that must match the number of recipients on the document, provided in ascending order of party.\n      --stdin               Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents send document",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents send document",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents send document",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "documents send document",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"document\" at depth 0"
+    },
+    {
+      "command": "documents store",
+      "kind": "help",
+      "args": [
+        "documents",
+        "store",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new document\n\nUsage:\n  breezedoc-pp-cli documents store [flags]\n\nAliases:\n  store, create\n\nExamples:\n  breezedoc-pp-cli documents store --title example-resource\n\nFlags:\n  -h, --help                help for store\n      --recipients string   Recipients\n      --stdin               Read request body as JSON from stdin\n      --title string        Title\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents store",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "store",
+        "--title",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents\",\n  \"resource\": \"documents\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://breezedoc.com/api/documents\n  Body:\n{\n    \"title\": \"example-resource\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "documents store",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "store",
+        "--title",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents\",\n  \"resource\": \"documents\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://breezedoc.com/api/documents\n  Body:\n{\n    \"title\": \"example-resource\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "documents store",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents store",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  breezedoc-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  breezedoc-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  breezedoc-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  breezedoc-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: documents, invoices, me, recipients, templates\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  breezedoc-pp-cli feedback list [flags]\n\nExamples:\n  breezedoc-pp-cli feedback list\n  breezedoc-pp-cli feedback list --limit 5\n  breezedoc-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  breezedoc-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  breezedoc-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  breezedoc-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | breezedoc-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "invoices create",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Creates a new invoice with line items. Optionally sends the invoice immediately by setting `send: true`.\n\nUsage:\n  breezedoc-pp-cli invoices create [flags]\n\nExamples:\n  breezedoc-pp-cli invoices create --currency example-value\n\nFlags:\n      --currency string               Three-letter ISO currency code (uppercase)\n      --customer-email string         Customer email\n      --customer-name string          Customer name\n      --description string            Description\n      --footer-note string            Footer note\n  -h, --help                          help for create\n      --invoice-number string         Optional invoice reference number.\n      --items string                  Items\n      --payment-due string            Payment due\n      --payment-platform-ids string   Array of payment platform UUIDs to enable for this invoice.\n      --payment-terms string          Optional payment due term label. Clients should still provide the calculated payment_due date.\n      --send                          If true, immediately sends the invoice to the customer\n      --stdin                         Read request body as JSON from stdin\n      --title string                  Optional invoice title. Omitted or null values use the default title, 'Invoice'.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices create",
+      "kind": "happy_path",
+      "args": [
+        "invoices",
+        "create",
+        "--currency",
+        "example-value",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/invoices\",\n  \"resource\": \"invoices\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://breezedoc.com/api/invoices\n  Body:\n{\n    \"currency\": \"example-value\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "invoices create",
+      "kind": "json_fidelity",
+      "args": [
+        "invoices",
+        "create",
+        "--currency",
+        "example-value",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/invoices\",\n  \"resource\": \"invoices\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://breezedoc.com/api/invoices\n  Body:\n{\n    \"currency\": \"example-value\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "invoices create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "invoices create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "invoices delete",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes a draft invoice. Cannot delete invoices that have already been sent.\n\nUsage:\n  breezedoc-pp-cli invoices delete \u003cinvoice\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli invoices delete 42\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "invoices delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices get",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a specific invoice\n\nUsage:\n  breezedoc-pp-cli invoices get \u003cinvoice\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli invoices get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices get",
+      "kind": "error_path",
+      "args": [
+        "invoices",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /invoices/__printing_press_invalid__ returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Invoice] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "invoices list",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a paginated list of invoices for the authenticated user.\n\nUsage:\n  breezedoc-pp-cli invoices list [flags]\n\nExamples:\n  breezedoc-pp-cli invoices list\n\nFlags:\n      --direction string   Sort direction (one of: asc, desc)\n  -h, --help               help for list\n      --order-by string    Field to order by (one of: id, created_at, payment_due)\n      --status string      Filter by invoice status (one of: draft, sent, paid, uncollectible, void)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices list",
+      "kind": "happy_path",
+      "args": [
+        "invoices",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [],\n    \"links\": {\n      \"first\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n      \"last\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n      \"prev\": null,\n      \"next\": null\n    },\n    \"meta\": {\n      \"current_page\": 1,\n      \"from\": null,\n      \"last_page\": 1,\n      \"links\": [\n        {\n          \"url\": null,\n          \"label\": \"\\u0026laquo; Previous\",\n          \"page\": null,\n          \"active\": false\n        },\n        {\n          \"url\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n          \"label\": \"1\",\n          \"page\": 1,\n          \"active\": true\n        },\n        {\n          \"url\": null,\n          \"label\": \"Next \\u0026raquo;\",\n          \"page\": null,\n          \"active\": false\n        }\n      ],\n      \"path\": \"https:\\/\\/breezedoc.com\\/api\\/invoices\",\n      \"per_page\": 10,\n      \"to\": null,\n      \"total\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "invoices list",
+      "kind": "json_fidelity",
+      "args": [
+        "invoices",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [],\n    \"links\": {\n      \"first\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n      \"last\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n      \"prev\": null,\n      \"next\": null\n    },\n    \"meta\": {\n      \"current_page\": 1,\n      \"from\": null,\n      \"last_page\": 1,\n      \"links\": [\n        {\n          \"url\": null,\n          \"label\": \"\\u0026laquo; Previous\",\n          \"page\": null,\n          \"active\": false\n        },\n        {\n          \"url\": \"https:\\/\\/breezedoc.com\\/api\\/invoices?page=1\",\n          \"label\": \"1\",\n          \"page\": 1,\n          \"active\": true\n        },\n        {\n          \"url\": null,\n          \"label\": \"Next \\u0026raquo;\",\n          \"page\": null,\n          \"active\": false\n        }\n      ],\n      \"path\": \"https:\\/\\/breezedoc.com\\/api\\/invoices\",\n      \"per_page\": 10,\n      \"to\": null,\n      \"total\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "invoices list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "invoices patch",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "patch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Same as PUT - updates an existing invoice. Cannot update invoices with status paid, uncollectible, or void.\n\nUsage:\n  breezedoc-pp-cli invoices patch \u003cinvoice\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli invoices patch 42\n\nFlags:\n      --currency string               Three-letter ISO currency code (uppercase)\n      --customer-email string         Customer email\n      --customer-name string          Customer name\n      --description string            Description\n      --footer-note string            Footer note\n  -h, --help                          help for patch\n      --invoice-number string         Optional invoice reference number. Send null to clear it.\n      --items string                  Items\n      --payment-due string            Payment due\n      --payment-platform-ids string   Array of payment platform UUIDs to enable for this invoice.\n      --payment-terms string          Optional payment due term label. Send null to clear it.\n      --stdin                         Read request body as JSON from stdin\n      --title string                  Optional invoice title.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices patch",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices patch",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices patch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "invoices patch",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices send invoice",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "send",
+        "invoice",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sends (or re-sends) an invoice to the customer via email.\n\nUsage:\n  breezedoc-pp-cli invoices send invoice \u003cinvoice\u003e [flags]\n\nAliases:\n  invoice, create\n\nExamples:\n  breezedoc-pp-cli invoices send invoice 42\n\nFlags:\n  -h, --help    help for invoice\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices send invoice",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices send invoice",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices send invoice",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "invoices send invoice",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices update",
+      "kind": "help",
+      "args": [
+        "invoices",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Updates an existing invoice. Cannot update invoices with status: paid, uncollectible, or void.\n\nUsage:\n  breezedoc-pp-cli invoices update \u003cinvoice\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli invoices update 42\n\nFlags:\n      --currency string               Three-letter ISO currency code (uppercase)\n      --customer-email string         Customer email\n      --customer-name string          Customer name\n      --description string            Description\n      --footer-note string            Footer note\n  -h, --help                          help for update\n      --invoice-number string         Optional invoice reference number. Send null to clear it.\n      --items string                  Replaces all existing line items\n      --payment-due string            Payment due\n      --payment-platform-ids string   Array of payment platform UUIDs to enable for this invoice.\n      --payment-terms string          Optional payment due term label. Send null to clear it.\n      --stdin                         Read request body as JSON from stdin\n      --title string                  Optional invoice title.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "invoices update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "invoices update",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "invoices update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"invoice\" at depth 0"
+    },
+    {
+      "command": "me",
+      "kind": "help",
+      "args": [
+        "me",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get current user information\n\nUsage:\n  breezedoc-pp-cli me [flags]\n\nExamples:\n  breezedoc-pp-cli me\n\nFlags:\n  -h, --help   help for me\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "me",
+      "kind": "happy_path",
+      "args": [
+        "me"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2600,\"name\":\"\u003credacted\u003e\",\"updated_at\":\"2024-04-24T19:59:39.000000Z\"}}"
+    },
+    {
+      "command": "me",
+      "kind": "json_fidelity",
+      "args": [
+        "me",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2600,\"name\":\"\u003credacted\u003e\",\"updated_at\":\"2024-04-24T19:59:39.000000Z\"}}"
+    },
+    {
+      "command": "me",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  breezedoc-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli profile delete my-defaults --yes\n  breezedoc-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  breezedoc-pp-cli profile list [flags]\n\nExamples:\n  breezedoc-pp-cli profile list\n  breezedoc-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  breezedoc-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  breezedoc-pp-cli profile save my-defaults --json --compact\n  breezedoc-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  breezedoc-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli profile show my-defaults\n  breezedoc-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  breezedoc-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli profile use my-defaults\n  breezedoc-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "recipients",
+      "kind": "help",
+      "args": [
+        "recipients",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get list of recipients\n\nUsage:\n  breezedoc-pp-cli recipients [flags]\n\nExamples:\n  breezedoc-pp-cli recipients\n\nFlags:\n      --direction string   Direction (one of: asc, desc)\n  -h, --help               help for recipients\n      --order-by string    Order by (one of: completed_at, id)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recipients",
+      "kind": "happy_path",
+      "args": [
+        "recipients"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"completed_at\":\"2026-03-19T23:31:05.000000Z\",\"created_at\":\"2026-03-19T18:58:08.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676217,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4097738,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/BNYRP34FWYz4A5SknE5t7n8ATKDeB4HJRkwdn7WT.png\",\"text\":\"Noah Montgomery\"}},{\"field_id\":4097740,\"properties\":{\"committed\":true,\"text\":\"Noah Montgomery\"}},{\"field_id\":4097743,\"properties\":{\"date\":\"03-19-2026\"}},{\"field_id\":4097745,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/hIKGeU9I1F0ycIR4UoAwrhBzNFCX7m0CGC6hsJGO.png\",\"text\":\"nm\"}}],\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"slug\":\"1gpn042\",\"updated_at\":\"2026-03-19T23:31:05.000000Z\"},{\"completed_at\":\"2026-03-19T18:59:03.000000Z\",\"created_at\":\"2026-03-19T18:58:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676213,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4097733,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/nzeJC1zmTceP75nagVIS0FgCsrJN312jhFRbfAI0.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4097736,\"properties\":{\"date\":\"03-19-2026\"}}],\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"slug\":\"m72w85l\",\"updated_at\":\"2026-03-19T18:59:03.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675655,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[],\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"slug\":\"3lyojop\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"},{\"completed_at\":\"2026-03-19T12:29:54.000000Z\",\"created_at\":\"2026-03-19T12:27:37.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675654,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4093902,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/5mvomZT8aNSJ9ug3bfLTp2i73Ot551RYs5svalGa.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4093903,\"properties\":{\"date\":\"03-19-2026\"}}],\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"slug\":\"10r6y6q\",\"updated_at\":\"2026-03-19T12:29:54.000000Z\"},{\"completed_at\":\"2026-03-16T18:18:22.000000Z\",\"created_at\":\"2026-03-16T12:18:09.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":670575,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4060538,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/w2ZivYQzjKqmUet4Ble5dcrbkLP6C0OttWorYtki.png\",\"text\":\"Esther Wolchin\"}},{\"field_id\":4060539,\"properties\":{\"committed\":true,\"text\":\"Esther Wolchin\"}},{\"field_id\":4060540,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-16T12:18:20.000000Z\",\"slug\":\"1x0ejw5\",\"updated_at\":\"2026-03-16T18:18:22.000000Z\"},{\"completed_at\":\"2026-03-16T12:18:52.000000Z\",\"created_at\":\"2026-03-16T12:17:55.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":670574,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4060536,\"properties\":{\"committed\":true,\"fontFamily\":\"Beautiful\",\"image\":\"signatures/v0sfVmVRESygZYuCORiUyj31Rxm3vUuaIQ4RIQmM.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4060537,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-16T12:18:20.000000Z\",\"slug\":\"1v6gnxv\",\"updated_at\":\"2026-03-16T12:18:52.000000Z\"},{\"completed_at\":\"2026-03-16T20:07:40.000000Z\",\"created_at\":\"2026-03-12T11:38:40.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":665945,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4030301,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/pKiGRhOP7mlAjjJUEY9LYeLvcYYRD3caeyUlMDru.png\",\"text\":\"Nicol Cunningham\"}},{\"field_id\":4030302,\"properties\":{\"committed\":true,\"text\":\"Nicol Cunningham\"}},{\"field_id\":4030303,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-12T11:38:55.000000Z\",\"slug\":\"19e07kd\",\"updated_at\":\"2026-03-16T20:07:40.000000Z\"},{\"completed_at\":\"2026-03-12T11:39:58.000000Z\",\"created_at\":\"2026-03-12T11:38:21.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":665944,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipie…[truncated]"
+    },
+    {
+      "command": "recipients",
+      "kind": "json_fidelity",
+      "args": [
+        "recipients",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"completed_at\":\"2026-03-19T23:31:05.000000Z\",\"created_at\":\"2026-03-19T18:58:08.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676217,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4097738,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/BNYRP34FWYz4A5SknE5t7n8ATKDeB4HJRkwdn7WT.png\",\"text\":\"Noah Montgomery\"}},{\"field_id\":4097740,\"properties\":{\"committed\":true,\"text\":\"Noah Montgomery\"}},{\"field_id\":4097743,\"properties\":{\"date\":\"03-19-2026\"}},{\"field_id\":4097745,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/hIKGeU9I1F0ycIR4UoAwrhBzNFCX7m0CGC6hsJGO.png\",\"text\":\"nm\"}}],\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"slug\":\"1gpn042\",\"updated_at\":\"2026-03-19T23:31:05.000000Z\"},{\"completed_at\":\"2026-03-19T18:59:03.000000Z\",\"created_at\":\"2026-03-19T18:58:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676213,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4097733,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/nzeJC1zmTceP75nagVIS0FgCsrJN312jhFRbfAI0.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4097736,\"properties\":{\"date\":\"03-19-2026\"}}],\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"slug\":\"m72w85l\",\"updated_at\":\"2026-03-19T18:59:03.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675655,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[],\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"slug\":\"3lyojop\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"},{\"completed_at\":\"2026-03-19T12:29:54.000000Z\",\"created_at\":\"2026-03-19T12:27:37.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675654,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4093902,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/5mvomZT8aNSJ9ug3bfLTp2i73Ot551RYs5svalGa.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4093903,\"properties\":{\"date\":\"03-19-2026\"}}],\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"slug\":\"10r6y6q\",\"updated_at\":\"2026-03-19T12:29:54.000000Z\"},{\"completed_at\":\"2026-03-16T18:18:22.000000Z\",\"created_at\":\"2026-03-16T12:18:09.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":670575,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4060538,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/w2ZivYQzjKqmUet4Ble5dcrbkLP6C0OttWorYtki.png\",\"text\":\"Esther Wolchin\"}},{\"field_id\":4060539,\"properties\":{\"committed\":true,\"text\":\"Esther Wolchin\"}},{\"field_id\":4060540,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-16T12:18:20.000000Z\",\"slug\":\"1x0ejw5\",\"updated_at\":\"2026-03-16T18:18:22.000000Z\"},{\"completed_at\":\"2026-03-16T12:18:52.000000Z\",\"created_at\":\"2026-03-16T12:17:55.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":670574,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipient_fields\":[{\"field_id\":4060536,\"properties\":{\"committed\":true,\"fontFamily\":\"Beautiful\",\"image\":\"signatures/v0sfVmVRESygZYuCORiUyj31Rxm3vUuaIQ4RIQmM.png\",\"text\":\"Catarina Almeida\"}},{\"field_id\":4060537,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-16T12:18:20.000000Z\",\"slug\":\"1v6gnxv\",\"updated_at\":\"2026-03-16T12:18:52.000000Z\"},{\"completed_at\":\"2026-03-16T20:07:40.000000Z\",\"created_at\":\"2026-03-12T11:38:40.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":665945,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":2,\"recipient_fields\":[{\"field_id\":4030301,\"properties\":{\"committed\":true,\"fontFamily\":\"MonteCarlo\",\"image\":\"signatures/pKiGRhOP7mlAjjJUEY9LYeLvcYYRD3caeyUlMDru.png\",\"text\":\"Nicol Cunningham\"}},{\"field_id\":4030302,\"properties\":{\"committed\":true,\"text\":\"Nicol Cunningham\"}},{\"field_id\":4030303,\"properties\":{\"date\":\"03-16-2026\"}}],\"sent_at\":\"2026-03-12T11:38:55.000000Z\",\"slug\":\"19e07kd\",\"updated_at\":\"2026-03-16T20:07:40.000000Z\"},{\"completed_at\":\"2026-03-12T11:39:58.000000Z\",\"created_at\":\"2026-03-12T11:38:21.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":665944,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"owner\":false,\"party\":1,\"recipie…[truncated]"
+    },
+    {
+      "command": "recipients",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  breezedoc-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  breezedoc-pp-cli search \"error timeout\"\n\n  # Force local search only\n  breezedoc-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  breezedoc-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  breezedoc-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/breezedoc-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'breezedoc-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  breezedoc-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  breezedoc-pp-cli sync\n\n  # Sync specific resources only\n  breezedoc-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  breezedoc-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  breezedoc-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  breezedoc-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  breezedoc-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/breezedoc-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-ze…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_start\",\"resource\":\"invoices\"}\n{\"event\":\"sync_start\",\"resource\":\"recipients\"}\n{\"event\":\"sync_start\",\"resource\":\"templates\"}\n{\"event\":\"sync_complete\",\"resource\":\"invoices\",\"total\":0,\"duration_ms\":143}\n{\"event\":\"sync_progress\",\"resource\":\"recipients\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"recipients\",\"total\":10,\"duration_ms\":199}\n{\"event\":\"sync_progress\",\"resource\":\"templates\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"templates\",\"total\":4,\"duration_ms\":253}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":10,\"duration_ms\":329}\n{\"event\":\"sync_summary\",\"total_records\":24,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":329}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_start\",\"resource\":\"invoices\"}\n{\"event\":\"sync_start\",\"resource\":\"recipients\"}\n{\"event\":\"sync_start\",\"resource\":\"templates\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"templates\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"recipients\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"invoices\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":10,\"duration_ms\":142}\n{\"event\":\"sync_progress\",\"resource\":\"recipients\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"recipients\",\"total\":10,\"duration_ms\":190}\n{\"event\":\"sync_progress\",\"resource\":\"templates\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"templates\",\"total\":4,\"duration_ms\":191}\n{\"event\":\"sync_complete\",\"resource\":\"invoices\",\"total\":0,\"duration_ms\":327}\n{\"event\":\"sync_summary\",\"total_records\":24,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":327}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams documents list-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "documents",
+        "list-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a list of all documents sent by any member of a given team. This exposes an existing data relationship.\n\nUsage:\n  breezedoc-pp-cli teams documents list-team \u003cteam\u003e [flags]\n\nAliases:\n  list-team, get\n\nExamples:\n  breezedoc-pp-cli teams documents list-team 42\n\nFlags:\n      --completed string   Filter by completion status (one of: true, false)\n      --direction string   Sort direction (one of: asc, desc)\n  -h, --help               help for list-team\n      --order-by string    Field to order by (one of: id, completed_at, created_at)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams documents list-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams documents list-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams documents list-team",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "documents",
+        "list-team",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__/documents returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "teams templates list-team",
+      "kind": "help",
+      "args": [
+        "teams",
+        "templates",
+        "list-team",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a list of all templates shared with a specific team.\n\nUsage:\n  breezedoc-pp-cli teams templates list-team \u003cteam\u003e [flags]\n\nAliases:\n  list-team, get\n\nExamples:\n  breezedoc-pp-cli teams templates list-team 42\n\nFlags:\n      --direction string   Sort direction (one of: asc, desc)\n  -h, --help               help for list-team\n      --order-by string    Field to order by (one of: id, created_at, updated_at)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams templates list-team",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams templates list-team",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"team\" at depth 0"
+    },
+    {
+      "command": "teams templates list-team",
+      "kind": "error_path",
+      "args": [
+        "teams",
+        "templates",
+        "list-team",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /teams/__printing_press_invalid__/templates returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Team] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "templates create-document from-template",
+      "kind": "help",
+      "args": [
+        "templates",
+        "create-document",
+        "from-template",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new document from a template\n\nUsage:\n  breezedoc-pp-cli templates create-document from-template \u003ctemplate\u003e [flags]\n\nAliases:\n  from-template, create\n\nExamples:\n  breezedoc-pp-cli templates create-document from-template 42\n\nFlags:\n  -h, --help    help for from-template\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "templates create-document from-template",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"template\" at depth 0"
+    },
+    {
+      "command": "templates create-document from-template",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"template\" at depth 0"
+    },
+    {
+      "command": "templates create-document from-template",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "templates create-document from-template",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"template\" at depth 0"
+    },
+    {
+      "command": "templates get",
+      "kind": "help",
+      "args": [
+        "templates",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a specific template\n\nUsage:\n  breezedoc-pp-cli templates get \u003ctemplate\u003e [flags]\n\nExamples:\n  breezedoc-pp-cli templates get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "templates get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"template\" at depth 0"
+    },
+    {
+      "command": "templates get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"template\" at depth 0"
+    },
+    {
+      "command": "templates get",
+      "kind": "error_path",
+      "args": [
+        "templates",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /templates/__printing_press_invalid__ returned HTTP 404: {\n    \"message\": \"No query results for model [App\\\\Models\\\\Document] __printing_press_invalid__\"\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "templates list",
+      "kind": "help",
+      "args": [
+        "templates",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get list of templates\n\nUsage:\n  breezedoc-pp-cli templates list [flags]\n\nExamples:\n  breezedoc-pp-cli templates list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "templates list",
+      "kind": "happy_path",
+      "args": [
+        "templates",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 12189,\n        \"title\": \"General Business Contract Template\",\n        \"created_at\": \"2024-04-24T19:50:40.000000Z\",\n        \"updated_at\": \"2024-04-24T19:50:40.000000Z\",\n        \"completed_at\": null,\n        \"redirect_url\": null,\n        \"slug\": \"ljkvxv4\",\n        \"document_files\": [\n          {\n            \"id\": 12189,\n            \"document_file_pages\": [\n              {\n                \"document_file_id\": 12189,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/M7YBTSO0K0qH83h1Xj6AKX93oxL92bYfRj9H946n.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T020003Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=490d17150d42817c82059db2dd6a3f75e664d5b9016a7e368f92ef1d1bd35538\"\n              },\n              {\n                \"document_file_id\": 12189,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/M7YBTSO0K0qH83h1Xj6AKX93oxL92bYfRj9H946n.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T020003Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=14f1c54bbe9564b276104991a280c727a5adfca09d192f7a84486c46d6102b14\"\n              }\n            ]\n          }\n        ]\n      },\n      {\n        \"id\": 12187,\n        \"title\": \"Business Coaching Agreement Template\",\n        \"created_at\": \"2024-04-24T19:50:39.000000Z\",\n        \"updated_at\": \"2024-04-24T19:50:39.000000Z\",\n        \"completed_at\": null,\n        \"redirect_url\": null,\n        \"slug\": \"5jd1pe…[truncated]"
+    },
+    {
+      "command": "templates list",
+      "kind": "json_fidelity",
+      "args": [
+        "templates",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 12189,\n        \"title\": \"General Business Contract Template\",\n        \"created_at\": \"2024-04-24T19:50:40.000000Z\",\n        \"updated_at\": \"2024-04-24T19:50:40.000000Z\",\n        \"completed_at\": null,\n        \"redirect_url\": null,\n        \"slug\": \"ljkvxv4\",\n        \"document_files\": [\n          {\n            \"id\": 12189,\n            \"document_file_pages\": [\n              {\n                \"document_file_id\": 12189,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/M7YBTSO0K0qH83h1Xj6AKX93oxL92bYfRj9H946n.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T020003Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=490d17150d42817c82059db2dd6a3f75e664d5b9016a7e368f92ef1d1bd35538\"\n              },\n              {\n                \"document_file_id\": 12189,\n                \"url\": \"https:\\/\\/breezedoc.s3.us-west-2.amazonaws.com\\/documents\\/M7YBTSO0K0qH83h1Xj6AKX93oxL92bYfRj9H946n.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\\u0026X-Amz-Date=20260601T020003Z\\u0026X-Amz-SignedHeaders=host\\u0026X-Amz-Expires=1800\\u0026X-Amz-Signature=14f1c54bbe9564b276104991a280c727a5adfca09d192f7a84486c46d6102b14\"\n              }\n            ]\n          }\n        ]\n      },\n      {\n        \"id\": 12187,\n        \"title\": \"Business Coaching Agreement Template\",\n        \"created_at\": \"2024-04-24T19:50:39.000000Z\",\n        \"updated_at\": \"2024-04-24T19:50:39.000000Z\",\n        \"completed_at\": null,\n        \"redirect_url\": null,\n        \"slug\": \"5jd1pe…[truncated]"
+    },
+    {
+      "command": "templates list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  breezedoc-pp-cli which [query] [flags]\n\nExamples:\n  breezedoc-pp-cli which \"stale tickets\"\n  breezedoc-pp-cli which \"bottleneck\"\n  breezedoc-pp-cli which --limit 1 \"send message\"\n  breezedoc-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  breezedoc-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  breezedoc-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  breezedoc-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/breezedoc-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":10,\"duration_ms\":11251}\n{\"event\":\"sync_start\",\"resource\":\"invoices\"}\n{\"event\":\"sync_warning\",\"resource\":\"invoices\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"invoices\",\"total\":0,\"duration_ms\":89}\n{\"event\":\"sync_start\",\"resource\":\"recipients\"}\n{\"event\":\"sync_warning\",\"resource\":\"recipients\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"recipients\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"recipients\",\"total\":10,\"duration_ms\":117}\n{\"event\":\"sync_start\",\"resource\":\"templates\"}\n{\"event\":\"sync_warning\",\"resource\":\"templates\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"templates\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"templates\",\"total\":4,\"duration_ms\":108}\nArchived 24 items across 4 resources to /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.local/share/breezedoc-pp-cli/data.db\nrate limited, waiting 11s (attempt 1/3, rate adjusted to 0.0 req/s)\n  documents: 10 synced\n  invoices: 0 synced\n  recipients: 10 synced\n  templates: 4 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 4,\n  \"store_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.local/share/breezedoc-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-01T02:06:07Z\",\n  \"total_items\": 24\n}\n{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":10,\"duration_ms\":155}\n  documents: 10 synced\n{\"event\":\"sync_start\",\"resource\":\"invoices\"}\n{\"event\":\"sync_warning\",\"resource\":\"invoices\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"invoices\",\"total\":0,\"duration_ms\":99}\n  invoices: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"recipients\"}\n{\"event\":\"sync_warning\",\"resource\":\"recipients\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"recipients\",\"fetched\":10}\n{\"event\":\"sync_complete\",\"resource\":\"recipients\",\"total\":10,\"duration_ms\":119}\n  recipients: 10 synced\n{\"event\":\"sync_start\",\"resource\":\"templates\"}\n{\"event\":\"sync_warning\",\"resource\":\"templates\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"templates\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"templates\",\"total\":4,\"duration_ms\":108}\n  templates: 4 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow client-workspace-snapshot",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "client-workspace-snapshot",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a compact account snapshot for agent planning\n\nUsage:\n  breezedoc-pp-cli workflow client-workspace-snapshot [flags]\n\nExamples:\n  breezedoc-pp-cli workflow client-workspace-snapshot --agent\n  breezedoc-pp-cli workflow client-workspace-snapshot --full\n\nFlags:\n      --db string             Database path for --full archive refresh\n      --full                  Refresh the local archive before taking the snapshot\n  -h, --help                  help for client-workspace-snapshot\n      --team-id stringArray   Team id to include; repeat for multiple teams\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow client-workspace-snapshot",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "client-workspace-snapshot",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"resources\":{\"documents\":{\"count\":21,\"sample\":[{\"completed_at\":\"2026-03-19T23:31:07.000000Z\",\"created_at\":\"2026-03-19T18:58:00.000000Z\",\"id\":381936,\"title\":\"Contract Content Creator Noah Montgomery.pdf\",\"updated_at\":\"2026-03-19T23:31:07.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:36.000000Z\",\"id\":381587,\"title\":\"Contract Content Creator Mya-Michelle.pdf\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"},{\"completed_at\":\"2026-03-16T18:18:23.000000Z\",\"created_at\":\"2026-03-16T12:17:55.000000Z\",\"id\":378370,\"title\":\"Contract Content Creator Esther Wolchin.pdf\",\"updated_at\":\"2026-03-16T18:18:23.000000Z\"}]},\"invoices\":{\"count\":0,\"sample\":[]},\"me\":{\"count\":1,\"sample\":[{\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2600,\"name\":\"\u003credacted\u003e\",\"updated_at\":\"2024-04-24T19:59:39.000000Z\"}]},\"recipients\":{\"count\":42,\"sample\":[{\"completed_at\":\"2026-03-19T23:31:05.000000Z\",\"created_at\":\"2026-03-19T18:58:08.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676217,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"updated_at\":\"2026-03-19T23:31:05.000000Z\"},{\"completed_at\":\"2026-03-19T18:59:03.000000Z\",\"created_at\":\"2026-03-19T18:58:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676213,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"updated_at\":\"2026-03-19T18:59:03.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675655,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"}]},\"templates\":{\"count\":4,\"sample\":[{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:40.000000Z\",\"id\":12189,\"title\":\"General Business Contract Template\",\"updated_at\":\"2024-04-24T19:50:40.000000Z\"},{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"id\":12187,\"title\":\"Business Coaching Agreement Template\",\"updated_at\":\"2024-04-24T19:50:39.000000Z\"},{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"id\":12186,\"title\":\"Non-Disclosure Agreement (NDA) Template\",\"updated_at\":\"2024-04-24T19:50:39.000000Z\"}]}},\"timestamp\":\"2026-06-01T02:06:07Z\",\"workflow\":\"client_workspace_snapshot\"}"
+    },
+    {
+      "command": "workflow client-workspace-snapshot",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "client-workspace-snapshot",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"resources\":{\"documents\":{\"count\":21,\"sample\":[{\"completed_at\":\"2026-03-19T23:31:07.000000Z\",\"created_at\":\"2026-03-19T18:58:00.000000Z\",\"id\":381936,\"title\":\"Contract Content Creator Noah Montgomery.pdf\",\"updated_at\":\"2026-03-19T23:31:07.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:36.000000Z\",\"id\":381587,\"title\":\"Contract Content Creator Mya-Michelle.pdf\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"},{\"completed_at\":\"2026-03-16T18:18:23.000000Z\",\"created_at\":\"2026-03-16T12:17:55.000000Z\",\"id\":378370,\"title\":\"Contract Content Creator Esther Wolchin.pdf\",\"updated_at\":\"2026-03-16T18:18:23.000000Z\"}]},\"invoices\":{\"count\":0,\"sample\":[]},\"me\":{\"count\":1,\"sample\":[{\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":2600,\"name\":\"\u003credacted\u003e\",\"updated_at\":\"2024-04-24T19:59:39.000000Z\"}]},\"recipients\":{\"count\":42,\"sample\":[{\"completed_at\":\"2026-03-19T23:31:05.000000Z\",\"created_at\":\"2026-03-19T18:58:08.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676217,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"updated_at\":\"2026-03-19T23:31:05.000000Z\"},{\"completed_at\":\"2026-03-19T18:59:03.000000Z\",\"created_at\":\"2026-03-19T18:58:01.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":676213,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T18:58:49.000000Z\",\"updated_at\":\"2026-03-19T18:59:03.000000Z\"},{\"completed_at\":null,\"created_at\":\"2026-03-19T12:27:49.000000Z\",\"email\":\"\u003credacted\u003e\",\"id\":675655,\"name\":\"\u003credacted\u003e\",\"opened_at\":null,\"sent_at\":\"2026-03-19T12:28:39.000000Z\",\"updated_at\":\"2026-03-19T12:28:39.000000Z\"}]},\"templates\":{\"count\":4,\"sample\":[{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:40.000000Z\",\"id\":12189,\"title\":\"General Business Contract Template\",\"updated_at\":\"2024-04-24T19:50:40.000000Z\"},{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"id\":12187,\"title\":\"Business Coaching Agreement Template\",\"updated_at\":\"2024-04-24T19:50:39.000000Z\"},{\"completed_at\":null,\"created_at\":\"2024-04-24T19:50:39.000000Z\",\"id\":12186,\"title\":\"Non-Disclosure Agreement (NDA) Template\",\"updated_at\":\"2024-04-24T19:50:39.000000Z\"}]}},\"timestamp\":\"2026-06-01T02:06:08Z\",\"workflow\":\"client_workspace_snapshot\"}"
+    },
+    {
+      "command": "workflow client-workspace-snapshot",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow document-follow-up",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "document-follow-up",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect a document and recipients for follow-up planning\n\nUsage:\n  breezedoc-pp-cli workflow document-follow-up [flags]\n\nExamples:\n  breezedoc-pp-cli workflow document-follow-up --document-id 381936 --agent\n  breezedoc-pp-cli workflow document-follow-up --dry-run --document-id 381936 --send\n\nFlags:\n      --document-id string   Document id to inspect\n  -h, --help                 help for document-follow-up\n      --send                 Send or resend the document after inspection\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow document-follow-up",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "document-follow-up",
+        "--document-id",
+        "381936",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"document\":{\"completed_at\":\"2026-03-19T23:31:07.000000Z\",\"created_at\":\"2026-03-19T18:58:00.000000Z\",\"document_files\":[{\"document_file_pages\":[{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\u0026X-Amz-Date=20260601T014917Z\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Expires=1800\u0026X-Amz-Signature=fa3c353b0dc61800c156b548a114a5dcfccdef07ec5031dbef88b3e01a1b4192\"},{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\u0026X-Amz-Date=20260601T014917Z\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Expires=1800\u0026X-Amz-Signature=6db3dfef73bf3a69cc22abe2e4145b478259a3f65a47e0db3f31246f0c5d0021\"},{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-2.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7F…[truncated]"
+    },
+    {
+      "command": "workflow document-follow-up",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "document-follow-up",
+        "--document-id",
+        "381936",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"document\":{\"completed_at\":\"2026-03-19T23:31:07.000000Z\",\"created_at\":\"2026-03-19T18:58:00.000000Z\",\"document_files\":[{\"document_file_pages\":[{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-0.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\u0026X-Amz-Date=20260601T014917Z\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Expires=1800\u0026X-Amz-Signature=fa3c353b0dc61800c156b548a114a5dcfccdef07ec5031dbef88b3e01a1b4192\"},{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-1.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7FYZdqS64t3uMkyrbb%2F15ePgUljZIQBxALsICWri6UxiP5YmTqOBqSOjEhxo6Hne1eYscT50OO%2Fgr2qY%2FHaXeSijTKz2wvrT8lRLCGunyqS0jCOzoFuUk4pT3HeQ0SbGA5YkSZrf1S84oPBQgWtnLhntbl1BoQIvXya3svRIBXqLP1T46zPjDjx%2FPQBjqkASvCqQEZyIPBM7aW5PP0mAnHrosQHL3zYyjJVVonfhjrjN4zsC4ybv1osXB237HIj5L1e1WmaZrQtqyCIhF2D86WSGnuSFkZLC4TP%2FNkXbjTAah%2BZZDn1YkZk7YzjhEB5UqxQTSwEDq6THQY1UWtp0S2dt9ScpqLiJNKlLdfvKxlKn0UHdrTRWFDMjt4aH1gzKbZmp%2BekyWwDrGwkVgSo8xTBMn%2F\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=ASIATRJJJB3E6UNJL44A%2F20260601%2Fus-west-2%2Fs3%2Faws4_request\u0026X-Amz-Date=20260601T014917Z\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Expires=1800\u0026X-Amz-Signature=6db3dfef73bf3a69cc22abe2e4145b478259a3f65a47e0db3f31246f0c5d0021\"},{\"document_file_id\":381585,\"url\":\"https://breezedoc.s3.us-west-2.amazonaws.com/documents/LDT3dLsQKNUD5D0rKhQ3SFunIOfdbI8spEqZjoqd.pdf-2.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD\u0026X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLXdlc3QtMiJIMEYCIQCr3KSMPkNADXZcxSwMX2CC3DPOQJKndJGT3jJrQwJxugIhANCVzCRZtJUthQZOwg%2FLLoMx67CTpwyhgkHoe9dIGM1eKvMDCAMQABoMMjQzMjg5MDk5OTc3IgxMtLOqeK95eXg0KDgq0AMze3yJR6tOLK40m2Odt2pkG6s4quj8hxpS8Tx5IiC2tYemyuiUjf0L8xDIXA%2FF9KO5NsekFtz%2BkT2me9%2F%2F3qkP%2FWdp7GZoIgktHLXauCB4K6JG9noSXP%2FPgQGDfGmX%2FBcZDlwc%2FOWHfbsTc7JMn7Iyd75TPwXaVEb9B8fxXJ6ZJ7o1K%2Fs34cYqA1dCwWtjfxuXef671FC0Gf81%2F3HLZWMxQC90WivgW9Ux%2BOW0v%2FPW2I8qx%2FGelT3qMqBEQ5nNCJT7YRmsEqIwLaVJd58MikMQu9KUGc36h5C4Y0O0c5RX6qGf9Wls9G7%2F1vLEFi2IuWYzOQNGpyG%2BMehPmQ2MSl5wzZgJ2fpJ2zODo6CyVrMEQuInVgllCGAgyZkFNtVvCT3LLly5w1G86ueV11uURP9bFTSMmbtyrIE3e3Zs0AYzvi2gVoZNVXpZcG7F…[truncated]"
+    },
+    {
+      "command": "workflow document-follow-up",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow invoice-lifecycle",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "invoice-lifecycle",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create, update, send, and fetch an invoice in one structured workflow\n\nUsage:\n  breezedoc-pp-cli workflow invoice-lifecycle [flags]\n\nExamples:\n  breezedoc-pp-cli workflow invoice-lifecycle --dry-run --customer-email client@example.com --currency USD --description \"Consulting\" --payment-due 2026-06-30 --items-json '[{\"description\":\"Work\",\"quantity\":1,\"unit_price\":1000}]'\n  breezedoc-pp-cli workflow invoice-lifecycle --dry-run --invoice-id inv_test --footer-note \"Thank you\" --send\n\nFlags:\n      --currency string         Invoice currency\n      --customer-email string   Invoice customer email\n      --customer-name string    Invoice customer name\n      --description string      Invoice description\n      --footer-note string      Footer note\n  -h, --help                    help for invoice-lifecycle\n      --invoice-id string       Existing invoice id to fetch or update\n      --invoice-number string   Invoice number\n      --items-json string       Invoice line items JSON\n      --payment-due string      Payment due date\n      --payment-terms string    Payment terms\n      --send                    Send the invoice after create or update\n      --title string            Invoice title\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow invoice-lifecycle",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "invoice-lifecycle",
+        "--dry-run",
+        "--customer-email",
+        "client@example.com",
+        "--currency",
+        "USD",
+        "--description",
+        "Consulting",
+        "--payment-due",
+        "2026-06-30",
+        "--items-json",
+        "[{\"description\":\"Work\",\"quantity\":1,\"unit_price\":1000}]"
+      ],
+      "status": "pass",
+      "output_sample": "{\"create\":{\"dry_run\":true},\"invoice_id\":\"\",\"steps\":[{\"method\":\"POST\",\"name\":\"\u003credacted\u003e\",\"path\":\"/invoices\"},{\"method\":\"POST\",\"name\":\"\u003credacted\u003e\",\"path\":\"/invoices/{invoice}/send\",\"reason\":\"pass --send to send\",\"skipped\":true}],\"workflow\":\"invoice_lifecycle\"}POST https://breezedoc.com/api/invoices\n  Body:\n{\n    \"currency\": \"USD\",\n    \"customer_email\": \"\u003credacted\u003e\",\n    \"description\": \"Consulting\",\n    \"items\": [\n      {\n        \"description\": \"Work\",\n        \"quantity\": 1,\n        \"unit_price\": 1000\n      }\n    ],\n    \"payment_due\": \"2026-06-30\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workflow invoice-lifecycle",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "invoice-lifecycle",
+        "--dry-run",
+        "--customer-email",
+        "client@example.com",
+        "--currency",
+        "USD",
+        "--description",
+        "Consulting",
+        "--payment-due",
+        "2026-06-30",
+        "--items-json",
+        "[{\"description\":\"Work\",\"quantity\":1,\"unit_price\":1000}]",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"create\":{\"dry_run\":true},\"invoice_id\":\"\",\"steps\":[{\"method\":\"POST\",\"name\":\"\u003credacted\u003e\",\"path\":\"/invoices\"},{\"method\":\"POST\",\"name\":\"\u003credacted\u003e\",\"path\":\"/invoices/{invoice}/send\",\"reason\":\"pass --send to send\",\"skipped\":true}],\"workflow\":\"invoice_lifecycle\"}POST https://breezedoc.com/api/invoices\n  Body:\n{\n    \"currency\": \"USD\",\n    \"customer_email\": \"\u003credacted\u003e\",\n    \"description\": \"Consulting\",\n    \"items\": [\n      {\n        \"description\": \"Work\",\n        \"quantity\": 1,\n        \"unit_price\": 1000\n      }\n    ],\n    \"payment_due\": \"2026-06-30\"\n  }\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workflow invoice-lifecycle",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow signature-packet-prep",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "signature-packet-prep",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Prepare a signature packet from a template or new document\n\nUsage:\n  breezedoc-pp-cli workflow signature-packet-prep [flags]\n\nExamples:\n  breezedoc-pp-cli workflow signature-packet-prep --dry-run --template-id 12189 --send\n  breezedoc-pp-cli workflow signature-packet-prep --title \"NDA\" --recipients-json '[{\"email\":\"\u003credacted\u003e\"}]'\n\nFlags:\n  -h, --help                     help for signature-packet-prep\n      --recipients-json string   Recipients JSON\n      --send                     Send the packet after preparing it\n      --template-id string       Template id to create the packet from\n      --title string             Document title when creating a raw packet\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow signature-packet-prep",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "signature-packet-prep",
+        "--dry-run",
+        "--template-id",
+        "12189",
+        "--send"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"create_status\": 0,\n  \"created\": {\n    \"dry_run\": true\n  },\n  \"document_id\": \"\",\n  \"send\": {\n    \"reason\": \"created document id unavailable during dry-run\",\n    \"skipped\": true\n  },\n  \"send_requested\": true,\n  \"template_id\": \"12189\",\n  \"workflow\": \"signature_packet_prep\"\n}\nPOST https://breezedoc.com/api/templates/12189/create-document\n  Body:\n{}\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workflow signature-packet-prep",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "signature-packet-prep",
+        "--dry-run",
+        "--template-id",
+        "12189",
+        "--send",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"create_status\": 0,\n  \"created\": {\n    \"dry_run\": true\n  },\n  \"document_id\": \"\",\n  \"send\": {\n    \"reason\": \"created document id unavailable during dry-run\",\n    \"skipped\": true\n  },\n  \"send_requested\": true,\n  \"template_id\": \"12189\",\n  \"workflow\": \"signature_packet_prep\"\n}\nPOST https://breezedoc.com/api/templates/12189/create-document\n  Body:\n{}\n  Authorization: ****1nkk\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workflow signature-packet-prep",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  breezedoc-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  breezedoc-pp-cli workflow status\n\n  # Show status as JSON\n  breezedoc-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'breezedoc-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  documents                      10 items\n  me                             1 items\n  recipients                     10 items\n  templates                      4 items\n\n  Total: 25 items\n  Store: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-313673198/.local/share/breezedoc-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"documents\": 10,\n  \"me\": 1,\n  \"recipients\": 10,\n  \"templates\": 4\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-01T02:05:52.837597Z"
+}

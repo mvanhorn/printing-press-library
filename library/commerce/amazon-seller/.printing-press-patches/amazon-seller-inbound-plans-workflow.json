@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "amazon-seller-inbound-plans-workflow",
+  "applied_at": "2026-05-28",
+  "base_run_id": "2026-05-06T17:12:38.566433Z",
+  "base_printing_press_version": "3.10.0",
+  "summary": "Add Fulfillment Inbound v2024-03-20 inbound plan creation, polling, inspection, cancellation, and option workflow commands.",
+  "reason": "Amazon Seller users need a safe terminal workflow for FBA inbound plans, including CSV-to-request conversion, raw JSON passthrough, async operation polling, and guarded confirmation operations.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/inbound_plans.go",
+    "internal/cli/inbound_plans_test.go",
+    "internal/cli/which.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./...; go vet ./...; verify-skill; Amazon static sandbox smoke passed for create/status/list/get/cancel, packing, placement, transportation list, and transportation confirm. Static sandbox rejected generateTransportationOptions with InvalidInput even with the official model fixture body."
+}

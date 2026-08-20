@@ -56,6 +56,9 @@ resources:
           - name: after
             type: string
             description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
         response:
           type: array
           item: ShopifyOrder
@@ -96,6 +99,9 @@ resources:
           - name: after
             type: string
             description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
         response:
           type: array
           item: ShopifyProduct
@@ -136,6 +142,9 @@ resources:
           - name: after
             type: string
             description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
         response:
           type: array
           item: ShopifyInventoryItem
@@ -176,6 +185,9 @@ resources:
           - name: after
             type: string
             description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
         response:
           type: array
           item: ShopifyCustomer
@@ -216,6 +228,9 @@ resources:
           - name: after
             type: string
             description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
         response:
           type: array
           item: ShopifyFulfillmentOrder
@@ -241,6 +256,49 @@ resources:
           item: ShopifyFulfillmentOrder
         response_path: "data.fulfillmentOrder"
 
+  abandoned-checkouts:
+    description: "Shopify abandoned checkouts for recovery campaigns and lost-cart analysis."
+    endpoints:
+      list:
+        method: GET
+        path: "/graphql"
+        description: "List abandoned checkouts from the Shopify Admin GraphQL API."
+        params:
+          - name: first
+            type: integer
+            default: 100
+            description: "Page size for Shopify cursor pagination."
+          - name: after
+            type: string
+            description: "Cursor for the next page."
+          - name: query
+            type: string
+            description: "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01'). Used by --since to fetch only data updated within the window."
+        response:
+          type: array
+          item: ShopifyAbandonedCheckout
+        response_path: "data.abandonedCheckouts.nodes"
+        pagination:
+          type: cursor
+          limit_param: first
+          cursor_param: after
+          next_cursor_path: "data.abandonedCheckouts.pageInfo.endCursor"
+          has_more_field: "data.abandonedCheckouts.pageInfo.hasNextPage"
+      get:
+        method: GET
+        path: "/graphql"
+        description: "Get one Shopify abandoned checkout by GraphQL ID."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Shopify GraphQL abandoned checkout ID."
+        response:
+          type: object
+          item: ShopifyAbandonedCheckout
+        response_path: "data.abandonedCheckout"
+
 types:
   ShopifyOrder:
     fields:
@@ -264,6 +322,21 @@ types:
       - name: totalRefundedSet
         type: object
         selection: "{ shopMoney { amount currencyCode } }"
+      - name: tags
+        type: array
+      - name: sourceName
+        type: string
+      - name: note
+        type: string
+      - name: lineItems
+        type: object
+        selection: "(first: 50) { nodes { id title quantity originalUnitPriceSet { shopMoney { amount currencyCode } } discountedUnitPriceSet { shopMoney { amount currencyCode } } variant { id title sku product { id title handle } } } }"
+      - name: discountApplications
+        type: object
+        selection: "(first: 10) { nodes { __typename targetType allocationMethod value { __typename ... on MoneyV2 { amount currencyCode } ... on PricingPercentageValue { percentage } } } }"
+      - name: customer
+        type: object
+        selection: "{ id email displayName }"
 
   ShopifyProduct:
     fields:
@@ -318,6 +391,10 @@ types:
         type: string
       - name: updatedAt
         type: string
+      - name: tags
+        type: array
+      - name: note
+        type: string
 
   ShopifyFulfillmentOrder:
     fields:
@@ -339,6 +416,38 @@ types:
       - name: order
         type: object
         selection: "{ id name }"
+
+  ShopifyAbandonedCheckout:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+      - name: completedAt
+        type: string
+      - name: abandonedCheckoutUrl
+        type: string
+      - name: note
+        type: string
+      - name: totalPriceSet
+        type: object
+        selection: "{ presentmentMoney { amount currencyCode } }"
+      - name: subtotalPriceSet
+        type: object
+        selection: "{ presentmentMoney { amount currencyCode } }"
+      - name: customer
+        type: object
+        selection: "{ id email displayName }"
+      - name: lineItems
+        type: object
+        selection: "(first: 50) { nodes { id title quantity originalUnitPriceSet { presentmentMoney { amount currencyCode } } variant { id title sku product { id title handle } } } }"
+
+mcp:
+  transport: [stdio, http]
 
 extra_commands:
   - name: bulk-operations

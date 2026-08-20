@@ -44,7 +44,7 @@ Run 'sync' first; this command reads the local store.`,
 				return usageErr(fmt.Errorf("invalid --type %q (use one of collection, workspace, api, flow)", entityType))
 			}
 
-			db, err := openLocalStore()
+			db, err := openLocalStore(flags)
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

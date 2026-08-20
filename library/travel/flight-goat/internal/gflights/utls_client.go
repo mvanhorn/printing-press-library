@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Custom HTTP/2 client with TLS handshake fingerprinting via utls. Used by
 // the calendar endpoint (dates_native.go) to defend against Google flipping
@@ -11,10 +11,9 @@
 // Chrome-like; falling back to h1-only would require mutating the preset
 // and would still look slightly less authentic.
 //
-// Asymmetry note: krisukox/google-flights-api (used by Search) does NOT take
-// a custom http.Client. So Search() still hits Google with vanilla Go's TLS.
-// If Google enables fingerprint enforcement, Search will break first; that
-// signals time to either fork krisukox or vendor it with utls.
+// PATCH(upstream cli-printing-press): Search() now uses this same utls client
+// — see flights_native.go. The previous asymmetry (Dates over utls, Search
+// over vanilla TLS via krisukox) is gone.
 
 package gflights
 

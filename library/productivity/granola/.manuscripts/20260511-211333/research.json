@@ -1,0 +1,412 @@
+{
+  "api_name": "granola",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "granola.py",
+      "url": "https://github.com/dstevens/cc-skills",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GranolaMCP (pedramamini)",
+      "url": "https://github.com/pedramamini/GranolaMCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "granola-mcp (chrisguillory)",
+      "url": "https://github.com/chrisguillory/granola-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "reverse-engineering-granola-api (getprobo)",
+      "url": "https://github.com/getprobo/reverse-engineering-granola-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "granola-claude-mcp (cobblehillmachine)",
+      "url": "https://github.com/cobblehillmachine/granola-claude-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "granola-mcp (btn0s)",
+      "url": "https://github.com/btn0s/granola-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "granola-mcp-server (EoinFalconer)",
+      "url": "https://github.com/EoinFalconer/granola-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "granola-ai-mcp-server (maxgerlach1)",
+      "url": "https://github.com/maxgerlach1/granola-ai-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T01:22:26Z",
+  "novel_features": [
+    {
+      "name": "MEMO pipeline runner",
+      "command": "memo run",
+      "description": "Run the preflight → extract pipeline on one meeting or every new meeting since a timestamp, emitting the MEMO three-file artifact and an ndjson run-state ledger.",
+      "rationale": "Composes preflight, TipTap-aware extract, and filesystem state into one call — reads the local cache and writes to ~/Documents/Dev/meeting-transcripts/ with no external dependencies.",
+      "example": "granola-pp-cli memo run --since 24h --to ~/Documents/Dev/meeting-transcripts --json",
+      "why_it_matters": "Replaces the per-meeting shell loop that drives the MEMO pipeline — one call, one ndjson stream, agent-readable.",
+      "group": "MEMO pipeline"
+    },
+    {
+      "name": "MEMO ready-queue",
+      "command": "memo queue",
+      "description": "List every meeting whose transcript is in the cache but whose MEMO triple is not yet on disk.",
+      "rationale": "Left-anti-join across the cache and the filesystem — a query Granola itself cannot answer because it does not know about your MEMO output directory.",
+      "example": "granola-pp-cli memo queue --since 7d --json",
+      "why_it_matters": "Answers the daily question “what’s still un-MEMO’d?” without the user opening Granola at all.",
+      "group": "MEMO pipeline"
+    },
+    {
+      "name": "Attendee timeline",
+      "command": "attendee timeline",
+      "description": "Every meeting with a given attendee, ordered oldest→newest, with title, date, folder, and recipe-applied flag per row.",
+      "rationale": "SQLite JOIN across meetings and attendees with FTS5 partial-match on name/email — no incumbent tool does cross-meeting attendee queries.",
+      "example": "granola-pp-cli attendee timeline alice-at-example-com --since 60d --json --select id,title,started_at,folder,recipes",
+      "why_it_matters": "Pre-call prep in one command; surfaces the conversation arc with a single person across months of meetings.",
+      "group": "Attendee intelligence"
+    },
+    {
+      "name": "Attendee brief card",
+      "command": "attendee brief",
+      "description": "Pulls the last N meetings with an attendee and stitches together their real cached notes plus real AI panel summaries — no synthesis.",
+      "rationale": "Composes the cache (notes_markdown) with the internal API panel endpoint to deliver the pre-call card every account lead reaches for.",
+      "example": "granola-pp-cli attendee brief alice-at-example-com --last 3 --panel action-items --json",
+      "why_it_matters": "Eliminates the click-each-meeting copy-paste that account leads do before every external call.",
+      "group": "Attendee intelligence"
+    },
+    {
+      "name": "Folder stream with panels",
+      "command": "folder stream",
+      "description": "ndjson stream of every meeting in a Granola folder (resolved via documentLists + listRules) with notes and a named panel inlined.",
+      "rationale": "Granola folders carry auto-rules; stream takes the live rule set and joins each matching meeting to its panel content in one walk.",
+      "example": "granola-pp-cli folder stream client-foo --panel summary --json",
+      "why_it_matters": "Replaces the weekly retro workflow of opening a folder and copy-pasting each meeting’s summary into a spreadsheet.",
+      "group": "Folders + recipes"
+    },
+    {
+      "name": "Recipe coverage gap",
+      "command": "recipes coverage",
+      "description": "Surface meetings that did NOT have a named panel template/recipe applied within a date range.",
+      "rationale": "Negative join between documents, panelTemplates, and live get-document-panels output — there is no “missing recipe” query in any incumbent tool.",
+      "example": "granola-pp-cli recipes coverage discovery --since 14d --json",
+      "why_it_matters": "Friday retro question “did I run the Discovery recipe on every new-prospect call?” answered in one row per gap.",
+      "group": "Folders + recipes"
+    },
+    {
+      "name": "Per-source talk-time",
+      "command": "talktime",
+      "description": "Per-segment-source talk-time for one meeting — microphone (you) vs system (everyone else) in minutes.",
+      "rationale": "Aggregates transcript segments by source field that Granola exposes but no community tool surfaces.",
+      "example": "granola-pp-cli talktime 196037d9 --json",
+      "why_it_matters": "Confidence column lets you grade transcript accuracy; mic vs system split is the input to “am I talking too much” retros.",
+      "group": "Transcript analytics"
+    },
+    {
+      "name": "Cross-meeting talk-time",
+      "command": "talktime",
+      "description": "Lifts the per-source talk-time aggregation across N meetings since a date — who-talked-most over time.",
+      "rationale": "SQLite GROUP BY on transcripts joined to attendees where attendee_count=2 gives per-speaker attribution; otherwise we attribute to source bucket.",
+      "example": "granola-pp-cli talktime --by participant --since 7d --json",
+      "why_it_matters": "Time-defrag retro input that no per-meeting tool can produce.",
+      "group": "Transcript analytics"
+    },
+    {
+      "name": "AI chat threads",
+      "command": "chat list",
+      "description": "List and dump Granola’s AI chat threads anchored to a meeting (entities.chat_thread + entities.chat_message in the cache).",
+      "rationale": "These entities live only in the local cache; no incumbent tool exposes them.",
+      "example": "granola-pp-cli chat list 196037d9 --json",
+      "why_it_matters": "Recovers the AI Q\u0026A history a user has accumulated against a meeting — useful when chasing what you asked about an account weeks ago.",
+      "group": "Cache-native data"
+    },
+    {
+      "name": "Repo-wide duplicate scan",
+      "command": "duplicates scan",
+      "description": "Hash (title, date-bucket, attendee-email-set) across the cache and a meeting-transcripts repo to surface duplicates at scale.",
+      "rationale": "Preflight catches one meeting; this is the repo-wide lift across hundreds of MEMO outputs.",
+      "example": "granola-pp-cli duplicates scan --root ~/Documents/Dev/meeting-transcripts --json",
+      "why_it_matters": "Repos accumulate near-duplicate files when meetings are re-extracted; this returns the dupe groups for cleanup.",
+      "group": "Pipeline hygiene"
+    },
+    {
+      "name": "TipTap-faithful extractor",
+      "command": "tiptap extract",
+      "description": "Render documents[id].notes (TipTap JSON: headings, bullet_list, list_item, bold marks, paragraph_break) to canonical markdown instead of falling back to notes_plain.",
+      "rationale": "Reads the real TipTap node tree from the cache so structure (sublists, headings, bold runs) survives the round-trip.",
+      "example": "granola-pp-cli tiptap extract 196037d9 --as markdown",
+      "why_it_matters": "The MEMO summary file’s quality is bounded by extractor fidelity; granola.py loses sub-list hierarchy and bold runs.",
+      "group": "Pipeline hygiene"
+    },
+    {
+      "name": "Calendar overlay",
+      "command": "calendar overlay",
+      "description": "Left-anti-join meetingsMetadata calendar events with documents.google_calendar_event to find calendared-but-not-recorded meetings.",
+      "rationale": "Cross-source local query against the five connected calendars and 660 cached docs; surfaces gaps Granola itself doesn’t flag.",
+      "example": "granola-pp-cli calendar overlay --week 2026-05-11 --missed-only --json",
+      "why_it_matters": "Sarah’s Friday retro and Damien’s “what did I miss” sweep both reduce to this row-level diff.",
+      "group": "Cache-native data"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "MEMO pipeline runner",
+      "command": "memo run",
+      "description": "Run the preflight → extract pipeline on one meeting or every new meeting since a timestamp, emitting the MEMO three-file artifact and an ndjson run-state ledger.",
+      "rationale": "Composes preflight, TipTap-aware extract, and filesystem state into one call — reads the local cache and writes to ~/Documents/Dev/meeting-transcripts/ with no external dependencies.",
+      "example": "granola-pp-cli memo run --since 24h --to ~/Documents/Dev/meeting-transcripts --json",
+      "why_it_matters": "Replaces the per-meeting shell loop that drives the MEMO pipeline — one call, one ndjson stream, agent-readable.",
+      "group": "MEMO pipeline"
+    },
+    {
+      "name": "MEMO ready-queue",
+      "command": "memo queue",
+      "description": "List every meeting whose transcript is in the cache but whose MEMO triple is not yet on disk.",
+      "rationale": "Left-anti-join across the cache and the filesystem — a query Granola itself cannot answer because it does not know about your MEMO output directory.",
+      "example": "granola-pp-cli memo queue --since 7d --json",
+      "why_it_matters": "Answers the daily question “what’s still un-MEMO’d?” without the user opening Granola at all.",
+      "group": "MEMO pipeline"
+    },
+    {
+      "name": "Attendee timeline",
+      "command": "attendee timeline",
+      "description": "Every meeting with a given attendee, ordered oldest→newest, with title, date, folder, and recipe-applied flag per row.",
+      "rationale": "SQLite JOIN across meetings and attendees with FTS5 partial-match on name/email — no incumbent tool does cross-meeting attendee queries.",
+      "example": "granola-pp-cli attendee timeline alice-at-example-com --since 60d --json --select id,title,started_at,folder,recipes",
+      "why_it_matters": "Pre-call prep in one command; surfaces the conversation arc with a single person across months of meetings.",
+      "group": "Attendee intelligence"
+    },
+    {
+      "name": "Attendee brief card",
+      "command": "attendee brief",
+      "description": "Pulls the last N meetings with an attendee and stitches together their real cached notes plus real AI panel summaries — no synthesis.",
+      "rationale": "Composes the cache (notes_markdown) with the internal API panel endpoint to deliver the pre-call card every account lead reaches for.",
+      "example": "granola-pp-cli attendee brief alice-at-example-com --last 3 --panel action-items --json",
+      "why_it_matters": "Eliminates the click-each-meeting copy-paste that account leads do before every external call.",
+      "group": "Attendee intelligence"
+    },
+    {
+      "name": "Folder stream with panels",
+      "command": "folder stream",
+      "description": "ndjson stream of every meeting in a Granola folder (resolved via documentLists + listRules) with notes and a named panel inlined.",
+      "rationale": "Granola folders carry auto-rules; stream takes the live rule set and joins each matching meeting to its panel content in one walk.",
+      "example": "granola-pp-cli folder stream client-foo --panel summary --json",
+      "why_it_matters": "Replaces the weekly retro workflow of opening a folder and copy-pasting each meeting’s summary into a spreadsheet.",
+      "group": "Folders + recipes"
+    },
+    {
+      "name": "Recipe coverage gap",
+      "command": "recipes coverage",
+      "description": "Surface meetings that did NOT have a named panel template/recipe applied within a date range.",
+      "rationale": "Negative join between documents, panelTemplates, and live get-document-panels output — there is no “missing recipe” query in any incumbent tool.",
+      "example": "granola-pp-cli recipes coverage discovery --since 14d --json",
+      "why_it_matters": "Friday retro question “did I run the Discovery recipe on every new-prospect call?” answered in one row per gap.",
+      "group": "Folders + recipes"
+    },
+    {
+      "name": "Per-source talk-time",
+      "command": "talktime",
+      "description": "Per-segment-source talk-time for one meeting — microphone (you) vs system (everyone else) in minutes.",
+      "rationale": "Aggregates transcript segments by source field that Granola exposes but no community tool surfaces.",
+      "example": "granola-pp-cli talktime 196037d9 --json",
+      "why_it_matters": "Confidence column lets you grade transcript accuracy; mic vs system split is the input to “am I talking too much” retros.",
+      "group": "Transcript analytics"
+    },
+    {
+      "name": "Cross-meeting talk-time",
+      "command": "talktime",
+      "description": "Lifts the per-source talk-time aggregation across N meetings since a date — who-talked-most over time.",
+      "rationale": "SQLite GROUP BY on transcripts joined to attendees where attendee_count=2 gives per-speaker attribution; otherwise we attribute to source bucket.",
+      "example": "granola-pp-cli talktime --by participant --since 7d --json",
+      "why_it_matters": "Time-defrag retro input that no per-meeting tool can produce.",
+      "group": "Transcript analytics"
+    },
+    {
+      "name": "AI chat threads",
+      "command": "chat list",
+      "description": "List and dump Granola’s AI chat threads anchored to a meeting (entities.chat_thread + entities.chat_message in the cache).",
+      "rationale": "These entities live only in the local cache; no incumbent tool exposes them.",
+      "example": "granola-pp-cli chat list 196037d9 --json",
+      "why_it_matters": "Recovers the AI Q\u0026A history a user has accumulated against a meeting — useful when chasing what you asked about an account weeks ago.",
+      "group": "Cache-native data"
+    },
+    {
+      "name": "Repo-wide duplicate scan",
+      "command": "duplicates scan",
+      "description": "Hash (title, date-bucket, attendee-email-set) across the cache and a meeting-transcripts repo to surface duplicates at scale.",
+      "rationale": "Preflight catches one meeting; this is the repo-wide lift across hundreds of MEMO outputs.",
+      "example": "granola-pp-cli duplicates scan --root ~/Documents/Dev/meeting-transcripts --json",
+      "why_it_matters": "Repos accumulate near-duplicate files when meetings are re-extracted; this returns the dupe groups for cleanup.",
+      "group": "Pipeline hygiene"
+    },
+    {
+      "name": "TipTap-faithful extractor",
+      "command": "tiptap extract",
+      "description": "Render documents[id].notes (TipTap JSON: headings, bullet_list, list_item, bold marks, paragraph_break) to canonical markdown instead of falling back to notes_plain.",
+      "rationale": "Reads the real TipTap node tree from the cache so structure (sublists, headings, bold runs) survives the round-trip.",
+      "example": "granola-pp-cli tiptap extract 196037d9 --as markdown",
+      "why_it_matters": "The MEMO summary file’s quality is bounded by extractor fidelity; granola.py loses sub-list hierarchy and bold runs.",
+      "group": "Pipeline hygiene"
+    },
+    {
+      "name": "Calendar overlay",
+      "command": "calendar overlay",
+      "description": "Left-anti-join meetingsMetadata calendar events with documents.google_calendar_event to find calendared-but-not-recorded meetings.",
+      "rationale": "Cross-source local query against the five connected calendars and 660 cached docs; surfaces gaps Granola itself doesn’t flag.",
+      "example": "granola-pp-cli calendar overlay --week 2026-05-11 --missed-only --json",
+      "why_it_matters": "Sarah’s Friday retro and Damien’s “what did I miss” sweep both reduce to this row-level diff.",
+      "group": "Cache-native data"
+    }
+  ],
+  "narrative": {
+    "display_name": "Granola",
+    "headline": "Every Granola feature — plus offline SQLite cross-meeting search, attendee timelines, and a MEMO pipeline runner no other Granola tool has.",
+    "value_prop": "granola-pp-cli reads Granola’s local cache directly and adds the queries Granola.ai’s web app and existing community CLIs cannot answer. Cache-first, then internal API, then public API — transparent fallthrough. memo run, memo queue, attendee timeline, recipe coverage, calendar overlay, and talktime are local-data joins no per-meeting tool produces. Works offline; agent-native JSON by default.",
+    "auth_narrative": "Three auth surfaces, ordered fastest to most permissioned. The local cache at ~/Library/Application Support/Granola/cache-v6.json needs no credentials. The internal API at api.granola.ai auto-discovers your WorkOS access_token from supabase.json / stored-accounts.json and rotates the refresh token through WorkOS on every call. The public API at public-api.granola.ai accepts a Bearer key in GRANOLA_API_KEY for workspace-scoped queries; only required when you ask for --remote.",
+    "quickstart": [
+      {
+        "command": "granola-pp-cli doctor --json",
+        "comment": "Confirm cache + WorkOS token + (optional) public API key all resolve."
+      },
+      {
+        "command": "granola-pp-cli sync",
+        "comment": "Hydrate the local SQLite store from cache + any deltas via internal API."
+      },
+      {
+        "command": "granola-pp-cli memo queue --since 7d --json",
+        "comment": "What’s in cache but not yet MEMO’d this week."
+      },
+      {
+        "command": "granola-pp-cli memo run --since 24h --to ~/Documents/Dev/meeting-transcripts --json",
+        "comment": "Run the full MEMO pipeline on every meeting since yesterday."
+      },
+      {
+        "command": "granola-pp-cli attendee timeline alice-at-example-com --since 60d --json --select id,title,started_at,recipes",
+        "comment": "Every meeting with Trevin in the last 60 days, oldest first, with the recipes applied per row."
+      },
+      {
+        "command": "granola-pp-cli recipes coverage --since 14d --json",
+        "comment": "Friday retro: meetings missing a named panel template — pass \u003cslug\u003e as a positional."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports cache file not found",
+        "fix": "Make sure Granola is installed and you’ve opened it at least once. Override the path with GRANOLA_CACHE_PATH=/custom/path/cache-v6.json."
+      },
+      {
+        "symptom": "WorkOS token expired warning",
+        "fix": "Open the Granola desktop app once — it refreshes the token. Or pass a personal API key via GRANOLA_API_KEY to route through the public API instead."
+      },
+      {
+        "symptom": "memo run --since reports duplicate_of",
+        "fix": "A file with the same title-date-attendees fingerprint already exists in --to. Pass --force to overwrite or pick a different --to directory."
+      },
+      {
+        "symptom": "Transcript missing for a recent meeting",
+        "fix": "Granola hasn’t flushed it yet. Run warm \u003cid\u003e \u003cq\u003e --launch to bring it forward in the GUI, wait 30 s, then re-run preflight."
+      },
+      {
+        "symptom": "stats / talktime returns empty rows",
+        "fix": "Run sync first; the store needs to be populated before SQL queries return data."
+      }
+    ],
+    "when_to_use": "Reach for granola-pp-cli when you need to answer cross-meeting questions Granola.ai’s web app and the GUI cannot — attendee timelines, MEMO pipeline state, recipe coverage gaps, calendar overlay, talk-time aggregation. It is the right tool for an agent processing transcripts in a loop, a CSM doing pre-call prep, or a consultant running a weekly retro. Pair the --json default with --select dotted paths to keep agent context lean.",
+    "recipes": [
+      {
+        "title": "Daily MEMO loop",
+        "command": "granola-pp-cli memo run --since 24h --to ~/Documents/Dev/meeting-transcripts --json",
+        "explanation": "Process every new meeting since yesterday into the MEMO triple format and yield only the new artifacts."
+      },
+      {
+        "title": "Pre-call attendee brief",
+        "command": "granola-pp-cli attendee brief alice-at-example-com --last 3 --panel action-items --json --select meetings.title,meetings.started_at,panels.action_items",
+        "explanation": "Pull the last three meetings with Trevin and only the title, date, and action-items panel content per meeting."
+      },
+      {
+        "title": "Friday retro — missing recipes",
+        "command": "granola-pp-cli recipes coverage --since 14d --json",
+        "explanation": "Surface every new-prospect call in the last fortnight that did not have the Discovery panel applied."
+      },
+      {
+        "title": "Repo-wide duplicate scrub",
+        "command": "granola-pp-cli duplicates scan --root ~/Documents/Dev/meeting-transcripts --json",
+        "explanation": "Find duplicate-meeting clusters across the MEMO output repo for cleanup."
+      },
+      {
+        "title": "Calendar-overlay missed-meeting sweep",
+        "command": "granola-pp-cli calendar overlay --week 2026-05-11 --missed-only --json",
+        "explanation": "Calendared meetings with no Granola recording — weekly accountability check."
+      }
+    ],
+    "trigger_phrases": [
+      "memo run for today's meetings",
+      "what's in granola but not yet memo'd",
+      "every meeting we had with trevin",
+      "did i run the discovery recipe",
+      "talk time in last week's meetings",
+      "calendar overlay missed meetings",
+      "find duplicates in meeting transcripts",
+      "extract granola meeting",
+      "use granola",
+      "run granola"
+    ]
+  }
+}

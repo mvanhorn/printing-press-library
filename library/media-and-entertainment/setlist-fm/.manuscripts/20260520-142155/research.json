@@ -1,0 +1,433 @@
+{
+  "api_name": "setlist-fm",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "setlistfm-js",
+      "url": "https://github.com/terhuerne/setlistfm-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "setlist-fm-client",
+      "url": "https://github.com/zschumacher/setlist-fm-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "repertorio",
+      "url": "https://github.com/jtmolon/repertorio",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nucleos/setlistfm",
+      "url": "https://github.com/nucleos/setlistfm",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SetlistNet",
+      "url": "https://github.com/MolinRE/SetlistNet",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SetListR",
+      "url": "https://github.com/fusionet24/SetListR",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T21:25:00Z",
+  "novel_features": [
+    {
+      "name": "Setlist prediction",
+      "command": "predict",
+      "description": "Generate a likely setlist for an upcoming show using recency-weighted per-song probability from the artist's recent tour.",
+      "rationale": "Requires every recent setlist for one artist in a local store; the API returns one page at a time and rate-limits live calls.",
+      "example": "setlist-fm-pp-cli predict 'Radiohead' --last 10 --songs 22 --agent",
+      "why_it_matters": "When an agent or fan asks 'what will they play tonight', this answers it with confidence-ranked output instead of forcing a manual scrape of the last ten setlists.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Per-song stats",
+      "command": "song-stats",
+      "description": "For one song: total plays, first/last date, longest gap, average set position, percentage of shows that included it.",
+      "rationale": "Needs the full song history table joined to setlists; a single API call can only return one setlist at a time.",
+      "example": "setlist-fm-pp-cli song stats 'Radiohead' 'Paranoid Android' --agent",
+      "why_it_matters": "Answers the canonical fan question ('when was the last time they played X?') without burning 50 API calls.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Overdue songs",
+      "command": "overdue",
+      "description": "Rank an artist's songs by shows-since-last-played to surface what is most due to return.",
+      "rationale": "Requires global song frequency across all of the artist's recent shows in the local store.",
+      "example": "setlist-fm-pp-cli overdue 'Radiohead' --top 10 --agent",
+      "why_it_matters": "Lets an agent predict the 'wildcard' slot of a setlist without re-fetching the artist's whole tour.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Tour shape",
+      "command": "tour-shape",
+      "description": "Median set length, encore frequency, song-position histogram, top openers and closers for one tour.",
+      "rationale": "Tour-wide aggregates only emerge after joining setlists+sets+songs locally; the API exposes only per-setlist views.",
+      "example": "setlist-fm-pp-cli tour shape 'Radiohead' --tour 'The Tour of the OK Computer' --agent",
+      "why_it_matters": "Gives an agent a one-shot summary of how an artist is structuring a tour, replacing dozens of read calls.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Tour comparison",
+      "command": "compare",
+      "description": "Overlap percent, dropped songs, debuts, and set-position shifts between two named tours of one artist.",
+      "rationale": "Requires both tours fully sync'd to the local store; no API endpoint returns this directly.",
+      "example": "setlist-fm-pp-cli compare 'Phoenix' --tour 'Ti Amo Tour' --tour 'Alpha Zulu Tour' --agent",
+      "why_it_matters": "Surfaces tour evolution in one call for review/journalism workflows.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Encore intelligence",
+      "command": "encore",
+      "description": "Top encore openers, top encore closers, percent of shows that had an encore at all.",
+      "rationale": "Requires identifying encore sets across many setlists; the API does not aggregate.",
+      "example": "setlist-fm-pp-cli encore 'Radiohead' --agent",
+      "why_it_matters": "Lets agents answer 'what do they always close with?' offline.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Cover finder",
+      "command": "covers",
+      "description": "All cover songs an artist has played live, ranked by frequency with the original artist.",
+      "rationale": "Aggregates the per-song cover flag across thousands of setlists; no single API call returns this view.",
+      "example": "setlist-fm-pp-cli covers 'Phoebe Bridgers' --top 20 --agent",
+      "why_it_matters": "Surfaces fan-discovery moments (rare covers, recurring covers) for journalism or curation.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Setlist diff",
+      "command": "setlist-diff",
+      "description": "Side-by-side song diff of two setlist IDs.",
+      "rationale": "API only returns one setlist at a time; diffing requires both in memory simultaneously.",
+      "example": "setlist-fm-pp-cli setlist diff \u003cid-A\u003e \u003cid-B\u003e --agent",
+      "why_it_matters": "Lets agents answer 'what changed between these two shows' without parsing two responses by hand.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Song gap",
+      "command": "song-gap",
+      "description": "Biggest dry spells for one song and when the comeback happened.",
+      "rationale": "Computed from local song history; the API has no concept of song-level gaps.",
+      "example": "setlist-fm-pp-cli song gap 'Radiohead' 'Creep' --agent",
+      "why_it_matters": "Lets agents narrate band history without re-fetching the full setlist history.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Rare debuts",
+      "command": "debut",
+      "description": "Songs an artist has played exactly once live.",
+      "rationale": "Needs the full song count distribution; only computable from the local aggregate.",
+      "example": "setlist-fm-pp-cli debut 'Phoenix' --agent",
+      "why_it_matters": "Surfaces one-off oddities (one-time covers, abandoned originals) for rare-finding workflows.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Attended dashboard",
+      "command": "attended-stats",
+      "description": "Total shows, unique artists/songs/venues/cities, biggest streak, longest gap, decade breakdown for a user.",
+      "rationale": "Joins the user's full attended history with the songs table; the API exposes only paginated raw lists.",
+      "example": "setlist-fm-pp-cli attended stats \u003cuserId\u003e --agent",
+      "why_it_matters": "Delivers a one-shot collector dashboard that the website does not produce.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Bingo card",
+      "command": "bingo",
+      "description": "Printable bingo card of N most-likely-to-play songs for an upcoming show.",
+      "rationale": "Derived from the same probability model as predict; cannot be assembled from API output alone.",
+      "example": "setlist-fm-pp-cli bingo 'Radiohead' --songs 25",
+      "why_it_matters": "Fan-festival use case; gives a delightful tangible output the API was never going to ship.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Venue loyalty",
+      "command": "venue-loyalty",
+      "description": "Top venues an artist plays at, by frequency. Detects 'home venue' patterns.",
+      "rationale": "Joins all of an artist's setlists with venues; the API only returns venues one at a time.",
+      "example": "setlist-fm-pp-cli venue-loyalty 'Phish' --agent",
+      "why_it_matters": "Lets agents reason about artist-venue affinity without dozens of API calls.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Since-cursor digest",
+      "command": "since",
+      "description": "Setlist updates since a given timestamp; pair with sync for delta refresh.",
+      "rationale": "Cursor-driven incremental sync requires local state; not native to the API.",
+      "example": "setlist-fm-pp-cli since 2026-05-01T00:00:00Z --artist 'Radiohead' --agent",
+      "why_it_matters": "Lets a daily-digest agent stay current without re-syncing the full history.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Spotify playlist export",
+      "command": "playlist",
+      "description": "Generate a Spotify playlist from an artist's most recent setlist (or merged last N setlists) — output as CSV, M3U, or Spotify-search URIs, or use the Spotify Web API to create the playlist directly.",
+      "rationale": "Reads from the local Setlist.fm store and calls Spotify's real API; not possible from a pure Setlist.fm SDK because no wrapper persists data or talks to Spotify.",
+      "example": "setlist-fm-pp-cli playlist 'Radiohead' --last 1 --output csv \u003e radiohead-last-show.csv",
+      "why_it_matters": "Turns a concert log into something an agent or user can listen to in one command — the bridge between data and ear that no wrapper builds.",
+      "group": "Collector tools"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Setlist prediction",
+      "command": "predict",
+      "description": "Generate a likely setlist for an upcoming show using recency-weighted per-song probability from the artist's recent tour.",
+      "rationale": "Requires every recent setlist for one artist in a local store; the API returns one page at a time and rate-limits live calls.",
+      "example": "setlist-fm-pp-cli predict 'Radiohead' --last 10 --songs 22 --agent",
+      "why_it_matters": "When an agent or fan asks 'what will they play tonight', this answers it with confidence-ranked output instead of forcing a manual scrape of the last ten setlists.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Per-song stats",
+      "command": "song-stats",
+      "description": "For one song: total plays, first/last date, longest gap, average set position, percentage of shows that included it.",
+      "rationale": "Needs the full song history table joined to setlists; a single API call can only return one setlist at a time.",
+      "example": "setlist-fm-pp-cli song stats 'Radiohead' 'Paranoid Android' --agent",
+      "why_it_matters": "Answers the canonical fan question ('when was the last time they played X?') without burning 50 API calls.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Overdue songs",
+      "command": "overdue",
+      "description": "Rank an artist's songs by shows-since-last-played to surface what is most due to return.",
+      "rationale": "Requires global song frequency across all of the artist's recent shows in the local store.",
+      "example": "setlist-fm-pp-cli overdue 'Radiohead' --top 10 --agent",
+      "why_it_matters": "Lets an agent predict the 'wildcard' slot of a setlist without re-fetching the artist's whole tour.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Tour shape",
+      "command": "tour-shape",
+      "description": "Median set length, encore frequency, song-position histogram, top openers and closers for one tour.",
+      "rationale": "Tour-wide aggregates only emerge after joining setlists+sets+songs locally; the API exposes only per-setlist views.",
+      "example": "setlist-fm-pp-cli tour shape 'Radiohead' --tour 'The Tour of the OK Computer' --agent",
+      "why_it_matters": "Gives an agent a one-shot summary of how an artist is structuring a tour, replacing dozens of read calls.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Tour comparison",
+      "command": "compare",
+      "description": "Overlap percent, dropped songs, debuts, and set-position shifts between two named tours of one artist.",
+      "rationale": "Requires both tours fully sync'd to the local store; no API endpoint returns this directly.",
+      "example": "setlist-fm-pp-cli compare 'Phoenix' --tour 'Ti Amo Tour' --tour 'Alpha Zulu Tour' --agent",
+      "why_it_matters": "Surfaces tour evolution in one call for review/journalism workflows.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Encore intelligence",
+      "command": "encore",
+      "description": "Top encore openers, top encore closers, percent of shows that had an encore at all.",
+      "rationale": "Requires identifying encore sets across many setlists; the API does not aggregate.",
+      "example": "setlist-fm-pp-cli encore 'Radiohead' --agent",
+      "why_it_matters": "Lets agents answer 'what do they always close with?' offline.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Cover finder",
+      "command": "covers",
+      "description": "All cover songs an artist has played live, ranked by frequency with the original artist.",
+      "rationale": "Aggregates the per-song cover flag across thousands of setlists; no single API call returns this view.",
+      "example": "setlist-fm-pp-cli covers 'Phoebe Bridgers' --top 20 --agent",
+      "why_it_matters": "Surfaces fan-discovery moments (rare covers, recurring covers) for journalism or curation.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Setlist diff",
+      "command": "setlist-diff",
+      "description": "Side-by-side song diff of two setlist IDs.",
+      "rationale": "API only returns one setlist at a time; diffing requires both in memory simultaneously.",
+      "example": "setlist-fm-pp-cli setlist diff \u003cid-A\u003e \u003cid-B\u003e --agent",
+      "why_it_matters": "Lets agents answer 'what changed between these two shows' without parsing two responses by hand.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Song gap",
+      "command": "song-gap",
+      "description": "Biggest dry spells for one song and when the comeback happened.",
+      "rationale": "Computed from local song history; the API has no concept of song-level gaps.",
+      "example": "setlist-fm-pp-cli song gap 'Radiohead' 'Creep' --agent",
+      "why_it_matters": "Lets agents narrate band history without re-fetching the full setlist history.",
+      "group": "Predictive analytics"
+    },
+    {
+      "name": "Rare debuts",
+      "command": "debut",
+      "description": "Songs an artist has played exactly once live.",
+      "rationale": "Needs the full song count distribution; only computable from the local aggregate.",
+      "example": "setlist-fm-pp-cli debut 'Phoenix' --agent",
+      "why_it_matters": "Surfaces one-off oddities (one-time covers, abandoned originals) for rare-finding workflows.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Attended dashboard",
+      "command": "attended-stats",
+      "description": "Total shows, unique artists/songs/venues/cities, biggest streak, longest gap, decade breakdown for a user.",
+      "rationale": "Joins the user's full attended history with the songs table; the API exposes only paginated raw lists.",
+      "example": "setlist-fm-pp-cli attended stats \u003cuserId\u003e --agent",
+      "why_it_matters": "Delivers a one-shot collector dashboard that the website does not produce.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Bingo card",
+      "command": "bingo",
+      "description": "Printable bingo card of N most-likely-to-play songs for an upcoming show.",
+      "rationale": "Derived from the same probability model as predict; cannot be assembled from API output alone.",
+      "example": "setlist-fm-pp-cli bingo 'Radiohead' --songs 25",
+      "why_it_matters": "Fan-festival use case; gives a delightful tangible output the API was never going to ship.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Venue loyalty",
+      "command": "venue-loyalty",
+      "description": "Top venues an artist plays at, by frequency. Detects 'home venue' patterns.",
+      "rationale": "Joins all of an artist's setlists with venues; the API only returns venues one at a time.",
+      "example": "setlist-fm-pp-cli venue-loyalty 'Phish' --agent",
+      "why_it_matters": "Lets agents reason about artist-venue affinity without dozens of API calls.",
+      "group": "Tour analytics"
+    },
+    {
+      "name": "Since-cursor digest",
+      "command": "since",
+      "description": "Setlist updates since a given timestamp; pair with sync for delta refresh.",
+      "rationale": "Cursor-driven incremental sync requires local state; not native to the API.",
+      "example": "setlist-fm-pp-cli since 2026-05-01T00:00:00Z --artist 'Radiohead' --agent",
+      "why_it_matters": "Lets a daily-digest agent stay current without re-syncing the full history.",
+      "group": "Collector tools"
+    },
+    {
+      "name": "Spotify playlist export",
+      "command": "playlist",
+      "description": "Generate a Spotify playlist from an artist's most recent setlist (or merged last N setlists) — output as CSV, M3U, or Spotify-search URIs, or use the Spotify Web API to create the playlist directly.",
+      "rationale": "Reads from the local Setlist.fm store and calls Spotify's real API; not possible from a pure Setlist.fm SDK because no wrapper persists data or talks to Spotify.",
+      "example": "setlist-fm-pp-cli playlist 'Radiohead' --last 1 --output csv \u003e radiohead-last-show.csv",
+      "why_it_matters": "Turns a concert log into something an agent or user can listen to in one command — the bridge between data and ear that no wrapper builds.",
+      "group": "Collector tools"
+    }
+  ],
+  "narrative": {
+    "display_name": "Setlist.fm",
+    "headline": "Every Setlist.fm endpoint, plus offline analytics no API call can return — tour shape, song frequency, what's overdue, setlist prediction.",
+    "value_prop": "Setlist.fm rate-limits to 2 requests per second and 1,440 per day, which makes any real analytics workflow impossible against the live API. This CLI syncs an artist's full setlist history to a local SQLite store once, then runs every transcendence query — predict, overdue, tour shape, song gap, covers, attended stats — instantly and offline. Six SDK wrappers exist across five languages; none of them store anything. This one does.",
+    "auth_narrative": "Get a free API key at https://www.setlist.fm/settings/api. The CLI looks for SETLISTFM_API_KEY in the environment and falls back to SETLIST_FM_API_KEY for compatibility with existing Python and JavaScript tooling. Run `setlist-fm-pp-cli auth set-token \u003ckey\u003e` to persist it in the config file. All requests automatically throttle to 2 RPS and surface 429 responses with a backoff hint.",
+    "quickstart": [
+      {
+        "command": "setlist-fm-pp-cli auth set-token $SETLISTFM_API_KEY",
+        "comment": "Persist your API key once; every later command reads it from the config."
+      },
+      {
+        "command": "setlist-fm-pp-cli artist resolve 'Radiohead'",
+        "comment": "Get the MusicBrainz ID without copy-pasting from the website."
+      },
+      {
+        "command": "setlist-fm-pp-cli sync --artist 'Radiohead' --max-pages 5",
+        "comment": "Pull the last few pages of setlists into the local SQLite store under your daily-request budget."
+      },
+      {
+        "command": "setlist-fm-pp-cli overdue 'Radiohead' --top 10 --agent",
+        "comment": "Run the first transcendence query: which songs are most due for a comeback."
+      },
+      {
+        "command": "setlist-fm-pp-cli predict 'Radiohead' --last 10 --songs 22 --agent",
+        "comment": "Generate a predicted setlist for the next show from the recent tour."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on every call",
+        "fix": "Your API key is missing or invalid. Run `setlist-fm-pp-cli doctor` to confirm SETLISTFM_API_KEY is loaded."
+      },
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "You exceeded 2 req/sec or 1440/day. The client already throttles, but parallel runs will trip it. Wait, then re-run; consider `sync --max-pages N` to budget."
+      },
+      {
+        "symptom": "Empty results from `predict`/`overdue`/`song stats`",
+        "fix": "These commands read from the local store. Run `setlist-fm-pp-cli sync --artist \u003cname\u003e` first."
+      },
+      {
+        "symptom": "`predict` results feel random",
+        "fix": "Increase `--last N` (default 10) so more shows feed the probability model; sync more pages first."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever an agent or user needs to reason across many of an artist's setlists at once — predicting a show, finding an overdue song, counting how often a cover is played, comparing two tours, or building a dashboard of a user's attended history. Use the raw `search`/`get` commands for one-shot lookups; use the transcendence commands (predict, overdue, tour shape, compare, attended stats) when you need an aggregate the API cannot return in one call. The 2-RPS rate limit makes this CLI strictly faster than any live-API wrapper for repeated questions.",
+    "recipes": [
+      {
+        "title": "Predict tonight's setlist",
+        "command": "setlist-fm-pp-cli sync --artist 'Radiohead' --max-pages 5 \u0026\u0026 setlist-fm-pp-cli predict 'Radiohead' --last 10 --songs 22 --agent --select songs.name,songs.probability,songs.last_played",
+        "explanation": "Sync the recent tour into the store, then output a ranked setlist prediction with only the three fields an agent needs — drops a 30 KB response to ~2 KB."
+      },
+      {
+        "title": "What's overdue for a comeback?",
+        "command": "setlist-fm-pp-cli overdue 'Phish' --top 10 --agent",
+        "explanation": "Lists the ten songs Phish has gone the longest without playing, ordered by show-count gap."
+      },
+      {
+        "title": "Compare two tours",
+        "command": "setlist-fm-pp-cli compare 'Phoenix' --tour 'Ti Amo Tour' --tour 'Alpha Zulu Tour' --agent",
+        "explanation": "Shows song overlap, dropped songs, debuts, and set-position shifts between two named tours."
+      },
+      {
+        "title": "Build a fan bingo card",
+        "command": "setlist-fm-pp-cli bingo 'The National' --songs 25",
+        "explanation": "Generates a printable 5×5 card of the most-likely-to-play songs for the next show."
+      },
+      {
+        "title": "My concert dashboard",
+        "command": "setlist-fm-pp-cli attended stats myUsername --agent",
+        "explanation": "Returns total shows, unique artists/songs/venues, biggest streak, longest gap — the dashboard the website doesn't render."
+      }
+    ],
+    "trigger_phrases": [
+      "predict the setlist",
+      "what songs are overdue for",
+      "look up setlist for",
+      "how often does X play Y",
+      "compare these two tours",
+      "use setlist-fm",
+      "run setlist-fm"
+    ]
+  }
+}

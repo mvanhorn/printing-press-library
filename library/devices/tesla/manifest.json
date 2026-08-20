@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "tesla-pp-mcp",
+  "display_name": "Tesla",
+  "version": "4.9.0",
+  "description": "Every Tesla mobile-API feature, plus offline charging history and a SQLite-backed vehicle log no other Tesla CLI has",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tesla-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tesla-pp-mcp",
+      "args": [],
+      "env": {
+        "TESLA_AUTH_TOKEN": "${user_config.tesla_auth_token}"
+      }
+    }
+  },
+  "user_config": {
+    "tesla_auth_token": {
+      "type": "string",
+      "title": "TESLA_AUTH_TOKEN",
+      "description": "Tesla iOS-app OAuth bearer token (8-hour TTL). Mint via tesla auth login.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

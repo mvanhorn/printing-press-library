@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // dossier: unified single-person view built from LinkedIn + Happenstance +
 // (optionally) Deepline. Composes a single JSON document with per-source
@@ -42,9 +42,9 @@ func newDossierCmd(flags *rootFlags) *cobra.Command {
 		deeplineKey string
 	)
 	cmd := &cobra.Command{
-		Use:   "dossier <person>",
+		Use:         "dossier <person>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Build a unified person dossier across LinkedIn, Happenstance, and Deepline",
+		Short:       "Build a unified person dossier across LinkedIn, Happenstance, and Deepline",
 		Long: `Compose a single view of a person from all configured sources.
 
 Sections (default all free):

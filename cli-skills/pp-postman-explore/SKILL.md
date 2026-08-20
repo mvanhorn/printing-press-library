@@ -15,6 +15,11 @@ metadata:
         bins: [postman-explore-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/postman-explore/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Postman Explore — Printing Press CLI
 
@@ -22,20 +27,20 @@ metadata:
 
 This skill drives the `postman-explore-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install postman-explore --cli-only
+   npx -y @mvanhorn/printing-press-library install postman-explore --cli-only
    ```
 2. Verify: `postman-explore-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -85,9 +90,10 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Time-windowed signals
-- **`drift`** — Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.
+<!-- PATCH: describe current drift implementation accurately as updated-within-window, not snapshot diff. -->
+- **`drift`** — Report locally synced entities whose API-side `updatedAt` timestamp falls inside a time window.
 
-  _Agents tracking when a vendor publishes a new collection or updates an existing one rely on this; there is no other way to know._
+  _Agents tracking recently updated vendor collections rely on this after a periodic `sync`; it is an updated-within-window view, not a two-snapshot removed-entity diff._
 
   ```bash
   postman-explore-pp-cli drift --since 7d --type collection --json
@@ -177,10 +183,10 @@ Aggregate fork counts across each publisher's full portfolio in the payments cat
 ### What changed on the network this week
 
 ```bash
-postman-explore-pp-cli sync && postman-explore-pp-cli drift --since 7d --type collection --json
+postman-explore-pp-cli sync --resources collection,workspace,api,flow,category && postman-explore-pp-cli drift --since 7d --type collection --json
 ```
 
-Sync, then diff against the previous snapshot to find newly added or recently updated collections.
+Sync, then query the local store for collections whose API-side `updatedAt` falls inside the requested window.
 
 ### Browse top developer-productivity collections, narrow to verified publishers
 

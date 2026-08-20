@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "ankiweb-pp-mcp",
+  "display_name": "Ankiweb",
+  "version": "4.16.0",
+  "description": "Ankiweb API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ankiweb-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ankiweb-pp-mcp",
+      "args": [],
+      "env": {
+        "ANKIWEB_COOKIES": "${user_config.ankiweb_cookies}"
+      }
+    }
+  },
+  "user_config": {
+    "ankiweb_cookies": {
+      "type": "string",
+      "title": "ANKIWEB_COOKIES",
+      "description": "Optional. Sets ANKIWEB_COOKIES for the Ankiweb MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

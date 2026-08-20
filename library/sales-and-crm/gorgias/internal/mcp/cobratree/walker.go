@@ -1,0 +1,70 @@
+// Copyright 2026 chrisyoungcooks. Licensed under Apache-2.0. See LICENSE.
+
+package cobratree
+
+import (
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
+	"github.com/spf13/cobra"
+)
+
+// RegisterAll walks root's user-facing Cobra commands and registers shell-out
+// MCP tools for commands that are not already covered by typed endpoint tools.
+// Returns the number of tools actually registered so callers can publish an
+// accurate tool_count to introspecting agents.
+func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error)) int {
+	if root == nil {
+		return 0
+	}
+	count := 0
+	walk(root, nil, func(cmd *cobra.Command, path []string) {
+		switch classify(cmd) {
+		case commandHidden:
+			return
+		case commandEndpoint, commandFramework:
+			return
+		}
+		if !cmd.Runnable() {
+			return
+		}
+
+		toolName := toolNameForPath(path)
+		if toolName == "" {
+			return
+		}
+		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
+		options = append(options, toolOptionsForFlags(cmd)...)
+		if commandTakesArgs(cmd) {
+			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments or raw CLI flags to append to the command.")))
+		}
+		if isMCPReadOnly(cmd) {
+			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
+		}
+		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path))
+		count++
+	})
+	return count
+}
+
+func walk(cmd *cobra.Command, path []string, visit func(*cobra.Command, []string)) {
+	for _, child := range cmd.Commands() {
+		if child.Hidden || isMCPHidden(child) {
+			continue
+		}
+		childPath := append(append([]string{}, path...), child.Name())
+		visit(child, childPath)
+		if kind := classify(child); kind != commandHidden && kind != commandFramework {
+			walk(child, childPath, visit)
+		}
+	}
+}
+
+func descriptionFor(cmd *cobra.Command) string {
+	if cmd.Long != "" {
+		return cmd.Long
+	}
+	if cmd.Short != "" {
+		return cmd.Short
+	}
+	return "Run `" + cmd.CommandPath() + "` through the companion CLI binary."
+}

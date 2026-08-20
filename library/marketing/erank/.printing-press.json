@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-31T18:47:35.823252Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "erank",
+  "display_name": "eRank",
+  "cli_name": "erank-pp-cli",
+  "creator": {
+    "handle": "horknfbr",
+    "name": "horknfbr"
+  },
+  "owner": "horknfbr",
+  "printer": "horknfbr",
+  "printer_name": "horknfbr",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3be7dd05a34aec67d32fb4fd4925cc536f9946244be2d571114486e729152f1f",
+  "run_id": "20260531-142147",
+  "category": "marketing",
+  "description": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+  "mcp_binary": "erank-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "ERANK_XSRF_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ERANK_XSRF_TOKEN",
+      "kind": "harvested",
+      "required": true,
+      "sensitive": true,
+      "description": "XSRF token captured from a logged-in eRank browser session."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Niche Opportunity Score",
+      "command": "opportunity",
+      "description": "Score a keyword as a seller opportunity using eRank stats, difficulty, competition, and current top listings."
+    },
+    {
+      "name": "Top Listing Gap Analyzer",
+      "command": "listing gaps",
+      "description": "Compare a draft listing title and tags against phrases and tags appearing in top eRank results."
+    },
+    {
+      "name": "Tag Consensus Map",
+      "command": "tags consensus",
+      "description": "Find tags that repeatedly appear across top listings, Etsy tag data, related searches, and near matches."
+    },
+    {
+      "name": "Keyword Drift Watcher",
+      "command": "watch drift",
+      "description": "Detect meaningful changes in keyword competition, difficulty, and top listings across saved snapshots."
+    },
+    {
+      "name": "Keyword Portfolio Optimizer",
+      "command": "lists optimize",
+      "description": "Rank saved keyword lists by weak, saturated, overlapping, and missing keyword opportunities."
+    },
+    {
+      "name": "Saturation Warning",
+      "command": "saturation",
+      "description": "Flag crowded keywords by combining competition, difficulty, tag reuse, and top-listing density."
+    },
+    {
+      "name": "POD Angle Finder",
+      "command": "angles",
+      "description": "Extract product angles from related searches, near matches, tags, and current top listings."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
+}

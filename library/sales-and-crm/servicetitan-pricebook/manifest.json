@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "servicetitan-pricebook-pp-mcp",
+  "display_name": "Pricebook",
+  "version": "4.6.1",
+  "description": "Pricebook API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/servicetitan-pricebook-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/servicetitan-pricebook-pp-mcp",
+      "args": [],
+      "env": {
+        "ST_CLIENT_ID": "${user_config.st_client_id}",
+        "ST_CLIENT_SECRET": "${user_config.st_client_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "st_client_id": {
+      "type": "string",
+      "title": "ST_CLIENT_ID",
+      "description": "Sets ST_CLIENT_ID for the Pricebook MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "st_client_secret": {
+      "type": "string",
+      "title": "ST_CLIENT_SECRET",
+      "description": "Sets ST_CLIENT_SECRET for the Pricebook MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

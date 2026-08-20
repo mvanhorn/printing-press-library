@@ -3,7 +3,7 @@
   "name": "allrecipes-pp-mcp",
   "display_name": "Allrecipes",
   "version": "3.8.0",
-  "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
+  "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, and rank by Bayesian-smoothed popularity.",
   "author": {
     "name": "CLI Printing Press"
   },

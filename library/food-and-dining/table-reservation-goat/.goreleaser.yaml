@@ -1,0 +1,51 @@
+version: 2
+project_name: table-reservation-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: table-reservation-goat-pp-cli
+    main: ./cmd/table-reservation-goat-pp-cli
+    binary: table-reservation-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: table-reservation-goat-pp-mcp
+    main: ./cmd/table-reservation-goat-pp-mcp
+    binary: table-reservation-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: table-reservation-goat-pp-cli
+    repository:
+      owner: omarshahine
+      name: homebrew-tap
+    homepage: "https://github.com/omarshahine/table-reservation-goat-pp-cli"
+    description: "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations"
+    install: |
+      bin.install "table-reservation-goat-pp-cli"
+      bin.install "table-reservation-goat-pp-mcp"

@@ -1,0 +1,219 @@
+{
+  "api_name": "adminbyrequest",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T15:58:55Z",
+  "novel_features": [
+    {
+      "name": "Repeat-Requestor Detection",
+      "command": "requests repeat-offenders",
+      "description": "Surface the top users by elevation-request count over a configurable window, so admins can spot patterns the portal does not visualize.",
+      "rationale": "Requires aggregating request history locally across users and time; AbR portal does not provide a top-N requestor view.",
+      "example": "adminbyrequest-pp-cli requests repeat-offenders --window 30d --json",
+      "why_it_matters": "When tracing repeated elevation attempts across a fleet, this is the single query that names the people; without it, an agent has to walk every request and aggregate manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Audit-to-Event Correlation",
+      "command": "correlate",
+      "description": "Given an audit log entry ID, join it to nearby events on the same computer to reconstruct a full elevation timeline.",
+      "rationale": "Joins auditlog and events tables in the local store with a time-window predicate; the live API does not expose a join.",
+      "example": "adminbyrequest-pp-cli correlate 50461167 --window 5m --json",
+      "why_it_matters": "Incident response often asks what else happened on this machine when this admin session opened; this is the single command that answers it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent-Version Drift",
+      "command": "inventory drift",
+      "description": "List endpoints whose AbR client version is older than a target version, useful for upgrade campaigns.",
+      "rationale": "Operates over the locally synced inventory snapshot; the portal lists devices but does not pre-filter by client version delta.",
+      "example": "adminbyrequest-pp-cli inventory drift --client-version 8.7.2 --json",
+      "why_it_matters": "Before any compliance audit, the agent should know which endpoints are running an old client; this is the one-liner.",
+      "group": "Fleet hygiene"
+    },
+    {
+      "name": "Quota Usage Forecast",
+      "command": "quota forecast",
+      "description": "Track local API call count against the 100k-per-day quota and predict whether the current pace will exceed it before midnight.",
+      "rationale": "Requires a running counter the live API does not expose; without it, hitting the quota silently blocks the whole tenant until next business day.",
+      "example": "adminbyrequest-pp-cli quota forecast --json",
+      "why_it_matters": "Reachability mitigation: an agent that calls the API in a loop needs to know before it bricks the tenant for the day.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Denied-Reason Distribution",
+      "command": "requests denied-reasons",
+      "description": "Tokenize the free-text deniedReason field across all denied requests and emit a top-N word distribution.",
+      "rationale": "Operates locally on stored denied requests; the portal shows individual reasons but not a distribution.",
+      "example": "adminbyrequest-pp-cli requests denied-reasons --top 20 --json",
+      "why_it_matters": "For compliance review and tone-of-policy checks, surfacing the actual words used is faster than reading each row.",
+      "group": "Compliance and review"
+    },
+    {
+      "name": "Compliance Report",
+      "command": "report compliance",
+      "description": "Render audit entries for a user or computer over a window in a format suitable for auditors (CSV or markdown).",
+      "rationale": "Joins user/computer filter with time-range and converts to a deliverable format the live API does not produce.",
+      "example": "adminbyrequest-pp-cli report compliance --since 2026-01-01 --user CHRISCOOMBES --format md",
+      "why_it_matters": "Auditor evidence requests always want a single artifact; this generates it in one command.",
+      "group": "Compliance and review"
+    },
+    {
+      "name": "Endpoint Risk Score",
+      "command": "inventory risk-score",
+      "description": "Score each endpoint by elevation frequency, local-admin count, and AbR client version recency.",
+      "rationale": "Composite metric over multiple tables in the local store; not a query the API exposes.",
+      "example": "adminbyrequest-pp-cli inventory risk-score --top 10 --json",
+      "why_it_matters": "Lets an admin focus remediation effort on the endpoints most likely to be abused.",
+      "group": "Fleet hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Repeat-Requestor Detection",
+      "command": "requests repeat-offenders",
+      "description": "Surface the top users by elevation-request count over a configurable window, so admins can spot patterns the portal does not visualize.",
+      "rationale": "Requires aggregating request history locally across users and time; AbR portal does not provide a top-N requestor view.",
+      "example": "adminbyrequest-pp-cli requests repeat-offenders --window 30d --json",
+      "why_it_matters": "When tracing repeated elevation attempts across a fleet, this is the single query that names the people; without it, an agent has to walk every request and aggregate manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Audit-to-Event Correlation",
+      "command": "correlate",
+      "description": "Given an audit log entry ID, join it to nearby events on the same computer to reconstruct a full elevation timeline.",
+      "rationale": "Joins auditlog and events tables in the local store with a time-window predicate; the live API does not expose a join.",
+      "example": "adminbyrequest-pp-cli correlate 50461167 --window 5m --json",
+      "why_it_matters": "Incident response often asks what else happened on this machine when this admin session opened; this is the single command that answers it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent-Version Drift",
+      "command": "inventory drift",
+      "description": "List endpoints whose AbR client version is older than a target version, useful for upgrade campaigns.",
+      "rationale": "Operates over the locally synced inventory snapshot; the portal lists devices but does not pre-filter by client version delta.",
+      "example": "adminbyrequest-pp-cli inventory drift --client-version 8.7.2 --json",
+      "why_it_matters": "Before any compliance audit, the agent should know which endpoints are running an old client; this is the one-liner.",
+      "group": "Fleet hygiene"
+    },
+    {
+      "name": "Quota Usage Forecast",
+      "command": "quota forecast",
+      "description": "Track local API call count against the 100k-per-day quota and predict whether the current pace will exceed it before midnight.",
+      "rationale": "Requires a running counter the live API does not expose; without it, hitting the quota silently blocks the whole tenant until next business day.",
+      "example": "adminbyrequest-pp-cli quota forecast --json",
+      "why_it_matters": "Reachability mitigation: an agent that calls the API in a loop needs to know before it bricks the tenant for the day.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Denied-Reason Distribution",
+      "command": "requests denied-reasons",
+      "description": "Tokenize the free-text deniedReason field across all denied requests and emit a top-N word distribution.",
+      "rationale": "Operates locally on stored denied requests; the portal shows individual reasons but not a distribution.",
+      "example": "adminbyrequest-pp-cli requests denied-reasons --top 20 --json",
+      "why_it_matters": "For compliance review and tone-of-policy checks, surfacing the actual words used is faster than reading each row.",
+      "group": "Compliance and review"
+    },
+    {
+      "name": "Compliance Report",
+      "command": "report compliance",
+      "description": "Render audit entries for a user or computer over a window in a format suitable for auditors (CSV or markdown).",
+      "rationale": "Joins user/computer filter with time-range and converts to a deliverable format the live API does not produce.",
+      "example": "adminbyrequest-pp-cli report compliance --since 2026-01-01 --user CHRISCOOMBES --format md",
+      "why_it_matters": "Auditor evidence requests always want a single artifact; this generates it in one command.",
+      "group": "Compliance and review"
+    },
+    {
+      "name": "Endpoint Risk Score",
+      "command": "inventory risk-score",
+      "description": "Score each endpoint by elevation frequency, local-admin count, and AbR client version recency.",
+      "rationale": "Composite metric over multiple tables in the local store; not a query the API exposes.",
+      "example": "adminbyrequest-pp-cli inventory risk-score --top 10 --json",
+      "why_it_matters": "Lets an admin focus remediation effort on the endpoints most likely to be abused.",
+      "group": "Fleet hygiene"
+    }
+  ],
+  "narrative": {
+    "display_name": "Admin By Request",
+    "headline": "Every Admin By Request portal action, plus a local SQLite mirror of audit, events, inventory and requests for ad-hoc SQL and offline search.",
+    "value_prop": "Pull audit log, events, inventory and requests into a local store with one sync, then approve or deny elevations, generate offline PIN codes, and answer cross-resource questions (repeat requestors, agent-version drift, audit/event correlation) the portal does not surface.",
+    "auth_narrative": "Set ADMINBYREQUEST_API_KEY in your environment. The CLI sends it via the apikey header. AbR enforces a 100,000-call daily quota per tenant; the CLI tracks calls locally and warns you before exhaustion via quota forecast.",
+    "quickstart": [
+      {
+        "command": "adminbyrequest-pp-cli doctor",
+        "comment": "Confirm key works and detect which AbR data center your tenant lives on."
+      },
+      {
+        "command": "adminbyrequest-pp-cli sync --full",
+        "comment": "Pull audit log, events, inventory and requests into the local SQLite store."
+      },
+      {
+        "command": "adminbyrequest-pp-cli requests list --status pending --json",
+        "comment": "Surface pending elevation requests to approve or deny."
+      },
+      {
+        "command": "adminbyrequest-pp-cli requests repeat-offenders --window 30d --json",
+        "comment": "Identify users repeatedly requesting elevation over the last 30 days."
+      },
+      {
+        "command": "adminbyrequest-pp-cli quota forecast --json",
+        "comment": "Check whether the current API usage pace will exceed the 100k daily quota."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports HTTP 500 from every data center",
+        "fix": "API key may be wrong; verify ADMINBYREQUEST_API_KEY is the value from your portal Settings \u003e Tenant Settings \u003e Data \u003e API Keys."
+      },
+      {
+        "symptom": "Sync stalls at exactly 100,000 calls",
+        "fix": "You hit the daily quota; AbR blocks the tenant until next business day. Run quota forecast next time to predict before it happens."
+      },
+      {
+        "symptom": "PIN code endpoint returns General error",
+        "fix": "Pass the challenge code via --challenge; the bare endpoint without a challenge returns this error by design."
+      }
+    ],
+    "when_to_use": "Use this CLI when you are administering an Admin By Request tenant from a terminal or AI agent: triaging pending requests in bulk, pulling audit data into a SIEM you have not yet wired up, generating offline PINs without opening the portal, or answering cross-resource questions (repeat requestors, agent-version drift) that the portal does not directly support.",
+    "recipes": [
+      {
+        "title": "Triage pending requests as JSON",
+        "command": "adminbyrequest-pp-cli requests list --status pending --agent --select id,user.account,reason",
+        "explanation": "Surface the pending elevation queue in agent-friendly JSON narrowed to the fields needed to decide. Approve or deny individual ids with `requests approve \u003cid\u003e` or `requests deny \u003cid\u003e`."
+      },
+      {
+        "title": "Compliance evidence for one user",
+        "command": "adminbyrequest-pp-cli report compliance --since 2026-01-01 --user CHRISCOOMBES --format md \u003e evidence.md",
+        "explanation": "Render every audit log entry for a user since a date into a markdown report."
+      },
+      {
+        "title": "Find every device on an old client",
+        "command": "adminbyrequest-pp-cli inventory drift --client-version 8.7.2 --json --select name,abrClientVersion",
+        "explanation": "Inventory drift filters the synced inventory snapshot for endpoints below the target client version."
+      },
+      {
+        "title": "Check today's API quota consumption",
+        "command": "adminbyrequest-pp-cli quota show --agent",
+        "explanation": "Local counter of API calls made today; the CLI tracks them in ~/.cache/adminbyrequest-pp-cli/http/ so this never costs an API call."
+      },
+      {
+        "title": "Audit-to-event timeline narrowed via --select",
+        "command": "adminbyrequest-pp-cli correlate 50461167 --window 5m --agent --select audit.application.name,audit.user.account,events.eventText,events.eventTime",
+        "explanation": "Joins audit entry to nearby events on the same computer; --select narrows the deeply nested response so the agent does not parse the full payload."
+      }
+    ],
+    "trigger_phrases": [
+      "list pending admin by request elevations",
+      "approve adminbyrequest request",
+      "deny adminbyrequest request",
+      "generate offline elevation PIN",
+      "check who keeps requesting admin elevation",
+      "sync admin by request audit log",
+      "use adminbyrequest",
+      "run adminbyrequest"
+    ]
+  }
+}

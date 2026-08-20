@@ -1,0 +1,104 @@
+{
+  "api_name": "openfda",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "OpenFDA-MCP-Server",
+      "url": "https://github.com/brettsmith/openfda-mcp-server",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "No food, animal, tobacco, or 'other' endpoint coverage",
+    "No offline caching — every query hits the API",
+    "No time-series analysis — can't track adverse event counts over time",
+    "No cross-dataset correlation — can't join recalls with adverse events",
+    "No watchlist/alerting",
+    "No full-text search across synced data",
+    "No CLI at all — no scriptable, composable interface"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T17:47:25Z",
+  "novel_features": [
+    {
+      "name": "Drug Signal Tracker",
+      "command": "drug events trend",
+      "description": "Track adverse event frequency over time for a specific drug and reaction, bucketed by quarter/month/year",
+      "rationale": "Local SQLite time-series aggregation over synced FAERS data; no API endpoint supports temporal bucketing or trend computation",
+      "example": "openfda-pp-cli drug events trend --drug acetaminophen --reaction 'liver failure' --interval quarter --json",
+      "why_it_matters": "PV analysts need to detect acceleration in adverse event reports — a rising trend may indicate a safety signal before the FDA issues an alert",
+      "group": "Temporal analysis"
+    },
+    {
+      "name": "Drug Comparison",
+      "command": "drug events compare",
+      "description": "Compare adverse event profiles of two or more drugs side-by-side with normalized reaction frequencies",
+      "rationale": "Multi-drug adverse event profile comparison requires parallel local queries and normalized rate computation; no API endpoint compares drugs",
+      "example": "openfda-pp-cli drug events compare --drugs acetaminophen,ibuprofen --json",
+      "why_it_matters": "Investigators comparing similar drugs need relative risk profiles, not raw counts from separate manual searches",
+      "group": "Temporal analysis"
+    },
+    {
+      "name": "Recall-Event Correlation",
+      "command": "drug recalls correlate",
+      "description": "Show the timeline of adverse events around each recall date for a drug, revealing whether events spike before or after recalls",
+      "rationale": "Joins recalls and adverse events by product/firm in local SQLite, computing the event timeline around each recall date",
+      "example": "openfda-pp-cli drug recalls correlate --drug metformin --json",
+      "why_it_matters": "Compliance managers need to see if recalls follow event spikes or vice versa — the temporal pattern reveals regulatory responsiveness",
+      "group": "Cross-entity correlation"
+    },
+    {
+      "name": "Watchlist Monitor",
+      "command": "watchlist",
+      "description": "Maintain a local watchlist of drugs, devices, or manufacturers and surface new events since your last check",
+      "rationale": "Maintains local watchlist state and diffs against synced data to surface new events since last check",
+      "example": "openfda-pp-cli watchlist add drug acetaminophen && openfda-pp-cli watchlist check --json",
+      "why_it_matters": "Reporters and PV analysts who monitor specific products need change-detection, not manual re-queries",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Manufacturer Dossier",
+      "command": "manufacturer dossier",
+      "description": "Aggregate a single manufacturer's full profile across all synced tables — drug/device/food recalls, adverse events, 510(k) clearances",
+      "rationale": "Aggregates across 6+ locally synced tables for a single manufacturer; no API call spans these datasets",
+      "example": "openfda-pp-cli manufacturer dossier 'Johnson & Johnson' --json",
+      "why_it_matters": "Compliance managers auditing a supplier need the complete safety picture, not six separate manual searches",
+      "group": "Cross-entity correlation"
+    },
+    {
+      "name": "Reaction Co-occurrence",
+      "command": "drug events cooccur",
+      "description": "Find which adverse reactions appear together on the same FAERS report for a given drug",
+      "rationale": "Computes which adverse reactions appear together on the same FAERS report; requires report-level grouping impossible via count= API",
+      "example": "openfda-pp-cli drug events cooccur --drug acetaminophen --json",
+      "why_it_matters": "Researchers investigating drug safety signals need to know if reactions cluster together, suggesting a common mechanism",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Polypharmacy Check",
+      "command": "drug events polypharmacy",
+      "description": "Find reports where multiple specified drugs appear as concomitant medications and show reactions unique to the combination",
+      "rationale": "Filters reports containing all specified drugs in concomitant fields, computes reaction frequencies unique to combination",
+      "example": "openfda-pp-cli drug events polypharmacy --drugs metformin,atorvastatin --json",
+      "why_it_matters": "Researchers studying drug interactions need to isolate combination-specific reactions from individual drug profiles",
+      "group": "Cross-entity correlation"
+    },
+    {
+      "name": "Device Inventory Check",
+      "command": "device check",
+      "description": "Batch-check a CSV of device product codes against locally cached recalls and adverse events",
+      "rationale": "Parses CSV, queries local device_recalls and device_events for each code, outputs risk-flagged rows",
+      "example": "openfda-pp-cli device check --file inventory.csv --json",
+      "why_it_matters": "Device compliance managers with large inventories need batch risk assessment, not one-at-a-time manual lookups",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": []
+}

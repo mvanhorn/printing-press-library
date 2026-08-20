@@ -1,0 +1,134 @@
+{
+  "api_name": "harris-teeter",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Harris Teeter website",
+      "url": "https://www.harristeeter.com/",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Kroger-style Atlas web APIs",
+      "url": "https://www.harristeeter.com/",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No official Harris Teeter public OpenAPI spec was found for these logged-in grocery workflows.",
+    "The web app requires browser session cookies plus location/availability/fulfillment context for product and coupon endpoints.",
+    "Most existing grocery tools do not expose Harris Teeter cart, list, product, coupon, and store reads as a single read-only CLI."
+  ],
+  "patterns": [
+    "Use Chrome session cookies for authentication.",
+    "Replay the web app's Atlas JSON endpoints with the same store and modality context.",
+    "Keep the shipped CLI read-only to avoid accidental cart or account mutations."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-05-17T23:00:52Z",
+  "novel_features": [
+    {
+      "name": "Live Chrome session login",
+      "command": "auth login --chrome",
+      "description": "Read Harris Teeter session cookies from the already logged-in Chrome session, falling back through agent-browser/browser-use when standalone cookie tools are missing.",
+      "rationale": "The web app has no stable public token flow for personal grocery data, so the CLI must reuse the same authenticated browser context the user already has.",
+      "example": "harris-teeter-pp-cli auth login --chrome",
+      "why_it_matters": "Use this first when the CLI reports auth errors or a browser session has changed.",
+      "group": "Browser-backed reachability"
+    },
+    {
+      "name": "Store-aware product search",
+      "command": "products search",
+      "description": "Search Harris Teeter products using the browser-observed Atlas search endpoint with location, fulfillment method, and LAF/modality headers.",
+      "rationale": "Harris Teeter product availability is store-specific and the Atlas endpoint rejects requests without the right fulfillment context.",
+      "example": "harris-teeter-pp-cli products search --query milk --location-id 09700096 --page-size 5 --json --no-input",
+      "why_it_matters": "Use this to inspect current store-specific grocery results from a terminal or agent workflow.",
+      "group": "Store-context grocery reads"
+    },
+    {
+      "name": "UPC product detail replay",
+      "command": "products get",
+      "description": "Fetch full product, offer, nutrition, inventory, and variant projections by UPC/GTIN through the logged-in Atlas product endpoint.",
+      "rationale": "The website's detail payload combines offer, inventory, and nutrition data that is awkward to inspect manually.",
+      "example": "harris-teeter-pp-cli products get --upc 0007203673813 --json --no-input",
+      "why_it_matters": "Use this when an agent needs exact item metadata without scraping a rendered product page.",
+      "group": "Store-context grocery reads"
+    },
+    {
+      "name": "Digital coupon inspection",
+      "command": "coupons",
+      "description": "List Harris Teeter digital coupons from the authenticated web endpoint, including optional UPC filtering.",
+      "rationale": "Coupon data is account/session sensitive and useful for shopping decisions, but the website is not agent-friendly.",
+      "example": "harris-teeter-pp-cli coupons --page-size 5 --json --no-input",
+      "why_it_matters": "Use this to check available savings before building a grocery list.",
+      "group": "Account-aware savings"
+    },
+    {
+      "name": "Read-only cart and list inspection",
+      "command": "cart",
+      "description": "Inspect the authenticated Harris Teeter cart and shopping-list surfaces without exposing mutating checkout or order actions.",
+      "rationale": "The CLI can safely summarize shopping state for agents while avoiding purchase or cart-write side effects.",
+      "example": "harris-teeter-pp-cli cart --json --no-input",
+      "why_it_matters": "Use this when an agent needs to understand the current cart state without changing it.",
+      "group": "Account-aware savings"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live Chrome session login",
+      "command": "auth login --chrome",
+      "description": "Read Harris Teeter session cookies from the already logged-in Chrome session, falling back through agent-browser/browser-use when standalone cookie tools are missing.",
+      "rationale": "The web app has no stable public token flow for personal grocery data, so the CLI must reuse the same authenticated browser context the user already has.",
+      "example": "harris-teeter-pp-cli auth login --chrome",
+      "why_it_matters": "Use this first when the CLI reports auth errors or a browser session has changed.",
+      "group": "Browser-backed reachability"
+    },
+    {
+      "name": "Store-aware product search",
+      "command": "products search",
+      "description": "Search Harris Teeter products using the browser-observed Atlas search endpoint with location, fulfillment method, and LAF/modality headers.",
+      "rationale": "Harris Teeter product availability is store-specific and the Atlas endpoint rejects requests without the right fulfillment context.",
+      "example": "harris-teeter-pp-cli products search --query milk --location-id 09700096 --page-size 5 --json --no-input",
+      "why_it_matters": "Use this to inspect current store-specific grocery results from a terminal or agent workflow.",
+      "group": "Store-context grocery reads"
+    },
+    {
+      "name": "UPC product detail replay",
+      "command": "products get",
+      "description": "Fetch full product, offer, nutrition, inventory, and variant projections by UPC/GTIN through the logged-in Atlas product endpoint.",
+      "rationale": "The website's detail payload combines offer, inventory, and nutrition data that is awkward to inspect manually.",
+      "example": "harris-teeter-pp-cli products get --upc 0007203673813 --json --no-input",
+      "why_it_matters": "Use this when an agent needs exact item metadata without scraping a rendered product page.",
+      "group": "Store-context grocery reads"
+    },
+    {
+      "name": "Digital coupon inspection",
+      "command": "coupons",
+      "description": "List Harris Teeter digital coupons from the authenticated web endpoint, including optional UPC filtering.",
+      "rationale": "Coupon data is account/session sensitive and useful for shopping decisions, but the website is not agent-friendly.",
+      "example": "harris-teeter-pp-cli coupons --page-size 5 --json --no-input",
+      "why_it_matters": "Use this to check available savings before building a grocery list.",
+      "group": "Account-aware savings"
+    },
+    {
+      "name": "Read-only cart and list inspection",
+      "command": "cart",
+      "description": "Inspect the authenticated Harris Teeter cart and shopping-list surfaces without exposing mutating checkout or order actions.",
+      "rationale": "The CLI can safely summarize shopping state for agents while avoiding purchase or cart-write side effects.",
+      "example": "harris-teeter-pp-cli cart --json --no-input",
+      "why_it_matters": "Use this when an agent needs to understand the current cart state without changing it.",
+      "group": "Account-aware savings"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "podscan-pp-mcp",
+  "display_name": "Podscan",
+  "version": "4.1.0",
+  "description": "Podscan API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/podscan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/podscan-pp-mcp",
+      "args": [],
+      "env": {
+        "PODSCAN_BEARER_AUTH": "${user_config.podscan_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "podscan_bearer_auth": {
+      "type": "string",
+      "title": "PODSCAN_BEARER_AUTH",
+      "description": "Sets PODSCAN_BEARER_AUTH for the Podscan MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "array-request-body-shape",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "domains available-bulk (POST /v1/domains/available) and dnssecRecords PATCH now unmarshal stdin into []any and send a JSON array, matching GoDaddy's array request-body contract instead of forcing map[string]any.",
+  "reason": "Repo-wide body-shape sweep (same class as the earlier DNS records []DNSRecord fix): these two endpoints take JSON arrays per GoDaddy's API, but the generated code forced map[string]any, so piping the correct array body failed with 'cannot unmarshal array into Go value of type map'. The commands were effectively unusable for their real contract.",
+  "files": [
+    "internal/cli/domains_available-bulk.go",
+    "internal/cli/domains-customers_domains_update-customers-2.go"
+  ]
+}

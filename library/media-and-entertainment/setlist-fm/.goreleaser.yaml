@@ -1,0 +1,51 @@
+version: 2
+project_name: setlist-fm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: setlist-fm-pp-cli
+    main: ./cmd/setlist-fm-pp-cli
+    binary: setlist-fm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/setlist-fm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: setlist-fm-pp-mcp
+    main: ./cmd/setlist-fm-pp-mcp
+    binary: setlist-fm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: setlist-fm-pp-cli
+    repository:
+      owner: dave-morin
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API."
+    install: |
+      bin.install "setlist-fm-pp-cli"
+      bin.install "setlist-fm-pp-mcp"

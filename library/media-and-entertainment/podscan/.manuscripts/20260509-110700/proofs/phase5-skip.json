@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "podscan",
+  "cli_name": "podscan-pp-cli",
+  "run_id": "20260509-110700",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "Trial-tier API token rate-limited (HTTP 429) most endpoints, so the full automated dogfood matrix could not run. Manual live smoke tests (out-of-band) confirmed: /podcasts/search, /podcasts/{id}, /episodes/search, /episodes/{id}, and /categories return 200 with the expected JSON shape; the compound 'mentions', 'guest', 'topic trend', and 'asks' commands return real results. Structural checks (go build, go vet, govulncheck, --help, --version, verify-skill structure) all pass."
+}

@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: Restaurant365 OData Connector
+  version: 1.0.0
+  description: Read-only OpenAPI description for documented Restaurant365 OData v2 reporting views.
+servers:
+  - url: https://odata.restaurant365.net/api/v2/views
+security:
+  - basicAuth: []
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    top:
+      name: $top
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10000
+      description: Maximum number of rows to return.
+    skip:
+      name: $skip
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: Number of rows to skip for offset pagination.
+    filter:
+      name: $filter
+      in: query
+      required: false
+      schema:
+        type: string
+      description: OData filter expression.
+    orderby:
+      name: $orderby
+      in: query
+      required: false
+      schema:
+        type: string
+      description: OData order by expression.
+    select:
+      name: $select
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Comma-separated list of fields to return.
+    count:
+      name: $count
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: Include an OData count in the response when supported.
+  schemas:
+    ODataListResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        '@odata.context':
+          type: string
+        '@odata.count':
+          type: integer
+        value:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+paths:
+  /$metadata:
+    get:
+      operationId: getMetadata
+      summary: Get OData metadata
+      description: Returns the service metadata document describing available Restaurant365 OData views and fields.
+      responses:
+        '200':
+          description: OData metadata document.
+          content:
+            application/xml:
+              schema:
+                type: string
+            text/xml:
+              schema:
+                type: string
+  /Company:
+    get:
+      operationId: listCompany
+      summary: List Company rows
+      description: Returns Company reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Company rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /Employee:
+    get:
+      operationId: listEmployee
+      summary: List Employee rows
+      description: Returns Employee reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Employee rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /EntityDeleted:
+    get:
+      operationId: listEntityDeleted
+      summary: List EntityDeleted rows
+      description: Returns deletion tombstone rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: EntityDeleted rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /GLAccount:
+    get:
+      operationId: listGLAccount
+      summary: List GLAccount rows
+      description: Returns GLAccount reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: GLAccount rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /GlAccount:
+    get:
+      operationId: listGlAccount
+      summary: List GlAccount rows
+      description: Returns GlAccount reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: GlAccount rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /Item:
+    get:
+      operationId: listItem
+      summary: List Item rows
+      description: Returns Item reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Item rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /JobTitle:
+    get:
+      operationId: listJobTitle
+      summary: List JobTitle rows
+      description: Returns JobTitle reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: JobTitle rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /LaborDetail:
+    get:
+      operationId: listLaborDetail
+      summary: List LaborDetail rows
+      description: Returns LaborDetail reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: LaborDetail rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /Location:
+    get:
+      operationId: listLocation
+      summary: List Location rows
+      description: Returns Location reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Location rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /PayrollSummary:
+    get:
+      operationId: listPayrollSummary
+      summary: List PayrollSummary rows
+      description: Returns PayrollSummary reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: PayrollSummary rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /POSEmployee:
+    get:
+      operationId: listPOSEmployee
+      summary: List POSEmployee rows
+      description: Returns POSEmployee reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: POSEmployee rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /Transaction:
+    get:
+      operationId: listTransaction
+      summary: List Transaction rows
+      description: Returns Transaction reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Transaction rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /TransactionDetail:
+    get:
+      operationId: listTransactionDetail
+      summary: List TransactionDetail rows
+      description: Returns TransactionDetail reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: TransactionDetail rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /SalesEmployee:
+    get:
+      operationId: listSalesEmployee
+      summary: List SalesEmployee rows
+      description: Returns SalesEmployee reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: SalesEmployee rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /SalesDetail:
+    get:
+      operationId: listSalesDetail
+      summary: List SalesDetail rows
+      description: Returns SalesDetail reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: SalesDetail rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'
+  /SalesPayment:
+    get:
+      operationId: listSalesPayment
+      summary: List SalesPayment rows
+      description: Returns SalesPayment reporting rows from Restaurant365 OData.
+      parameters:
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/orderby'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: SalesPayment rows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataListResponse'

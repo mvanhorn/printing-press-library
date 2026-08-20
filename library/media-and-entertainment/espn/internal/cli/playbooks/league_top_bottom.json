@@ -1,0 +1,33 @@
+{
+  "query_family_examples": [
+    "top 3 mlb teams in each division",
+    "best 3 nba teams in each division",
+    "bottom 3 mlb teams in each division",
+    "worst 3 nba teams in each division",
+    "top 5 nfl teams in each division"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli standings $SPORT $LEAGUE --agent",
+      "purpose": "live league-wide standings (returned flat by conference for NBA, by league for MLB, by division for NFL; ALWAYS apply per-league division map client-side for NBA + MLB)"
+    },
+    {
+      "client_side": "group_by_division",
+      "args": {
+        "league": "$LEAGUE",
+        "use_per_league_map_from_notes": true
+      },
+      "purpose": "client-side bucket teams by division. ESPN does NOT pre-group by division for NBA/MLB; the per-league division map lives in notes."
+    },
+    {
+      "client_side": "rank_by_win_pct",
+      "args": {
+        "direction": "$DIRECTION (top|bottom|best|worst)",
+        "n": "$N"
+      },
+      "purpose": "sort by winPercent (asc for bottom/worst, desc for top/best); take N per division"
+    }
+  ],
+  "entity_slots": ["$SPORT", "$LEAGUE", "$DIRECTION", "$N"],
+  "expected_tool_calls": 1
+}

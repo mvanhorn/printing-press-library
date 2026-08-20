@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: Wolt
+  version: 1.0.0
+  description: |
+    Browse-only Wolt consumer CLI. Lists cities, finds venues near a lat/lon,
+    searches venues and items, and pulls per-venue delivery/ETA snapshots.
+
+    Built on Wolt's unauthenticated consumer endpoints discovered via reverse
+    engineering (OzTamir gist + live browser-sniff). No login, no cart, no orders.
+
+x-cli-description: "Wolt venues, menus, and ETAs from the terminal — with a local snapshot store agents can query offline."
+
+servers:
+  - url: https://restaurant-api.wolt.com
+    description: Restaurant API (cities, search, menu data)
+  - url: https://consumer-api.wolt.com
+    description: Consumer API (venues near, venue dynamic)
+
+components:
+  securitySchemes: {}
+  schemas:
+    City:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        country_code_alpha2: { type: string }
+        country_code_alpha3: { type: string }
+        timezone: { type: string }
+        has_frontpage: { type: boolean }
+        location:
+          type: object
+          properties:
+            type: { type: string }
+            coordinates:
+              type: array
+              items: { type: number }
+    Venue:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        city: { type: string }
+        country: { type: string }
+        online: { type: boolean }
+        rating:
+          type: object
+          properties:
+            score: { type: number }
+            rating: { type: string }
+        estimate: { type: integer, description: "Delivery ETA in minutes" }
+        delivery_price: { type: number, description: "Delivery fee in cents" }
+        delivery_price_int: { type: integer }
+        price_range: { type: integer, description: "1=€, 2=€€, 3=€€€" }
+        tags:
+          type: array
+          items: { type: string }
+        short_description: { type: string }
+        address: { type: string }
+        location:
+          type: array
+          items: { type: number }
+    SearchResult:
+      type: object
+      properties:
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              items:
+                type: array
+                items: { type: object }
+        search_id: { type: string }
+    VenueDynamic:
+      type: object
+      properties:
+        venue: { type: object }
+        venue_raw: { type: object }
+        is_venue_favourite: { type: boolean }
+        order_minimum: { type: object }
+        do_use_backend_pricing: { type: boolean }
+    MenuData:
+      type: object
+      description: "Menu items payload. Note: live endpoint may return empty body — see Known Gaps in README."
+      properties:
+        categories:
+          type: array
+          items: { type: object }
+        items:
+          type: array
+          items: { type: object }
+
+paths:
+  /v1/cities:
+    get:
+      operationId: listCities
+      summary: List all cities Wolt operates in
+      description: |
+        Returns the global list of Wolt cities with country code, slug, timezone,
+        and coordinates. Backbone of the local store.
+      tags: [cities]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: '#/components/schemas/City' }
+
+  /v1/pages/restaurants:
+    get:
+      operationId: listRestaurantsNear
+      summary: List restaurants near a lat/lon
+      description: |
+        Returns the discovery page for a given location: venues organized in sections
+        with name, slug, online status, ETA, delivery fee, rating, tags.
+      tags: [venues]
+      servers:
+        - url: https://consumer-api.wolt.com
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number, format: double }
+          description: Latitude
+        - name: lon
+          in: query
+          required: true
+          schema: { type: number, format: double }
+          description: Longitude
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  city: { type: object }
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        items:
+                          type: array
+                          items: { $ref: '#/components/schemas/Venue' }
+
+  /v1/pages/search:
+    post:
+      operationId: search
+      summary: Search venues or items by query + location
+      description: |
+        POST with body {q, target, lat, lon}. Set target="venues" to search restaurants,
+        target="items" to search dishes across venues.
+      tags: [search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  description: Search query
+                target:
+                  type: string
+                  enum: [venues, items]
+                  description: What to search for
+                lat:
+                  type: number
+                  format: double
+                lon:
+                  type: number
+                  format: double
+              required: [q, target, lat, lon]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchResult' }
+
+  /order-xp/web/v1/venue/slug/{slug}/dynamic/:
+    get:
+      operationId: getVenueDynamic
+      summary: Get live venue details (open status, ETA, delivery configs)
+      description: |
+        Per-venue dynamic snapshot: open_status, delivery_open_status, time_slots_schedule,
+        delivery_configs, banners. Combined with LD+JSON SSR scrape in Phase 3 for full
+        venue metadata (name, address, phone, rating, cuisine).
+      tags: [venues]
+      servers:
+        - url: https://consumer-api.wolt.com
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+          description: Venue slug from search results
+        - name: selected_delivery_method
+          in: query
+          required: false
+          schema:
+            type: string
+            default: homedelivery
+            enum: [homedelivery, takeaway, eatin]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VenueDynamic' }
+
+  /v4/venues/slug/{slug}/menu/data:
+    get:
+      operationId: getVenueMenu
+      summary: Get a venue's menu items (best-effort — see Known Gaps)
+      description: |
+        Documented community endpoint. As of the last sniff, returns HTTP 200 with
+        empty body via CloudFront cache. The CLI surfaces this honestly and includes
+        --debug to capture the failing request for upstream investigation.
+      tags: [menu]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+        - name: unit_prices
+          in: query
+          required: false
+          schema: { type: boolean, default: true }
+        - name: show_weighted_items
+          in: query
+          required: false
+          schema: { type: boolean, default: true }
+        - name: show_subcategories
+          in: query
+          required: false
+          schema: { type: boolean, default: true }
+      responses:
+        '200':
+          description: OK (may have empty body — see Known Gaps)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuData' }

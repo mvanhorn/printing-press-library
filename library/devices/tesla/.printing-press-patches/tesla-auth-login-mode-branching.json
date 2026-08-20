@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "tesla-auth-login-mode-branching",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Refactor `tesla auth login` to branch on flags: default = PKCE browser flow, --paste = stdin token, --refresh-token = direct exchange, --via tesla-auth = subprocess. Flags are mutually exclusive.",
+  "reason": "Different users have different constraints (interactive vs headless vs scripted); a single command with mode flags keeps the surface clean. Hand-edits to tesla_auth_refresh.go (which is itself a hand-coded file, classified VerdictNovel by regen-merge).",
+  "files": [
+    "internal/cli/tesla_auth_refresh.go"
+  ]
+}

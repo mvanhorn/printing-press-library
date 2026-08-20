@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "expensify-authheader-format-key",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "config.AuthHeader() substitution maps include the `authToken` key so the `ExpensifyToken {authToken}` placeholder resolves for the session-token AND both partner-credential branches.",
+  "reason": "A 4.25.0 generator templating bug: the format placeholder is named `authToken` but the generated maps keyed on `auth_token`/`EXPENSIFY_*`/`token`, so applyAuthFormat returned '' for every branch — doctor reported configured credentials (incl. partner-only) as 'not configured' and 4 internal/cliutil credential tests failed on the clean base. Flag upstream for the generator template.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "doctor reports 'OK Auth: configured' after auth login --from-chrome; internal/cliutil credential tests pass.",
+  "upstream_issue": ""
+}

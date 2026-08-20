@@ -1,0 +1,59 @@
+{
+  "endpoint": "GET /mobile-app/service/surveys",
+  "method": "GET",
+  "raw_url": "https://ownership.tesla.com/mobile-app/service/surveys?deviceLanguage=en&deviceCountry=US&ttpLocale=en_US&vin=5YJ3E1EA6XXXXXXXX",
+  "status": 200,
+  "request_headers": {
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en",
+    "authorization": "<redacted>",
+    "baggage": "sentry-environment=tesla,sentry-release=com.teslamotors.TeslaApp%404.57.0-4306,sentry-public_key=c1ad0d1b7177450aaaf8a91863960dc7,sentry-trace_id=22354cf534434574b6d6be993e0fff35,sentry-transaction=OwnerApi%3Aapi%2F1%2Fcharging%2Fqueue,sentry-sampled=false,sentry-sample_rand=0.19968149800064047,sentry-sample_rate=0",
+    "cache-control": "no-cache",
+    "charset": "utf-8",
+    "cookie": "<redacted>",
+    "priority": "u=3, i",
+    "sentry-trace": "22354cf534434574b6d6be993e0fff35-b174c01190af7ef5-0",
+    "user-agent": "TeslaV4/4306 CFNetwork/3860.600.12 Darwin/25.5.0",
+    "x-request-id": "3809fd79-9f42-40ac-ba9e-150eadc8ea03",
+    "x-service-session-id": "e6d0f4a4-0cec-480a-92da-348269cdede7",
+    "x-tesla-user-agent": "TeslaApp/4.57.0/b937ef26/ios/26.5",
+    "x-txid": "3809fd79-9f42-40ac-ba9e-150eadc8ea03"
+  },
+  "request_body": null,
+  "response_headers": {
+    "access-control-allow-credentials": "true",
+    "content-length": "72",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 18 May 2026 22:56:55 GMT",
+    "etag": "W/\"48-S3IqbwgO2lgKtYlBlVaKW6Wb/oI\"",
+    "origin-hostname": "ownership.tesla.com",
+    "originip": "199.120.48.203",
+    "server-timing": "ak_p; desc=\"1779145015196_388943972_2297309702_43605_10811_23_0_15\";dur=1",
+    "set-cookie": "<redacted>",
+    "strict-transport-security": "max-age=86400 ; includeSubDomains",
+    "x-content-type-options": "nosniff",
+    "x-dns-prefetch-control": "off",
+    "x-download-options": "noopen",
+    "x-edgeconnect-midmile-rtt": "57",
+    "x-edgeconnect-origin-mex-latency": "289",
+    "x-frame-options": "SAMEORIGIN",
+    "x-permitted-cross-domain-policies": "none",
+    "x-txid": "3809fd79-9f42-40ac-ba9e-150eadc8ea03",
+    "x-xss-protection": "0"
+  },
+  "response_body": {
+    "code": 200,
+    "data": {
+      "surveyList": []
+    },
+    "message": "success",
+    "success": true
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.authorization",
+    "request_headers.cookie",
+    "response_headers.set-cookie"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "team-approval-start-week-guard",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260520-224501",
+  "base_printing_press_version": "4.9.0",
+  "summary": "team timesheets: skip approvals whose DateRange.Start is empty or unparseable instead of crediting them to every week queried, so a single bad Start no longer ghost-inflates 'submitted' counts.",
+  "reason": "Greptile pass-3 and pass-4 (logic). The week-range filter only ran when Start was non-empty and only acted when the RFC3339 parse succeeded; on either empty Start or parse failure, execution fell through and stateByUser[uid] was set for whichever week the loop was on, so a single approval with a missing or malformed Start appeared 'submitted' across every week the loop visited. Fix: continue on Start == \"\" before the parse, continue on parse error after — both treated as 'exclude this approval from this week'.",
+  "files": [
+    "internal/cli/team.go"
+  ]
+}

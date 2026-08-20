@@ -3,7 +3,15 @@
   "generated_at": "2026-04-26T15:00:28.352635Z",
   "printing_press_version": "2.3.7",
   "api_name": "coingecko",
+  "display_name": "CoinGecko",
+  "description": "Fetch CoinGecko cryptocurrency prices, market data, coins, exchanges, and trend endpoints from the public API.",
   "cli_name": "coingecko-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
+  "printer": "hnshah",
+  "printer_name": "Hiten Shah",
   "spec_path": "/tmp/coingecko-spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:b696bc534d8059addb9aaadb23dc324cfcd0bd119f7b8eefdc951a63f27fdff5",

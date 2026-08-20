@@ -1,0 +1,119 @@
+{
+  "api_name": "hotel-tonight",
+  "base_url": "https://api.hoteltonight.com",
+  "description": "Last-minute hotel deals — geo search, deals, and markets via HotelTonight's mobile API",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "X-App-Platform",
+      "value": "iphone"
+    },
+    {
+      "name": "X-App-Version",
+      "value": "2024.40"
+    },
+    {
+      "name": "X-App-Country",
+      "value": "US"
+    },
+    {
+      "name": "X-App-Currency",
+      "value": "USD"
+    },
+    {
+      "name": "X-App-Device",
+      "value": "iPhone"
+    },
+    {
+      "name": "X-App-Time-Zone",
+      "value": "America/Los_Angeles"
+    }
+  ],
+  "tools": [
+    {
+      "name": "inventory_search",
+      "description": "Search last-minute hotel deals near a latitude/longitude for a date range. Required: latitude, longitude. Optional: check_in, check_out, rooms. Returns the Inventory.",
+      "method": "GET",
+      "path": "/v6/inventory",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "Latitude of the search center (e.g. 37.7749)",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "Longitude of the search center (e.g. -122.4194)",
+          "required": true
+        },
+        {
+          "name": "check_in",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date YYYY-MM-DD (defaults to tonight on the server)"
+        },
+        {
+          "name": "check_out",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date YYYY-MM-DD (defaults to tomorrow on the server)"
+        },
+        {
+          "name": "rooms",
+          "type": "int",
+          "location": "query",
+          "description": "Number of rooms to search for"
+        }
+      ]
+    },
+    {
+      "name": "markets_get",
+      "description": "Get a single market by its numeric id. Required: market_id. Returns the Market.",
+      "method": "GET",
+      "path": "/v2/market_cities/{market_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric market city id (e.g. 1 for San Francisco, 72 for Austin)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_list",
+      "description": "List HotelTonight's major markets with location, slug, and category prices. Returns array of Market.",
+      "method": "GET",
+      "path": "/v2/market_cities",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "markets_nearby",
+      "description": "List popular/nearby markets for a given market id. Required: market_id. Returns the PopularMarkets.",
+      "method": "GET",
+      "path": "/v2/market_cities/{market_id}/popular_market_cities",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric market city id to find nearby markets for",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

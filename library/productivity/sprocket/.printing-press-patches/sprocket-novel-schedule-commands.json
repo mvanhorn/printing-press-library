@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-novel-schedule-commands",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implemented the 9 transcendence commands (week, next, agenda, conflicts, away, ical, since, owed, deadlines) plus shared calendar-fetch/render helpers.",
+  "reason": "The generator scaffolds novel-feature commands as TODO stubs; these are the hand-built differentiators that merge the schedule across all the user's teams, do date math, detect conflicts, export iCal, and roll up dues.",
+  "files": [
+    "internal/cli/week.go","internal/cli/next.go","internal/cli/agenda.go","internal/cli/conflicts.go","internal/cli/away.go","internal/cli/ical.go","internal/cli/since.go","internal/cli/owed.go","internal/cli/deadlines.go","internal/cli/sprocket_schedule.go","internal/cli/sprocket_render.go","internal/cli/sprocket_schedule_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... passes; live dogfood 122/122; agenda --days 45 returns real team events."
+}

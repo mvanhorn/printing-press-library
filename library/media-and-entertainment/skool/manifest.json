@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "skool-pp-mcp",
+  "display_name": "Skool",
+  "version": "4.0.6",
+  "description": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/skool-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/skool-pp-mcp",
+      "args": [],
+      "env": {
+        "SKOOL_BUILD_ID": "${user_config.skool_build_id}",
+        "SKOOL_COMMUNITY": "${user_config.skool_community}"
+      }
+    }
+  },
+  "user_config": {
+    "skool_build_id": {
+      "type": "string",
+      "title": "SKOOL_BUILD_ID",
+      "description": "Sets SKOOL_BUILD_ID for the endpoint template variable {buildId}.",
+      "required": true
+    },
+    "skool_community": {
+      "type": "string",
+      "title": "SKOOL_COMMUNITY",
+      "description": "Sets SKOOL_COMMUNITY for the endpoint template variable {community}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "api_name": "wolt",
+  "novelty_score": 7,
+  "alternatives": [
+    {"name": "what-to-eat", "url": "https://github.com/Valaraucoo/what-to-eat", "language": "Python", "stars": 0, "command_count": 3},
+    {"name": "wolt-cli", "url": "https://github.com/setevik/wolt-cli", "language": "Python", "stars": 0, "command_count": 5}
+  ],
+  "novel_features": [
+    {"name": "Cross-venue comparison", "command": "venues-compare", "description": "Compare open status, ETA window, and delivery configs across multiple venues in one call.", "rationale": "Fans out the per-venue dynamic endpoint and joins the results locally — no single Wolt API returns this view.", "example": "wolt-pp-cli venues-compare --slugs noodle-story-kamppi,puttes-bar-pizza --json", "why_it_matters": "Agents weighing several venues can decide without N round-trip calls.", "group": "Local state that compounds"},
+    {"name": "What's open right now and fast", "command": "venues-now", "description": "Filter venues that are open near a lat/lon and deliver within N minutes, with cuisine tag filter.", "rationale": "Joins live status + ETA + cuisine tag in one structured query; no single endpoint surfaces this.", "example": "wolt-pp-cli venues-now --lat 60.1699 --lon 24.9384 --max-eta 25 --cuisine sushi --json", "why_it_matters": "Replaces three SPA card-clicks with one structured agent call.", "group": "Agent-native plumbing"},
+    {"name": "Cuisine bottleneck analysis", "command": "cuisine-bottleneck", "description": "Show which cuisines have the longest average ETA right now near a lat/lon.", "rationale": "Aggregates ETA distribution across all nearby venues per cuisine tag in one call.", "example": "wolt-pp-cli cuisine-bottleneck --lat 60.1699 --lon 24.9384 --top 10 --json", "why_it_matters": "Answers 'what's slow tonight' without hunting through dozens of cards.", "group": "Local state that compounds"},
+    {"name": "Order tracking by share link", "command": "track", "description": "Parse a Wolt order share URL and emit the extracted order id (stub — see Known Gaps).", "rationale": "Lays the groundwork for a future live-tracking endpoint once it's reverse-engineered.", "example": "wolt-pp-cli track https://wolt.com/en/track/5f9132c7b4d5bd0196951924 --json", "why_it_matters": "Plumbing for share-link inputs that the rest of the ecosystem doesn't yet model.", "group": "Reachability mitigation"}
+  ],
+  "narrative": {
+    "display_name": "Wolt",
+    "headline": "Browse Wolt venues and ETAs from the terminal, with structured filters and snapshots agents can replay.",
+    "value_prop": "Hits Wolt's unauthenticated consumer endpoints to list cities, find venues near a lat/lon, search, and pull per-venue delivery snapshots. Adds novel filters ('what's open and fast', 'cuisine bottleneck', 'compare these venues') that no other Wolt tool exposes.",
+    "quickstart": [
+      {"command": "wolt-pp-cli cities --json --select results.results.slug,results.results.name,results.results.country_code_alpha2", "comment": "Find the city slug Wolt uses for your area"},
+      {"command": "wolt-pp-cli venues-now --lat 60.1699 --lon 24.9384 --max-eta 25 --json", "comment": "What's open near you and delivers fast right now"},
+      {"command": "wolt-pp-cli order-xp noodle-story-kamppi --json", "comment": "Per-venue snapshot: open status, next-close time, delivery configs"},
+      {"command": "wolt-pp-cli pages search --q tonkatsu --target items --lat 60.1699 --lon 24.9384 --json", "comment": "Item search across nearby venues"},
+      {"command": "wolt-pp-cli cuisine-bottleneck --lat 60.1699 --lon 24.9384 --top 5 --json", "comment": "Which cuisines have the longest waits right now"}
+    ],
+    "troubleshoots": [
+      {"symptom": "venues-now returns empty", "fix": "Verify --lat and --lon point at a Wolt city. Run `wolt-pp-cli cities --json` to find a slug, then look up its coordinates in the response."},
+      {"symptom": "venues <slug> returns empty results", "fix": "Known gap: Wolt's documented /v4 menu/data endpoint returns 0 bytes via CloudFront. The CLI surfaces this honestly. To help fix it, capture the live menu XHR in DevTools and file an issue with the request shape."},
+      {"symptom": "track command returns status: stub", "fix": "The order-tracking JSON endpoint isn't reverse-engineered yet. Open the share URL in a browser. To help, capture the tracking page's XHR in DevTools and file an issue."}
+    ],
+    "when_to_use": "Reach for wolt-pp-cli when you need to script Wolt browsing — agents deciding where to order, trip prep across cities, or comparing nearby venues programmatically. Skip it when you need to place orders, see your account history, or manage a Wolt cart — those need authenticated access that Wolt's bot detection blocks for scripted tools.",
+    "recipes": [
+      {"title": "Sushi in the next 25 minutes", "command": "wolt-pp-cli venues-now --lat 60.1699 --lon 24.9384 --max-eta 25 --cuisine sushi --json", "explanation": "Joins live status, ETA filter, and cuisine tag in one structured call."},
+      {"title": "Compare two pizza places", "command": "wolt-pp-cli venues-compare --slugs noodle-story-kamppi,puttes-bar-pizza --json --select venues.slug,venues.open_status_text,venues.next_close,venues.order_minimum", "explanation": "Multi-venue snapshot using --select to keep response compact for agents."},
+      {"title": "Where are the longest waits in Helsinki?", "command": "wolt-pp-cli cuisine-bottleneck --lat 60.1699 --lon 24.9384 --top 5 --json", "explanation": "Aggregates ETA per cuisine across nearby venues; answers 'what's slow tonight'."},
+      {"title": "Find cities in Finland", "command": "wolt-pp-cli cities --json --select results.results.slug,results.results.name", "explanation": "Quick lookup of the slug Wolt expects for a given city, useful before sync."}
+    ],
+    "trigger_phrases": ["wolt venues near me", "what restaurants on wolt deliver to <city>", "wolt eta for <venue>", "use wolt-pp-cli", "run wolt-pp-cli"]
+  },
+  "gaps": [
+    {"gap": "Per-venue menu items endpoint returns empty body via documented path", "severity": "medium", "ship_recommendation": "ship with documented stub + actionable error"},
+    {"gap": "Order tracking endpoint not yet discovered (no live order to sniff)", "severity": "low", "ship_recommendation": "ship with documented stub"}
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T16:55:00Z"
+}

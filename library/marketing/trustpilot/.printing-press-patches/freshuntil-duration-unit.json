@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "freshuntil-duration-unit",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "auth.go: change s.HarvestedAt.Add(15 * 60) to s.HarvestedAt.Add(15 * time.Minute) so freshUntil is a real 15-minute window instead of 900 nanoseconds.",
+  "reason": "Greptile P1 on PR #588: untyped 15*60 silently coerces to time.Duration(900) = 900ns. JSON freshUntil was essentially equal to harvestedAt.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass.",
+  "upstream_issue": "Greptile PR #588 inline finding"
+}

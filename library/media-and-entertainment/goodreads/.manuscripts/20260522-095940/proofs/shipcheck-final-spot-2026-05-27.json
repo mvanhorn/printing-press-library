@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:41:34Z",
+  "elapsed_ms": 13581,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:34Z",
+      "elapsed_ms": 9438,
+      "command": "printing-press verify --dir library/media-and-entertainment/goodreads --spec library/media-and-entertainment/goodreads/spec.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:43Z",
+      "elapsed_ms": 12,
+      "command": "printing-press validate-narrative --strict --full-examples --research library/media-and-entertainment/goodreads/research.json --binary library/media-and-entertainment/goodreads/goodreads-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:43Z",
+      "elapsed_ms": 3463,
+      "command": "printing-press dogfood --dir library/media-and-entertainment/goodreads --spec library/media-and-entertainment/goodreads/spec.yaml"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 13,
+      "command": "printing-press workflow-verify --dir library/media-and-entertainment/goodreads"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 364,
+      "command": "printing-press verify-skill --dir library/media-and-entertainment/goodreads"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 287,
+      "command": "printing-press scorecard --dir library/media-and-entertainment/goodreads --spec library/media-and-entertainment/goodreads/spec.yaml"
+    }
+  ]
+}

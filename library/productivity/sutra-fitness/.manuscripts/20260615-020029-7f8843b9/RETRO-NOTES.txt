@@ -1,0 +1,1 @@
+generator defect: universal leading {partnerId} path param -> empty sync registry + no dependent iteration + wrong cursorParam default

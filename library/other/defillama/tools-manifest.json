@@ -1,0 +1,2170 @@
+{
+  "api_name": "defillama",
+  "base_url": "https://api.llama.fi",
+  "description": "## Using AI?\n\nDefiLlama offers two ways to use our data with AI:\n\n| Resource | For | Description |\n|---|---|---|\n| \u003ca href='/llms.txt'\u003e\u003cb\u003ellms.txt\u003c/b\u003e\u003c/a\u003e | AI assistants (ChatGPT, Claude, Cursor, etc.) | Paste this link into your AI assistant for LLM-optimized docs |\n| \u003ca href='https://defillama.com/mcp'\u003e\u003cb\u003eMCP Server\u003c/b\u003e\u003c/a\u003e | AI agents | Connect your agent directly to DefiLlama data — 23 tools, requires an API plan |\n\n**Quick start (MCP)** — paste this into your AI agent:\n```\nRead https://raw.githubusercontent.com/DefiLlama/defillama-skills/refs/heads/master/defillama-setup/SKILL.md and follow the instructions to connect to DefiLlama MCP\n```\n\n---\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n\n## SDK\n\n**JavaScript** — `npm install @defillama/api` — [GitHub](https://github.com/DefiLlama/api-sdk)\n\n**Python** — `pip install defillama-sdk` — [GitHub](https://github.com/DefiLlama/python-sdk)\n\nQuick start (JavaScript):\n```ts\nimport { DefiLlama } from '@defillama/api'\n\nconst client = new DefiLlama()\nconst protocols = await client.tvl.getProtocols()\n```\n\nQuick start (Python):\n```py\nfrom defillama_sdk import DefiLlama\n\nclient = DefiLlama()\nprotocols = client.tvl.getProtocols()\n```",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "batch-historical_list",
+      "description": "Strings accepted by period and searchWidth: Can use regular chart candle notion like ‘4h’ etc where: W = week, D = day, H = hour, M = minute (not case sensitive). Required: coins. Optional: searchWidth. Returns the BatchHistoricalListResponse.",
+      "method": "GET",
+      "path": "/batchHistorical",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "query",
+          "description": "object where keys are coins in the form {chain}:{address}, and values are arrays of requested timestamps",
+          "required": true
+        },
+        {
+          "name": "searchWidth",
+          "type": "string",
+          "location": "query",
+          "description": "time range on either side to find price data, defaults to 6 hours"
+        }
+      ]
+    },
+    {
+      "name": "block_get",
+      "description": "Runs binary search over a blockchain's blocks to get the closest one to a timestamp. Every time this is run we add new data to our database, so each query permanently speeds up future queries. Required: chain, timestamp. Returns the BlockGetResponse.",
+      "method": "GET",
+      "path": "/block/{chain}/{timestamp}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "Chain which you want to get the block from",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "int",
+          "location": "path",
+          "description": "UNIX timestamp of the block you are searching for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bridges_get",
+      "description": "Get summary of bridge volume and volume breakdown by chain. Required: id. Returns the BridgesGetResponse.",
+      "method": "GET",
+      "path": "/bridges/bridge/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "bridge ID, you can get these from /bridges",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bridges_get-bridgedaystats",
+      "description": "Get a 24hr token and address volume breakdown for a bridge. Required: timestamp, chain. Optional: id. Returns the BridgesGetBridgedaystatsResponse.",
+      "method": "GET",
+      "path": "/bridges/bridgedaystats/{timestamp}/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "timestamp",
+          "type": "int",
+          "location": "path",
+          "description": "Unix timestamp. Data returned will be for the 24hr period starting at 00:00 UTC that the timestamp lands in.",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain slug, you can get these from /chains.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "bridge ID, you can get these from /bridges"
+        }
+      ]
+    },
+    {
+      "name": "bridges_get-bridgevolume",
+      "description": "Get historical volumes for a bridge, chain, or bridge on a particular chain. Required: chain. Optional: id. Returns array of BridgesGetBridgevolumeItem.",
+      "method": "GET",
+      "path": "/bridges/bridgevolume/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain slug, you can get these from /chains. Call also use 'all' for volume on all chains.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "bridge ID, you can get these from /bridges"
+        }
+      ]
+    },
+    {
+      "name": "bridges_get-transactions",
+      "description": "Get all transactions for a bridge within a date range. Required: id. Optional: starttimestamp, endtimestamp, sourcechain (plus 2 more).",
+      "method": "GET",
+      "path": "/bridges/transactions/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "bridge ID, you can get these from /bridges",
+          "required": true
+        },
+        {
+          "name": "starttimestamp",
+          "type": "int",
+          "location": "query",
+          "description": "start timestamp (Unix Timestamp) for date range"
+        },
+        {
+          "name": "endtimestamp",
+          "type": "int",
+          "location": "query",
+          "description": "end timestamp (Unix timestamp) for date range"
+        },
+        {
+          "name": "sourcechain",
+          "type": "string",
+          "location": "query",
+          "description": "Returns only transactions that are bridging from the specified source chain."
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "Returns only transactions with specified address as 'from' or 'to'. Addresses are quried in the form {chain}:{address}, where chain is an identifier such as ethereum, bsc, polygon, avax... ."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "limit to number of transactions returned, maximum is 6000"
+        }
+      ]
+    },
+    {
+      "name": "bridges_list",
+      "description": "List all bridges along with summaries of recent bridge volumes. Optional: includeChains. Returns the BridgesListResponse.",
+      "method": "GET",
+      "path": "/bridges/bridges",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "includeChains",
+          "type": "bool",
+          "location": "query",
+          "description": "set whether to include current previous day volume breakdown by chain"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Overview of all categories accross all protocols. Returns the CategoriesListResponse.",
+      "method": "GET",
+      "path": "/api/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chain-assets_list",
+      "description": "Get assets of all chains. Returns the ChainAssetsListResponse.",
+      "method": "GET",
+      "path": "/api/chainAssets",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chains_list",
+      "description": "Get current TVL of all chains. Returns array of ChainsListItem.",
+      "method": "GET",
+      "path": "/v2/chains",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chart_get",
+      "description": "Strings accepted by period and searchWidth: Can use regular chart candle notion like ‘4h’ etc where: W = week, D = day, H = hour, M = minute (not case sensitive). Required: coins. Optional: start, end, span (plus 2 more). Returns the ChartGetResponse.",
+      "method": "GET",
+      "path": "/chart/{coins}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "path",
+          "description": "set of comma-separated tokens defined as {chain}:{address}",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "float",
+          "location": "query",
+          "description": "unix timestamp of earliest data point requested"
+        },
+        {
+          "name": "end",
+          "type": "float",
+          "location": "query",
+          "description": "unix timestamp of latest data point requested"
+        },
+        {
+          "name": "span",
+          "type": "float",
+          "location": "query",
+          "description": "number of data points returned, defaults to 0"
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "duration between data points, defaults to 24 hours"
+        },
+        {
+          "name": "searchWidth",
+          "type": "string",
+          "location": "query",
+          "description": "time range on either side to find price data, defaults to 10% of period"
+        }
+      ]
+    },
+    {
+      "name": "chart_get-fork",
+      "description": "Returns an array of [timestamp, value] pairs representing TVL over time for all forks of a specific protocol. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/chart/fork/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-metric",
+      "description": "Returns an array of [timestamp, value] pairs representing the total metric value over time. Required: metric (default: fees). Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_get-oracle",
+      "description": "Returns an array of [timestamp, value] pairs representing oracle TVL over time for a specific chain. Required: chain.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-oracle-2",
+      "description": "Returns an array of [timestamp, value] pairs representing TVL over time for a specific oracle/protocol. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "oracle/protocol name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-oracle-3",
+      "description": "Returns an array of objects with a timestamp and TVL values broken down by oracle/protocol for a specific chain. Required: chain.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/chain/{chain}/protocol-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-oracle-4",
+      "description": "Returns an array of objects with a timestamp and TVL values broken down by chain for a specific oracle/protocol. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/protocol/{protocol}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "oracle/protocol name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-pool",
+      "description": "Get historical APY and TVL of a pool. Required: pool. Returns array of ChartGetPoolItem.",
+      "method": "GET",
+      "path": "/chart/{pool}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pool",
+          "type": "string",
+          "location": "path",
+          "description": "pool id, can be retrieved from /pools (property is called pool)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chart_get-treasury",
+      "description": "Returns an array of [timestamp, value] pairs representing the protocol's treasury value over time. By default excludes the protocol's own tokens (OwnTokens). Required: protocol. Optional: key.",
+      "method": "GET",
+      "path": "/api/v2/chart/treasury/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Token filter. Omit to exclude OwnTokens (default). Use 'OwnTokens' to return only the..."
+        }
+      ]
+    },
+    {
+      "name": "chart_get-treasury-2",
+      "description": "Returns an array of [timestamp, { chain: value }] pairs showing treasury value per chain over time. By default excludes the protocol's own tokens. Required: protocol. Optional: key.",
+      "method": "GET",
+      "path": "/api/v2/chart/treasury/protocol/{protocol}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Token filter. Omit to exclude OwnTokens (default). Use 'OwnTokens' to return only the..."
+        }
+      ]
+    },
+    {
+      "name": "chart_get-treasury-3",
+      "description": "Returns an array of [timestamp, { token: value }] pairs showing treasury value per token over time. By default excludes OwnTokens and values are in USD. Use key and currency params to customize. Required: protocol. Optional: key, currency.",
+      "method": "GET",
+      "path": "/api/v2/chart/treasury/protocol/{protocol}/token-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Token filter. Omit to exclude OwnTokens (default). Use 'OwnTokens' to return only the..."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'tokens' to return values denominated in raw token amounts instead of USD"
+        }
+      ]
+    },
+    {
+      "name": "chart_get-tvl",
+      "description": "Returns an array of [timestamp, value] pairs representing the protocol's TVL over time. By default returns the base TVL metric. Use the `key` parameter to select a different metric or aggregate all metrics. Required: protocol. Optional: key.",
+      "method": "GET",
+      "path": "/api/v2/chart/tvl/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Metric to return. Omit for default TVL. Use 'all' for the sum of..."
+        }
+      ]
+    },
+    {
+      "name": "chart_get-tvl-2",
+      "description": "Returns an array of [timestamp, { chain: value }] pairs showing the selected metric per chain over time. Required: protocol. Optional: key.",
+      "method": "GET",
+      "path": "/api/v2/chart/tvl/protocol/{protocol}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Metric to return. Omit for default TVL. Use 'all' for the sum of..."
+        }
+      ]
+    },
+    {
+      "name": "chart_get-tvl-3",
+      "description": "Returns an array of [timestamp, { token: value }] pairs showing TVL per token over time. Values are in USD by default, set currency=tokens for raw token amounts. Required: protocol. Optional: key, currency.",
+      "method": "GET",
+      "path": "/api/v2/chart/tvl/protocol/{protocol}/token-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Metric to return. Omit for default TVL. Use 'all' for the sum of..."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'tokens' to return values denominated in raw token amounts instead of USD"
+        }
+      ]
+    },
+    {
+      "name": "chart_list",
+      "description": "Returns an array of [timestamp, value] pairs representing total TVL across all oracles over time.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chart_list-fork",
+      "description": "Returns an array of objects with a timestamp and TVL values broken down by fork protocol.",
+      "method": "GET",
+      "path": "/api/v2/chart/fork/protocol-breakdown",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chart_list-oracle",
+      "description": "Returns an array of objects with a timestamp and TVL values broken down by chain.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/chain-breakdown",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chart_list-oracle-2",
+      "description": "Returns an array of objects with a timestamp and TVL values broken down by oracle/protocol.",
+      "method": "GET",
+      "path": "/api/v2/chart/oracle/protocol-breakdown",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "chart_category_get",
+      "description": "Returns an array of [timestamp, value] pairs for the metric filtered by a specific category. Required: metric (default: fees), category. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/category/{category}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_category_get-chart",
+      "description": "Returns an array of [timestamp, {chain: value}] pairs showing the metric for a specific category broken down by chain. Required: metric (default: fees), category. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/category/{category}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_category_get-chart-2",
+      "description": "Returns an array of [timestamp, {protocol: value}] pairs showing the metric for a specific category broken down by protocol. Required: metric (default: fees), category. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/category/{category}/protocol-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_category_get-chart-3",
+      "description": "Returns an array of [timestamp, value] pairs for the metric filtered by both category and chain. Required: metric (default: fees), category, chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/category/{category}/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_category_get-chart-4",
+      "description": "Returns an array of [timestamp, {protocol: value}] pairs showing the metric filtered by both category and chain, broken down by protocol. Required: metric (default: fees), category, chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/category/{category}/chain/{chain}/protocol-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_chain_get",
+      "description": "Returns an array of [timestamp, value] pairs for the metric filtered by a specific chain. Required: metric (default: fees), chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_chain_get-chart",
+      "description": "Returns an array of [timestamp, {protocol: value}] pairs showing the metric on a specific chain broken down by protocol. Required: metric (default: fees), chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/chain/{chain}/protocol-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_chain-breakdown_get",
+      "description": "Returns an array of [timestamp, {chain: value}] pairs showing the metric broken down by chain over time. Required: metric (default: fees). Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_protocol_get",
+      "description": "Returns an array of [timestamp, value] pairs for the metric of a specific protocol. Required: metric (default: fees), protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (slugified protocol name)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_protocol_get-chart",
+      "description": "Returns an array of [timestamp, {chain: value}] pairs showing the metric for a specific protocol broken down by chain. Required: metric (default: fees), protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/protocol/{protocol}/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (slugified protocol name)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_protocol_get-chart-2",
+      "description": "Returns an array of [timestamp, {label: value}] pairs showing the metric for a specific protocol broken down by label (e.g. Borrow Interest, Flash Loans). Currently only supported for metric=fees. Required: metric (default: fees), protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/protocol/{protocol}/label-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (slugified protocol name)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_protocol_get-chart-3",
+      "description": "Returns an array of [timestamp, {version: value}] pairs showing the metric for a specific protocol broken down by version (e.g. Aave V2, Aave V3). Required: metric (default: fees), protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/protocol/{protocol}/version-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (slugified protocol name)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "chart_protocol-breakdown_get",
+      "description": "Returns an array of [timestamp, {protocol: value}] pairs showing the metric broken down by protocol over time. Required: metric (default: fees). Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/chart/{metric}/protocol-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "dat_get",
+      "description": "Returns detailed data for a specific institution, including mNAV calculations (realized, realistic, maximum) as described in the [DAT Methodology](https://docs.llama.fi/analysts/dat-methodology). Required: symbol.",
+      "method": "GET",
+      "path": "/dat/institutions/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Institution ticker symbol (e.g., MSTR for MicroStrategy)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dat_list",
+      "description": "Returns comprehensive data about institutions holding digital assets, including mNAV calculations (realized, realistic, maximum) as described in the [DAT Methodology](https://docs.llama.fi/analysts/dat-methodology).",
+      "method": "GET",
+      "path": "/dat/institutions",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "emission_get",
+      "description": "Unlocks data for a given token/protocol. You can find a list of available slugs to query by querying /emissions and then extracting the key `gecko_id`. Required: protocol. Returns the EmissionGetResponse.",
+      "method": "GET",
+      "path": "/api/emission/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emissions_list",
+      "description": "List of all tokens along with basic info for each. Returns array of EmissionsListItem.",
+      "method": "GET",
+      "path": "/api/emissions",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "entities_list",
+      "description": "List all entities. Returns array of EntitiesListItem.",
+      "method": "GET",
+      "path": "/api/entities",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "equities_list",
+      "description": "Returns a list of all publicly traded companies tracked by DefiLlama, with current market summary data for each, sorted by market capitalization (largest first).",
+      "method": "GET",
+      "path": "/equities/v1/companies",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "equities_list-v1",
+      "description": "Returns a list of SEC filings (10-K, 10-Q, etc.) for the given ticker, sorted by filing date descending (newest first). Required: ticker.",
+      "method": "GET",
+      "path": "/equities/v1/filings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol (case-insensitive)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equities_list-v1-2",
+      "description": "Returns daily OHLCV bars as six-number arrays: Unix timestamp in seconds (UTC), open, high, low, close, volume. Sorted by time descending (newest first). Optional `timeframe` filters how far back data goes; omit or empty for full history (`MAX`). Required: ticker. Optional: timeframe (default: MAX).",
+      "method": "GET",
+      "path": "/equities/v1/ohlcv",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol (case-insensitive)",
+          "required": true
+        },
+        {
+          "name": "timeframe",
+          "type": "string",
+          "location": "query",
+          "description": "Optional lookback window (case-insensitive). Same values as price history. Omit or empty for full history (`MAX`)."
+        }
+      ]
+    },
+    {
+      "name": "equities_list-v1-3",
+      "description": "Returns daily closing prices as two-element arrays: ISO 8601 date-time string, then numeric price. Sorted by date descending (newest first). Required: ticker. Optional: timeframe (default: MAX).",
+      "method": "GET",
+      "path": "/equities/v1/price-history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol (case-insensitive)",
+          "required": true
+        },
+        {
+          "name": "timeframe",
+          "type": "string",
+          "location": "query",
+          "description": "Optional lookback window (case-insensitive). Omit or empty for full history (`MAX`)."
+        }
+      ]
+    },
+    {
+      "name": "equities_list-v1-4",
+      "description": "Returns income statement, balance sheet, and cash flow statement for the given ticker, broken down by quarterly and annual periods. Required: ticker.",
+      "method": "GET",
+      "path": "/equities/v1/statements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol (case-insensitive)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equities_list-v1-5",
+      "description": "Returns current market data for a single ticker. This is a compact snapshot (no `ticker` / `name` fields); use `GET /equities/v1/companies` for the list shape that includes company identity and balance-sheet highlights. Required: ticker.",
+      "method": "GET",
+      "path": "/equities/v1/summary",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "query",
+          "description": "Stock ticker symbol (case-insensitive)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "etfs_list",
+      "description": "Historical Flows at the Asset Level. Returns array of EtfsListItem.",
+      "method": "GET",
+      "path": "/etfs/flows",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "etfs_list-snapshot",
+      "description": "Get ETFs and their metrics (aum, flows, fees...). Returns array of EtfsListSnapshotItem.",
+      "method": "GET",
+      "path": "/etfs/snapshot",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "fdv_get",
+      "description": "Get chart of narratives based on category performance (with individual coins weighted by mcap). Required: period. Returns array of FdvGetItem.",
+      "method": "GET",
+      "path": "/fdv/performance/{period}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "One of ['7', '30', 'ytd', '365']",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forks_list",
+      "description": "Overview of all forks accross all protocols. Returns the ForksListResponse.",
+      "method": "GET",
+      "path": "/api/forks",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "hacks_list",
+      "description": "Overview of all hacks on our Hacks dashboard. Returns array of HacksListItem.",
+      "method": "GET",
+      "path": "/api/hacks",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "historical-chain-tvl_get",
+      "description": "Get historical TVL (excludes liquid staking and double counted tvl) of a chain. Required: chain. Returns array of HistoricalChainTvlGetItem.",
+      "method": "GET",
+      "path": "/v2/historicalChainTvl/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "historical-chain-tvl_list",
+      "description": "Get historical TVL (excludes liquid staking and double counted tvl) of DeFi on all chains. Returns array of HistoricalChainTvlListItem.",
+      "method": "GET",
+      "path": "/v2/historicalChainTvl",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "historical-liquidity_get",
+      "description": "Provides the name of contracts on a determined chain. Required: token.",
+      "method": "GET",
+      "path": "/api/historicalLiquidity/{token}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "token slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inflows_get",
+      "description": "Lists the amount of inflows and outflows for a protocol at a given date. Required: protocol, timestamp. Returns the InflowsGetResponse.",
+      "method": "GET",
+      "path": "/api/inflows/{protocol}/{timestamp}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "int",
+          "location": "path",
+          "description": "unix timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_get",
+      "description": "Returns aggregate metrics for the specified dimension including totals and percentage changes across different time periods. Required: metric (default: fees). Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/metrics/{metric}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "metrics_get-financialstatement",
+      "description": "Returns protocol metadata, methodology details, and aggregated financial statement data (yearly, quarterly, monthly). Each period contains line items such as Gross Protocol Revenue, Cost Of Revenue, Gross Profit, Token Holder Net Income, Incentives, and Earnings, with values and optional label breakdowns. When querying a parent protocol (e.g. `aave`), the response includes a `childProtocols` array with per-version methodology. When querying a child protocol (e.g. `aave-v3`), methodology and breakdownMethodology are at the top level. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/metrics/financial-statement/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (e.g. aave-v3, hyperliquid)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_get-treasury",
+      "description": "Returns protocol metadata along with current treasury figures and chain breakdowns. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/metrics/treasury/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_get-tvl",
+      "description": "Returns protocol metadata along with current TVL figures, chain breakdowns, and other aggregate metrics. Required: protocol.",
+      "method": "GET",
+      "path": "/api/v2/metrics/tvl/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_list",
+      "description": "Returns an object mapping fork names to arrays of protocol names that are forks of each protocol.",
+      "method": "GET",
+      "path": "/api/v2/metrics/fork",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "metrics_list-oracle",
+      "description": "Returns an object mapping oracle names to arrays of protocol names that use each oracle.",
+      "method": "GET",
+      "path": "/api/v2/metrics/oracle",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "metrics_category_get",
+      "description": "Returns aggregate metrics for the specified dimension filtered by a specific category. Required: metric (default: fees), category. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/metrics/{metric}/category/{category}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "metrics_category_get-metrics",
+      "description": "Returns aggregate metrics for the specified dimension filtered by both category and chain. Required: metric (default: fees), category, chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/metrics/{metric}/category/{category}/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "category slug (slugified category name, e.g. 'dexs', 'prediction-market', 'options')",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "metrics_chain_get",
+      "description": "Returns aggregate metrics for the specified dimension filtered by a specific chain. Required: metric (default: fees), chain. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/metrics/{metric}/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "metrics_protocol_get",
+      "description": "Returns protocol metadata along with aggregate metrics for the specified dimension. Required: metric (default: fees), protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/api/v2/metrics/{metric}/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "path",
+          "description": "The dimension metric type",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug (slugified protocol name)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Metric-specific data type to return."
+        }
+      ]
+    },
+    {
+      "name": "oracles_list",
+      "description": "Overview of all oracles accross all protocols. Returns the OraclesListResponse.",
+      "method": "GET",
+      "path": "/api/oracles",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "overview_get",
+      "description": "List all dexs along with summaries of their volumes and dataType history data filtering by chain. Required: chain, excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the OverviewGetResponse.",
+      "method": "GET",
+      "path": "/overview/dexs/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/dexs response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "overview_get-fees",
+      "description": "List all protocols along with summaries of their fees and revenue and dataType history data by chain. Required: chain, excludeTotalDataChart, excludeTotalDataChartBreakdown. Optional: dataType. Returns the OverviewGetFeesResponse.",
+      "method": "GET",
+      "path": "/overview/fees/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/fees response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyFees by default."
+        }
+      ]
+    },
+    {
+      "name": "overview_get-options",
+      "description": "List all options dexs along with summaries of their volumes and dataType history data filtering by chain. Required: chain, excludeTotalDataChart, excludeTotalDataChartBreakdown. Optional: dataType.",
+      "method": "GET",
+      "path": "/overview/options/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain name, list of all supported chains can be found under allChains attribute in /overview/options response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyNotionalVolume by default."
+        }
+      ]
+    },
+    {
+      "name": "overview_list",
+      "description": "List all dexs along with summaries of their volumes and dataType history data. Required: excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the OverviewListResponse.",
+      "method": "GET",
+      "path": "/overview/dexs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "overview_list-derivatives",
+      "description": "Lists all derivatives along summaries of their volumes filtering by chain. Required: excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the OverviewListDerivativesResponse.",
+      "method": "GET",
+      "path": "/api/overview/derivatives",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "overview_list-fees",
+      "description": "List all protocols along with summaries of their fees and revenue and dataType history data. Required: excludeTotalDataChart, excludeTotalDataChartBreakdown. Optional: dataType. Returns the OverviewListFeesResponse.",
+      "method": "GET",
+      "path": "/overview/fees",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyFees by default."
+        }
+      ]
+    },
+    {
+      "name": "overview_list-openinterest",
+      "description": "List all open interest dex exchanges along with summaries of their open interest. Required: excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the OverviewListOpeninterestResponse.",
+      "method": "GET",
+      "path": "/overview/open-interest",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "overview_list-options",
+      "description": "List all options dexs along with summaries of their volumes and dataType history data. Required: excludeTotalDataChart, excludeTotalDataChartBreakdown. Optional: dataType. Returns the OverviewListOptionsResponse.",
+      "method": "GET",
+      "path": "/overview/options",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyNotionalVolume by default."
+        }
+      ]
+    },
+    {
+      "name": "percentage_get",
+      "description": "Strings accepted by period: Can use regular chart candle notion like ‘4h’ etc where: W = week, D = day, H = hour, M = minute (not case sensitive). Required: coins. Optional: timestamp, lookForward, period. Returns the PercentageGetResponse.",
+      "method": "GET",
+      "path": "/percentage/{coins}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "path",
+          "description": "set of comma-separated tokens defined as {chain}:{address}",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "float",
+          "location": "query",
+          "description": "timestamp of data point requested, defaults to time now"
+        },
+        {
+          "name": "lookForward",
+          "type": "bool",
+          "location": "query",
+          "description": "whether you want the duration after your given timestamp or not, defaults to false (looking back)"
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "duration between data points, defaults to 24 hours"
+        }
+      ]
+    },
+    {
+      "name": "pools_list",
+      "description": "Retrieve the latest data for all pools, including enriched information such as predictions. Returns array of PoolsListItem.",
+      "method": "GET",
+      "path": "/pools",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "prices_get",
+      "description": "The goal of this API is to price as many tokens as possible, including exotic ones that never get traded, which makes them impossible to price by looking at markets. The base of our data are prices pulled from coingecko, which is then extended through multiple means: - We price all bridged tokens by using the price of the token in it's original chain, so we fetch all bridged versions of USDC on arbitrum, fantom, avax... and price all them using the price for the token on Ethereum, which we know. Right now we support 10 different bridging protocols. - We have multiple adapters to price specialized sets of tokens by running custom code: - We price yearn's yToken LPs by checking how much underlying token can be withdrawn for each LP - Aave, compound and euler LP tokens are also priced based on their relationship against underlying tokens - Uniswap, curve, balancer and stargate LPs are priced using the underlying tokens in each pair - GMX's GLP token is priced based on the value of tokens given on withdrawal (which includes calculations based on trader's PnL) - Synthetix tokens are priced using forex prices of the coin they are pegged to - For tokens that we haven't been able to price in any other way, we find the pool with most liquidity for each on uniswap, curve and serum and then use the prices provided on those exchanges. Unlike all the other tokens, we can't confirm that these prices are correct, so we only ingest the ones that have sufficient liquidity and, even in that case, we attach a `confidence` value to them that is related to the depth of liquidity and which represents our confidence in the quality of each price. API consumers can choose to filter out prices with low confidence values. Our API server is fully open source and we are constantly adding more pricing adapters, extending the amount of tokens we support. Tokens are queried using {chain}:{address}, where chain is an identifier such as ethereum, bsc, polygon, avax... You can also get tokens by coingecko id by setting `coingecko` as the chain, eg: coingecko:ethereum, coingecko:bitcoin. Examples: - ethereum:0xdF574c24545E5FfEcb9a659c229253D4111d87e1 - bsc:0x762539b45a1dcce3d36d080f74d1aed37844b878 - coingecko:ethereum - arbitrum:0x4277f8f2c384827b5273592ff7cebd9f2c1ac258. Required: coins. Optional: searchWidth. Returns the PricesGetResponse.",
+      "method": "GET",
+      "path": "/prices/current/{coins}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "path",
+          "description": "set of comma-separated tokens defined as {chain}:{address}",
+          "required": true
+        },
+        {
+          "name": "searchWidth",
+          "type": "string",
+          "location": "query",
+          "description": "time range on either side to find price data, defaults to 6 hours"
+        }
+      ]
+    },
+    {
+      "name": "prices_get-first",
+      "description": "Get earliest timestamp price record for coins. Required: coins. Returns the PricesGetFirstResponse.",
+      "method": "GET",
+      "path": "/prices/first/{coins}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "path",
+          "description": "set of comma-separated tokens defined as {chain}:{address}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prices_get-historical",
+      "description": "See /prices/current for explanation on how prices are sourced. Required: coins, timestamp. Optional: searchWidth. Returns the PricesGetHistoricalResponse.",
+      "method": "GET",
+      "path": "/prices/historical/{timestamp}/{coins}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "coins",
+          "type": "string",
+          "location": "path",
+          "description": "set of comma-separated tokens defined as {chain}:{address}",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "float",
+          "location": "path",
+          "description": "UNIX timestamp of time when you want historical prices",
+          "required": true
+        },
+        {
+          "name": "searchWidth",
+          "type": "string",
+          "location": "query",
+          "description": "time range on either side to find price data, defaults to 6 hours"
+        }
+      ]
+    },
+    {
+      "name": "protocol_get",
+      "description": "Get historical TVL of a protocol and breakdowns by token and chain. Required: protocol. Returns the ProtocolGetResponse.",
+      "method": "GET",
+      "path": "/protocol/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "protocols_list",
+      "description": "List all protocols on defillama along with their tvl. Returns array of ProtocolsListItem.",
+      "method": "GET",
+      "path": "/protocols",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "raises_list",
+      "description": "Overview of all raises on our Raises dashboard. Returns the RaisesListResponse.",
+      "method": "GET",
+      "path": "/api/raises",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "rwa_get",
+      "description": "Returns current RWA assets that have onchain market cap, active market cap, or DeFi active TVL on the requested chain. Required: chain.",
+      "method": "GET",
+      "path": "/rwa/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "Chain display name, case-insensitive.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rwa_get-chart",
+      "description": "Returns historical onchain market cap, active market cap, and DeFi active TVL totals for a chain. Required: chain.",
+      "method": "GET",
+      "path": "/rwa/chart/chain/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "Chain display name. The API normalizes it to the internal RWA slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rwa_list",
+      "description": "Returns current Real World Asset rows with per-chain onchain market cap, active market cap, and DeFi active TVL maps.",
+      "method": "GET",
+      "path": "/rwa/current",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "rwa_list-chart",
+      "description": "Returns time series rows with one column per chain for the selected RWA metric. Optional: key, includeStablecoin, includeGovernance.",
+      "method": "GET",
+      "path": "/rwa/chart/chain-breakdown",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Metric to break down by chain. Defaults to onChainMcap."
+        },
+        {
+          "name": "includeStablecoin",
+          "type": "bool",
+          "location": "query",
+          "description": "Include stablecoin-token assets in the chart totals."
+        },
+        {
+          "name": "includeGovernance",
+          "type": "bool",
+          "location": "query",
+          "description": "Include governance-token assets in the chart totals."
+        }
+      ]
+    },
+    {
+      "name": "rwa_list-list",
+      "description": "Returns lightweight RWA lists used for discovery, search, and filters.",
+      "method": "GET",
+      "path": "/rwa/list",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "rwa_list-stats",
+      "description": "Returns RWA aggregates. For the default per-chain table, read byChain[chain].base: assetIssuers.length, assetCount, activeMcap, onChainMcap, and defiActiveTvl. Add stablecoinsOnly, governanceOnly, and stablecoinsAndGovernance when those buckets should be included.",
+      "method": "GET",
+      "path": "/rwa/stats",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stablecoin_get",
+      "description": "Get historical mcap and historical chain distribution of a stablecoin. Required: asset. Returns the StablecoinGetResponse.",
+      "method": "GET",
+      "path": "/stablecoin/{asset}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "asset",
+          "type": "int",
+          "location": "path",
+          "description": "stablecoin ID, you can get these from /stablecoins",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stablecoinchains_list",
+      "description": "Get current mcap sum of all stablecoins on each chain. Returns array of StablecoinchainsListItem.",
+      "method": "GET",
+      "path": "/stablecoinchains",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stablecoincharts_get",
+      "description": "Get historical mcap sum of all stablecoins in a chain. Required: chain. Optional: stablecoin. Returns array of StablecoinchartsGetItem.",
+      "method": "GET",
+      "path": "/stablecoincharts/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+          "required": true
+        },
+        {
+          "name": "stablecoin",
+          "type": "int",
+          "location": "query",
+          "description": "stablecoin ID, you can get these from /stablecoins"
+        }
+      ]
+    },
+    {
+      "name": "stablecoincharts_list",
+      "description": "Get historical mcap sum of all stablecoins. Optional: stablecoin. Returns array of StablecoinchartsListItem.",
+      "method": "GET",
+      "path": "/stablecoincharts/all",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stablecoin",
+          "type": "int",
+          "location": "query",
+          "description": "stablecoin ID, you can get these from /stablecoins"
+        }
+      ]
+    },
+    {
+      "name": "stablecoinprices_list",
+      "description": "Get historical prices of all stablecoins. Returns array of StablecoinpricesListItem.",
+      "method": "GET",
+      "path": "/stablecoinprices",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stablecoins_get",
+      "description": "Get stablecoin dominance per chain along with the info about the larges coin in a chain. Required: chain. Optional: stablecoin. Returns array of StablecoinsGetItem.",
+      "method": "GET",
+      "path": "/stablecoins/stablecoindominance/{chain}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chain",
+          "type": "string",
+          "location": "path",
+          "description": "chain slug, you can get these from /chains or the chains property on /protocols",
+          "required": true
+        },
+        {
+          "name": "stablecoin",
+          "type": "int",
+          "location": "query",
+          "description": "stablecoin ID, you can get these from /stablecoins"
+        }
+      ]
+    },
+    {
+      "name": "stablecoins_list",
+      "description": "List all stablecoins along with their circulating amounts. Optional: includePrices. Returns the StablecoinsListResponse.",
+      "method": "GET",
+      "path": "/stablecoins",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "includePrices",
+          "type": "bool",
+          "location": "query",
+          "description": "set whether to include current stablecoin prices"
+        }
+      ]
+    },
+    {
+      "name": "summary_get",
+      "description": "Get summary of dex volume with historical data. Required: protocol, excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the SummaryGetResponse.",
+      "method": "GET",
+      "path": "/summary/dexs/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "summary_get-derivatives",
+      "description": "Volume Details about a specific perp protocol. Required: protocol, excludeTotalDataChart, excludeTotalDataChartBreakdown. Returns the SummaryGetDerivativesResponse.",
+      "method": "GET",
+      "path": "/api/summary/derivatives/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChart",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude aggregated chart from response",
+          "required": true
+        },
+        {
+          "name": "excludeTotalDataChartBreakdown",
+          "type": "bool",
+          "location": "query",
+          "description": "true to exclude broken down chart from response",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "summary_get-fees",
+      "description": "Get summary of protocol fees and revenue with historical data. Required: protocol. Optional: dataType. Returns the SummaryGetFeesResponse.",
+      "method": "GET",
+      "path": "/summary/fees/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyFees by default."
+        }
+      ]
+    },
+    {
+      "name": "summary_get-options",
+      "description": "Get summary of options dex volume with historical data. Required: protocol. Optional: dataType.",
+      "method": "GET",
+      "path": "/summary/options/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "query",
+          "description": "Desired data type, dailyNotionalVolume by default."
+        }
+      ]
+    },
+    {
+      "name": "token-protocols_get",
+      "description": "Lists the amount of a certain token within all protocols. Data for the Token Usage page. Required: symbol. Returns array of TokenProtocolsGetItem.",
+      "method": "GET",
+      "path": "/api/tokenProtocols/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "token slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "treasuries_list",
+      "description": "List all protocols on our Treasuries dashboard. Returns array of TreasuriesListItem.",
+      "method": "GET",
+      "path": "/api/treasuries",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tvl_get",
+      "description": "Simplified endpoint that only returns a number, the current TVL of a protocol. Required: protocol.",
+      "method": "GET",
+      "path": "/tvl/{protocol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "path",
+          "description": "protocol slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage_list",
+      "description": "Get amount of credits left in the api key, these reset on the 1st of each month.",
+      "method": "GET",
+      "path": "/usage/{api_key}",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "yields_get",
+      "description": "Historical borrow cost APY from a pool on a lending market, pool ids should be obtained from /poolsBorrow. Required: pool. Returns array of YieldsGetItem.",
+      "method": "GET",
+      "path": "/yields/chartLendBorrow/{pool}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pool",
+          "type": "string",
+          "location": "path",
+          "description": "pool id, can be retrieved from /poolsBorrow (property is called pool)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "yields_list",
+      "description": "APY rates of multiple LSDs. Returns array of YieldsListItem.",
+      "method": "GET",
+      "path": "/yields/lsdRates",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "yields_list-perps",
+      "description": "Funding rates and Open Interest of perps across exchanges, including both Decentralized and Centralized. Returns array of YieldsListPerpsItem.",
+      "method": "GET",
+      "path": "/yields/perps",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "yields_list-poolsborrow",
+      "description": "Borrow costs APY of assets from lending markets. Returns array of YieldsListPoolsborrowItem.",
+      "method": "GET",
+      "path": "/yields/poolsBorrow",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "yields_list-poolsold",
+      "description": "Same as /pools but it also includes a new parameter `pool_old` which usually contains pool address (but not guaranteed). Returns array of YieldsListPoolsoldItem.",
+      "method": "GET",
+      "path": "/yields/poolsOld",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

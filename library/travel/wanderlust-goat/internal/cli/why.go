@@ -1,91 +1,128 @@
 package cli
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/closedsignal"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/dispatch"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/googleplaces"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/regions"
 )
 
+// newWhyCmd prints every source that mentioned a place, the trust weight,
+// country boost, walking time, criteria match, and the final goat-score
+// breakdown — auditable per the brief.
 func newWhyCmd(flags *rootFlags) *cobra.Command {
+	var (
+		anchor   string
+		country  string
+		criteria string
+		minutes  float64
+	)
 	cmd := &cobra.Command{
-		Use:   "why <place-name-or-id>",
-		Short: "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.",
-		Long: `Step-by-step audit of why a place appears (or doesn't) in a 'near' or 'goat'
-result. Resolves the input by name (FTS match in goat_places) or by id, then
-prints every source row referencing it, the trust contribution per source,
-and the formula breakdown:
+		Use:   "why [place-name]",
+		Short: "Score breakdown: every source, trust weight, country boost, criteria match",
+		Long: `why prints the audit trail for one place. Stage-1 (Google Places SearchText)
+finds the canonical entry; the regions table drives Stage-2 fanout; the
+score is the same trust-weighted formula near and goat use.
 
-  goat_score = trust × (1 + country_match_boost) × intent_match × walking_decay`,
+Use this when a ranking surprises you, when you need cited evidence, or when
+debugging dispatcher behavior.`,
 		Example: strings.Trim(`
-  # By exact id
-  wanderlust-goat-pp-cli why "wikipedia.ja:42519"
-
-  # By name (FTS-style)
-  wanderlust-goat-pp-cli why "Kohi Bibi" --json`, "\n"),
+  wanderlust-goat-pp-cli why "Bear Pond Espresso" --json
+  wanderlust-goat-pp-cli why "Le Coucou" --country FR --criteria "natural wine"
+`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			name := strings.TrimSpace(strings.Join(args, " "))
+			if name == "" {
 				return cmd.Help()
 			}
-			query := strings.Join(args, " ")
 			if dryRunOK(flags) {
 				return nil
 			}
 			ctx := cmd.Context()
-			store, err := openGoatStore(cmd, flags)
-			if err != nil {
-				return err
+			if ctx == nil {
+				ctx = context.Background()
 			}
-			defer store.Close()
-
-			rows, err := store.DB().QueryContext(ctx, `
-				SELECT id, source, intent, name, name_local, lat, lng, country, city_slug, trust, why_special
-				FROM goat_places
-				WHERE id = ? OR name = ? OR name_local = ?
-				   OR id IN (SELECT id FROM goat_places_fts WHERE goat_places_fts MATCH ? LIMIT 10)`,
-				query, query, query, query)
-			if err != nil {
-				return err
-			}
-			defer rows.Close()
-			breakdown := whyReport{Query: query}
-			for rows.Next() {
-				var e whyEntry
-				if err := rows.Scan(&e.ID, &e.Source, &e.Intent, &e.Name, &e.NameLocal, &e.Lat, &e.Lng, &e.Country, &e.CitySlug, &e.Trust, &e.WhySpecial); err != nil {
-					return err
+			cc := strings.ToUpper(strings.TrimSpace(country))
+			if cc == "" && anchor != "" {
+				if r, err := dispatch.ResolveAnchor(ctx, anchor); err == nil {
+					cc = r.Country
 				}
-				breakdown.Mentions = append(breakdown.Mentions, e)
 			}
-			if len(breakdown.Mentions) == 0 {
-				breakdown.Note = "No matches in the local store. Run sync-city <slug> first, or pass --data-source live."
-				_ = printJSONFiltered(cmd.OutOrStdout(), breakdown, flags)
-				return notFoundErr(fmt.Errorf("no matches for %q", query))
+			if cc == "" {
+				cc = "*"
 			}
-			breakdown.Note = "score formula: trust × (1 + country_boost_if_match) × intent_match × walking_decay"
-			return printJSONFiltered(cmd.OutOrStdout(), breakdown, flags)
+			region := regions.Lookup(cc)
+
+			// Use Google Places SearchText to resolve the canonical
+			// candidate. Without an API key, we skip Stage-1 and surface
+			// only the Stage-2 evidence the dispatcher would have walked.
+			g, gerr := googleplaces.NewClient()
+			if errors.Is(gerr, googleplaces.ErrMissingAPIKey) {
+				return authErr(fmt.Errorf("%w (set GOOGLE_PLACES_API_KEY)", gerr))
+			} else if gerr != nil {
+				return configErr(gerr)
+			}
+			places, err := g.SearchText(ctx, name, 0, 0, 0, 1, region.PrimaryLanguage)
+			if err != nil {
+				return apiErr(err)
+			}
+			if len(places) == 0 {
+				return notFoundErr(fmt.Errorf("no Google Places match for %q", name))
+			}
+			top := places[0]
+
+			anchorRes := dispatch.AnchorResolution{
+				Lat: top.Lat, Lng: top.Lng, Country: cc, Display: top.Address,
+			}
+			plan := dispatch.Plan{
+				Anchor:        name,
+				Resolved:      anchorRes,
+				Criteria:      criteria,
+				RadiusMinutes: minutes,
+				SeedLimit:     5,
+			}
+			d := dispatch.NewWithSeed(&singlePlaceSeed{place: top}, dispatch.DefaultRegistry())
+			results, trace, err := d.Run(ctx, plan)
+			if err != nil {
+				return apiErr(err)
+			}
+			out := struct {
+				Name      string                 `json:"name"`
+				Region    regions.Region         `json:"region"`
+				Top       *dispatch.Result       `json:"top,omitempty"`
+				Trace     dispatch.Trace         `json:"trace"`
+				ClosedAll []closedsignal.Verdict `json:"closed_signals,omitempty"`
+			}{
+				Name:   name,
+				Region: region,
+				Trace:  trace,
+			}
+			if len(results) > 0 {
+				r := results[0]
+				out.Top = &r
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
+	cmd.Flags().StringVar(&anchor, "anchor", "", "anchor (used to derive country)")
+	cmd.Flags().StringVar(&country, "country", "", "ISO 3166-1 alpha-2 country code")
+	cmd.Flags().StringVar(&criteria, "criteria", "", "free-text criteria for criteria-match score component")
+	cmd.Flags().Float64Var(&minutes, "minutes", 15, "walking-time radius in minutes (informational)")
 	return cmd
 }
 
-type whyReport struct {
-	Query    string     `json:"query"`
-	Mentions []whyEntry `json:"mentions"`
-	Note     string     `json:"note,omitempty"`
-}
+// singlePlaceSeed wraps a single googleplaces.Place as a SeedClient. Lets
+// `why` reuse the dispatcher's Stage-2/Stage-3 paths for one resolved place.
+type singlePlaceSeed struct{ place googleplaces.Place }
 
-type whyEntry struct {
-	ID         string  `json:"id"`
-	Source     string  `json:"source"`
-	Intent     string  `json:"intent"`
-	Name       string  `json:"name"`
-	NameLocal  string  `json:"name_local,omitempty"`
-	Lat        float64 `json:"lat"`
-	Lng        float64 `json:"lng"`
-	Country    string  `json:"country,omitempty"`
-	CitySlug   string  `json:"city_slug,omitempty"`
-	Trust      float64 `json:"trust"`
-	WhySpecial string  `json:"why_special,omitempty"`
+func (s *singlePlaceSeed) NearbySearch(ctx context.Context, lat, lng, radius float64, types []string, max int, lang string) ([]googleplaces.Place, error) {
+	return []googleplaces.Place{s.place}, nil
 }

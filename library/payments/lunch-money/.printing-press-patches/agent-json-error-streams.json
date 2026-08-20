@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "agent-json-error-streams",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Kept --agent and machine-format command streams parseable by rendering process errors as JSON and suppressing dry-run previews.",
+  "reason": "Generated endpoint commands returned human stderr on API failures and dry-runs, breaking common `2>&1 | jq` agent pipelines.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "go test ./... passes, and bad category create plus dry-run pipelines both parse through jq."
+}

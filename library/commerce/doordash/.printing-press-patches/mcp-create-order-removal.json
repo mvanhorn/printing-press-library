@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mcp-create-order-removal",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Remove createOrderFromCart from the generic MCP API tools and require agents to use guarded Cobra-mirrored commands.",
+  "reason": "Greptile flagged that the direct MCP tool could place a live DoorDash order without the CLI live-order gates and was marked non-destructive.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go test ./... and scoped govulncheck passed before updating PR #784."
+}

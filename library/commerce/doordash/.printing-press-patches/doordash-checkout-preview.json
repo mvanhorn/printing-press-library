@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "doordash-checkout-preview",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add a curated cart preview command for checkout and optional fee-tally review without order placement.",
+  "reason": "bricenice17 needs a safe pre-order view of restaurant, items, delivery address, payment method, tip, fees, and total; the command must never call createOrderFromCart.",
+  "files": [
+    "internal/cli/cart.go",
+    "internal/cli/cart_test.go"
+  ],
+  "validated_outcome": "go test ./... passed; go build ./cmd/doordash-pp-cli passed; cart preview --dry-run --agent with checkout and fee variables printed POST previews for /graphql/checkout and /graphql/totalFeeTally, returned order_placement=not_called, and did not call createOrderFromCart."
+}

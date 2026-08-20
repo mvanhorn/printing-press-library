@@ -1,0 +1,243 @@
+{
+  "api_name": "uspto-tsdr",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Plumage-py",
+      "url": "https://github.com/codingatty/Plumage-py",
+      "language": "Python",
+      "install_method": "source",
+      "stars": 8,
+      "last_updated": "2026-01-21",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Ethan3600/USPTO-Trademark-API",
+      "url": "https://github.com/Ethan3600/USPTO-Trademark-API",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "2026-02-18",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trademark-mcp-server",
+      "url": "https://github.com/jordanburke/trademark-mcp-server",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 2,
+      "last_updated": "2026-04-08",
+      "command_count": 5,
+      "has_json_output": true,
+      "has_auth_support": false
+    },
+    {
+      "name": "pipeworx-io/mcp-trademarks",
+      "url": "https://github.com/pipeworx-io/mcp-trademarks",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2026-04-22",
+      "command_count": 3,
+      "has_json_output": true,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T14:00:00Z",
+  "novel_features": [
+    {
+      "name": "Trademark One-Look Status",
+      "command": "trademark status",
+      "description": "Full current state of a trademark in one command — mark text, status, owner, classes, filing/registration dates, attorney, and prosecution event count",
+      "rationale": "The TSDR API returns complex XML/JSON with nested bags; this parses it into a clean single-screen snapshot that no existing tool offers",
+      "example": "uspto-tsdr-pp-cli trademark status 97123456 --json",
+      "why_it_matters": "Agents evaluating trademark status need the complete picture in one call instead of parsing XML manually",
+      "group": "Trademark intelligence"
+    },
+    {
+      "name": "Prosecution Timeline",
+      "command": "trademark timeline",
+      "description": "Every prosecution event in chronological order — office actions, examiner reviews, publication events, and registration milestones",
+      "rationale": "Prosecution history is buried in a nested bag inside the status response; this extracts and sorts all events chronologically",
+      "example": "uspto-tsdr-pp-cli trademark timeline 97123456 --json",
+      "why_it_matters": "Trademark attorneys need the full event history to evaluate prosecution strength and identify potential issues",
+      "group": "Trademark intelligence"
+    },
+    {
+      "name": "Deadline Calculator",
+      "command": "trademark deadlines",
+      "description": "Calculate Section 8, 9, and 15 maintenance deadlines with window-open dates and days-away countdown",
+      "rationale": "No existing tool computes trademark maintenance deadlines from registration dates; this requires domain knowledge about Section 8 (5-6yr, then 10yr), Section 9 (10yr), and Section 15 (5yr)",
+      "example": "uspto-tsdr-pp-cli trademark deadlines 97123456 --json",
+      "why_it_matters": "Missing a maintenance deadline means losing the registration — this is the #1 pain point for trademark portfolio managers",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Portfolio Watch",
+      "command": "trademark watch",
+      "description": "Monitor multiple trademarks for status changes — caches previous statuses locally and flags any changes since last check",
+      "rationale": "Requires comparing current API results against locally cached previous statuses; SaaS competitors charge $100-$100K+/year for this",
+      "example": "uspto-tsdr-pp-cli trademark watch 97123456 97654321 --json",
+      "why_it_matters": "Agents monitoring trademark portfolios need change detection, not full status dumps they have to diff themselves",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Batch Status Check",
+      "command": "trademark batch",
+      "description": "Batch status lookup for multiple trademarks using the multi-case endpoint or individual fallback with rate-limit throttling",
+      "rationale": "Uses the caseMultiStatus endpoint for efficient batch lookups; falls back to individual requests with automatic throttling for large portfolios",
+      "example": "uspto-tsdr-pp-cli trademark batch 97123456 97654321 --json",
+      "why_it_matters": "IP paralegals managing hundreds of marks need batch status without manually checking each one",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Document Listing",
+      "command": "trademark docs",
+      "description": "List all documents in the prosecution file — office actions, responses, specimens, registration certificates — with type and date filtering",
+      "rationale": "Document metadata is returned in a separate endpoint with its own nested structure; this parses and presents it as a sortable table",
+      "example": "uspto-tsdr-pp-cli trademark docs 97123456 --filter-type SPE --json",
+      "why_it_matters": "Litigation prep and due diligence require reviewing every document in a trademark file without clicking through the TSDR web UI",
+      "group": "Trademark intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Trademark One-Look Status",
+      "command": "trademark status",
+      "description": "Full current state of a trademark in one command — mark text, status, owner, classes, filing/registration dates, attorney, and prosecution event count",
+      "rationale": "The TSDR API returns complex XML/JSON with nested bags; this parses it into a clean single-screen snapshot that no existing tool offers",
+      "example": "uspto-tsdr-pp-cli trademark status 97123456 --json",
+      "why_it_matters": "Agents evaluating trademark status need the complete picture in one call instead of parsing XML manually",
+      "group": "Trademark intelligence"
+    },
+    {
+      "name": "Prosecution Timeline",
+      "command": "trademark timeline",
+      "description": "Every prosecution event in chronological order — office actions, examiner reviews, publication events, and registration milestones",
+      "rationale": "Prosecution history is buried in a nested bag inside the status response; this extracts and sorts all events chronologically",
+      "example": "uspto-tsdr-pp-cli trademark timeline 97123456 --json",
+      "why_it_matters": "Trademark attorneys need the full event history to evaluate prosecution strength and identify potential issues",
+      "group": "Trademark intelligence"
+    },
+    {
+      "name": "Deadline Calculator",
+      "command": "trademark deadlines",
+      "description": "Calculate Section 8, 9, and 15 maintenance deadlines with window-open dates and days-away countdown",
+      "rationale": "No existing tool computes trademark maintenance deadlines from registration dates; this requires domain knowledge about Section 8 (5-6yr, then 10yr), Section 9 (10yr), and Section 15 (5yr)",
+      "example": "uspto-tsdr-pp-cli trademark deadlines 97123456 --json",
+      "why_it_matters": "Missing a maintenance deadline means losing the registration — this is the #1 pain point for trademark portfolio managers",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Portfolio Watch",
+      "command": "trademark watch",
+      "description": "Monitor multiple trademarks for status changes — caches previous statuses locally and flags any changes since last check",
+      "rationale": "Requires comparing current API results against locally cached previous statuses; SaaS competitors charge $100-$100K+/year for this",
+      "example": "uspto-tsdr-pp-cli trademark watch 97123456 97654321 --json",
+      "why_it_matters": "Agents monitoring trademark portfolios need change detection, not full status dumps they have to diff themselves",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Batch Status Check",
+      "command": "trademark batch",
+      "description": "Batch status lookup for multiple trademarks using the multi-case endpoint or individual fallback with rate-limit throttling",
+      "rationale": "Uses the caseMultiStatus endpoint for efficient batch lookups; falls back to individual requests with automatic throttling for large portfolios",
+      "example": "uspto-tsdr-pp-cli trademark batch 97123456 97654321 --json",
+      "why_it_matters": "IP paralegals managing hundreds of marks need batch status without manually checking each one",
+      "group": "Portfolio management"
+    },
+    {
+      "name": "Document Listing",
+      "command": "trademark docs",
+      "description": "List all documents in the prosecution file — office actions, responses, specimens, registration certificates — with type and date filtering",
+      "rationale": "Document metadata is returned in a separate endpoint with its own nested structure; this parses and presents it as a sortable table",
+      "example": "uspto-tsdr-pp-cli trademark docs 97123456 --filter-type SPE --json",
+      "why_it_matters": "Litigation prep and due diligence require reviewing every document in a trademark file without clicking through the TSDR web UI",
+      "group": "Trademark intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "USPTO TSDR",
+    "headline": "The only CLI for USPTO trademark status, prosecution history, document retrieval, and deadline tracking — with portfolio monitoring no existing tool offers",
+    "value_prop": "Look up trademark status, prosecution timelines, and documents from the USPTO TSDR API. Track maintenance deadlines, monitor portfolio changes, and batch-check marks — all with a local SQLite cache for offline search. Works with the TSDR Data API at tsdrapi.uspto.gov.",
+    "auth_narrative": "Get a free API key from account.uspto.gov/api-manager (requires a MyUSPTO account). Note: TSDR uses a separate key from the patent Open Data Portal. Set it with `export TSDR_APIKEY_HEADER=your-key`. Run `doctor` to verify connectivity.",
+    "quickstart": [
+      {
+        "command": "uspto-tsdr-pp-cli doctor",
+        "comment": "Verify your API key and TSDR connectivity"
+      },
+      {
+        "command": "uspto-tsdr-pp-cli trademark status 97123456",
+        "comment": "Look up a trademark by serial number"
+      },
+      {
+        "command": "uspto-tsdr-pp-cli trademark timeline 97123456",
+        "comment": "See the full prosecution timeline"
+      },
+      {
+        "command": "uspto-tsdr-pp-cli trademark deadlines 97123456",
+        "comment": "Check maintenance deadlines"
+      },
+      {
+        "command": "uspto-tsdr-pp-cli trademark watch 97123456 97654321 --json",
+        "comment": "Monitor marks for status changes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Set TSDR_APIKEY_HEADER — get a free key at account.uspto.gov/api-manager (requires MyUSPTO account). Note: this is a DIFFERENT key from the patent Open Data Portal."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "TSDR rate limit is 60 req/min (120 off-peak). The CLI throttles automatically; if you see this, wait 60 seconds."
+      },
+      {
+        "symptom": "404 Not Found for a serial number",
+        "fix": "Serial numbers must be exactly 8 digits. The CLI auto-prepends 'sn' — enter just the digits (e.g., 97123456, not sn97123456)."
+      },
+      {
+        "symptom": "XML response instead of JSON",
+        "fix": "The TSDR API defaults to XML. The CLI's novel commands (trademark status/timeline/etc.) use content negotiation to request JSON automatically."
+      }
+    ],
+    "when_to_use": "Use the USPTO TSDR CLI when you need to check trademark application status, review prosecution history, download case documents, track maintenance deadlines, or monitor a portfolio of marks. Best for IP due diligence, trademark portfolio management, opposition monitoring, and deadline tracking. Ideal for agents that need structured trademark data without managing XML parsing or rate limits.",
+    "recipes": [
+      {
+        "title": "Check trademark status",
+        "command": "uspto-tsdr-pp-cli trademark status 97123456 --json --select status,owner,markText",
+        "explanation": "Get the current state of a trademark with key fields"
+      },
+      {
+        "title": "Review prosecution history",
+        "command": "uspto-tsdr-pp-cli trademark timeline 97123456 --json",
+        "explanation": "See every prosecution event in chronological order"
+      },
+      {
+        "title": "Track maintenance deadlines",
+        "command": "uspto-tsdr-pp-cli trademark deadlines 97123456 --json --select type,dueDate,daysAway",
+        "explanation": "Calculate Section 8, 9, and 15 deadlines with days-away countdown"
+      },
+      {
+        "title": "Monitor a portfolio",
+        "command": "uspto-tsdr-pp-cli trademark watch 97123456 97654321 97789012 --json --agent",
+        "explanation": "Check multiple marks and flag any status changes since last run"
+      }
+    ],
+    "trigger_phrases": [
+      "check trademark status",
+      "trademark prosecution history",
+      "trademark deadlines",
+      "trademark portfolio",
+      "use tsdr",
+      "trademark documents"
+    ]
+  }
+}

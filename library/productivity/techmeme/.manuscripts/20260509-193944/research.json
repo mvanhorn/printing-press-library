@@ -1,0 +1,221 @@
+{
+  "api_name": "techmeme",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T19:39:00Z",
+  "novel_features": [
+    {
+      "name": "What Did I Miss",
+      "command": "since",
+      "description": "See every tech headline from the last N hours — the perfect catch-up when you've been away",
+      "rationale": "Requires time-indexed local cache of river headlines that the website doesn't offer as a single filtered view",
+      "example": "techmeme-pp-cli since 4h --agent",
+      "why_it_matters": "When an agent needs to brief a user on what happened in tech while they were in meetings, this is the single command that answers it",
+      "group": "Time intelligence"
+    },
+    {
+      "name": "Topic Tracker",
+      "command": "track",
+      "description": "Save topics and get alerts when they hit Techmeme — persistent monitoring without browser tabs",
+      "rationale": "Requires local topic registry and match-on-sync logic that doesn't exist in any Techmeme interface",
+      "example": "techmeme-pp-cli track add 'OpenAI' \u0026\u0026 techmeme-pp-cli track check --agent",
+      "why_it_matters": "Agents monitoring specific companies or technologies can subscribe to exactly what matters without polling the full feed",
+      "group": "Persistent monitoring"
+    },
+    {
+      "name": "Source Rankings",
+      "command": "sources",
+      "description": "See which publications dominate Techmeme and track source frequency over time",
+      "rationale": "Combines OPML leaderboard data with locally cached headline-source attribution for frequency analysis",
+      "example": "techmeme-pp-cli sources --top 20 --agent",
+      "why_it_matters": "When analyzing media landscape or choosing which publications to prioritize, this gives hard data on source influence",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Trending Topics",
+      "command": "trending",
+      "description": "Extract the hottest topics from recent headlines using frequency analysis on cached data",
+      "rationale": "Requires NLP-lite term extraction across many headlines — only possible with local data",
+      "example": "techmeme-pp-cli trending --hours 24 --agent",
+      "why_it_matters": "When an agent needs to answer 'what's hot in tech right now' with data instead of vibes",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Daily Digest",
+      "command": "digest",
+      "description": "Get a day's tech news grouped by topic — the briefing you'd write if you had time",
+      "rationale": "Requires grouping headlines by topic similarity from the local cache, which no single page provides",
+      "example": "techmeme-pp-cli digest --date 2026-05-08 --agent",
+      "why_it_matters": "When an agent needs to produce a tech news briefing for a specific date, this structures raw headlines into a readable summary",
+      "group": "Time intelligence"
+    },
+    {
+      "name": "Story Velocity",
+      "command": "velocity",
+      "description": "Find stories that are blowing up — multiple sources covering the same topic in a short window",
+      "rationale": "Requires time-series analysis of headline clusters from cached data — the website shows importance but not acceleration",
+      "example": "techmeme-pp-cli velocity --agent",
+      "why_it_matters": "When an agent needs to identify breaking news vs steady coverage, velocity shows what's accelerating now",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Author Spotlight",
+      "command": "author",
+      "description": "Find all Techmeme headlines by a specific journalist across the cached archive",
+      "rationale": "Requires cross-source author index built from parsed river data — the website has no author search",
+      "example": "techmeme-pp-cli author 'Kara Swisher' --agent",
+      "why_it_matters": "When tracking a specific journalist's coverage or building a media contact list, this surfaces their Techmeme footprint",
+      "group": "News intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "What Did I Miss",
+      "command": "since",
+      "description": "See every tech headline from the last N hours — the perfect catch-up when you've been away",
+      "rationale": "Requires time-indexed local cache of river headlines that the website doesn't offer as a single filtered view",
+      "example": "techmeme-pp-cli since 4h --agent",
+      "why_it_matters": "When an agent needs to brief a user on what happened in tech while they were in meetings, this is the single command that answers it",
+      "group": "Time intelligence"
+    },
+    {
+      "name": "Topic Tracker",
+      "command": "track",
+      "description": "Save topics and get alerts when they hit Techmeme — persistent monitoring without browser tabs",
+      "rationale": "Requires local topic registry and match-on-sync logic that doesn't exist in any Techmeme interface",
+      "example": "techmeme-pp-cli track add 'OpenAI' \u0026\u0026 techmeme-pp-cli track check --agent",
+      "why_it_matters": "Agents monitoring specific companies or technologies can subscribe to exactly what matters without polling the full feed",
+      "group": "Persistent monitoring"
+    },
+    {
+      "name": "Source Rankings",
+      "command": "sources",
+      "description": "See which publications dominate Techmeme and track source frequency over time",
+      "rationale": "Combines OPML leaderboard data with locally cached headline-source attribution for frequency analysis",
+      "example": "techmeme-pp-cli sources --top 20 --agent",
+      "why_it_matters": "When analyzing media landscape or choosing which publications to prioritize, this gives hard data on source influence",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Trending Topics",
+      "command": "trending",
+      "description": "Extract the hottest topics from recent headlines using frequency analysis on cached data",
+      "rationale": "Requires NLP-lite term extraction across many headlines — only possible with local data",
+      "example": "techmeme-pp-cli trending --hours 24 --agent",
+      "why_it_matters": "When an agent needs to answer 'what's hot in tech right now' with data instead of vibes",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Daily Digest",
+      "command": "digest",
+      "description": "Get a day's tech news grouped by topic — the briefing you'd write if you had time",
+      "rationale": "Requires grouping headlines by topic similarity from the local cache, which no single page provides",
+      "example": "techmeme-pp-cli digest --date 2026-05-08 --agent",
+      "why_it_matters": "When an agent needs to produce a tech news briefing for a specific date, this structures raw headlines into a readable summary",
+      "group": "Time intelligence"
+    },
+    {
+      "name": "Story Velocity",
+      "command": "velocity",
+      "description": "Find stories that are blowing up — multiple sources covering the same topic in a short window",
+      "rationale": "Requires time-series analysis of headline clusters from cached data — the website shows importance but not acceleration",
+      "example": "techmeme-pp-cli velocity --agent",
+      "why_it_matters": "When an agent needs to identify breaking news vs steady coverage, velocity shows what's accelerating now",
+      "group": "News intelligence"
+    },
+    {
+      "name": "Author Spotlight",
+      "command": "author",
+      "description": "Find all Techmeme headlines by a specific journalist across the cached archive",
+      "rationale": "Requires cross-source author index built from parsed river data — the website has no author search",
+      "example": "techmeme-pp-cli author 'Kara Swisher' --agent",
+      "why_it_matters": "When tracking a specific journalist's coverage or building a media contact list, this surfaces their Techmeme footprint",
+      "group": "News intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Techmeme",
+    "headline": "Every Techmeme headline, searchable and cached locally — plus topic tracking, trending analysis, and catch-up workflows no other tool has.",
+    "value_prop": "The Techmeme CLI puts the tech industry's most trusted news curation into your terminal. Sync headlines to a local SQLite store, then search, filter by time, track topics, and analyze which stories and sources are dominating. The 'since' command answers the question every tech professional asks: 'what did I miss?'",
+    "quickstart": [
+      {
+        "command": "techmeme-pp-cli headlines",
+        "comment": "See today's top tech headlines"
+      },
+      {
+        "command": "techmeme-pp-cli sync",
+        "comment": "Sync 5 days of headlines to local SQLite"
+      },
+      {
+        "command": "techmeme-pp-cli since 4h",
+        "comment": "What happened in the last 4 hours?"
+      },
+      {
+        "command": "techmeme-pp-cli search 'Apple AI'",
+        "comment": "Search all cached headlines"
+      },
+      {
+        "command": "techmeme-pp-cli trending",
+        "comment": "What topics are hot right now?"
+      },
+      {
+        "command": "techmeme-pp-cli sources --top 10",
+        "comment": "Which publications lead the coverage?"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results from 'since' or 'search'",
+        "fix": "Run 'techmeme-pp-cli sync' first to populate the local cache from the 5-day river archive"
+      },
+      {
+        "symptom": "Only 15 headlines from 'headlines'",
+        "fix": "The RSS feed only carries 15 items. Use 'river' or 'sync' for the full 5-day archive (150+ headlines)"
+      },
+      {
+        "symptom": "Search finds nothing for a recent topic",
+        "fix": "The search endpoint indexes Techmeme headlines only — topics that haven't made Techmeme's curated feed won't appear"
+      }
+    ],
+    "when_to_use": "Use the Techmeme CLI when you need curated, authoritative tech news without opening a browser. Ideal for morning catch-up ('since 8h'), topic monitoring ('track add OpenAI'), source analysis ('sources'), and AI agents that need to answer 'what's happening in tech right now' with structured data.",
+    "recipes": [
+      {
+        "title": "Morning briefing",
+        "command": "techmeme-pp-cli since 12h --agent --select title,source,time",
+        "explanation": "Catch up on overnight tech news with just the essentials — title, source, and timestamp"
+      },
+      {
+        "title": "Track a company",
+        "command": "techmeme-pp-cli search 'Apple' --agent --select title,source,link",
+        "explanation": "Find all recent Techmeme headlines about Apple"
+      },
+      {
+        "title": "Media landscape",
+        "command": "techmeme-pp-cli sources --top 20 --agent",
+        "explanation": "See which 20 publications dominate Techmeme's curated feed"
+      },
+      {
+        "title": "Breaking news detection",
+        "command": "techmeme-pp-cli velocity --agent",
+        "explanation": "Find stories gaining momentum — multiple sources in a short window"
+      },
+      {
+        "title": "Daily summary",
+        "command": "techmeme-pp-cli digest --agent",
+        "explanation": "Today's tech news grouped by topic for a quick read"
+      }
+    ],
+    "trigger_phrases": [
+      "what's happening in tech",
+      "tech news today",
+      "check techmeme",
+      "what did I miss in tech",
+      "trending tech stories",
+      "use techmeme",
+      "run techmeme"
+    ]
+  }
+}

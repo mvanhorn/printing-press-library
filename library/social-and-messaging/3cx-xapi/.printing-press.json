@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-28T05:55:14.0400431Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "3cx-xapi",
+  "display_name": "3CX XAPI",
+  "cli_name": "3cx-xapi-pp-cli",
+  "creator": {
+    "handle": "therichardgill",
+    "name": "Richard Gill"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "printer": "therichardgill",
+  "printer_name": "Richard Gill",
+  "spec_format": "openapi3",
+  "spec_source": "spec.yaml",
+  "spec_checksum": "sha256:88af812273fb972cfe75e26db0f6cc729f00d393814f2103e82fa2d280a40452",
+  "run_id": "20260627-211721-11cc9df1",
+  "category": "social-and-messaging",
+  "description": "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has.",
+  "mcp_binary": "3cx-xapi-pp-mcp",
+  "mcp_tool_count": 589,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "Application",
+  "auth_env_vars": [
+    "TCX_CLIENT_ID",
+    "TCX_CLIENT_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Config integrity audit",
+      "command": "audit",
+      "description": "Flag every ring group, queue, inbound/outbound rule, and IVR destination that points at a deleted, disabled, or non-existent extension or DID."
+    },
+    {
+      "name": "Config snapshot and diff",
+      "command": "diff",
+      "description": "Capture the full PBX config to a local snapshot, then show exactly what changed between two points in time or two tenants."
+    },
+    {
+      "name": "Bulk provision from CSV",
+      "command": "provision",
+      "description": "Idempotently create extensions and users from a CSV, assigning groups and roles, with a dry-run plan and typed exit codes."
+    },
+    {
+      "name": "Queue and agent performance rollup",
+      "command": "qrollup",
+      "description": "One cross-queue table joining queue performance, agent-in-queue stats, abandoned calls, and SLA breaches over a time window."
+    },
+    {
+      "name": "Offline directory search",
+      "command": "search",
+      "description": "Instant full-text search across the mirrored config graph (users, groups, ring groups, queues, trunks, DIDs, contacts) by number, name, email, or extension."
+    },
+    {
+      "name": "Security posture report",
+      "command": "posture",
+      "description": "Consolidate blocklist, blacklisted numbers, anti-hacking settings, firewall state, failed-auth events, and the admin audit log into one attack-surface report."
+    },
+    {
+      "name": "Extension routing trace",
+      "command": "trace",
+      "description": "For one extension, show every inbound rule, ring group, queue, DID, and forwarding profile that routes to it."
+    },
+    {
+      "name": "Live state merge",
+      "command": "changed",
+      "description": "A single time-windowed feed merging activity log, event log, active calls, and system status into the state of the PBX now or since a given time."
+    }
+  ]
+}

@@ -1,0 +1,1212 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "On-Air API",
+    "description": "The Roam HQ On-Air API lets you create and manage events, guest lists, RSVPs, and attendance programmatically. Build custom registration flows, sync with external event platforms, or automate your community event operations.\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n\n## Concepts\n\n### Events\n\nAn **event** represents a scheduled gathering — virtual or in-person — hosted through Roam. Each event has a title, start/end time, time zone, and an automatically generated **event page** where guests can view details and RSVP.\n\nEvents have a **slug** (e.g. `product-launch`) that determines the event page URL. Slugs are unique within your organization and are generated automatically if not provided.\n\n**Event settings:**\n\n| Setting | Description |\n|---------|-------------|\n| `autoAdmit` | When `true` (default), guests who RSVP'd \"going\" are automatically admitted to the Roam room. When `false`, a host must manually approve each guest. |\n| `disableRSVP` | When `true`, the event page is view-only — guests cannot RSVP. Useful for when events have reached your determined capacity. |\n| `enableSEO` | When `true`, the event page is indexed by search engines. Set to `false` for private or internal events. |\n\n**Event lifecycle:** Events are active from creation until canceled. There is no explicit \"ended\" state — whether an event has concluded is determined by comparing the current time against its `end` timestamp.\n\n### Guests\n\nA **guest** is a person on an event's invite list. Guests are identified by email and have an **RSVP status**:\n\n| Status | Meaning |\n|--------|---------|\n| `invited` | Added to the guest list but hasn't responded |\n| `going` | Confirmed attending |\n| `maybe` | Tentatively attending |\n| `notGoing` | Declined |\n\nGuests with status `going` or `maybe` receive calendar invites and reminder notifications. Use [`/onair.guest.add`](/docs/onair-api/onair-guest-add) to add guests in bulk and [`/onair.guest.update`](/docs/onair-api/onair-guest-update) to change their RSVP status.\n\n### Hosts\n\nOn-Air separates two host concepts:\n\n- **Calendar host** (`calendarHostEmail`): the person who owns the calendar event. They manage invites and reminders. Set when creating the event and changeable via [`/onair.event.update`](/docs/onair-api/onair-event-update). The calendar host email is not included in the event response.\n- **Display hosts** (`hosts[]`): the people shown on the event page. Each has a name and optional avatar image. Display hosts are independent of the calendar host — they can be anyone.\n\nDisplay hosts are set when creating or updating the event via the `hosts` field. They are returned in the event response from [`/onair.event.info`](/docs/onair-api/onair-event-info). The host order is set by the event organizer.\n\n### Attendance\n\nThe **attendance report** ([`/onair.attendance.list`](/docs/onair-api/onair-attendance-list)) combines RSVP data with actual join data. Each row includes:\n\n- **RSVP fields:** email, name, phone, RSVP status, custom form responses\n- **Join fields:** `joinStart` (when they joined), `joinDurationMinutes` (how long they stayed)\n\nGuests who RSVP'd are listed first, followed by any attendees who joined the event without an RSVP. A person \"attended\" if they have a `joinStart` timestamp.\n\nCustom form responses (`customResponses`) contain answers to event-specific registration fields (e.g. dietary restrictions, company name, session preferences) as key-value pairs.\n\n## Endpoints\n\n### Events\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/onair.event.info`](/docs/onair-api/onair-event-info) | GET | Get details for an event |\n| [`/onair.event.list`](/docs/onair-api/onair-event-list) | GET | List events (most recent first) |\n| [`/onair.event.create`](/docs/onair-api/onair-event-create) | POST | Create a new event |\n| [`/onair.event.update`](/docs/onair-api/onair-event-update) | POST | Update an event |\n| [`/onair.event.cancel`](/docs/onair-api/onair-event-cancel) | POST | Cancel an event |\n\n### Guests\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/onair.guest.info`](/docs/onair-api/onair-guest-info) | GET | Get details for a guest |\n| [`/onair.guest.list`](/docs/onair-api/onair-guest-list) | GET | List guests for an event (newest first) |\n| [`/onair.guest.add`](/docs/onair-api/onair-guest-add) | POST | Add guests to an event |\n| [`/onair.guest.update`](/docs/onair-api/onair-guest-update) | POST | Update a guest's RSVP status |\n| [`/onair.guest.remove`](/docs/onair-api/onair-guest-remove) | POST | Remove a guest from an event |\n\n### Attendance\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/onair.attendance.list`](/docs/onair-api/onair-attendance-list) | GET | Get attendance report for an event |\n\n## Common Use Cases\n\n### Sync with External Event Platforms\nReplace or complement platforms like Luma by managing events through the API. Create events, import guest lists, and track RSVPs in your own system.\n\n### Custom Registration Flows\nBuild branded registration pages that add guests via [`/onair.guest.add`](/docs/onair-api/onair-guest-add) and receive real-time RSVP updates through [`onair.guest.rsvp`](/docs/webhooks/onair-guest-rsvp) webhooks.\n\n### Attendance Reporting\nPull attendance data with [`/onair.attendance.list`](/docs/onair-api/onair-attendance-list) to track who joined, how long they stayed, and correlate with RSVP status.\n\n## Webhooks\n\nOn-Air events are available as real-time webhooks. Subscribe via the [Events API](/docs/webhooks/roam-hq-events-api-alpha):\n\n| Event | Description |\n|-------|-------------|\n| [`onair.event.created`](/docs/webhooks/onair-event-created) | Event is created |\n| [`onair.event.updated`](/docs/webhooks/onair-event-updated) | Event is updated |\n| [`onair.event.canceled`](/docs/webhooks/onair-event-canceled) | Event is canceled |\n| [`onair.guest.rsvp`](/docs/webhooks/onair-guest-rsvp) | Guest RSVP status changed |\n| [`onair.guest.added`](/docs/webhooks/onair-guest-added) | Guest(s) added to an event |\n\n## Authentication\n\nAll requests require a Bearer token. Create an API Key or OAuth app in **Roam Administration > Developer**.\n\n```\nAuthorization: Bearer YOUR_API_KEY\n```\n\n## Base URL\n\n```\nhttps://api.ro.am/v1\n```\n\n## Pagination\n\nList endpoints use cursor-based pagination. Pass the `nextCursor` value from a response as the `cursor` parameter on the next request to fetch the next page. When there are no more results, `nextCursor` is absent from the response.\n\n---\nHave questions? Contact us via [Roam Support Chat](https://ro.am/support/contact-us) or email [developer@ro.am](mailto:developer@ro.am).\n",
+    "version": "1.0",
+    "termsOfService": "https://ro.am/terms",
+    "contact": {
+      "name": "Developer Support",
+      "email": "developer@ro.am",
+      "url": "https://developer.ro.am"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.ro.am/v1",
+      "description": "Production Server"
+    }
+  ],
+  "externalDocs": {
+    "description": "On-Air API Documentation",
+    "url": "https://developer.ro.am/docs/onair-api"
+  },
+  "paths": {
+    "/onair.event.info": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get event info",
+        "description": "Returns details for a single On-Air event.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:read`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.event.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The event identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnAirEvent"
+                },
+                "example": {
+                  "id": "evt_abc123",
+                  "title": "Q1 All Hands",
+                  "description": "Quarterly company all-hands meeting",
+                  "slug": "q1-all-hands",
+                  "start": "2026-04-01T14:00:00Z",
+                  "end": "2026-04-01T15:00:00Z",
+                  "timeZone": "America/New_York",
+                  "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                  "joinLinkUrl": "https://ro.am/j/abc123",
+                  "enableSEO": true,
+                  "autoAdmit": false,
+                  "disableRSVP": false,
+                  "hosts": [
+                    {
+                      "id": "host_1",
+                      "displayName": "Jane Smith",
+                      "displayImageUrl": "https://example.com/jane.jpg"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.event.list": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "List events",
+        "description": "Returns a paginated list of On-Air events for the organization.\n\nResults are sorted by start time in descending order (most recent first).\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:read`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.event.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Pagination cursor from a previous response's `nextCursor`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Maximum number of events to return (default 50)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of events.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OnAirEvent"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Cursor to fetch the next page. Absent when there are no more results."
+                    }
+                  }
+                },
+                "example": {
+                  "events": [
+                    {
+                      "id": "evt_abc123",
+                      "title": "Q1 All Hands",
+                      "slug": "q1-all-hands",
+                      "start": "2026-04-01T14:00:00Z",
+                      "end": "2026-04-01T15:00:00Z",
+                      "timeZone": "America/New_York",
+                      "eventPageUrl": "https://ro.am/e/q1-all-hands",
+                      "enableSEO": true,
+                      "autoAdmit": false,
+                      "disableRSVP": false,
+                      "hosts": []
+                    }
+                  ],
+                  "nextCursor": "eyJpZCI6ImV2dF9hYmMxMjMifQ"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.event.create": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create an event",
+        "description": "Creates a new On-Air event. The calendar host must be a member of the organization.\nWhen using a personal access token, `calendarHostEmail` must match the authenticated user.\n\nOptionally provide display hosts in the `hosts` array. Display hosts appear on\nthe event page and are independent of the calendar host.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.event.create",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnAirEventCreateRequest"
+              },
+              "example": {
+                "title": "Q1 All Hands",
+                "description": "Quarterly company all-hands meeting",
+                "calendarHostEmail": "jane@example.com",
+                "hosts": [
+                  {
+                    "name": "Jane Smith",
+                    "imageUrl": "https://example.com/jane.jpg"
+                  }
+                ],
+                "start": "2026-04-01T14:00:00Z",
+                "end": "2026-04-01T15:00:00Z",
+                "timeZone": "America/New_York",
+                "enableSEO": true,
+                "autoAdmit": false,
+                "disableRSVP": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnAirEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.event.update": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Update an event",
+        "description": "Updates an existing On-Air event. Only the fields provided in the request body\nare updated; omitted fields remain unchanged.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.event.update",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnAirEventUpdateRequest"
+              },
+              "example": {
+                "id": "evt_abc123",
+                "title": "Q1 All Hands (Updated)",
+                "start": "2026-04-01T15:00:00Z",
+                "end": "2026-04-01T16:00:00Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnAirEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.event.cancel": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Cancel an event",
+        "description": "Cancels an On-Air event. This action cannot be undone.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.event.cancel",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier of the event to cancel."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              },
+              "example": {
+                "id": "evt_abc123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Event canceled successfully."
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.guest.info": {
+      "get": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Get guest info",
+        "description": "Returns details for a single On-Air event guest.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:read`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.guest.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The guest identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Guest details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnAirGuest"
+                },
+                "example": {
+                  "id": "gst_xyz789",
+                  "eventId": "evt_abc123",
+                  "email": "alice@example.com",
+                  "name": "Alice Johnson",
+                  "status": "going",
+                  "created": "2026-03-15T10:00:00Z",
+                  "updated": "2026-03-15T12:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.guest.list": {
+      "get": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "List guests",
+        "description": "Returns a paginated list of guests for an On-Air event. Optionally filter by RSVP status.\n\nResults are sorted by creation time in descending order (most recently added first).\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:read`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.guest.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The event identifier."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "invited",
+                "going",
+                "maybe",
+                "notGoing"
+              ]
+            },
+            "description": "Filter by RSVP status."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Pagination cursor from a previous response's `nextCursor`."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            },
+            "description": "Maximum number of guests to return (default 100)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of guests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "guests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OnAirGuest"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Cursor to fetch the next page. Absent when there are no more results."
+                    }
+                  }
+                },
+                "example": {
+                  "guests": [
+                    {
+                      "id": "gst_xyz789",
+                      "eventId": "evt_abc123",
+                      "email": "alice@example.com",
+                      "name": "Alice Johnson",
+                      "status": "going",
+                      "created": "2026-03-15T10:00:00Z",
+                      "updated": "2026-03-15T12:00:00Z"
+                    }
+                  ],
+                  "nextCursor": "eyJpZCI6ImdzdF94eXo3ODkifQ"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.guest.add": {
+      "post": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Add guests",
+        "description": "Adds one or more guests to an On-Air event.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.guest.add",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnAirGuestAddRequest"
+              },
+              "example": {
+                "eventId": "evt_abc123",
+                "guests": [
+                  {
+                    "email": "alice@example.com",
+                    "name": "Alice Johnson",
+                    "status": "going"
+                  },
+                  {
+                    "email": "bob@example.com",
+                    "name": "Bob Williams"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The added guests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "guests": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OnAirGuest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.guest.update": {
+      "post": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Update guest RSVP",
+        "description": "Updates the RSVP status of a guest.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.guest.update",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier of the guest to update."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "New RSVP status.",
+                    "enum": [
+                      "invited",
+                      "going",
+                      "maybe",
+                      "notGoing"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "status"
+                ]
+              },
+              "example": {
+                "id": "gst_xyz789",
+                "status": "going"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated guest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnAirGuest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.guest.remove": {
+      "post": {
+        "tags": [
+          "Guests"
+        ],
+        "summary": "Remove a guest",
+        "description": "Removes a guest from an On-Air event.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:write`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.guest.remove",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier of the guest to remove."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              },
+              "example": {
+                "id": "gst_xyz789"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Guest removed successfully."
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/onair.attendance.list": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "List attendance",
+        "description": "Returns the attendance report for an On-Air event, combining RSVP data with\njoin/duration information. Guests with RSVP records are listed first,\nfollowed by any additional attendees who joined without an RSVP.\n\n**Access:** Organization and Personal.\n\n**Required scope:** `onair:read`\n\n---\n\n**OpenAPI Spec:** [onair.json](https://developer.ro.am/onair.json)\n",
+        "operationId": "onair.attendance.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The event identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attendance report for the event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OnAirAttendee"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "attendees": [
+                    {
+                      "email": "alice@example.com",
+                      "name": "Alice Johnson",
+                      "rsvpStatus": "going",
+                      "created": 1711929600000,
+                      "rsvpLastUpdate": 1711936800000,
+                      "joinDurationMinutes": 55.3,
+                      "joinStart": 1711980000000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occurred.",
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Pass your API Key or OAuth access token as a Bearer token.\nExample: `Authorization: Bearer <token>`\n"
+      }
+    },
+    "schemas": {
+      "OnAirHost": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the host."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the host."
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the host's profile image."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "OnAirEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the event."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the event."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event."
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly slug for the event."
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start time of the event (RFC 3339)."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End time of the event (RFC 3339)."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone identifier (e.g. `America/New_York`)."
+          },
+          "eventPageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public URL of the event page."
+          },
+          "joinLinkUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for joining the event."
+          },
+          "enableSEO": {
+            "type": "boolean",
+            "description": "Whether the event page is indexed by search engines."
+          },
+          "autoAdmit": {
+            "type": "boolean",
+            "description": "Whether guests are automatically admitted when they join."
+          },
+          "disableRSVP": {
+            "type": "boolean",
+            "description": "Whether RSVPs are disabled for this event."
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OnAirHost"
+            },
+            "description": "List of hosts for the event."
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "start",
+          "end",
+          "timeZone",
+          "eventPageUrl",
+          "enableSEO",
+          "autoAdmit",
+          "disableRSVP",
+          "hosts"
+        ]
+      },
+      "OnAirEventCreateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the event."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the event."
+          },
+          "calendarHostEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Email of the calendar host who manages invites and reminders. Must be a member of the organization. Personal tokens can only specify the authenticated user's email."
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Display name of the host."
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "URL of the host's profile image."
+                }
+              }
+            },
+            "maxItems": 6,
+            "description": "Display hosts shown on the event page (maximum 6). Optional — if omitted, no display hosts are added."
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start time of the event (RFC 3339)."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End time of the event (RFC 3339)."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone identifier (e.g. `America/New_York`)."
+          },
+          "enableSEO": {
+            "type": "boolean",
+            "description": "Whether the event page is indexed by search engines."
+          },
+          "autoAdmit": {
+            "type": "boolean",
+            "description": "Whether guests are automatically admitted when they join."
+          },
+          "disableRSVP": {
+            "type": "boolean",
+            "description": "Whether RSVPs are disabled for this event."
+          }
+        },
+        "required": [
+          "title",
+          "calendarHostEmail",
+          "start",
+          "end",
+          "timeZone"
+        ]
+      },
+      "OnAirEventUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier of the event to update."
+          },
+          "title": {
+            "type": "string",
+            "description": "Updated title of the event."
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description of the event."
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Updated start time (RFC 3339)."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Updated end time (RFC 3339)."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "Updated IANA time zone identifier (e.g. `America/New_York`)."
+          },
+          "enableSEO": {
+            "type": "boolean",
+            "description": "Whether the event page is indexed by search engines."
+          },
+          "autoAdmit": {
+            "type": "boolean",
+            "description": "Whether guests are automatically admitted when they join."
+          },
+          "calendarHostEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "Updated email of the calendar host."
+          },
+          "disableRSVP": {
+            "type": "boolean",
+            "description": "Whether RSVPs are disabled for this event."
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Display name of the host."
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "URL of the host's profile image."
+                }
+              }
+            },
+            "maxItems": 6,
+            "description": "Updated list of display hosts shown on the event page (maximum 6). Replaces all existing display hosts."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "OnAirGuest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the guest."
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Identifier of the event this guest belongs to."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the guest."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the guest."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number of the guest."
+          },
+          "status": {
+            "type": "string",
+            "description": "RSVP status of the guest.",
+            "enum": [
+              "invited",
+              "going",
+              "maybe",
+              "notGoing"
+            ]
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the guest was added (RFC 3339)."
+          },
+          "updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the guest record was last updated (RFC 3339)."
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "status"
+        ]
+      },
+      "OnAirGuestAddRequest": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "Identifier of the event to add guests to."
+          },
+          "guests": {
+            "type": "array",
+            "description": "List of guests to add.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Email address of the guest."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Display name of the guest."
+                },
+                "phone": {
+                  "type": "string",
+                  "description": "Phone number of the guest."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Initial RSVP status. Defaults to `invited` if omitted.",
+                  "enum": [
+                    "invited",
+                    "going",
+                    "maybe",
+                    "notGoing"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ]
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "guests"
+        ]
+      },
+      "OnAirAttendee": {
+        "type": "object",
+        "description": "Attendance report row for an On-Air event, combining RSVP and join data.",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the attendee."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the attendee."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number of the attendee."
+          },
+          "rsvpStatus": {
+            "type": "string",
+            "description": "RSVP status of the attendee.",
+            "enum": [
+              "invited",
+              "going",
+              "maybe",
+              "notGoing"
+            ]
+          },
+          "created": {
+            "type": "number",
+            "description": "When the attendee was added (Unix milliseconds)."
+          },
+          "rsvpLastUpdate": {
+            "type": "number",
+            "description": "When the RSVP status was last changed (Unix milliseconds)."
+          },
+          "joinDurationMinutes": {
+            "type": "number",
+            "description": "Total minutes the attendee was joined to the event."
+          },
+          "joinStart": {
+            "type": "number",
+            "description": "When the attendee first joined the event (Unix milliseconds)."
+          },
+          "customResponses": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom form responses submitted by the attendee."
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "A description of the error."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

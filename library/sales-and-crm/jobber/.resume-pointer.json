@@ -1,0 +1,96 @@
+{
+  "status": "paused",
+  "paused_at": "2026-05-24T00:00:00Z",
+  "paused_phase": "phase-2-scope-locked-pending-emit-path-decision",
+  "codex_mode": true,
+  "api_name": "jobber",
+  "run_id": "20260522-234028",
+  "press_version": "4.9.0",
+  "press_scope": "jobber-cf0f9d34",
+  "runstate_dir": "C:\\Users\\melan\\printing-press\\.runstate\\jobber-cf0f9d34\\runs\\20260522-234028",
+  "preservation_dir": "C:\\Users\\melan\\printing-press\\library\\jobber",
+  "handoff_doc": "C:\\Users\\melan\\printing-press\\library\\jobber\\HANDOFF.md",
+  "schema_research_dir": "C:\\Users\\melan\\Documents\\Bouvier_Advisors\\assignments\\CRMs\\Jobber\\schema",
+  "auth": {
+    "type": "oauth2_authorization_code",
+    "refresh_token_rotation": true,
+    "env_vars": [
+      "JOBBER_CLIENT_ID",
+      "JOBBER_CLIENT_SECRET",
+      "JOBBER_CALLBACK_URL",
+      "JOBBER_ACCESS_TOKEN",
+      "JOBBER_REFRESH_TOKEN",
+      "JOBBER_GRAPHQL_VERSION"
+    ],
+    "last_refresh_at": "2026-05-24T04:56:31Z",
+    "graphql_version": "2025-04-16",
+    "callback_url": "http://localhost:8080/jobber/callback",
+    "verified_account_query": true
+  },
+  "phases_completed": [
+    "phase-0-resolve",
+    "phase-1-research-brief",
+    "phase-1.5-absorb-gate",
+    "phase-1.6-auth-intel",
+    "phase-1.7-browser-sniff-gate",
+    "phase-1.9-reachability"
+  ],
+  "phases_remaining": [
+    "phase-2-generate",
+    "phase-3-build-novel-features",
+    "phase-4-shipcheck",
+    "phase-4.8-skill-review",
+    "phase-4.85-output-review",
+    "phase-4.9-readme-skill-audit",
+    "phase-4.95-native-code-review",
+    "phase-5-live-dogfood",
+    "phase-5.5-polish",
+    "phase-5.6-promote-archive",
+    "phase-6-next-steps"
+  ],
+  "manifest_summary": {
+    "absorbed_features_count": 20,
+    "novel_features_count": 8,
+    "rejected_mutations_count": 7,
+    "total_planned_loc": 2500,
+    "all_novel_tagged": "hand-code"
+  },
+  "scope_locked": {
+    "locked_at": "2026-05-24",
+    "locked_by_user": true,
+    "session_persona": "mark-bap-heritage-ar-and-pipeline",
+    "absorbed_in_scope": ["A1", "A2", "A3", "A5", "A6", "A7", "A8", "A9", "A10", "A17", "A18", "A19", "A20"],
+    "novel_in_scope": ["N1", "N2", "N7"],
+    "absorbed_dropped": ["A4", "A11", "A12", "A13", "A14", "A15", "A16"],
+    "novel_dropped": ["N3", "N4", "N5", "N6", "N8"],
+    "dropped_rationale": {
+      "A12_A13_A14_N4": "Expenses are not recorded in the user's system; labor cost dimension removed wholesale. A14 users was only a join key for that dimension.",
+      "A4_N6_start_at_quote": "Requests stage cut; funnel (if later added) starts at quote.",
+      "A15_A16": "No line-item/tax analysis planned in v1.",
+      "A11_N3": "Open question — Heritage may not use Jobber Payments. If they do, re-add the payouts pair; A11 is XS and N3 is S-M."
+    },
+    "additions_above_minimal_viable": {
+      "A3_A8": "Added to make clients-get and jobs-get --expand flags fully functional.",
+      "N2": "Natural AR companion to N1 ar-aging; works without payouts (drops payout-ref column).",
+      "N7": "Highest-value novel for Mark persona — weekly snapshot/diff is the explicit Heritage ritual."
+    },
+    "final_command_count": 16,
+    "command_list": [
+      "doctor", "sync", "search", "sql",
+      "clients list", "clients get",
+      "properties list",
+      "quotes list",
+      "jobs list", "jobs get",
+      "visits list",
+      "invoices list", "invoices trace",
+      "payment-records list",
+      "ar aging",
+      "snapshot diff"
+    ],
+    "hand_code_budget_loc": "300-500 (sync engine dominates; ar-aging + invoices-trace + snapshot-diff each ~100-150)"
+  },
+  "open_decisions": {
+    "payouts_pair": "User to confirm whether Heritage reconciles Jobber Payments deposits to bank. If yes, add A11 payout-records (XS) + N3 payouts reconcile (S-M).",
+    "graphql_rest_emit_path": "Press emits REST-shaped Go (client.Get(path)); Jobber is GraphQL-only. Two routes: (a) override emit path with GraphQL-aware templates, (b) fake REST paths like /v1/{resource} and post-generation rewrite of the transport layer. Decision is the next blocker before printing-press generate runs."
+  }
+}

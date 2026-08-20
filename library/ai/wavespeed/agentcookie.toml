@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "wavespeed-pp-cli"
+display_name = "WaveSpeed"
+description = "Docs-derived OpenAPI spec for WaveSpeed AI's REST API."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/wavespeed-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WAVESPEED_API_KEY = true

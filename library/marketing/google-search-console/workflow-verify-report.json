@@ -1,0 +1,8 @@
+{
+  "dir": "/home/mattr/printing-press/library/google-search-console",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

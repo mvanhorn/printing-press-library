@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // since: time-windowed diff across LinkedIn + Happenstance. Answers the
 // question "what has changed for me in the last <duration>?". The output is
@@ -44,9 +44,9 @@ func newSinceCmd(flags *rootFlags) *cobra.Command {
 	var perSourceLimit int
 
 	cmd := &cobra.Command{
-		Use:   "since <duration>",
+		Use:         "since <duration>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Time-windowed diff of new items across LinkedIn + Happenstance",
+		Short:       "Time-windowed diff of new items across LinkedIn + Happenstance",
 		Long: `Show what's changed for you in the given time window (e.g. "24h", "7d", "2w").
 
 Duration parsing supports Go's time.ParseDuration forms (h, m, s) plus a

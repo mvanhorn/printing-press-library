@@ -1,0 +1,25 @@
+{
+  "Contacts": [
+    {
+      "ContactID": "c-1",
+      "ContactStatus": "ACTIVE",
+      "EmailAddress": "ap@customer.example",
+      "IsCustomer": true,
+      "IsSupplier": false,
+      "Name": "Acme Customer",
+      "Phones": [
+        {
+          "PhoneNumber": "555-0100"
+        }
+      ]
+    },
+    {
+      "ContactID": "s-1",
+      "ContactStatus": "ACTIVE",
+      "EmailAddress": "billing@supplier.example",
+      "IsCustomer": false,
+      "IsSupplier": true,
+      "Name": "Office Supply Co"
+    }
+  ]
+}

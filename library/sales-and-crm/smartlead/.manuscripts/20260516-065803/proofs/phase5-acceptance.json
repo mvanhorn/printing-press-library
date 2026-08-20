@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "smartlead",
+  "run_id": "20260516-065803",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 133,
+  "tests_passed": 133,
+  "tests_skipped": 134,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

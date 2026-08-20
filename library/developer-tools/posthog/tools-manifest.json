@@ -1,0 +1,37 @@
+{
+  "api_name": "posthog",
+  "base_url": "https://app.posthog.com",
+  "description": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no dashboard exposes.",
+  "mcp_ready": "full",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Bearer %s",
+    "in": "header",
+    "env_vars": ["POSTHOG_PERSONAL_APIKEY_AUTH"],
+    "key_url": "https://app.posthog.com/settings/user-api-keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "posthog_search",
+      "description": "Search PostHog resources — feature flags, experiments, dashboards, insights, persons, cohorts, surveys — by keyword or property. Returns matching records from local cache or live API.",
+      "method": "",
+      "path": "",
+      "params": [
+        {"name": "query", "type": "string", "location": "body", "description": "Search query string", "required": true},
+        {"name": "resource", "type": "string", "location": "body", "description": "Resource type to search (e.g. feature_flags, experiments, persons)", "required": false},
+        {"name": "limit", "type": "integer", "location": "body", "description": "Maximum results to return", "required": false}
+      ]
+    },
+    {
+      "name": "posthog_execute",
+      "description": "Execute any posthog-pp-cli command and return structured JSON output. Supports the full command surface including novel compound analytics: flags blast-radius, flags rollout-health, llm cost-attribution, persons at-risk, events property-drift, experiments pre-check, flags stale, dashboard health.",
+      "method": "",
+      "path": "",
+      "params": [
+        {"name": "command", "type": "string", "location": "body", "description": "Full CLI command to execute (e.g. 'flags blast-radius --key my-flag --json')", "required": true}
+      ]
+    }
+  ]
+}

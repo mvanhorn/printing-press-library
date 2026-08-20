@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "scientific-consensus",
+  "cli_name": "scientific-consensus-pp-cli",
+  "version": "2026.8.3",
+  "released_at": "2026-08-18T18:58:49Z",
+  "source_commit": "54e2a636de822ae1339ee8b7654eaef7297740bd",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260620-165352-e55cec69",
+  "changes": [
+    {
+      "title": "feat(scientific-consensus): add scientific-consensus",
+      "pr": 1309,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1309",
+      "commit": "54e2a636de822ae1339ee8b7654eaef7297740bd"
+    }
+  ]
+}

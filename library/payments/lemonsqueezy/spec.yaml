@@ -1,0 +1,886 @@
+openapi: 3.0.0
+info:
+  title: Lemon Squeezy API
+  description: |
+    The Lemon Squeezy API is a REST API using the JSON:API specification.
+    Authentication uses HTTP Bearer tokens.
+    Create an API key at https://app.lemonsqueezy.com/settings/api
+    and pass it as `Authorization: Bearer YOUR_KEY` header.
+    Base URL: https://api.lemonsqueezy.com
+    Content type: application/vnd.api+json
+  version: '1.0.0'
+servers:
+  - url: https://api.lemonsqueezy.com
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Lemon Squeezy API key (Bearer token). Create one at
+        https://app.lemonsqueezy.com/settings/api.
+      x-auth-env-vars:
+        - LEMONSQUEEZY_API_KEY
+security:
+  - bearerAuth: []
+tags:
+  - name: Users
+  - name: Stores
+  - name: Customers
+  - name: Products
+  - name: Variants
+  - name: Prices
+  - name: Files
+  - name: Orders
+  - name: OrderItems
+  - name: Affiliates
+  - name: Subscriptions
+  - name: SubscriptionItems
+  - name: SubscriptionInvoices
+  - name: UsageRecords
+  - name: Discounts
+  - name: DiscountRedemptions
+  - name: LicenseKeys
+  - name: LicenseKeyInstances
+  - name: Checkouts
+  - name: Webhooks
+  - name: Health
+paths:
+  /v1/users/me:
+    get:
+      operationId: users_me
+      tags:
+        - Users
+        - Users
+      summary: Lemon Squeezy Retrieve the authenticated user
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/stores/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: stores_get
+      tags:
+        - Stores
+      summary: Lemon Squeezy Retrieve a store
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/stores:
+    get:
+      operationId: stores_list
+      tags:
+        - Stores
+      summary: Lemon Squeezy List all stores
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/customers/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: customers_get
+      tags:
+        - Customers
+      summary: Lemon Squeezy Retrieve a customer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/customers:
+    get:
+      operationId: customers_list
+      tags:
+        - Customers
+      summary: Lemon Squeezy List all customers
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: products_get
+      tags:
+        - Products
+      summary: Lemon Squeezy Retrieve a product
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/products:
+    get:
+      operationId: products_list
+      tags:
+        - Products
+      summary: Lemon Squeezy List all products
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/variants/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: variants_get
+      tags:
+        - Variants
+      summary: Lemon Squeezy Retrieve a variant
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/variants:
+    get:
+      operationId: variants_list
+      tags:
+        - Variants
+      summary: Lemon Squeezy List all variants
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/prices/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: prices_get
+      tags:
+        - Prices
+      summary: Lemon Squeezy Retrieve a price
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/prices:
+    get:
+      operationId: prices_list
+      tags:
+        - Prices
+      summary: Lemon Squeezy List all prices
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/files/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: files_get
+      tags:
+        - Files
+      summary: Lemon Squeezy Retrieve a file
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/files:
+    get:
+      operationId: files_list
+      tags:
+        - Files
+      summary: Lemon Squeezy List all files
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/orders/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: orders_get
+      tags:
+        - Orders
+      summary: Lemon Squeezy Retrieve an order
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/orders:
+    get:
+      operationId: orders_list
+      tags:
+        - Orders
+      summary: Lemon Squeezy List all orders
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/affiliates/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: affiliates_get
+      tags:
+        - Affiliates
+      summary: Lemon Squeezy Retrieve an affiliate
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/affiliates:
+    get:
+      operationId: affiliates_list
+      tags:
+        - Affiliates
+      summary: Lemon Squeezy List all affiliates
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/order-items/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: order_items_get
+      tags:
+        - Items
+        - Order
+      summary: Lemon Squeezy Retrieve an order item
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/order-items:
+    get:
+      operationId: order_items_list
+      tags:
+        - Items
+        - Order
+      summary: Lemon Squeezy List all order items
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscriptions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: subscriptions_get
+      tags:
+        - Subscriptions
+      summary: Lemon Squeezy Retrieve a subscription
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      operationId: subscriptions_update
+      tags:
+        - Subscriptions
+      summary: Lemon Squeezy Update a subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: subscriptions
+                  id: '1'
+                  attributes:
+                    variant_id: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      operationId: subscriptions_delete
+      tags:
+        - Subscriptions
+      summary: Lemon Squeezy Cancel a Subscription
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscriptions:
+    get:
+      operationId: subscriptions_list
+      tags:
+        - Subscriptions
+      summary: Lemon Squeezy List all subscriptions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscription-items/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: subscription_items_get
+      tags:
+        - Items
+        - Subscription
+      summary: Lemon Squeezy Retrieve a subscription item
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      operationId: subscription_items_update
+      tags:
+        - Items
+        - Subscription
+      summary: Lemon Squeezy Update a subscription item
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: subscription-items
+                  id: '1'
+                  attributes:
+                    quantity: 5
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscription-items:
+    get:
+      operationId: subscription_items_list
+      tags:
+        - Items
+        - Subscription
+      summary: Lemon Squeezy List all subscription items
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscription-items/{id}/current-usage:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: subscription_items_current_usage_get
+      tags:
+        - SubscriptionItems
+        - Items
+        - Subscription
+        - Usage
+      summary: Lemon Squeezy Retrieve a subscription items current usage
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscription-invoices/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: subscription_invoices_get
+      tags:
+        - Invoices
+        - Subscription
+      summary: Lemon Squeezy Retrieve a subscription invoice
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/subscription-invoices:
+    get:
+      operationId: subscription_invoices_list
+      tags:
+        - Invoices
+        - Subscription
+      summary: Lemon Squeezy List all subscription invoices
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/usage-records/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: usage_records_get
+      tags:
+        - Records
+        - Usage
+      summary: Lemon Squeezy Retrieve a usage-record
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/usage-records:
+    get:
+      operationId: usage_records_list
+      tags:
+        - Records
+        - Usage
+      summary: Lemon Squeezy List all usage records
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      operationId: usage_records_create
+      tags:
+        - Records
+        - Usage
+      summary: Lemon Squeezy Create a usage record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: usage-records
+                  attributes:
+                    quantity: 1
+                    action: increment
+                  relationships:
+                    subscription-item:
+                      data:
+                        type: subscription-items
+                        id: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/discounts/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: discounts_get
+      tags:
+        - Discounts
+      summary: Lemon Squeezy Retrieve a discount
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      operationId: discounts_delete
+      tags:
+        - Discounts
+      summary: Lemon Squeezy Delete a discount
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/discounts:
+    get:
+      operationId: discounts_list
+      tags:
+        - Discounts
+      summary: Lemon Squeezy List all discounts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      operationId: discounts_create
+      tags:
+        - Discounts
+      summary: Lemon Squeezy Create a discount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: discounts
+                  attributes:
+                    name: 10%
+                    code: 10PERC
+                    amount: 10
+                    amount_type: percent
+                  relationships:
+                    store:
+                      data:
+                        type: stores
+                        id: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/discount-redemptions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: discount_redemptions_get
+      tags:
+        - Discount
+        - Redemptions
+      summary: Lemon Squeezy Retrieve a discount redemption
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/discount-redemptions:
+    get:
+      operationId: discount_redemptions_list
+      tags:
+        - Discount
+        - Redemptions
+      summary: Lemon Squeezy List all discount redemptions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/license-keys/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: license_keys_get
+      tags:
+        - Keys
+        - License
+      summary: Lemon Squeezy Retrieve a license key
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/license-keys:
+    get:
+      operationId: license_keys_list
+      tags:
+        - Keys
+        - License
+      summary: Lemon Squeezy List all license keys
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/license-key-instances/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: license_key_instances_get
+      tags:
+        - Instances
+        - Keys
+        - License
+      summary: Lemon Squeezy Retrieve a license key instance
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/license-key-instances:
+    get:
+      operationId: license_key_instances_list
+      tags:
+        - Instances
+        - Keys
+        - License
+      summary: Lemon Squeezy List all license key instances
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/checkouts/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: checkouts_get
+      tags:
+        - Checkouts
+        - B6cd
+        - Checkouts
+      summary: Lemon Squeezy Retrieve a checkout
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/checkouts:
+    get:
+      operationId: checkouts_list
+      tags:
+        - Checkouts
+      summary: Lemon Squeezy List all checkouts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      operationId: checkouts_create
+      tags:
+        - Checkouts
+      summary: Lemon Squeezy Create a checkout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: checkouts
+                  relationships:
+                    store:
+                      data:
+                        type: stores
+                        id: '1'
+                    variant:
+                      data:
+                        type: variants
+                        id: '1'
+                  attributes:
+                    custom_price: 2000
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/webhooks/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: Resource ID
+        schema:
+          type: string
+    get:
+      operationId: webhooks_get
+      tags:
+        - Webhooks
+      summary: Lemon Squeezy Retrieve a webhook
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      operationId: webhooks_update
+      tags:
+        - Webhooks
+      summary: Lemon Squeezy Update a webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: webhooks
+                  id: '1'
+                  attributes:
+                    events:
+                      - order_created
+                      - order_refunded
+                      - subscription_created
+                      - subscription_updated
+                      - subscription_expired
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      operationId: webhooks_delete
+      tags:
+        - Webhooks
+      summary: Lemon Squeezy Delete a webhook
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/webhooks:
+    get:
+      operationId: webhooks_list
+      tags:
+        - Webhooks
+      summary: Lemon Squeezy List all webhooks
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      operationId: webhooks_create
+      tags:
+        - Webhooks
+      summary: Lemon Squeezy Create a webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                data:
+                  type: webhooks
+                  attributes:
+                    url: https://mysite.com/webhooks/
+                    events:
+                      - order_created
+                      - subscription_created
+                      - subscription_updated
+                      - subscription_expired
+                    secret: SIGNING_SECRET
+                  relationships:
+                    store:
+                      data:
+                        type: stores
+                        id: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/health:
+    get:
+      operationId: health_check
+      tags:
+        - Health
+      summary: Lemon Squeezy Health
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/404:
+    get:
+      operationId: health_404
+      tags: []
+      summary: 'Lemon Squeezy 404'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

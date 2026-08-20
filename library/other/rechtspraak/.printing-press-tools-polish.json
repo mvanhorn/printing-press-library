@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-05T21:09:51.760061048Z",
+  "cli_dir": "\u003ccli-dir\u003e/rechtspraak",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-05T20:58:20.483605646Z"
+  }
+}

@@ -1,0 +1,409 @@
+name: sprocket
+description: "Sprocket Sports CLI — query your youth-soccer club's schedule, teams, roster, programs, registrations, and dues from the terminal"
+version: "0.1.0"
+base_url: "https://jfcsoccer.sprocketsports.com"
+http_transport: standard
+health_check_path: "/api/club-users/me"
+
+# Sprocket Sports is a multi-tenant youth-sports platform; each club is
+# <club>.sprocketsports.com. base_url defaults to the Jacksonville FC tenant.
+# Auth is OAuth2/OIDC (Duende IdentityServer at login.sprocketsports.com); the
+# API itself takes a Bearer access token (JWT). v1 uses a paste-in token via
+# SPROCKET_TOKEN — copy access_token from the dashboard browser session.
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  scheme: bearerAuth
+  in: header
+  env_vars:
+    - SPROCKET_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/sprocket-pp-cli/config.toml"
+
+resources:
+  schedule:
+    description: "Club calendar — games, practices, and events"
+    endpoints:
+      list:
+        method: POST
+        path: "/api/public/calendar"
+        description: "List calendar events in a date window (max ~31 days). Dates are YYYY-MM-DD."
+        body:
+          - name: start
+            type: string
+            required: true
+            format: date
+            description: "Window start date (YYYY-MM-DD)"
+          - name: end
+            type: string
+            required: true
+            format: date
+            description: "Window end date (YYYY-MM-DD); must be within ~31 days of start"
+        response:
+          type: array
+          item: CalendarEvent
+        response_path: events
+      event-types:
+        method: GET
+        path: "/api/public/calendar/calendar-event-types"
+        description: "List calendar event types (game, practice, etc.)"
+        params:
+          - name: includeFacilityRentals
+            flag_name: include-facility-rentals
+            type: bool
+            default: false
+            description: "Include facility-rental event types"
+        response:
+          type: array
+          item: EventType
+      settings:
+        method: GET
+        path: "/api/public/calendar/settings"
+        description: "Calendar display settings for the club"
+        response:
+          type: object
+          item: GenericObject
+
+  teams:
+    description: "Club teams"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/public/teams/all"
+        description: "List every team in the club"
+        response:
+          type: array
+          item: Team
+      mine:
+        method: GET
+        path: "/api/club-users/player-teams"
+        description: "List the teams your players are assigned to"
+        response:
+          type: array
+          item: PlayerTeam
+
+  players:
+    description: "Your players"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/players"
+        description: "List your players (children) on this account"
+        params:
+          - name: includeInactives
+            flag_name: include-inactives
+            type: bool
+            default: false
+            description: "Include inactive players"
+        response:
+          type: array
+          item: Player
+
+  family:
+    description: "Your family group"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/club-users/family"
+        description: "Get your family (parents/guardians and players)"
+        params:
+          - name: includeParentsWithoutLogin
+            flag_name: include-parents-without-login
+            type: bool
+            default: true
+            description: "Include parents/guardians who have no login"
+        response:
+          type: object
+          item: Family
+
+  programs:
+    description: "Club programs and registration"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/public/programs/all"
+        description: "List all club programs/seasons"
+        response:
+          type: array
+          item: Program
+      open:
+        method: GET
+        path: "/api/players/open-programs"
+        description: "List programs currently open for registration"
+        params:
+          - name: includeCredits
+            flag_name: include-credits
+            type: bool
+            default: true
+            description: "Include available registration credits"
+        response:
+          type: array
+          item: OpenProgram
+
+  account:
+    description: "Your account and roles"
+    endpoints:
+      me:
+        method: GET
+        path: "/api/club-users/me"
+        description: "Get your club-user account profile"
+        response:
+          type: object
+          item: Account
+      roles:
+        method: GET
+        path: "/api/account/roles"
+        description: "List your account roles"
+        response:
+          type: array
+          item: GenericObject
+      clubs:
+        method: GET
+        path: "/api/account/multiple-clubs"
+        description: "List clubs this account belongs to"
+        response:
+          type: array
+          item: GenericObject
+
+  registrations:
+    description: "Registration and payment history"
+    endpoints:
+      completed:
+        method: GET
+        path: "/api/club-users/completed-registrations"
+        description: "List completed program registrations (with balances)"
+        response:
+          type: array
+          item: Registration
+      team:
+        method: GET
+        path: "/api/club-users/completed-team-registrations"
+        description: "List completed team registrations"
+        response:
+          type: array
+          item: Registration
+
+  payments:
+    description: "Dues and outstanding payments"
+    endpoints:
+      overdue-invoices:
+        method: GET
+        path: "/api/club-users/overdue-invoice-payments"
+        description: "List overdue invoice payments (dues owed)"
+        response:
+          type: array
+          item: Payment
+      overdue-tickets:
+        method: GET
+        path: "/api/club-users/overdue-ticket-payments"
+        description: "List overdue ticket payments"
+        response:
+          type: array
+          item: Payment
+      failed:
+        method: GET
+        path: "/api/club-users/failed-payments"
+        description: "List failed payments"
+        params:
+          - name: includeDonations
+            flag_name: include-donations
+            type: bool
+            default: false
+            description: "Include failed donation payments"
+        response:
+          type: array
+          item: Payment
+
+  club:
+    description: "Club information"
+    endpoints:
+      settings:
+        method: GET
+        path: "/api/public/clubs/settings"
+        description: "Get public club settings"
+        response:
+          type: object
+          item: GenericObject
+      get:
+        method: GET
+        path: "/meta-api/public/club"
+        description: "Get club metadata"
+        response:
+          type: object
+          item: GenericObject
+
+types:
+  CalendarEvent:
+    fields:
+      - name: id
+        type: int
+      - name: clubId
+        type: int
+      - name: clubCalendarEventId
+        type: int
+      - name: isOwner
+        type: bool
+      - name: clubCalendarEvent
+        type: object
+        description: "The event details: title, startDate, endDate, locationID, opponent, awayGame, clubEventTypeID, teamID, isCancelled"
+  EventType:
+    fields:
+      - name: label
+        type: string
+      - name: value
+        type: int
+      - name: icon
+        type: string
+      - name: descriptionText
+        type: string
+      - name: disabled
+        type: bool
+  Team:
+    fields:
+      - name: teamID
+        type: int
+      - name: name
+        type: string
+      - name: clubID
+        type: int
+      - name: teamColorOptionID
+        type: int
+  PlayerTeam:
+    fields:
+      - name: playerID
+        type: int
+      - name: teamID
+        type: int
+      - name: programID
+        type: int
+      - name: assignedOn
+        type: string
+      - name: inviteStatusID
+        type: int
+      - name: isGuest
+        type: bool
+      - name: acceptedOn
+        type: string
+      - name: team
+        type: object
+        description: "Nested team: teamID, name, shortName, levelID, leagueID, totalGames, playersAssigned"
+  Player:
+    fields:
+      - name: playerID
+        type: int
+      - name: userID
+        type: int
+      - name: user
+        type: object
+        description: "Player user record: name fields, etc."
+      - name: inactive
+        type: bool
+      - name: suspended
+        type: bool
+      - name: isRestricted
+        type: bool
+      - name: hasPhoto
+        type: bool
+      - name: playerClubData
+        type: object
+  Family:
+    fields:
+      - name: familyID
+        type: int
+      - name: parents
+        type: object
+        description: "Array of parent/guardian records"
+      - name: players
+        type: object
+        description: "Array of player records"
+  Program:
+    fields:
+      - name: programID
+        type: int
+      - name: name
+        type: string
+      - name: programTypeName
+        type: string
+      - name: programTypeID
+        type: int
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+      - name: playerCount
+        type: int
+      - name: staffCount
+        type: int
+      - name: divisionCount
+        type: int
+  OpenProgram:
+    fields:
+      - name: name
+        type: string
+      - name: programTypeID
+        type: int
+      - name: clubProgramCategoryID
+        type: int
+      - name: sortOrder
+        type: int
+  Registration:
+    fields:
+      - name: playerRegistrationID
+        type: int
+      - name: registrationID
+        type: int
+      - name: playerID
+        type: int
+      - name: registrationPrice
+        type: float
+      - name: totalRegistrationPrice
+        type: float
+      - name: completed
+        type: bool
+      - name: completedOn
+        type: string
+      - name: amountPaid
+        type: float
+      - name: amountDue
+        type: float
+      - name: remainingBalance
+        type: float
+      - name: player
+        type: object
+      - name: team
+        type: object
+      - name: registration
+        type: object
+  Payment:
+    fields:
+      - name: id
+        type: int
+      - name: amount
+        type: float
+      - name: status
+        type: string
+      - name: dueDate
+        type: string
+  Account:
+    fields:
+      - name: clubUserID
+        type: int
+      - name: isAdmin
+        type: bool
+      - name: isPlayer
+        type: bool
+      - name: isFirstLogin
+        type: bool
+      - name: user
+        type: object
+      - name: family
+        type: object
+      - name: staffProfile
+        type: object
+  GenericObject:
+    fields:
+      - name: id
+        type: int

@@ -1,0 +1,191 @@
+{
+  "api_name": "greatclips",
+  "novelty_score": 10,
+  "alternatives": [],
+  "gaps": [
+    "v0.1 emits cookie-aware request shapes but does not yet attach cookies on the wire; real-network calls require manual cookie paste",
+    "wait endpoint emits an object body; the upstream expects a single-element JSON array (1-line patch in internal/client.go)",
+    "transcendence commands (watch, drift, plan, compare, next-open, recommend, history) are scoped for v0.2; v0.1 ships every endpoint shape and the data-layer scaffold"
+  ],
+  "patterns": [
+    "two-host single-auth client (webservices.greatclips.com + www.stylewaretouch.net both authenticated by one Auth0 session)",
+    "vendor-brand wraps third-party operations (ICS Net Check-In powers the wait/check-in surface)",
+    "local timeseries unlocks 'vs typical' / drift commands that the upstream API cannot answer",
+    "HttpOnly cookie auth from a logged-in Chrome session, scoped per host"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T17:04:00Z",
+  "novel_features": [
+    {
+      "name": "Live wait time at any salon",
+      "command": "wait",
+      "description": "Fetch real-time estimated wait minutes for a specific salon, signed with the ICS Net Check-In HMAC.",
+      "rationale": "Stylewaretouch.net rejects unsigned requests with HTTP 500 NPE; this CLI ports the SPA HMAC-SHA-256 signing scheme (verified byte-identical via golden vector test) so wait queries work outside the browser.",
+      "example": "greatclips-pp-cli wait --store-number 8991 --json",
+      "why_it_matters": "Lets an agent check whether to leave the house for a haircut without parking a human at the SPA.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Party check-in via CLI",
+      "command": "checkin",
+      "description": "Add yourself plus up to 4 additional party members to a salon waitlist with one command.",
+      "rationale": "The SPA submit flow requires HMAC signing plus a customer-audience HS512 JWT plus a non-obvious request body shape; this CLI ships the full pipeline.",
+      "example": "greatclips-pp-cli checkin --first-name Matt --last-name VanHorn --phone-number 5209076052 --salon-number 8991 --guests 4",
+      "why_it_matters": "Turns the click-through into one keystroke, agent-actionable.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Active check-in status lookup",
+      "command": "status",
+      "description": "Query the live position-in-line and estimated wait for the current accounts active check-in.",
+      "rationale": "Server-side state lookup using the HMAC + customer-aud Bearer pipeline.",
+      "example": "greatclips-pp-cli status --json",
+      "why_it_matters": "Watch the queue without refreshing a browser tab.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cancel active check-in",
+      "command": "cancel",
+      "description": "Remove yourself from the salon waitlist without opening the SPA.",
+      "rationale": "Closes the lifecycle. Body shape and signing are non-trivial to reproduce; the CLI ships them.",
+      "example": "greatclips-pp-cli cancel",
+      "why_it_matters": "Plans change. The CLI handles the undo path too.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Customer profile lookup",
+      "command": "customer profile",
+      "description": "Fetch the authenticated customer profile (name, email, phone, favorite salons) via the Auth0 customer-audience token.",
+      "rationale": "Verifies the Auth0 silent-mint pipeline end-to-end and yields the profileId checkin needs.",
+      "example": "greatclips-pp-cli customer profile --json",
+      "why_it_matters": "Confirms auth is working and gives the profileId checkin needs.",
+      "group": "Auth foundation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Great Clips",
+    "headline": "First CLI for Great Clips Online Check-In: every endpoint shape and host route, ready for real calls once cookies are wired.",
+    "value_prop": "Drives the Great Clips Online Check-In API (webservices.greatclips.com) and the ICS Net Check-In wait/check-in service (www.stylewaretouch.net) from one Go binary. v0.1 ships every endpoint with --dry-run and --json so an agent can build flows on top; live calls require pasting cookies from a logged-in Chrome session (documented v0.2 gap).",
+    "auth_narrative": "Great Clips uses HttpOnly session cookies from an Auth0 tenant at cid.greatclips.com. Browser-sniff confirmed all calls succeed via cookies attached by the browser, not via an Authorization header. v0.1 of this CLI ships the request shape and host routing; to make real calls, paste the cookies from a logged-in Chrome session into ~/.config/greatclips-pp-cli/config.toml. Set GREATCLIPS_TOKEN to any placeholder so doctor passes (the env var is kept for v0.2 when bearer support might land).",
+    "quickstart": [
+      {
+        "command": "greatclips-pp-cli doctor",
+        "comment": "Verifies config and base URL reachability (set GREATCLIPS_TOKEN=placeholder first so the env-var check passes; real auth is cookie-based and documented in README)"
+      },
+      {
+        "command": "greatclips-pp-cli customer profile --dry-run",
+        "comment": "Confirms profile call shape (GET /cmp2/profile/get)"
+      },
+      {
+        "command": "greatclips-pp-cli wait --store-number 8991 --dry-run --json",
+        "comment": "Wait-time request for one salon (Island Square on Mercer Island)"
+      },
+      {
+        "command": "greatclips-pp-cli checkin --first-name Matt --last-name VanHorn --phone-number '(206) 555-0100' --salon-number 8991 --guests 4 --dry-run --json",
+        "comment": "Party-of-four check-in request body; remove --dry-run when cookies are configured"
+      },
+      {
+        "command": "greatclips-pp-cli status --dry-run",
+        "comment": "Position-in-line endpoint shape"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 'missing required: GREATCLIPS_TOKEN'",
+        "fix": "Set GREATCLIPS_TOKEN to any non-empty value (the upstream uses cookies, not a Bearer; v0.1 keeps the env var so doctor passes)."
+      },
+      {
+        "symptom": "checkin returns 401 or 403 against the real API",
+        "fix": "v0.1 does not yet attach Chrome cookies. Open https://app.greatclips.com, log in, copy the auth0 session cookies for both webservices.greatclips.com and www.stylewaretouch.net, paste into ~/.config/greatclips-pp-cli/config.toml under cookie keys (cookie auth integration is a v0.2 gap)."
+      },
+      {
+        "symptom": "wait returns object body but the API wants an array",
+        "fix": "The waitTime endpoint expects a JSON array of {storeNumber}. v0.1 emits the object form; patch internal/client.go to wrap the body in [] or use --stdin and pipe the array shape."
+      }
+    ],
+    "when_to_use": "Use this CLI to send the exact HTTP requests the Great Clips Online Check-In SPA sends, from the command line, with dry-run and --json output. v0.1 ships every endpoint's request shape so an agent can build flows on top; real calls require manual cookie capture from a logged-in Chrome session.",
+    "recipes": [
+      {
+        "title": "Party-of-four check-in request body",
+        "command": "greatclips-pp-cli checkin --first-name Matt --last-name VanHorn --phone-number '(206) 555-0100' --salon-number 8991 --guests 4 --dry-run --json",
+        "explanation": "Emits the exact JSON body POSTed to www.stylewaretouch.net/api/customer/checkIn for a party of four at Island Square."
+      },
+      {
+        "title": "Wait-time request for a salon",
+        "command": "greatclips-pp-cli wait --store-number 8991 --dry-run --json",
+        "explanation": "Request shape for the ICS Net Check-In waitTime endpoint."
+      },
+      {
+        "title": "Salons near a zip",
+        "command": "greatclips-pp-cli salons search --term 98040 --radius 5 --dry-run --json",
+        "explanation": "Request shape for the salon-search/term endpoint with a 5-mile radius."
+      },
+      {
+        "title": "14-day hours forecast",
+        "command": "greatclips-pp-cli hours --salon 8991 --dry-run",
+        "explanation": "Calls salon-hours/upcoming for one salon; the response includes special-hours and holiday closures."
+      },
+      {
+        "title": "Geocode a postal code",
+        "command": "greatclips-pp-cli geo --query 98040 --dry-run --json --select results.city,results.state,results.lat,results.lng",
+        "explanation": "Resolves a zip code to lat/lng/city/state via the geo-names endpoint."
+      }
+    ],
+    "trigger_phrases": [
+      "great clips wait time",
+      "check me into great clips",
+      "how long is the wait at great clips",
+      "add me and my kids to the great clips wait list",
+      "great clips request shape",
+      "use greatclips",
+      "run greatclips"
+    ]
+  },
+  "novel_features_built": [
+    {
+      "name": "Live wait time at any salon",
+      "command": "wait",
+      "description": "Fetch real-time estimated wait minutes for a specific salon, signed with the ICS Net Check-In HMAC.",
+      "rationale": "Stylewaretouch.net rejects unsigned requests with HTTP 500 NPE; this CLI ports the SPA HMAC-SHA-256 signing scheme (verified byte-identical via golden vector test) so wait queries work outside the browser.",
+      "example": "greatclips-pp-cli wait --store-number 8991 --json",
+      "why_it_matters": "Lets an agent check whether to leave the house for a haircut without parking a human at the SPA.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Party check-in via CLI",
+      "command": "checkin",
+      "description": "Add yourself plus up to 4 additional party members to a salon waitlist with one command.",
+      "rationale": "The SPA submit flow requires HMAC signing plus a customer-audience HS512 JWT plus a non-obvious request body shape; this CLI ships the full pipeline.",
+      "example": "greatclips-pp-cli checkin --first-name Matt --last-name VanHorn --phone-number 5209076052 --salon-number 8991 --guests 4",
+      "why_it_matters": "Turns the click-through into one keystroke, agent-actionable.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Active check-in status lookup",
+      "command": "status",
+      "description": "Query the live position-in-line and estimated wait for the current accounts active check-in.",
+      "rationale": "Server-side state lookup using the HMAC + customer-aud Bearer pipeline.",
+      "example": "greatclips-pp-cli status --json",
+      "why_it_matters": "Watch the queue without refreshing a browser tab.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cancel active check-in",
+      "command": "cancel",
+      "description": "Remove yourself from the salon waitlist without opening the SPA.",
+      "rationale": "Closes the lifecycle. Body shape and signing are non-trivial to reproduce; the CLI ships them.",
+      "example": "greatclips-pp-cli cancel",
+      "why_it_matters": "Plans change. The CLI handles the undo path too.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Customer profile lookup",
+      "command": "customer profile",
+      "description": "Fetch the authenticated customer profile (name, email, phone, favorite salons) via the Auth0 customer-audience token.",
+      "rationale": "Verifies the Auth0 silent-mint pipeline end-to-end and yields the profileId checkin needs.",
+      "example": "greatclips-pp-cli customer profile --json",
+      "why_it_matters": "Confirms auth is working and gives the profileId checkin needs.",
+      "group": "Auth foundation"
+    }
+  ]
+}

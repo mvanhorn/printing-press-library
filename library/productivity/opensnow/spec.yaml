@@ -1,0 +1,581 @@
+openapi: "3.0.3"
+info:
+  title: OpenSnow API
+  version: "1"
+  description: >
+    Hyper-local weather forecasts and conditions for any mountain location and elevation, worldwide.
+    Provides current conditions, hourly forecasts, 5-day day/night snow forecasts,
+    resort snow reports, and expert-written Daily Snow posts.
+    Authentication via api_key query parameter (partnership access only).
+  contact:
+    email: hello@opensnow.com
+servers:
+  - url: https://api.opensnow.com
+    description: Production API
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: api_key
+      description: OpenSnow API access token (partnership-only)
+  
+  schemas:
+    Attribution:
+      type: object
+      properties:
+        link_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to additional content on OpenSnow
+        link_text:
+          type: string
+          nullable: true
+          description: Text to display for the additional-content link
+        description:
+          type: string
+          description: Fine-print disclaimer for attribution (e.g. Powered by OpenSnow)
+        image_light_url:
+          type: string
+          format: uri
+          description: OpenSnow logo for light themes
+        image_dark_url:
+          type: string
+          format: uri
+          description: OpenSnow logo for dark themes
+      required: [description, image_light_url, image_dark_url]
+
+    ForecastPeriod:
+      type: object
+      properties:
+        display_at:
+          type: string
+          format: date-time
+          description: Display time for the forecast period in UTC
+        display_at_local_label:
+          type: string
+          description: User-displayable local timezone date/time label
+        conditions_id:
+          type: integer
+          description: "Integer id for sky/weather conditions. Enum: -1=N/A, 0=Snow & Wind, 1=Snow, 2=Snow Showers, 3=Rain, 4=Rain Showers, 5=Rain/Snow, 6=Light Rain/Snow, 7=Windy, 8=Cold, 9=Hot, 10=Cloudy, 11=Mostly Sunny/Clear, 12=Partly Cloudy, 13=Mostly Cloudy, 14=Sunny/Clear, 15=Thunderstorms, 16=Scattered T-Storms, 17=Thundersnow"
+        conditions_label:
+          type: string
+          description: Human-readable label for conditions_id
+        conditions_icon_url:
+          type: string
+          format: uri
+          description: URL to SVG icon for current conditions
+        temp:
+          type: number
+          description: Current temperature (°F imperial, °C metric)
+        temp_min:
+          type: number
+          description: Minimum temperature for the period
+        temp_max:
+          type: number
+          description: Maximum temperature for the period
+        wind_dir:
+          type: integer
+          description: Wind direction in degrees (0-360)
+        wind_dir_label:
+          type: string
+          description: Cardinal wind direction label (W, NW, SSW)
+        wind_speed:
+          type: number
+          description: Sustained wind speed (mph imperial, km/h metric)
+        wind_gust_speed:
+          type: number
+          description: Wind gust speed
+        pop:
+          type: number
+          description: Probability of precipitation (0-1)
+        precip_type:
+          type: integer
+          description: "Precipitation type. 0=None, 1=Snow, 2=Rain/Snow Mixed, 3=Rain"
+        precip_snow:
+          type: number
+          description: Expected snowfall for the period (in imperial, cm metric)
+
+    ForecastDailyPeriod:
+      allOf:
+        - $ref: '#/components/schemas/ForecastPeriod'
+        - type: object
+          properties:
+            precip_snow_min:
+              type: number
+              description: Low end of expected snowfall range
+            precip_snow_max:
+              type: number
+              description: High end of expected snowfall range
+
+    SemiDailyPeriod:
+      allOf:
+        - $ref: '#/components/schemas/ForecastDailyPeriod'
+        - type: object
+          properties:
+            period_count:
+              type: integer
+              description: Number of hours in the period
+
+    SnowSummary:
+      type: object
+      properties:
+        display_at:
+          type: string
+          format: date-time
+          description: End of the accumulation period in UTC
+        display_at_local_label:
+          type: string
+        precip_snow:
+          type: number
+          nullable: true
+          description: Total expected snowfall across full 5-day window
+        precip_snow_min:
+          type: number
+          nullable: true
+        precip_snow_max:
+          type: number
+          nullable: true
+        period_count:
+          type: integer
+          description: Number of periods in the summary
+
+    LocationMeta:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique integer id for the location
+        slug:
+          type: string
+          description: URL-safe slug, unique across locations
+        name:
+          type: string
+          description: Display name of the location
+        coordinates:
+          type: object
+          properties:
+            point:
+              type: object
+              description: GeoJSON Point with type and coordinates [lng, lat]
+        elevation:
+          type: integer
+          description: Base elevation (ft imperial, m metric)
+        timezone:
+          type: string
+          description: IANA timezone name (e.g. America/Denver)
+
+    SnowReport:
+      type: object
+      properties:
+        display_at:
+          type: string
+          format: date-time
+        display_at_local_label:
+          type: string
+        status_id:
+          type: integer
+          nullable: true
+          description: "Resort operating status. 0-4"
+        status_display:
+          type: string
+          nullable: true
+          description: "Open, Not Available, Temporarily Closed, Closed, Summer Operations"
+        status_display_detail:
+          type: string
+          nullable: true
+          description: Detailed status (e.g. Re-open 12/20)
+        status_notes:
+          type: string
+          nullable: true
+          description: Longer-form operating details as plain text
+        status_notes_html:
+          type: string
+          nullable: true
+          description: Operating details as HTML
+        conditions:
+          type: string
+          nullable: true
+          description: Snow surface conditions (Packed Powder, Machine Groomed, etc.)
+        lifts_open:
+          type: integer
+          nullable: true
+        lifts_total:
+          type: integer
+          nullable: true
+        runs_open:
+          type: integer
+          nullable: true
+        runs_total:
+          type: integer
+          nullable: true
+        area_open:
+          type: integer
+          nullable: true
+          description: Skiable area open (acres imperial, hectares metric)
+        area_total:
+          type: integer
+          nullable: true
+        percent_open:
+          type: number
+          nullable: true
+          description: Percentage of terrain open (0-1)
+        precip_snow_24h:
+          type: integer
+          nullable: true
+          description: New snow in last 24 hours
+        precip_snow_72h:
+          type: integer
+          nullable: true
+          description: New snow in last 72 hours
+        precip_snow_5d:
+          type: integer
+          nullable: true
+          description: New snow in last 5 days
+        precip_snow_season:
+          type: integer
+          nullable: true
+          description: Season-to-date snowfall
+        base_depth:
+          type: integer
+          nullable: true
+          description: Current base depth
+        base_depth_min:
+          type: integer
+          nullable: true
+        base_depth_max:
+          type: integer
+          nullable: true
+
+    DailyRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique id for the Daily Read region
+        name:
+          type: string
+          description: Display name of the region
+        slug:
+          type: string
+          description: URL-safe slug
+        timezone:
+          type: string
+        post:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            prev_id:
+              type: integer
+              nullable: true
+            next_id:
+              type: integer
+              nullable: true
+            title:
+              type: string
+            summary:
+              type: string
+            author:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                title:
+                  type: string
+                photo_url:
+                  type: string
+                  format: uri
+                bio:
+                  type: string
+            post_url:
+              type: string
+              format: uri
+            share_url:
+              type: string
+              format: uri
+            image_url:
+              type: string
+              format: uri
+              nullable: true
+            is_enabled:
+              type: boolean
+            posted_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            display_at:
+              type: string
+              format: date-time
+            display_at_local_label:
+              type: string
+            display_at_relative:
+              type: string
+            post_type:
+              type: string
+            content:
+              type: string
+              nullable: true
+              description: Main post body as HTML
+            content_extended:
+              type: string
+              nullable: true
+              description: Extended forecast body as HTML
+            content_announcements:
+              type: string
+              nullable: true
+              description: Announcements body as HTML
+
+    ErrorResponse:
+      type: object
+      properties:
+        status_code:
+          type: integer
+          description: HTTP status code (400-599)
+        error:
+          type: string
+          description: Short error label
+        messages:
+          type: array
+          items:
+            type: string
+          description: Detailed error messages
+      required: [status_code, error, messages]
+
+security:
+  - apiKey: []
+
+paths:
+  /forecast/{point}:
+    get:
+      operationId: getForecastByPoint
+      summary: Forecast Anywhere
+      description: >
+        Get a forecast for any lng,lat point on earth (on land). Returns current
+        conditions, hourly detail, day/night periods, and optional rolled-up
+        multi-hour summaries. Access level 5.
+      parameters:
+        - name: point
+          in: path
+          required: true
+          description: "lng,lat pair as comma-separated string, rounded to 4 decimals (e.g. -105.2705,40.015)"
+          schema:
+            type: string
+        - name: elev
+          in: query
+          required: true
+          description: "Elevation at the forecast point (feet if imperial, meters if metric)"
+          schema:
+            type: integer
+        - name: units
+          in: query
+          description: "Units for returned values"
+          schema:
+            type: string
+            enum: [imperial, metric]
+            default: imperial
+        - name: current
+          in: query
+          description: Include the current-hour forecast
+          schema:
+            type: boolean
+            default: true
+        - name: hours
+          in: query
+          description: Number of hourly forecast periods to return (0-24)
+          schema:
+            type: integer
+            default: 0
+        - name: days
+          in: query
+          description: Number of daily forecast periods to return (0-5)
+          schema:
+            type: integer
+            default: 0
+        - name: rollup
+          in: query
+          description: Number of rolled-up hourly periods
+          schema:
+            type: integer
+            enum: [3, 4, 6, 12]
+        - name: rollup_duration
+          in: query
+          description: Duration of each rollup period in hours (3-24)
+          schema:
+            type: integer
+            default: 24
+        - name: rollup_current
+          in: query
+          description: "If true, first rollup starts at current hour; if false, rollups align to 6am/6pm"
+          schema:
+            type: boolean
+            default: false
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Forecast object with current, daily, hourly, rollup arrays, timezone, and attribution
+        '400':
+          description: Bad request
+        '401':
+          description: Invalid API key
+        '403':
+          description: Insufficient access level
+
+  /forecast/detail/{id_or_slug}:
+    get:
+      operationId: getForecastDetail
+      summary: Named Location Forecast
+      description: >
+        Get a 5-day forecast for any named OpenSnow location. Returns current,
+        hourly, and daily forecasts along with location metadata.
+        Access level 10.
+      parameters:
+        - name: id_or_slug
+          in: path
+          required: true
+          description: "A unique integer id or string slug for the OpenSnow location (e.g. 1, alta, steamboat)"
+          schema:
+            type: string
+        - name: units
+          in: query
+          schema:
+            type: string
+            enum: [imperial, metric]
+            default: imperial
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location metadata plus forecast_current, forecast_hourly[], forecast_daily[], and attribution
+
+  /forecast/snow-detail/{id_or_slug}:
+    get:
+      operationId: getSnowDetail
+      summary: Day + Night Snow Forecast
+      description: >
+        Get a 5-day day + night snowfall forecast for any named OpenSnow location.
+        Periods split into daytime (6am-6pm) and overnight (6pm-6am) segments.
+        Access level 10.
+      parameters:
+        - name: id_or_slug
+          in: path
+          required: true
+          description: "Integer id or slug (e.g. aspenhighlands)"
+          schema:
+            type: string
+        - name: units
+          in: query
+          schema:
+            type: string
+            enum: [imperial, metric]
+            default: imperial
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >
+            Location metadata plus forecast_current, forecast_hourly[],
+            forecast_semi_daily[], forecast_snow_daily[], forecast_snow_summary[],
+            and attribution
+
+  /snow-report/{id_or_slug}:
+    get:
+      operationId: getSnowReport
+      summary: Snow Report
+      description: >
+        Retrieve the most recent snow report — resort-reported snowfall,
+        base depth, operating status, and conditions.
+        Access level 10.
+      parameters:
+        - name: id_or_slug
+          in: path
+          required: true
+          description: "Location id (integer) or slug (string). Examples: 1, alta, steamboat"
+          schema:
+            type: string
+        - name: units
+          in: query
+          schema:
+            type: string
+            enum: [imperial, metric]
+            default: imperial
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location metadata plus snow_report object and attribution
+
+  /daily-reads/{id_or_slug}/content:
+    get:
+      operationId: getDailySnow
+      summary: Daily Snow
+      description: >
+        Retrieve the most recent Daily Snow post — a written forecast
+        authored by an OpenSnow meteorologist. Includes post body,
+        author info, and related announcements.
+        Access level 10.
+      parameters:
+        - name: id_or_slug
+          in: path
+          required: true
+          description: "Unique id (integer) or slug (string) for the Daily Read region. Examples: colorado, telluride, tahoe"
+          schema:
+            type: string
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+        - name: api_key
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: daily_read object with nested post (including author) and attribution

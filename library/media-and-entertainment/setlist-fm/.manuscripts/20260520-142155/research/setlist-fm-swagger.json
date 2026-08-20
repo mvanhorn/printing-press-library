@@ -1,0 +1,2861 @@
+{
+  "swagger": "2.0",
+  "info" : {
+    "description" : "<p>\nThe setlist.fm API has been designed to give you easy access to setlist data in order to build fancy websites and\nother applications. Before starting to use the API, be sure to ...\n<ol>\n<li>... understand how setlist.fm works (the <a href=\"https://www.setlist.fm/faq\">FAQ<\/a> and the\n<a href=\"https://www.setlist.fm/guidelines\">Guidelines<\/a> are a good starting point),<\/li>\n<li>... read this documentation carefully and<\/li>\n<li>... <a href=\"https://www.setlist.fm/settings/api\">apply for an API key<\/a> (link for logged in users only) - if\nyou're no registered user yet, then <a href=\"https://www.setlist.fm/signup\">register first<\/a> (it's free).<\/li>\n<\/ol>\n<\/p>\n<p>\nIf this documentation isn't enough or if you've got other things you'd like to tell us about the API, visit the\n<a href=\"https://www.setlist.fm/forum/setlistfm/setlistfm-api\">API Forum<\/a>.\n<\/p>\n<p>\nNote that the setlist.fm API is, according to the <a href=\"https://www.setlist.fm/help/api-terms\">API terms of\nservice<\/a>, only free for non-commercial projects. If you're interested in using the API for commercial purposes,\n<a href=\"https://www.setlist.fm/contact\">contact us<\/a>.\n<\/p>\n\n<h2>About this Service<\/h2>\n<p>\nThis service provides methods to get both setlists and components of setlists such as artists, cities, countries or\nvenues.\n<\/p>\n\n<h2>Supported Content Types<\/h2>\n<p>\nThe REST service currently supports XML (default) and JSON content.\n<\/p>\n<p>\nTo receive a JSON response, set the <code>Accept<\/code>\n<a href=\"https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1\">header<\/a> to <em>application/json<\/em>.\n<\/p>\n\n<h2>Internationalization<\/h2>\n<p>\n<small>(Please note that this is an experimental feature and does not work for all cities!)<\/small>\n<\/p>\n<p>\nMost of the featured methods honor the <code>Accept-Language<\/code>\n<a href=\"https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4\">header<\/a>. This header is used for\nlocalizing cities and countries. The default language is English (en), but you can provide any of the languages\nSpanish (es), French (fr), German (de), Portuguese (pt), Turkish (tr), Italian (it) or Polish (pl).\n<\/p>\n<p>\nE.g. if you search a setlist for a concert that took place in Vienna and you pass &quot;de&quot; as header, you'll\nget <em>&quot;Wien, &Ouml;sterreich&quot;<\/em> instead of <em>&quot;Vienna, Austria&quot;<\/em>.<br/>\nThis also works if you use a different language than the country's native language.\n<\/p>\n<p>\nE.g. for a concert in New York, you'll get <em>&quot;Nueva York, Estados Unidos&quot;<\/em> instead of <em>&quot;New\nYork, United States&quot;<\/em> if you pass &quot;es&quot; as language.\n<\/p>\n\n<h2>API Keys<\/h2>\n\nAPI keys (<a href=\"https://www.setlist.fm/settings/api\">application form<\/a>) must be included in the request with\nthe <code>x-api-key<\/code> header.\n\n<h2>Version History<\/h2>\n<table class=\"table table-bordered table-versions\">\n<thead>\n<tr>\n<th>Version<\/th>\n<th>Docs<\/th>\n<th>End of Service<\/th>\n<\/tr>\n<\/thead> <tbody>\n<tr>\n<td><strong>1.0<\/strong><\/td>\n<td><a href=\"/docs/1.0\">Docs<\/a><\/td>\n<td>-<\/li>\n<\/tr>\n<tr>\n<td><strong>0.1<\/strong><\/td>\n<td><\/td>\n<td>December 31, 2017<\/li>\n<\/tr>\n<\/tbody>\n<\/table>",
+    "version" : "1.0",
+    "title" : "setlist.fm API"
+  },
+  "basePath" : "/rest",
+  "schemes" : [],
+  "tags" : [
+    {
+      "name" : "\/1.0/artist/{mbid}"
+    }
+    ,
+    {
+      "name" : "\/1.0/artist/{mbid}/setlists"
+    }
+    ,
+    {
+      "name" : "\/1.0/city/{geoId}"
+    }
+    ,
+    {
+      "name" : "\/1.0/search/artists"
+    }
+    ,
+    {
+      "name" : "\/1.0/search/cities"
+    }
+    ,
+    {
+      "name" : "\/1.0/search/countries"
+    }
+    ,
+    {
+      "name" : "\/1.0/search/setlists"
+    }
+    ,
+    {
+      "name" : "\/1.0/search/venues"
+    }
+    ,
+    {
+      "name" : "\/1.0/setlist/version/{versionId}"
+    }
+    ,
+    {
+      "name" : "\/1.0/setlist/{setlistId}"
+    }
+    ,
+    {
+      "name" : "\/1.0/user/{userId}"
+    }
+    ,
+    {
+      "name" : "\/1.0/user/{userId}/attended"
+    }
+    ,
+    {
+      "name" : "\/1.0/user/{userId}/edited"
+    }
+    ,
+    {
+      "name" : "\/1.0/venue/{venueId}"
+    }
+    ,
+    {
+      "name" : "\/1.0/venue/{venueId}/setlists"
+    }
+  ],
+  "definitions" : {
+    "json_Artist" : {
+      "type" : "object",
+      "title" : "artist",
+          "properties" : {
+            "mbid" : {
+            "example" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+"description" : "unique Musicbrainz Identifier (MBID), e.g. <em>&quot;b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d&quot;<\/em>",
+"type" : "string"
+            },
+            "tmid" : {
+            "example" : 735610,
+"description" : "unique Ticket Master Identifier (TMID), e.g. <em>735610<\/em> (deprecated)",
+"type" : "number"
+            },
+            "name" : {
+            "example" : "The Beatles",
+"description" : "the artist's name, e.g. <em>&quot;The Beatles&quot;<\/em>",
+"type" : "string"
+            },
+            "sortName" : {
+            "example" : "Beatles, The",
+"description" : "the artist's sort name, e.g. <em>&quot;Beatles, The&quot;<\/em> or <em>&quot;Springsteen, Bruce&quot;<\/em>",
+"type" : "string"
+            },
+            "disambiguation" : {
+            "example" : "John, Paul, George and Ringo",
+"description" : "disambiguation to distinguish between artists with same names",
+"type" : "string"
+            },
+            "url" : {
+            "example" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html",
+"description" : "the attribution url",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+  "name" : "The Beatles",
+  "sortName" : "Beatles, The",
+  "disambiguation" : "John, Paul, George and Ringo",
+  "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+},
+      "description" : "This class represents an artist. An artist is a musician or a group of musicians. Each artist has a definite\n<a href=\"http://wiki.musicbrainz.org/MBID\">Musicbrainz Identifier<\/a> (MBID) with which the artist can be uniquely\nidentified."
+    }
+    ,
+    "json_Artists" : {
+      "type" : "object",
+      "title" : "artists",
+          "properties" : {
+            "artist" : {
+"description" : "result list of artists",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Artist"
+}
+            },
+            "total" : {
+            "example" : 42,
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            },
+            "page" : {
+            "example" : 1,
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "itemsPerPage" : {
+            "example" : 20,
+"description" : "the amount of items you get per page",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "artist" : [ {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  }, {
+    "mbid" : "...",
+    "name" : "...",
+    "sortName" : "...",
+    "disambiguation" : "...",
+    "url" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+},
+      "description" : "A Result consisting of a list of artists."
+    }
+    ,
+    "json_Cities" : {
+      "type" : "object",
+      "title" : "cities",
+          "properties" : {
+            "cities" : {
+"description" : "result list of cities",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_City"
+}
+            },
+            "total" : {
+            "example" : 42,
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            },
+            "page" : {
+            "example" : 1,
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "itemsPerPage" : {
+            "example" : 20,
+"description" : "the amount of items you get per page",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "cities" : [ {
+    "id" : "5357527",
+    "name" : "Hollywood",
+    "stateCode" : "CA",
+    "state" : "California",
+    "coords" : {
+      "long" : -118.3267434,
+      "lat" : 34.0983425
+    },
+    "country" : {
+      "code" : "US",
+      "name" : "United States"
+    }
+  }, {
+    "id" : "...",
+    "name" : "...",
+    "stateCode" : "...",
+    "state" : "...",
+    "coords" : {
+      "long" : 12345.0,
+      "lat" : 12345.0
+    },
+    "country" : {
+      "code" : "...",
+      "name" : "..."
+    }
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+},
+      "description" : "A Result consisting of a list of cities."
+    }
+    ,
+    "json_City" : {
+      "type" : "object",
+      "title" : "city",
+          "properties" : {
+            "id" : {
+            "example" : "5357527",
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "name" : {
+            "example" : "Hollywood",
+"description" : "the city's name, depending on the language valid values are e.g. <em>&quot;M&uuml;chen&quot;<\/em> or\n<em>Munich<\/em>",
+"type" : "string"
+            },
+            "stateCode" : {
+            "example" : "CA",
+"description" : "The code of the city's state. For most countries this is a two-digit numeric code, with which the state can be\nidentified uniquely in the specific Country. The code can also be a String for other cities. Valid\nexamples are <em>&quot;CA&quot;<\/em> or <em>&quot;02&quot;<\/em>\n\nwhich in turn get uniquely identifiable when combined with the state's country:\n\n<em>&quot;US.CA&quot;<\/em> for California, United States or <em>&quot;DE.02&quot;<\/em> for Bavaria, Germany\n\nFor a complete list of available states (that aren't necessarily used in this database) is available in\n<a href= \"http://download.geonames.org/export/dump/admin1CodesASCII.txt\">a textfile on geonames.org<\/a>.\n\nNote that this code is only unique combined with the city's Country. The code alone is\n<strong>not<\/strong> unique.",
+"type" : "string"
+            },
+            "state" : {
+            "example" : "California",
+"description" : "The name of city's state, e.g. <em>&quot;Bavaria&quot;<\/em> or <em>&quot;Florida&quot;<\/em>",
+"type" : "string"
+            },
+            "coords" : {
+"description" : "The city's coordinates. Usually the coordinates of the city centre are used.",
+"$ref" : "#/definitions/json_Coords"
+            },
+            "country" : {
+"description" : "The city's country.",
+"$ref" : "#/definitions/json_Country"
+            }
+          },
+      "example" : {
+  "id" : "5357527",
+  "name" : "Hollywood",
+  "stateCode" : "CA",
+  "state" : "California",
+  "coords" : {
+    "long" : -118.3267434,
+    "lat" : 34.0983425
+  },
+  "country" : {
+    "code" : "US",
+    "name" : "United States"
+  }
+},
+      "description" : "This class represents a city where Venues are located. Most of the original city data was taken from\n<a href=\"http://geonames.org/\">Geonames.org<\/a>."
+    }
+    ,
+    "json_Coords" : {
+      "type" : "object",
+      "title" : "coords",
+          "properties" : {
+            "long" : {
+            "example" : -118.3267434,
+"description" : "The longitude part of the coordinates.",
+"type" : "number"
+            },
+            "lat" : {
+            "example" : 34.0983425,
+"description" : "The latitude part of the coordinates.",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "long" : -118.3267434,
+  "lat" : 34.0983425
+},
+      "description" : "Coordinates of a point on the globe. Mostly used for Cities."
+    }
+    ,
+    "json_Countries" : {
+      "type" : "object",
+      "title" : "countries",
+          "properties" : {
+            "country" : {
+"description" : "result list of countries",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Country"
+}
+            },
+            "total" : {
+            "example" : 42,
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            },
+            "page" : {
+            "example" : 1,
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "itemsPerPage" : {
+            "example" : 20,
+"description" : "the amount of items you get per page",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "country" : [ {
+    "code" : "US",
+    "name" : "United States"
+  }, {
+    "code" : "...",
+    "name" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+},
+      "description" : "A Result consisting of a list of countries."
+    }
+    ,
+    "json_Country" : {
+      "type" : "object",
+      "title" : "country",
+          "properties" : {
+            "code" : {
+            "example" : "US",
+"description" : "The country's <a href= \"http://www.iso.org/iso/english_country_names_and_code_elements\" >ISO code<\/a>. E.g.\n<em>&quot;ie&quot;<\/em> for Ireland",
+"type" : "string"
+            },
+            "name" : {
+            "example" : "United States",
+"description" : "The country's name. Can be a localized name - e.g. <em>&quot;Austria&quot;<\/em> or\n<em>&quot;&Ouml;sterreich&quot;<\/em> for Austria if the German name was requested.",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "code" : "US",
+  "name" : "United States"
+},
+      "description" : "This class represents a country on earth."
+    }
+    ,
+    "json_Error" : {
+      "type" : "object",
+      "title" : "error",
+          "properties" : {
+            "code" : {
+            "example" : 404,
+"description" : "the HTTP status code",
+"type" : "number"
+            },
+            "status" : {
+            "example" : "Not Found",
+"description" : "the HTTP status message",
+"type" : "string"
+            },
+            "message" : {
+            "example" : "unknown mbid",
+"description" : "an additional error message",
+"type" : "string"
+            },
+            "timestamp" : {
+            "example" : "2016-12-08T17:52:48.817+0000",
+"description" : "current timestamp",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "code" : 404,
+  "status" : "Not Found",
+  "message" : "unknown mbid",
+  "timestamp" : "2016-12-08T17:52:48.817+0000"
+},
+      "description" : "Returned in case of an error."
+    }
+    ,
+    "json_Set" : {
+      "type" : "object",
+      "title" : "set",
+          "properties" : {
+            "name" : {
+"description" : "the description/name of the set. E.g. <em>&quot;Acoustic set&quot;<\/em> or <em>&quot;Paul McCartney\nsolo&quot;<\/em>",
+"type" : "string"
+            },
+            "encore" : {
+"description" : "if the set is an encore, this is the number of the encore, starting with 1 for the first encore, 2 for the second\nand so on.",
+"type" : "number"
+            },
+            "song" : {
+"description" : "this set's songs",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Song"
+}
+            }
+          },
+      "example" : {
+  "name" : "...",
+  "encore" : 12345,
+  "song" : [ {
+    "name" : "Yesterday",
+    "with" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "cover" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "info" : "...",
+    "tape" : false
+  }, {
+    "name" : "...",
+    "with" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "cover" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "info" : "...",
+    "tape" : true
+  } ]
+},
+      "description" : "A setlist consists of different (at least one) sets. Sets can either be sets as defined in the\n<a href=\"https://www.setlist.fm/guidelines\">Guidelines<\/a> or encores."
+    }
+    ,
+    "json_Setlist" : {
+      "type" : "object",
+      "title" : "setlist",
+          "properties" : {
+            "artist" : {
+"description" : "the setlist's artist",
+"$ref" : "#/definitions/json_Artist"
+            },
+            "venue" : {
+"description" : "the setlist's venue",
+"$ref" : "#/definitions/json_Venue"
+            },
+            "tour" : {
+"description" : "the setlist's tour",
+"$ref" : "#/definitions/json_Tour"
+            },
+            "set" : {
+"description" : "all sets of this setlist",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Set"
+}
+            },
+            "info" : {
+            "example" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+"description" : "additional information on the concert - see the <a href=\"https://www.setlist.fm/guidelines\">setlist.fm\nguidelines<\/a> for a complete list of allowed content.",
+"type" : "string"
+            },
+            "url" : {
+            "example" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+"description" : "the attribution url to which you have to link to wherever you use data from this setlist in your application",
+"type" : "string"
+            },
+            "id" : {
+            "example" : "63de4613",
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "versionId" : {
+            "example" : "7be1aaa0",
+"description" : "unique identifier of the version",
+"type" : "string"
+            },
+            "lastFmEventId" : {
+            "example" : 1164056,
+"description" : "the id this event has on <a href=\"http://last.fm/\">last.fm<\/a> (deprecated)",
+"type" : "number"
+            },
+            "eventDate" : {
+            "example" : "23-08-1964",
+"description" : "date of the concert in the format &quot;dd-MM-yyyy&quot;",
+"type" : "string"
+            },
+            "lastUpdated" : {
+            "example" : "2013-10-20T05:18:08.000+0000",
+"description" : "date, time and time zone of the last update to this setlist in the format\n&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ&quot;",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "artist" : {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  },
+  "venue" : {
+    "city" : {
+      "id" : "5357527",
+      "name" : "Hollywood",
+      "stateCode" : "CA",
+      "state" : "California",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+    "id" : "6bd6ca6e",
+    "name" : "Compaq Center"
+  },
+  "tour" : {
+    "name" : "North American Tour 1964"
+  },
+  "set" : [ {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "Yesterday",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : false
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  }, {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  } ],
+  "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+  "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+  "id" : "63de4613",
+  "versionId" : "7be1aaa0",
+  "eventDate" : "23-08-1964",
+  "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+},
+      "description" : "Setlists, that's what it's all about. So if you're trying to use this API without knowing what a setlist is then\nyou're kinda wrong on this page ;-).\n\nA setlist can be distinguished from other setlists by its unique id. But as\n<a href=\"https://www.setlist.fm/\">setlist.fm<\/a> works the wiki way, there can be different versions of one setlist\n(each time a user updates a setlist a new version gets created). These different versions have a unique id on its\nown. So setlists can have the same id although they differ as far as the content is concerned - thus the best way to\ncheck if two setlists are the same is to compare their versionIds."
+    }
+    ,
+    "json_Setlists" : {
+      "type" : "object",
+      "title" : "setlists",
+          "properties" : {
+            "setlist" : {
+"description" : "result list of setlists",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Setlist"
+}
+            },
+            "total" : {
+            "example" : 42,
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            },
+            "page" : {
+            "example" : 1,
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "itemsPerPage" : {
+            "example" : 20,
+"description" : "the amount of items you get per page",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+},
+      "description" : "A Result consisting of a list of setlists."
+    }
+    ,
+    "json_Song" : {
+      "type" : "object",
+      "title" : "song",
+          "properties" : {
+            "name" : {
+            "example" : "Yesterday",
+"description" : "The name of the song. E.g. <em>Yesterday<\/em> or <em>&quot;Wish You Were Here&quot;<\/em>",
+"type" : "string"
+            },
+            "with" : {
+"description" : "A different Artist than the performing one that joined the stage for this song.",
+"$ref" : "#/definitions/json_Artist"
+            },
+            "cover" : {
+"description" : "The original Artist of this song, if different to the performing artist.",
+"$ref" : "#/definitions/json_Artist"
+            },
+            "info" : {
+"description" : "Special incidents or additional information about the way the song was performed at this specific concert. See\nthe <a href=\"https://www.setlist.fm/guidelines\">setlist.fm guidelines<\/a> for a complete list of allowed content.",
+"type" : "string"
+            },
+            "tape" : {
+            "example" : false,
+"description" : "The song came from tape rather than being performed live. See the\n<a href=\"https://www.setlist.fm/guidelines#tape-songs\">tape section of the guidelines<\/a> for valid usage.",
+"type" : "boolean"
+            }
+          },
+      "example" : {
+  "name" : "Yesterday",
+  "with" : {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  },
+  "cover" : {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  },
+  "info" : "...",
+  "tape" : false
+},
+      "description" : "This class represents a song that is part of a Set."
+    }
+    ,
+    "json_Tour" : {
+      "type" : "object",
+      "title" : "tour",
+          "properties" : {
+            "name" : {
+            "example" : "North American Tour 1964",
+"description" : "The name of the tour.",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "name" : "North American Tour 1964"
+},
+      "description" : "The tour a setlist was a part of."
+    }
+    ,
+    "json_User" : {
+      "type" : "object",
+      "title" : "user",
+          "properties" : {
+            "userId" : {
+"description" : "",
+"type" : "string"
+            },
+            "fullname" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "lastFm" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "mySpace" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "twitter" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "flickr" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "website" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "about" : {
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "url" : {
+"description" : "",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "userId" : "...",
+  "fullname" : "...",
+  "lastFm" : "...",
+  "mySpace" : "...",
+  "twitter" : "...",
+  "flickr" : "...",
+  "website" : "...",
+  "about" : "...",
+  "url" : "..."
+},
+      "description" : "This class represents a user."
+    }
+    ,
+    "json_Venue" : {
+      "type" : "object",
+      "title" : "venue",
+          "properties" : {
+            "city" : {
+"description" : "the city in which the venue is located",
+"$ref" : "#/definitions/json_City"
+            },
+            "url" : {
+            "example" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+"description" : "the attribution url",
+"type" : "string"
+            },
+            "id" : {
+            "example" : "6bd6ca6e",
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "name" : {
+            "example" : "Compaq Center",
+"description" : "the name of the venue, usually without city and country. E.g. <em>&quot;Madison Square Garden&quot;<\/em> or\n<em>&quot;Royal Albert Hall&quot;<\/em>",
+"type" : "string"
+            }
+          },
+      "example" : {
+  "city" : {
+    "id" : "5357527",
+    "name" : "Hollywood",
+    "stateCode" : "CA",
+    "state" : "California",
+    "coords" : {
+      "long" : -118.3267434,
+      "lat" : 34.0983425
+    },
+    "country" : {
+      "code" : "US",
+      "name" : "United States"
+    }
+  },
+  "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+  "id" : "6bd6ca6e",
+  "name" : "Compaq Center"
+},
+      "description" : "Venues are places where concerts take place. They usually consist of a venue name and a city - but there are also\nsome venues that do not have a city attached yet. In such a case, the city simply isn't set and the city and country\nmay (but do not have to) be in the name."
+    }
+    ,
+    "json_Venues" : {
+      "type" : "object",
+      "title" : "venues",
+          "properties" : {
+            "venue" : {
+"description" : "result list of venues",
+"type" : "array",
+"items" : {
+  "$ref" : "#/definitions/json_Venue"
+}
+            },
+            "total" : {
+            "example" : 42,
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            },
+            "page" : {
+            "example" : 1,
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "itemsPerPage" : {
+            "example" : 20,
+"description" : "the amount of items you get per page",
+"type" : "number"
+            }
+          },
+      "example" : {
+  "venue" : [ {
+    "city" : {
+      "id" : "5357527",
+      "name" : "Hollywood",
+      "stateCode" : "CA",
+      "state" : "California",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+    "id" : "6bd6ca6e",
+    "name" : "Compaq Center"
+  }, {
+    "city" : {
+      "id" : "...",
+      "name" : "...",
+      "stateCode" : "...",
+      "state" : "...",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "...",
+    "id" : "...",
+    "name" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+},
+      "description" : "A Result consisting of a list of venues."
+    }
+    ,
+    "xml_ns0_artist" : {
+      "type" : "object",
+      "title" : "artist",
+      "required" : ["mbid", "sortName", "name", "url"],
+      "allOf" : [
+        {
+          "properties" : {
+            "tmid" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique Ticket Master Identifier (TMID), e.g. <em>735610<\/em> (deprecated)",
+"type" : "number"
+            },
+            "mbid" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique Musicbrainz Identifier (MBID), e.g. <em>&quot;b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d&quot;<\/em>",
+"type" : "string"
+            },
+            "sortName" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the artist's sort name, e.g. <em>&quot;Beatles, The&quot;<\/em> or <em>&quot;Springsteen, Bruce&quot;<\/em>",
+"type" : "string"
+            },
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the artist's name, e.g. <em>&quot;The Beatles&quot;<\/em>",
+"type" : "string"
+            },
+            "disambiguation" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "disambiguation to distinguish between artists with same names",
+"type" : "string"
+            },
+            "url" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the attribution url",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "This class represents an artist. An artist is a musician or a group of musicians. Each artist has a definite\n<a href=\"http://wiki.musicbrainz.org/MBID\">Musicbrainz Identifier<\/a> (MBID) with which the artist can be uniquely\nidentified."
+    }
+    ,
+    "xml_ns0_artists" : {
+      "type" : "object",
+      "title" : "artists",
+      "allOf" : [
+        {
+          "$ref" : "#/definitions/xml_ns0_result"
+        },
+        {
+        }
+      ],
+      "description" : "A Result consisting of a list of artists."
+    }
+    ,
+    "xml_ns0_cities" : {
+      "type" : "object",
+      "title" : "cities",
+      "allOf" : [
+        {
+          "$ref" : "#/definitions/xml_ns0_result"
+        },
+        {
+        }
+      ],
+      "description" : "A Result consisting of a list of cities."
+    }
+    ,
+    "xml_ns0_city" : {
+      "type" : "object",
+      "title" : "city",
+      "required" : ["id", "name", "country"],
+      "allOf" : [
+        {
+          "properties" : {
+            "id" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the city's name, depending on the language valid values are e.g. <em>&quot;M&uuml;chen&quot;<\/em> or\n<em>Munich<\/em>",
+"type" : "string"
+            },
+            "state" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The name of city's state, e.g. <em>&quot;Bavaria&quot;<\/em> or <em>&quot;Florida&quot;<\/em>",
+"type" : "string"
+            },
+            "stateCode" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The code of the city's state. For most countries this is a two-digit numeric code, with which the state can be\nidentified uniquely in the specific Country. The code can also be a String for other cities. Valid\nexamples are <em>&quot;CA&quot;<\/em> or <em>&quot;02&quot;<\/em>\n\nwhich in turn get uniquely identifiable when combined with the state's country:\n\n<em>&quot;US.CA&quot;<\/em> for California, United States or <em>&quot;DE.02&quot;<\/em> for Bavaria, Germany\n\nFor a complete list of available states (that aren't necessarily used in this database) is available in\n<a href= \"http://download.geonames.org/export/dump/admin1CodesASCII.txt\">a textfile on geonames.org<\/a>.\n\nNote that this code is only unique combined with the city's Country. The code alone is\n<strong>not<\/strong> unique.",
+"type" : "string"
+            },
+            "coords" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "The city's coordinates. Usually the coordinates of the city centre are used.",
+"$ref" : "#/definitions/xml_ns0_coords"
+            },
+            "country" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "The city's country.",
+"$ref" : "#/definitions/xml_ns0_country"
+            }
+          }
+        }
+      ],
+      "description" : "This class represents a city where Venues are located. Most of the original city data was taken from\n<a href=\"http://geonames.org/\">Geonames.org<\/a>."
+    }
+    ,
+    "xml_ns0_coords" : {
+      "type" : "object",
+      "title" : "coords",
+      "required" : ["lat", "long"],
+      "allOf" : [
+        {
+          "properties" : {
+            "lat" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The latitude part of the coordinates.",
+"type" : "number"
+            },
+            "long" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The longitude part of the coordinates.",
+"type" : "number"
+            }
+          }
+        }
+      ],
+      "description" : "Coordinates of a point on the globe. Mostly used for Cities."
+    }
+    ,
+    "xml_ns0_countries" : {
+      "type" : "object",
+      "title" : "countries",
+      "allOf" : [
+        {
+          "$ref" : "#/definitions/xml_ns0_result"
+        },
+        {
+        }
+      ],
+      "description" : "A Result consisting of a list of countries."
+    }
+    ,
+    "xml_ns0_country" : {
+      "type" : "object",
+      "title" : "country",
+      "required" : ["code", "name"],
+      "allOf" : [
+        {
+          "properties" : {
+            "code" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The country's <a href= \"http://www.iso.org/iso/english_country_names_and_code_elements\" >ISO code<\/a>. E.g.\n<em>&quot;ie&quot;<\/em> for Ireland",
+"type" : "string"
+            },
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The country's name. Can be a localized name - e.g. <em>&quot;Austria&quot;<\/em> or\n<em>&quot;&Ouml;sterreich&quot;<\/em> for Austria if the German name was requested.",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "This class represents a country on earth."
+    }
+    ,
+    "xml_ns0_error" : {
+      "type" : "object",
+      "title" : "error",
+      "required" : ["code", "status", "timestamp"],
+      "allOf" : [
+        {
+          "properties" : {
+            "code" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the HTTP status code",
+"type" : "number"
+            },
+            "status" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the HTTP status message",
+"type" : "string"
+            },
+            "message" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "an additional error message",
+"type" : "string"
+            },
+            "timestamp" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "current timestamp",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "Returned in case of an error."
+    }
+    ,
+    "xml_ns0_result" : {
+      "type" : "object",
+      "title" : "result",
+      "required" : ["itemsPerPage", "page", "total"],
+      "allOf" : [
+        {
+          "properties" : {
+            "itemsPerPage" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the amount of items you get per page",
+"type" : "number"
+            },
+            "page" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the current page. starts at 1",
+"type" : "number"
+            },
+            "total" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the total amount of items matching the query",
+"type" : "number"
+            }
+          }
+        }
+      ],
+      "description" : "<p>\nIf a request returns a list of items they're always wrapped into a Result. As there is a maximum amount of items to\nbe returned at once a Result consists of the total amount of items (total), how many items per page you get\n(itemsPerPage), the current page (page) and the current list of items.\n<\/p>\n\n<p>\nE.g. if there are 35 items, itemsPerPage is 10 and the current page is 2, then items 11 to 20 are in the list.\n<\/p>"
+    }
+    ,
+    "xml_ns0_set" : {
+      "type" : "object",
+      "title" : "set",
+      "required" : ["song"],
+      "allOf" : [
+        {
+          "properties" : {
+            "encore" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "if the set is an encore, this is the number of the encore, starting with 1 for the first encore, 2 for the second\nand so on.",
+"type" : "number"
+            },
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the description/name of the set. E.g. <em>&quot;Acoustic set&quot;<\/em> or <em>&quot;Paul McCartney\nsolo&quot;<\/em>",
+"type" : "string"
+            },
+            "song" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "this set's songs",
+"$ref" : "#/definitions/xml_ns0_song"
+            }
+          }
+        }
+      ],
+      "description" : "A setlist consists of different (at least one) sets. Sets can either be sets as defined in the\n<a href=\"https://www.setlist.fm/guidelines\">Guidelines<\/a> or encores."
+    }
+    ,
+    "xml_ns0_setlist" : {
+      "type" : "object",
+      "title" : "setlist",
+      "required" : ["lastUpdated", "versionId", "id", "eventDate", "artist", "venue", "url"],
+      "allOf" : [
+        {
+          "properties" : {
+            "lastUpdated" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "date, time and time zone of the last update to this setlist in the format\n&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ&quot;",
+"type" : "string"
+            },
+            "versionId" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique identifier of the version",
+"type" : "string"
+            },
+            "lastFmEventId" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the id this event has on <a href=\"http://last.fm/\">last.fm<\/a> (deprecated)",
+"type" : "number"
+            },
+            "id" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "eventDate" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "date of the concert in the format &quot;dd-MM-yyyy&quot;",
+"type" : "string"
+            },
+            "artist" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the setlist's artist",
+"$ref" : "#/definitions/xml_ns0_artist"
+            },
+            "venue" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the setlist's venue",
+"$ref" : "#/definitions/xml_ns0_venue"
+            },
+            "tour" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the setlist's tour",
+"$ref" : "#/definitions/xml_ns0_tour"
+            },
+            "set" : {
+              "xml" : {
+                "name" : "sets",
+                "wrapped" : true,
+                "namespace" : ""
+              },
+"description" : "all sets of this setlist",
+"$ref" : "#/definitions/xml_ns0_set"
+            },
+            "info" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "additional information on the concert - see the <a href=\"https://www.setlist.fm/guidelines\">setlist.fm\nguidelines<\/a> for a complete list of allowed content.",
+"type" : "string"
+            },
+            "url" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the attribution url to which you have to link to wherever you use data from this setlist in your application",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "Setlists, that's what it's all about. So if you're trying to use this API without knowing what a setlist is then\nyou're kinda wrong on this page ;-).\n\nA setlist can be distinguished from other setlists by its unique id. But as\n<a href=\"https://www.setlist.fm/\">setlist.fm<\/a> works the wiki way, there can be different versions of one setlist\n(each time a user updates a setlist a new version gets created). These different versions have a unique id on its\nown. So setlists can have the same id although they differ as far as the content is concerned - thus the best way to\ncheck if two setlists are the same is to compare their versionIds."
+    }
+    ,
+    "xml_ns0_setlists" : {
+      "type" : "object",
+      "title" : "setlists",
+      "allOf" : [
+        {
+          "$ref" : "#/definitions/xml_ns0_result"
+        },
+        {
+        }
+      ],
+      "description" : "A Result consisting of a list of setlists."
+    }
+    ,
+    "xml_ns0_song" : {
+      "type" : "object",
+      "title" : "song",
+      "required" : ["name"],
+      "allOf" : [
+        {
+          "properties" : {
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The name of the song. E.g. <em>Yesterday<\/em> or <em>&quot;Wish You Were Here&quot;<\/em>",
+"type" : "string"
+            },
+            "tape" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The song came from tape rather than being performed live. See the\n<a href=\"https://www.setlist.fm/guidelines#tape-songs\">tape section of the guidelines<\/a> for valid usage.",
+"type" : "boolean"
+            },
+            "cover" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "The original Artist of this song, if different to the performing artist.",
+"$ref" : "#/definitions/xml_ns0_artist"
+            },
+            "info" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "Special incidents or additional information about the way the song was performed at this specific concert. See\nthe <a href=\"https://www.setlist.fm/guidelines\">setlist.fm guidelines<\/a> for a complete list of allowed content.",
+"type" : "string"
+            },
+            "with" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "A different Artist than the performing one that joined the stage for this song.",
+"$ref" : "#/definitions/xml_ns0_artist"
+            }
+          }
+        }
+      ],
+      "description" : "This class represents a song that is part of a Set."
+    }
+    ,
+    "xml_ns0_tour" : {
+      "type" : "object",
+      "title" : "tour",
+      "required" : ["name"],
+      "allOf" : [
+        {
+          "properties" : {
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "The name of the tour.",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "The tour a setlist was a part of."
+    }
+    ,
+    "xml_ns0_user" : {
+      "type" : "object",
+      "title" : "user",
+      "required" : ["userId", "url"],
+      "allOf" : [
+        {
+          "properties" : {
+            "flickr" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "fullname" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "lastFm" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "mySpace" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "twitter" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "userId" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "",
+"type" : "string"
+            },
+            "website" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "about" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "never set (deprecated)",
+"type" : "string"
+            },
+            "url" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "This class represents a user."
+    }
+    ,
+    "xml_ns0_venue" : {
+      "type" : "object",
+      "title" : "venue",
+      "required" : ["id"],
+      "allOf" : [
+        {
+          "properties" : {
+            "name" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "the name of the venue, usually without city and country. E.g. <em>&quot;Madison Square Garden&quot;<\/em> or\n<em>&quot;Royal Albert Hall&quot;<\/em>",
+"type" : "string"
+            },
+            "id" : {
+              "xml" : {
+                "attribute" : true,
+                "namespace" : ""
+              },
+"description" : "unique identifier",
+"type" : "string"
+            },
+            "city" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the city in which the venue is located",
+"$ref" : "#/definitions/xml_ns0_city"
+            },
+            "url" : {
+              "xml" : {
+                "namespace" : ""
+              },
+"description" : "the attribution url",
+"type" : "string"
+            }
+          }
+        }
+      ],
+      "description" : "Venues are places where concerts take place. They usually consist of a venue name and a city - but there are also\nsome venues that do not have a city attached yet. In such a case, the city simply isn't set and the city and country\nmay (but do not have to) be in the name."
+    }
+    ,
+    "xml_ns0_venues" : {
+      "type" : "object",
+      "title" : "venues",
+      "allOf" : [
+        {
+          "$ref" : "#/definitions/xml_ns0_result"
+        },
+        {
+        }
+      ],
+      "description" : "A Result consisting of a list of venues."
+    }
+  },
+  "paths": {
+    "\/1.0/artist/{mbid}" : {
+      "get" : {
+        "tags" : [ "\/1.0/artist/{mbid}" ],
+        "summary" : ".",
+        "description" : "<p>\nReturns an artist for a given Musicbrainz MBID\n<\/p>",
+        "operationId" : "resource__1.0_artist__mbid__getArtist_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "mbid",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "a Musicbrainz MBID, e.g. 0bfba3d3-6a04-4779-bb0a-df07df5b0558"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Artist"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+  "name" : "The Beatles",
+  "sortName" : "Beatles, The",
+  "disambiguation" : "John, Paul, George and Ringo",
+  "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/artist/{mbid}/setlists" : {
+      "get" : {
+        "tags" : [ "\/1.0/artist/{mbid}/setlists" ],
+        "summary" : ".",
+        "description" : "<p>\nGet a list of an artist's setlists.\n<\/p>",
+        "operationId" : "resource__1.0_artist__mbid__setlists_getArtistSetlists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "mbid",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the Musicbrainz MBID of the artist"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/city/{geoId}" : {
+      "get" : {
+        "tags" : [ "\/1.0/city/{geoId}" ],
+        "summary" : "Get a city by its unique geoId.",
+        "description" : "Get a city by its unique geoId.",
+        "operationId" : "resource__1.0_city__geoId__getCity_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "geoId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the city's geoId"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_City"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "id" : "5357527",
+  "name" : "Hollywood",
+  "stateCode" : "CA",
+  "state" : "California",
+  "coords" : {
+    "long" : -118.3267434,
+    "lat" : 34.0983425
+  },
+  "country" : {
+    "code" : "US",
+    "name" : "United States"
+  }
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/search/artists" : {
+      "get" : {
+        "tags" : [ "\/1.0/search/artists" ],
+        "summary" : "Search for artists.",
+        "description" : "Search for artists.",
+        "operationId" : "resource__1.0_search_artists_getArtists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "artistMbid",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the artist's Musicbrainz Identifier (mbid)"
+          },
+          {
+            "name" : "artistName",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the artist's name"
+          },
+          {
+            "name" : "artistTmid",
+            "in" : "query",
+            "type" : "integer",
+            "description" : "the artist's Ticketmaster Identifier (tmid) (deprecated)"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page you'd like to have"
+          },
+          {
+            "name" : "sort",
+            "in" : "query",
+            "default" : "sortName",
+            "type" : "string",
+            "description" : "the sort of the result, either sortName (default) or relevance"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Artists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "artist" : [ {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  }, {
+    "mbid" : "...",
+    "name" : "...",
+    "sortName" : "...",
+    "disambiguation" : "...",
+    "url" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/search/cities" : {
+      "get" : {
+        "tags" : [ "\/1.0/search/cities" ],
+        "summary" : "Search for a city.",
+        "description" : "Search for a city.",
+        "operationId" : "resource__1.0_search_cities_getCities_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "country",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's country"
+          },
+          {
+            "name" : "name",
+            "in" : "query",
+            "type" : "string",
+            "description" : "name of the city"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page you'd like to have"
+          },
+          {
+            "name" : "state",
+            "in" : "query",
+            "type" : "string",
+            "description" : "state the city lies in"
+          },
+          {
+            "name" : "stateCode",
+            "in" : "query",
+            "type" : "string",
+            "description" : "state code the city lies in"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Cities"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "cities" : [ {
+    "id" : "5357527",
+    "name" : "Hollywood",
+    "stateCode" : "CA",
+    "state" : "California",
+    "coords" : {
+      "long" : -118.3267434,
+      "lat" : 34.0983425
+    },
+    "country" : {
+      "code" : "US",
+      "name" : "United States"
+    }
+  }, {
+    "id" : "...",
+    "name" : "...",
+    "stateCode" : "...",
+    "state" : "...",
+    "coords" : {
+      "long" : 12345.0,
+      "lat" : 12345.0
+    },
+    "country" : {
+      "code" : "...",
+      "name" : "..."
+    }
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/search/countries" : {
+      "get" : {
+        "tags" : [ "\/1.0/search/countries" ],
+        "summary" : "Get a complete list of all supported countries.",
+        "description" : "Get a complete list of all supported countries.",
+        "operationId" : "resource__1.0_search_countries_getCountries_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Countries"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "country" : [ {
+    "code" : "US",
+    "name" : "United States"
+  }, {
+    "code" : "...",
+    "name" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/search/setlists" : {
+      "get" : {
+        "tags" : [ "\/1.0/search/setlists" ],
+        "summary" : "Search for setlists.",
+        "description" : "Search for setlists.",
+        "operationId" : "resource__1.0_search_setlists_getSetlists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "artistMbid",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the artist's Musicbrainz Identifier (mbid)"
+          },
+          {
+            "name" : "artistName",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the artist's name"
+          },
+          {
+            "name" : "artistTmid",
+            "in" : "query",
+            "type" : "integer",
+            "description" : "the artist's Ticketmaster Identifier (tmid) (deprecated)"
+          },
+          {
+            "name" : "cityId",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's geoId"
+          },
+          {
+            "name" : "cityName",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the name of the city"
+          },
+          {
+            "name" : "countryCode",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the country code"
+          },
+          {
+            "name" : "date",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the date of the event (format dd-MM-yyyy)"
+          },
+          {
+            "name" : "lastFm",
+            "in" : "query",
+            "type" : "integer",
+            "description" : "the event's Last.fm Event ID (deprecated)"
+          },
+          {
+            "name" : "lastUpdated",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the date and time (UTC) when this setlist was last updated (format yyyyMMddHHmmss) - either edited or\nreverted. search will return setlists that were updated on or after this date"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page"
+          },
+          {
+            "name" : "state",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the state"
+          },
+          {
+            "name" : "stateCode",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the state code"
+          },
+          {
+            "name" : "tourName",
+            "in" : "query",
+            "type" : "string",
+            "description" : ""
+          },
+          {
+            "name" : "venueId",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the venue id"
+          },
+          {
+            "name" : "venueName",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the name of the venue"
+          },
+          {
+            "name" : "year",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the year of the event"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/search/venues" : {
+      "get" : {
+        "tags" : [ "\/1.0/search/venues" ],
+        "summary" : "Search for venues.",
+        "description" : "Search for venues.",
+        "operationId" : "resource__1.0_search_venues_getVenues_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "cityId",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's geoId"
+          },
+          {
+            "name" : "cityName",
+            "in" : "query",
+            "type" : "string",
+            "description" : "name of the city where the venue is located"
+          },
+          {
+            "name" : "country",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's country"
+          },
+          {
+            "name" : "name",
+            "in" : "query",
+            "type" : "string",
+            "description" : "name of the venue"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page you'd like to have"
+          },
+          {
+            "name" : "state",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's state"
+          },
+          {
+            "name" : "stateCode",
+            "in" : "query",
+            "type" : "string",
+            "description" : "the city's state code"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Venues"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "venue" : [ {
+    "city" : {
+      "id" : "5357527",
+      "name" : "Hollywood",
+      "stateCode" : "CA",
+      "state" : "California",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+    "id" : "6bd6ca6e",
+    "name" : "Compaq Center"
+  }, {
+    "city" : {
+      "id" : "...",
+      "name" : "...",
+      "stateCode" : "...",
+      "state" : "...",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "...",
+    "id" : "...",
+    "name" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/setlist/version/{versionId}" : {
+      "get" : {
+        "tags" : [ "\/1.0/setlist/version/{versionId}" ],
+        "summary" : ".",
+        "description" : "<p>\n<strong>Deprecated<\/strong> - always returns <em>Not Found (404)<\/em>\n<\/p>\n\n<p>\nReturns a setlist for the given versionId. The setlist returned isn't necessarily the most recent version. E.g.\nif you pass the versionId of a setlist that got edited since you last accessed it, you'll get the same version as\nlast time.\n<\/p>",
+        "operationId" : "resource__1.0_setlist_version__versionId__getSetlistVersion_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "versionId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the version id"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlist"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "artist" : {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  },
+  "venue" : {
+    "city" : {
+      "id" : "5357527",
+      "name" : "Hollywood",
+      "stateCode" : "CA",
+      "state" : "California",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+    "id" : "6bd6ca6e",
+    "name" : "Compaq Center"
+  },
+  "tour" : {
+    "name" : "North American Tour 1964"
+  },
+  "set" : [ {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "Yesterday",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : false
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  }, {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  } ],
+  "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+  "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+  "id" : "63de4613",
+  "versionId" : "7be1aaa0",
+  "eventDate" : "23-08-1964",
+  "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/setlist/{setlistId}" : {
+      "get" : {
+        "tags" : [ "\/1.0/setlist/{setlistId}" ],
+        "summary" : ".",
+        "description" : "<p>\nReturns the current version of a setlist. E.g. if you pass the id of a setlist that got edited since you last\naccessed it, you'll get the current version.\n<\/p>",
+        "operationId" : "resource__1.0_setlist__setlistId__getSetlist_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "setlistId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the setlist id"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlist"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "artist" : {
+    "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+    "name" : "The Beatles",
+    "sortName" : "Beatles, The",
+    "disambiguation" : "John, Paul, George and Ringo",
+    "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+  },
+  "venue" : {
+    "city" : {
+      "id" : "5357527",
+      "name" : "Hollywood",
+      "stateCode" : "CA",
+      "state" : "California",
+      "coords" : { },
+      "country" : { }
+    },
+    "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+    "id" : "6bd6ca6e",
+    "name" : "Compaq Center"
+  },
+  "tour" : {
+    "name" : "North American Tour 1964"
+  },
+  "set" : [ {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "Yesterday",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : false
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  }, {
+    "name" : "...",
+    "encore" : 12345,
+    "song" : [ {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    }, {
+      "name" : "...",
+      "with" : { },
+      "cover" : { },
+      "info" : "...",
+      "tape" : true
+    } ]
+  } ],
+  "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+  "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+  "id" : "63de4613",
+  "versionId" : "7be1aaa0",
+  "eventDate" : "23-08-1964",
+  "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/user/{userId}" : {
+      "get" : {
+        "tags" : [ "\/1.0/user/{userId}" ],
+        "summary" : "Get a user by userId.",
+        "description" : "Get a user by userId. (deprecated)\n\nNote: This endpoint always returns a result, even if the user doesn't exist",
+        "operationId" : "resource__1.0_user__userId__getUser_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "userId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the user's userId"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_User"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "userId" : "...",
+  "fullname" : "...",
+  "lastFm" : "...",
+  "mySpace" : "...",
+  "twitter" : "...",
+  "flickr" : "...",
+  "website" : "...",
+  "about" : "...",
+  "url" : "..."
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/user/{userId}/attended" : {
+      "get" : {
+        "tags" : [ "\/1.0/user/{userId}/attended" ],
+        "summary" : ".",
+        "description" : "<p>\nGet a list of setlists of concerts attended by a user.\n<\/p>",
+        "operationId" : "resource__1.0_user__userId__attended_getUserAttendedSetlists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "userId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the user's userId"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/user/{userId}/edited" : {
+      "get" : {
+        "tags" : [ "\/1.0/user/{userId}/edited" ],
+        "summary" : ".",
+        "description" : "<p>\nGet a list of setlists of concerts edited by a user. The list contains the current version, not the version\nedited.\n<\/p>",
+        "operationId" : "resource__1.0_user__userId__edited_getUserEditedSetlists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "userId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the user's userId"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/venue/{venueId}" : {
+      "get" : {
+        "tags" : [ "\/1.0/venue/{venueId}" ],
+        "summary" : "Get a venue by its unique id.",
+        "description" : "Get a venue by its unique id.",
+        "operationId" : "resource__1.0_venue__venueId__getVenue_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "venueId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the venue's id"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Venue"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "city" : {
+    "id" : "5357527",
+    "name" : "Hollywood",
+    "stateCode" : "CA",
+    "state" : "California",
+    "coords" : {
+      "long" : -118.3267434,
+      "lat" : 34.0983425
+    },
+    "country" : {
+      "code" : "US",
+      "name" : "United States"
+    }
+  },
+  "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+  "id" : "6bd6ca6e",
+  "name" : "Compaq Center"
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+    ,
+    "\/1.0/venue/{venueId}/setlists" : {
+      "get" : {
+        "tags" : [ "\/1.0/venue/{venueId}/setlists" ],
+        "summary" : ".",
+        "description" : "<p>\nGet setlists for a specific venue.\n<\/p>",
+        "operationId" : "resource__1.0_venue__venueId__setlists_getVenueSetlists_GET",
+        "produces" : [ "application/xml", "application/json" ],
+        "parameters" : [
+          {
+            "name" : "venueId",
+            "in" : "path",
+            "required" : true,
+            "type" : "string",
+            "description" : "the id of the venue"
+          },
+          {
+            "name" : "p",
+            "in" : "query",
+            "default" : "1",
+            "type" : "integer",
+            "description" : "the number of the result page"
+          }
+        ],
+        "responses" : {
+          "200" : {
+            "schema" : {
+"description" : "",
+"$ref" : "#/definitions/json_Setlists"
+            },
+            "headers" : {
+            },
+            "examples" : {
+              "application/json" : {
+  "setlist" : [ {
+    "artist" : {
+      "mbid" : "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+      "name" : "The Beatles",
+      "sortName" : "Beatles, The",
+      "disambiguation" : "John, Paul, George and Ringo",
+      "url" : "https://www.setlist.fm/setlists/the-beatles-23d6a88b.html"
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "https://www.setlist.fm/venue/compaq-center-san-jose-ca-usa-6bd6ca6e.html",
+      "id" : "6bd6ca6e",
+      "name" : "Compaq Center"
+    },
+    "tour" : {
+      "name" : "North American Tour 1964"
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "Recorded and published as 'The Beatles at the Hollywood Bowl'",
+    "url" : "https://www.setlist.fm/setlist/the-beatles/1964/hollywood-bowl-hollywood-ca-63de4613.html",
+    "id" : "63de4613",
+    "versionId" : "7be1aaa0",
+    "eventDate" : "23-08-1964",
+    "lastUpdated" : "2013-10-20T05:18:08.000+0000"
+  }, {
+    "artist" : {
+      "mbid" : "...",
+      "name" : "...",
+      "sortName" : "...",
+      "disambiguation" : "...",
+      "url" : "..."
+    },
+    "venue" : {
+      "city" : { },
+      "url" : "...",
+      "id" : "...",
+      "name" : "..."
+    },
+    "tour" : {
+      "name" : "..."
+    },
+    "set" : [ {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    }, {
+      "name" : "...",
+      "encore" : 12345,
+      "song" : [ { }, { } ]
+    } ],
+    "info" : "...",
+    "url" : "...",
+    "id" : "...",
+    "versionId" : "...",
+    "eventDate" : "...",
+    "lastUpdated" : "..."
+  } ],
+  "total" : 42,
+  "page" : 1,
+  "itemsPerPage" : 20
+}
+            },
+            "description" : "Success"
+          }
+        }
+      }
+    }
+  }
+}

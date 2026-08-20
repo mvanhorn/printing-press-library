@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "analytics-read-200-cap",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Store.List returns all rows for a non-positive limit instead of defaulting to LIMIT 200.",
+  "reason": "Every offline analytic (spend, debts, ledger, balances, recurring, activity) reads via db.List(rt, 0); the 200-row default silently aggregated an arbitrary ~200 of N synced rows ordered by sync time, dropping expenses from every report even when the cache was complete.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "debts --aged null entries 7/9 -> 1/9 and spend --group-by month range 2024 -> 2026 on a 638-expense account."
+}

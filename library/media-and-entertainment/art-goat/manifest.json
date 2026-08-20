@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "art-goat-pp-mcp",
+  "display_name": "Art Goat",
+  "version": "4.2.2",
+  "description": "Art Goat API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/art-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/art-goat-pp-mcp",
+      "args": [],
+      "env": {
+        "ART_GOAT_API_KEY": "${user_config.art_goat_api_key}",
+        "NASA_API_KEY": "${user_config.nasa_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "art_goat_api_key": {
+      "type": "string",
+      "title": "ART_GOAT_API_KEY",
+      "description": "Sets ART_GOAT_API_KEY for the Art Goat MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "nasa_api_key": {
+      "type": "string",
+      "title": "NASA_API_KEY",
+      "description": "Sets NASA_API_KEY for the Art Goat MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "extract-page-items-empty-envelope",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Distinguish recognized-envelope-with-empty-array from singular-response in `extractPageItems` so tenants with zero records of a resource type sync cleanly instead of crashing.",
+  "reason": "ClickUp returns `{\"spaces\": []}` for workspaces with no spaces. The generator's original `extractPageItems` returned `(nil, \"\", false)` for both \"unrecognized response shape\" and \"recognized envelope with empty array,\" causing the singular upsert path to fail with `missing id for space`. Generic OpenAPI bug worth backporting upstream.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-empty-envelope"
+}

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/neektza/printing-press/library/notion",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

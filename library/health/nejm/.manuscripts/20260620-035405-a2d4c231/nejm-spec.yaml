@@ -1,0 +1,79 @@
+name: nejm
+description: "New England Journal of Medicine CLI — browse, search, and triage NEJM articles from a local corpus"
+version: "0.1.0"
+category: health
+base_url: "https://www.nejm.org"
+http_transport: browser-chrome
+health_check_path: "/browse/specialty"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/nejm-pp-cli/config.toml"
+
+resources:
+  article:
+    description: "NEJM articles by DOI"
+    endpoints:
+      get:
+        method: GET
+        path: "/doi/full/{doi}"
+        description: "Fetch an NEJM article's metadata and abstract by DOI (e.g. 10.1056/NEJMoa2506905)"
+        params:
+          - name: doi
+            type: string
+            required: true
+            positional: true
+            description: "Article DOI, e.g. 10.1056/NEJMoa2506905"
+        response:
+          type: object
+          item: Article
+        response_format: html
+        html_extract:
+          mode: page
+
+  specialty:
+    description: "NEJM specialty sections"
+    endpoints:
+      list:
+        method: GET
+        path: "/browse/specialty"
+        description: "List NEJM specialty sections"
+        response:
+          type: array
+          item: Specialty
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - "/browse/specialty"
+
+types:
+  Article:
+    fields:
+      - name: doi
+        type: string
+      - name: title
+        type: string
+      - name: authors
+        type: string
+      - name: abstract
+        type: string
+      - name: article_type
+        type: string
+      - name: specialties
+        type: string
+      - name: date
+        type: string
+      - name: is_free
+        type: bool
+      - name: url
+        type: string
+  Specialty:
+    fields:
+      - name: name
+        type: string
+      - name: url
+        type: string

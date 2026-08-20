@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greptile-empty-result-arrays",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Emit empty JSON arrays for empty watches, matches, and stale listing result sets.",
+  "reason": "Greptile flagged that nil slices encode as JSON null, which breaks agent and script consumers that expect iterable arrays.",
+  "files": [
+    "internal/cli/matches.go",
+    "internal/cli/stale.go",
+    "internal/cli/watch.go"
+  ],
+  "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., and go build ./... passed."
+}

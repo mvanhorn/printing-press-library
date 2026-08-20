@@ -1,0 +1,474 @@
+{
+  "api_name": "surfline",
+  "base_url": "https://services.surfline.com",
+  "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "api_key",
+    "header": "accesstoken",
+    "format": "{SURFLINE_ACCESS_TOKEN}",
+    "in": "query",
+    "env_vars": [
+      "SURFLINE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SURFLINE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "buoys_nearby",
+      "description": "Buoys near a lat/lon with observed swell readings. Required: lat, lon. Optional: distance, limit (default: 5).",
+      "method": "GET",
+      "path": "/kbyg/buoys/nearby",
+      "params": [
+        {
+          "name": "lat",
+          "wire_name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true,
+          "aliases": [
+            "latitude"
+          ]
+        },
+        {
+          "name": "lon",
+          "wire_name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true,
+          "aliases": [
+            "longitude"
+          ]
+        },
+        {
+          "name": "distance",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius (km)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max buoys to return"
+        }
+      ]
+    },
+    {
+      "name": "regions_conditions",
+      "description": "Subregion conditions forecast (multi-day AM/PM rating across a subregion). Required: subregion. Optional: days (default: 3).",
+      "method": "GET",
+      "path": "/kbyg/regions/forecasts/conditions",
+      "params": [
+        {
+          "name": "subregion",
+          "wire_name": "subregionId",
+          "type": "string",
+          "location": "query",
+          "description": "Subregion ID (from taxonomy or search)",
+          "required": true,
+          "aliases": [
+            "subregion-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days"
+        }
+      ]
+    },
+    {
+      "name": "spots_batch",
+      "description": "Rich per-spot info for many spots in one call (conditions, cameras, current swell/wind/tide). Required: spotIds.",
+      "method": "POST",
+      "path": "/kbyg/spots/batch",
+      "params": [
+        {
+          "name": "spotIds",
+          "type": "array",
+          "location": "body",
+          "description": "spotIds",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spots_conditions",
+      "description": "AM/PM conditions: rating, observation, surf range, forecaster notes, humanRelation. Required: spot. Optional: days (default: 3).",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/conditions",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        }
+      ]
+    },
+    {
+      "name": "spots_details",
+      "description": "Spot metadata: name, location, ability levels, travel info. Required: spot.",
+      "method": "GET",
+      "path": "/kbyg/spots/details",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "spots_find",
+      "description": "Live spot search by name (online); returns hits with spotIds. For offline name lookup after a sync, use the top-level `search` command instead. Required: q. Optional: query-size (default: 10), suggestion-size (default: 10), news (default: false).",
+      "method": "GET",
+      "path": "/search/site",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "path",
+          "description": "Search query (spot or place name, e.g. 'Ocean Beach')",
+          "required": true
+        },
+        {
+          "name": "query-size",
+          "wire_name": "querySize",
+          "type": "int",
+          "location": "query",
+          "description": "Max search results to return"
+        },
+        {
+          "name": "suggestion-size",
+          "wire_name": "suggestionSize",
+          "type": "int",
+          "location": "query",
+          "description": "Max autocomplete suggestions to return"
+        },
+        {
+          "name": "news",
+          "wire_name": "newsSearch",
+          "type": "bool",
+          "location": "query",
+          "description": "Include news articles in the search"
+        }
+      ]
+    },
+    {
+      "name": "spots_forecast",
+      "description": "Combined forecast: forecasts + tides + sunrise/sunset in one call. Required: spot. Optional: days (default: 3).",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        }
+      ]
+    },
+    {
+      "name": "spots_rating",
+      "description": "Rating forecast: VERY_POOR..EPIC key plus numeric value per time point. Required: spot. Optional: days (default: 3), interval.",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/rating",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        },
+        {
+          "name": "interval",
+          "wire_name": "intervalHours",
+          "type": "int",
+          "location": "query",
+          "description": "Hours between forecast points"
+        }
+      ]
+    },
+    {
+      "name": "spots_report",
+      "description": "Spot report: forecaster narrative, current conditions, cameras. Required: spot.",
+      "method": "GET",
+      "path": "/kbyg/spots/reports",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "spots_sunlight",
+      "description": "Sunlight forecast: dawn, sunrise, sunset, dusk local times. Required: spot. Optional: days (default: 3).",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/sunlight",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days"
+        }
+      ]
+    },
+    {
+      "name": "spots_tides",
+      "description": "Tide forecast: HIGH/LOW/NORMAL extremes with heights and local times. Required: spot. Optional: days (default: 3), tide-units.",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/tides",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        },
+        {
+          "name": "tide-units",
+          "wire_name": "units[tideHeight]",
+          "type": "string",
+          "location": "query",
+          "description": "Tide height units"
+        }
+      ]
+    },
+    {
+      "name": "spots_wave",
+      "description": "Wave and swell forecast: surf min/max, optimalScore, swell components (height/period/direction). Required: spot. Optional: days (default: 3), interval, swell-units.",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/wave",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID (get one from `surfline search`)",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        },
+        {
+          "name": "interval",
+          "wire_name": "intervalHours",
+          "type": "int",
+          "location": "query",
+          "description": "Hours between forecast points (e.g. 3 = 8 points/day)"
+        },
+        {
+          "name": "swell-units",
+          "wire_name": "units[swellHeight]",
+          "type": "string",
+          "location": "query",
+          "description": "Swell/surf height units"
+        }
+      ]
+    },
+    {
+      "name": "spots_weather",
+      "description": "Weather forecast: temperature, condition, pressure, plus sunlight times. Required: spot. Optional: days (default: 3), interval, temp-units.",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/weather",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        },
+        {
+          "name": "interval",
+          "wire_name": "intervalHours",
+          "type": "int",
+          "location": "query",
+          "description": "Hours between forecast points"
+        },
+        {
+          "name": "temp-units",
+          "wire_name": "units[temperature]",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature units"
+        }
+      ]
+    },
+    {
+      "name": "spots_wind",
+      "description": "Wind forecast: speed, direction, directionType (Onshore/Offshore/Cross-shore), gust, optimalScore. Required: spot. Optional: days (default: 3), interval, corrected (plus 1 more).",
+      "method": "GET",
+      "path": "/kbyg/spots/forecasts/wind",
+      "params": [
+        {
+          "name": "spot",
+          "wire_name": "spotId",
+          "type": "string",
+          "location": "query",
+          "description": "24-char Surfline spot ID",
+          "required": true,
+          "aliases": [
+            "spot-id"
+          ]
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast horizon in days (1-6 free; 7-17 needs a premium token)"
+        },
+        {
+          "name": "interval",
+          "wire_name": "intervalHours",
+          "type": "int",
+          "location": "query",
+          "description": "Hours between forecast points"
+        },
+        {
+          "name": "corrected",
+          "type": "bool",
+          "location": "query",
+          "description": "Apply Surfline's local wind correction"
+        },
+        {
+          "name": "wind-units",
+          "wire_name": "units[windSpeed]",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed units"
+        }
+      ]
+    },
+    {
+      "name": "taxonomy_get",
+      "description": "Fetch a taxonomy node and its children (ancestors via `in`, children via `contains`). Required: id. Optional: type (default: taxonomy), max-depth (default: 0).",
+      "method": "GET",
+      "path": "/taxonomy",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Taxonomy node ID (use 58f7ed51dadb30820bb38782 for the Earth root)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Node type to interpret `id` as"
+        },
+        {
+          "name": "max-depth",
+          "wire_name": "maxDepth",
+          "type": "int",
+          "location": "query",
+          "description": "How many child levels to return (0 = immediate children)"
+        }
+      ]
+    }
+  ]
+}

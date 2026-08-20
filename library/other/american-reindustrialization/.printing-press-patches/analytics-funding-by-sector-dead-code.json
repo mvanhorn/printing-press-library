@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "analytics-funding-by-sector-dead-code",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-002038",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Remove unused `stages` and `sectors` map allocations in analytics_funding_by_sector.go.",
+  "reason": "Greptile P2 finding on PR #694: the maps were populated inside the aggregation loop but never read; the final output is built entirely from the `cells` map and splitOnce, so the two maps only burned allocations and added reader noise.",
+  "files": [
+    "internal/cli/analytics_funding_by_sector.go"
+  ],
+  "validated_outcome": "go build ./... still passes; analytics funding-by-sector output is unchanged."
+}

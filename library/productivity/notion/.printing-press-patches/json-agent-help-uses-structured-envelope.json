@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "json-agent-help-uses-structured-envelope",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260508-225745",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Help requests that include --json or --agent emit parseable command/flag JSON instead of Cobra's human help.",
+  "reason": "Cobra renders help before PersistentPreRunE, so agent mode cannot rely on the normal --agent expansion path to switch help output into JSON.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/structured_help.go",
+    "internal/cli/structured_help_test.go"
+  ],
+  "validated_outcome": "pages update --help --json and pages update --help --agent both parse with python3 -m json.tool while plain --help remains human-readable."
+}

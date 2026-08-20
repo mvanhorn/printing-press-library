@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "u1-eager-auth-migrate",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Fire migrateLegacyAuthJSON eagerly at cli.Execute() start so v0.1 installs are bridged before any subcommand runs. Silent no-op when nothing to migrate, preserves the stderr-quiet contract for --version/--help/agent-context.",
+  "reason": "Without eager fire, commands that don't load tokens (e.g. `tesla version`) leave the legacy file untouched and a confused user might still try `auth set-token`. Eager migration removes the disconnect window entirely.",
+  "files": [
+    "internal/cli/tesla_auth_eager_migrate.go",
+    "internal/cli/tesla_auth_eager_migrate_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "4 eager-migrate tests pass plus existing 8 storage tests still pass; covers legacy-absent + no-config silent, config-already-has-tokens silent (legacy preserved), legacy-present-empty-config migrates and renames, legacy-unreadable logs and continues.",
+  "upstream_issue": "Same client.go-style templated drift on root.go Execute() — call sweep candidate for a generator hook later."
+}

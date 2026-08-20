@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "greptile-bounded-fallbacks",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-3fd3b078",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep sync cursors, local fallbacks, timeline filters, nearby enrichment, and learning tokens source-honest under partial failures.",
+  "reason": "Rejected records, unreproducible filters, unparsed dates, one failed detail fetch, and asymmetric punctuation tokenization could silently hide or broaden evidence.",
+  "files": ["internal/cli/sync.go", "internal/cli/data_source.go", "internal/cli/echo_novel_support.go", "internal/cli/echo_novel_support_test.go", "internal/cli/nearby_explain.go", "internal/learn/recall.go", "internal/learn/recall_test.go"],
+  "validated_outcome": "Regression tests cover unparsed timeline evidence and symmetric hyphen/underscore recall tokens; the full Go suite and live EPA matrix pass."
+}

@@ -1,0 +1,346 @@
+{
+  "fragment LolChampionCounterMatchupsFragment": {
+    "body": "\n  fragment LolChampionCounterMatchupsFragment on LolChampionCounter {\n    aId: matchupSlug\n    matchupSlug\n    matchupRole\n    counterMetrics {\n      ...LolChampionCounterMatchupMetricsFragment\n    }\n    ownMetrics {\n      ...LolChampionCounterMatchupMetricsFragment\n    }\n  }\n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionCounterOptionFragment": {
+    "body": "\n  fragment LolChampionCounterOptionFragment on LolChampionCounter {\n    matchupSlug\n    matchupRole\n    counterMetrics {\n      ...LolChampionCounterMetricsFragment\n    }\n  }\n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionCountersListFragment": {
+    "body": "\n  fragment LolChampionCountersListFragment on LoL {\n    counters: champion(\n      filters: { slug: $slug, role: $role, patch: $patch, queue: $queue, rank: $rank, region: $region }\n    ) {\n      cId: id\n      activeFilters {\n        ...LolChampionActiveFiltersFragment\n      }\n      bestPick: countersOptions(top: 15, skip: 0, sort: { field: WR, order: DESC }) {\n        options {\n          ...LolChampionCounterOptionFragment\n        }\n      }\n\n      worstPick: countersOptions(top: 15, skip: 0, sort: { field: WR, order: ASC }) {\n        options {\n          ...LolChampionCounterOptionFragment\n        }\n      }\n\n      overallMetrics: countersOptions {\n        overallAverages {\n          wins\n          losses\n        }\n      }\n    }\n  }\n  \n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionVsChampionFragment": {
+    "body": "\n  fragment LolChampionVsChampionFragment on LolChampionCounter {\n    counterMetrics {\n      ...LolChampionCounterMetricsFragment\n    }\n    matchupRole\n    matchupSlug\n    ownMetrics {\n      ...LolChampionCounterMetricsFragment\n    }\n  }\n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionCounterFragment": {
+    "body": "\n  fragment LolChampionCounterFragment on LoL {\n    vsChampionCounter: champion(\n      filters: { slug: $slug, role: $role, patch: $patch, queue: $queue, rank: $rank, region: $region }\n    ) {\n      cId: id\n      activeFilters {\n        ...LolChampionActiveFiltersFragment\n      }\n      counter: counter(filters: { vsChampionSlug: $vsChampionSlug }) {\n        ...LolChampionVsChampionFragment\n      }\n    }\n  }\n  \n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionCountersStatsFragment": {
+    "body": "\n  fragment LolChampionCountersStatsFragment on LoL {\n    summonerVsChampionStats: player(region: $summonerRegion, tagLine: $tagLine, gameName: $gameName) {\n      aId\n      championsMatchups(\n        top: 200\n        skip: 0\n        mode: Worst\n        filter: { championSlug: $slug, rolename: $role, queue: $queue }\n      ) {\n        items {\n          ...LolSummonerVsChampionStatsFragment\n        }\n      }\n    }\n  }\n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "query LolChampionCountersOptionsQuery": {
+    "body": "\n  query LolChampionCountersOptionsQuery(\n    $slug: String!\n    $role: Rolename\n    $patch: String\n    $queue: VirtualQueue\n    $vsChampionSlug: String\n    $rank: LolChampionRankFilter\n    $region: Region\n    $summonerRegion: Region\n    $tagLine: String\n    $gameName: String\n  ) {\n    lol {\n      ...LolChampionCountersListFragment\n      ...LolChampionCountersStatsFragment\n      ...LolChampionCounterFragment\n    }\n  }\n  \n  \n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "query LolChampionCountersStatsOptionsQuery": {
+    "body": "\n  query LolChampionCountersStatsOptionsQuery(\n    $slug: String!\n    $role: Rolename\n    $patch: String\n    $queue: VirtualQueue\n    $counterVsChampionSlug: String\n    $vsChampionRole: Rolename\n    $rank: LolChampionRankFilter\n    $region: Region\n    $skip: Int!\n    $top: Int = 10\n    $sortField: LolChampionCountersSortField!\n    $order: SortOrder!\n  ) {\n    lol {\n      champion(\n        filters: {\n          slug: $slug\n          role: $role\n          patch: $patch\n          queue: $queue\n          rank: $rank\n          region: $region\n          gameMode: SUMMONER_RIFT\n        }\n      ) {\n        cId: id\n        activeFilters {\n          ...LolChampionActiveFiltersFragment\n        }\n        countersOptions(\n          top: $top\n          skip: $skip\n          sort: { field: $sortField, order: $order }\n          filters: { vsChampionRole: $vsChampionRole, vsChampionSlug: $counterVsChampionSlug }\n        ) {\n          filterOptions {\n            ...LolChampionCounterMatchupsFilterOptionsFragment\n          }\n          options {\n            ...LolChampionCounterMatchupsFragment\n          }\n        }\n      }\n    }\n  }\n  \n  \n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment LolChampionRoleDataFragment": {
+    "body": "\n  fragment LolChampionRoleDataFragment on ChampionsRoleDataV2DataFlatDto {\n    championSlug\n    role\n    counterVideo\n    counterTips {\n      ...LolChampionRoleCounterTipFragment\n    }\n  }\n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "query LolChampionCountersTabStaticQuery": {
+    "body": "\n  query LolChampionCountersTabStaticQuery(\n    $championFilter: String!\n    $roleDataFilter: String!\n    $matchupSpecificDataFilter: String!\n  ) {\n    championRoleData: queryChampionsRoleDataV2Contents(filter: $roleDataFilter) {\n      flatData {\n        championSlug\n        ...LolChampionRoleDataFragment\n      }\n    }\n\n    championMatchupSpecificData: queryChampionsMatchupsV1Contents(\n      top: 200\n      skip: 0\n      filter: $matchupSpecificDataFilter\n    ) {\n      flatData {\n        ...LolChampionsMatchupsFragment\n      }\n    }\n\n    seoOverride: queryChampionsSeoV1Contents(filter: $championFilter) {\n      flatData {\n        slug\n        countersPageTitle\n        countersPageDesc\n        countersPageVsTitle\n        countersPageVsDesc\n\n        championCountersPageHeaderSeoText\n        championCountersVsWorstPageHeaderSeoText\n        championCountersVsBestPageHeaderSeoText\n      }\n    }\n  }\n  \n  \n",
+    "file": "lol-champion-page-counters.2915b318.chunk.js"
+  },
+  "fragment ProfilePreviewFragment": {
+    "body": "\n  fragment ProfilePreviewFragment on MgpProfile {\n    user {\n      id\n      displayName\n      username\n      createdAt\n      socialLinks {\n        name\n        url\n      }\n    }\n    avatar {\n      id\n      name\n      iconUrl\n    }\n    avatarFrame {\n      id\n      name\n      iconUrl\n    }\n    profilePlate {\n      id\n      name\n      iconUrl\n    }\n    profileCover {\n      id\n      name\n      iconUrl\n    }\n    title {\n      id\n      name\n    }\n    cursorIcon {\n      id\n      name\n      iconUrl\n    }\n    theme {\n      id\n      name\n      iconUrl\n    }\n    appIcon {\n      id\n      name\n      iconUrl\n    }\n    bio {\n      bio\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment MgpLolProfileFragment": {
+    "body": "\n  fragment MgpLolProfileFragment on MgpLolProfile {\n    gameSlug\n    gameStats {\n      rank {\n        ...MgpSummonerRankFragment\n      }\n      summoner {\n        ...MgpRiotSummonerFragment\n      }\n    }\n    ugDocumentsStats {\n      ...MgpNgfUgDocsStatsFragment\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment MgpTftProfileFragment": {
+    "body": "\n  fragment MgpTftProfileFragment on MgpTftProfile {\n    gameSlug\n    gameStats {\n      rank {\n        ...MgpSummonerRankFragment\n      }\n      summoner {\n        ...MgpRiotSummonerFragment\n      }\n    }\n    ugDocumentsStats {\n      ...MgpNgfUgDocsStatsFragment\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment MgpValorantProfileFragment": {
+    "body": "\n  fragment MgpValorantProfileFragment on MgpValorantProfile {\n    gameSlug\n    gameStats {\n      rank {\n        ...MgpSummonerRankFragment\n      }\n      summoner {\n        ...MgpRiotSummonerFragment\n      }\n    }\n    ugDocumentsStats {\n      ...MgpNgfUgDocsStatsFragment\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment MgpNgfProfileFragment": {
+    "body": "\n  fragment MgpNgfProfileFragment on MgpNgfProfile {\n    gameSlug\n    ugDocumentsStats {\n      ...MgpNgfUgDocsStatsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment MgpDeadlockProfileFragment": {
+    "body": "\n  fragment MgpDeadlockProfileFragment on MgpDeadlockProfile {\n    gameSlug\n    gameStats {\n      steamName\n      steamProfileIcon\n    }\n    ugDocumentsStats {\n      ...MgpNgfUgDocsStatsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ProfileGameProfilesFragment": {
+    "body": "\n  fragment ProfileGameProfilesFragment on MgpProfile {\n    gameProfiles {\n      profiles {\n        ...MgpNgfProfileFragment\n        ...MgpLolProfileFragment\n        ...MgpTftProfileFragment\n        ...MgpValorantProfileFragment\n        ...MgpDeadlockProfileFragment\n      }\n    }\n  }\n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ProfileHeaderFragment": {
+    "body": "\n  fragment ProfileHeaderFragment on MgpProfile {\n    user {\n      id\n      username\n      displayName\n      createdAt\n      socialLinks {\n        name\n        url\n      }\n    }\n    ...ProfileEquipmentFragment\n    bio {\n      bio\n    }\n    gameProfiles {\n      profiles {\n        ... on MgpDeadlockProfile {\n          gameSlug\n        }\n\n        ... on MgpLolProfile {\n          gameSlug\n        }\n\n        ... on MgpTftProfile {\n          gameSlug\n        }\n\n        ... on MgpValorantProfile {\n          gameSlug\n        }\n\n        ... on MgpNgfProfile {\n          gameSlug\n        }\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query MgpHeaderQuery": {
+    "body": "\n  query MgpHeaderQuery($input: MgpProfileInput!) {\n    mgp {\n      profile(input: $input) {\n        data {\n          ...ProfileHeaderFragment\n          ...ProfileGameProfilesFragment\n        }\n        error\n        errorMessage\n      }\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation SignOut": {
+    "body": "\n  mutation SignOut {\n    signOut\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment AccountFragment": {
+    "body": "\n  fragment AccountFragment on Account {\n    uid\n    email\n    login\n    loginHash\n    level\n    iconUrl\n    referrerCode\n    referralStatus\n    connectedAuthProviders {\n      type\n      displayName\n    }\n    settings {\n      ...MetaDataSettingsFragment\n    }\n    attributes {\n      ...MetaDataAttributesFragment\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation UpdateAccountInfoMutation": {
+    "body": "\n  mutation UpdateAccountInfoMutation($email: String, $login: String, $settings: [MetaDataSettingsKVInput!]) {\n    updateAccountInfo(email: $email, login: $login, settings: $settings) {\n      login\n      email\n      settings {\n        ...MetaDataSettingsFragment\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment PublicAccountFragment": {
+    "body": "\n  fragment PublicAccountFragment on PublicUserAccount {\n    uid\n    login\n    loginHash\n    level\n    iconUrl\n    attributes {\n      ...MetaDataAttributesFragment\n    }\n    settings {\n      ...MetaDataSettingsFragment\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query AccountPublicAccount": {
+    "body": "\n  query AccountPublicAccount(\n    $loginHash: String\n    $riotName: String\n    $tagLine: String\n    $referrerId: String\n    $internalId: String\n  ) {\n    publicUserAccount(\n      filters: {\n        loginHash: $loginHash\n        riotName: $riotName\n        tagLine: $tagLine\n        referrerCode: $referrerId\n        internalId: $internalId\n      }\n    ) {\n      ...PublicAccountFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query AccountInfoQuery": {
+    "body": "\n  query AccountInfoQuery {\n    account {\n      ...AccountFragment\n    }\n    auth {\n      token\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation DeleteAccountMutation": {
+    "body": "\n  mutation DeleteAccountMutation {\n    accounts {\n      deleteUser {\n        error\n      }\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation DisconnectProviderV2": {
+    "body": "\n  mutation DisconnectProviderV2($provider: AccountsAuthProviderType!) {\n    accounts {\n      disconnectProvider(input: { type: $provider }) {\n        result\n      }\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query AccountV2InfoQuery": {
+    "body": "\n  query AccountV2InfoQuery {\n    accounts {\n      ...AccountsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation VerifyReferralMutation": {
+    "body": "\n  mutation VerifyReferralMutation($riotId: Int!, $level: Int!) {\n    verifyReferral(riotId: $riotId, level: $level)\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ReferrerDataFragment": {
+    "body": "\n  fragment ReferrerDataFragment on Account {\n    referrerCode\n    referrerStats {\n      ...ReferrerStatsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LeaderboardItemFragment": {
+    "body": "\n  fragment LeaderboardItemFragment on LeaderboardItem {\n    position\n    referralsCount\n    participant {\n      ...LeaderboardParticipantFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ReferrerLeaderboardDataFragment": {
+    "body": "\n  fragment ReferrerLeaderboardDataFragment on Referral {\n    leaderboard(filter: { period: $leaderboardPeriod }) {\n      ...LeaderboardItemFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment RaffleItemFragment": {
+    "body": "\n  fragment RaffleItemFragment on RaffleItem {\n    position\n    rpAmount\n    participant {\n      ...RaffleParticipantFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ReferrerRaffleDataFragment": {
+    "body": "\n  fragment ReferrerRaffleDataFragment on Referral {\n    raffle(filter: { month: $referralMonth }) {\n      ...RaffleItemFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment ReferrerRaffleMonthsFragment": {
+    "body": "\n  fragment ReferrerRaffleMonthsFragment on Referral {\n    raffleMonths {\n      ...ReferrerRaffleMonthsItemFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query ReferrerQuery": {
+    "body": "\n  query ReferrerQuery(\n    $withCommonData: Boolean!\n    $withLeaderboard: Boolean!\n    $withRaffle: Boolean!\n    $referralMonth: RaffleMonthInput\n    $leaderboardPeriod: LeaderboardPeriod\n  ) {\n    account {\n      ...ReferrerDataFragment @include(if: $withCommonData)\n    }\n    referral {\n      ...ReferrerLeaderboardDataFragment @include(if: $withLeaderboard)\n      ...ReferrerRaffleDataFragment @include(if: $withRaffle)\n      ...ReferrerRaffleMonthsFragment @include(if: $withCommonData)\n    }\n  }\n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "mutation D2ShareImageToCdn": {
+    "body": "\n  mutation D2ShareImageToCdn($input: SharingMutationsImagesUploadInput!) {\n    sharing {\n      images {\n        upload(input: $input) {\n          error {\n            message\n          }\n          url\n        }\n      }\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query MgpPreviewQuery": {
+    "body": "\n  query MgpPreviewQuery($input: MgpProfileInput!) {\n    mgp {\n      profile(input: $input) {\n        error\n        errorMessage\n        data {\n          ...ProfilePreviewFragment\n        }\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentStWidgetDocumentsDiscoveryV1Fragment": {
+    "body": "\n  fragment NgfDocumentStWidgetDocumentsDiscoveryV1Fragment on NgfDocumentStWidgetDocumentsDiscoveryV1 {\n    data {\n      discovery {\n        ...NgfDocumentContentDiscoveryFragment\n      }\n      uiCapabilities {\n        ...NgfDocumentDiscoveryUiCapabilitiesFragment\n      }\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfDocumentContentFragment": {
+    "body": "\n  fragment LolNgfDocumentContentFragment on LolNgfDocumentContent {\n    ...NgfDocumentContentFragment\n    ... on LolNgfDocumentCmWidgetV1 {\n      data {\n        title\n        content\n        border\n      }\n    }\n    ... on NgfDocumentStWidgetDocumentsDiscoveryV1 {\n      ...NgfDocumentStWidgetDocumentsDiscoveryV1Fragment\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfUgDocumentDataFragment": {
+    "body": "\n  fragment LolNgfUgDocumentDataFragment on LolNgfUserGeneratedDocumentData {\n    ...NgfUgDocumentDataFragment\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfUgDocumentFragment": {
+    "body": "\n  fragment LolNgfUgDocumentFragment on LolNgfUserGeneratedDocument {\n    ...NgfUgDocumentFragment\n    data {\n      ...LolNgfUgDocumentDataFragment\n    }\n    content {\n      ...LolNgfDocumentContentFragment\n    }\n  }\n\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfUgTemplateDocumentDataFragment": {
+    "body": "\n  fragment LolNgfUgTemplateDocumentDataFragment on LolNgfTemplateDocumentData {\n    childrenIds\n    name\n    tierLists {\n      ...NgfDocumentDataTierListsFragment\n    }\n    ...NgfTemplateDocumentDataBuildVariantsFragment\n  }\n  \n\n  fragment LolNgfUgTemplateDocumentFragment on LolNgfTemplateDocument {\n    type\n    typeData {\n      slug\n      displayMetadata {\n        coverImageUrlPattern\n      }\n    }\n    data {\n      ...LolNgfUgTemplateDocumentDataFragment\n    }\n    content {\n      ...LolNgfDocumentContentFragment\n    }\n  }\n\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfProfilePageDocumentTypesQuery": {
+    "body": "\n  query LolNgfProfilePageDocumentTypesQuery($userProfileInput: NgfProfileInput!, $withProfileQuery: Boolean!) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n      profiles @include(if: $withProfileQuery) {\n        userProfile(input: $userProfileInput) {\n          profile {\n            author {\n              ...NgfCreatorProfilePageDocumentAuthorFragment\n            }\n          }\n          error\n        }\n      }\n    }\n  }\n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfCreatorProfilePageUgDocumentFragment": {
+    "body": "\n  fragment NgfCreatorProfilePageUgDocumentFragment on NgfUserGeneratedDocument {\n    id\n    slugifiedName\n    typeData {\n      slug\n      displayMetadata {\n        coverImageUrlPattern\n      }\n    }\n    status\n    featured {\n      status\n      slug\n    }\n    author {\n      id\n      name\n      creator {\n        profileName\n      }\n      user {\n        displayName\n        username\n      }\n    }\n    updatedAt\n    data {\n      backgroundImage\n      name\n      tierLists {\n        ...NgfDocumentDataTierListsFragment\n      }\n    }\n    tags {\n      data {\n        ...NgfDocumentTagFragment\n      }\n    }\n    favorites {\n      isFavorite\n      favoritesCount\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfProfilePageQuery": {
+    "body": "\n  query LolNgfProfilePageQuery(\n    $input: LolNgfUserGeneratedDocumentsListInput!\n    $pageInput: LolNgfUserGeneratedDocumentsListPage!\n  ) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocuments(input: $input, page: $pageInput) {\n          error\n          pageInfo {\n            hasMoreItems\n            cursor\n            total\n          }\n          documents {\n            ...NgfCreatorProfilePageUgDocumentFragment\n            #NgfProfilePageUgDocumentFragmentSlot\n          }\n        }\n      }\n    }\n  }\n  \n  #NgfProfilePageUgDocumentFragmentSlotGql\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfStDocumentFragment": {
+    "body": "\n  fragment NgfStDocumentFragment on NgfStructDocument {\n    id\n    category\n    slug\n    version\n    status\n    seo {\n      ...NgfDocumentSeoFragment\n    }\n    createdAt\n    updatedAt\n  }\n\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfStDocumentDataFragment": {
+    "body": "\n  fragment NgfStDocumentDataFragment on NgfStructDocumentData {\n    childrenIds\n    tierLists {\n      ...NgfDocumentDataTierListsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfStDocumentDataFragment": {
+    "body": "\n  fragment LolNgfStDocumentDataFragment on LolNgfStructDocumentData {\n    ...NgfStDocumentDataFragment\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfStDocumentFragment": {
+    "body": "\n  fragment LolNgfStDocumentFragment on LolNgfStructDocument {\n    ...NgfStDocumentFragment\n    data {\n      ...LolNgfStDocumentDataFragment\n    }\n    content {\n      ...LolNgfDocumentContentFragment\n    }\n  }\n\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfStDocumentQuery": {
+    "body": "\n  query LolNgfStDocumentQuery($input: LolNgfStructDocumentInputBySlug!) {\n    game: lolNgf {\n      documents {\n        structDocumentBySlug(input: $input) {\n          error\n          data {\n            ...NgfStDocumentFragment\n            ...LolNgfStDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n    }\n  }\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfUgFeaturedDocumentQuery": {
+    "body": "\n  query LolNgfUgFeaturedDocumentQuery($input: LolNgfUserGeneratedDocumentInputBySlug!) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocumentBySlug(input: $input) {\n          error\n          data {\n            ...NgfUgDocumentFragment\n            ...LolNgfUgDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n            ...NgfDocumentSpecificWidgetsSettingsFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n    }\n  }\n\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfUgTemplateDocumentQuery": {
+    "body": "\n  query LolNgfUgTemplateDocumentQuery($input: LolNgfTemplateDocumentInput!) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocumentTemplate(input: $input) {\n          error\n          data {\n            type\n            ...LolNgfUgTemplateDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n            ...NgfAvailableWidgetsFragment\n            ...NgfDocumentSpecificWidgetsSettingsFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n    }\n  }\n  \n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfUgNormalDocumentByIdQuery": {
+    "body": "\n  query LolNgfUgNormalDocumentByIdQuery($input: LolNgfUserGeneratedDocumentInputById!) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocumentById(input: $input) {\n          error\n          data {\n            ...NgfUgDocumentFragment\n            ...LolNgfUgDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n            ...NgfDocumentSpecificWidgetsSettingsFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n    }\n  }\n\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfUgNormalDocumentBySlugQuery": {
+    "body": "\n  query LolNgfUgNormalDocumentBySlugQuery($input: NgfUserGeneratedDocumentInputBySlugifiedName!) {\n    game: lolNgf {\n      documents {\n        userGeneratedDocumentBySlugifiedName(input: $input) {\n          error\n          data {\n            ...NgfUgDocumentFragment\n            ...LolNgfUgDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n            ...NgfDocumentSpecificWidgetsSettingsFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n    }\n  }\n\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfWikiDocumentDataCrossLinkingFragment": {
+    "body": "\n  fragment LolNgfWikiDocumentDataCrossLinkingFragment on NgfWikiDocumentCrossLinking {\n    referenceTag {\n      pluralName\n    }\n\n    discovery {\n      items {\n        documents {\n          slug\n          type\n          data {\n            name\n            ... on LolNgfWikiDocumentData {\n              ...LolNgfWikiCrossLinkingStaticDataEntityFragment\n            }\n          }\n        }\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfWikiDocumentDataFragment": {
+    "body": "\n  fragment LolNgfWikiDocumentDataFragment on LolNgfWikiDocumentData {\n    ...NgfWikiDocumentDataFragment\n    staticDataEntityV2 {\n      slug\n      # add WIKI entities here\n    }\n    crossLinking {\n      ...LolNgfWikiDocumentDataCrossLinkingFragment\n    }\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment LolNgfWikiDocumentFragment": {
+    "body": "\n  fragment LolNgfWikiDocumentFragment on LolNgfWikiDocument {\n    ...NgfWikiDocumentFragment\n    data {\n      ...LolNgfWikiDocumentDataFragment\n    }\n    content {\n      ...LolNgfDocumentContentFragment\n    }\n  }\n\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "query LolNgfWikiDocumentQuery": {
+    "body": "\n  query LolNgfWikiDocumentQuery($input: LolNgfWikiDocumentInput!) {\n    game: lolNgf {\n      documents {\n        wikiDocument(input: $input) {\n          error\n          data {\n            ...NgfWikiDocumentFragment\n            ...LolNgfWikiDocumentFragment\n          }\n        }\n        userGeneratedDocumentTypes {\n          error\n          data {\n            ...NgfDocumentTypeFragment\n          }\n        }\n        wikiDocumentType {\n          error\n          data {\n            ...NgfWikiDocumentTypeFragment\n          }\n        }\n      }\n      permissions {\n        ...NgfPermissionsFragment\n      }\n      settings {\n        ...NgfGameSettingsFragment\n      }\n    }\n  }\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentDataTierListsFragment": {
+    "body": "\n  fragment NgfDocumentDataTierListsFragment on NgfDocumentTierListData {\n    values {\n      id\n      tierSections {\n        name\n        color\n        description\n        ugDataItems {\n          id\n          iconUrl\n          linkUrl\n          title\n          subTitle\n        }\n        staticDataItems {\n          iconUrl\n          linkUrl\n          name\n          slug\n          type\n        }\n      }\n      ugDocSources {\n        iconStyle\n        slug\n        tags {\n          slug\n          groupSlug\n        }\n        uiCapabilities {\n          tagFilters {\n            groupSlug\n            ui {\n              enabled\n              type\n            }\n          }\n        }\n      }\n      staticDataSources {\n        showTitles\n        iconStyle\n        slug\n        tags {\n          slug\n          groupSlug\n        }\n        uiCapabilities {\n          tagFilters {\n            groupSlug\n            ui {\n              enabled\n              type\n            }\n          }\n        }\n      }\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDiscoveryDocumentDataFragment": {
+    "body": "\n  fragment NgfDiscoveryDocumentDataFragment on NgfUserGeneratedDocumentData {\n    name\n    childrenIds\n    backgroundImage\n    tierLists {\n      ...NgfDocumentDataTierListsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentContentDiscoveryDocumentItemBaseFragment": {
+    "body": "\n  fragment NgfDocumentContentDiscoveryDocumentItemBaseFragment on NgfUserGeneratedDocument {\n    id\n    category\n    slugifiedName\n    tags {\n      data {\n        ...NgfDocumentTagFragment\n      }\n    }\n    data {\n      ...NgfDiscoveryDocumentDataFragment\n    }\n    type\n    typeData {\n      slug\n      displayMetadata {\n        coverImageUrlPattern\n      }\n    }\n    version\n    status\n    author {\n      ...NgfDocumentAuthorFragment\n    }\n    seo {\n      ...NgfDocumentSeoFragment\n    }\n    favorites {\n      ...NgfDocumentFavoritesFragment\n    }\n    featured {\n      ...NgfDocumentFeaturedFragment\n    }\n    createdAt\n    updatedAt\n    firstPublishedAt\n  }\n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentContentDiscoveryFragment": {
+    "body": "\n  fragment NgfDocumentContentDiscoveryFragment on NgfUserGeneratedDocumentsDiscovery {\n    ...NgfDocumentContentDiscoveryBaseFragment\n    items {\n      error\n      pageInfo {\n        hasMoreItems\n        cursor\n        total\n      }\n      documents {\n        ...NgfDocumentContentDiscoveryDocumentItemBaseFragment\n        data {\n          ...NgfDiscoveryDocumentDataFragment\n        }\n      }\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentDiscoveryUiCapabilitiesFragment": {
+    "body": "\n  fragment NgfDocumentDiscoveryUiCapabilitiesFragment on NgfDocumentStWidgetDocumentsDiscoveryV1UICapabilities {\n    sorting {\n      defaultSortingOption\n      enabled\n    }\n    searchByName {\n      enabled\n    }\n    searchByAuthor {\n      enabled\n    }\n    publishedTimeframe {\n      defaultTimeFrame\n      enabled\n    }\n    tagFilters {\n      groupSlug\n      ui {\n        enabled\n        type\n      }\n    }\n    loadingBehaviour\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfAvailableWidgetsFragment": {
+    "body": "\n  fragment NgfAvailableWidgetsFragment on NgfDocumentType {\n    availableWidgets {\n      meta {\n        typeName\n        description\n        displayName\n        fullDescription\n        type\n      }\n      prohibitedForRegularUser\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfWikiAvailableWidgetsFragment": {
+    "body": "\n  fragment NgfWikiAvailableWidgetsFragment on NgfWikiDocumentType {\n    availableWidgets {\n      meta {\n        typeName\n        description\n        displayName\n        fullDescription\n        type\n      }\n      prohibitedForRegularUser\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfWikiDocumentsDiscoveryFragment": {
+    "body": "\n  fragment NgfWikiDocumentsDiscoveryFragment on NgfWikiDocumentsDiscovery {\n    ...NgfWikiDocumentsDiscoveryBaseFragment\n    items {\n      error\n      pageInfo {\n        cursor\n        hasMoreItems\n        total\n      }\n      documents {\n        ...NgfWikiDocumentFragment\n      }\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentContentFragment": {
+    "body": "\n  fragment NgfDocumentContentFragment on NgfDocumentContent {\n    # Document Cm\n    ...NgfDocumentContentCommonFragment\n    ... on NgfDocumentCmWidgetDocumentsFeedV1 {\n      data {\n        title\n        optionalDescription: description\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        optionalButtonTitle: buttonTitle\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetDocumentsFeedV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        optionalButtonTitle: buttonTitle\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetUGTierListV1 {\n      __typename\n      id\n      data {\n        title\n        optionalDescription: description\n        childrenIds\n        searchByAuthor {\n          enabled\n        }\n        searchByName {\n          enabled\n        }\n        tagFilters {\n          groupSlug\n          ui {\n            enabled\n            type\n          }\n        }\n        iconStyle\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetUGTierListV2 {\n      __typename\n      id\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        childrenIds\n        searchByAuthor {\n          enabled\n        }\n        searchByName {\n          enabled\n        }\n        tagFilters {\n          groupSlug\n          ui {\n            enabled\n            type\n          }\n        }\n        iconStyle\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentStWidgetLinksGridManualV1 {\n      data {\n        title\n        optionalDescription: description\n        items {\n          title\n          subTitle\n          requiredLinkUrl: linkUrl\n          openLinkInNewTab\n          backgroundCss\n          backgroundImageMask\n          position\n        }\n      }\n    }\n    ... on NgfDocumentStWidgetLinksGridManualV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        items {\n          title\n          subTitle\n          requiredLinkUrl: linkUrl\n          openLinkInNewTab\n          backgroundCss\n          backgroundImageMask\n          position\n        }\n      }\n    }\n    ... on NgfDocumentCmSectionAuto1V1 {\n      data {\n        childrenIds\n      }\n    }\n    ... on NgfDocumentCmSectionAuto3V1 {\n      data {\n        childrenIds\n      }\n    }\n    ... on NgfDocumentCmSectionAuto400V1 {\n      data {\n        childrenIds\n      }\n    }\n    ... on NgfDocumentCmSectionVideoAdV1 {\n      data {\n        childrenIds\n      }\n    }\n    ... on NgfDocumentCmWidgetErrorV1 {\n      data {\n        error\n      }\n    }\n    ... on NgfDocumentCmWidgetRichTextV1 {\n      data {\n        title\n        optionalContent: content\n      }\n    }\n    ... on NgfDocumentCmWidgetRichTextSimplifiedV1 {\n      ...NgfDocumentCmWidgetRichTextSimplifiedV1Fragment\n    }\n    ... on NgfDocumentCmWidgetRichTextSimplifiedV2 {\n      ...NgfDocumentCmWidgetRichTextSimplifiedV2Fragment\n    }\n    ... on NgfDocumentCmWidgetRichTextV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        contentV2: content\n      }\n    }\n    ... on NgfDocumentCmWidgetCardGridV1 {\n      data {\n        title\n        optionalDescription: description\n        optionalSubTitle: subTitle\n        cardLayout\n        items {\n          title\n          subtitle\n          imageUrl\n          linkUrl\n          openLinkInNewTab\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetCardGridV2 {\n      data {\n        title\n        optionalDescriptionV2: description {\n          charLimit\n          placeholder\n          value\n        }\n        optionalSubTitleV2: subTitle\n        cardLayoutV2: cardLayout\n        items {\n          title\n          subtitle\n          imageUrl\n          linkUrl\n          openLinkInNewTab\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetPromoBannerHorizontalV1 {\n      data {\n        title\n        subTitle\n        buttonColor\n        buttonTitle\n        buttonTextColor\n        backgroundCss\n        backgroundImageMask\n        linkUrl\n        openLinkInNewTab\n        platforms\n        userLevels\n        mixpanelSlug\n      }\n    }\n    ... on NgfDocumentCmWidgetGameDataCardGridV1 {\n      data {\n        title\n        optionalDescription: description\n        optionalSubTitle: subTitle\n        iconStyle\n        layout\n        items {\n          slug\n          groupSlug\n          title\n          subTitle\n          linkUrl\n          openLinkInNewTab\n          imageUrl\n          iconStyle\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetGameDataCardGridV2 {\n      data {\n        title\n        optionalDescriptionV2: description {\n          charLimit\n          placeholder\n          value\n        }\n        optionalSubTitleV2: subTitle\n        iconStyle\n        layoutV2: layout\n        items {\n          slug\n          groupSlug\n          title\n          subTitle\n          linkUrl\n          openLinkInNewTab\n          imageUrl\n          iconStyle\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetVideoV1 {\n      data {\n        title\n        optionalDescription: description\n        autoplay\n        videoUrl\n      }\n    }\n    ... on NgfDocumentCmWidgetVideoV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        autoplay\n        loop\n        videoUrl\n      }\n    }\n    ... on NgfDocumentCmWidgetDisplayAdsV1 {\n      data {\n        title\n        platform {\n          type\n          size\n        }\n        isStickyInEditingMode\n        isStickyInViewMode\n      }\n    }\n    ... on NgfDocumentCmWidgetPromoBannerNetboardV1 {\n      data {\n        title\n        subTitle\n        buttonColor\n        buttonTitle\n        buttonTextColor\n        backgroundCss\n        backgroundImageMask\n        linkUrl\n        openLinkInNewTab\n        platforms\n        userLevels\n        mixpanelSlug\n      }\n    }\n    ... on NgfDocumentCmWidgetDiscoveryPreviewV1 {\n      data {\n        title\n        optionalDescription: description\n        optionalButtonTitle: buttonTitle\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetDiscoveryPreviewV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        optionalButtonTitle: buttonTitle\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetDiscoveryPreviewCompactV1 {\n      data {\n        title\n        optionalDescription: description\n        optionalButtonTitle: buttonTitle\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        visual\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetDiscoveryPreviewCompactV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        optionalButtonTitle: buttonTitle\n        buttonLinkUrl\n        openButtonLinkInNewTab\n        visualV2: visual\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetContentVariantsV1 {\n      ...NgfDocumentCmWidgetContentVariantsV1Fragment\n    }\n    ... on NgfDocumentCmWidgetCrossPageTabBarV1 {\n      data {\n        items {\n          title\n          path\n          tag\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetTableOfContentV1 {\n      ...NgfDocumentCmWidgetTableOfContentV1Fragment\n    }\n    ... on NgfDocumentCmWidgetWikiDiscoveryDetailedV1 {\n      data {\n        discovery {\n          ...NgfWikiDocumentsDiscoveryFragment\n        }\n        uiCapabilities {\n          ...NgfDocumentDiscoveryUiCapabilitiesFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetStrengthsAndWeaknessesV1 {\n      ...NgfDocumentCmWidgetStrengthsAndWeaknessesV1Fragment\n    }\n    # Document UG\n    ... on NgfDocumentUgWidgetHeaderV1 {\n      data {\n        title\n      }\n    }\n    # Document St\n    ... on NgfDocumentStWidgetHeaderV1 {\n      data {\n        title\n        description\n        backgroundCss\n        backgroundImageMask\n      }\n    }\n    ... on NgfDocumentStWidgetHeaderV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        backgroundCss\n        backgroundImageMask\n      }\n    }\n    ... on NgfDocumentStWidgetHomePageHeaderV1 {\n      data {\n        title\n        description\n        backgroundCss\n        backgroundImageMask\n      }\n    }\n    ... on NgfDocumentStWidgetHomePageHeaderV2 {\n      data {\n        title\n        optionalSubTitleV2: subTitle\n        backgroundCss\n        backgroundImageMask\n      }\n    }\n    ... on NgfDocumentStWidgetDocumentsDiscoveryV1 {\n      data {\n        discovery {\n          ...NgfDocumentContentDiscoveryFragment\n        }\n        uiCapabilities {\n          ...NgfDocumentDiscoveryUiCapabilitiesFragment\n        }\n      }\n    }\n    ... on NgfDocumentCmWidgetTierListMakerV1 {\n      data {\n        title\n        isStickyInViewMode\n        isStickyInEditingMode\n        descriptionPlaceholder\n        descriptionCharacterLimit\n        descriptionMap: description\n      }\n    }\n    # Document Wk\n    ... on NgfDocumentWkSectionSlotV1 {\n      data {\n        childrenIds\n      }\n    }\n    ...NgfDocumentUgWidgetBuilderV1Fragment\n  }\n  \n  \n  \n  \n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentGameEntityFragment": {
+    "body": "\n  fragment NgfDocumentGameEntityFragment on NGFEntityObject {\n    slug\n    title\n    type\n    iconUrl\n    color\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentSeoFragment": {
+    "body": "\n  fragment NgfDocumentSeoFragment on NgfDocumentSeo {\n    title\n    description\n    ogImage\n    schemaMarkup\n    canonicalUrl\n    noIndex\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentSpecificWidgetsSettingsFragment": {
+    "body": "\n  fragment NgfDocumentSpecificWidgetsSettingsFragment on NgfDocumentType {\n    specificWidgetsSettings: specificWidgets {\n      NgfDocumentUgWidgetBuilderV1 {\n        validSlots {\n          slug\n        }\n      }\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentTagGroupFragment": {
+    "body": "\n  fragment NgfDocumentTagGroupFragment on NgfDocumentTagGroup {\n    archived\n    isHidden\n    defaultSlug\n    inputProhibitedForRegularUser\n    useGroupName\n    multiselect\n    name\n    noValue {\n      description\n      iconUrl\n      name\n    }\n    required\n    slug\n    values {\n      groupSlug\n      archived\n      description\n      iconUrl\n      imageUrl\n      name\n      pluralName\n      slug\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentTypeFragment": {
+    "body": "\n  fragment NgfDocumentTypeFragment on NgfDocumentType {\n    slug\n    name\n    pluralName\n    description\n    index\n    creationIsAllowed\n    tagGroups {\n      ...NgfDocumentTagGroupFragment\n    }\n    displayMetadata {\n      iconTagGroupSlug\n      subTitleTagGroupSlug\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfGameSettingsFragment": {
+    "body": "\n  fragment NgfGameSettingsFragment on NgfGameSettings {\n    availableColors {\n      ...NgfGameSettingsColorFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfPermissionsFragment": {
+    "body": "\n  fragment NgfPermissionsFragment on NgfUserPermissions {\n    user {\n      ...NgfUserFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentTagFragment": {
+    "body": "\n  fragment NgfDocumentTagFragment on NgfDocumentTag {\n    groupSlug\n    archived\n    description\n    iconUrl\n    imageUrl\n    pluralName\n    name\n    slug\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfTemplateDocumentDataBuildVariantsFragment": {
+    "body": "\n  fragment NgfTemplateDocumentDataBuildVariantsFragment on NgfTemplateDocumentData {\n    buildVariants {\n      values {\n        id\n        genericBuilder {\n          slots {\n            gameSlotSlug\n            gameEntity {\n              ...NgfDocumentGameEntityFragment\n            }\n          }\n        }\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfWikiDocumentTypeFragment": {
+    "body": "\n  fragment NgfWikiDocumentTypeFragment on NgfWikiDocumentType {\n    staticDataTypes {\n      slug\n      name\n      pluralName\n      tagGroups {\n        ...NgfDocumentTagGroupFragment\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentAuthorFragment": {
+    "body": "\n  fragment NgfDocumentAuthorFragment on NgfDocumentAuthor {\n    id\n    name\n    links {\n      url\n      network {\n        id\n        name\n        iconUrl\n      }\n    }\n    twitchLive {\n      live\n      login\n    }\n    creator {\n      previousProfileName\n      profileName\n    }\n    user {\n      username\n      displayName\n    }\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentFavoritesFragment": {
+    "body": "\n  fragment NgfDocumentFavoritesFragment on NgfDocumentFavorites {\n    isFavorite\n    favoritesCount\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfDocumentFeaturedFragment": {
+    "body": "\n  fragment NgfDocumentFeaturedFragment on NgfDocumentFeatured {\n    slug\n    status\n  }\n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfUgDocumentDataBuildVariantsFragment": {
+    "body": "\n  fragment NgfUgDocumentDataBuildVariantsFragment on NgfUserGeneratedDocumentData {\n    buildVariants {\n      values {\n        id\n        genericBuilder {\n          slots {\n            gameSlotSlug\n            gameEntity {\n              ...NgfDocumentGameEntityFragment\n            }\n          }\n        }\n      }\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfUgDocumentDataFragment": {
+    "body": "\n  fragment NgfUgDocumentDataFragment on NgfUserGeneratedDocumentData {\n    name\n    childrenIds\n    backgroundImage\n    tierLists {\n      ...NgfDocumentDataTierListsFragment\n    }\n    ...NgfUgDocumentDataBuildVariantsFragment\n  }\n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfUgDocumentFragment": {
+    "body": "\n  fragment NgfUgDocumentFragment on NgfUserGeneratedDocument {\n    id\n    category\n    slugifiedName\n    type\n    typeData {\n      slug\n      displayMetadata {\n        coverImageUrlPattern\n      }\n    }\n    data {\n      ...NgfUgDocumentDataFragment\n    }\n    version\n    status\n    author {\n      ...NgfDocumentAuthorFragment\n    }\n    seo {\n      ...NgfDocumentSeoFragment\n    }\n    favorites {\n      ...NgfDocumentFavoritesFragment\n    }\n    featured {\n      ...NgfDocumentFeaturedFragment\n    }\n    tags {\n      data {\n        ...NgfDocumentTagFragment\n      }\n    }\n    createdAt\n    updatedAt\n    firstPublishedAt\n  }\n  \n  \n  \n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfWikiDocumentDataFragment": {
+    "body": "\n  fragment NgfWikiDocumentDataFragment on NgfWikiDocumentData {\n    name\n    childrenIds\n    tierLists {\n      ...NgfDocumentDataTierListsFragment\n    }\n  }\n  \n",
+    "file": "main.d4ec26fe.js"
+  },
+  "fragment NgfWikiDocumentFragment": {
+    "body": "\n  fragment NgfWikiDocumentFragment on NgfWikiDocument {\n    id\n    category\n    version\n    createdAt\n    updatedAt\n    slug\n    type\n    seo {\n      ...NgfDocumentSeoFragment\n    }\n    tags {\n      data {\n        ...NgfDocumentTagFragment\n      }\n    }\n\n    data {\n      ...NgfWikiDocumentDataFragment\n    }\n  }\n  \n  \n  \n",
+    "file": "main.d4ec26fe.js"
+  }
+}

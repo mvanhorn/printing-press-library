@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ridewithgps-redirect-strip-auth-token",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-213832-c533c1eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Cross-host redirect handler also deletes x-rwgps-auth-token (not just x-rwgps-api-key).",
+  "reason": "Two-header auth: generated redirect handler stripped only the primary header on a cross-host hop, leaking the sibling auth token to a redirect target (Greptile P1/security).",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build + go vet clean; both x-rwgps-* headers deleted on cross-host redirect.",
+  "upstream_issue": "generator: emit Header.Del for all auth headers in cross-host redirect strip"
+}

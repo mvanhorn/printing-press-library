@@ -1,0 +1,51 @@
+version: 2
+project_name: techmeme-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: techmeme-pp-cli
+    main: ./cmd/techmeme-pp-cli
+    binary: techmeme-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/techmeme/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: techmeme-pp-mcp
+    main: ./cmd/techmeme-pp-mcp
+    binary: techmeme-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: techmeme-pp-cli
+    repository:
+      owner: dave-morin
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Tech news aggregation and curation. No official API exists. This spec describes the RSS, OPML, search, and HTML surfaces available for programmatic access. No authentication required."
+    install: |
+      bin.install "techmeme-pp-cli"
+      bin.install "techmeme-pp-mcp"

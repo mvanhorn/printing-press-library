@@ -1,0 +1,452 @@
+name: harris-teeter
+description: Harris Teeter grocery shopping API discovered from the logged-in web app
+version: 0.1.0
+base_url: https://www.harristeeter.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".harristeeter.com"
+  in: cookie
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/harris-teeter-pp-cli/config.toml
+resources:
+  products:
+    description: Search Harris Teeter products, look up item details, and inspect search facets.
+    endpoints:
+      search:
+        method: GET
+        path: /atlas/v1/search/v1/products-search
+        description: Search products for a store location and fulfillment method.
+        params:
+          - name: filter.query
+            flag_name: query
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Search text, such as milk.
+            fields: []
+          - name: filter.locationId
+            flag_name: location-id
+            type: string
+            required: false
+            positional: false
+            default: "09700096"
+            description: Harris Teeter location ID, preserving leading zeroes.
+            fields: []
+          - name: filter.fulfillmentMethods
+            flag_name: fulfillment-method
+            aliases: [fulfillment]
+            type: string
+            required: false
+            positional: false
+            default: IN_STORE
+            description: Fulfillment method such as IN_STORE, PICKUP, or DELIVERY.
+            fields: []
+          - name: option.groupBy
+            flag_name: group-by
+            type: string
+            required: false
+            positional: false
+            default: PRODUCT_VARIANT
+            description: Search grouping mode.
+            fields: []
+          - name: option.quickFacets
+            flag_name: quick-facets
+            type: boolean
+            required: false
+            positional: false
+            default: true
+            description: Include quick facets in the search response.
+            fields: []
+          - name: option.personalization
+            flag_name: personalization
+            type: string
+            required: false
+            positional: false
+            default: PURCHASE_HISTORY
+            description: Personalization mode used by the web app.
+            fields: []
+          - name: option.monetization
+            flag_name: monetization
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Monetization mode for curated search placements.
+            fields: []
+          - name: page.offset
+            flag_name: offset
+            type: integer
+            required: false
+            positional: false
+            default: 0
+            description: Result offset.
+            fields: []
+          - name: page.size
+            flag_name: page-size
+            type: integer
+            required: false
+            positional: false
+            default: 24
+            description: Number of search results to return.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Optional response projection string.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: products_search
+        pagination:
+          type: offset
+          offset_param: page.offset
+          limit_param: page.size
+      get:
+        method: GET
+        path: /atlas/v1/product/v2/products
+        description: Get full product, offer, nutrition, inventory, and variant details by UPC/GTIN.
+        params:
+          - name: filter.gtin13s
+            flag_name: upc
+            aliases: [gtin13]
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: Product UPC or GTIN-13. Keep leading zeroes.
+            fields: []
+          - name: filter.verified
+            flag_name: verified
+            type: boolean
+            required: false
+            positional: false
+            default: true
+            description: Request verified product records.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: items.full,offers.compact,nutrition.label,inventory.projected,variantGroupings.compact
+            description: Product detail projection set.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: products
+      suggestions:
+        method: GET
+        path: /atlas/v1/search/v1/suggestions
+        description: Get search suggestions for a query and location.
+        params:
+          - name: filter.query
+            flag_name: query
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Partial search text.
+            fields: []
+          - name: filter.locationId
+            flag_name: location-id
+            type: string
+            required: false
+            positional: false
+            default: "09700096"
+            description: Harris Teeter location ID.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: suggestions
+      related_tags:
+        method: GET
+        path: /atlas/v1/search/v1/related-tags
+        description: Get related search tags for a query and location.
+        params:
+          - name: filter.query
+            flag_name: query
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: Search text.
+            fields: []
+          - name: filter.locationId
+            flag_name: location-id
+            type: string
+            required: false
+            positional: false
+            default: "09700096"
+            description: Harris Teeter location ID.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: related_tags
+      visual_navigations:
+        method: GET
+        path: /atlas/v1/search/v1/visual-navigations
+        description: Get visual navigation categories shown on search pages.
+        params:
+          - name: filter.query
+            flag_name: query
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: Search text.
+            fields: []
+          - name: filter.locationId
+            flag_name: location-id
+            type: string
+            required: false
+            positional: false
+            default: "09700096"
+            description: Harris Teeter location ID.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: visual_navigations
+
+  stores:
+    description: Find Harris Teeter stores and store metadata.
+    endpoints:
+      locator:
+        method: GET
+        path: /atlas/v1/stores/v2/locator
+        description: Find stores by ZIP code, city, state, or address text.
+        params:
+          - name: filter.query
+            flag_name: query
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ZIP code, city, state, or address text.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: full
+            description: Store response projection.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: locator
+
+  coupons:
+    description: List available digital coupons and coupon-product links.
+    endpoints:
+      list:
+        method: GET
+        path: /atlas/v1/savings-coupons/v1/coupons
+        description: List available digital coupons, optionally filtered by UPC.
+        params:
+          - name: filter.upc
+            flag_name: upc
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Product UPC to filter coupons. Keep leading zeroes.
+            fields: []
+          - name: filter.type
+            flag_name: coupon-type
+            type: string
+            required: false
+            positional: false
+            default: standard
+            description: Coupon type such as standard or cash_back.
+            fields: []
+          - name: filter.status
+            flag_name: status
+            type: string
+            required: false
+            positional: false
+            default: unclipped
+            description: Coupon status such as unclipped or active.
+            fields: []
+          - name: filter.onlyNewCoupons
+            flag_name: only-new
+            type: boolean
+            required: false
+            positional: false
+            default: false
+            description: Return only new coupons.
+            fields: []
+          - name: page.size
+            flag_name: page-size
+            type: integer
+            required: false
+            positional: false
+            default: 200
+            description: Number of coupons to return.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: coupons.compact
+            description: Coupon response projection.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: coupons
+
+  cart:
+    description: Inspect the logged-in account cart.
+    endpoints:
+      list:
+        method: GET
+        path: /atlas/v1/carts
+        description: List carts for the current logged-in Harris Teeter account.
+        params: []
+        body: []
+        response:
+          type: object
+          item: carts
+
+  lists:
+    description: Inspect Harris Teeter shopping lists.
+    endpoints:
+      list:
+        method: GET
+        path: /atlas/v1/shopping-list/v1/shopping-lists
+        description: List shopping lists for the current logged-in account.
+        params: []
+        body: []
+        response:
+          type: object
+          item: shopping_lists
+      get:
+        method: GET
+        path: /atlas/v1/shopping-list/v1/shopping-lists/{list_id}
+        description: Get a shopping list by ID.
+        params:
+          - name: list_id
+            type: string
+            required: true
+            positional: true
+            default: null
+            description: Shopping list UUID.
+            fields: []
+            format: uuid
+        body: []
+        response:
+          type: object
+          item: shopping_list
+
+  account:
+    description: Inspect logged-in customer preferences and membership state.
+    endpoints:
+      preferences:
+        method: GET
+        path: /atlas/v1/enterprise-customer/v1/customer-preferences/
+        description: List customer preferences for the logged-in account.
+        params:
+          - name: filter.chain
+            flag_name: chain
+            type: string
+            required: false
+            positional: false
+            default: harristeeter
+            description: Store chain identifier.
+            fields: []
+          - name: filter.name
+            flag_name: name
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: Preference name to filter.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: preferences.full
+            description: Preference response projection.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: customer_preferences
+      enrollments:
+        method: GET
+        path: /atlas/v1/membership/v1/enrollments
+        description: List membership enrollments and benefits for the current account.
+        params:
+          - name: option.withEnrollmentsOnly
+            flag_name: enrollments-only
+            type: boolean
+            required: false
+            positional: false
+            default: true
+            description: Return only active enrollments.
+            fields: []
+          - name: projections
+            type: string
+            required: false
+            positional: false
+            default: benefits
+            description: Enrollment response projection.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: enrollments
+
+  recommendations:
+    description: Inspect personalized grocery recommendations from the web app.
+    endpoints:
+      start_my_cart:
+        method: GET
+        path: /atlas/v1/recommendations/v1/start-my-cart
+        description: Get the Start My Cart product recommendations shown on the homepage.
+        params: []
+        body: []
+        response:
+          type: object
+          item: start_my_cart
+      better_for_you:
+        method: GET
+        path: /atlas/v1/recommendations/v1/better-for-you/start-my-cart
+        description: Get better-for-you product recommendations.
+        params:
+          - name: filter.minHealthScore
+            flag_name: min-health-score
+            type: integer
+            required: false
+            positional: false
+            default: 40
+            description: Minimum health score threshold.
+            fields: []
+        body: []
+        response:
+          type: object
+          item: start_my_cart
+      purchase_history_homepage:
+        method: GET
+        path: /atlas/v1/post-order/v1/purchase-history-homepage
+        description: Get homepage purchase-history shortcuts for the logged-in account.
+        params: []
+        body: []
+        response:
+          type: object
+          item: purchase_history_homepage
+
+types: {}

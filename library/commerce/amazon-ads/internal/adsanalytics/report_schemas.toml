@@ -1,0 +1,186 @@
+[[schemas]]
+kind = "sp-campaign-daily"
+display_name = "Sponsored Products Campaign Daily"
+ad_product = "sponsored_products"
+entity_level = "campaign"
+time_unit = "daily"
+attribution_window = "account_default"
+provenance = ["console_export", "ads_api_report"]
+required_columns = ["date", "campaignId", "campaignName", "impressions", "clicks", "cost", "sales", "orders"]
+apply_capable_columns = ["campaignId"]
+sample_header = "date,campaignId,campaignName,impressions,clicks,cost,sales,orders,acos,dailyBudget"
+export_path = "Campaign Manager -> Reports -> Sponsored Products -> Campaign -> Daily"
+units.cost = "currency"
+units.sales = "currency"
+units.acos = "percent_or_ratio"
+
+[schemas.column_aliases]
+date = ["date", "start date", "startDate", "report date", "reportDate"]
+campaignId = ["campaignId", "campaign id", "campaign_id"]
+campaignName = ["campaignName", "campaign name", "campaign", "campaign_name"]
+impressions = ["impressions"]
+clicks = ["clicks"]
+cost = ["cost", "spend"]
+sales = ["sales", "sales7d", "14 day total sales", "total sales"]
+orders = ["orders", "orders7d", "purchases", "purchases7d", "conversions"]
+acos = ["acos", "advertising cost of sales"]
+dailyBudget = ["dailyBudget", "daily budget", "budget"]
+
+[[schemas]]
+kind = "sp-campaign-summary"
+display_name = "Sponsored Products Campaign Summary"
+ad_product = "sponsored_products"
+entity_level = "campaign"
+time_unit = "summary"
+attribution_window = "account_default"
+provenance = ["console_export", "ads_api_report"]
+required_columns = ["campaignId", "campaignName", "impressions", "clicks", "cost", "sales", "orders"]
+apply_capable_columns = ["campaignId"]
+sample_header = "campaignId,campaignName,impressions,clicks,cost,sales,orders,acos,dailyBudget"
+export_path = "Campaign Manager -> Reports -> Sponsored Products -> Campaign -> Summary"
+units.cost = "currency"
+units.sales = "currency"
+units.acos = "percent_or_ratio"
+
+[schemas.column_aliases]
+campaignId = ["campaignId", "campaign id", "campaign_id"]
+campaignName = ["campaignName", "campaign name", "campaign", "campaign_name"]
+impressions = ["impressions"]
+clicks = ["clicks"]
+cost = ["cost", "spend"]
+sales = ["sales", "sales7d", "14 day total sales", "total sales"]
+orders = ["orders", "orders7d", "purchases", "purchases7d", "conversions"]
+acos = ["acos", "advertising cost of sales"]
+dailyBudget = ["dailyBudget", "daily budget", "budget"]
+
+[[schemas]]
+kind = "sp-search-term"
+display_name = "Sponsored Products Search Term"
+ad_product = "sponsored_products"
+entity_level = "search_term"
+time_unit = "summary"
+attribution_window = "account_default"
+provenance = ["console_export", "ads_api_report"]
+required_columns = ["campaignId", "campaignName", "adGroupId", "adGroupName", "searchTerm", "impressions", "clicks", "cost", "sales", "orders"]
+apply_capable_columns = ["campaignId", "adGroupId"]
+sample_header = "campaignId,campaignName,adGroupId,adGroupName,searchTerm,keyword,impressions,clicks,cost,sales,orders"
+export_path = "Campaign Manager -> Reports -> Sponsored Products -> Search term"
+units.cost = "currency"
+units.sales = "currency"
+
+[schemas.column_aliases]
+campaignId = ["campaignId", "campaign id", "campaign_id"]
+campaignName = ["campaignName", "campaign name", "campaign", "campaign_name"]
+adGroupId = ["adGroupId", "ad group id", "ad_group_id"]
+adGroupName = ["adGroupName", "ad group name", "ad group", "ad_group_name"]
+searchTerm = ["searchTerm", "search term", "customer search term", "customerSearchTerm", "query"]
+keyword = ["keyword", "targeting", "targeting expression"]
+impressions = ["impressions"]
+clicks = ["clicks"]
+cost = ["cost", "spend"]
+sales = ["sales", "sales7d", "14 day total sales", "total sales"]
+orders = ["orders", "orders7d", "purchases", "purchases7d", "conversions"]
+
+[[schemas]]
+kind = "sp-keyword"
+display_name = "Sponsored Products Keyword"
+ad_product = "sponsored_products"
+entity_level = "keyword"
+time_unit = "summary"
+attribution_window = "account_default"
+provenance = ["console_export", "ads_api_report"]
+required_columns = ["campaignId", "campaignName", "adGroupId", "adGroupName", "keywordId", "keyword", "matchType", "bid", "clicks", "cost", "sales", "orders"]
+apply_capable_columns = ["campaignId", "adGroupId", "keywordId"]
+sample_header = "campaignId,campaignName,adGroupId,adGroupName,keywordId,keyword,matchType,bid,clicks,cost,sales,orders"
+export_path = "Campaign Manager -> Reports -> Sponsored Products -> Targeting -> Keyword"
+units.cost = "currency"
+units.sales = "currency"
+units.bid = "currency"
+
+[schemas.column_aliases]
+campaignId = ["campaignId", "campaign id", "campaign_id"]
+campaignName = ["campaignName", "campaign name", "campaign", "campaign_name"]
+adGroupId = ["adGroupId", "ad group id", "ad_group_id"]
+adGroupName = ["adGroupName", "ad group name", "ad group", "ad_group_name"]
+keywordId = ["keywordId", "keyword id", "keyword_id", "targetId", "target id"]
+keyword = ["keyword", "targeting", "targeting expression"]
+matchType = ["matchType", "match type"]
+bid = ["bid", "keyword bid", "keywordBid"]
+clicks = ["clicks"]
+cost = ["cost", "spend"]
+sales = ["sales", "sales7d", "14 day total sales", "total sales"]
+orders = ["orders", "orders7d", "purchases", "purchases7d", "conversions"]
+cpc = ["cpc", "cost per click", "costPerClick"]
+
+[[schemas]]
+kind = "sp-advertised-product"
+display_name = "Sponsored Products Advertised Product"
+ad_product = "sponsored_products"
+entity_level = "advertised_product"
+time_unit = "summary"
+attribution_window = "account_default"
+provenance = ["console_export", "ads_api_report"]
+required_columns = ["campaignName", "advertisedAsin", "impressions", "clicks", "cost", "sales", "orders"]
+apply_capable_columns = []
+sample_header = "campaignName,adGroupName,advertisedAsin,advertisedSku,impressions,clicks,cost,sales,orders,acos"
+export_path = "Campaign Manager -> Reports -> Sponsored Products -> Advertised product"
+units.cost = "currency"
+units.sales = "currency"
+units.acos = "percent_or_ratio"
+
+[schemas.column_aliases]
+campaignName = ["campaignName", "campaign name", "campaign", "campaign_name"]
+adGroupName = ["adGroupName", "ad group name", "ad group", "ad_group_name"]
+advertisedAsin = ["advertisedAsin", "advertised asin", "asin", "purchasedAsin", "purchased asin"]
+advertisedSku = ["advertisedSku", "advertised sku", "sku"]
+impressions = ["impressions"]
+clicks = ["clicks"]
+cost = ["cost", "spend"]
+sales = ["sales", "sales7d", "14 day total sales", "total sales"]
+orders = ["orders", "orders7d", "purchases", "purchases7d", "conversions"]
+acos = ["acos", "advertising cost of sales"]
+
+[[recipes]]
+command = "campaign-comparison"
+accepted_kinds = ["sp-campaign-daily", "sp-campaign-summary"]
+description = "Compare Sponsored Products campaign spend, sales, orders, and ACOS."
+
+[[recipes]]
+command = "portfolio-dashboard"
+accepted_kinds = ["sp-campaign-daily", "sp-campaign-summary", "sp-advertised-product"]
+description = "Summarize Sponsored Products portfolio spend, sales, orders, ACOS, CPC, CTR, and CVR."
+
+[[recipes]]
+command = "product-ad-profitability"
+accepted_kinds = ["sp-advertised-product"]
+description = "Join Sponsored Products advertised product spend and revenue to COGS."
+
+[[recipes]]
+command = "acos-vs-tacos"
+accepted_kinds = ["sp-advertised-product", "sp-campaign-daily", "sp-campaign-summary"]
+description = "Compare ad spend with attributed ad sales and seller-store total sales for TACOS by ASIN when available."
+
+[[recipes]]
+command = "search-term-mining"
+accepted_kinds = ["sp-search-term"]
+description = "Find Sponsored Products search terms to promote or negate."
+
+[[recipes]]
+command = "wasted-spend"
+accepted_kinds = ["sp-search-term"]
+description = "Find Sponsored Products search terms with spend and no orders."
+
+[[recipes]]
+command = "negative-keyword-generator"
+accepted_kinds = ["sp-search-term"]
+description = "Generate negative keyword candidates from Sponsored Products search terms."
+
+[[recipes]]
+command = "bid-optimizer"
+accepted_kinds = ["sp-keyword"]
+description = "Recommend Sponsored Products keyword bids from target ACOS and observed CVR/AOV."
+
+[[recipes]]
+command = "weekly-review"
+accepted_kinds = ["sp-campaign-daily", "sp-campaign-summary", "sp-search-term", "sp-keyword"]
+description = "Plan a Sponsored Products weekly review from campaign, search-term, and keyword reports."

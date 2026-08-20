@@ -1,0 +1,566 @@
+openapi: "3.0.3"
+info:
+  title: WaveSpeed API
+  version: "1.0.0"
+  description: |
+    Docs-derived OpenAPI spec for WaveSpeed AI's REST API. WaveSpeed is a
+    unified AI generation platform for image, video, audio, 3D, and LLM models.
+
+    The dynamic model-run endpoint is not represented as a generated OpenAPI
+    path because WaveSpeed model IDs are slash-delimited API paths such as
+    `wavespeed-ai/hunyuan-video/t2v`; ordinary OpenAPI path-parameter clients
+    correctly percent-encode slashes. The printed CLI adds a hand-authored
+    `run` command that submits to the literal model path.
+  contact:
+    name: WaveSpeed AI
+    url: https://wavespeed.ai
+  x-display-name: WaveSpeed
+  x-website: https://wavespeed.ai
+  x-spec-provenance:
+    source: official-docs
+    docs_url: https://wavespeed.ai/docs
+    notes: >
+      WaveSpeed does not publish a vendor OpenAPI document. This spec is
+      community-curated from the official REST API documentation and
+      cross-checked against the public WaveSpeed TypeScript CLI source.
+      Prediction deletion is documented and implemented as
+      POST /predictions/delete with an ids array, not DELETE /predictions/{id}.
+
+servers:
+  - url: https://api.wavespeed.ai/api/v3
+    description: WaveSpeed production API
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: models
+    description: Model catalog and model metadata
+  - name: predictions
+    description: Prediction submission history and result retrieval
+  - name: account
+    description: Account balance and usage
+  - name: billing
+    description: Billing and usage records
+  - name: media
+    description: Media upload helpers
+
+paths:
+  /models:
+    get:
+      operationId: listModels
+      summary: List available models
+      description: List available WaveSpeed models and their API schemas.
+      tags: [models]
+      x-pp-resource: models
+      responses:
+        "200":
+          description: Model list envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelsEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /predictions:
+    post:
+      operationId: queryPredictions
+      summary: Query prediction history
+      description: Query recent prediction history. The API history window is limited; sync accumulates across runs.
+      tags: [predictions]
+      x-pp-resource: predictions
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredictionHistoryRequest"
+      responses:
+        "200":
+          description: Prediction history envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionHistoryEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /predictions/{task_id}/result:
+    get:
+      operationId: getPredictionResult
+      summary: Get prediction result
+      description: Retrieve the latest status and result payload for a prediction task.
+      tags: [predictions]
+      x-pp-resource: prediction_results
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: WaveSpeed prediction task ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Prediction result envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /predictions/delete:
+    post:
+      operationId: deletePredictions
+      summary: Delete predictions
+      description: Delete one or more predictions from history.
+      tags: [predictions]
+      x-pp-resource: prediction_deletions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletePredictionsRequest"
+      responses:
+        "200":
+          description: Deletion response envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /balance:
+    get:
+      operationId: getBalance
+      summary: Get account balance
+      description: Retrieve the authenticated account balance.
+      tags: [account]
+      x-pp-resource: account_balance
+      responses:
+        "200":
+          description: Balance envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /billings/search:
+    post:
+      operationId: searchBillings
+      summary: Search billing records
+      description: Search billing records for the authenticated account.
+      tags: [billing]
+      x-pp-resource: billings
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillingSearchRequest"
+      responses:
+        "200":
+          description: Billing search envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingSearchEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /user/usage_stats:
+    post:
+      operationId: getUsageStats
+      summary: Get usage statistics
+      description: Retrieve usage statistics for the authenticated account.
+      tags: [account]
+      x-pp-resource: usage_stats
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsageStatsRequest"
+      responses:
+        "200":
+          description: Usage statistics envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageStatsEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /model/pricing:
+    post:
+      operationId: estimateModelPricing
+      summary: Estimate model pricing
+      description: Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint.
+      tags: [models]
+      x-pp-resource: model_pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelPricingRequest"
+      responses:
+        "200":
+          description: Model pricing envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelPricingEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /media/upload/binary:
+    post:
+      operationId: uploadMediaBinary
+      summary: Upload binary media
+      description: Upload a binary file to WaveSpeed media storage.
+      tags: [media]
+      x-pp-resource: media_uploads
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: Upload response envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadEnvelope"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-prefix: Bearer
+      x-auth-env-vars:
+        - WAVESPEED_API_KEY
+      x-auth-key-url: https://wavespeed.ai/accesskey
+      x-auth-title: WaveSpeed API key
+      x-auth-description: API key from WaveSpeed access key settings
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: Prediction not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true
+
+    GenericEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+
+    Model:
+      type: object
+      properties:
+        model_id:
+          type: string
+          description: Slash-delimited model ID and API path
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          description: Model category such as image, video, audio, 3d, or llm
+        base_price:
+          type: number
+        sort_order:
+          type: integer
+        formula:
+          type: string
+        api_schema:
+          type: object
+          additionalProperties: true
+
+    ModelsEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Model"
+
+    Prediction:
+      type: object
+      properties:
+        id:
+          type: string
+        task_id:
+          type: string
+        model:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+          enum: [created, pending, processing, completed, failed]
+        input:
+          type: object
+          additionalProperties: true
+        inputs:
+          type: object
+          additionalProperties: true
+        output:
+          type: object
+          additionalProperties: true
+        outputs:
+          type: array
+          items: {}
+        result:
+          type: object
+          additionalProperties: true
+        error:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        executionTime:
+          type: number
+
+    PredictionEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/Prediction"
+
+    PredictionHistoryRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+          minimum: 1
+        page_size:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+        model:
+          type: string
+        status:
+          type: string
+        created_after:
+          type: string
+          format: date-time
+        created_before:
+          type: string
+          format: date-time
+        include_inputs:
+          type: boolean
+          default: true
+
+    PredictionHistory:
+      type: object
+      properties:
+        page:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Prediction"
+
+    PredictionHistoryEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/PredictionHistory"
+
+    DeletePredictionsRequest:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          minItems: 1
+          items:
+            type: string
+
+    Balance:
+      type: object
+      properties:
+        balance:
+          type: number
+
+    BalanceEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/Balance"
+
+    BillingSearchRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        page:
+          type: integer
+          default: 1
+        page_size:
+          type: integer
+          default: 20
+        created_after:
+          type: string
+          format: date-time
+        created_before:
+          type: string
+          format: date-time
+
+    BillingRecord:
+      type: object
+      additionalProperties: true
+
+    BillingSearchEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+          properties:
+            page:
+              type: integer
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/BillingRecord"
+
+    UsageStatsRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        created_after:
+          type: string
+          format: date-time
+        created_before:
+          type: string
+          format: date-time
+
+    UsageStatsEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+
+    ModelPricingRequest:
+      type: object
+      required: [model_id, inputs]
+      properties:
+        model_id:
+          type: string
+        inputs:
+          type: object
+          additionalProperties: true
+
+    ModelPricing:
+      type: object
+      properties:
+        model_id:
+          type: string
+        unit_price:
+          type: number
+        currency:
+          type: string
+
+    ModelPricingEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/ModelPricing"
+
+    UploadResult:
+      type: object
+      additionalProperties: true
+      properties:
+        url:
+          type: string
+          format: uri
+
+    UploadEnvelope:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/UploadResult"

@@ -1,0 +1,33 @@
+{
+  "blueprint_id": 384,
+  "description": "Personalized mug for Sam",
+  "print_areas": [
+    {
+      "placeholders": [
+        {
+          "images": [
+            {
+              "font_family": "Inter",
+              "font_size": 24,
+              "id": "img_1",
+              "input_text": "Sam"
+            }
+          ],
+          "position": "front"
+        }
+      ],
+      "variant_ids": [
+        101
+      ]
+    }
+  ],
+  "print_provider_id": 1,
+  "title": "Sample Mug",
+  "variants": [
+    {
+      "id": 101,
+      "is_enabled": true,
+      "price": "2499"
+    }
+  ]
+}

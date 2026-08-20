@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "cloudflare-pp-mcp",
+  "display_name": "Cloudflare",
+  "version": "0.0.0",
+  "description": "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cloudflare-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cloudflare-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${user_config.cloudflare_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cloudflare_api_token": {
+      "type": "string",
+      "title": "CLOUDFLARE_API_TOKEN",
+      "description": "Optional. Sets CLOUDFLARE_API_TOKEN for the Cloudflare MCP server. Get a credential from https://dash.cloudflare.com/profile/api-tokens.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

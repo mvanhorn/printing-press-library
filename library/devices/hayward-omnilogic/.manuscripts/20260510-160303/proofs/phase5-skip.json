@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "hayward-omnilogic",
+  "cli_name": "hayward-omnilogic-pp-cli",
+  "run_id": "20260510-160303",
+  "status": "skip",
+  "skip_reason": "Hayward OmniLogic requires real account credentials (HAYWARD_USER + HAYWARD_PW) to authenticate; this polish environment has no test account. Phase 5 live acceptance must be produced by the printer (rzehner) in their own environment via: printing-press dogfood --dir <cli> --spec <spec> --live --level quick --write-acceptance .manuscripts/<run-id>/proofs/phase5-acceptance.json",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "tesla-auth-autorefresh-on-401",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Templated drift in internal/client/client.go: added Client.OnTokenExpired callback field and a 401-retry branch in do() that calls the callback to re-mint the bearer and retries the original request once. Wired by rootFlags.newClient() via makeTeslaAutoRefreshCallback.",
+  "reason": "Tesla bearers expire after 8 hours; without auto-refresh, every long-running session hits 401 and forces a manual `auth refresh`. The right long-term home is a generator hook (deferred); for v1 the templated drift is contained: one struct field, one if-block in do(), one mutex-guarded closure in a new hand-coded file. TESLA_PP_NO_AUTOREFRESH=1 opts out.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/auto_refresh_test.go",
+    "internal/cli/tesla_auth_autorefresh.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "6 client-side integration tests pass against an httptest server: retry on 401, no callback bubbles 401, refresh failure bubbles original 401, single-retry cap, 200 no-fire, 403 no-fire.",
+  "upstream_issue": "Track generator hook in cli-printing-press; today regen-merge does not preserve client.go body drift, so every regen requires re-applying this patch."
+}

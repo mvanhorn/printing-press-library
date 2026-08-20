@@ -1,0 +1,124 @@
+{
+  "api_name": "jobber",
+  "novelty_score": 9,
+  "alternatives": [
+    {"name": "flutchai/mcp-server-jobber", "url": "https://github.com/flutchai/mcp-server-jobber", "language": "TypeScript", "stars": 0, "command_count": 10},
+    {"name": "Zapier Jobber MCP", "url": "https://zapier.com/mcp/jobber", "language": "Hosted", "stars": 0, "command_count": 8},
+    {"name": "viaSocket Jobber MCP", "url": "https://viasocket.com/mcp/jobber", "language": "Hosted", "stars": 0, "command_count": 0},
+    {"name": "@pipedream/jobber", "url": "https://www.npmjs.com/package/@pipedream/jobber", "language": "JavaScript", "stars": 0, "command_count": 0},
+    {"name": "GetJobber/Jobber-AppTemplate-RailsAPI", "url": "https://github.com/GetJobber/Jobber-AppTemplate-RailsAPI", "language": "Ruby", "stars": 0, "command_count": 0}
+  ],
+  "novel_features": [
+    {
+      "name": "AR Aging Buckets",
+      "command": "ar aging",
+      "description": "Aged AR by client with 0-30/31-60/61-90/90+ buckets and per-bucket totals — answers the question every advisor and bookkeeper asks first, offline and instantly.",
+      "rationale": "Requires a local Invoice + PaymentRecord aggregation no single Jobber API call exposes. The Jobber UI's AR report is unfilterable on the dimensions advisors need (tags, age buckets, as-of-date).",
+      "example": "jobber-pp-cli ar aging --as-of 2026-05-15 --json --select client,bucket_0_30,bucket_31_60,bucket_61_90,bucket_over_90",
+      "why_it_matters": "Reach for this whenever the user asks about overdue invoices, collections risk, or DSO. It's the offline-first, agent-shaped equivalent of opening the Jobber AR report and re-pivoting in Excel.",
+      "group": "Accounting & AR analysis"
+    },
+    {
+      "name": "Invoice Payment Trace",
+      "command": "invoices trace",
+      "description": "Per-invoice ledger: total billed, sum of payment records, balance, allocated payout reference, status drift. `--mismatched` filters to invoices where payments don't equal total.",
+      "rationale": "Joins Invoice ⋈ PaymentRecord ⋈ PayoutRecord locally. Competitor MCPs return invoices as flat objects with no payment join, forcing per-invoice N+1 follow-ups.",
+      "example": "jobber-pp-cli invoices trace --mismatched --json",
+      "why_it_matters": "Use when the user asks 'why is this invoice still open' or wants to find misposted payments. One row per invoice covers everything the Jobber UI buries three clicks deep.",
+      "group": "Accounting & AR analysis"
+    },
+    {
+      "name": "Payout Reconciliation",
+      "command": "payouts reconcile",
+      "description": "Each Jobber Payments payout with its constituent payment records, resolved invoices, and clients — plus deltas where the payout net doesn't equal the sum of underlying payments.",
+      "rationale": "Local PayoutRecord ⋈ PaymentRecord ⋈ Invoice ⋈ Client join. No Jobber MCP exposes payouts at all.",
+      "example": "jobber-pp-cli payouts reconcile --since 2026-04-01 --json",
+      "why_it_matters": "Reach for this whenever the user needs to reconcile a bank deposit to Jobber, prepare for an audit, or chase a missing payout.",
+      "group": "Accounting & AR analysis"
+    },
+    {
+      "name": "Job Profit & Loss",
+      "command": "jobs pnl",
+      "description": "Per-job P&L: revenue (invoice line items linked to job) − labor cost (timesheets × user rate) − direct expenses. Sortable; `--bottom N` shows worst performers.",
+      "rationale": "4-table local join (Job ⋈ JobLineItem ⋈ TimeSheetEntry ⋈ Expense). No competitor performs this and the Jobber UI doesn't expose it as a report.",
+      "example": "jobber-pp-cli jobs pnl --since 2026-01-01 --bottom 10 --json",
+      "why_it_matters": "Use when the user asks 'which jobs lost money' or wants to flag under-performing crews/projects. Replaces a 45-minute Excel join exercise.",
+      "group": "Operations & job costing"
+    },
+    {
+      "name": "Stale Jobs Queue",
+      "command": "jobs stale",
+      "description": "Active jobs with no recent visit and (optionally) no future visit scheduled. `--days 60 --no-future-visits` produces the standard 'stuck work' triage list.",
+      "rationale": "Local Job left-join future Visit with negative conditions; not expressible as a single Jobber API filter.",
+      "example": "jobber-pp-cli jobs stale --days 60 --no-future-visits --json",
+      "why_it_matters": "Reach for this during weekly ops review or when the user asks 'what jobs are stuck.' Replaces manual scrolling of the Jobber jobs list.",
+      "group": "Operations & job costing"
+    },
+    {
+      "name": "Sales Funnel",
+      "command": "funnel",
+      "description": "Counts and conversion rates across Request → Quote → Job → Invoice → Paid, with mean time-in-stage. `--stage stuck` lists records that stalled at each stage.",
+      "rationale": "Multi-stage aggregation across 4 entities; no single API call exposes funnel conversion or time-in-stage.",
+      "example": "jobber-pp-cli funnel --since 2026-01-01 --stage stuck --json",
+      "why_it_matters": "Use when the user asks about sales velocity, close rates, or where deals get stuck. Replaces a per-stage CSV export and Excel join.",
+      "group": "Pipeline & growth"
+    },
+    {
+      "name": "Snapshot Diff",
+      "command": "snapshot diff",
+      "description": "Diff two labeled SQLite snapshots: new clients, status transitions, paid invoices, open-AR deltas per client. `--save <label>` tags the current DB for a later diff.",
+      "rationale": "Purely local feature — no API call gives you week-over-week deltas on a stable snapshot.",
+      "example": "jobber-pp-cli snapshot diff 2026-05-15 2026-05-22 --json",
+      "why_it_matters": "Reach for this on a weekly cadence to write client memos, identify deltas, or build an audit log of changes between two points in time.",
+      "group": "Diligence & diff"
+    },
+    {
+      "name": "Client 360",
+      "command": "clients 360",
+      "description": "Single-screen client view: properties, open AR, last 5 jobs, last 5 invoices, last 5 payment records, lifetime revenue. One command replaces 6 Jobber UI tabs.",
+      "rationale": "Local 6-table join (Client ⋈ Property ⋈ Job ⋈ Invoice ⋈ PaymentRecord). Competitor MCPs require N separate API calls to assemble.",
+      "example": "jobber-pp-cli clients 360 cl_abc123 --json",
+      "why_it_matters": "Use whenever an agent or user needs full context on one client. The 'show me everything' command.",
+      "group": "Customer views"
+    }
+  ],
+  "narrative": {
+    "display_name": "Jobber",
+    "headline": "Read-only Jobber CLI for offline analysis — every GraphQL surface synced to SQLite, every relationship queryable, zero mutation risk.",
+    "value_prop": "jobber-pp-cli pulls the whole Jobber GraphQL surface into a local SQLite database once, then lets you slice it with `ar aging`, `jobs pnl`, `payouts reconcile`, FTS search, and SQL. Existing Jobber MCPs are RPC proxies — you can't run them on a plane, you can't compose them with SQL, and they don't store data locally. This tool does. It also ships with mutation tools deliberately disabled, which makes it safe to hand to an advisor or auditor on a live client tenant.",
+    "auth_narrative": "Jobber uses OAuth2 authorization code flow with mandatory refresh-token rotation. `jobber-pp-cli` reads `JOBBER_CLIENT_ID`, `JOBBER_CLIENT_SECRET`, `JOBBER_CALLBACK_URL`, `JOBBER_ACCESS_TOKEN`, `JOBBER_REFRESH_TOKEN`, and `JOBBER_GRAPHQL_VERSION` from the environment. Every refresh persists the newest refresh token back to the Windows user environment (required by Jobber's rotation policy). Run `jobber-pp-cli doctor` to verify the connection.",
+    "quickstart": [
+      {"command": "jobber-pp-cli doctor", "comment": "verify OAuth token, GraphQL version, and throttle budget before a long pull"},
+      {"command": "jobber-pp-cli sync --full", "comment": "one-time full pull of every read-only surface into local SQLite"},
+      {"command": "jobber-pp-cli ar aging --as-of 2026-05-15 --json", "comment": "your first analytical question — aged AR by client, offline"},
+      {"command": "jobber-pp-cli jobs pnl --since 2026-01-01 --bottom 10", "comment": "ten worst-performing jobs YTD"},
+      {"command": "jobber-pp-cli search \"smith\" --json", "comment": "FTS5 across every text field in the synced store"}
+    ],
+    "troubleshoots": [
+      {"symptom": "401 Unauthorized after running for an hour", "fix": "Jobber access tokens are short-lived. Run `jobber-pp-cli auth refresh` — it persists the rotated refresh token back to the Windows user env automatically."},
+      {"symptom": "GraphQL version error in response", "fix": "Update `JOBBER_GRAPHQL_VERSION` to the active version listed at https://developer.getjobber.com/docs/using_jobbers_api/api_versioning, then re-run."},
+      {"symptom": "Throttled: cost > restore", "fix": "Run `jobber-pp-cli doctor` to see the throttle budget. Use `sync --resource clients` to pull one resource at a time, or wait — Jobber restores 500 cost units/second."},
+      {"symptom": "Empty results from `ar aging` after a fresh install", "fix": "Run `jobber-pp-cli sync --full` first. The novel features query the local SQLite store, not the live API."}
+    ],
+    "when_to_use": "Use jobber-pp-cli when an agent or user needs offline analysis of a Jobber tenant: AR aging, payout reconciliation, job P&L, sales funnel, stale-work triage, or week-over-week diffs. It is read-only by design — pair it with QBO or another accounting CLI for full reconciliation. It does not write to Jobber.",
+    "recipes": [
+      {"title": "Build a weekly AR delta memo", "command": "jobber-pp-cli snapshot diff 2026-05-15 2026-05-22 --json --select clients_new,invoices_paid,ar_open_delta_by_client", "explanation": "Diffs two snapshots to surface exactly the changes that belong in a weekly client memo."},
+      {"title": "Find the worst-performing jobs in the last quarter", "command": "jobber-pp-cli jobs pnl --since 2026-02-01 --bottom 10 --json --select job_id,client_name,revenue,labor_cost,expense_cost,margin", "explanation": "Four-table join against the local store, dotted-path selection trims the response for agents."},
+      {"title": "Reconcile a single payout to invoices", "command": "jobber-pp-cli payouts reconcile --payout-id po_abc123 --json", "explanation": "One row per constituent payment record with its resolved invoice and client; perfect for matching a bank deposit."},
+      {"title": "Open AR for one client across all entities", "command": "jobber-pp-cli clients 360 cl_smith --json --select open_ar,recent_invoices,recent_payments", "explanation": "Single-screen client deep dive that replaces 6 Jobber UI tabs."}
+    ],
+    "trigger_phrases": [
+      "ar aging in jobber",
+      "jobber invoice payments mismatch",
+      "reconcile jobber payouts",
+      "jobs that lost money",
+      "stale jobs in jobber",
+      "use jobber-pp-cli",
+      "run jobber-pp-cli"
+    ]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T23:43:00Z"
+}

@@ -1,0 +1,173 @@
+{
+  "api_name": "botsee",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T03:24:00Z",
+  "novel_features": [
+    {
+      "name": "AI Visibility Audit (flagship)",
+      "command": "ai-visibility-audit",
+      "description": "One command runs the full BotSee audit: idempotent on existing sites, bootstraps customer types and personas and questions if missing, then runs analysis across every LLM and prints a structured visibility report.",
+      "rationale": "Mimics the proven Python create-site+analyze chain as a single Go command with idempotency on existing sites (normalized-domain match against GET /sites before creation) and local SQLite caching.",
+      "example": "botsee-pp-cli ai-visibility-audit example.com --types 2 --personas 2 --questions 5 --watch --agent",
+      "why_it_matters": "This is THE command. Reach for it when an agent or user says 'audit my AI visibility' or 'check how AI sees example.com' — it handles the full lifecycle.",
+      "group": "Flagship workflow"
+    },
+    {
+      "name": "Recommendations (top-level)",
+      "command": "recommendations",
+      "description": "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.",
+      "rationale": "Wraps POST /analysis/{uuid}/recommendations and caches the response in the local SQLite store keyed by analysis_uuid.",
+      "example": "botsee-pp-cli recommendations $ANALYSIS_UUID --agent",
+      "why_it_matters": "Use after an analysis to get LLM-generated action items without re-spending if you already pulled them once.",
+      "group": "Flagship workflow"
+    },
+    {
+      "name": "Site config tree",
+      "command": "site-config",
+      "description": "Print the full customer-types -\u003e personas -\u003e questions tree for a site, with UUIDs and the actual edit commands users can copy-paste to add, update, or remove any node.",
+      "rationale": "Joins customer_types + personas + questions from local SQLite into a nested view that no single BotSee endpoint returns; emits actionable edit hints alongside the tree.",
+      "example": "botsee-pp-cli site-config --site $SITE_UUID --agent",
+      "why_it_matters": "Reach for this when a user asks 'what is set up for this site' or 'show me my BotSee config' — it surfaces every UUID needed for follow-up edits.",
+      "group": "Workflow plumbing"
+    },
+    {
+      "name": "Cross-site sources rollup",
+      "command": "sites-summary",
+      "description": "Aggregate cited sources across every synced site, grouped by domain, with citation count, distinct sites citing each domain, and first-seen timestamp.",
+      "rationale": "BotSee's API is strictly per-site; portfolio-level domain authority is only computable in a local store that holds every synced analysis_sources row.",
+      "example": "botsee-pp-cli sites-summary --agent --select domain,citation_count,distinct_sites_citing,first_seen",
+      "why_it_matters": "Use for multi-site users and agencies who need the cross-portfolio answer 'which sources keep getting cited everywhere' — impossible without local aggregation.",
+      "group": "Workflow plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "AI Visibility Audit (flagship)",
+      "command": "ai-visibility-audit",
+      "description": "One command runs the full BotSee audit: idempotent on existing sites, bootstraps customer types and personas and questions if missing, then runs analysis across every LLM and prints a structured visibility report.",
+      "rationale": "Mimics the proven Python create-site+analyze chain as a single Go command with idempotency on existing sites (normalized-domain match against GET /sites before creation) and local SQLite caching.",
+      "example": "botsee-pp-cli ai-visibility-audit example.com --types 2 --personas 2 --questions 5 --watch --agent",
+      "why_it_matters": "This is THE command. Reach for it when an agent or user says 'audit my AI visibility' or 'check how AI sees example.com' — it handles the full lifecycle.",
+      "group": "Flagship workflow"
+    },
+    {
+      "name": "Recommendations (top-level)",
+      "command": "recommendations",
+      "description": "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.",
+      "rationale": "Wraps POST /analysis/{uuid}/recommendations and caches the response in the local SQLite store keyed by analysis_uuid.",
+      "example": "botsee-pp-cli recommendations $ANALYSIS_UUID --agent",
+      "why_it_matters": "Use after an analysis to get LLM-generated action items without re-spending if you already pulled them once.",
+      "group": "Flagship workflow"
+    },
+    {
+      "name": "Site config tree",
+      "command": "site-config",
+      "description": "Print the full customer-types -\u003e personas -\u003e questions tree for a site, with UUIDs and the actual edit commands users can copy-paste to add, update, or remove any node.",
+      "rationale": "Joins customer_types + personas + questions from local SQLite into a nested view that no single BotSee endpoint returns; emits actionable edit hints alongside the tree.",
+      "example": "botsee-pp-cli site-config --site $SITE_UUID --agent",
+      "why_it_matters": "Reach for this when a user asks 'what is set up for this site' or 'show me my BotSee config' — it surfaces every UUID needed for follow-up edits.",
+      "group": "Workflow plumbing"
+    },
+    {
+      "name": "Cross-site sources rollup",
+      "command": "sites-summary",
+      "description": "Aggregate cited sources across every synced site, grouped by domain, with citation count, distinct sites citing each domain, and first-seen timestamp.",
+      "rationale": "BotSee's API is strictly per-site; portfolio-level domain authority is only computable in a local store that holds every synced analysis_sources row.",
+      "example": "botsee-pp-cli sites-summary --agent --select domain,citation_count,distinct_sites_citing,first_seen",
+      "why_it_matters": "Use for multi-site users and agencies who need the cross-portfolio answer 'which sources keep getting cited everywhere' — impossible without local aggregation.",
+      "group": "Workflow plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "BotSee",
+    "headline": "Every BotSee API operation, plus a one-command AI visibility audit that handles the full lifecycle — site, customer types, personas, questions, analysis, results — and a local SQLite cache so agents re-read at zero credit cost.",
+    "value_prop": "BotSee is the API-first GEO platform; this CLI is the API-first front door. The flagship `ai-visibility-audit \u003curl\u003e` mirrors the proven Python create-site+analyze flow as a single idempotent Go command. The other 64 commands cover the entire BotSee surface (CRUD on sites/customer-types/personas/questions, the full analysis lifecycle, recommendations, blog content, billing, signup including USDC/x402, webhooks, api-key rotation, usage) plus framework commands (sync/search/sql/doctor) over a local SQLite cache.",
+    "auth_narrative": "BotSee uses Bearer tokens prefixed `bts_live_`. Set `BOTSEE_API_KEY` in your environment and the CLI threads it into every authenticated call. Manage keys with `api-keys list / create / rotate / reset / delete` — `reset` consumes a one-time token emailed to the account holder if the key was lost. The CLI never logs key values.",
+    "quickstart": [
+      {
+        "command": "botsee-pp-cli doctor",
+        "comment": "Verify auth, reachability, and remaining rate-limit budget"
+      },
+      {
+        "command": "botsee-pp-cli ai-visibility-audit example.com --types 2 --personas 2 --questions 5 --watch",
+        "comment": "Flagship — bootstrap a new site, run analysis, print results. Idempotent: a second run on the same domain reuses the existing site and just runs a fresh analysis."
+      },
+      {
+        "command": "botsee-pp-cli site-config --site $SITE_UUID --agent",
+        "comment": "Inspect the customer-types / personas / questions tree for the site (with copy-paste edit commands)"
+      },
+      {
+        "command": "botsee-pp-cli recommendations $ANALYSIS_UUID --agent",
+        "comment": "Generate next-step recommendations from the analysis (cached locally)"
+      },
+      {
+        "command": "botsee-pp-cli sites-summary --agent",
+        "comment": "Cross-site cited-source rollup — useful once you've audited multiple domains"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`doctor` fails with 401 Unauthorized",
+        "fix": "Confirm `BOTSEE_API_KEY` is set and starts with `bts_live_`. Rotate via `botsee-pp-cli api-keys rotate \u003cid\u003e` if compromised."
+      },
+      {
+        "symptom": "`ai-visibility-audit` says site exists but I expected a fresh setup",
+        "fix": "Default behavior is idempotent: reuses the existing site by normalized domain match. Pass `--regenerate` to force LLM re-generation of customer types and personas, or use a different domain."
+      },
+      {
+        "symptom": "Cost estimate looks too high or too low",
+        "fix": "The estimator reads `cost_multiplier` from the live `/pricing` endpoint; if BotSee adjusts it, your estimates adjust automatically. Use `--estimate-only` to preview without spending."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "The 600 req/min budget is per key. Add `--max-pages 5` to `sync`, or check the X-RateLimit-Reset header via `rate-limits get`."
+      },
+      {
+        "symptom": "USDC top-up via x402 hangs",
+        "fix": "x402 challenges return a 402 with payment requirements; the CLI prints the `payTo` address. Pay from a wallet (Pinch, Coinbase CDP), then re-run with `--payment \u003cproof\u003e`."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or pipeline needs structured BotSee data without burning credits on repeat reads. Best for: running a fresh AI-visibility audit (`ai-visibility-audit \u003curl\u003e` is the headline), inspecting an existing site's setup (`site-config`), generating recommendations from a completed analysis, or aggregating cited sources across multiple sites for a portfolio view. Not the right tool for hosted dashboard UI use — that's `app.botsee.io`.",
+    "recipes": [
+      {
+        "title": "Audit a new domain end-to-end",
+        "command": "botsee-pp-cli ai-visibility-audit example.com --watch --output report.md",
+        "explanation": "Creates the site, generates structure, runs analysis, writes a markdown report. Re-running on the same domain just runs a fresh analysis (no duplicate site)."
+      },
+      {
+        "title": "Preview the cost before running",
+        "command": "botsee-pp-cli ai-visibility-audit example.com --estimate-only --agent",
+        "explanation": "Returns predicted credit + USD cost without spending — reads the live `/pricing` endpoint for current multipliers."
+      },
+      {
+        "title": "Inspect what's configured for a site",
+        "command": "botsee-pp-cli site-config --site $SITE_UUID --agent --select customer_types,personas,questions",
+        "explanation": "Returns the nested tree as JSON — agents can walk it to find UUIDs for follow-up `personas update / questions delete` calls."
+      },
+      {
+        "title": "Find sources getting cited across every brand",
+        "command": "botsee-pp-cli sites-summary --agent --select domain,citation_count,distinct_sites_citing",
+        "explanation": "Cross-site domain authority rollup — impossible via the BotSee API which is per-site only."
+      },
+      {
+        "title": "Search every LLM response for a competitor mention",
+        "command": "botsee-pp-cli search \"competitor name\" --type responses --limit 20 --agent --select analysis_uuid,model,response_text",
+        "explanation": "FTS5 over every raw LLM response synced locally — narrows the deeply-nested response payload to just the fields agents need."
+      }
+    ],
+    "trigger_phrases": [
+      "check my AI visibility",
+      "audit my AI visibility",
+      "audit example.com",
+      "what AI is saying about my brand",
+      "show competitor mentions in ChatGPT",
+      "run botsee",
+      "use botsee",
+      "botsee audit"
+    ]
+  }
+}

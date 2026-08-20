@@ -1,0 +1,51 @@
+version: 2
+project_name: bonusly-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bonusly-pp-cli
+    main: ./cmd/bonusly-pp-cli
+    binary: bonusly-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X bonusly-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bonusly-pp-mcp
+    main: ./cmd/bonusly-pp-mcp
+    binary: bonusly-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bonusly-pp-cli
+    repository:
+      owner: enlewof
+      name: homebrew-tap
+    homepage: "https://github.com/enlewof/bonusly-pp-cli"
+    description: "The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read."
+    install: |
+      bin.install "bonusly-pp-cli"
+      bin.install "bonusly-pp-mcp"

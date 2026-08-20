@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T05:43:37.1689529Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "plane",
+  "display_name": "Plane",
+  "cli_name": "plane-pp-cli",
+  "creator": {
+    "handle": "sidorovanthon",
+    "name": "Anton Sidorov aka anticodeguy"
+  },
+  "owner": "sidorovanthon",
+  "printer": "sidorovanthon",
+  "printer_name": "Anton Sidorov aka anticodeguy",
+  "spec_path": "plane-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ca2852c5ed00be736a0fe3700e3e098e3a0bc242c78de53252d939134ed60ba5",
+  "run_id": "20260724-124302-67128fc0",
+  "category": "project-management",
+  "description": "Every Plane workspace as a typed, offline-syncable CLI — plus issue relations and module membership the REST API hides.",
+  "mcp_binary": "plane-pp-mcp",
+  "mcp_tool_count": 125,
+  "mcp_ready": "full",
+  "api_version": "0.0.1",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuthentication",
+  "auth_env_vars": [
+    "PLANE_API_KEY_AUTHENTICATION"
+  ],
+  "endpoint_template_vars": [
+    "slug"
+  ],
+  "endpoint_template_var_defaults": {
+    "slug": "my-workspace"
+  },
+  "novel_features": [
+    {
+      "name": "Issue Relations",
+      "command": "relations",
+      "description": "Flat list/set/unset of issue blocking, blocked_by, duplicate, relates_to and temporal links without hand-driving the relations endpoint (unset bridges Plane CE's missing DELETE via a configurable Django-shell call)."
+    },
+    {
+      "name": "Module Membership & Sync Enrichment",
+      "command": "module",
+      "description": "Manage an issue's module membership (of/create-issue/sync) and auto-enrich issue module_ids during sync (on by default), since Plane's issue API never returns module membership."
+    }
+  ]
+}

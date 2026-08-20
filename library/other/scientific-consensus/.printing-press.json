@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T09:00:28.0574703Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "scientific-consensus",
+  "display_name": "Scientific Consensus",
+  "cli_name": "scientific-consensus-pp-cli",
+  "creator": {
+    "handle": "laci141",
+    "name": "laci141"
+  },
+  "owner": "laci141",
+  "printer": "laci141",
+  "printer_name": "laci141",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3109048ba8b8bc85c0381caf0dce91f4a892670c88659ca0cbfea12f19f60ff0",
+  "run_id": "20260620-165352-e55cec69",
+  "category": "other",
+  "description": "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+  "mcp_binary": "scientific-consensus-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Consensus engine",
+      "command": "consensus",
+      "description": "Answer 'what does the evidence say about X' with a Consensus Score, Confidence Score, and Evidence Strength across all sources."
+    },
+    {
+      "name": "Evidence engine + pyramid",
+      "command": "evidence",
+      "description": "Classify retrieved studies by design (meta-analysis to case report) and render the evidence pyramid for a topic."
+    },
+    {
+      "name": "Claim comparison",
+      "command": "compare",
+      "description": "Run two consensus analyses side-by-side to compare competing claims or interventions."
+    },
+    {
+      "name": "Research gap detector",
+      "command": "gaps",
+      "description": "Identify understudied populations, missing long-term/replication/RCT studies, and future directions for a topic."
+    },
+    {
+      "name": "Controversy detector",
+      "command": "controversies",
+      "description": "Surface conflicting studies, contradictory conclusions, and rapidly changing evidence for a topic."
+    },
+    {
+      "name": "Emerging topics",
+      "command": "emerging",
+      "description": "Detect the fastest-growing research areas and exploding publication trends."
+    },
+    {
+      "name": "Topic drift",
+      "command": "drift",
+      "description": "Compare a field's topic distribution between two year windows to spot emerging and fading subtopics."
+    },
+    {
+      "name": "Reproducibility signals",
+      "command": "reproducibility",
+      "description": "Estimate reproducibility by detecting replication studies, sample sizes, and pre-registration cues."
+    },
+    {
+      "name": "Study quality estimate",
+      "command": "quality",
+      "description": "Estimate overall study quality from design, venue prestige, sample-size cues, and citation mass."
+    },
+    {
+      "name": "Funding analysis",
+      "command": "funding",
+      "description": "Analyze funding patterns and funder concentration for a research topic."
+    },
+    {
+      "name": "Topic watch",
+      "command": "watch",
+      "description": "Monitor a topic and report major new publications since the last run."
+    }
+  ]
+}

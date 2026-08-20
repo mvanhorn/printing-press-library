@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Encrypted-storage decryption belongs in the Printing Press generator's standard template for Electron-app CLIs",
+      "reason": "Granola, Slack, VS Code, Signal, Notion, and many other Electron apps use the same OSCrypt envelope on macOS. A shared safestorage-style helper in the generator templates would let future printed CLIs handle encrypted local stores out of the box. Filing as a follow-up rather than blocking this PR on a generator-side change."
+    },
+    {
+      "summary": "Linux libsecret and Windows DPAPI implementations of safestorage.Key",
+      "reason": "Current safestorage_other.go returns ErrUnsupportedPlatform. Linux libsecret + Windows DPAPI keychain access patterns are well-documented; deferred so the macOS-blocking issue ships now."
+    },
+    {
+      "summary": "stored-accounts.json.enc fallback",
+      "reason": "supabase.json.enc covers the primary token surface today. stored-accounts.json.enc is rarely populated on modern installs; the existing plaintext stored-accounts fallback stays in place for legacy users."
+    }
+  ]
+}

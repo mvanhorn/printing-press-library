@@ -1,0 +1,204 @@
+{
+  "api_name": "wavespeed",
+  "base_url": "https://api.wavespeed.ai/api/v3",
+  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Bearer {WAVESPEED_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "WAVESPEED_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WAVESPEED_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://wavespeed.ai/accesskey"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_balance_get-balance",
+      "description": "Retrieve the authenticated account balance. Returns the BalanceEnvelope.",
+      "method": "GET",
+      "path": "/balance",
+      "params": []
+    },
+    {
+      "name": "billings_search",
+      "description": "Search billing records for the authenticated account. Optional: created_after, created_before, page (default: 1) (plus 1 more). Returns the new BillingSearchEnvelope.",
+      "method": "POST",
+      "path": "/billings/search",
+      "params": [
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "body",
+          "description": "Created after"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "body",
+          "description": "Created before"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "media_uploads_upload-media-binary",
+      "description": "Upload a binary file to WaveSpeed media storage. Returns the new UploadEnvelope.",
+      "method": "POST",
+      "path": "/media/upload/binary",
+      "params": []
+    },
+    {
+      "name": "model_pricing_estimate",
+      "description": "Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint. Required: inputs, model_id. Returns the new ModelPricingEnvelope.",
+      "method": "POST",
+      "path": "/model/pricing",
+      "params": [
+        {
+          "name": "inputs",
+          "type": "object",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        },
+        {
+          "name": "model_id",
+          "type": "string",
+          "location": "body",
+          "description": "Model id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List available WaveSpeed models and their API schemas. Returns array of Model.",
+      "method": "GET",
+      "path": "/models",
+      "params": []
+    },
+    {
+      "name": "prediction_deletions_delete-predictions",
+      "description": "Delete one or more predictions from history. Required: ids. Returns the new GenericEnvelope.",
+      "method": "POST",
+      "path": "/predictions/delete",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prediction_results_get",
+      "description": "Retrieve the latest status and result payload for a prediction task. Required: task_id. Returns the PredictionEnvelope.",
+      "method": "GET",
+      "path": "/predictions/{task_id}/result",
+      "params": [
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "WaveSpeed prediction task ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "predictions_query",
+      "description": "Query recent prediction history. The API history window is limited; sync accumulates across runs. Optional: created_after, created_before, include_inputs (default: true) (plus 4 more). Returns the new PredictionHistoryEnvelope.",
+      "method": "POST",
+      "path": "/predictions",
+      "params": [
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "body",
+          "description": "Created after"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "body",
+          "description": "Created before"
+        },
+        {
+          "name": "include_inputs",
+          "type": "bool",
+          "location": "body",
+          "description": "Include inputs"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Page size"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "usage_stats_get",
+      "description": "Retrieve usage statistics for the authenticated account. Optional: created_after, created_before. Returns the new UsageStatsEnvelope.",
+      "method": "POST",
+      "path": "/user/usage_stats",
+      "params": [
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "body",
+          "description": "Created after"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "body",
+          "description": "Created before"
+        }
+      ]
+    }
+  ]
+}

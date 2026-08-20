@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tesla-auth-pkce-void-callback",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "In-process OAuth2 PKCE void-callback flow: opens Tesla's real login page in the default browser, parses the redirected URL the user pastes back, exchanges the code for refresh+access tokens.",
+  "reason": "Default `tesla auth login` should work for users without adriankumpf/tesla_auth installed. The void-callback trick (redirect_uri=https://auth.tesla.com/void/callback) avoids a webview or custom-scheme handler; Tesla owns MFA, captcha, and SMS at their own login page.",
+  "files": [
+    "internal/cli/tesla_auth_pkce.go",
+    "internal/cli/tesla_auth_pkce_test.go"
+  ],
+  "validated_outcome": "15 PKCE tests pass; verifier length matches RFC 7636 minimum, S256 challenge matches expected base64url, URL parsing tolerates whitespace, quotes, missing code, cancellation envelopes, malformed input."
+}

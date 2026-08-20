@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Google Analytics 4 Data and Admin APIs
+  version: v1beta/v1alpha
+  description: Curated GA4-only spec covering Data API reports, Realtime, Metadata, Compatibility, Funnel reports, and Admin property discovery.
+servers:
+  - url: https://analyticsdata.googleapis.com
+  - url: https://analyticsadmin.googleapis.com
+paths:
+  /v1beta/properties/{property}:runReport: {post: {summary: Run GA4 report}}
+  /v1beta/properties/{property}:runPivotReport: {post: {summary: Run GA4 pivot report}}
+  /v1beta/properties/{property}:batchRunReports: {post: {summary: Batch run reports}}
+  /v1beta/properties/{property}:runRealtimeReport: {post: {summary: Run realtime report}}
+  /v1beta/properties/{property}/metadata: {get: {summary: Get metadata}}
+  /v1beta/properties/{property}:checkCompatibility: {post: {summary: Check compatible dimensions and metrics}}
+  /v1alpha/properties/{property}:runFunnelReport: {post: {summary: Run funnel report}}
+  /v1beta/accountSummaries: {get: {summary: List accessible accounts and properties}}
+  /v1beta/properties/{property}: {get: {summary: Get property}}
+  /v1beta/properties/{property}/dataStreams: {get: {summary: List data streams}}

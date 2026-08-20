@@ -16,9 +16,9 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	var sport, league string
 
 	cmd := &cobra.Command{
-		Use:   "compare <athlete1> <athlete2>",
+		Use:         "compare <athlete1> <athlete2>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Side-by-side athlete stat comparison",
+		Short:       "Side-by-side athlete stat comparison",
 		Example: `  espn-pp-cli compare Mahomes Allen --sport football --league nfl
   espn-pp-cli compare LeBron Curry --sport basketball --league nba --agent`,
 		RunE: func(cmd *cobra.Command, args []string) error {

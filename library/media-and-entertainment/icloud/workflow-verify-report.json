@@ -1,0 +1,8 @@
+{
+  "dir": "<cli-dir>/icloud-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

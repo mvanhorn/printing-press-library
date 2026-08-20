@@ -1,0 +1,33 @@
+# Local credential mounts and env files (never committed)
+.op-env/
+
+# Compiled binaries at repo root (anchored — does NOT match cmd/gorgias-pp-cli/)
+/gorgias-pp-cli
+/gorgias-pp-mcp
+/build/
+
+# Goreleaser snapshot artifacts (build output, never source-controlled)
+/dist/
+
+# Test artifacts
+*.test
+*.out
+
+# Live-coverage run artifacts — regenerated per release by scripts/*shipcheck.sh
+# (kept out of source so the published repo doesn't carry tenant-specific
+# timestamps + numeric IDs from any particular run).
+/shipcheck-results.json
+/writes-shipcheck.json
+/writes-live-shipcheck.json
+/writes-verify-once.json
+/mcp-shipcheck.json
+/dogfood-results.json
+/workflow-verify-report.json
+
+# IDE
+.vscode/
+.idea/
+
+# Backup files
+*.bak
+*.swp

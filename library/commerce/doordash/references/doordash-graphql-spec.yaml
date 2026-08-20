@@ -1,0 +1,1365 @@
+name: doordash
+description: DoorDash GraphQL operation spec curated from sniffed traffic and ashah360/doordash-mcp query files.
+  This skeleton is intentionally low-level; later phases add safe domain commands and session transport.
+version: 0.2.0
+base_url: https://www.doordash.com
+spec_source: sniffed/browser-sniffed + curated source query map
+auth:
+  type: cookie
+  header: Cookie
+  format: DoorDash web session cookies plus x-csrftoken header
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/doordash-pp-cli/config.toml
+resources:
+  graphql:
+    description: DoorDash web GraphQL operations. All operations POST JSON to /graphql/<operation>?operation=<operation>;
+      mutations must be wrapped by guarded domain commands before live use.
+    endpoints:
+      create_autocompleteFacetFeed:
+        method: POST
+        path: /graphql/autocompleteFacetFeed
+        description: Search DoorDash autocomplete/store facets by free-text query.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: autocompleteFacetFeed
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: autocompleteFacetFeed
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/autocompleteFacetFeed.graphql
+          description: GraphQL document from upstream queries/autocompleteFacetFeed.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: query
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $query: String!'
+            fields: []
+      create_storepageFeed:
+        method: POST
+        path: /graphql/storepageFeed
+        description: Fetch a store page/menu feed for a DoorDash store ID.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: storepageFeed
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: storepageFeed
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/storepageFeed.graphql
+          description: GraphQL document from upstream queries/storepageFeed.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: storeId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $storeId: ID!'
+            fields: []
+          - name: isMerchantPreview
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isMerchantPreview: Boolean'
+            fields: []
+      create_itemPage:
+        method: POST
+        path: /graphql/itemPage
+        description: Fetch item details and customization options for a store item.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: itemPage
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: itemPage
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/itemPage.graphql
+          description: GraphQL document from upstream queries/itemPage.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: storeId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $storeId: ID!'
+            fields: []
+          - name: itemId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $itemId: ID!'
+            fields: []
+          - name: isMerchantPreview
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isMerchantPreview: Boolean'
+            fields: []
+          - name: isNested
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $isNested: Boolean!'
+            fields: []
+          - name: fulfillmentType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $fulfillmentType: FulfillmentType'
+            fields: []
+      create_convenienceSearchQuery:
+        method: POST
+        path: /graphql/convenienceSearchQuery
+        description: Search retail/convenience catalog items within a DoorDash store.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: convenienceSearchQuery
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: convenienceSearchQuery
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/convenienceSearchQuery.graphql
+          description: GraphQL document from upstream queries/convenienceSearchQuery.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: input
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $input: RetailSearchInput!'
+            fields: []
+      create_listCarts:
+        method: POST
+        path: /graphql/listCarts
+        description: List active/recent DoorDash carts visible to the authenticated session.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: listCarts
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: listCarts
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/listCarts.graphql
+          description: GraphQL document from upstream queries/listCarts.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: input
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $input: ListCartsInput!'
+            fields: []
+      create_consumerOrderCart:
+        method: POST
+        path: /graphql/consumerOrderCart
+        description: Fetch the current consumer order cart.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: consumerOrderCart
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: consumerOrderCart
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/consumerOrderCart.graphql
+          description: GraphQL document from upstream queries/consumerOrderCart.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields: []
+      create_getOpenCartsCount:
+        method: POST
+        path: /graphql/getOpenCartsCount
+        description: Fetch count of open carts for the session.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: getOpenCartsCount
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getOpenCartsCount
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/getOpenCartsCount.graphql
+          description: GraphQL document from upstream queries/getOpenCartsCount.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: input
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $input: GetOpenCartsCountInput!'
+            fields: []
+      create_detailedCartItems:
+        method: POST
+        path: /graphql/detailedCartItems
+        description: Fetch detailed cart item data for checkout/cart review.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: detailedCartItems
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: detailedCartItems
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/detailedCartItems.graphql
+          description: GraphQL document from upstream queries/detailedCartItems.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: orderCartId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $orderCartId: ID!'
+            fields: []
+          - name: corporateIndividualOrdersEnabled
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $corporateIndividualOrdersEnabled: Boolean'
+            fields: []
+          - name: deliveryOptionType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryOptionType: DeliveryOptionType'
+            fields: []
+          - name: isCardPayment
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isCardPayment: Boolean'
+            fields: []
+      create_addCartItem:
+        method: POST
+        path: /graphql/addCartItem
+        description: 'Mutation: add an item to a DoorDash cart. Must remain hard-gated in domain commands.'
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: addCartItem
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: addCartItem
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/addCartItem.graphql
+          description: GraphQL document from upstream queries/addCartItem.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: addCartItemInput
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $addCartItemInput: AddCartItemInput!'
+            fields: []
+          - name: fulfillmentContext
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $fulfillmentContext: FulfillmentContextInput!'
+            fields: []
+          - name: cartContext
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartContext: CartContextInput'
+            fields: []
+          - name: returnCartFromOrderService
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $returnCartFromOrderService: Boolean'
+            fields: []
+          - name: monitoringContext
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $monitoringContext: MonitoringContextInput'
+            fields: []
+          - name: lowPriorityBatchAddCartItemInput
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $lowPriorityBatchAddCartItemInput: [AddCartItemInput!]'
+            fields: []
+          - name: shouldKeepOnlyOneActiveCart
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $shouldKeepOnlyOneActiveCart: Boolean'
+            fields: []
+      create_removeCartItemV2:
+        method: POST
+        path: /graphql/removeCartItemV2
+        description: 'Mutation: remove an item from a DoorDash cart. Must remain hard-gated in domain commands.'
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: removeCartItemV2
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: removeCartItemV2
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/removeCartItemV2.graphql
+          description: GraphQL document from upstream queries/removeCartItemV2.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: cartId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartId: ID!'
+            fields: []
+          - name: itemId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $itemId: ID!'
+            fields: []
+      create_updateCartItemV2:
+        method: POST
+        path: /graphql/updateCartItemV2
+        description: 'Mutation: update cart item quantity/options. Must remain hard-gated in domain commands.'
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: updateCartItemV2
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: updateCartItemV2
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/updateCartItemV2.graphql
+          description: GraphQL document from upstream queries/updateCartItemV2.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: updateCartItemInput
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $updateCartItemInput: UpdateCartItemInput!'
+            fields: []
+          - name: fulfillmentContext
+            type: object
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $fulfillmentContext: FulfillmentContextInput!'
+            fields: []
+      create_deleteCart:
+        method: POST
+        path: /graphql/deleteCart
+        description: 'Mutation: delete a DoorDash cart. Must remain hard-gated in domain commands.'
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: deleteCart
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: deleteCart
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/deleteCart.graphql
+          description: GraphQL document from upstream queries/deleteCart.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: cartId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartId: ID!'
+            fields: []
+      create_checkout:
+        method: POST
+        path: /graphql/checkout
+        description: Fetch checkout data for a cart without placing an order.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: checkout
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: checkout
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/checkout.graphql
+          description: GraphQL document from upstream queries/checkout.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: orderCartId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $orderCartId: ID!'
+            fields: []
+          - name: corporateIndividualOrdersEnabled
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $corporateIndividualOrdersEnabled: Boolean'
+            fields: []
+          - name: includeCompanyPaymentInfo
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $includeCompanyPaymentInfo: Boolean!'
+            fields: []
+          - name: deliveryOptionType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryOptionType: DeliveryOptionType'
+            fields: []
+          - name: isCardPayment
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isCardPayment: Boolean'
+            fields: []
+          - name: programId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $programId: String'
+            fields: []
+          - name: isDashPassUpsellSelected
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isDashPassUpsellSelected: Boolean'
+            fields: []
+          - name: routineReorderItemIds
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $routineReorderItemIds: [String]'
+            fields: []
+          - name: selectedBudgetId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $selectedBudgetId: String'
+            fields: []
+          - name: scheduledTime
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $scheduledTime: String'
+            fields: []
+          - name: supplementalPaymentDetailsList
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $supplementalPaymentDetailsList: [SupplementalPaymentDetails!]'
+            fields: []
+          - name: includeRewardBalanceAvailable
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $includeRewardBalanceAvailable: Boolean!'
+            fields: []
+          - name: deliveryOptionInfo
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryOptionInfo: DeliveryOptionInfo'
+            fields: []
+          - name: landingPageType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $landingPageType: LandingPageType'
+            fields: []
+          - name: shouldApplyCredits
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $shouldApplyCredits: Boolean'
+            fields: []
+          - name: paymentMethodUuid
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethodUuid: String'
+            fields: []
+          - name: paymentMethodType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethodType: PaymentMethodType'
+            fields: []
+      create_totalFeeTally:
+        method: POST
+        path: /graphql/totalFeeTally
+        description: Fetch fees/tax/total estimate for a cart.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: totalFeeTally
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: totalFeeTally
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/totalFeeTally.graphql
+          description: GraphQL document from upstream queries/totalFeeTally.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: consumerId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $consumerId: ID!'
+            fields: []
+          - name: cartId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartId: ID'
+            fields: []
+          - name: storeId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $storeId: ID'
+            fields: []
+          - name: submarketId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $submarketId: ID'
+            fields: []
+          - name: currency
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $currency: String'
+            fields: []
+          - name: isCardPayment
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isCardPayment: Boolean'
+            fields: []
+      create_createOrderFromCart:
+        method: POST
+        path: /graphql/createOrderFromCart
+        description: 'Mutation: submit a DoorDash order from a cart. Must require explicit live-order gate.'
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: createOrderFromCart
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: createOrderFromCart
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/createOrderFromCart.graphql
+          description: GraphQL document from upstream queries/createOrderFromCart.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: cartId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartId: ID!'
+            fields: []
+          - name: total
+            type: integer
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $total: Int!'
+            fields: []
+          - name: sosDeliveryFee
+            type: integer
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $sosDeliveryFee: Int!'
+            fields: []
+          - name: isPickupOrder
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $isPickupOrder: Boolean!'
+            fields: []
+          - name: verifiedAgeRequirement
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $verifiedAgeRequirement: Boolean!'
+            fields: []
+          - name: deliveryTime
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryTime: String!'
+            fields: []
+          - name: menuOptions
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $menuOptions: [String]'
+            fields: []
+          - name: stripeToken
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $stripeToken: String'
+            fields: []
+          - name: attributionData
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $attributionData: String'
+            fields: []
+          - name: fulfillsOwnDeliveries
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $fulfillsOwnDeliveries: Boolean'
+            fields: []
+          - name: budgetId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $budgetId: String'
+            fields: []
+          - name: teamId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $teamId: String'
+            fields: []
+          - name: giftOptions
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $giftOptions: GiftOptionsInput'
+            fields: []
+          - name: recipientShippingDetails
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $recipientShippingDetails: RecipientShippingDetails'
+            fields: []
+          - name: storeId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $storeId: String'
+            fields: []
+          - name: tipAmounts
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $tipAmounts: [TipAmount!]'
+            fields: []
+          - name: paymentMethod
+            type: integer
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethod: Int'
+            fields: []
+          - name: deliveryOptionType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryOptionType: DeliveryOptionType'
+            fields: []
+          - name: workOrderOptions
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $workOrderOptions: WorkOrderOptionsInput'
+            fields: []
+          - name: isCardPayment
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isCardPayment: Boolean'
+            fields: []
+          - name: clientFraudContext
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $clientFraudContext: PaymentClientFraudContextInput'
+            fields: []
+          - name: programId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $programId: String'
+            fields: []
+          - name: membershipId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $membershipId: String'
+            fields: []
+          - name: dropoffPreferences
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $dropoffPreferences: String'
+            fields: []
+          - name: routineReorderDetails
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $routineReorderDetails: RoutineReorderDetails'
+            fields: []
+          - name: supplementalPaymentDetailsList
+            type: array
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $supplementalPaymentDetailsList: [SupplementalPaymentDetails!]'
+            fields: []
+          - name: monitoringContext
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $monitoringContext: CreateOrderFromCartMonitoringContextInput'
+            fields: []
+          - name: rewardBalanceApplied
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $rewardBalanceApplied: RewardBalanceDetailsInput'
+            fields: []
+          - name: deliveryOptionInfo
+            type: object
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deliveryOptionInfo: DeliveryOptionInfo'
+            fields: []
+          - name: hasAccessibilityRequirements
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $hasAccessibilityRequirements: Boolean'
+            fields: []
+          - name: shouldApplyCredits
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $shouldApplyCredits: Boolean'
+            fields: []
+          - name: dasherPickupInstructions
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $dasherPickupInstructions: String'
+            fields: []
+          - name: paymentMethodUuid
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethodUuid: String'
+            fields: []
+          - name: paymentMethodType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethodType: PaymentMethodType'
+            fields: []
+          - name: deviceTimezone
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $deviceTimezone: String'
+            fields: []
+          - name: paymentMethodBrand
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $paymentMethodBrand: String'
+            fields: []
+          - name: submitPlatform
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $submitPlatform: String'
+            fields: []
+      create_pollOrderPaymentStatus:
+        method: POST
+        path: /graphql/pollOrderPaymentStatus
+        description: Poll payment status for a submitted order.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: pollOrderPaymentStatus
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: pollOrderPaymentStatus
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/pollOrderPaymentStatus.graphql
+          description: GraphQL document from upstream queries/pollOrderPaymentStatus.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: orderId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $orderId: ID!'
+            fields: []
+      create_getHasNewNotifications:
+        method: POST
+        path: /graphql/getHasNewNotifications
+        description: Fetch notification count/status.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: getHasNewNotifications
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getHasNewNotifications
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/getHasNewNotifications.graphql
+          description: GraphQL document from upstream queries/getHasNewNotifications.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields: []
+      create_promoStickyFooter:
+        method: POST
+        path: /graphql/promoStickyFooter
+        description: Fetch promo sticky-footer data for a cart/store context.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: promoStickyFooter
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: promoStickyFooter
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/promoStickyFooter.graphql
+          description: GraphQL document from upstream queries/promoStickyFooter.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: consumerId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $consumerId: ID!'
+            fields: []
+          - name: cartId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartId: ID'
+            fields: []
+          - name: storeId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $storeId: ID'
+            fields: []
+          - name: submarketId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $submarketId: ID'
+            fields: []
+          - name: menuId
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $menuId: ID'
+            fields: []
+          - name: subtotal
+            type: integer
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $subtotal: Int'
+            fields: []
+          - name: currency
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $currency: String'
+            fields: []
+          - name: isDYFCart
+            type: boolean
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $isDYFCart: Boolean'
+            fields: []
+          - name: cartStatusType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $cartStatusType: CartStatusType'
+            fields: []
+          - name: landingPageType
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $landingPageType: PromoLandingPageTypeMap'
+            fields: []
+          - name: micStickyFooterState
+            type: string
+            required: false
+            positional: false
+            default: null
+            description: 'GraphQL variable $micStickyFooterState: MICStickyFooterState'
+            fields: []
+      create_validateConsumerAddressWithAddressLinkId:
+        method: POST
+        path: /graphql/validateConsumerAddressWithAddressLinkId
+        description: Validate a DoorDash address link ID.
+        params:
+        - name: operation
+          type: string
+          required: false
+          positional: false
+          default: validateConsumerAddressWithAddressLinkId
+          description: DoorDash GraphQL operation query parameter; defaults to operationName.
+          fields: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: validateConsumerAddressWithAddressLinkId
+          description: GraphQL operationName.
+          fields: []
+        - name: query
+          type: string
+          required: true
+          positional: false
+          default: queries/validateConsumerAddressWithAddressLinkId.graphql
+          description: GraphQL document from upstream queries/validateConsumerAddressWithAddressLinkId.graphql.
+          fields: []
+        - name: variables
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: GraphQL variables object.
+          fields:
+          - name: addressLinkId
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: 'GraphQL variable $addressLinkId: ID!'
+            fields: []

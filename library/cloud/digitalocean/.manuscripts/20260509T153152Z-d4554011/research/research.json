@@ -1,0 +1,89 @@
+{
+  "api_name": "digitalocean",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "Official cloud CLIs expose endpoint operations but rarely combine local archive, search, analytics, and agent-friendly diagnostics in one generated tool."
+  ],
+  "patterns": [
+    "DigitalOcean users need fast read-only inventory and troubleshooting workflows across account resources."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T21:46:40Z",
+  "novel_features": [
+    {
+      "name": "Local resource archive",
+      "command": "workflow archive",
+      "description": "Sync DigitalOcean resources into a local SQLite store for offline inspection and repeatable agent workflows.",
+      "rationale": "Cloud inventory questions often need cross-resource context without repeatedly calling the live API.",
+      "example": "digitalocean-pp-cli workflow archive --full --json",
+      "why_it_matters": "Gives agents a durable local inventory before planning cloud changes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full-text cloud search",
+      "command": "search",
+      "description": "Search synced DigitalOcean data locally, with live/local source selection for agent-friendly retrieval.",
+      "rationale": "Finding resources by fuzzy text is faster than remembering exact endpoint and filter combinations.",
+      "example": "digitalocean-pp-cli search \"production\" --data-source local --json --limit 20",
+      "why_it_matters": "Lets agents locate relevant resources before choosing a narrower command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Archive analytics",
+      "command": "analytics",
+      "description": "Summarize locally synced resource data with count and group-by operations.",
+      "rationale": "Operators often need shape-of-account answers, not raw endpoint dumps.",
+      "example": "digitalocean-pp-cli analytics --type droplets --group-by region --json",
+      "why_it_matters": "Turns resource listings into operational summaries an agent can reason about.",
+      "group": "Operational summaries"
+    },
+    {
+      "name": "Polling tail",
+      "command": "tail",
+      "description": "Poll selected resources and emit change events as NDJSON for shell and agent pipelines.",
+      "rationale": "Many cloud APIs lack a single streaming surface for account resource changes.",
+      "example": "digitalocean-pp-cli tail --resource droplets --interval 30s --json",
+      "why_it_matters": "Provides a safe one-shot or continuous change feed without bespoke scripts.",
+      "group": "Operational summaries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local resource archive",
+      "command": "workflow archive",
+      "description": "Sync DigitalOcean resources into a local SQLite store for offline inspection and repeatable agent workflows.",
+      "rationale": "Cloud inventory questions often need cross-resource context without repeatedly calling the live API.",
+      "example": "digitalocean-pp-cli workflow archive --full --json",
+      "why_it_matters": "Gives agents a durable local inventory before planning cloud changes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full-text cloud search",
+      "command": "search",
+      "description": "Search synced DigitalOcean data locally, with live/local source selection for agent-friendly retrieval.",
+      "rationale": "Finding resources by fuzzy text is faster than remembering exact endpoint and filter combinations.",
+      "example": "digitalocean-pp-cli search \"production\" --data-source local --json --limit 20",
+      "why_it_matters": "Lets agents locate relevant resources before choosing a narrower command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Archive analytics",
+      "command": "analytics",
+      "description": "Summarize locally synced resource data with count and group-by operations.",
+      "rationale": "Operators often need shape-of-account answers, not raw endpoint dumps.",
+      "example": "digitalocean-pp-cli analytics --type droplets --group-by region --json",
+      "why_it_matters": "Turns resource listings into operational summaries an agent can reason about.",
+      "group": "Operational summaries"
+    },
+    {
+      "name": "Polling tail",
+      "command": "tail",
+      "description": "Poll selected resources and emit change events as NDJSON for shell and agent pipelines.",
+      "rationale": "Many cloud APIs lack a single streaming surface for account resource changes.",
+      "example": "digitalocean-pp-cli tail --resource droplets --interval 30s --json",
+      "why_it_matters": "Provides a safe one-shot or continuous change feed without bespoke scripts.",
+      "group": "Operational summaries"
+    }
+  ]
+}

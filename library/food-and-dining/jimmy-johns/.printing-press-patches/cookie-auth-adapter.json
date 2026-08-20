@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "cookie-auth-adapter",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/auth_import_cookies.go",
+    "internal/cli/auth.go",
+    "internal/config/config.go"
+  ],
+  "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config; teach `auth status`, `auth logout`, and the config layer to treat that Cookie as first-class auth. Name/value validation split into validCookieName (RFC 6265 token rules — rejects `=`) and validCookieValue (cookie-octet rules — allows `=` for base64 padding).",
+  "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Validates cookie characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection, but with separate name/value rules — values include `=` since PerimeterX cookies like `_px3`/`_pxvid` store base64 payloads with `=` padding; rejecting them defeated the entire reason for the import flow. Adds Config.ClearAuth (used by logout, also nukes the Cookie) and Config.HasCookieAuth (used by auth status, doctor, and the cache key) so the documented flow doesn't misreport as 'Not authenticated' or share cache lines across re-imports."
+}

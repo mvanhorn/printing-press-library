@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/sensortower-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260717-030012-35521069",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

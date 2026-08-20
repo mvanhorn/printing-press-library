@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,6 +13,21 @@ import (
 )
 
 const skillOutputDir = "cli-skills"
+
+// generatedHeader is injected into each mirrored SKILL.md immediately after
+// the YAML frontmatter closes (or at the top of the file when there's no
+// frontmatter). Agents that open cli-skills/pp-*/SKILL.md to edit it see the
+// warning at the top of the body and the file path it should have edited.
+//
+// The header is intentionally a CommonMark HTML comment so renderers drop it.
+// It cannot live before the frontmatter — many skill loaders require the file
+// to start with `---` for frontmatter to be detected at all.
+const generatedHeaderFmt = "<!-- GENERATED FILE — DO NOT EDIT.\n" +
+	"     This file is a verbatim mirror of %s,\n" +
+	"     regenerated post-merge by tools/generate-skills/. Hand-edits here are\n" +
+	"     silently overwritten on the next regen. Edit the library/ source instead.\n" +
+	"     See the repository agent guide, section \"Generated artifacts: registry.json, cli-skills/\". -->\n"
+const generatedHeaderPrefix = "<!-- GENERATED FILE — DO NOT EDIT"
 
 type PrintManifest struct {
 	APIName string `json:"api_name"`
@@ -23,9 +39,32 @@ type LibrarySkill struct {
 }
 
 func main() {
+	validate := flag.Bool("validate", false, "exit non-zero if any library SKILL.md is missing or empty; do not write to cli-skills/")
+	flag.Parse()
+
 	librarySkills, err := discoverLibrarySkills("library")
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// --validate runs the same discovery the normal mirror path runs, but
+	// short-circuits before any cli-skills/ writes. Surfaces missing-or-empty
+	// upstream SKILL.md at PR time so the post-merge regen workflow doesn't
+	// silently partial-write before fataling. Mirrors the --validate pattern
+	// in tools/generate-registry/main.go.
+	if *validate {
+		errs := validateLibrarySkills(librarySkills)
+		if len(errs) > 0 {
+			fmt.Fprintln(os.Stderr, "SKILL.md validation failed:")
+			for _, e := range errs {
+				fmt.Fprintln(os.Stderr, "  - "+e)
+			}
+			fmt.Fprintln(os.Stderr, "\nEvery CLI must ship a non-empty library SKILL.md at library/<cat>/<slug>/SKILL.md.")
+			fmt.Fprintln(os.Stderr, "See AGENTS.md \"SKILL.md coverage\" for the contract.")
+			os.Exit(2)
+		}
+		fmt.Fprintf(os.Stderr, "SKILL.md validation passed (%d entries).\n", len(librarySkills))
+		return
 	}
 
 	// Track every skill name the library asks for so we can prune
@@ -124,6 +163,35 @@ func discoverLibrarySkills(libraryRoot string) ([]LibrarySkill, error) {
 	return skills, nil
 }
 
+// validateLibrarySkills returns one human-readable error per entry whose
+// upstream SKILL.md is missing or empty/whitespace-only. Returns an empty
+// slice when every entry validates. The caller surfaces the failures and
+// exits with the appropriate code; this function does not mutate cli-skills/
+// or any other directory.
+//
+// The check matches copyUpstreamSkill's "missing or empty" predicate exactly
+// (same os.ReadFile + bytes.TrimSpace check) so a passing --validate run
+// implies the subsequent mirror pass will succeed on every entry.
+func validateLibrarySkills(skills []LibrarySkill) []string {
+	var errs []string
+	for _, entry := range skills {
+		upstreamPath := filepath.Join(entry.Path, "SKILL.md")
+		data, err := os.ReadFile(upstreamPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				errs = append(errs, fmt.Sprintf("%s: SKILL.md missing (expected %s)", entry.Name, filepath.ToSlash(upstreamPath)))
+				continue
+			}
+			errs = append(errs, fmt.Sprintf("%s: read %s: %v", entry.Name, filepath.ToSlash(upstreamPath), err))
+			continue
+		}
+		if len(bytes.TrimSpace(data)) == 0 {
+			errs = append(errs, fmt.Sprintf("%s: SKILL.md is empty or whitespace-only (file: %s)", entry.Name, filepath.ToSlash(upstreamPath)))
+		}
+	}
+	return errs
+}
+
 // copyUpstreamSkill copies <entryPath>/SKILL.md to skillFile if it exists and
 // is non-empty. Returns (true, nil) on successful copy, (false, nil) when
 // upstream is missing or empty/whitespace-only (caller reports it as missing),
@@ -147,10 +215,61 @@ func copyUpstreamSkill(entryPath, skillDir, skillFile string) (bool, error) {
 	if err := os.MkdirAll(skillDir, 0755); err != nil {
 		return false, fmt.Errorf("mkdir %s: %w", skillDir, err)
 	}
-	if err := os.WriteFile(skillFile, data, 0644); err != nil {
+	if err := os.WriteFile(skillFile, injectGeneratedHeader(data, filepath.ToSlash(upstreamPath)), 0644); err != nil {
 		return false, fmt.Errorf("write %s: %w", skillFile, err)
 	}
 	return true, nil
+}
+
+// injectGeneratedHeader inserts the DO-NOT-EDIT warning into a SKILL.md byte
+// stream. When the file has YAML frontmatter (a leading `---` line followed
+// by a closing `---` line), the header is placed immediately after the
+// closing fence so frontmatter parsers continue to work. Otherwise the header
+// is prepended.
+//
+// Idempotent: if the file already starts with the generated header (e.g. a
+// library SKILL.md authored from a previous mirror, or a re-run on an
+// already-injected file), the function returns the input unchanged.
+func injectGeneratedHeader(data []byte, sourcePath string) []byte {
+	bodyOffset := frontmatterEnd(data)
+	generatedHeader := fmt.Sprintf(generatedHeaderFmt, sourcePath)
+	if bytes.HasPrefix(data[bodyOffset:], []byte(generatedHeaderPrefix)) {
+		return data
+	}
+	out := make([]byte, 0, len(data)+len(generatedHeader)+1)
+	out = append(out, data[:bodyOffset]...)
+	if bodyOffset > 0 && (bodyOffset == len(data) || data[bodyOffset] != '\n') {
+		out = append(out, '\n')
+	}
+	out = append(out, generatedHeader...)
+	out = append(out, data[bodyOffset:]...)
+	return out
+}
+
+// frontmatterEnd returns the byte offset just past the closing `---` of YAML
+// frontmatter, including its trailing newline. Returns 0 when the file has
+// no frontmatter (i.e., doesn't start with `---\n` on its own line). The
+// header should be injected at that offset.
+func frontmatterEnd(data []byte) int {
+	const fence = "---"
+	if !bytes.HasPrefix(data, []byte(fence+"\n")) && !bytes.HasPrefix(data, []byte(fence+"\r\n")) {
+		return 0
+	}
+	// Skip the opening fence line and look for the closing fence at the
+	// start of a subsequent line. Match either Unix or Windows line endings.
+	start := bytes.IndexByte(data, '\n') + 1
+	for i := start; i < len(data); {
+		lineEnd := bytes.IndexByte(data[i:], '\n')
+		if lineEnd < 0 {
+			return 0
+		}
+		line := bytes.TrimRight(data[i:i+lineEnd], "\r")
+		if bytes.Equal(line, []byte(fence)) {
+			return i + lineEnd + 1
+		}
+		i += lineEnd + 1
+	}
+	return 0
 }
 
 // pruneOrphanSkills removes cli-skills/pp-<slug>/ directories whose pp-<slug>

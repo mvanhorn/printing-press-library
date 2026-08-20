@@ -1,0 +1,690 @@
+openapi: "3.0.3"
+info:
+  title: Google Search Console API
+  description: |
+    Google Search Console (formerly Webmaster Tools) API for managing verified sites,
+    sitemaps, querying search analytics performance data, and inspecting URL index
+    status. The flagship endpoint is `searchAnalytics.query`, which returns clicks,
+    impressions, CTR, and average position grouped by query, page, country, device,
+    or search appearance.
+
+    Use this CLI to pull GSC data for SEO reporting, monitor sitemap health, inspect
+    individual URLs in Google's index, and manage site verification programmatically.
+
+    Authentication is OAuth 2.0. The CLI accepts a pre-fetched access token via the
+    `GSC_ACCESS_TOKEN` environment variable. Generate one from the Google OAuth
+    Playground (https://developers.google.com/oauthplayground/) using scope
+    `https://www.googleapis.com/auth/webmasters.readonly` for read-only operations,
+    or `https://www.googleapis.com/auth/webmasters` for full read-write access
+    (sitemap submit/delete, sites add/delete).
+
+    Site URLs come in two formats: domain properties (`sc-domain:example.com`) and
+    URL-prefix properties (`https://www.example.com/`). Both are accepted everywhere
+    the spec calls for `siteUrl`, and the CLI URL-encodes them automatically.
+  version: "1.0.0"
+  contact:
+    name: Google Search Console (Community CLI)
+  license:
+    name: MIT
+  x-cli-description: Pull Google Search Console performance data, manage sitemaps, inspect URLs, and verify sites -- agent-native, with offline search and a local SQLite cache.
+
+servers:
+  - url: https://searchconsole.googleapis.com
+    description: Google Search Console API
+
+tags:
+  - name: sites
+    description: Manage verified sites in Search Console
+  - name: sitemaps
+    description: Submit, list, and delete sitemaps
+  - name: searchanalytics
+    description: Query search performance data (clicks, impressions, CTR, position)
+  - name: urlInspection
+    description: Inspect a URL's index status in Google Search
+
+security:
+  - bearerAuth: []
+
+paths:
+  /webmasters/v3/sites:
+    get:
+      operationId: listSites
+      summary: List all verified Search Console sites for the authenticated user
+      description: |
+        Returns every site (domain property or URL-prefix property) the authenticated
+        user has access to in Search Console, along with the user's permission level
+        for each (siteOwner, siteFullUser, siteRestrictedUser, siteUnverifiedUser).
+      tags: [sites]
+      responses:
+        "200":
+          description: A list of verified sites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SitesListResponse"
+
+  /webmasters/v3/sites/{siteUrl}:
+    parameters:
+      - $ref: "#/components/parameters/SiteUrl"
+    get:
+      operationId: getSite
+      summary: Get permission level and metadata for a specific site
+      description: Retrieves information about a specific verified site, including the user's permission level.
+      tags: [sites]
+      responses:
+        "200":
+          description: Site metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WmxSite"
+    put:
+      operationId: addSite
+      summary: Add a site to Search Console
+      description: |
+        Adds a site to the set of the user's sites in Search Console. The site
+        must still be verified separately (via DNS, HTML tag, or analytics) before
+        Search Console will collect data for it.
+      tags: [sites]
+      responses:
+        "204":
+          description: Site added (verification still required separately)
+    delete:
+      operationId: deleteSite
+      summary: Remove a site from Search Console
+      description: Removes a site from the set of the user's Search Console sites. Does not delete data Google has collected.
+      tags: [sites]
+      responses:
+        "204":
+          description: Site removed
+
+  /webmasters/v3/sites/{siteUrl}/sitemaps:
+    parameters:
+      - $ref: "#/components/parameters/SiteUrl"
+    get:
+      operationId: listSitemaps
+      summary: List submitted sitemaps for a site
+      description: |
+        Lists the sitemaps submitted for this site, or included in the sitemap
+        index file (if `sitemapIndex` is provided in the request).
+      tags: [sitemaps]
+      parameters:
+        - name: sitemapIndex
+          in: query
+          description: A URL of a site's sitemap index file. If provided, lists sitemaps in that index.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of sitemaps
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SitemapsListResponse"
+
+  /webmasters/v3/sites/{siteUrl}/sitemaps/{feedpath}:
+    parameters:
+      - $ref: "#/components/parameters/SiteUrl"
+      - $ref: "#/components/parameters/Feedpath"
+    get:
+      operationId: getSitemap
+      summary: Get a specific sitemap's status and contents
+      description: |
+        Retrieves information about a specific sitemap, including warnings, errors,
+        last submitted/downloaded times, and content type counts (web, image, video, news).
+      tags: [sitemaps]
+      responses:
+        "200":
+          description: Sitemap detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WmxSitemap"
+    put:
+      operationId: submitSitemap
+      summary: Submit a sitemap to Search Console
+      description: |
+        Submits a sitemap for a site. The sitemap URL must be an absolute URL on
+        the same site as `siteUrl`. Submission is idempotent.
+      tags: [sitemaps]
+      responses:
+        "204":
+          description: Sitemap submitted
+    delete:
+      operationId: deleteSitemap
+      summary: Remove a sitemap from the Sitemaps report
+      description: |
+        Deletes a sitemap from the Sitemaps report. Does not stop Google from
+        crawling the sitemap if it's still discoverable; just removes it from
+        the explicit submission list.
+      tags: [sitemaps]
+      responses:
+        "204":
+          description: Sitemap removed
+
+  /webmasters/v3/sites/{siteUrl}/searchAnalytics/query:
+    parameters:
+      - $ref: "#/components/parameters/SiteUrl"
+    post:
+      operationId: querySearchAnalytics
+      summary: Query Search Console performance data
+      description: |
+        Returns clicks, impressions, CTR, and average position grouped by the
+        dimensions you specify (query, page, country, device, searchAppearance,
+        date). The workhorse endpoint of the Search Console API.
+
+        Common usage: pass `dimensions: [query, page]`, a date range, and
+        optionally `dimensionFilterGroups` to drill into a specific country
+        or device. Results are capped at 25,000 rows per request; use
+        `startRow` and `rowLimit` for pagination.
+
+        Date range maximum is 16 months back from today. Data lag is typically
+        2-3 days for the most recent date.
+      tags: [searchanalytics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchAnalyticsQueryRequest"
+      responses:
+        "200":
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchAnalyticsQueryResponse"
+
+  /v1/urlInspection/index:inspect:
+    post:
+      operationId: inspectUrl
+      summary: Inspect a single URL's index status in Google Search
+      description: |
+        Returns Google's view of a single URL: index status, last crawl time,
+        canonical URL (Google-selected vs user-declared), mobile usability
+        verdict, AMP/rich results status, robots.txt and indexing directives,
+        and referring URLs.
+
+        Single-URL only -- no batch endpoint exists. To inspect many URLs,
+        loop and respect the daily quota (typically 2,000 inspections/day per
+        property).
+      tags: [urlInspection]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectUrlIndexRequest"
+      responses:
+        "200":
+          description: URL inspection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InspectUrlIndexResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: OAuth2 access token
+      description: |
+        Pre-fetched OAuth 2.0 access token. Get one from the Google OAuth
+        Playground (https://developers.google.com/oauthplayground/) using
+        scope `webmasters.readonly` (read) or `webmasters` (read-write).
+      x-auth-env-vars:
+        - GSC_ACCESS_TOKEN
+
+  parameters:
+    SiteUrl:
+      name: siteUrl
+      in: path
+      required: true
+      description: |
+        Site URL -- accepts both URL-prefix properties (`https://www.example.com/`)
+        and domain properties (`sc-domain:example.com`). The CLI URL-encodes the
+        value automatically.
+      schema:
+        type: string
+      example: "sc-domain:example.com"
+
+    Feedpath:
+      name: feedpath
+      in: path
+      required: true
+      description: |
+        The full URL of the sitemap, including protocol. Example:
+        `https://www.example.com/sitemap.xml`. The CLI URL-encodes this
+        automatically.
+      schema:
+        type: string
+      example: "https://www.example.com/sitemap.xml"
+
+  schemas:
+    SitesListResponse:
+      type: object
+      description: Response from listing the user's verified sites
+      properties:
+        siteEntry:
+          type: array
+          description: Contains permission level information about a Search Console site
+          items:
+            $ref: "#/components/schemas/WmxSite"
+
+    WmxSite:
+      type: object
+      description: A verified Search Console site (domain or URL-prefix property)
+      properties:
+        siteUrl:
+          type: string
+          description: "URL of the site. Either URL-prefix (https://www.example.com/) or domain (sc-domain:example.com)."
+        permissionLevel:
+          type: string
+          description: |
+            User's permission level for the site. One of:
+            - SITE_OWNER -- full ownership, can manage users
+            - SITE_FULL_USER -- full data access, no user management
+            - SITE_RESTRICTED_USER -- limited data access
+            - SITE_UNVERIFIED_USER -- verification not yet complete
+            - SITE_PERMISSION_LEVEL_UNSPECIFIED -- sentinel; should not appear in normal responses
+          enum:
+            - SITE_PERMISSION_LEVEL_UNSPECIFIED
+            - SITE_OWNER
+            - SITE_FULL_USER
+            - SITE_RESTRICTED_USER
+            - SITE_UNVERIFIED_USER
+
+    SitemapsListResponse:
+      type: object
+      description: Response from listing sitemaps for a site
+      properties:
+        sitemap:
+          type: array
+          description: Contains detailed information about a submitted sitemap
+          items:
+            $ref: "#/components/schemas/WmxSitemap"
+
+    WmxSitemap:
+      type: object
+      description: A submitted sitemap with status, errors/warnings, and content counts
+      properties:
+        path:
+          type: string
+          description: Full URL of the sitemap, including protocol
+        lastSubmitted:
+          type: string
+          format: date-time
+          description: Timestamp the sitemap was last submitted (RFC 3339)
+        lastDownloaded:
+          type: string
+          format: date-time
+          description: Timestamp Google last successfully downloaded the sitemap
+        isPending:
+          type: boolean
+          description: True if Google hasn't downloaded the sitemap yet
+        isSitemapsIndex:
+          type: boolean
+          description: True if the sitemap is a sitemap index (lists other sitemaps)
+        type:
+          type: string
+          description: |
+            Sitemap type. Returned by Google in UPPER_SNAKE.
+          enum: [NOT_SITEMAP, URL_LIST, SITEMAP, RSS_FEED, ATOM_FEED, PATTERN_SITEMAP, OCEANFRONT]
+        errors:
+          type: string
+          format: int64
+          description: Number of errors found during processing
+        warnings:
+          type: string
+          format: int64
+          description: Number of warnings found during processing
+        contents:
+          type: array
+          description: Per-content-type counts (e.g., 100 web URLs, 20 image URLs)
+          items:
+            $ref: "#/components/schemas/WmxSitemapContent"
+
+    WmxSitemapContent:
+      type: object
+      description: Per-content-type counts within a sitemap
+      properties:
+        type:
+          type: string
+          description: |
+            Content type. Returned by Google in UPPER_SNAKE.
+          enum: [WEB, IMAGE, VIDEO, NEWS, MOBILE, ANDROID_APP, PATTERN, IOS_APP, DATA_FEED_ELEMENT]
+        submitted:
+          type: string
+          format: int64
+          description: Number of items submitted in this content type
+        indexed:
+          type: string
+          format: int64
+          description: Number of items indexed by Google in this content type (often deprecated/zero)
+
+    SearchAnalyticsQueryRequest:
+      type: object
+      description: Search analytics query parameters
+      required: [startDate, endDate]
+      properties:
+        startDate:
+          type: string
+          format: date
+          description: Start date (YYYY-MM-DD). Earliest is 16 months ago.
+          example: "2026-04-01"
+        endDate:
+          type: string
+          format: date
+          description: End date (YYYY-MM-DD). Latest is typically 2-3 days ago due to data lag.
+          example: "2026-04-30"
+        dimensions:
+          type: array
+          description: |
+            Group results by these dimensions. Accepts: QUERY, PAGE, COUNTRY,
+            DEVICE, SEARCH_APPEARANCE, DATE. Order matters: results are returned
+            sorted by the first dimension. Generated CLI accepts lowercase
+            shortcuts (e.g. --dim query,page) and translates to wire values.
+          items:
+            type: string
+            enum: [QUERY, PAGE, COUNTRY, DEVICE, SEARCH_APPEARANCE, DATE]
+        dimensionFilterGroups:
+          type: array
+          description: Filter result rows by dimension values
+          items:
+            $ref: "#/components/schemas/ApiDimensionFilterGroup"
+        searchType:
+          type: string
+          description: "(Deprecated) Use `type` instead."
+          enum: [WEB, IMAGE, VIDEO, NEWS, DISCOVER, GOOGLE_NEWS]
+        type:
+          type: string
+          description: |
+            Filter by search property type. `WEB` is most common; `DISCOVER` and
+            `GOOGLE_NEWS` are surface-specific.
+          enum: [WEB, IMAGE, VIDEO, NEWS, DISCOVER, GOOGLE_NEWS]
+        rowLimit:
+          type: integer
+          description: Max rows to return (default 1000, max 25000). Use with startRow for pagination.
+          default: 1000
+          minimum: 1
+          maximum: 25000
+        startRow:
+          type: integer
+          description: Zero-based row offset for pagination
+          default: 0
+          minimum: 0
+        aggregationType:
+          type: string
+          description: |
+            How to aggregate. `AUTO` is default. Use `BY_PAGE` for page-level
+            metrics, `BY_PROPERTY` for property-level totals,
+            `BY_NEWS_SHOWCASE_PANEL` for News-specific surfaces.
+          enum: [AUTO, BY_PROPERTY, BY_PAGE, BY_NEWS_SHOWCASE_PANEL]
+          default: AUTO
+        dataState:
+          type: string
+          description: |
+            `FINAL` returns only finalized data (excludes the most recent 2-3
+            days). `ALL` includes fresh data flagged as preliminary. `HOURLY_ALL`
+            unlocks the 24-hour view added in Dec 2024. `DATA_STATE_UNSPECIFIED`
+            is a sentinel.
+          enum: [DATA_STATE_UNSPECIFIED, FINAL, ALL, HOURLY_ALL]
+
+    ApiDimensionFilterGroup:
+      type: object
+      description: A group of dimension filters joined by groupType
+      properties:
+        groupType:
+          type: string
+          description: How to combine filters within the group
+          enum: [AND]
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiDimensionFilter"
+
+    ApiDimensionFilter:
+      type: object
+      description: A single dimension filter (e.g., COUNTRY = USA)
+      properties:
+        dimension:
+          type: string
+          enum: [QUERY, PAGE, COUNTRY, DEVICE, SEARCH_APPEARANCE]
+        operator:
+          type: string
+          description: Match operator
+          enum: [EQUALS, NOT_EQUALS, CONTAINS, NOT_CONTAINS, INCLUDING_REGEX, EXCLUDING_REGEX]
+        expression:
+          type: string
+          description: Value to match against. For COUNTRY, use ISO 3166-1 alpha-3 (e.g., USA, GBR).
+
+    SearchAnalyticsQueryResponse:
+      type: object
+      description: Search analytics query results
+      properties:
+        rows:
+          type: array
+          description: Result rows. Each row's `keys` align with the requested `dimensions`.
+          items:
+            $ref: "#/components/schemas/ApiDataRow"
+        responseAggregationType:
+          type: string
+          description: How results were aggregated. Always returned by Google in UPPER_SNAKE.
+          enum: [AUTO, BY_PROPERTY, BY_PAGE, BY_NEWS_SHOWCASE_PANEL]
+
+    ApiDataRow:
+      type: object
+      description: One row of search analytics results
+      properties:
+        keys:
+          type: array
+          description: Dimension values in the order specified in the request
+          items:
+            type: string
+        clicks:
+          type: number
+          format: double
+          description: Number of clicks from Google Search to your site
+        impressions:
+          type: number
+          format: double
+          description: Number of times your URL appeared in search results
+        ctr:
+          type: number
+          format: double
+          description: Click-through rate (clicks / impressions). 0.0 - 1.0.
+        position:
+          type: number
+          format: double
+          description: Average position in search results (1.0 = top result)
+
+    InspectUrlIndexRequest:
+      type: object
+      description: URL inspection request
+      required: [inspectionUrl, siteUrl]
+      properties:
+        inspectionUrl:
+          type: string
+          description: The fully-qualified URL to inspect. Must be a URL within the property in `siteUrl`.
+          example: "https://www.example.com/some/page"
+        siteUrl:
+          type: string
+          description: The Search Console property the URL belongs to (URL-prefix or domain property).
+          example: "sc-domain:example.com"
+        languageCode:
+          type: string
+          description: BCP-47 language code for the response (default `en-US`).
+          default: "en-US"
+
+    InspectUrlIndexResponse:
+      type: object
+      description: URL inspection result
+      properties:
+        inspectionResult:
+          $ref: "#/components/schemas/UrlInspectionResult"
+
+    UrlInspectionResult:
+      type: object
+      description: Google's view of a single URL
+      properties:
+        inspectionResultLink:
+          type: string
+          description: URL to view this inspection in the Search Console UI
+        indexStatusResult:
+          $ref: "#/components/schemas/IndexStatusInspectionResult"
+        ampResult:
+          $ref: "#/components/schemas/AmpInspectionResult"
+        mobileUsabilityResult:
+          $ref: "#/components/schemas/MobileUsabilityInspectionResult"
+        richResultsResult:
+          $ref: "#/components/schemas/RichResultsInspectionResult"
+
+    IndexStatusInspectionResult:
+      type: object
+      description: Index status (the most useful section for SEO debugging)
+      properties:
+        verdict:
+          type: string
+          description: Overall verdict
+          enum: [VERDICT_UNSPECIFIED, PASS, PARTIAL, FAIL, NEUTRAL]
+        coverageState:
+          type: string
+          description: |
+            Status string. Common values: "Submitted and indexed", "Crawled - currently not indexed",
+            "Discovered - currently not indexed", "Excluded by 'noindex' tag", "URL is unknown to Google".
+        robotsTxtState:
+          type: string
+          enum: [ROBOTS_TXT_STATE_UNSPECIFIED, ALLOWED, DISALLOWED]
+        indexingState:
+          type: string
+          enum: [INDEXING_STATE_UNSPECIFIED, INDEXING_ALLOWED, BLOCKED_BY_META_TAG, BLOCKED_BY_HTTP_HEADER, BLOCKED_BY_ROBOTS_TXT]
+        lastCrawlTime:
+          type: string
+          format: date-time
+        pageFetchState:
+          type: string
+          enum: [PAGE_FETCH_STATE_UNSPECIFIED, SUCCESSFUL, SOFT_404, BLOCKED_ROBOTS_TXT, NOT_FOUND, ACCESS_DENIED, SERVER_ERROR, REDIRECT_ERROR, ACCESS_FORBIDDEN, BLOCKED_4XX, INTERNAL_CRAWL_ERROR, INVALID_URL]
+        googleCanonical:
+          type: string
+          description: Canonical URL Google chose
+        userCanonical:
+          type: string
+          description: Canonical URL declared by the page (rel=canonical)
+        sitemap:
+          type: array
+          description: Sitemaps that reference this URL
+          items:
+            type: string
+        referringUrls:
+          type: array
+          description: Internal/external pages linking to this URL (top-N sample)
+          items:
+            type: string
+        crawledAs:
+          type: string
+          description: Crawl agent (mobile-first by default)
+          enum: [CRAWLING_USER_AGENT_UNSPECIFIED, DESKTOP, MOBILE]
+
+    AmpInspectionResult:
+      type: object
+      description: AMP-specific inspection (if URL has an AMP version)
+      properties:
+        ampUrl:
+          type: string
+        verdict:
+          type: string
+          enum: [VERDICT_UNSPECIFIED, PASS, PARTIAL, FAIL, NEUTRAL]
+        ampIndexStatusVerdict:
+          type: string
+          enum: [VERDICT_UNSPECIFIED, PASS, PARTIAL, FAIL, NEUTRAL]
+        lastCrawlTime:
+          type: string
+          format: date-time
+        robotsTxtState:
+          type: string
+          enum: [ROBOTS_TXT_STATE_UNSPECIFIED, ALLOWED, DISALLOWED]
+        indexingState:
+          type: string
+          enum: [AMP_INDEXING_STATE_UNSPECIFIED, AMP_INDEXING_ALLOWED, BLOCKED_DUE_TO_NOINDEX, BLOCKED_DUE_TO_EXPIRED_UNAVAILABLE_AFTER]
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmpIssue"
+
+    AmpIssue:
+      type: object
+      properties:
+        issueMessage:
+          type: string
+        severity:
+          type: string
+          enum: [SEVERITY_UNSPECIFIED, WARNING, ERROR]
+
+    MobileUsabilityInspectionResult:
+      type: object
+      description: |
+        Mobile-friendliness verdict for the URL. Note: Google retired the standalone
+        Mobile-Friendly Test API on Dec 4, 2023, but per-URL mobile usability data
+        remains exposed through the URL Inspection API.
+      properties:
+        verdict:
+          type: string
+          enum: [VERDICT_UNSPECIFIED, PASS, PARTIAL, FAIL, NEUTRAL]
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/MobileUsabilityIssue"
+
+    MobileUsabilityIssue:
+      type: object
+      properties:
+        issueType:
+          type: string
+        severity:
+          type: string
+          enum: [SEVERITY_UNSPECIFIED, WARNING, ERROR]
+        message:
+          type: string
+
+    RichResultsInspectionResult:
+      type: object
+      description: Structured-data rich results detected on the URL
+      properties:
+        verdict:
+          type: string
+          enum: [VERDICT_UNSPECIFIED, PASS, PARTIAL, FAIL, NEUTRAL]
+        detectedItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetectedItems"
+
+    DetectedItems:
+      type: object
+      properties:
+        richResultType:
+          type: string
+          description: e.g., "Article", "Product", "FAQ", "Recipe"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+
+    Item:
+      type: object
+      properties:
+        name:
+          type: string
+        issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/RichResultsIssue"
+
+    RichResultsIssue:
+      type: object
+      properties:
+        issueMessage:
+          type: string
+        severity:
+          type: string
+          enum: [SEVERITY_UNSPECIFIED, WARNING, ERROR]

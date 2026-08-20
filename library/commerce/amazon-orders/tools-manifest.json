@@ -1,0 +1,43 @@
+{
+  "api_name": "amazon-orders",
+  "base_url": "https://www.amazon.com",
+  "description": "Walk and explore your Amazon order history — orders, items, shipments, tracking, transactions, gift cards. Reverse-engineered access using your logged-in browser session because Amazon publishes no buyer API.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "env_vars": [
+      "AMAZON_COOKIES"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AMAZON_COOKIES",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".amazon.com",
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/gp/your-account/order-history",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    }
+  ],
+  "tools": []
+}

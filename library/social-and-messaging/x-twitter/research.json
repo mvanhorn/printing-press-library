@@ -1,0 +1,61 @@
+{
+  "api_name": "x-twitter",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Official X tooling does not provide a unified agent-facing CLI for the full v2 API plus browser-backed Articles authoring."
+  ],
+  "patterns": [
+    "Read commands expose JSON-first output and dry-run request previews for agent workflows."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-05-09T04:45:22Z",
+  "novel_features": [
+    {
+      "name": "Markdown to tweet thread",
+      "command": "thread compose",
+      "description": "Split a markdown file into a numbered tweet thread. Atom-aware splitter honors paragraphs, list items, and code fences. Numbering suffix is reserved before packing so final tweet length stays within 280 chars."
+    },
+    {
+      "name": "Markdown to X Article",
+      "command": "articles-publish-md",
+      "description": "Parse a markdown file with YAML frontmatter and convert the body to Draft.js content_state JSON for X Articles authoring."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Markdown to tweet thread",
+      "command": "thread compose",
+      "description": "Split a markdown file into a numbered tweet thread. Atom-aware splitter honors paragraphs, list items, and code fences. Numbering suffix is reserved before packing so final tweet length stays within 280 chars."
+    },
+    {
+      "name": "Markdown to X Article",
+      "command": "articles-publish-md",
+      "description": "Parse a markdown file with YAML frontmatter and convert the body to Draft.js content_state JSON for X Articles authoring."
+    }
+  ],
+  "narrative": {
+    "display_name": "X",
+    "headline": "X v2 API coverage with browser-backed Articles authoring.",
+    "value_prop": "Use this CLI for JSON-first access to X resources and dry-run request construction. It includes curated commands for long-form Articles workflows that are not exposed as standard v2 endpoints.",
+    "quickstart": [
+      {
+        "command": "x-twitter-pp-cli articles list --dry-run",
+        "comment": "Preview the Articles list request without sending it."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Preview recent post search",
+        "command": "x-twitter-pp-cli tweets search-posts-recent --query \"from:xdev\" --dry-run",
+        "explanation": "Build the recent search request in dry-run mode before using live credentials."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to inspect or automate X v2 resources, compose tweet threads, or prepare X Articles payloads with reproducible JSON output.",
+    "trigger_phrases": [
+      "search recent X posts",
+      "draft an X article",
+      "compose an X thread"
+    ]
+  }
+}

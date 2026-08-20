@@ -1,0 +1,259 @@
+{
+  "api_name": "ollama-cloud",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "ollama-js",
+      "url": "https://github.com/ollama/ollama-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4500,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ollama-python",
+      "url": "https://github.com/ollama/ollama-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5200,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "litellm",
+      "url": "https://github.com/BerriAI/litellm",
+      "language": "Python",
+      "install_method": "",
+      "stars": 14000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openai-python",
+      "url": "https://github.com/openai/openai-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 22000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aichat",
+      "url": "https://github.com/sigoden/aichat",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 3800,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T00:35:33Z",
+  "novel_features": [
+    {
+      "name": "Model advisor",
+      "command": "advise",
+      "description": "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak.",
+      "rationale": "Requires correlating live catalog state with prompt features, session context, budget, and curated per-model metadata that no other tool exposes in a single decision.",
+      "example": "ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --budget-remaining-usd 0.50 --json",
+      "why_it_matters": "When an agent needs to pick a hosted Ollama model and the default routing is wrong, reach for advise instead of hardcoding the model name.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Side-by-side comparison",
+      "command": "compare",
+      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost.",
+      "rationale": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with cost+latency tracking.",
+      "example": "ollama-cloud-pp-cli compare --prompt-file ./p.txt --models qwen3-coder:480b,gpt-oss:120b,deepseek-v3.1:671b --json",
+      "why_it_matters": "Use when calibrating advisor recommendations or picking between two close models.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Advisor explain",
+      "command": "advise",
+      "description": "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale.",
+      "rationale": "Only possible because advise is heuristic-first and auditable; an LLM-only router can't show its work.",
+      "example": "ollama-cloud-pp-cli advise --prompt-file ./p.txt --explain --format md",
+      "why_it_matters": "Reach for this when an advise recommendation surprises you and you want to understand why.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Advisor replay",
+      "command": "advise-replay",
+      "description": "Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary.",
+      "rationale": "Requires the advisor log (we own) plus catalog metadata (we own); no other tool persists both.",
+      "example": "ollama-cloud-pp-cli advise-replay --log ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl --judge-with gpt-oss:120b --since 7d",
+      "why_it_matters": "Run weekly to detect advisor drift; surfaces divergence between recommended and actual-chosen models.",
+      "group": "Engagement canary"
+    },
+    {
+      "name": "Budget probe",
+      "command": "budget",
+      "description": "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota before launching long sessions.",
+      "rationale": "Requires recognising Ollama Cloud's specific 429 envelope (\"you have reached your weekly usage limit\") whether it surfaces as HTTP status 429 or post-retry error prose.",
+      "example": "ollama-cloud-pp-cli budget --json",
+      "why_it_matters": "Run before launching a long agent session to confirm quota is available.",
+      "group": "Operations"
+    },
+    {
+      "name": "Cost trace",
+      "command": "cost-trace",
+      "description": "Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend.",
+      "rationale": "Requires the advisor log (we own) plus portable cost metadata; no other tool persists both.",
+      "example": "ollama-cloud-pp-cli cost-trace --since 7d --group-by task-hint --json",
+      "why_it_matters": "Use to decide whether to upgrade to a paid Ollama Cloud tier.",
+      "group": "Operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Model advisor",
+      "command": "advise",
+      "description": "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak.",
+      "rationale": "Requires correlating live catalog state with prompt features, session context, budget, and curated per-model metadata that no other tool exposes in a single decision.",
+      "example": "ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --budget-remaining-usd 0.50 --json",
+      "why_it_matters": "When an agent needs to pick a hosted Ollama model and the default routing is wrong, reach for advise instead of hardcoding the model name.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Side-by-side comparison",
+      "command": "compare",
+      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost.",
+      "rationale": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with cost+latency tracking.",
+      "example": "ollama-cloud-pp-cli compare --prompt-file ./p.txt --models qwen3-coder:480b,gpt-oss:120b,deepseek-v3.1:671b --json",
+      "why_it_matters": "Use when calibrating advisor recommendations or picking between two close models.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Advisor explain",
+      "command": "advise",
+      "description": "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale.",
+      "rationale": "Only possible because advise is heuristic-first and auditable; an LLM-only router can't show its work.",
+      "example": "ollama-cloud-pp-cli advise --prompt-file ./p.txt --explain --format md",
+      "why_it_matters": "Reach for this when an advise recommendation surprises you and you want to understand why.",
+      "group": "Routing intelligence"
+    },
+    {
+      "name": "Advisor replay",
+      "command": "advise-replay",
+      "description": "Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary.",
+      "rationale": "Requires the advisor log (we own) plus catalog metadata (we own); no other tool persists both.",
+      "example": "ollama-cloud-pp-cli advise-replay --log ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl --judge-with gpt-oss:120b --since 7d",
+      "why_it_matters": "Run weekly to detect advisor drift; surfaces divergence between recommended and actual-chosen models.",
+      "group": "Engagement canary"
+    },
+    {
+      "name": "Budget probe",
+      "command": "budget",
+      "description": "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota before launching long sessions.",
+      "rationale": "Requires recognising Ollama Cloud's specific 429 envelope (\"you have reached your weekly usage limit\") whether it surfaces as HTTP status 429 or post-retry error prose.",
+      "example": "ollama-cloud-pp-cli budget --json",
+      "why_it_matters": "Run before launching a long agent session to confirm quota is available.",
+      "group": "Operations"
+    },
+    {
+      "name": "Cost trace",
+      "command": "cost-trace",
+      "description": "Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend.",
+      "rationale": "Requires the advisor log (we own) plus portable cost metadata; no other tool persists both.",
+      "example": "ollama-cloud-pp-cli cost-trace --since 7d --group-by task-hint --json",
+      "why_it_matters": "Use to decide whether to upgrade to a paid Ollama Cloud tier.",
+      "group": "Operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ollama Cloud",
+    "headline": "Routes every prompt to the right hosted Ollama model. Wraps chat, embeddings, catalog, and the OpenAI-compatible mirror — and ships an advise verb that picks a model by prompt features, session context, budget, and latency.",
+    "value_prop": "Ollama Cloud's catalog spans 20+ open-weights models (Qwen3, GPT-OSS, DeepSeek-V3, Kimi-K2, GLM, Llama, Gemma) and growing. No built-in picker exists. This CLI is the only one that combines live catalog metadata with prompt-feature extraction and emits a why/alternatives envelope you can pipe into other agents.",
+    "auth_narrative": "Bearer auth via OLLAMA_CLOUD_API_KEY (intentionally distinct from any local-Ollama env var). Free tier is rate-limited weekly; the budget command surfaces exhaustion before workflows fail.",
+    "quickstart": [
+      {
+        "command": "ollama-cloud-pp-cli doctor",
+        "comment": "Confirms auth, catalog reachable"
+      },
+      {
+        "command": "ollama-cloud-pp-cli tags --json",
+        "comment": "Live catalog of hosted models"
+      },
+      {
+        "command": "ollama-cloud-pp-cli advise --validate-catalog --json",
+        "comment": "Inspect drift between live catalog and curated metadata overlay"
+      },
+      {
+        "command": "ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --json",
+        "comment": "Pick a model for a specific prompt; pass any file path (or - for stdin)"
+      },
+      {
+        "command": "ollama-cloud-pp-cli budget --json",
+        "comment": "Probe free-tier quota before launching long sessions"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 with 'you have reached your weekly usage limit'",
+        "fix": "Free tier exhausted. Run `ollama-cloud-pp-cli budget --json` to confirm; pick a non-rate-limited model with `advise --exclude \u003cexhausted-models\u003e`; or upgrade at https://ollama.com/upgrade"
+      },
+      {
+        "symptom": "advise returns unexpected model",
+        "fix": "Run `advise --explain --format md` to see the scoring trace. Adjust --task-hint, --exclude, or the curated models.json overlay."
+      },
+      {
+        "symptom": "401 unauthorized",
+        "fix": "Confirm OLLAMA_CLOUD_API_KEY is set; the CLI does NOT read OLLAMA_API_KEY (intentional, to avoid local-daemon collisions)"
+      },
+      {
+        "symptom": "advise picks a model not in /api/tags",
+        "fix": "Catalog snapshot is stale. Run `tags --no-cache` to repopulate the local SQLite snapshot."
+      }
+    ],
+    "when_to_use": "Pick this CLI when you need agent-driven access to Ollama's hosted catalog and want routing intelligence baked in. Especially useful when the alternative is hardcoding a model name and hoping it stays right. Pairs naturally with multi-backend setups where ollama-cloud is one of several providers.",
+    "recipes": [
+      {
+        "title": "Advise with explain trace as markdown",
+        "command": "ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --explain --format md",
+        "explanation": "--explain populates the feature trace and filtered-candidate audit; --format md renders for humans."
+      },
+      {
+        "title": "Detect catalog drift",
+        "command": "ollama-cloud-pp-cli advise --validate-catalog --json --select uncurated_live,curated_not_in_live",
+        "explanation": "Diffs live /api/tags against curated models.json overlay; flags both uncurated live models and stale curated patterns."
+      },
+      {
+        "title": "Replay last week recommendations",
+        "command": "ollama-cloud-pp-cli advise-replay --since 7d --dry-run --json --select divergence_count,divergence_pct,emitted",
+        "explanation": "Engagement canary; dotted-path select keeps response under context budget."
+      },
+      {
+        "title": "Side-by-side comparison",
+        "command": "ollama-cloud-pp-cli compare --prompt-file ./prompt.txt --models qwen3-coder:480b,gpt-oss:120b --json",
+        "explanation": "Runs the prompt against both models in parallel and reports per-model latency, tokens, and rate-limit state."
+      },
+      {
+        "title": "Cost rollup by task hint",
+        "command": "ollama-cloud-pp-cli cost-trace --since 7d --group-by task-hint --json --select groups,row_count",
+        "explanation": "Aggregates the advisor JSONL log by task-hint so you can decide whether to upgrade the Ollama Cloud tier."
+      }
+    ],
+    "trigger_phrases": [
+      "pick an ollama model",
+      "advise on a model",
+      "which ollama cloud model should I use",
+      "route this prompt",
+      "use ollama cloud",
+      "run ollama cloud"
+    ]
+  }
+}

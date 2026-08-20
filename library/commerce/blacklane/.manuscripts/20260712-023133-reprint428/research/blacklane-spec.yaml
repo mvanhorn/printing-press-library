@@ -1,0 +1,81 @@
+name: blacklane
+description: "Blacklane chauffeur quotes & service catalog — upfront fixed-price quotes (transfer & hourly) and vehicle-class catalog over Blacklane's public pricing BFF."
+version: "0.1.0"
+base_url: "https://pricing-bff-api.blacklane.com"
+health_check_path: "/packages/business"
+required_headers:
+  - name: Origin
+    value: "https://www.blacklane.com"
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/blacklane-pp-cli/config.toml"
+
+resources:
+  catalog:
+    description: "Vehicle-class service catalog (models, capacity, features)"
+    endpoints:
+      get:
+        method: GET
+        path: "/packages/{slug}"
+        description: "Get a vehicle class by slug (business, first, van)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Vehicle class slug: business, first, or van"
+        response:
+          type: object
+          item: Package
+  prices:
+    description: "Raw pricing quotes (prefer the top-level 'quote' command)"
+    endpoints:
+      create:
+        method: POST
+        path: "/prices"
+        description: "Request prices for a journey (raw body; see 'quote' for a friendly interface)"
+        body:
+          - name: serviceCategory
+            type: string
+            required: true
+            default: "prebooked"
+            description: "Service category (prebooked)"
+          - name: serviceType
+            type: string
+            required: true
+            description: "transfer or hourly"
+            enum: [transfer, hourly]
+          - name: departAt
+            type: string
+            required: true
+            description: "Local pickup datetime, e.g. 2026-06-25T15:00:00"
+          - name: duration
+            type: int
+            required: false
+            description: "Hourly only: duration in seconds (hours*3600, min 7200)"
+        response:
+          type: object
+          item: PriceResult
+
+types:
+  Package:
+    fields:
+      - name: packageSlug
+        type: string
+      - name: title
+        type: string
+      - name: subtitle
+        type: string
+      - name: currency
+        type: string
+  PriceResult:
+    fields:
+      - name: packageSlug
+        type: string
+      - name: title
+        type: string
+      - name: currency
+        type: string

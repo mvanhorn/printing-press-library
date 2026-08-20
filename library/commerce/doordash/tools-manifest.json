@@ -1,0 +1,14 @@
+{
+  "api_name": "doordash",
+  "base_url": "https://www.doordash.com",
+  "description": "DoorDash GraphQL operation spec curated from sniffed traffic and ashah360/doordash-mcp query files. This skeleton is intentionally low-level; later phases add safe domain commands and session transport.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "format": "DoorDash web session cookies plus x-csrftoken header"
+  },
+  "required_headers": [],
+  "tools": []
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "register-transcendence-commands",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260524-003533",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Register the hand-built transcendence layer (advise, compare, advise-replay, cost-trace, budget) in the generated entrypoints root.go and which.go.",
+  "reason": "The advisor package (internal/advisor/*) and its five novel commands are hand-authored beyond the generator's endpoint mirror (tracked in .printing-press.json novel_features). The only edits to generator-owned files are the AddCommand registrations in root.go and the curated whichIndex entries in which.go that wire those novel commands into the CLI.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go build ./... ; ollama-cloud-pp-cli advise/compare/advise-replay/budget/cost-trace --help all resolve; cli-printing-press verify-skill --dir . passes"
+}

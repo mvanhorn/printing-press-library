@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "markdown-import-flag",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260508-225745",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Add --markdown flag to pages markdown import that wraps content in the required discriminated union body.",
+  "reason": "The only interface was --stdin, which required knowing the undiscoverable shape {\"type\":\"replace_content\",\"replace_content\":{\"new_str\":\"...\"}}. Not mentioned in --help, README, or SKILL.md.",
+  "files": [
+    "internal/cli/pages_markdown_update-page.go"
+  ],
+  "validated_outcome": "pages markdown import <id> --markdown '# Title\\n\\nBody' returns 200 and replaces page content."
+}

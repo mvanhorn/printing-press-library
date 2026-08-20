@@ -1,0 +1,51 @@
+version: 2
+project_name: here-now-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: here-now-pp-cli
+    main: ./cmd/here-now-pp-cli
+    binary: here-now-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/here-now/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: here-now-pp-mcp
+    main: ./cmd/here-now-pp-mcp
+    binary: here-now-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: here-now-pp-cli
+    repository:
+      owner: tmchow
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Publish a folder to a live URL in one command, mirror your Drives offline"
+    install: |
+      bin.install "here-now-pp-cli"
+      bin.install "here-now-pp-mcp"

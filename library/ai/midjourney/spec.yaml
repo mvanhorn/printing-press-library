@@ -1,0 +1,202 @@
+name: midjourney
+display_name: Midjourney
+description: "Unofficial browser-session CLI for Midjourney's web app API."
+cli_description: "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal"
+version: "0.1.0"
+base_url: "https://www.midjourney.com"
+website_url: "https://www.midjourney.com"
+category: "ai"
+spec_source: "sniffed"
+http_transport: "browser-chrome-h2"
+health_check_path: "/api/user-queue"
+rate_class: "per-second"
+auth:
+  type: api_key
+  header: Cookie
+  format: "{token}"
+  env_vars:
+    - MIDJOURNEY_COOKIE_HEADER
+  in: header
+  verify_path: "/api/user-queue"
+  instructions: "Use an authenticated browser session. Export MIDJOURNEY_COOKIE_HEADER from the logged-in Chrome profile; do not commit or print it."
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: X-CSRF-Protection
+    value: "1"
+  - name: Referer
+    value: "https://www.midjourney.com/imagine"
+resources:
+  generations:
+    description: "Inspect generated Midjourney jobs and image history"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/imagine"
+        description: "List recent jobs/images for the authenticated Midjourney user"
+        params:
+          - name: user_id
+            flag_name: user-id
+            type: string
+            description: "Midjourney web user id observed from the browser request"
+          - name: page_size
+            flag_name: page-size
+            type: int
+            default: 25
+            description: "Number of jobs to return"
+          - name: cursor
+            type: string
+            description: "Pagination cursor returned by the web app"
+        response:
+          type: object
+          item: JobsResponse
+      updates:
+        method: GET
+        path: "/api/imagine-update"
+        description: "Poll recent job updates for the authenticated user"
+        params:
+          - name: user_id
+            flag_name: user-id
+            type: string
+            description: "Midjourney web user id observed from the browser request"
+          - name: page_size
+            flag_name: page-size
+            type: int
+            default: 25
+            description: "Number of updates to return"
+          - name: checkpoint
+            type: string
+            description: "Checkpoint token from a previous update response"
+        response:
+          type: object
+          item: JobsResponse
+  queue:
+    description: "Inspect the current Midjourney generation queue"
+    endpoints:
+      status:
+        method: GET
+        path: "/api/user-queue"
+        description: "Show queued/running Midjourney work for the logged-in account"
+        response:
+          type: object
+          item: QueueStatus
+  storage:
+    description: "Inspect Midjourney account storage metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/storage"
+        description: "List storage metadata exposed by the web app"
+        response:
+          type: object
+          item: StorageResponse
+  folders:
+    description: "Inspect Midjourney organize folders"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/folders"
+        description: "List folders in the authenticated account"
+        response:
+          type: object
+          item: FoldersResponse
+  explore:
+    description: "Browse Midjourney explore feeds"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/explore"
+        description: "Fetch an explore feed"
+        params:
+          - name: feed
+            type: string
+            description: "Explore feed name observed from the web app"
+          - name: page
+            type: int
+            description: "Page number"
+          - name: _ql
+            flag_name: query-locale
+            type: string
+            description: "Opaque web-app query locale parameter"
+        response:
+          type: object
+          item: ExploreResponse
+      style_likes:
+        method: GET
+        path: "/api/explore-styles-likes"
+        description: "Fetch style-like metadata for explore cards"
+        params:
+          - name: _ql
+            flag_name: query-locale
+            type: string
+            description: "Opaque web-app query locale parameter"
+        response:
+          type: object
+          item: ExploreStylesLikesResponse
+  moodboards:
+    description: "Inspect Midjourney moodboards"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/moodboards"
+        description: "List moodboards for the authenticated account"
+        response:
+          type: object
+          item: MoodboardsResponse
+  profiles:
+    description: "Inspect personalization/profile metadata"
+    endpoints:
+      personalized:
+        method: GET
+        path: "/api/personalized-profiles"
+        description: "List personalized profile metadata"
+        response:
+          type: object
+          item: PersonalizedProfilesResponse
+      following:
+        method: GET
+        path: "/api/following-for-user"
+        description: "List following metadata for the logged-in user"
+        response:
+          type: object
+          item: FollowingResponse
+  rankings:
+    description: "Inspect ranking and rating surfaces"
+    endpoints:
+      model_ratings:
+        method: GET
+        path: "/api/model-ratings"
+        description: "Fetch model rating tasks visible to the account"
+        response:
+          type: object
+          item: ModelRatingsResponse
+      contests_count:
+        method: GET
+        path: "/api/contests-ranking-count"
+        description: "Fetch contest ranking counts"
+        response:
+          type: object
+          item: ContestsRankingCountResponse
+types:
+  JobsResponse:
+    fields: []
+  QueueStatus:
+    fields: []
+  StorageResponse:
+    fields: []
+  FoldersResponse:
+    fields: []
+  ExploreResponse:
+    fields: []
+  ExploreStylesLikesResponse:
+    fields: []
+  MoodboardsResponse:
+    fields: []
+  PersonalizedProfilesResponse:
+    fields: []
+  FollowingResponse:
+    fields: []
+  ModelRatingsResponse:
+    fields: []
+  ContestsRankingCountResponse:
+    fields: []

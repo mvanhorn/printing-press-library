@@ -1,0 +1,176 @@
+{
+  "dir": "\u003ccli-dir\u003e/podcast-goat",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 59,
+    "dead": 2,
+    "items": [
+      "extractResponseData",
+      "replacePathParam"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 6,
+    "valid_examples": 6,
+    "missing": [
+      "budget reset",
+      "cache list",
+      "source compare",
+      "speakers list"
+    ],
+    "detail": "6/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 48,
+      "registered": 48
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 18,
+    "findings": [
+      {
+        "package": "source/acquired",
+        "file": "internal/source/acquired/acquired.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/dwarkesh",
+        "file": "internal/source/dwarkesh/dwarkesh.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/founders",
+        "file": "internal/source/founders/founders.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/huberman",
+        "file": "internal/source/huberman/huberman.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/peterattia",
+        "file": "internal/source/peterattia/peterattia.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/rss",
+        "file": "internal/source/rss/rss.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/spoken",
+        "file": "internal/source/spoken/spoken.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/spotify",
+        "file": "internal/source/spotify/spotify.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/spotify",
+        "file": "internal/source/spotify/totp.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/taddy",
+        "file": "internal/source/taddy/taddy.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/titlextract",
+        "file": "internal/source/titlextract/titlextract.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/youtube",
+        "file": "internal/source/youtube/ensurer.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 30
+  },
+  "test_presence": {
+    "checked": 3,
+    "missing_tests": [
+      "dispatch",
+      "source",
+      "transcript"
+    ]
+  },
+  "naming_check": {
+    "checked": 30,
+    "violations": [
+      {
+        "file": "internal/cli/episode_info.go",
+        "banned": "info",
+        "preferred": "get",
+        "category": "verb"
+      }
+    ]
+  },
+  "issues": [
+    "2 dead helper functions found",
+    "12 source client file(s) without rate-limit handling: internal/source/acquired/acquired.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/dwarkesh/dwarkesh.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/founders/founders.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/huberman/huberman.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/peterattia/peterattia.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/rss/rss.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/spoken/spoken.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/spotify/spotify.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/spotify/totp.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/taddy/taddy.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/titlextract/titlextract.go — outbound HTTP without rate limiter or typed 429 handling; internal/source/youtube/ensurer.go — outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: dispatch, source, transcript",
+    "1 naming violations: verb info→get in internal/cli/episode_info.go"
+  ]
+}

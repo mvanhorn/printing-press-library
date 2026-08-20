@@ -1,0 +1,260 @@
+{
+  "api_name": "tella",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tella-mcp-server (official)",
+      "url": "https://www.tella.tv/help/integrations/mcp-server",
+      "language": "Unknown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T22:11:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-video transcript search",
+      "command": "transcripts search",
+      "description": "FTS5 search across every cached clip transcript in your workspace; returns video, clip, and timecode hits in milliseconds.",
+      "rationale": "Requires a local SQLite store of transcripts populated by sync; the official MCP and stateless API would need to refetch every transcript for every query.",
+      "example": "tella-pp-cli transcripts search \"pricing change\" --json --limit 10",
+      "why_it_matters": "Use this when an agent or human needs to find every video that mentioned a topic without rehydrating the workspace from the API.",
+      "group": "Local-first transcendence"
+    },
+    {
+      "name": "Watch-milestone digest",
+      "command": "videos viewed",
+      "description": "Roll up webhook view-milestone events into a per-video summary over a window (e.g. who crossed 75% in the last 7 days).",
+      "rationale": "Joins locally cached webhook_messages with videos; the webhook surface only fires individual events, no built-in rollup.",
+      "example": "tella-pp-cli videos viewed --since 7d --milestone 75 --json",
+      "why_it_matters": "Use this in a sales follow-up loop to triage prospects by engagement without scanning the dashboard.",
+      "group": "Local-first transcendence"
+    },
+    {
+      "name": "Webhook tail + replay",
+      "command": "webhooks tail",
+      "description": "Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers — no public tunnel needed.",
+      "rationale": "Combines the real /webhooks/messages list+get with the endpoint signing-secret to reproduce HMAC-signed deliveries locally; replaces ngrok for dev and supports replay after handler crashes.",
+      "example": "tella-pp-cli webhooks tail --follow --json",
+      "why_it_matters": "Use this when developing a webhook handler against Tella without exposing localhost via a tunnel.",
+      "group": "Webhook tooling"
+    },
+    {
+      "name": "Bulk standard edit pass",
+      "command": "clips edit-pass",
+      "description": "Apply a chained set of edits (remove-fillers, trim-silences-gt N, blur preset) across every clip in a playlist in one command.",
+      "rationale": "Composes real per-clip mutation endpoints (remove-fillers, silences, cut) over a playlist iterator; the API and MCP only operate per-clip.",
+      "example": "tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --trim-silences-gt 1s --dry-run",
+      "why_it_matters": "Use this to apply a creator's standard edit pass across an entire playlist without per-clip clicking.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Transcript diff (cut vs uncut)",
+      "command": "clips transcript-diff",
+      "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.",
+      "rationale": "Calls the real cut and uncut transcript endpoints and computes a token diff in-process; no API call returns this comparison directly.",
+      "example": "tella-pp-cli clips transcript-diff clp_abc --json",
+      "why_it_matters": "Use this to audit what an automated edit pass actually changed before publishing.",
+      "group": "Transcript tooling"
+    },
+    {
+      "name": "Exports waitlist",
+      "command": "exports wait",
+      "description": "Kick off exports for one or more videos and block until each is ready, short-circuiting on the Export ready webhook event.",
+      "rationale": "Combines real POST exports with local webhook_messages cache so waiting for N exports doesn't busy-poll the API.",
+      "example": "tella-pp-cli exports wait --video vid_1 --video vid_2 --timeout 10m --json",
+      "why_it_matters": "Use this in batch publishing scripts that need export URLs for downstream uploads.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Caption-file export",
+      "command": "clips captions",
+      "description": "Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload.",
+      "rationale": "Deterministic conversion of Tella's word-timecoded transcript JSON into the standard caption formats; no API endpoint emits SRT/VTT directly.",
+      "example": "tella-pp-cli clips captions clp_abc --format srt \u003e captions.srt",
+      "why_it_matters": "Use this to ship caption files alongside video embeds without round-tripping through a separate caption tool.",
+      "group": "Transcript tooling"
+    },
+    {
+      "name": "Workspace stats",
+      "command": "workspace stats",
+      "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace.",
+      "rationale": "Pure SQLite aggregate over locally synced tables; the API has no equivalent rollup endpoint.",
+      "example": "tella-pp-cli workspace stats --json",
+      "why_it_matters": "Use this for monthly creator-economy reports without dashboard scraping.",
+      "group": "Local-first transcendence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-video transcript search",
+      "command": "transcripts search",
+      "description": "FTS5 search across every cached clip transcript in your workspace; returns video, clip, and timecode hits in milliseconds.",
+      "rationale": "Requires a local SQLite store of transcripts populated by sync; the official MCP and stateless API would need to refetch every transcript for every query.",
+      "example": "tella-pp-cli transcripts search \"pricing change\" --json --limit 10",
+      "why_it_matters": "Use this when an agent or human needs to find every video that mentioned a topic without rehydrating the workspace from the API.",
+      "group": "Local-first transcendence"
+    },
+    {
+      "name": "Watch-milestone digest",
+      "command": "videos viewed",
+      "description": "Roll up webhook view-milestone events into a per-video summary over a window (e.g. who crossed 75% in the last 7 days).",
+      "rationale": "Joins locally cached webhook_messages with videos; the webhook surface only fires individual events, no built-in rollup.",
+      "example": "tella-pp-cli videos viewed --since 7d --milestone 75 --json",
+      "why_it_matters": "Use this in a sales follow-up loop to triage prospects by engagement without scanning the dashboard.",
+      "group": "Local-first transcendence"
+    },
+    {
+      "name": "Webhook tail + replay",
+      "command": "webhooks tail",
+      "description": "Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers — no public tunnel needed.",
+      "rationale": "Combines the real /webhooks/messages list+get with the endpoint signing-secret to reproduce HMAC-signed deliveries locally; replaces ngrok for dev and supports replay after handler crashes.",
+      "example": "tella-pp-cli webhooks tail --follow --json",
+      "why_it_matters": "Use this when developing a webhook handler against Tella without exposing localhost via a tunnel.",
+      "group": "Webhook tooling"
+    },
+    {
+      "name": "Bulk standard edit pass",
+      "command": "clips edit-pass",
+      "description": "Apply a chained set of edits (remove-fillers, trim-silences-gt N, blur preset) across every clip in a playlist in one command.",
+      "rationale": "Composes real per-clip mutation endpoints (remove-fillers, silences, cut) over a playlist iterator; the API and MCP only operate per-clip.",
+      "example": "tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --trim-silences-gt 1s --dry-run",
+      "why_it_matters": "Use this to apply a creator's standard edit pass across an entire playlist without per-clip clicking.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Transcript diff (cut vs uncut)",
+      "command": "clips transcript-diff",
+      "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.",
+      "rationale": "Calls the real cut and uncut transcript endpoints and computes a token diff in-process; no API call returns this comparison directly.",
+      "example": "tella-pp-cli clips transcript-diff clp_abc --json",
+      "why_it_matters": "Use this to audit what an automated edit pass actually changed before publishing.",
+      "group": "Transcript tooling"
+    },
+    {
+      "name": "Exports waitlist",
+      "command": "exports wait",
+      "description": "Kick off exports for one or more videos and block until each is ready, short-circuiting on the Export ready webhook event.",
+      "rationale": "Combines real POST exports with local webhook_messages cache so waiting for N exports doesn't busy-poll the API.",
+      "example": "tella-pp-cli exports wait --video vid_1 --video vid_2 --timeout 10m --json",
+      "why_it_matters": "Use this in batch publishing scripts that need export URLs for downstream uploads.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Caption-file export",
+      "command": "clips captions",
+      "description": "Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload.",
+      "rationale": "Deterministic conversion of Tella's word-timecoded transcript JSON into the standard caption formats; no API endpoint emits SRT/VTT directly.",
+      "example": "tella-pp-cli clips captions clp_abc --format srt \u003e captions.srt",
+      "why_it_matters": "Use this to ship caption files alongside video embeds without round-tripping through a separate caption tool.",
+      "group": "Transcript tooling"
+    },
+    {
+      "name": "Workspace stats",
+      "command": "workspace stats",
+      "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace.",
+      "rationale": "Pure SQLite aggregate over locally synced tables; the API has no equivalent rollup endpoint.",
+      "example": "tella-pp-cli workspace stats --json",
+      "why_it_matters": "Use this for monthly creator-economy reports without dashboard scraping.",
+      "group": "Local-first transcendence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tella",
+    "headline": "Every Tella API operation behind one CLI, with a local SQLite store, FTS5 transcript search, and webhook tooling that replaces ngrok.",
+    "value_prop": "Tella ships an API and an official MCP server; this CLI gives you both surfaces in one binary, plus a local-first store that makes cross-video transcript search, view-milestone rollups, and webhook replay actually fast. Every endpoint is a Cobra command, every command emits structured JSON, and every mutation supports --dry-run.",
+    "auth_narrative": "Set TELLA_API_KEY to your Tella account API key (Account → Settings → API). Sent as Authorization: Bearer on every call. No OAuth, no refresh — it's a single static token.",
+    "quickstart": [
+      {
+        "command": "tella-pp-cli doctor",
+        "comment": "Verify TELLA_API_KEY is set and the API is reachable."
+      },
+      {
+        "command": "tella-pp-cli videos list --json --limit 5",
+        "comment": "Sanity-check that you can see your workspace."
+      },
+      {
+        "command": "tella-pp-cli sync",
+        "comment": "Populate the local SQLite store; required for transcript search and milestone digest."
+      },
+      {
+        "command": "tella-pp-cli transcripts sync",
+        "comment": "Pull every clip's cut transcript into the local store with an FTS5 index."
+      },
+      {
+        "command": "tella-pp-cli transcripts search \"pricing\" --json",
+        "comment": "Offline FTS5 search across every cached transcript."
+      },
+      {
+        "command": "tella-pp-cli webhooks tail --once --json",
+        "comment": "Take a single snapshot of the webhook inbox; --follow streams continuously."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Re-fetch your API key at tella.tv → Account → Settings → API and run `tella-pp-cli auth set-token` again."
+      },
+      {
+        "symptom": "Empty results from `transcripts search --data-source local`",
+        "fix": "Run `tella-pp-cli sync` first to populate the local transcripts table."
+      },
+      {
+        "symptom": "`webhooks tail` shows no events",
+        "fix": "Confirm a webhook endpoint is registered (`tella-pp-cli webhooks endpoint create`); the inbox only collects events for registered endpoints."
+      },
+      {
+        "symptom": "`clips edit-pass --dry-run` shows zero planned mutations",
+        "fix": "The playlist may be empty or the silence threshold (--trim-silences-gt) is larger than every gap; run `clips silences --playlist \u003cid\u003e` to inspect raw ranges."
+      },
+      {
+        "symptom": "Export wait times out",
+        "fix": "Default timeout is 10m. Long videos can exceed; pass `--timeout 30m` and ensure the Export ready webhook endpoint is registered for early termination."
+      }
+    ],
+    "when_to_use": "Reach for tella-pp-cli when you need agent-shaped Tella operations: scripted batch edits across a playlist, cross-video transcript search for an agent, webhook handler development without a tunnel, or programmatic export pipelines. The local SQLite store makes it ideal when an agent will issue many small queries against the same workspace.",
+    "recipes": [
+      {
+        "title": "Find every video where a topic was discussed",
+        "command": "tella-pp-cli transcripts search \"checkout flow\" --json --select hits.video_id,hits.clip_id,hits.snippet",
+        "explanation": "FTS5 over cached transcripts; --select narrows the response to the fields an agent needs."
+      },
+      {
+        "title": "Roll up which prospects watched 75% this week",
+        "command": "tella-pp-cli videos viewed --since 7d --milestone 75 --json",
+        "explanation": "Reads cached webhook view-milestone events grouped by video and viewer."
+      },
+      {
+        "title": "Apply a creator's standard edit pass to a playlist",
+        "command": "tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --trim-silences-gt 1s --json",
+        "explanation": "Default mode prints the plan; add --apply to actually fire the per-clip mutations."
+      },
+      {
+        "title": "Develop a webhook handler without ngrok",
+        "command": "tella-pp-cli webhooks replay msg_example --to http://localhost:8080/webhooks --dry-run",
+        "explanation": "Replays a stored webhook message to a local URL with valid HMAC headers; --dry-run prints the planned POST without sending. Get the msg-id from `tella-pp-cli webhooks tail --once --json`."
+      },
+      {
+        "title": "Export captions for a clip",
+        "command": "tella-pp-cli clips captions clp_abc --video vid_xyz --format srt \u003e captions.srt",
+        "explanation": "Formats the cut transcript as a standard SRT file."
+      }
+    ],
+    "trigger_phrases": [
+      "search tella transcripts",
+      "find tella videos",
+      "list tella playlists",
+      "tail tella webhooks",
+      "export tella captions",
+      "use tella",
+      "run tella"
+    ]
+  }
+}

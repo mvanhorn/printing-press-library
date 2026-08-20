@@ -1,0 +1,58 @@
+{
+  "api_name": "apple-docs",
+  "base_url": "https://developer.apple.com",
+  "description": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "apple-docs-pp-cli (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "doc_get",
+      "description": "Fetch a specific doc page by path. The path is the lowercase-slashed identifier under /documentation/, e.g., 'swiftui', 'swiftui/view', or 'swiftui/view/onappear(perform:)'. Required: path. Returns the DocPage.",
+      "method": "GET",
+      "path": "/tutorials/data/documentation/{path}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Doc path under /documentation/ (e.g. 'swiftui/view/onappear(perform:)').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "index_get",
+      "description": "Fetch a framework's full hierarchical index. Useful for offline FTS sync. Indexes are large (500KB–2MB). Required: framework. Returns the FrameworkIndex.",
+      "method": "GET",
+      "path": "/tutorials/data/index/{framework}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "framework",
+          "type": "string",
+          "location": "path",
+          "description": "Framework slug (lowercase, e.g. 'swiftui', 'foundation', 'uikit').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "technologies_list",
+      "description": "Fetch the master technologies index — every Apple framework, grouped by topic. Returns the TechnologiesIndex.",
+      "method": "GET",
+      "path": "/tutorials/data/documentation/technologies.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

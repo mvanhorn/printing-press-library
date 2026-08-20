@@ -12,6 +12,10 @@ type CommandHandler = (args: string[]) => Promise<number>;
 const COMMANDS: Record<string, CommandHandler> = {
   install: installCommand,
   update: updateCommand,
+  // `reinstall` is an alias for `update`: both rebuild the binary from the
+  // latest catalog code (`go install …@latest`) and re-add the skill. It exists
+  // because "reinstall" is the verb users reach for; the mechanics are identical.
+  reinstall: updateCommand,
   list: listCommand,
   search: searchCommand,
   uninstall: uninstallCommand,
@@ -48,15 +52,16 @@ export async function run(args: string[]): Promise<number> {
 }
 
 function printHelp(): void {
-  console.log(`Printing Press CLI installer
+  console.log(`Printing Press Library CLI installer
 
 Usage:
-  printing-press <command> [options]
+  printing-press-library <command> [options]
 
 Commands:
   install <name|bundle>...  Install one or more Printing Press CLIs (and skills)
   update [name]             Refresh one installed CLI, or all installed CLIs
-  list                      List installed Printing Press CLIs
+  reinstall [name]          Reinstall one CLI (or all installed); alias for update
+  list                      List available Printing Press CLIs
   search <query>            Search the Printing Press catalog
   uninstall <name>          Remove a Printing Press CLI and skill
 
@@ -64,15 +69,21 @@ Bundles:
   starter-pack              espn, flight-goat, movie-goat, recipe-goat
 
 Examples:
-  printing-press install starter-pack
-  printing-press install espn linear dub
-  printing-press install espn --cli-only
-  printing-press search sports
+  printing-press-library install starter-pack
+  printing-press-library install espn linear dub
+  printing-press-library install espn --cli-only
+  printing-press-library reinstall espn
+  printing-press-library list
+  printing-press-library search sports
+  printing-press-library list --installed
 
 Install options:
+  --all                  Install every CLI in the catalog
+  --category <cat>       Install every CLI in a catalog category (repeatable)
   --cli-only             Install only the Go binary (skip the focused skill)
   --skill-only           Install only the focused skill (skip the Go binary)
   --agent <agent>        Constrain skill install to a specific agent (repeatable)
+  --bin-dir <dir>        Install the Go binary into this directory via GOBIN
   --json                 Emit machine-readable output
 
 Top-level options:

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "fts-rowid-fnv-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Replaced ftsRowID polynomial hash with FNV-1a 64-bit; injected a NUL boundary between scope and id.",
+  "reason": "The h*31 polynomial mixed poorly, leaving a measurable collision rate on FTS5 rowids; a collision would cause DELETE WHERE rowid=? before re-insert to delete the wrong resource's FTS entry and silently miss search hits. Closes Greptile finding #4 on PR #624.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./internal/store passes (existing search/index tests cover the path)."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "canonical-list-pin",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Pin projects_issues to its canonical /projects/{project_id}/issues/ list, dedupe the work_items alias, and drop the deep 2nd-level dependents in sync.go.",
+  "reason": "The profiler's non-deterministic list-endpoint selection (Go map iteration) emits projects_issues and projects_work_items 3x each — duplicate `case` labels are a hard compile break, and the extra sub-collection fan-outs over-sync thousands of rate-limited requests per issue. Pinning the canonical list and pruning the work_items alias + deep dependents restores the dogfooded baseline (529 records / 11 resources).",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Clean generate fails to compile (duplicate case projects_issues/projects_work_items); after the pin the tree builds and an isolated live sync matches baseline deterministic counts (projects 4, members 5, cycles 8, modules 17, labels 37, states 20, archived_modules 5, projects_issues ~432).",
+  "deferred_to_upstream": [
+    {
+      "feature": "Deterministic list-endpoint selection within a resource group, plus an x- knob to pin the canonical list and exclude sub-collections.",
+      "reason": "Profiler picks list endpoints via unordered Go map iteration, so a multi-sub-collection resource emits duplicate/incorrect dependentResourceDefs run-to-run; not spec-fixable."
+    }
+  ]
+}

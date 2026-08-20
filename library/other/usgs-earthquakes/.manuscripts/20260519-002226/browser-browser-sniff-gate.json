@@ -1,0 +1,11 @@
+{
+  "run_id": "20260519-002226",
+  "sources": [
+    {
+      "source_name": "usgs-earthquakes",
+      "decision": "declined",
+      "reason": "User scoped the CLI to the USGS Earthquake Hazards Program only. FDSN Event Service and GeoJSON summary feeds are fully documented with stable REST shapes (application.json exposes enumerated values for all parameters); internal YAML spec is the canonical path. Browser-sniffing the earthquake.usgs.gov public-facing pages would not surface additional endpoints.",
+      "asked_at": "2026-05-19T00:25:00Z"
+    }
+  ]
+}

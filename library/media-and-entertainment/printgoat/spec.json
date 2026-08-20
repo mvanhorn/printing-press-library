@@ -1,0 +1,929 @@
+{
+  "name": "printgoat",
+  "description": "Combined CLI for multiple API services",
+  "version": "0.1.0",
+  "base_url": "https://api.printables.com",
+  "creator": {
+    "handle": "nate-d-olson",
+    "name": "Nate Olson"
+  },
+  "owner": "nate-d-olson",
+  "owner_name": "Nate Olson",
+  "printer": "nate-d-olson",
+  "printer_name": "Nate Olson",
+  "spec_source": "community",
+  "auth": {
+    "type": "none",
+    "header": "",
+    "format": "",
+    "env_vars": null
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/printgoat-pp-cli/config.toml"
+  },
+  "resources": {
+    "categories": {
+      "description": "Thingiverse categories",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/categories",
+          "description": "List top-level categories",
+          "params": null,
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseCategory"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "things": {
+          "method": "GET",
+          "path": "/categories/{slug}/things",
+          "description": "List things in a category",
+          "params": [
+            {
+              "default": null,
+              "description": "Category slug",
+              "fields": null,
+              "name": "slug",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    },
+    "collections": {
+      "description": "Thingiverse collections",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "get": {
+          "method": "GET",
+          "path": "/collections/{collection_id}/",
+          "description": "Get a collection by ID",
+          "params": [
+            {
+              "default": null,
+              "description": "Collection ID",
+              "fields": null,
+              "name": "collection_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "ThingiverseCollection"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "things": {
+          "method": "GET",
+          "path": "/collections/{collection_id}/things",
+          "description": "List things in a collection",
+          "params": [
+            {
+              "default": null,
+              "description": "Collection ID",
+              "fields": null,
+              "name": "collection_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    },
+    "creations": {
+      "description": "Cults3D creations (designs)",
+      "base_url": "https://cults3d.com",
+      "endpoints": {
+        "get": {
+          "method": "POST",
+          "path": "/graphql",
+          "description": "Get a Cults3D creation's detail",
+          "params": [
+            {
+              "default": null,
+              "description": "Cults3D creation slug",
+              "fields": null,
+              "name": "slug",
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "name": "query",
+              "body_name": "query",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": "query GetCreation($slug: String!) {\n  model: creation(slug: $slug) {\n    identifier\n    name\n    shortUrl\n    likesCount\n    downloadsCount\n    viewsCount\n    publishedAt\n    category { name }\n    license { code name }\n    creator { nick shortUrl }\n  }\n}\n",
+              "description": "",
+              "fields": null,
+              "dispatch_param": true
+            },
+            {
+              "body_name": "variables",
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "default": null,
+                  "description": "Cults3D creation slug",
+                  "fields": null,
+                  "name": "slug",
+                  "positional": false,
+                  "required": true,
+                  "type": "string"
+                }
+              ],
+              "name": "variables",
+              "positional": false,
+              "required": false,
+              "type": "object"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Cults3DCreationDetail"
+          },
+          "pagination": null,
+          "response_path": "data.model",
+          "tier": "cults3d"
+        },
+        "search": {
+          "method": "POST",
+          "path": "/graphql",
+          "description": "Search Cults3D creations by keyword",
+          "params": [
+            {
+              "default": null,
+              "description": "Search keywords",
+              "fields": null,
+              "name": "query",
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "name": "query",
+              "body_name": "query",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": "query SearchCreations($query: String!, $limit: Int, $offset: Int) {\n  result: creationsSearchBatch(query: $query, limit: $limit, offset: $offset) {\n    identifier\n    name\n    shortUrl\n    likesCount\n    downloadsCount\n    publishedAt\n    creator { nick shortUrl }\n  }\n}\n",
+              "description": "",
+              "fields": null,
+              "dispatch_param": true
+            },
+            {
+              "body_name": "variables",
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "default": null,
+                  "description": "Search keywords",
+                  "fields": null,
+                  "name": "query",
+                  "positional": false,
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "default": 20,
+                  "description": "",
+                  "fields": null,
+                  "name": "limit",
+                  "positional": false,
+                  "required": false,
+                  "type": "integer"
+                },
+                {
+                  "default": 0,
+                  "description": "",
+                  "fields": null,
+                  "name": "offset",
+                  "positional": false,
+                  "required": false,
+                  "type": "integer"
+                }
+              ],
+              "name": "variables",
+              "positional": false,
+              "required": false,
+              "type": "object"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Cults3DCreation"
+          },
+          "pagination": null,
+          "response_path": "data.result",
+          "tier": "cults3d"
+        }
+      }
+    },
+    "models": {
+      "description": "Printables 3D models (prints)",
+      "endpoints": {
+        "get": {
+          "method": "POST",
+          "path": "/graphql/",
+          "description": "Get a Printables model's detail and file listing",
+          "params": [
+            {
+              "default": null,
+              "description": "Printables model ID",
+              "fields": null,
+              "name": "id",
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "name": "query",
+              "body_name": "query",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": "query ModelDetail($id: ID!) {\n  model: print(id: $id) {\n    id\n    name\n    slug\n    filesType\n    ratingAvg\n    likesCount\n    downloadCount\n    datePublished\n    user { id handle publicUsername }\n    stls { id name fileSize }\n    gcodes { id name fileSize }\n    slas { id name fileSize }\n    otherFiles { id name fileSize }\n  }\n}\n",
+              "description": "",
+              "fields": null,
+              "dispatch_param": true
+            },
+            {
+              "body_name": "variables",
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "default": null,
+                  "description": "Printables model ID",
+                  "fields": null,
+                  "name": "id",
+                  "positional": false,
+                  "required": true,
+                  "type": "string"
+                }
+              ],
+              "name": "variables",
+              "positional": false,
+              "required": false,
+              "type": "object"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "PrintablesModelDetail"
+          },
+          "pagination": null,
+          "response_path": "data.model",
+          "no_auth": true
+        }
+      }
+    },
+    "search_things": {
+      "description": "Search Thingiverse things",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "things": {
+          "method": "GET",
+          "path": "/search/{term}",
+          "description": "Search for things by keyword",
+          "params": [
+            {
+              "default": null,
+              "description": "Search keywords",
+              "fields": null,
+              "name": "term",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": "things",
+              "description": "Result type filter (things, makes, users, collections)",
+              "fields": null,
+              "name": "type",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": 20,
+              "description": "Results per page (Thingiverse caps at 30)",
+              "fields": null,
+              "maximum": 30,
+              "name": "per_page",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            },
+            {
+              "default": 1,
+              "description": "Page number",
+              "fields": null,
+              "name": "page",
+              "positional": false,
+              "required": false,
+              "type": "integer"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    },
+    "tags": {
+      "description": "Thingiverse tags",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "things": {
+          "method": "GET",
+          "path": "/tags/{tag}/things",
+          "description": "List things with a tag",
+          "params": [
+            {
+              "default": null,
+              "description": "Tag name",
+              "fields": null,
+              "name": "tag",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    },
+    "things": {
+      "description": "Thingiverse things (3D models)",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "categories": {
+          "method": "GET",
+          "path": "/things/{thing_id}/categories",
+          "description": "List categories for a thing",
+          "params": [
+            {
+              "default": null,
+              "description": "Thing ID",
+              "fields": null,
+              "name": "thing_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseCategory"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "files": {
+          "method": "GET",
+          "path": "/things/{thing_id}/files",
+          "description": "List files for a thing",
+          "params": [
+            {
+              "default": null,
+              "description": "Thing ID",
+              "fields": null,
+              "name": "thing_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseFile"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/things/{thing_id}",
+          "description": "Get a thing by ID",
+          "params": [
+            {
+              "default": null,
+              "description": "Thing ID",
+              "fields": null,
+              "name": "thing_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "images": {
+          "method": "GET",
+          "path": "/things/{thing_id}/images",
+          "description": "List images for a thing",
+          "params": [
+            {
+              "default": null,
+              "description": "Thing ID",
+              "fields": null,
+              "name": "thing_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseImage"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "tags": {
+          "method": "GET",
+          "path": "/things/{thing_id}/tags",
+          "description": "List tags for a thing",
+          "params": [
+            {
+              "default": null,
+              "description": "Thing ID",
+              "fields": null,
+              "name": "thing_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseTag"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    },
+    "users": {
+      "description": "Thingiverse users",
+      "base_url": "https://api.thingiverse.com",
+      "endpoints": {
+        "collections": {
+          "method": "GET",
+          "path": "/users/{username}/collections",
+          "description": "List a user's collections",
+          "params": [
+            {
+              "default": null,
+              "description": "Thingiverse username",
+              "fields": null,
+              "name": "username",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseCollection"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/users/{username}",
+          "description": "Get a user's public profile",
+          "params": [
+            {
+              "default": null,
+              "description": "Thingiverse username",
+              "fields": null,
+              "name": "username",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "ThingiverseUser"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        },
+        "things": {
+          "method": "GET",
+          "path": "/users/{username}/things",
+          "description": "List a user's published things",
+          "params": [
+            {
+              "default": null,
+              "description": "Thingiverse username",
+              "fields": null,
+              "name": "username",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "ThingiverseThing"
+          },
+          "pagination": null,
+          "tier": "thingiverse"
+        }
+      }
+    }
+  },
+  "types": {
+    "Cults3DCreation": {
+      "fields": [
+        {
+          "name": "identifier",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "shortUrl",
+          "type": "string"
+        },
+        {
+          "name": "likesCount",
+          "type": "integer"
+        },
+        {
+          "name": "downloadsCount",
+          "type": "integer"
+        },
+        {
+          "name": "publishedAt",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "Cults3DCreationDetail": {
+      "fields": [
+        {
+          "name": "identifier",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "shortUrl",
+          "type": "string"
+        },
+        {
+          "name": "likesCount",
+          "type": "integer"
+        },
+        {
+          "name": "downloadsCount",
+          "type": "integer"
+        },
+        {
+          "name": "viewsCount",
+          "type": "integer"
+        },
+        {
+          "name": "publishedAt",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "PrintablesModelDetail": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "filesType",
+          "type": "string"
+        },
+        {
+          "name": "ratingAvg",
+          "type": "number"
+        },
+        {
+          "name": "likesCount",
+          "type": "integer"
+        },
+        {
+          "name": "downloadCount",
+          "type": "integer"
+        },
+        {
+          "name": "datePublished",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "ThingiverseCategory": {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "slug",
+          "type": "string"
+        },
+        {
+          "name": "count",
+          "type": "integer"
+        }
+      ]
+    },
+    "ThingiverseCollection": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "count",
+          "type": "integer"
+        },
+        {
+          "name": "absolute_url",
+          "type": "string"
+        }
+      ]
+    },
+    "ThingiverseFile": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "size",
+          "type": "integer"
+        },
+        {
+          "name": "download_url",
+          "type": "string"
+        },
+        {
+          "name": "direct_url",
+          "type": "string"
+        },
+        {
+          "name": "thumbnail",
+          "type": "string"
+        },
+        {
+          "name": "download_count",
+          "type": "integer"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "ThingiverseImage": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "ThingiverseTag": {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "count",
+          "type": "integer"
+        }
+      ]
+    },
+    "ThingiverseThing": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "thumbnail",
+          "type": "string"
+        },
+        {
+          "name": "public_url",
+          "type": "string"
+        },
+        {
+          "name": "like_count",
+          "type": "integer"
+        },
+        {
+          "name": "collect_count",
+          "type": "integer"
+        },
+        {
+          "name": "download_count",
+          "type": "integer"
+        },
+        {
+          "name": "view_count",
+          "type": "integer"
+        },
+        {
+          "name": "file_count",
+          "type": "integer"
+        },
+        {
+          "name": "is_published",
+          "type": "boolean"
+        },
+        {
+          "name": "is_nsfw",
+          "type": "boolean"
+        },
+        {
+          "name": "license",
+          "type": "string"
+        },
+        {
+          "name": "added",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "modified",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "ThingiverseUser": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "first_name",
+          "type": "string"
+        },
+        {
+          "name": "last_name",
+          "type": "string"
+        },
+        {
+          "name": "public_url",
+          "type": "string"
+        },
+        {
+          "name": "count_of_designs",
+          "type": "integer"
+        },
+        {
+          "name": "count_of_followers",
+          "type": "integer"
+        },
+        {
+          "name": "count_of_following",
+          "type": "integer"
+        }
+      ]
+    }
+  },
+  "cache": {},
+  "share": {},
+  "learn": {
+    "enabled": true
+  },
+  "mcp": {},
+  "throttling": {},
+  "streaming": {}
+}

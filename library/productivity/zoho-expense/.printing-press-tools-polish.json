@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-23T12:11:11.735583Z",
+  "cli_dir": "\u003ccli-dir\u003e/zoho-expense-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 347,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; \"Print version\" is accurate and brief, agents understand without elaboration (sanctioned example in tools-polish.md)"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 3,
+    "captured": "2026-05-23T12:08:02.578865Z"
+  }
+}

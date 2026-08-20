@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-library",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added library list/search/show/tag/export/cost-report over the library DB.",
+  "reason": "Agents need to query and roll up the recorded generation history.",
+  "files": [
+    "internal/cli/novel_library.go"
+  ]
+}

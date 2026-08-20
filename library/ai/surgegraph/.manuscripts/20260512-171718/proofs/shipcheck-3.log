@@ -1,0 +1,383 @@
+
+=== dogfood ===
+warning: skipping GET "/v1": could not derive resource name
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: surgegraph-pp-cli
+================================
+
+Path Validity:     3/3 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    4 dead (WARN)
+  - extractPaginatedItems (defined, never called)
+  - extractResponseData (defined, never called)
+  - paginatedGet (defined, never called)
+  - rawAtPath (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 13
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    14/14 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 4 dead helper functions found
+  - 1 source client file(s) without rate-limit handling: internal/oauth/oauth.go — outbound HTTP without rate limiter or typed 429 handling
+
+=== verify ===
+warning: skipping GET "/v1": could not derive resource name
+
+Verification verdict FAIL (pass rate 5%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/05/12 17:53:49 fix loop: help registration for doctor requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for doctor: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for auth requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for auth: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for agent-context requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for agent-context: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for profile requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for profile: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for feedback requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for feedback: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for which requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for which: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for import requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for import: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for api requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for api: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for visibility-novel requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for visibility-novel: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for research-novel requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for research-novel: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for docs-transcend requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for docs-transcend: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for knowledge-transcend requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for knowledge-transcend: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for account-transcend requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for account-transcend: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for context-bundle requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for context-bundle: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for search requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for search: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-ai-visibility-prompt-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-ai-visibility-prompt-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-api-key-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-api-key-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-bulk-documents-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-bulk-documents-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-domain-research-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-domain-research-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-image-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-image-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-knowledge-library-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-knowledge-library-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-knowledge-library-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-knowledge-library-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-optimized-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-optimized-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-topic-research-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-topic-research-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for create-topic-research-expansion-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for create-topic-research-expansion-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for delete-ai-visibility-prompt-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for delete-ai-visibility-prompt-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for delete-api-key-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for delete-api-key-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for delete-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for delete-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for delete-knowledge-library-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for delete-knowledge-library-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for delete-knowledge-library-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for delete-knowledge-library-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-citation-domain-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-citation-domain-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-citation-own-domain-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-citation-own-domain-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-citations-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-citations-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-config-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-config-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-emerging-topics-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-emerging-topics-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-metadata-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-metadata-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-opportunities-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-opportunities-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-overview-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-overview-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-prompt-detail-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-prompt-detail-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-prompt-response-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-prompt-response-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-prompts-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-prompts-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-response-structure-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-response-structure-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-sentiment-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-sentiment-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-topic-gaps-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-topic-gaps-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-topics-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-topics-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-traffic-pages-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-traffic-pages-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-traffic-summary-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-traffic-summary-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-ai-visibility-trend-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-ai-visibility-trend-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-anthropic-keys-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-anthropic-keys-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-author-brand-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-author-brand-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-authors-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-authors-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-brand-mentions-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-brand-mentions-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-content-vision-gallery-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-content-vision-gallery-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-content-vision-settings-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-content-vision-settings-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-domain-research-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-domain-research-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-gemini-keys-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-gemini-keys-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-knowledge-libraries-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-knowledge-libraries-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-knowledge-library-documents-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-knowledge-library-documents-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-languages-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-languages-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-locations-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-locations-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-openai-keys-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-openai-keys-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-optimized-documents-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-optimized-documents-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-organization-cms-integrations-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-organization-cms-integrations-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-project-cms-integration-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-project-cms-integration-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-projects-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-projects-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-team-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-team-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-topic-map-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-topic-map-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-topic-research-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-topic-research-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-usage-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-usage-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-wordpress-authors-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-wordpress-authors-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-wordpress-categories-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-wordpress-categories-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-wordpress-integrations-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-wordpress-integrations-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-writer-documents-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-writer-documents-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for get-writer-models-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for get-writer-models-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for list-domain-researches-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for list-domain-researches-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for list-topic-researches-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for list-topic-researches-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for publish-document-to-cms-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for publish-document-to-cms-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for update-ai-visibility-prompt-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for update-ai-visibility-prompt-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for update-api-key-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for update-api-key-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for update-document-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for update-document-promoted: manual registration required
+2026/05/12 17:53:49 fix loop: help registration for update-project-cms-integration-promoted requires manual fix
+2026/05/12 17:53:49 fix loop: skip help_fail for update-project-cms-integration-promoted: manual registration required
+Runtime Verification: ~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli/surgegraph-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+doctor                         local        FAIL   PASS     PASS     2/3
+auth                           local        FAIL   FAIL     PASS     1/3
+agent-context                  read         FAIL   FAIL     FAIL     0/3
+profile                        read         FAIL   FAIL     FAIL     0/3
+feedback                       read         FAIL   FAIL     FAIL     0/3
+which                          read         FAIL   FAIL     FAIL     0/3
+import                         data-layer   FAIL   PASS     PASS     2/3
+api                            local        FAIL   PASS     PASS     2/3
+visibility-novel               read         FAIL   FAIL     FAIL     0/3
+research-novel                 read         FAIL   FAIL     FAIL     0/3
+docs-transcend                 read         FAIL   FAIL     FAIL     0/3
+knowledge-transcend            read         FAIL   FAIL     FAIL     0/3
+account-transcend              read         FAIL   FAIL     FAIL     0/3
+context-bundle                 read         FAIL   FAIL     FAIL     0/3
+search                         data-layer   FAIL   PASS     PASS     2/3
+create-ai-visibility-prompt... read         FAIL   FAIL     FAIL     0/3
+create-api-key-promoted        read         FAIL   FAIL     FAIL     0/3
+create-bulk-documents-promoted read         FAIL   FAIL     FAIL     0/3
+create-document-promoted       read         FAIL   FAIL     FAIL     0/3
+create-domain-research-prom... read         FAIL   FAIL     FAIL     0/3
+create-image-promoted          read         FAIL   FAIL     FAIL     0/3
+create-knowledge-library-pr... read         FAIL   FAIL     FAIL     0/3
+create-knowledge-library-do... read         FAIL   FAIL     FAIL     0/3
+create-optimized-document-p... read         FAIL   FAIL     FAIL     0/3
+create-topic-research-promoted read         FAIL   FAIL     FAIL     0/3
+create-topic-research-expan... read         FAIL   FAIL     FAIL     0/3
+delete-ai-visibility-prompt... read         FAIL   FAIL     FAIL     0/3
+delete-api-key-promoted        read         FAIL   FAIL     FAIL     0/3
+delete-document-promoted       read         FAIL   FAIL     FAIL     0/3
+delete-knowledge-library-pr... read         FAIL   FAIL     FAIL     0/3
+delete-knowledge-library-do... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-citation-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-citation-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-citations... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-config-pr... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-emerging-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-metadata-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-opportuni... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-overview-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-prompt-de... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-prompt-re... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-prompts-p... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-response-... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-sentiment... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-topic-gap... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-topics-pr... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-traffic-p... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-traffic-s... read         FAIL   FAIL     FAIL     0/3
+get-ai-visibility-trend-pro... read         FAIL   FAIL     FAIL     0/3
+get-anthropic-keys-promoted    read         FAIL   FAIL     FAIL     0/3
+get-author-brand-promoted      read         FAIL   FAIL     FAIL     0/3
+get-authors-promoted           read         FAIL   FAIL     FAIL     0/3
+get-brand-mentions-promoted    read         FAIL   FAIL     FAIL     0/3
+get-content-vision-gallery-... read         FAIL   FAIL     FAIL     0/3
+get-content-vision-settings... read         FAIL   FAIL     FAIL     0/3
+get-document-promoted          read         FAIL   FAIL     FAIL     0/3
+get-domain-research-promoted   read         FAIL   FAIL     FAIL     0/3
+get-gemini-keys-promoted       read         FAIL   FAIL     FAIL     0/3
+get-knowledge-libraries-pro... read         FAIL   FAIL     FAIL     0/3
+get-knowledge-library-docum... read         FAIL   FAIL     FAIL     0/3
+get-languages-promoted         read         FAIL   FAIL     FAIL     0/3
+get-locations-promoted         read         FAIL   FAIL     FAIL     0/3
+get-openai-keys-promoted       read         FAIL   FAIL     FAIL     0/3
+get-optimized-documents-pro... read         FAIL   FAIL     FAIL     0/3
+get-organization-cms-integr... read         FAIL   FAIL     FAIL     0/3
+get-project-cms-integration... read         FAIL   FAIL     FAIL     0/3
+get-projects-promoted          read         FAIL   FAIL     FAIL     0/3
+get-team-promoted              read         FAIL   FAIL     FAIL     0/3
+get-topic-map-promoted         read         FAIL   FAIL     FAIL     0/3
+get-topic-research-promoted    read         FAIL   FAIL     FAIL     0/3
+get-usage-promoted             read         FAIL   FAIL     FAIL     0/3
+get-wordpress-authors-promoted read         FAIL   FAIL     FAIL     0/3
+get-wordpress-categories-pr... read         FAIL   FAIL     FAIL     0/3
+get-wordpress-integrations-... read         FAIL   FAIL     FAIL     0/3
+get-writer-documents-promoted  read         FAIL   FAIL     FAIL     0/3
+get-writer-models-promoted     read         FAIL   FAIL     FAIL     0/3
+list-domain-researches-prom... read         FAIL   FAIL     FAIL     0/3
+list-topic-researches-promoted read         FAIL   FAIL     FAIL     0/3
+publish-document-to-cms-pro... read         FAIL   FAIL     FAIL     0/3
+update-ai-visibility-prompt... read         FAIL   FAIL     FAIL     0/3
+update-api-key-promoted        read         FAIL   FAIL     FAIL     0/3
+update-document-promoted       read         FAIL   FAIL     FAIL     0/3
+update-project-cms-integrat... read         FAIL   FAIL     FAIL     0/3
+
+Data Pipeline: FAIL: sync crashed
+Pass Rate: 5% (4/83 passed, 78 critical)
+Verdict: FAIL
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 5% -> 5% (+0%), 83 fixes applied
+
+=== workflow-verify ===
+Workflow Verification: surgegraph-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== surgegraph-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+MISSING [quickstart]: surgegraph-pp-cli auth login → auth login
+MISSING [quickstart]: surgegraph-pp-cli doctor → doctor
+MISSING [quickstart]: surgegraph-pp-cli get-projects --agent → get-projects
+MISSING [quickstart]: surgegraph-pp-cli sync --project proj_abc123 → sync
+MISSING [quickstart]: surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --agent → visibility delta
+MISSING [quickstart]: surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run → research gaps publish
+MISSING [recipes]: surgegraph-pp-cli visibility delta --project proj_abc123 --window 168h --agent --select brand,metric,delta_pct → visibility delta
+MISSING [recipes]: surgegraph-pp-cli get-ai-visibility-citations --project-id proj_abc123 --agent --select data.domains.domain,data.domains.citationCount → get-ai-visibility-citations
+MISSING [recipes]: surgegraph-pp-cli search "AI search optimization" --kind prompt,citation,doc,topic --agent --select kind,id,title,snippet → search
+MISSING [recipes]: surgegraph-pp-cli research gaps publish --research-id res_xyz789 --project proj_abc123 --integration wp_int_456 --dry-run → research gaps publish
+MISSING [recipes]: surgegraph-pp-cli search "answer engine" --kind citation --agent → search
+DONE: 0 ok, 11 missing, 0 empty-words, 0 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Quality Scorecard: surgegraph
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               6/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          7/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      0/10
+  Breadth              10/10
+  Vision               5/10
+  Workflows            6/10
+  Insight              2/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           8/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        2/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               3/5
+
+  Total: 73/100 - Grade B
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - insight scored 2/10 - needs improvement
+  - sync_correctness scored 2/10 - needs improvement
+  - MCP: 68 tools (0 public, 68 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.88s
+  verify            FAIL    1         579ms
+  workflow-verify   PASS    0         17ms
+  verify-skill      PASS    0         292ms
+  validate-narrative  FAIL    1         25ms
+  scorecard         PASS    0         77ms
+
+Verdict: FAIL (2/6 legs failed)

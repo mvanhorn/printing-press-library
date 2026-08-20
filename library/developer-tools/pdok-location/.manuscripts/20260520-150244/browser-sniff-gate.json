@@ -1,0 +1,17 @@
+{
+  "run_id": "20260520-150244",
+  "sources": [
+    {
+      "source_name": "locatieserver",
+      "decision": "skip-silent",
+      "reason": "spec-complete: official OpenAPI 3.0 at https://api.pdok.nl/bzk/locatieserver/search/v3_1/openapi.json with all 4 endpoints documented (free/suggest/lookup/reverse) and every parameter typed; no docs/competitor evidence of additional endpoints",
+      "asked_at": "2026-05-20T13:15:57Z"
+    },
+    {
+      "source_name": "kadaster-location-api",
+      "decision": "skip-silent",
+      "reason": "spec-complete: official OpenAPI 3.0 at https://api.pdok.nl/kadaster/location-api/v1/openapi.json with all OGC API Features endpoints documented (/collections, /collections/{id}, /collections/{id}/items, /collections/{id}/items/{id}, /search, /conformance) and 14 collections enumerated; no gaps surfaced by research",
+      "asked_at": "2026-05-20T13:15:57Z"
+    }
+  ]
+}

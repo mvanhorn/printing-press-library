@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "dedupe-exit-code-braces",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Fix mismatched braces in report dedupe so the package compiles, and only return exit code 2 when the top row's score actually clears the 0.8 duplicate threshold.",
+  "reason": "The first attempt to add the score-gated exit code left an orphan return statement and an extra closing brace between the inner if-block and the function's final return nil, producing five Go syntax errors on the build. The orphan return also made the score-threshold check redundant by exiting 2 for any non-empty result set.",
+  "files": [
+    "internal/cli/report_dedupe.go"
+  ],
+  "validated_outcome": "go build ./... passes; report_dedupe.go compiles and the score >= 0.8 gate is the sole exit-2 trigger."
+}

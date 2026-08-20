@@ -1,0 +1,4572 @@
+{
+  "name": "productive",
+  "description": "Productive.io v2 API CLI \u2014 full read coverage plus revenue-recognition reconciliation",
+  "version": "0.1.0",
+  "base_url": "https://api.productive.io/api/v2",
+  "health_check_path": "/organization_memberships",
+  "category": "productivity",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Auth-Token",
+    "format": "{token}",
+    "env_vars": [
+      "PRODUCTIVE_API_TOKEN"
+    ]
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/productive-pp-cli/config.toml"
+  },
+  "resources": {
+    "deals": {
+      "description": "Sales deals and production budgets (filter --stage-type budget for budgets)",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/deals",
+          "description": "List deals",
+          "params": [
+            {
+              "name": "filter[name][contains]",
+              "flag_name": "name",
+              "type": "string",
+              "required": false,
+              "description": "Name contains"
+            },
+            {
+              "name": "filter[stage_type][eq]",
+              "flag_name": "stage-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Deal, 2=Budget"
+            },
+            {
+              "name": "filter[company][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Client company id"
+            },
+            {
+              "name": "filter[responsible][eq]",
+              "flag_name": "responsible",
+              "type": "string",
+              "required": false,
+              "description": "Owner person id"
+            },
+            {
+              "name": "filter[project][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "filter[deal_status][eq]",
+              "flag_name": "deal-status",
+              "type": "string",
+              "required": false,
+              "description": "Pipeline stage id"
+            },
+            {
+              "name": "filter[pipeline][eq]",
+              "flag_name": "pipeline",
+              "type": "string",
+              "required": false,
+              "description": "Pipeline id"
+            },
+            {
+              "name": "filter[status][eq]",
+              "flag_name": "status",
+              "type": "string",
+              "required": false,
+              "description": "Budget status 1=Open, 2=Delivered"
+            },
+            {
+              "name": "filter[stage_status][eq]",
+              "flag_name": "stage-status",
+              "type": "string",
+              "required": false,
+              "description": "1=Open,2=Won,3=Lost,4=Delivered"
+            },
+            {
+              "name": "filter[purchase_order_number][eq]",
+              "flag_name": "purchase-order-number",
+              "type": "string",
+              "required": false,
+              "description": "Client PO number"
+            },
+            {
+              "name": "filter[tags][contains]",
+              "flag_name": "tag",
+              "type": "string",
+              "required": false,
+              "description": "Tag contains"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "filter[last_activity_at][gt_eq]",
+              "flag_name": "updated-after",
+              "type": "string",
+              "required": false,
+              "description": "Last activity on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Deals"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/deals/{id}",
+          "description": "Get one deals by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Deals"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "invoices": {
+      "description": "Invoices and credit notes",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/invoices",
+          "description": "List invoices",
+          "params": [
+            {
+              "name": "filter[number][contains]",
+              "flag_name": "number",
+              "type": "string",
+              "required": false,
+              "description": "Invoice number contains"
+            },
+            {
+              "name": "filter[invoice_type][eq]",
+              "flag_name": "invoice-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Invoice, 2=Credit note"
+            },
+            {
+              "name": "filter[company][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Client company id"
+            },
+            {
+              "name": "filter[subsidiary][eq]",
+              "flag_name": "subsidiary",
+              "type": "string",
+              "required": false,
+              "description": "Subsidiary id"
+            },
+            {
+              "name": "filter[invoiced_on][gt_eq]",
+              "flag_name": "issued-from",
+              "type": "string",
+              "required": false,
+              "description": "Issued on/after YYYY-MM-DD"
+            },
+            {
+              "name": "filter[invoiced_on][lt_eq]",
+              "flag_name": "issued-to",
+              "type": "string",
+              "required": false,
+              "description": "Issued on/before YYYY-MM-DD"
+            },
+            {
+              "name": "filter[pay_on][gt_eq]",
+              "flag_name": "due-from",
+              "type": "string",
+              "required": false,
+              "description": "Due on/after YYYY-MM-DD"
+            },
+            {
+              "name": "filter[pay_on][lt_eq]",
+              "flag_name": "due-to",
+              "type": "string",
+              "required": false,
+              "description": "Due on/before YYYY-MM-DD"
+            },
+            {
+              "name": "filter[paid_on][gt_eq]",
+              "flag_name": "paid-from",
+              "type": "string",
+              "required": false,
+              "description": "Paid on/after YYYY-MM-DD"
+            },
+            {
+              "name": "filter[is_credited][eq]",
+              "flag_name": "is-credited",
+              "type": "string",
+              "required": false,
+              "description": "true to only credited invoices"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Invoices"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/invoices/{id}",
+          "description": "Get one invoices by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Invoices"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "invoice_attributions": {
+      "description": "Invoice<->budget attribution amounts",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/invoice_attributions",
+          "description": "List invoice attributions",
+          "params": [
+            {
+              "name": "filter[invoice][eq]",
+              "flag_name": "invoice",
+              "type": "string",
+              "required": false,
+              "description": "Invoice id"
+            },
+            {
+              "name": "filter[budget][eq]",
+              "flag_name": "budget",
+              "type": "string",
+              "required": false,
+              "description": "Budget (deal) id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "InvoiceAttributions"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/invoice_attributions/{id}",
+          "description": "Get one invoice attributions by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "InvoiceAttributions"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "line_items": {
+      "description": "Invoice line items (paginate by --invoice)",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/line_items",
+          "description": "List line items",
+          "params": [
+            {
+              "name": "filter[invoice][eq]",
+              "flag_name": "invoice",
+              "type": "string",
+              "required": false,
+              "description": "Parent invoice id"
+            },
+            {
+              "name": "filter[description][contains]",
+              "flag_name": "description",
+              "type": "string",
+              "required": false,
+              "description": "Description contains"
+            },
+            {
+              "name": "filter[unit_id][eq]",
+              "flag_name": "unit",
+              "type": "string",
+              "required": false,
+              "description": "1=Hour, 2=Piece, 3=Day"
+            },
+            {
+              "name": "filter[service][eq]",
+              "flag_name": "service",
+              "type": "string",
+              "required": false,
+              "description": "Service id"
+            },
+            {
+              "name": "filter[expense][eq]",
+              "flag_name": "expense",
+              "type": "string",
+              "required": false,
+              "description": "Expense id"
+            },
+            {
+              "name": "filter[service_type][eq]",
+              "flag_name": "service-type",
+              "type": "string",
+              "required": false,
+              "description": "Service type id"
+            },
+            {
+              "name": "filter[company_id][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Company id (from parent invoice)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "LineItems"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/line_items/{id}",
+          "description": "Get one line items by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "LineItems"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "payments": {
+      "description": "Payments and write-offs against invoices",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/payments",
+          "description": "List payments",
+          "params": [
+            {
+              "name": "filter[invoice][eq]",
+              "flag_name": "invoice",
+              "type": "string",
+              "required": false,
+              "description": "Invoice id"
+            },
+            {
+              "name": "filter[paid_on][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with paid_on >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[paid_on][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with paid_on <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Payments"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/payments/{id}",
+          "description": "Get one payments by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payments"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "time_entries": {
+      "description": "Logged work time entries",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/time_entries",
+          "description": "List time entries",
+          "params": [
+            {
+              "name": "filter[person][eq]",
+              "flag_name": "person",
+              "type": "string",
+              "required": false,
+              "description": "Person id"
+            },
+            {
+              "name": "filter[service][eq]",
+              "flag_name": "service",
+              "type": "string",
+              "required": false,
+              "description": "Service id"
+            },
+            {
+              "name": "filter[task][eq]",
+              "flag_name": "task",
+              "type": "string",
+              "required": false,
+              "description": "Task id"
+            },
+            {
+              "name": "filter[approval_status][eq]",
+              "flag_name": "approval-status",
+              "type": "string",
+              "required": false,
+              "description": "1=Approved,2=Unapproved,3=Rejected,4=Auto,5=Submitted,6=Unsubmitted"
+            },
+            {
+              "name": "filter[track_method][eq]",
+              "flag_name": "track-method",
+              "type": "string",
+              "required": false,
+              "description": "1=Manual,2=Timer,3=Bot,4=Mixed,5=Auto,6=AI"
+            },
+            {
+              "name": "filter[approver][eq]",
+              "flag_name": "approver",
+              "type": "string",
+              "required": false,
+              "description": "Approver person id"
+            },
+            {
+              "name": "filter[awaiting_approval_from_approver][eq]",
+              "flag_name": "awaiting-approval-from",
+              "type": "string",
+              "required": false,
+              "description": "Pending approval for this approver person id"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "TimeEntries"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/time_entries/{id}",
+          "description": "Get one time entries by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "TimeEntries"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "expenses": {
+      "description": "Non-labor costs on a budget service",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/expenses",
+          "description": "List expenses",
+          "params": [
+            {
+              "name": "filter[service][eq]",
+              "flag_name": "service",
+              "type": "string",
+              "required": false,
+              "description": "Service id"
+            },
+            {
+              "name": "filter[person][eq]",
+              "flag_name": "person",
+              "type": "string",
+              "required": false,
+              "description": "Person id"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Expenses"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/expenses/{id}",
+          "description": "Get one expenses by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Expenses"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "tasks": {
+      "description": "Work items in projects",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/tasks",
+          "description": "List tasks",
+          "params": [
+            {
+              "name": "filter[title][contains]",
+              "flag_name": "title",
+              "type": "string",
+              "required": false,
+              "description": "Title contains"
+            },
+            {
+              "name": "filter[assignee][eq]",
+              "flag_name": "assignee",
+              "type": "string",
+              "required": false,
+              "description": "Assignee person id"
+            },
+            {
+              "name": "filter[creator][eq]",
+              "flag_name": "creator",
+              "type": "string",
+              "required": false,
+              "description": "Creator person id"
+            },
+            {
+              "name": "filter[project][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "filter[task_list][eq]",
+              "flag_name": "task-list",
+              "type": "string",
+              "required": false,
+              "description": "Task list id"
+            },
+            {
+              "name": "filter[parent_task][eq]",
+              "flag_name": "parent-task",
+              "type": "string",
+              "required": false,
+              "description": "Parent task id"
+            },
+            {
+              "name": "filter[service][eq]",
+              "flag_name": "service",
+              "type": "string",
+              "required": false,
+              "description": "Service id"
+            },
+            {
+              "name": "filter[workflow_status][eq]",
+              "flag_name": "workflow-status",
+              "type": "string",
+              "required": false,
+              "description": "Workflow status id"
+            },
+            {
+              "name": "filter[workflow_status_category][eq]",
+              "flag_name": "status-category",
+              "type": "string",
+              "required": false,
+              "description": "1=Not started,2=Started,3=Closed"
+            },
+            {
+              "name": "filter[type_id][eq]",
+              "flag_name": "type",
+              "type": "string",
+              "required": false,
+              "description": "1=Task, 3=Milestone"
+            },
+            {
+              "name": "filter[task_type][eq]",
+              "flag_name": "task-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Parent, 2=Subtask"
+            },
+            {
+              "name": "filter[due_date][gt_eq]",
+              "flag_name": "due-from",
+              "type": "string",
+              "required": false,
+              "description": "Due on/after YYYY-MM-DD"
+            },
+            {
+              "name": "filter[due_date][lt_eq]",
+              "flag_name": "due-to",
+              "type": "string",
+              "required": false,
+              "description": "Due on/before YYYY-MM-DD"
+            },
+            {
+              "name": "filter[tag_list][contains]",
+              "flag_name": "tag",
+              "type": "string",
+              "required": false,
+              "description": "Tag contains"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "filter[last_activity_at][gt_eq]",
+              "flag_name": "updated-after",
+              "type": "string",
+              "required": false,
+              "description": "Last activity on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Tasks"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/tasks/{id}",
+          "description": "Get one tasks by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Tasks"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "todos": {
+      "description": "Checklist items on tasks/deals",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/todos",
+          "description": "List todos",
+          "params": [
+            {
+              "name": "filter[task][eq]",
+              "flag_name": "task",
+              "type": "string",
+              "required": false,
+              "description": "Task id"
+            },
+            {
+              "name": "filter[assignee][eq]",
+              "flag_name": "assignee",
+              "type": "string",
+              "required": false,
+              "description": "Assignee person id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Todos"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/todos/{id}",
+          "description": "Get one todos by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Todos"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "projects": {
+      "description": "Project workspaces",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/projects",
+          "description": "List projects",
+          "params": [
+            {
+              "name": "filter[name][contains]",
+              "flag_name": "name",
+              "type": "string",
+              "required": false,
+              "description": "Name contains"
+            },
+            {
+              "name": "filter[project_number][eq]",
+              "flag_name": "project-number",
+              "type": "string",
+              "required": false,
+              "description": "Project number"
+            },
+            {
+              "name": "filter[status][eq]",
+              "flag_name": "status",
+              "type": "string",
+              "required": false,
+              "description": "1=Active, 2=Archived"
+            },
+            {
+              "name": "filter[project_type][eq]",
+              "flag_name": "project-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Internal, 2=Client"
+            },
+            {
+              "name": "filter[company][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Client company id"
+            },
+            {
+              "name": "filter[project_manager][eq]",
+              "flag_name": "project-manager",
+              "type": "string",
+              "required": false,
+              "description": "PM person id"
+            },
+            {
+              "name": "filter[member][eq]",
+              "flag_name": "member",
+              "type": "string",
+              "required": false,
+              "description": "Member person id"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Projects"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/projects/{id}",
+          "description": "Get one projects by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Projects"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "task_lists": {
+      "description": "Task groupings (milestones/sprints) within a project",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/task_lists",
+          "description": "List task lists",
+          "params": [
+            {
+              "name": "filter[project][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "TaskLists"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/task_lists/{id}",
+          "description": "Get one task lists by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "TaskLists"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "folders": {
+      "description": "Collections of task lists (boards) within a project",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/folders",
+          "description": "List folders",
+          "params": [
+            {
+              "name": "filter[project][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Folders"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/folders/{id}",
+          "description": "Get one folders by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Folders"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "workflows": {
+      "description": "Task status groups",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/workflows",
+          "description": "List workflows",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Workflows"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/workflows/{id}",
+          "description": "Get one workflows by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Workflows"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "workflow_statuses": {
+      "description": "Stages in a task workflow",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/workflow_statuses",
+          "description": "List workflow statuses",
+          "params": [
+            {
+              "name": "filter[workflow][eq]",
+              "flag_name": "workflow",
+              "type": "string",
+              "required": false,
+              "description": "Workflow id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "WorkflowStatuses"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/workflow_statuses/{id}",
+          "description": "Get one workflow statuses by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "WorkflowStatuses"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "companies": {
+      "description": "Client organizations",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/companies",
+          "description": "List companies",
+          "params": [
+            {
+              "name": "filter[name][contains]",
+              "flag_name": "name",
+              "type": "string",
+              "required": false,
+              "description": "Name contains"
+            },
+            {
+              "name": "filter[created_at][gt_eq]",
+              "flag_name": "created-after",
+              "type": "string",
+              "required": false,
+              "description": "Created on/after (ISO)"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Companies"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/companies/{id}",
+          "description": "Get one companies by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Companies"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "people": {
+      "description": "Employees, contractors, contacts, placeholders",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/people",
+          "description": "List people",
+          "params": [
+            {
+              "name": "filter[first_name][contains]",
+              "flag_name": "first-name",
+              "type": "string",
+              "required": false,
+              "description": "First name contains"
+            },
+            {
+              "name": "filter[last_name][contains]",
+              "flag_name": "last-name",
+              "type": "string",
+              "required": false,
+              "description": "Last name contains"
+            },
+            {
+              "name": "filter[email][contains]",
+              "flag_name": "email",
+              "type": "string",
+              "required": false,
+              "description": "Email contains"
+            },
+            {
+              "name": "filter[person_type][eq]",
+              "flag_name": "person-type",
+              "type": "string",
+              "required": false,
+              "description": "1=User,2=Contact,3=Placeholder,4=Agent"
+            },
+            {
+              "name": "filter[status][eq]",
+              "flag_name": "status",
+              "type": "string",
+              "required": false,
+              "description": "1=Active, 2=Deactivated"
+            },
+            {
+              "name": "filter[company][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Company id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "People"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/people/{id}",
+          "description": "Get one people by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "People"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "contact_entries": {
+      "description": "Contact data (email/phone/address)",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/contact_entries",
+          "description": "List contact entries",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ContactEntries"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/contact_entries/{id}",
+          "description": "Get one contact entries by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "ContactEntries"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "teams": {
+      "description": "Groups of people",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/teams",
+          "description": "List teams",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Teams"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/teams/{id}",
+          "description": "Get one teams by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Teams"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "memberships": {
+      "description": "Access-sharing entries",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/memberships",
+          "description": "List memberships",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Memberships"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/memberships/{id}",
+          "description": "Get one memberships by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Memberships"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "subsidiaries": {
+      "description": "Legal entities within the organization",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/subsidiaries",
+          "description": "List subsidiaries",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Subsidiaries"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/subsidiaries/{id}",
+          "description": "Get one subsidiaries by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Subsidiaries"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "roles": {
+      "description": "Permission sets",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/roles",
+          "description": "List roles",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Roles"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/roles/{id}",
+          "description": "Get one roles by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Roles"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "holidays": {
+      "description": "Non-working days within a holiday calendar",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/holidays",
+          "description": "List holidays",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Holidays"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/holidays/{id}",
+          "description": "Get one holidays by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Holidays"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "holiday_calendars": {
+      "description": "Holiday calendars per country/region",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/holiday_calendars",
+          "description": "List holiday calendars",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "HolidayCalendars"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/holiday_calendars/{id}",
+          "description": "Get one holiday calendars by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "HolidayCalendars"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "services": {
+      "description": "Line items on a deal/budget",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/services",
+          "description": "List services",
+          "params": [
+            {
+              "name": "filter[name][contains]",
+              "flag_name": "name",
+              "type": "string",
+              "required": false,
+              "description": "Name contains"
+            },
+            {
+              "name": "filter[deal][eq]",
+              "flag_name": "deal",
+              "type": "string",
+              "required": false,
+              "description": "Deal/budget id"
+            },
+            {
+              "name": "filter[billing_type][eq]",
+              "flag_name": "billing-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Fixed,2=T&M,3=Non-billable,4=Percentage"
+            },
+            {
+              "name": "filter[service_type][eq]",
+              "flag_name": "service-type",
+              "type": "string",
+              "required": false,
+              "description": "Service type id"
+            },
+            {
+              "name": "filter[section][eq]",
+              "flag_name": "section",
+              "type": "string",
+              "required": false,
+              "description": "Section id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Services"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/services/{id}",
+          "description": "Get one services by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Services"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "service_types": {
+      "description": "Work categories the org delivers",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/service_types",
+          "description": "List service types",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ServiceTypes"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/service_types/{id}",
+          "description": "Get one service types by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "ServiceTypes"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "bookings": {
+      "description": "Planned work / absence scheduling",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/bookings",
+          "description": "List bookings",
+          "params": [
+            {
+              "name": "filter[person][eq]",
+              "flag_name": "person",
+              "type": "string",
+              "required": false,
+              "description": "Person id"
+            },
+            {
+              "name": "filter[service][eq]",
+              "flag_name": "service",
+              "type": "string",
+              "required": false,
+              "description": "Service id"
+            },
+            {
+              "name": "filter[started_on][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with started_on >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[started_on][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with started_on <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Bookings"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/bookings/{id}",
+          "description": "Get one bookings by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Bookings"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "events": {
+      "description": "Absence categories",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/events",
+          "description": "List events",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Events"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/events/{id}",
+          "description": "Get one events by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Events"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "pipelines": {
+      "description": "Sales/production pipelines",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/pipelines",
+          "description": "List pipelines",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Pipelines"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/pipelines/{id}",
+          "description": "Get one pipelines by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Pipelines"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "deal_statuses": {
+      "description": "Pipeline stages",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/deal_statuses",
+          "description": "List deal statuses",
+          "params": [
+            {
+              "name": "filter[pipeline][eq]",
+              "flag_name": "pipeline",
+              "type": "string",
+              "required": false,
+              "description": "Pipeline id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "DealStatuses"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/deal_statuses/{id}",
+          "description": "Get one deal statuses by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "DealStatuses"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "proposals": {
+      "description": "Sales quotes for deals",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/proposals",
+          "description": "List proposals",
+          "params": [
+            {
+              "name": "filter[deal][eq]",
+              "flag_name": "deal",
+              "type": "string",
+              "required": false,
+              "description": "Deal id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Proposals"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/proposals/{id}",
+          "description": "Get one proposals by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Proposals"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "tax_rates": {
+      "description": "Tax/VAT percentages per subsidiary",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/tax_rates",
+          "description": "List tax rates",
+          "params": [
+            {
+              "name": "filter[subsidiary][eq]",
+              "flag_name": "subsidiary",
+              "type": "string",
+              "required": false,
+              "description": "Subsidiary id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "TaxRates"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/tax_rates/{id}",
+          "description": "Get one tax rates by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "TaxRates"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "pages": {
+      "description": "Rich-text docs pages",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/pages",
+          "description": "List pages",
+          "params": [
+            {
+              "name": "filter[project][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Pages"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/pages/{id}",
+          "description": "Get one pages by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Pages"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "comments": {
+      "description": "Comments on tasks/deals/etc.",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/comments",
+          "description": "List comments",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Comments"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/comments/{id}",
+          "description": "Get one comments by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Comments"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "attachments": {
+      "description": "Uploaded files",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/attachments",
+          "description": "List attachments",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Attachments"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/attachments/{id}",
+          "description": "Get one attachments by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Attachments"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "activities": {
+      "description": "Activity-feed events",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/activities",
+          "description": "List activities",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Activities"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/activities/{id}",
+          "description": "Get one activities by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Activities"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "custom_fields": {
+      "description": "User-defined fields",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/custom_fields",
+          "description": "List custom fields",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "CustomFields"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/custom_fields/{id}",
+          "description": "Get one custom fields by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "CustomFields"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "filters": {
+      "description": "Saved views/reports/widgets",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/filters",
+          "description": "List filters",
+          "params": [
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 100
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending (e.g. -created_at)"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Filters"
+          },
+          "response_path": "data"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/filters/{id}",
+          "description": "Get one filters by id",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "description": "Resource id"
+            },
+            {
+              "name": "include",
+              "flag_name": "include",
+              "type": "string",
+              "required": false,
+              "description": "Comma-separated related resources to sideload"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Filters"
+          },
+          "response_path": "data"
+        }
+      }
+    },
+    "reports": {
+      "description": "Aggregated report endpoints",
+      "endpoints": {
+        "financial_item": {
+          "method": "GET",
+          "path": "/reports/financial_item_reports",
+          "description": "Financial line-item report (revenue/cost/profit across sources)",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[financial_item_type][eq]",
+              "flag_name": "financial-item-type",
+              "type": "string",
+              "required": false,
+              "description": "service|invoice_attribution|time_entry|expense|booking_item|revenue_item"
+            },
+            {
+              "name": "filter[budget_id][eq]",
+              "flag_name": "budget",
+              "type": "string",
+              "required": false,
+              "description": "Budget/deal id"
+            },
+            {
+              "name": "filter[company_id][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Company id"
+            },
+            {
+              "name": "filter[project_id][eq]",
+              "flag_name": "project",
+              "type": "string",
+              "required": false,
+              "description": "Project id"
+            },
+            {
+              "name": "filter[stage_type][eq]",
+              "flag_name": "stage-type",
+              "type": "string",
+              "required": false,
+              "description": "1=Deal, 2=Budget"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "time_entry": {
+          "method": "GET",
+          "path": "/reports/time_entry_reports",
+          "description": "Time tracking report (hours, billable, cost)",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[person_id][eq]",
+              "flag_name": "person",
+              "type": "string",
+              "required": false,
+              "description": "Person id"
+            },
+            {
+              "name": "filter[budget_id][eq]",
+              "flag_name": "budget",
+              "type": "string",
+              "required": false,
+              "description": "Budget/deal id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "invoice": {
+          "method": "GET",
+          "path": "/reports/invoice_reports",
+          "description": "Invoice report (amounts, tax, payments, aging)",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[company_id][eq]",
+              "flag_name": "company",
+              "type": "string",
+              "required": false,
+              "description": "Company id"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "line_item": {
+          "method": "GET",
+          "path": "/reports/line_item_reports",
+          "description": "Invoice line-item report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "deal": {
+          "method": "GET",
+          "path": "/reports/deal_reports",
+          "description": "Deal/sales pipeline report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "budget": {
+          "method": "GET",
+          "path": "/reports/budget_reports",
+          "description": "Budget-level tracking report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "project": {
+          "method": "GET",
+          "path": "/reports/project_reports",
+          "description": "Project portfolio report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "expense": {
+          "method": "GET",
+          "path": "/reports/expense_reports",
+          "description": "Expense report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "booking": {
+          "method": "GET",
+          "path": "/reports/booking_reports",
+          "description": "Scheduling/resourcing report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "payment": {
+          "method": "GET",
+          "path": "/reports/payment_reports",
+          "description": "Invoice payments report",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        },
+        "task": {
+          "method": "GET",
+          "path": "/reports/task_reports",
+          "description": "Task report (worked/estimated/remaining)",
+          "params": [
+            {
+              "name": "group",
+              "flag_name": "group",
+              "type": "string",
+              "required": false,
+              "description": "Group dimensions, comma-separated (e.g. budget,date:month)"
+            },
+            {
+              "name": "filter[date][gt_eq]",
+              "flag_name": "date-from",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date >= YYYY-MM-DD"
+            },
+            {
+              "name": "filter[date][lt_eq]",
+              "flag_name": "date-to",
+              "type": "string",
+              "required": false,
+              "description": "Only rows with date <= YYYY-MM-DD"
+            },
+            {
+              "name": "page[size]",
+              "flag_name": "page-size",
+              "type": "int",
+              "required": false,
+              "description": "Results per page (max 200)",
+              "default": 200
+            },
+            {
+              "name": "page[number]",
+              "flag_name": "page-number",
+              "type": "int",
+              "required": false,
+              "description": "Page number (1-based)",
+              "default": 1
+            },
+            {
+              "name": "sort",
+              "flag_name": "sort",
+              "type": "string",
+              "required": false,
+              "description": "Sort field; prefix - for descending"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "ReportRow"
+          },
+          "response_path": "data"
+        }
+      }
+    }
+  },
+  "types": {
+    "Deals": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Invoices": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "InvoiceAttributions": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "LineItems": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Payments": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TimeEntries": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Expenses": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Tasks": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Todos": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Projects": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskLists": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Folders": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Workflows": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "WorkflowStatuses": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Companies": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "People": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ContactEntries": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Teams": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Memberships": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Subsidiaries": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Roles": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Holidays": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "HolidayCalendars": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Services": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ServiceTypes": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Bookings": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Events": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Pipelines": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "DealStatuses": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Proposals": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaxRates": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Pages": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Comments": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Attachments": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Activities": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "CustomFields": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Filters": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ReportRow": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

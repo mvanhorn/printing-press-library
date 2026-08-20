@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "chrome-leveldb-cross-platform",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-215840",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Resolve the Chrome Default-profile LocalStorage LevelDB path per OS (macOS / Linux / Windows) instead of hardcoding the macOS path.",
+  "reason": "The original auth_login_chrome.go path was macOS-only (~/Library/Application Support/...). Linux and Windows would return 'opening Chrome LocalStorage leveldb: no such file or directory' even with Chrome installed at the standard system location.",
+  "files": [
+    "internal/cli/auth_login_chrome.go"
+  ],
+  "validated_outcome": "chrome --chrome login resolves the correct LevelDB path on darwin, linux, and windows; falls back to a clear error message on other platforms."
+}

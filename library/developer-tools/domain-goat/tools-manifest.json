@@ -1,0 +1,29 @@
+{
+  "api_name": "domain-goat",
+  "base_url": "https://api.porkbun.com/api/json/v3",
+  "description": "Domain-name discovery \u0026 availability CLI — RDAP-native, WHOIS-fallback, Porkbun-priced, with offline shortlist + scoring + drop watch.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "pricing_get",
+      "description": "Fetch the full TLD pricing table (registration, renewal, transfer) from Porkbun. Returns the PricingResponse.",
+      "method": "GET",
+      "path": "/pricing/get",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "rdap_bootstrap_get",
+      "description": "Fetch the IANA RDAP DNS bootstrap (TLD → RDAP base URL). Returns the RDAPBootstrap.",
+      "method": "GET",
+      "path": "/dns.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

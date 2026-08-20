@@ -1,0 +1,51 @@
+version: 2
+project_name: uspto-tsdr-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: uspto-tsdr-pp-cli
+    main: ./cmd/uspto-tsdr-pp-cli
+    binary: uspto-tsdr-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: uspto-tsdr-pp-mcp
+    main: ./cmd/uspto-tsdr-pp-mcp
+    binary: uspto-tsdr-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: uspto-tsdr-pp-cli
+    repository:
+      owner: h179922
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Beginning on October 2, 2020, you will need an API key to access the TSDR REST API See..."
+    install: |
+      bin.install "uspto-tsdr-pp-cli"
+      bin.install "uspto-tsdr-pp-mcp"

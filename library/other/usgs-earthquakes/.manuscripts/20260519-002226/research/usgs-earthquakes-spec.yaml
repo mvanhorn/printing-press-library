@@ -1,0 +1,488 @@
+name: usgs-earthquakes
+display_name: "USGS Earthquakes"
+description: "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode."
+version: "0.1.0"
+kind: synthetic
+spec_source: docs
+http_transport: standard
+website_url: "https://earthquake.usgs.gov"
+category: other
+base_url: "https://earthquake.usgs.gov/fdsnws/event/1"
+health_check_path: "/version"
+
+required_headers:
+  - name: User-Agent
+    value: "usgs-earthquakes-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/usgs-earthquakes-pp-cli/config.toml"
+
+cli_description: "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode."
+
+resources:
+  events:
+    description: "Search and retrieve earthquakes from the USGS FDSN Event service"
+    endpoints:
+      search:
+        method: GET
+        path: "/query"
+        description: "Search the USGS earthquake catalog with full FDSN parameter coverage"
+        params:
+          # Time window
+          - name: starttime
+            flag_name: start
+            type: string
+            description: "Start time (ISO 8601, e.g. 2024-01-01 or 2024-01-01T00:00:00)"
+          - name: endtime
+            flag_name: end
+            type: string
+            description: "End time (ISO 8601, e.g. 2024-12-31T23:59:59)"
+          - name: updatedafter
+            flag_name: updated-after
+            type: string
+            description: "Only events whose record was updated after this ISO 8601 timestamp"
+
+          # Magnitude
+          - name: minmagnitude
+            flag_name: min-magnitude
+            type: float
+            description: "Minimum magnitude (e.g. 4.5)"
+          - name: maxmagnitude
+            flag_name: max-magnitude
+            type: float
+            description: "Maximum magnitude"
+          - name: magnitudetype
+            flag_name: magnitude-type
+            type: string
+            description: "Magnitude type to compare against (mb, mw, ml, mww, mwc, mwp, mwr, mwb, etc.)"
+
+          # Depth
+          - name: mindepth
+            flag_name: min-depth-km
+            type: float
+            description: "Minimum depth in km"
+          - name: maxdepth
+            flag_name: max-depth-km
+            type: float
+            description: "Maximum depth in km"
+
+          # Rectangular region
+          - name: minlatitude
+            flag_name: min-latitude
+            type: float
+            description: "Minimum latitude of bounding box"
+          - name: maxlatitude
+            flag_name: max-latitude
+            type: float
+            description: "Maximum latitude of bounding box"
+          - name: minlongitude
+            flag_name: min-longitude
+            type: float
+            description: "Minimum longitude of bounding box"
+          - name: maxlongitude
+            flag_name: max-longitude
+            type: float
+            description: "Maximum longitude of bounding box"
+
+          # Circle filter
+          - name: latitude
+            type: float
+            description: "Center latitude for circle filter (combine with --longitude and --max-radius-km)"
+          - name: longitude
+            type: float
+            description: "Center longitude for circle filter"
+          - name: maxradius
+            flag_name: max-radius-deg
+            type: float
+            description: "Circle filter radius in degrees"
+          - name: maxradiuskm
+            flag_name: max-radius-km
+            type: float
+            description: "Circle filter radius in kilometers"
+          - name: minradius
+            flag_name: min-radius-deg
+            type: float
+            description: "Circle filter inner radius in degrees"
+          - name: minradiuskm
+            flag_name: min-radius-km
+            type: float
+            description: "Circle filter inner radius in kilometers"
+
+          # Identity filters
+          - name: eventid
+            flag_name: event-id
+            type: string
+            description: "Look up a single event by USGS event ID (e.g. us7000abcd)"
+          - name: eventtype
+            flag_name: event-type
+            type: string
+            description: "Comma-separated event types (earthquake, explosion, quarry, etc.). See `usgs-earthquakes metadata show` for the full list."
+          - name: catalog
+            type: string
+            description: "Comma-separated source catalogs (us, nc, ci, ak, hv, uu, uw, ...). See `usgs-earthquakes catalogs list` for the full list."
+          - name: contributor
+            type: string
+            description: "Comma-separated data contributors (us, nc, ci, ...). See `usgs-earthquakes contributors list`."
+
+          # Quality filters
+          - name: alertlevel
+            flag_name: alert
+            type: string
+            enum: ["green", "yellow", "orange", "red"]
+            description: "PAGER alert level (green/yellow/orange/red)"
+          - name: minmmi
+            flag_name: min-mmi
+            type: float
+            description: "Minimum ShakeMap MMI (Modified Mercalli Intensity)"
+          - name: maxmmi
+            flag_name: max-mmi
+            type: float
+            description: "Maximum ShakeMap MMI"
+          - name: mincdi
+            flag_name: min-cdi
+            type: float
+            description: "Minimum DYFI Community Decimal Intensity"
+          - name: maxcdi
+            flag_name: max-cdi
+            type: float
+            description: "Maximum DYFI Community Decimal Intensity"
+          - name: minfelt
+            flag_name: min-felt
+            type: int
+            description: "Minimum number of DYFI 'felt' reports"
+          - name: minsig
+            flag_name: min-significance
+            type: int
+            description: "Minimum significance score (0-1000); USGS combines magnitude, felt-reports, MMI, PAGER"
+          - name: maxsig
+            flag_name: max-significance
+            type: int
+            description: "Maximum significance score (0-1000)"
+          - name: producttype
+            flag_name: product-type
+            type: string
+            description: "Filter to events with a given product type (shakemap, losspager, dyfi, focal-mechanism, moment-tensor). See `usgs-earthquakes metadata show` for the full list."
+          - name: productcode
+            flag_name: product-code
+            type: string
+            description: "Filter to events with a specific product code"
+          - name: reviewstatus
+            flag_name: review-status
+            type: string
+            enum: ["all", "automatic", "reviewed"]
+            description: "Filter by analyst review status"
+
+          # Result control
+          - name: limit
+            type: int
+            default: 100
+            description: "Maximum events to return (FDSN cap: 20000)"
+          - name: offset
+            type: int
+            description: "Pagination offset (1-based)"
+          - name: orderby
+            flag_name: order-by
+            type: string
+            enum: ["time", "time-asc", "magnitude", "magnitude-asc"]
+            description: "Sort order for results"
+          - name: format
+            type: string
+            default: "geojson"
+            enum: ["geojson", "csv", "kml", "quakeml", "text", "xml"]
+            description: "Response format. Default geojson is parsed for --json/--csv output; other formats are returned as raw text."
+
+          # Include extras
+          - name: includeallorigins
+            flag_name: include-all-origins
+            type: bool
+            description: "Include every reported origin per event (default: only preferred origin)"
+          - name: includeallmagnitudes
+            flag_name: include-all-magnitudes
+            type: bool
+            description: "Include every reported magnitude per event"
+          - name: includearrivals
+            flag_name: include-arrivals
+            type: bool
+            description: "Include phase arrival data"
+          - name: includedeleted
+            flag_name: include-deleted
+            type: string
+            enum: ["true", "false", "only"]
+            description: "Include or restrict deleted events"
+          - name: includesuperseded
+            flag_name: include-superseded
+            type: bool
+            description: "Include superseded events"
+        response:
+          type: array
+          item: EarthquakeFeature
+        response_path: features
+
+      get:
+        method: GET
+        path: "/query"
+        description: "Fetch a single earthquake event by USGS event ID (e.g. us7000abcd)"
+        params:
+          - name: eventid
+            flag_name: event-id
+            type: string
+            required: true
+            positional: true
+            description: "USGS event ID (e.g. us7000abcd, nc73947885)"
+          - name: format
+            type: string
+            default: "geojson"
+            enum: ["geojson", "csv", "kml", "quakeml", "text", "xml"]
+            description: "Response format"
+          - name: includeallorigins
+            flag_name: include-all-origins
+            type: bool
+            description: "Include every reported origin"
+          - name: includeallmagnitudes
+            flag_name: include-all-magnitudes
+            type: bool
+            description: "Include every reported magnitude"
+          - name: includearrivals
+            flag_name: include-arrivals
+            type: bool
+            description: "Include phase arrival data"
+        response:
+          type: object
+          item: EarthquakeFeature
+
+      count:
+        method: GET
+        path: "/count"
+        description: "Count events matching the given filter, without returning event data (fast precheck before a full search)"
+        params:
+          - name: starttime
+            flag_name: start
+            type: string
+            description: "Start time (ISO 8601)"
+          - name: endtime
+            flag_name: end
+            type: string
+            description: "End time (ISO 8601)"
+          - name: updatedafter
+            flag_name: updated-after
+            type: string
+            description: "Only events updated after this ISO 8601 timestamp"
+          - name: minmagnitude
+            flag_name: min-magnitude
+            type: float
+            description: "Minimum magnitude"
+          - name: maxmagnitude
+            flag_name: max-magnitude
+            type: float
+            description: "Maximum magnitude"
+          - name: mindepth
+            flag_name: min-depth-km
+            type: float
+            description: "Minimum depth in km"
+          - name: maxdepth
+            flag_name: max-depth-km
+            type: float
+            description: "Maximum depth in km"
+          - name: minlatitude
+            flag_name: min-latitude
+            type: float
+            description: "Min latitude"
+          - name: maxlatitude
+            flag_name: max-latitude
+            type: float
+            description: "Max latitude"
+          - name: minlongitude
+            flag_name: min-longitude
+            type: float
+            description: "Min longitude"
+          - name: maxlongitude
+            flag_name: max-longitude
+            type: float
+            description: "Max longitude"
+          - name: latitude
+            type: float
+            description: "Center latitude for circle filter"
+          - name: longitude
+            type: float
+            description: "Center longitude for circle filter"
+          - name: maxradiuskm
+            flag_name: max-radius-km
+            type: float
+            description: "Circle filter radius (km)"
+          - name: alertlevel
+            flag_name: alert
+            type: string
+            enum: ["green", "yellow", "orange", "red"]
+            description: "PAGER alert level"
+          - name: eventtype
+            flag_name: event-type
+            type: string
+            description: "Comma-separated event types"
+          - name: catalog
+            type: string
+            description: "Source catalog"
+          - name: contributor
+            type: string
+            description: "Data contributor"
+          - name: minfelt
+            flag_name: min-felt
+            type: int
+            description: "Minimum DYFI felt reports"
+          - name: minsig
+            flag_name: min-significance
+            type: int
+            description: "Minimum significance score"
+          - name: minmmi
+            flag_name: min-mmi
+            type: float
+            description: "Minimum ShakeMap MMI"
+          - name: reviewstatus
+            flag_name: review-status
+            type: string
+            enum: ["all", "automatic", "reviewed"]
+            description: "Review status"
+          - name: format
+            type: string
+            default: "text"
+            enum: ["text", "geojson", "csv"]
+            description: "Response format for count"
+        response:
+          type: object
+          item: EventCount
+
+  catalogs:
+    description: "USGS earthquake source catalogs (ANSS contributors and processing centers)"
+    endpoints:
+      list:
+        method: GET
+        path: "/catalogs"
+        description: "List all source catalogs known to the FDSN Event service (XML response)"
+        response:
+          type: text
+          item: string
+
+  contributors:
+    description: "USGS earthquake data contributors"
+    endpoints:
+      list:
+        method: GET
+        path: "/contributors"
+        description: "List all data contributors known to the FDSN Event service (XML response)"
+        response:
+          type: text
+          item: string
+
+  metadata:
+    description: "FDSN Event service metadata: enumerated values for every parameter"
+    endpoints:
+      show:
+        method: GET
+        path: "/application.json"
+        description: "Show enum dictionaries for catalogs, contributors, event types, product types, and magnitude types"
+        response:
+          type: object
+          item: ApplicationMetadata
+
+  feeds:
+    description: "Pre-built GeoJSON earthquake summary feeds (updated every minute by USGS)"
+    base_url: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary"
+    endpoints:
+      get:
+        method: GET
+        path: "/{feed}.geojson"
+        description: "Fetch a named GeoJSON summary feed. Use one of: significant_{hour|day|week|month}, 4.5_{hour|day|week|month}, 2.5_{hour|day|week|month}, 1.0_{hour|day|week|month}, all_{hour|day|week|month}."
+        params:
+          - name: feed
+            type: string
+            required: true
+            positional: true
+            description: "Feed name in the form <level>_<period>, e.g. significant_week, 4.5_day, all_hour"
+        response:
+          type: object
+          item: FeedDocument
+
+extra_commands:
+  # P0/P1 thin wrappers and store commands
+  - name: recent
+    description: "List recent earthquakes (default: last 24h, M2.5+). Friendly wrapper over `events search` with --since/--near flags."
+  - name: near
+    args: "<latitude> <longitude>"
+    description: "Show recent earthquakes near a coordinate, ranked by distance + significance."
+  - name: sync
+    description: "Sync the rolling earthquake catalog (default: last 30 days, M2.5+) and the catalogs/contributors/metadata dictionaries into local SQLite."
+  - name: search
+    args: "[query]"
+    description: "Full-text search over locally synced earthquakes (FTS5 on place and event title)."
+  - name: sql
+    args: "<query>"
+    description: "Run a SELECT query against the local earthquake store."
+  - name: feed-list
+    description: "List all 20 USGS summary feed names with magnitude level, period, and update cadence."
+
+  # P2 transcendence commands (from novel-features subagent survivors)
+  - name: watch
+    description: "Long-running poll of a summary feed with deduplication against the local store; invokes an optional --notify hook per new event."
+  - name: aftershocks
+    args: "<event-id>"
+    description: "Show events within R km and T days after a mainshock, ordered by time. Local SQLite query with FDSN fallback when uncached."
+  - name: swarm-detect
+    description: "Detect spatial-temporal clusters in the local store (foreshock/aftershock sequences, volcanic swarms, induced seismicity)."
+  - name: compare
+    description: "Side-by-side comparison of two regions OR two time periods. --region-a/--region-b OR --period-a/--period-b."
+  - name: brief
+    args: "<event-id>"
+    description: "Agent-ready newsroom briefing for an event: magnitude, place, PAGER alert, DYFI, tsunami status, ShakeMap MMI, product inventory."
+  - name: top
+    description: "Rank recent events by composite editorial score (significance × alert × felt × tsunami). Default: --window 24h --limit 10."
+  - name: changes
+    description: "Stateful diff since the last sync: new events, revised magnitudes/depths/alerts, deleted events."
+  - name: decode-id
+    args: "<event-id>"
+    description: "Parse a USGS event ID into network code, sequence, and operator (from the cached contributors dictionary)."
+
+types:
+  EarthquakeFeature:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: properties
+        type: object
+      - name: geometry
+        type: object
+
+  FeedDocument:
+    fields:
+      - name: type
+        type: string
+      - name: metadata
+        type: object
+      - name: features
+        type: array
+      - name: bbox
+        type: array
+
+  EventCount:
+    fields:
+      - name: count
+        type: int
+      - name: maxAllowed
+        type: int
+
+  ApplicationMetadata:
+    fields:
+      - name: catalogs
+        type: array
+      - name: contributors
+        type: array
+      - name: producttypes
+        type: array
+      - name: eventtypes
+        type: array
+      - name: magnitudetypes
+        type: array

@@ -1,0 +1,416 @@
+name: airhint
+description: AirHint flight price prediction API — buy/wait recommendations for airline tickets
+version: 0.1.0
+base_url: https://www.airhint.com
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/airhint-pp-cli/config.toml
+resources:
+    predict:
+        description: Flight price prediction — buy or wait recommendations
+        endpoints:
+            get_prediction:
+                method: GET
+                path: /predict/{airline}/{origin}/{destination}/{date}
+                description: Get buy/wait recommendation for a flight at a given price
+                params:
+                    - name: airline
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: IATA airline code (e.g. FR for Ryanair, U2 for easyJet)
+                      fields: []
+                    - name: origin
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Origin airport IATA code (e.g. STN, LHR)
+                      fields: []
+                    - name: destination
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Destination airport IATA code (e.g. DUB, BCN)
+                      fields: []
+                    - name: date
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Departure date in YYYY-MM-DD format
+                      fields: []
+                    - name: price
+                      type: number
+                      required: true
+                      positional: false
+                      default: null
+                      description: Current flight price to evaluate
+                      fields: []
+                    - name: outboundPrice
+                      type: number
+                      required: false
+                      positional: false
+                      default: null
+                      description: Outbound leg price (same as price for one-way)
+                      fields: []
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: "EUR"
+                      description: Currency code (e.g. EUR, USD, GBP)
+                      fields: []
+                    - name: cabin_class
+                      type: string
+                      required: false
+                      positional: false
+                      default: "Y"
+                      description: Cabin class code (Y=Economy, C=Business)
+                      fields: []
+                    - name: passengers
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: Number of passengers
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: prediction
+                pagination: null
+    flights:
+        description: Flight search — find available flights and current prices
+        endpoints:
+            create_search:
+                method: GET
+                path: /search/{origin}/{destination}/{date}
+                description: Initiate a flight search, returns a search_id for polling
+                params:
+                    - name: origin
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Origin airport IATA code
+                      fields: []
+                    - name: destination
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Destination airport IATA code
+                      fields: []
+                    - name: date
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Departure date in YYYY-MM-DD format
+                      fields: []
+                    - name: airline
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Filter by airline name (e.g. ryanair, easyjet)
+                      fields: []
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: "EUR"
+                      description: Currency for prices
+                      fields: []
+                    - name: adults
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: Number of adult passengers
+                      fields: []
+                    - name: direct
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: true
+                      description: Show only direct flights
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: search_init
+                pagination: null
+            get_search:
+                method: GET
+                path: /search/{search_id}
+                description: Poll for search results using the search_id from create_search
+                params:
+                    - name: search_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: UUID returned by the initial search request
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: flight_result
+                pagination: null
+    airport-autocomplete:
+        description: Airport and city search autocomplete
+        endpoints:
+            list_airport_autocomplete:
+                method: GET
+                path: /airport-autocomplete
+                description: Search airports and cities by name or IATA code
+                params:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Airport name, city, or IATA code to search for
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: "en"
+                      description: Response language locale (e.g. en, de, fr)
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: airport
+                pagination: null
+    cheapest-deal-month:
+        description: Find the cheapest flight deal in a given month
+        endpoints:
+            get_cheapest_deal_month:
+                method: GET
+                path: /cheapest-deal-month/one-way/{origin}/{destination}/{month}
+                description: Get the cheapest one-way fare for a route in a given month
+                params:
+                    - name: origin
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Origin airport IATA code
+                      fields: []
+                    - name: destination
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Destination airport IATA code
+                      fields: []
+                    - name: month
+                      type: integer
+                      required: true
+                      positional: true
+                      default: null
+                      description: Month number (1-12)
+                      fields: []
+                    - name: maxPrice
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1000
+                      description: Maximum price filter
+                      fields: []
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: "EUR"
+                      description: Currency code
+                      fields: []
+                    - name: directOnly
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: true
+                      description: Show only direct flights
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: cheapest_deal
+                pagination: null
+    cheapest-airline-deal-month:
+        description: Find the cheapest deal for a specific airline in a month
+        endpoints:
+            get_cheapest_airline_deal_month:
+                method: GET
+                path: /cheapest-airline-deal-month/{airline}/{origin}/{destination}/{date}/{currency}
+                description: Get cheapest fare for a specific airline on a route near a date
+                params:
+                    - name: airline
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: IATA airline code (e.g. FR, U2, W6)
+                      fields: []
+                    - name: origin
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Origin airport IATA code
+                      fields: []
+                    - name: destination
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Destination airport IATA code
+                      fields: []
+                    - name: date
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Reference date in YYYY-MM-DD format
+                      fields: []
+                    - name: currency
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Currency code (e.g. EUR, USD)
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: cheapest_airline_deal
+                pagination: null
+    airport-names:
+        description: Bulk airport name lookup
+        endpoints:
+            create_airport_names:
+                method: POST
+                path: /airport-names
+                description: Get airport names for a list of IATA codes
+                params: []
+                body:
+                    - name: codes
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: List of IATA airport codes to look up
+                      fields: []
+                response:
+                    type: object
+                    item: airport_names
+                pagination: null
+types:
+    prediction:
+        fields:
+            - name: suggestion
+              type: string
+              description: Buy or Wait recommendation
+            - name: confidence
+              type: integer
+              description: Confidence score 1-10
+            - name: recommendation
+              type: array
+              description: Textual recommendation messages
+            - name: hints
+              type: array
+              description: Additional price hints
+            - name: price_range
+              type: array
+              description: "[min_price, max_price, typical_price]"
+            - name: max_saving
+              type: string
+              description: Maximum potential saving as a percentage
+    search_init:
+        fields:
+            - name: search_id
+              type: string
+              description: UUID to poll for flight results
+    flight_result:
+        fields:
+            - name: origin
+              type: string
+              description: Origin IATA code
+            - name: destination
+              type: string
+              description: Destination IATA code
+            - name: total_price
+              type: number
+              description: Total fare price
+            - name: outbound_price
+              type: number
+              description: Outbound leg price
+            - name: return_price
+              type: number
+              description: Return leg price
+            - name: currency
+              type: string
+              description: Price currency code
+            - name: cabin_class
+              type: string
+              description: Cabin class code
+            - name: deep_link
+              type: string
+              description: Booking deep link URL
+            - name: agent
+              type: string
+              description: Booking agent name
+            - name: outbound_flights
+              type: array
+              description: Outbound flight segments
+    airport:
+        fields:
+            - name: id
+              type: string
+              description: IATA code
+            - name: type
+              type: string
+              description: airport or city
+            - name: text
+              type: string
+              description: Display name with IATA code
+            - name: country
+              type: string
+              description: Country name
+            - name: city_name
+              type: string
+              description: City name
+    cheapest_deal:
+        fields:
+            - name: cheapest
+              type: string
+              description: Cheapest price as formatted string (e.g. "20 €")
+    cheapest_airline_deal:
+        fields:
+            - name: departure_date
+              type: string
+              description: Cheapest departure date in YYYY-MM-DD
+            - name: price
+              type: number
+              description: Price for that date
+            - name: currency
+              type: string
+              description: Currency code
+    airport_names:
+        fields:
+            - name: codes
+              type: object
+              description: Map of IATA code to airport name

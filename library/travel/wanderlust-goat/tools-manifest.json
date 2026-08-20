@@ -1,7 +1,7 @@
 {
   "api_name": "wanderlust-goat",
   "base_url": "https://nominatim.openstreetmap.org",
-  "description": "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together.",
+  "description": "Two-stage funnel place discovery: Google Places seeds candidates, then locale-aware deep research (Tabelog/Naver/Le Fooding/Reddit/Wikipedia/OSM) ranks the 3-5 amazing things you should walk to, with a closed-signal kill-gate so dead places don't ship.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -76,7 +76,7 @@
           "name": "limit",
           "type": "int",
           "location": "query",
-          "description": "Maximum candidate results (1–50). Default: 5."
+          "description": "Maximum candidate results (1-50). Default: 5."
         },
         {
           "name": "format",

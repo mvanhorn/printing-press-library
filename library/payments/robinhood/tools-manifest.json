@@ -1,0 +1,694 @@
+{
+  "api_name": "robinhood-crypto-trading",
+  "base_url": "https://trading.robinhood.com",
+  "description": "# Introduction\n\n\nWelcome to Robinhood Crypto Trading API documentation for traders and developers! The API lets you view crypto market data, access your account information, and place crypto orders programmatically.\n\nTo get started, head to your [crypto account settings](https://robinhood.com/account/crypto) on web classic to create credentials. There are two versions of the Crypto Trading API, giving you the option to place crypto orders with fee tiers (v2) or without fee tiers (v1). All read-only API actions are available on both versions. For more information about API version differences, fee tiers, and answers to common questions, visit our [Help Center](https://robinhood.com/us/en/support/articles/crypto-api). You can also view the [Fee Schedule](https://cdn.robinhood.com/assets/robinhood/legal/rhc-fee-schedule.pdf) for the latest rates.\n\nThe Robinhood Crypto Trading API is available to customers in the United States only. Use of the Robinhood Crypto Trading API is subject to the [Robinhood Crypto Customer Agreement](https://cdn.robinhood.com/assets/robinhood/legal/Robinhood%20Crypto%20Customer%20Agreement.pdf) as well as all other terms and disclosures made available on [Robinhood Crypto's about page](https://robinhood.com/us/en/about/crypto).\n\n\n# Authentication\n\nTo get started with the Robinhood Crypto Trading API, you need to create a key, signature, and headers. Authenticated requests must include all three `x-api-key`, `x-signature`, and `x-timestamp` HTTP headers.\n\n\n## Creating an API key\n\nHead to your [crypto account settings](https://robinhood.com/account/crypto) on web classic to create credentials. After creating credentials, you will receive the API key associated with the credential. You can modify, disable, and delete credentials you created at any time.\n\nYour API key will be used as the `x-api-key` header you will need to pass during authentication when calling our API endpoints. Additionally, you will need the public key generated in the [Creating a key pair](#section/Authentication/Creating-a-key-pair) section to create your API credentials.\n\n\n## Creating a key pair\n\n\n#### Below are example scripts on how to generate the public and private key pair. You'll need the public key for creating an API credential and the private key for authenticating requests. Remember to never share your private key with anyone. Robinhood will never ask you to share it with us.\n\nWe highly recommend saving your private and public keys in an encrypted format to ensure the highest level of security. Encrypting your keys will protect them from unauthorized access or theft. Avoid saving them in plain text or any easily accessible location. Instead, consider using strong encryption algorithms or tools specifically designed for key storage. Remember to choose a strong passphrase for encryption and store it separately from your keys. By taking these precautions, you can significantly reduce the risk of compromising your keys and safeguard your sensitive information.\n\n ### Python\n\nNote that you'll need to have `pynacl` installed to run the Python script. You can install them with the following pip command in your terminal.\n```console\npip install pynacl\n```\n\n```python\nimport nacl.signing\nimport base64\n\n# Generate an Ed25519 keypair\nprivate_key = nacl.signing.SigningKey.generate()\npublic_key = private_key.verify_key\n\n# Convert keys to base64 strings\nprivate_key_base64 = base64.b64encode(private_key.encode()).decode()\npublic_key_base64 = base64.b64encode(public_key.encode()).decode()\n\n# Print the keys in base64 format\nprint(\"Private Key (Base64):\")\nprint(private_key_base64)\n\nprint(\"Public Key (Base64):\")\nprint(public_key_base64)\n```\n\n\n## Headers and Signature\n\n\u003cSecurityDefinitions /\u003e\n\n\n# Making your first API call\n\nDeveloping your own application to place trades with your Robinhood account is quick and simple. Once you've finished [authentication](https://docs.robinhood.com/crypto/trading/#section/Authentication), start here with the code you'll need to access the API and make supported API calls. These are essentially the building blocks of code for each API call, which you can easily build on based on your preferred strategies.\n\n1. Create a script file\n\n```console\nmkdir robinhood-api-trading \u0026\u0026 cd robinhood-api-trading\ntouch robinhood_api_trading.py\ntouch robinhood_api_trading_v2.py\n```\n\n2. Install PyNaCl library\n\n```console\npip install pynacl\n```\n\n3. To use v1 endpoints, copy the script below into the newly created `robinhood_api_trading.py` file. Make sure to add your API key and secret key into the `API_KEY` and `BASE64_PRIVATE_KEY` variables.\n\n```python\nimport base64\nimport datetime\nimport json\nfrom typing import Any, Dict, Optional\nimport uuid\nimport requests\nfrom nacl.signing import SigningKey\n\nAPI_KEY = \"ADD YOUR API KEY HERE\"\nBASE64_PRIVATE_KEY = \"ADD YOUR PRIVATE KEY HERE\"\n\nclass CryptoAPITrading:\n    def __init__(self):\n        self.api_key = API_KEY\n        private_key_seed = base64.b64decode(BASE64_PRIVATE_KEY)\n        self.private_key = SigningKey(private_key_seed)\n        self.base_url = \"https://trading.robinhood.com\"\n\n    @staticmethod\n    def _get_current_timestamp() -\u003e int:\n        return int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())\n\n    @staticmethod\n    def get_query_params(key: str, *args: Optional[str]) -\u003e str:\n        if not args:\n            return \"\"\n\n        params = []\n        for arg in args:\n            params.append(f\"{key}={arg}\")\n\n        return \"?\" + \"\u0026\".join(params)\n\n    def make_api_request(self, method: str, path: str, body: str = \"\") -\u003e Any:\n        timestamp = self._get_current_timestamp()\n        headers = self.get_authorization_header(method, path, body, timestamp)\n        url = self.base_url + path\n\n        try:\n            response = {}\n            if method == \"GET\":\n                response = requests.get(url, headers=headers, timeout=10)\n            elif method == \"POST\":\n                response = requests.post(url, headers=headers, json=json.loads(body), timeout=10)\n            return response.json()\n        except requests.RequestException as e:\n            print(f\"Error making API request: {e}\")\n            return None\n\n    def get_authorization_header(\n            self, method: str, path: str, body: str, timestamp: int\n    ) -\u003e Dict[str, str]:\n        message_to_sign = f\"{self.api_key}{timestamp}{path}{method}{body}\"\n        signed = self.private_key.sign(message_to_sign.encode(\"utf-8\"))\n\n        return {\n            \"x-api-key\": self.api_key,\n            \"x-signature\": base64.b64encode(signed.signature).decode(\"utf-8\"),\n            \"x-timestamp\": str(timestamp),\n        }\n\n    def get_account(self) -\u003e Any:\n        path = \"/api/v1/crypto/trading/accounts/\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbols argument must be formatted in trading pairs, e.g \"BTC-USD\", \"ETH-USD\". If no symbols are provided,\n    # all supported symbols will be returned\n    def get_trading_pairs(self, *symbols: Optional[str]) -\u003e Any:\n        query_params = self.get_query_params(\"symbol\", *symbols)\n        path = f\"/api/v1/crypto/trading/trading_pairs/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    # The asset_codes argument must be formatted as the short form name for a crypto, e.g \"BTC\", \"ETH\". If no asset\n    # codes are provided, all crypto holdings will be returned\n    def get_holdings(self, *asset_codes: Optional[str]) -\u003e Any:\n        query_params = self.get_query_params(\"asset_code\", *asset_codes)\n        path = f\"/api/v1/crypto/trading/holdings/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbols argument must be formatted in trading pairs, e.g \"BTC-USD\", \"ETH-USD\". If no symbols are provided,\n    # the best bid and ask for all supported symbols will be returned\n    def get_best_bid_ask(self, *symbols: Optional[str]) -\u003e Any:\n        query_params = self.get_query_params(\"symbol\", *symbols)\n        path = f\"/api/v1/crypto/marketdata/best_bid_ask/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbol argument must be formatted in a trading pair, e.g \"BTC-USD\", \"ETH-USD\"\n    # The side argument must be \"bid\", \"ask\", or \"both\".\n    # Multiple quantities can be specified in the quantity argument, e.g. \"0.1,1,1.999\".\n    def get_estimated_price(self, symbol: str, side: str, quantity: str) -\u003e Any:\n        path = f\"/api/v1/crypto/marketdata/estimated_price/?symbol={symbol}\u0026side={side}\u0026quantity={quantity}\"\n        return self.make_api_request(\"GET\", path)\n\n    def place_order(\n            self,\n            client_order_id: str,\n            side: str,\n            order_type: str,\n            symbol: str,\n            order_config: Dict[str, str],\n    ) -\u003e Any:\n        body = {\n            \"client_order_id\": client_order_id,\n            \"side\": side,\n            \"type\": order_type,\n            \"symbol\": symbol,\n            f\"{order_type}_order_config\": order_config,\n        }\n        path = \"/api/v1/crypto/trading/orders/\"\n        return self.make_api_request(\"POST\", path, json.dumps(body))\n\n    def cancel_order(self, order_id: str) -\u003e Any:\n        path = f\"/api/v1/crypto/trading/orders/{order_id}/cancel/\"\n        return self.make_api_request(\"POST\", path)\n\n    def get_order(self, order_id: str) -\u003e Any:\n        path = f\"/api/v1/crypto/trading/orders/{order_id}/\"\n        return self.make_api_request(\"GET\", path)\n\n    def get_orders(self) -\u003e Any:\n        path = \"/api/v1/crypto/trading/orders/\"\n        return self.make_api_request(\"GET\", path)\n\n\ndef main():\n    api_trading_client = CryptoAPITrading()\n    print(api_trading_client.get_account())\n\n    \"\"\"\n    BUILD YOUR TRADING STRATEGY HERE\n\n    order = api_trading_client.place_order(\n          str(uuid.uuid4()),\n          \"buy\",\n          \"market\",\n          \"BTC-USD\",\n          {\"asset_quantity\": \"0.0001\"}\n    )\n    \"\"\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n4. To use v2 endpoints, copy the script below into the newly created `robinhood_api_trading_v2.py` file. Make sure to add your API key and secret key into the `API_KEY` and `BASE64_PRIVATE_KEY` variables.\n\n```python\nimport base64\nimport datetime\nimport json\nfrom typing import Any, Dict, Optional\nimport uuid\nimport requests\nfrom nacl.signing import SigningKey\n\nAPI_KEY = \"ADD YOUR API KEY HERE\"\nBASE64_PRIVATE_KEY = \"ADD YOUR PRIVATE KEY HERE\"\n\n\nclass CryptoAPITradingV2:\n    def __init__(self):\n        self.api_key = API_KEY\n        private_key_seed = base64.b64decode(BASE64_PRIVATE_KEY)\n        self.private_key = SigningKey(private_key_seed)\n        self.base_url = \"https://trading.robinhood.com\"\n\n    @staticmethod\n    def _get_current_timestamp() -\u003e int:\n        return int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())\n\n    @staticmethod\n    def get_query_params(params_dict: Dict[str, Any]) -\u003e str:\n        \"\"\"\n        Build query parameter string from a dictionary.\n        - Single values: {\"key1\": \"value1\", \"key2\": \"value2\"}\n        - Multiple values for same key: {\"symbol\": [\"BTC-USD\", \"ETH-USD\"]}\n        \"\"\"\n        if not params_dict:\n            return \"\"\n        \n        params = []\n        for key, value in params_dict.items():\n            if value is None:\n                continue\n            if isinstance(value, list):\n                # Handle multiple values for the same key\n                for v in value:\n                    params.append(f\"{key}={v}\")\n            else:\n                params.append(f\"{key}={value}\")\n        \n        return \"?\" + \"\u0026\".join(params) if params else \"\"\n\n    def make_api_request(self, method: str, path: str, body: str = \"\") -\u003e Any:\n        timestamp = self._get_current_timestamp()\n        headers = self.get_authorization_header(method, path, body, timestamp)\n        url = self.base_url + path\n\n        try:\n            response = {}\n            if method == \"GET\":\n                response = requests.get(url, headers=headers, timeout=10)\n            elif method == \"POST\":\n                response = requests.post(url, headers=headers, json=json.loads(body) if body else None, timeout=10)\n\n            # Check for non-success status codes\n            if response.status_code \u003e= 400:\n                print(f\"HTTP Error {response.status_code}: {response.reason}\")\n                try:\n                    return response.json()\n                except json.JSONDecodeError:\n                    return {\"error\": response.text or response.reason, \"status_code\": response.status_code}\n\n            return response.json()\n        except requests.RequestException as e:\n            print(f\"Error making API request: {e}\")\n            return None\n\n    def get_authorization_header(\n            self, method: str, path: str, body: str, timestamp: int\n    ) -\u003e Dict[str, str]:\n        message_to_sign = f\"{self.api_key}{timestamp}{path}{method}{body}\"\n        signed = self.private_key.sign(message_to_sign.encode(\"utf-8\"))\n\n        return {\n            \"x-api-key\": self.api_key,\n            \"x-signature\": base64.b64encode(signed.signature).decode(\"utf-8\"),\n            \"x-timestamp\": str(timestamp),\n        }\n\n    def get_accounts(self) -\u003e Any:\n        path = \"/api/v2/crypto/trading/accounts/\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbols argument must be formatted in trading pairs, e.g \"BTC-USD\", \"ETH-USD\". If no symbols are provided,\n    # all supported symbols will be returned\n    def get_trading_pairs(self, *symbols: Optional[str]) -\u003e list:\n        params = {\"symbol\": list(symbols)} if symbols else {}\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/trading_pairs/{query_params}\"\n        \n        all_results = []\n        response = self.make_api_request(\"GET\", path)\n        \n        while response:\n            results = response.get(\"results\", [])\n            all_results.extend(results)\n            \n            next_url = response.get(\"next\")\n            if not next_url:\n                break\n            \n            next_path = next_url.replace(self.base_url, \"\")\n            response = self.make_api_request(\"GET\", next_path)\n        \n        return all_results\n\n    # The asset_codes argument must be formatted as the short form name for a crypto, e.g \"BTC\", \"ETH\". If no asset\n    # codes are provided, all crypto holdings will be returned\n    def get_holdings(self, account_number: str, *asset_codes: Optional[str]) -\u003e Any:\n        params = {\"account_number\": account_number}\n        if asset_codes:\n            params[\"asset_code\"] = list(asset_codes)\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/holdings/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbols argument must be formatted in trading pairs, e.g \"BTC-USD\", \"ETH-USD\".\n    def get_best_bid_ask(self, *symbols: str) -\u003e Any:\n        params = {\"symbol\": list(symbols)} if symbols else {}\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/marketdata/best_bid_ask/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    # The symbol argument must be formatted in a trading pair, e.g \"BTC-USD\", \"ETH-USD\"\n    # The side argument must be \"bid\", \"ask\", or \"both\".\n    # Multiple quantities can be specified in the quantity argument, e.g. \"0.1,1,1.999\".\n    def get_estimated_price(self, symbol: str, side: str, quantity: str) -\u003e Any:\n        params = {\"symbol\": symbol, \"side\": side, \"quantity\": quantity}\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/estimated_price/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    def place_order(\n            self,\n            account_number: str,\n            client_order_id: str,\n            side: str,\n            order_type: str,\n            symbol: str,\n            order_config: Dict[str, str],\n    ) -\u003e Any:\n        body = {\n            \"client_order_id\": client_order_id,\n            \"side\": side,\n            \"type\": order_type,\n            \"symbol\": symbol,\n            f\"{order_type}_order_config\": order_config,\n        }\n        params = {\"account_number\": account_number}\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/orders/{query_params}\"\n        return self.make_api_request(\"POST\", path, json.dumps(body))\n\n    def cancel_order(self, order_id: str) -\u003e Any:\n        path = f\"/api/v2/crypto/trading/orders/{order_id}/cancel/\"\n        return self.make_api_request(\"POST\", path)\n\n    def get_order(self, account_number: str, order_id: str) -\u003e Any:\n        params = {\"account_number\": account_number}\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/orders/{order_id}/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n    def get_orders(self, account_number: str) -\u003e Any:\n        params = {\n            \"account_number\": account_number,\n            \"created_at_start\": \"2023-01-01T20:57:50Z\"\n        }\n        query_params = self.get_query_params(params)\n        path = f\"/api/v2/crypto/trading/orders/{query_params}\"\n        return self.make_api_request(\"GET\", path)\n\n\ndef main():\n    api_trading_client = CryptoAPITradingV2()\n    print(api_trading_client.get_trading_pairs())\n    # print(api_trading_client.get_trading_pairs(\"BTC-USD\", \"ETH-USD\"))\n    # print(api_trading_client.get_best_bid_ask(\"BTC-USD\")) #\"BTC-USD\", \"ETH-USD\"\n    # print(api_trading_client.get_estimated_price(symbol=\"BTC-USD\", side=\"both\", quantity=\"0.01\"))\n\n    # accounts = api_trading_client.get_accounts()\n    # print(accounts)\n    # account_number = accounts[\"results\"][0][\"account_number\"]\n    # print(f\"account_number: {account_number}\")\n    # print(api_trading_client.get_orders(account_number))\n    # print(api_trading_client.get_holdings(account_number))\n    # print(api_trading_client.get_holdings(account_number, \"BTC\", \"ETH\"))\n\n    \"\"\"\n    BUILD YOUR TRADING STRATEGY HERE\n\n    order = api_trading_client.place_order(\n          account_number,\n          str(uuid.uuid4()),\n          \"buy\",\n          \"market\",\n          \"BTC-USD\",\n          {\"asset_quantity\": \"0.000001\"}\n    )\n    \"\"\"\n\n\nif __name__ == \"__main__\":\n    main()\n```\n\n5. Run your script from the command line\n\n```console\n# to run the Python script using the v1 API endpoints:\npython robinhood_api_trading.py\n# to run the Python script using the v2 API endpoints:\npython robinhood_api_trading_v2.py\n```\n\n\n# Pagination\n\n\n Endpoints that return a list of results allow you to paginate to have more control over how many and which results to display.\n\n\n### Pagination Parameters\n\n| Parameter | Description |\n|-|-|\n| cursor | The cursor is a unique identifier for each page in a list of results. The cursor is used to paginate through the pages of results. |\n| limit | The limit is the number of items to return in a single page. Some of our endpoints support this query parameter. You can view support by checking the query parameters in the documentation of each endpoint.  |\n\n\n### Pagination Response\n\n\n| Field | Description |\n|-|-|\n| next | The API request endpoint that includes the next cursor query parameter to use for pagination. |\n| previous | The API request endpoint that includes the previous cursor query parameter to use for pagination. |\n| results | The list of response items for the current cursor.\n\n\n# Rate Limiting\n\n\n### Rate Limits\n* Requests per minute per user account: 100\n* Requests per minute per user account in bursts: 300\n\n\nRate limiting is applied using a token bucket implementation. The burst size or `capacity` is the number of tokens you can use to call an endpoint. This capacity is initialized at the maximum capacity and will be refilled using a `refill amount` at a timed interval called `refill interval` until the max capacity is once again reached.\n\n\n### Rate Limiting Terms\n\n\n| Term | Description |\n|-|-|\n| Max capacity | The maximum amount of tokens allowed. Will no longer continue refilling if this amount is reached. |\n| Remaining amount | The number of tokens remaining that can be consumed to call an endpoint. |\n| Refill amount | The number of tokens that are refilled at each refill interval. |\n| Refill interval | The timed interval at which the tokens are refilled.\n\n The actual values of the configuration will fluctuate depending on the availability of our service and our current expected volume at the time of service. Rate limits are applied per endpoint and may differ among each endpoint depending on their expected use case.\n\n\n #### Example rate limiting configuration:\n\n\n| Term | Value |\n|-|-|\n| Max capacity | 5 |\n| Remaining amount | 2 |\n| Refill amount | 1 |\n| Refill interval | 1 second |\n\n\n| Action | Time (in seconds) | Remaining amount | Description |\n|-|-|-|-|\n| Initialize | 0 | 5 | Initial state of the token bucket. |\n| Endpoint call 1 | 0.5 | 4 | One token consumed for calling endpoint 1. |\n| Endpoint call 2 | 0.7 | 3 | One token consumed for calling endpoint 2. |\n| Refill | 1 | 4 | One token refilled at refill interval. |\n| Refill | 2 | 5 | One token refilled at refill interval. |\n| No refill | 3 | 5 | No refill since max capacity has been reached and no endpoints were called. |\n| Endpoint call 3 | 3.5 | 4 | One token consumed for calling endpoint 3.\n\n\n# Error Responses\n\n\n### Error response format\n\n#### Type\n The `type` field in the error response will be mapped to the following:\n | Error type | Status codes |\n|-|-|\n| validation_error | 400 |\n| client_error | 4XX, excluding 400 |\n| server_error | 5XX |\n\n\n#### Errors\nThe `errors` field will contain a list of error details, each item will contain a nested `attr` and `detail` field.\n| Field | Description |\n|-|-|\n| attr | Error types of `validation_error` will specify the field name or `non_field_errors` if the error cannot be attributed to a field. Will be `null` for error types of either `client_error` and `server_error`. |\n| detail | Will contain a human readable string describing the error. |\n\n\n\n### Example Error Response\nHere's a sample error response where the `client_order_id` field in the payload was a value that was not expected when calling the ***Add Crypto Order*** endpoint. The `detail` field for each error in the `errors` list will help understand why the `validation_error` was thrown. The `attr` field will indicate which field name in the request body or query parameter the error was thrown for if applicable.\n```javascript\n{\n  \"type\": \"validation_error\"\n  \"errors\": [\n    {\n      \"detail\": \"Must be a valid UUID.\",\n      \"attr\": \"client_order_id\"\n    }\n ]\n}\n```\n\n\n### Common Error Status Codes\n | Status Code | Error |\n|-|-|\n| 400 | Bad request |\n| 401 | Unauthorized |\n| 403 | Forbidden |\n| 404 | Not found |\n| 405 | Method not allowed |\n| 406 | Not acceptable |\n| 415 | Unsupported media type |\n| 429 | Too many requests |\n| 500 | Internal server error |\n| 503 | Service unavailable |",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "ROBINHOOD_CRYPTO_TRADING_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ROBINHOOD_CRYPTO_TRADING_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://robinhood.com/account/crypto"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "crypto_marketdata-best-bid-ask",
+      "description": "Fetch a single bid and ask price per symbol, representing the best available price across our partner market makers. This price does not take into account the order size, and may not be the final execution price. The bid and ask prices include a spread. The buy spread is the percent difference between the ask and the mid price. The sell spread is the percent difference between the bid and the mid price. Note that in the v2 endpoint, **Place crypto orders with fee tiers**, partner exchanges provide prices instead of market makers, with orders routed accordingly. For more information on routing, visit our [ Help Center ](https://robinhood.com/us/en/support/articles/crypto-order-routing/). Optional: symbol. Returns the CryptoMarketdataBestBidAskResponse.",
+      "method": "GET",
+      "path": "/api/v1/crypto/marketdata/best_bid_ask/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "List of trading pair symbol(s) to retrieve data for. Multiple symbols can be provided by using the 'symbol' parameter with different values. Ensure that the symbol(s) are provided in all uppercase. For example, **?symbol=BTC-USD\u0026symbol=ETH-USD**"
+        }
+      ]
+    },
+    {
+      "name": "crypto_marketdata-best-bid-ask-marketdata",
+      "description": "Fetch a single bid and ask price per symbol, representing the best available price across our partner exchanges. This price does not take into account the order size or fee, and may not be the final execution price. Required: symbol. Returns the V2BestBidAskResponse.",
+      "method": "GET",
+      "path": "/api/v2/crypto/marketdata/best_bid_ask/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "List of trading pair symbol(s) to retrieve data for. Multiple symbols can be provided by using the 'symbol' parameter with different values. Ensure that the symbol(s) are provided in all uppercase. Only USD symbols that have `is_api_tradable=true` as defined in our Get Crypto Trading Pairs endpoint are accepted. For example, `?symbol=BTC-USD\u0026symbol=ETH-USD`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_marketdata-estimated-price",
+      "description": "This endpoint returns the estimated total cost or credit for a particular symbol, book side, and asset quantity. You can include a list of quantities in a single request to retrieve the price for various hypothetical order sizes. The estimated price represents the expected execution price if you were to subsequently place an order. To estimate the cost for a Buy order, request an Ask quote. If you are preparing to place a Sell order, request a Bid quote. The execution price may vary due to market volatility and once executed the transaction may not be undone. The bid and ask prices are the best prices our market makers provide for an order, inclusive of a spread. The buy spread is the percent difference between the ask and the mid price. The sell spread is the percent difference between the bid and the mid price. Required: symbol, side, quantity.",
+      "method": "GET",
+      "path": "/api/v1/crypto/marketdata/estimated_price/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "A string matching a valid currency pair, for example BTC-USD. Ensure that the symbol is provided in all uppercase. Only USD symbols are accepted.",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "Order side. e.g. bid, ask, or both.",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "query",
+          "description": "Quantity must be between `min_order_size` and `max_order_size` as defined in our `Get Crypto Trading Pairs` endpoint. A max of 10 quantities can be specified for each request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_marketdata-estimated-price-trading",
+      "description": "This endpoint returns the estimated total cost or credit for a particular symbol, book side, asset quantity, and fee. You can include a list of quantities in a single request to retrieve the price for various hypothetical order sizes. The estimated price represents the expected execution price if you were to subsequently place an order. The execution price may vary due to market volatility and once executed the transaction may not be undone. The bid and ask prices are the best prices our partner exchanges provide for an order, excluding the fee. Required: symbol, side, quantity.",
+      "method": "GET",
+      "path": "/api/v2/crypto/trading/estimated_price/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "A string matching a valid currency pair, for example `BTC-USD`. Ensure that the symbol is provided in all uppercase. Only USD symbols that have `is_api_tradable=true` as defined in our Get Crypto Trading Pairs endpoint are accepted.",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "Order side: `bid`, `ask`, or `both`.",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "query",
+          "description": "Quantity must be smaller than `max_order_size` as defined in our Get Crypto Trading Pairs endpoint. Multiple quantities can be comma-separated. A max of 10 quantities can be specified for each request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_post-trading-cancel-order",
+      "description": "Cancels an open crypto trading order. Required: id.",
+      "method": "POST",
+      "path": "/api/v1/crypto/trading/orders/{id}/cancel/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID, unique per order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_post-trading-order",
+      "description": "Places a new crypto trading order with an order type. **Note**: Depending on the type used in the request body, you must include the respective order configuration in the request body. For order configurations that support both `asset_quantity` or `quote_amount`, only one can be present in the request body. Required: client_order_id, side, symbol, type. Optional: limit_order_config, market_order_config, stop_limit_order_config (plus 1 more). Returns the new OrderResponse.",
+      "method": "POST",
+      "path": "/api/v1/crypto/trading/orders/",
+      "params": [
+        {
+          "name": "client_order_id",
+          "type": "string",
+          "location": "body",
+          "description": "User input order id for idempotency validation",
+          "required": true
+        },
+        {
+          "name": "limit-order-config-asset-quantity",
+          "wire_name": "limit_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "limit-order-config-limit-price",
+          "wire_name": "limit_order_config.limit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The limit price of the order bought or sold"
+        },
+        {
+          "name": "limit-order-config-quote-amount",
+          "wire_name": "limit_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "market-order-config-asset-quantity",
+          "wire_name": "market_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Buy or sell",
+          "required": true
+        },
+        {
+          "name": "stop-limit-order-config-asset-quantity",
+          "wire_name": "stop_limit_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-limit-price",
+          "wire_name": "stop_limit_order_config.limit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The limit price of the order bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-quote-amount",
+          "wire_name": "stop_limit_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-stop-price",
+          "wire_name": "stop_limit_order_config.stop_price",
+          "type": "float",
+          "location": "body",
+          "description": "The stop price of the order bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-time-in-force",
+          "wire_name": "stop_limit_order_config.time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "The time in force of the order. - **Good til canceled (gtc):** The order remains open until it's filled or the user cancels it. - **Good for day (gfd):** The order remains open until the end of the day or when the user cancels it. - **Good for week (gfw):** The order remains open until the end of the week or when the user cancels it. - **Good for month (gfm):** The order remains open until the end of the month or when the user cancels it."
+        },
+        {
+          "name": "stop-loss-order-config-asset-quantity",
+          "wire_name": "stop_loss_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-quote-amount",
+          "wire_name": "stop_loss_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-stop-price",
+          "wire_name": "stop_loss_order_config.stop_price",
+          "type": "float",
+          "location": "body",
+          "description": "The stop price of the order bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-time-in-force",
+          "wire_name": "stop_loss_order_config.time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "The time in force of the order. - **Good til canceled (gtc):** The order remains open until it's filled or the user cancels it. - **Good for day (gfd):** The order remains open until the end of the day or when the user cancels it. - **Good for week (gfw):** The order remains open until the end of the week or when the user cancels it. - **Good for month (gfm):** The order remains open until the end of the month or when the user cancels it."
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Example: **BTC-USD** Currency pair symbol. Ensure that the symbol is provided in all uppercase.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-account-details",
+      "description": "Fetches the Robinhood Crypto account details for the current user. Returns the Account.",
+      "method": "GET",
+      "path": "/api/v1/crypto/trading/accounts/",
+      "params": []
+    },
+    {
+      "name": "crypto_trading-accounts",
+      "description": "Retrieve a paginated list of crypto trading accounts for the authenticated user. Returns account details including buying power, status, and fee tier information. Optional: cursor, limit.",
+      "method": "GET",
+      "path": "/api/v2/crypto/trading/accounts/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Optional cursor for pagination."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Optional page size limit. Specifies the number of accounts to return per page. Maximum value is determined by system configuration."
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-cancel-order",
+      "description": "Cancels an open crypto trading order. Required: id. Returns the new V2CryptoOrder.",
+      "method": "POST",
+      "path": "/api/v2/crypto/trading/orders/{id}/cancel/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the order to cancel.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-holdings",
+      "description": "Fetch a list of holdings for the current user. Optional: asset_code, limit, cursor. Returns the CryptoTradingHoldingsResponse.",
+      "method": "GET",
+      "path": "/api/v1/crypto/trading/holdings/",
+      "params": [
+        {
+          "name": "asset_code",
+          "type": "string",
+          "location": "query",
+          "description": "The asset code(s) to retrieve data for. Multiple asset codes can be provided by using the 'asset_code' parameter with different values. Ensure that the asset codes are provided in all uppercase. For example, **?asset_code=BTC\u0026asset_code=ETH**"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit the number of results per page size"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-holdings-trading",
+      "description": "Retrieve a paginated list of crypto holdings for a specific account. Returns the total quantity and available quantity for each asset held in the account. The `account_number` query parameter is required. Required: account_number. Optional: asset_code, cursor, limit.",
+      "method": "GET",
+      "path": "/api/v2/crypto/trading/holdings/",
+      "params": [
+        {
+          "name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "**Required.** The account number to retrieve holdings for. This parameter must be provided.",
+          "required": true
+        },
+        {
+          "name": "asset_code",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Filter holdings by specific asset code (e.g., 'BTC')."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Optional cursor for pagination."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Optional page size limit. Specifies the number of results to return per page. Maximum value is determined by system configuration."
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-orders",
+      "description": "Fetch a list of orders for the current user. Optional: created_at_start, created_at_end, symbol (plus 8 more). Returns the CryptoTradingOrdersResponse.",
+      "method": "GET",
+      "path": "/api/v1/crypto/trading/orders/",
+      "params": [
+        {
+          "name": "created_at_start",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by created at start time range (greater than or equal to) in ISO 8601 format"
+        },
+        {
+          "name": "created_at_end",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by created at end time range (less than or equal to) in ISO 8601 format"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Currency pair symbol. Ensure that the symbol is provided in all uppercase."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Order ID, unique per order"
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "Buy or sell"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State of the order"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of order"
+        },
+        {
+          "name": "updated_at_start",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by updated at start time range (greater than or equal to) in ISO 8601 format"
+        },
+        {
+          "name": "updated_at_end",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by updated at end time range (less than or equal to) in ISO 8601 format"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit the number of results per page size"
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-orders-get",
+      "description": "Fetch a list of orders for the current user in a specific account. Required: account_number. Optional: cursor, created_at_start, created_at_end (plus 6 more). Returns the V2OrdersResponse.",
+      "method": "GET",
+      "path": "/api/v2/crypto/trading/orders/",
+      "params": [
+        {
+          "name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Required. The number of the crypto account to retrieve orders from.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Optional cursor for pagination."
+        },
+        {
+          "name": "created_at_start",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders created on or after this timestamp (ISO 8601 format)."
+        },
+        {
+          "name": "created_at_end",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders created on or before this timestamp (ISO 8601 format)."
+        },
+        {
+          "name": "updated_at_start",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders updated on or after this timestamp (ISO 8601 format)."
+        },
+        {
+          "name": "updated_at_end",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders updated on or before this timestamp (ISO 8601 format)."
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders by trading pair symbol."
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders by side."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders by type."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Filter orders by state."
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-orders-post",
+      "description": "Place a new crypto trading order with an order type. This endpoint only supports placing orders on USD symbols that have `is_api_tradable=true` as defined in our Get Crypto Trading Pairs endpoint. **Note:** Depending on the type used in the request body, you must include the respective order configuration in the request body. For order configurations that support both `asset_quantity` or `quote_amount`, only one can be present in the request body. Required: account_number, client_order_id, side, symbol, type. Optional: limit_order_config, market_order_config, stop_limit_order_config (plus 1 more). Returns the new V2CryptoOrder.",
+      "method": "POST",
+      "path": "/api/v2/crypto/trading/orders/",
+      "params": [
+        {
+          "name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Required. The number of the crypto account to place orders from.",
+          "required": true
+        },
+        {
+          "name": "client_order_id",
+          "type": "string",
+          "location": "body",
+          "description": "User input order id for idempotency validation",
+          "required": true
+        },
+        {
+          "name": "limit-order-config-asset-quantity",
+          "wire_name": "limit_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "limit-order-config-limit-price",
+          "wire_name": "limit_order_config.limit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The limit price of the order bought or sold"
+        },
+        {
+          "name": "limit-order-config-quote-amount",
+          "wire_name": "limit_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "limit-order-config-time-in-force",
+          "wire_name": "limit_order_config.time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "The time in force of the order. - **Good til canceled (gtc):** The order remains open until it's filled or the user cancels it. - **Good for day (gfd):** The order remains open until the end of the day or when the user cancels it. - **Good for week (gfw):** The order remains open until the end of the week or when the user cancels it. - **Good for month (gfm):** The order remains open until the end of the month or when the user cancels it."
+        },
+        {
+          "name": "market-order-config-asset-quantity",
+          "wire_name": "market_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Buy or sell",
+          "required": true
+        },
+        {
+          "name": "stop-limit-order-config-asset-quantity",
+          "wire_name": "stop_limit_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-limit-price",
+          "wire_name": "stop_limit_order_config.limit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The limit price of the order bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-quote-amount",
+          "wire_name": "stop_limit_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-stop-price",
+          "wire_name": "stop_limit_order_config.stop_price",
+          "type": "float",
+          "location": "body",
+          "description": "The stop price of the order bought or sold"
+        },
+        {
+          "name": "stop-limit-order-config-time-in-force",
+          "wire_name": "stop_limit_order_config.time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "The time in force of the order. - **Good til canceled (gtc):** The order remains open until it's filled or the user cancels it. - **Good for day (gfd):** The order remains open until the end of the day or when the user cancels it. - **Good for week (gfw):** The order remains open until the end of the week or when the user cancels it. - **Good for month (gfm):** The order remains open until the end of the month or when the user cancels it."
+        },
+        {
+          "name": "stop-loss-order-config-asset-quantity",
+          "wire_name": "stop_loss_order_config.asset_quantity",
+          "type": "float",
+          "location": "body",
+          "description": "The quantity of base currency bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-quote-amount",
+          "wire_name": "stop_loss_order_config.quote_amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of quote currency bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-stop-price",
+          "wire_name": "stop_loss_order_config.stop_price",
+          "type": "float",
+          "location": "body",
+          "description": "The stop price of the order bought or sold"
+        },
+        {
+          "name": "stop-loss-order-config-time-in-force",
+          "wire_name": "stop_loss_order_config.time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "The time in force of the order. - **Good til canceled (gtc):** The order remains open until it's filled or the user cancels it. - **Good for day (gfd):** The order remains open until the end of the day or when the user cancels it. - **Good for week (gfw):** The order remains open until the end of the week or when the user cancels it. - **Good for month (gfm):** The order remains open until the end of the month or when the user cancels it."
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Example: **BTC-USD** Currency pair symbol. Ensure that the symbol is provided in all uppercase.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-trading-pairs",
+      "description": "Fetch a list of trading pairs. Optional: symbol, limit, cursor. Returns the CryptoTradingTradingPairsResponse.",
+      "method": "GET",
+      "path": "/api/v1/crypto/trading/trading_pairs/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "List of trading pair symbol(s) to retrieve data for. Multiple symbols can be provided by using the 'symbol' parameter with different values. Ensure that the symbol(s) are provided in all uppercase. For example, **?symbol=BTC-USD\u0026symbol=ETH-USD**"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit the number of results per page size"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "crypto_trading-trading-pairs-trading",
+      "description": "Fetch a paginated list of available trading pairs for crypto trading. Returns trading pair details including price increments, order size limits, and tradability status. Trading pairs can be filtered by symbol. Optional: symbol, cursor, limit.",
+      "method": "GET",
+      "path": "/api/v2/crypto/trading/trading_pairs/",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Filter by trading pair symbol(s). Example: `symbol=BTC-USD`. Multiple symbols can be provided by using the 'symbol' parameter with different values. Ensure that the symbol(s) are provided in all uppercase. For example, `?symbol=BTC-USD\u0026symbol=ETH-USD`. If the 'symbol' parameter is not provided, this endpoint will return all tradable currency pairs."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Optional cursor for pagination."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Optional page size limit. Specifies the number of results to return per page. Maximum value is determined by system configuration."
+        }
+      ]
+    }
+  ]
+}

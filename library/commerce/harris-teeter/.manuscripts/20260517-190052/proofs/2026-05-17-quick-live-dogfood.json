@@ -1,0 +1,95 @@
+{
+  "dir": "library/commerce/harris-teeter",
+  "binary": "harris-teeter",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 6,
+  "passed": 6,
+  "failed": 0,
+  "skipped": 2,
+  "commands": [
+    "account enrollments",
+    "account preferences"
+  ],
+  "tests": [
+    {
+      "command": "account enrollments",
+      "kind": "help",
+      "args": [
+        "account",
+        "enrollments",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List membership enrollments and benefits for the current account.\n\nUsage:\n  harris-teeter-pp-cli account enrollments [flags]\n\nExamples:\n  harris-teeter-pp-cli account enrollments\n\nFlags:\n      --enrollments-only     Return only active enrollments. (default true)\n  -h, --help                 help for enrollments\n      --projections string   Enrollment response projection. (default \"benefits\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'harris-teeter-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account enrollments",
+      "kind": "happy_path",
+      "args": [
+        "account",
+        "enrollments"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"membershipEnrollments\": {\n        \"enrollmentStatus\": \"NONE\",\n        \"streamingTWDCRedemptionStatus\": {\n          \"status\": \"INELIGIBLE\"\n        },\n        \"enrollments\": []\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "account enrollments",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "enrollments",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"membershipEnrollments\": {\n        \"enrollmentStatus\": \"NONE\",\n        \"streamingTWDCRedemptionStatus\": {\n          \"status\": \"INELIGIBLE\"\n        },\n        \"enrollments\": []\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "account enrollments",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "account preferences",
+      "kind": "help",
+      "args": [
+        "account",
+        "preferences",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List customer preferences for the logged-in account.\n\nUsage:\n  harris-teeter-pp-cli account preferences [flags]\n\nExamples:\n  harris-teeter-pp-cli account preferences\n\nFlags:\n      --chain string         Store chain identifier. (default \"harristeeter\")\n  -h, --help                 help for preferences\n      --name string          Preference name to filter.\n      --projections string   Preference response projection. (default \"preferences.full\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'harris-teeter-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account preferences",
+      "kind": "happy_path",
+      "args": [
+        "account",
+        "preferences"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"enterpriseCustomer\": {\n        \"preferences\": [\n          {\n            \"value\": true,\n            \"userSet\": false,\n            \"id\": \"f298b9f6-8b71-4e5d-a2ef-00374aa6f08b\",\n            \"name\": \"Sale of Data Consent\",\n            \"description\": \"Status for whether a customer has opted in our out of sale of data per state privacy laws.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"consent\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"d9110808-8bc2-4982-ba10-d5a63c5d7734\",\n            \"name\": \"Geolocation Consent - On My Way\",\n            \"description\": \"Status for whether a customer has opted in or out of use of geolocation for On My Way as sensitive info per state privacy laws.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"consent\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": true,\n            \"id\": \"0ff16fc5-8ee3-36e4-b92f-d606f496d2c4\",\n            \"name\": \"Advertising Preference\",\n            \"description\": \"Based on my purchase history and browsing behavior on The Kroger Co. websites and mobile apps, you may share my information to help make advertising and offers I already see on other websites, mobile apps and digital channels more relevant to me. Please note that The Kroger Co. will not share my name, contact information or purchase history with these websites, mobile apps and digital channels.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"advertising\"\n            ],\n            \"modifiedBy\": \"customerplatformprod-b87fc57d4affd43aae778a15354456473283406604067020362\",\n            \"modified\": \"2023-02-05T12:34:50.000Z\",\n            \"versionKey\": \"95758c5c-512f-4a2e-a6bf-f85213d0e41a\"\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"9e1d3d69-0411-4c0b-b32f-8bf19a69df07\",\n            \"name\": \"Dietary Preference - peanut\",\n            \"description\": \"I'd like to avoid products containing peanut\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"21b1eb63-4f1f-41b5-8cc2-b3cd81424493\",\n            \"name\": \"Dietary Preference - gluten\",\n            \"description\": \"I'd like to avoid products containing gluten\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"cf1b4755-c993-4529-817a-1520e6b686f6\",\n            \"name\": \"Lifestyle Preference - vegetarian\",\n            \"description\": \"I'm interested in vegetarian\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Lifestyle - Consumption Interest\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"339b4c9c-f41a-494c-9b15-008fa05afdac\",\n            \"name\": \"FFBetaProgram\",\n            \"description\": \"I'd like to participate in the Kroger Early Access Program\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Friends and Family\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"950b2f0e-b76a-48ef-89f2-41cca48507c9\",\n            \"name\": \"Dietary Preference - shellfish\",\n            \"description\": \"I'd like to avoid products containing shellfish\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": true,\n            \"userSet\": true,\n            \"name\": \"ht_account\",\n            \"description\": \"Indicates if the account also exists in the Harris Teeter Division.\",\n            \"status\": \"A\",\n            \"groups\": [\n              null\n            ],\n            \"modifiedBy\": \"customerplatformprod-b87…[truncated]"
+    },
+    {
+      "command": "account preferences",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "preferences",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": {\n      \"enterpriseCustomer\": {\n        \"preferences\": [\n          {\n            \"value\": true,\n            \"userSet\": false,\n            \"id\": \"f298b9f6-8b71-4e5d-a2ef-00374aa6f08b\",\n            \"name\": \"Sale of Data Consent\",\n            \"description\": \"Status for whether a customer has opted in our out of sale of data per state privacy laws.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"consent\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"d9110808-8bc2-4982-ba10-d5a63c5d7734\",\n            \"name\": \"Geolocation Consent - On My Way\",\n            \"description\": \"Status for whether a customer has opted in or out of use of geolocation for On My Way as sensitive info per state privacy laws.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"consent\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": true,\n            \"id\": \"0ff16fc5-8ee3-36e4-b92f-d606f496d2c4\",\n            \"name\": \"Advertising Preference\",\n            \"description\": \"Based on my purchase history and browsing behavior on The Kroger Co. websites and mobile apps, you may share my information to help make advertising and offers I already see on other websites, mobile apps and digital channels more relevant to me. Please note that The Kroger Co. will not share my name, contact information or purchase history with these websites, mobile apps and digital channels.\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"advertising\"\n            ],\n            \"modifiedBy\": \"customerplatformprod-b87fc57d4affd43aae778a15354456473283406604067020362\",\n            \"modified\": \"2023-02-05T12:34:50.000Z\",\n            \"versionKey\": \"95758c5c-512f-4a2e-a6bf-f85213d0e41a\"\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"9e1d3d69-0411-4c0b-b32f-8bf19a69df07\",\n            \"name\": \"Dietary Preference - peanut\",\n            \"description\": \"I'd like to avoid products containing peanut\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"21b1eb63-4f1f-41b5-8cc2-b3cd81424493\",\n            \"name\": \"Dietary Preference - gluten\",\n            \"description\": \"I'd like to avoid products containing gluten\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"cf1b4755-c993-4529-817a-1520e6b686f6\",\n            \"name\": \"Lifestyle Preference - vegetarian\",\n            \"description\": \"I'm interested in vegetarian\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Lifestyle - Consumption Interest\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"339b4c9c-f41a-494c-9b15-008fa05afdac\",\n            \"name\": \"FFBetaProgram\",\n            \"description\": \"I'd like to participate in the Kroger Early Access Program\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Friends and Family\"\n            ]\n          },\n          {\n            \"value\": false,\n            \"userSet\": false,\n            \"id\": \"950b2f0e-b76a-48ef-89f2-41cca48507c9\",\n            \"name\": \"Dietary Preference - shellfish\",\n            \"description\": \"I'd like to avoid products containing shellfish\",\n            \"status\": \"A\",\n            \"groups\": [\n              \"Dietary - Products to Avoid\"\n            ]\n          },\n          {\n            \"value\": true,\n            \"userSet\": true,\n            \"name\": \"ht_account\",\n            \"description\": \"Indicates if the account also exists in the Harris Teeter Division.\",\n            \"status\": \"A\",\n            \"groups\": [\n              null\n            ],\n            \"modifiedBy\": \"customerplatformprod-b87…[truncated]"
+    },
+    {
+      "command": "account preferences",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-17T20:26:57.791551Z"
+}

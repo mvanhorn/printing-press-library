@@ -1,0 +1,96 @@
+{
+  "api_name": "podcast-goat",
+  "base_url": "https://www.hubermanlab.com",
+  "description": "Pull long-form podcast transcripts as speaker-labeled markdown — cookie-first across\nthe four major paid publishers, free everywhere else, paid only when nothing else\nworks.\n\npodcast-goat is a synthetic combo CLI. It walks a cookie -\u003e free -\u003e paid dispatch\nchain across 10 sources (Huberman / Acquired / Founders / Peter Attia member\ncookies; Dwarkesh Substack; Podcasting 2.0 RSS transcripts; yt-dlp YouTube\nauto-subs; spoken.md paid API; Taddy paid GraphQL; pluggable Whisper providers).\nEvery source normalizes to the canonical `**Speaker** (MM:SS)` markdown shape,\ncaches to local SQLite + FTS5, and ships an MCP wrapper so agents can drive\nthe whole thing.\n",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "composed",
+    "env_vars": [
+      "SPOKEN_API_KEY",
+      "TADDY_API_KEY",
+      "TADDY_USER_ID",
+      "OPENAI_API_KEY",
+      "DEEPGRAM_API_KEY",
+      "ELEVENLABS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SPOKEN_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "TADDY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "TADDY_USER_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "DEEPGRAM_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "ELEVENLABS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "episode_get",
+      "description": "Fetch one transcript by URL via the cookie -\u003e free -\u003e paid dispatch chain. Required: url. Returns the Transcript.",
+      "method": "GET",
+      "path": "/episode/{url}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Episode URL (Dwarkesh, Huberman, Acquired, Founders, Peter Attia, YouTube, Apple, Spotify)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "episode_latest",
+      "description": "Pull the most recent episode for a subscribed feed. Optional: source. Returns the Transcript.",
+      "method": "GET",
+      "path": "/episode/latest",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source name (huberman / acquired / founders / peterattia / dwarkesh)"
+        }
+      ]
+    }
+  ]
+}

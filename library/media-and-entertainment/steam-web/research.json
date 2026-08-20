@@ -1,0 +1,387 @@
+{
+  "api_name": "steam-web",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "TMHSDigital/steam-mcp",
+      "url": "https://github.com/TMHSDigital/steam-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "matheusslg/steam-mcp",
+      "url": "https://github.com/matheusslg/steam-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "algorhythmic/steam-mcp",
+      "url": "https://github.com/algorhythmic/steam-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dsp/mcp-server-steam",
+      "url": "https://github.com/dsp/mcp-server-steam",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Philipp15b/go-steamapi",
+      "url": "https://github.com/Philipp15b/go-steamapi",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ljesus/steam-go",
+      "url": "https://github.com/ljesus/steam-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unhappychoice/steamfetch",
+      "url": "https://github.com/unhappychoice/steamfetch",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jakoch/csgo-cli",
+      "url": "https://github.com/jakoch/csgo-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T14:50:00Z",
+  "novel_features": [
+    {
+      "name": "Library backlog audit",
+      "command": "library audit",
+      "description": "Surface never-launched games, paid titles you bounced off in under 2 hours, and where your hours actually went by genre.",
+      "rationale": "Requires a local SQLite join across owned_games, apps.genres, and apps.is_free that no Steam Web API call provides; every surveyed competitor MCP ships GetOwnedGames raw and stops.",
+      "example": "steam-web-pp-cli library audit 76561197960287930 --bounce --json",
+      "why_it_matters": "Use this when an agent is asked to plan what to play next, justify a refund, or summarize the user's gaming spend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Friend playtime comparison on one app",
+      "command": "friends compare",
+      "description": "Rank everyone in your friend list by hours spent in a specific game, with throttled fan-out so you don't trip Steam's 25 req/s budget.",
+      "rationale": "Steam has no bulk endpoint for 'playtime in app X across N friends'; this combines GetFriendList with per-friend GetOwnedGames behind cliutil.AdaptiveLimiter, then caches to the local owned_games table for subsequent runs.",
+      "example": "steam-web-pp-cli friends compare 1245620 --my-steamid 76561197960287930 --agent --select results.persona_name,results.playtime_hours",
+      "why_it_matters": "Use this when an agent is asked 'who in my friends has the most hours in \u003cgame\u003e' or 'who owns this and never played'.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Next easiest achievement to unlock (cross-library)",
+      "command": "next-achievement",
+      "description": "Across your entire library, surface the achievement with the highest global unlock percentage that you still don't have.",
+      "rationale": "Requires joining player_achievements with achievements_schema.global_pct (which itself merges GetSchemaForGame and GetGlobalAchievementPercentagesForApp at sync time); no surveyed competitor exposes the cross-library 'easiest locked' query.",
+      "example": "steam-web-pp-cli next-achievement --steamid 76561197960287930 --limit 10 --json",
+      "why_it_matters": "Use this when an agent is asked 'what should I go unlock next' or to recommend low-effort achievement progress for completionists.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Per-app achievement workbench",
+      "command": "achievement-hunt",
+      "description": "Render the full achievement schema for one app side-by-side with your unlock state and the global rarity of each achievement in one table.",
+      "rationale": "Joins player_achievements, achievements_schema, and global_pct for one appid; every surveyed MCP exposes the constituent endpoints separately but none ships the joined per-app view.",
+      "example": "steam-web-pp-cli achievement-hunt 1245620 --steamid 76561197960287930 --locked --json",
+      "why_it_matters": "Use this when an agent needs the full unlock landscape for one game to plan a completion run.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Rarest unlocked achievements (flex view)",
+      "command": "rare-achievements",
+      "description": "Surface your rarest achievement unlocks across all owned games — the inverse of the next-achievement query, sorted by ascending global percentage.",
+      "rationale": "Inverse SQL of next-achievement; runs on the same player_achievements x achievements_schema join, no extra data-layer cost.",
+      "example": "steam-web-pp-cli rare-achievements --steamid 76561197960287930 --limit 10 --json",
+      "why_it_matters": "Use this when an agent is asked to summarize what the user is proud of, or to power a profile-flex panel.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Library diff between two SteamIDs",
+      "command": "library compare",
+      "description": "Set operations across two libraries — what's mine-only, what's theirs-only, what's shared with playtime delta.",
+      "rationale": "Pure SQL set ops on owned_games rows for two SteamIDs; no surveyed competitor MCP ships the set-diff primitive even though all of them ship GetOwnedGames.",
+      "example": "steam-web-pp-cli library compare 76561197960287930 --my-steamid 76561197960287930 --shared --json",
+      "why_it_matters": "Use this when an agent is asked 'what games do my friend and I both own' or to plan a co-op session.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Currently-playing friends",
+      "command": "currently-playing",
+      "description": "Show which friends are in-game right now and what they're playing — one batched API call across the friend list, no fanout.",
+      "rationale": "GetPlayerSummaries returns gameextrainfo/gameid in a single batched call across all friend SteamIDs; no surveyed competitor surfaces the joined live-status view.",
+      "example": "steam-web-pp-cli currently-playing --my-steamid 76561197960287930 --json",
+      "why_it_matters": "Use this when an agent is asked 'who is online and playing what' or to power a status panel.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Achievement leaderboard among friends",
+      "command": "achievement-leaderboard",
+      "description": "Rank your friends by achievement completion percentage for one app, throttled fan-out via the same limiter that powers friends compare.",
+      "rationale": "Throttled GetFriendList x per-friend GetPlayerAchievements(appid) fanout via cliutil.AdaptiveLimiter; persisted to player_achievements so subsequent runs hit the local store.",
+      "example": "steam-web-pp-cli achievement-leaderboard 1245620 --my-steamid 76561197960287930 --json",
+      "why_it_matters": "Use this when an agent is asked 'who in my friends is closest to 100% in \u003cgame\u003e' or to seed a competitive completion challenge.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Review velocity for one app",
+      "command": "review-velocity",
+      "description": "Reviews per day and voted-up share over a rolling window for one app — date-bucket aggregation over the cursor-paginated appreviews stream.",
+      "rationale": "Date-bucket SQL on app_reviews.timestamp_created (populated by the appreviews cursor sync); no surveyed competitor MCP ships review-trend aggregation.",
+      "example": "steam-web-pp-cli review-velocity 1245620 --window 30d --json",
+      "why_it_matters": "Use this when an agent is asked to track sentiment shifts after a patch, sale, or controversy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "News full-text search across tracked apps",
+      "command": "news search",
+      "description": "FTS5 search across the title and contents of every news post you've synced, optionally scoped by appid or date range.",
+      "rationale": "SQLite FTS5 over app_news.title and contents; no surveyed competitor MCP ships news search — they ship GetNewsForApp raw and stop.",
+      "example": "steam-web-pp-cli news search 'patch notes' --since 2026-04-01 --json",
+      "why_it_matters": "Use this when an agent is asked to dig up patch notes, devlog mentions, or news around a specific topic across the user's library.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Concurrent-player trend for one app",
+      "command": "play-trend",
+      "description": "Show concurrent-player count over time for one app as a sparkline plus min/max/last over a rolling window — value scales with how often you sample.",
+      "rationale": "Window query over app_player_counts (append-only sampling of GetNumberOfCurrentPlayers); brief explicitly lists this table as time-series append-only. Sparse-output is visible (vs silent) so dogfood-verifiability is preserved.",
+      "example": "steam-web-pp-cli play-trend 1245620 --window 7d --json",
+      "why_it_matters": "Use this when an agent needs to see whether a game's playerbase is growing, falling, or has spiked around an event — sample the count every few hours via cron and the window query becomes meaningful within a week.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Library backlog audit",
+      "command": "library audit",
+      "description": "Surface never-launched games, paid titles you bounced off in under 2 hours, and where your hours actually went by genre.",
+      "rationale": "Requires a local SQLite join across owned_games, apps.genres, and apps.is_free that no Steam Web API call provides; every surveyed competitor MCP ships GetOwnedGames raw and stops.",
+      "example": "steam-web-pp-cli library audit 76561197960287930 --bounce --json",
+      "why_it_matters": "Use this when an agent is asked to plan what to play next, justify a refund, or summarize the user's gaming spend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Friend playtime comparison on one app",
+      "command": "friends compare",
+      "description": "Rank everyone in your friend list by hours spent in a specific game, with throttled fan-out so you don't trip Steam's 25 req/s budget.",
+      "rationale": "Steam has no bulk endpoint for 'playtime in app X across N friends'; this combines GetFriendList with per-friend GetOwnedGames behind cliutil.AdaptiveLimiter, then caches to the local owned_games table for subsequent runs.",
+      "example": "steam-web-pp-cli friends compare 1245620 --my-steamid 76561197960287930 --agent --select results.persona_name,results.playtime_hours",
+      "why_it_matters": "Use this when an agent is asked 'who in my friends has the most hours in \u003cgame\u003e' or 'who owns this and never played'.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Next easiest achievement to unlock (cross-library)",
+      "command": "next-achievement",
+      "description": "Across your entire library, surface the achievement with the highest global unlock percentage that you still don't have.",
+      "rationale": "Requires joining player_achievements with achievements_schema.global_pct (which itself merges GetSchemaForGame and GetGlobalAchievementPercentagesForApp at sync time); no surveyed competitor exposes the cross-library 'easiest locked' query.",
+      "example": "steam-web-pp-cli next-achievement --steamid 76561197960287930 --limit 10 --json",
+      "why_it_matters": "Use this when an agent is asked 'what should I go unlock next' or to recommend low-effort achievement progress for completionists.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Per-app achievement workbench",
+      "command": "achievement-hunt",
+      "description": "Render the full achievement schema for one app side-by-side with your unlock state and the global rarity of each achievement in one table.",
+      "rationale": "Joins player_achievements, achievements_schema, and global_pct for one appid; every surveyed MCP exposes the constituent endpoints separately but none ships the joined per-app view.",
+      "example": "steam-web-pp-cli achievement-hunt 1245620 --steamid 76561197960287930 --locked --json",
+      "why_it_matters": "Use this when an agent needs the full unlock landscape for one game to plan a completion run.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Rarest unlocked achievements (flex view)",
+      "command": "rare-achievements",
+      "description": "Surface your rarest achievement unlocks across all owned games — the inverse of the next-achievement query, sorted by ascending global percentage.",
+      "rationale": "Inverse SQL of next-achievement; runs on the same player_achievements x achievements_schema join, no extra data-layer cost.",
+      "example": "steam-web-pp-cli rare-achievements --steamid 76561197960287930 --limit 10 --json",
+      "why_it_matters": "Use this when an agent is asked to summarize what the user is proud of, or to power a profile-flex panel.",
+      "group": "Achievement intelligence"
+    },
+    {
+      "name": "Library diff between two SteamIDs",
+      "command": "library compare",
+      "description": "Set operations across two libraries — what's mine-only, what's theirs-only, what's shared with playtime delta.",
+      "rationale": "Pure SQL set ops on owned_games rows for two SteamIDs; no surveyed competitor MCP ships the set-diff primitive even though all of them ship GetOwnedGames.",
+      "example": "steam-web-pp-cli library compare 76561197960287930 --my-steamid 76561197960287930 --shared --json",
+      "why_it_matters": "Use this when an agent is asked 'what games do my friend and I both own' or to plan a co-op session.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Currently-playing friends",
+      "command": "currently-playing",
+      "description": "Show which friends are in-game right now and what they're playing — one batched API call across the friend list, no fanout.",
+      "rationale": "GetPlayerSummaries returns gameextrainfo/gameid in a single batched call across all friend SteamIDs; no surveyed competitor surfaces the joined live-status view.",
+      "example": "steam-web-pp-cli currently-playing --my-steamid 76561197960287930 --json",
+      "why_it_matters": "Use this when an agent is asked 'who is online and playing what' or to power a status panel.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Achievement leaderboard among friends",
+      "command": "achievement-leaderboard",
+      "description": "Rank your friends by achievement completion percentage for one app, throttled fan-out via the same limiter that powers friends compare.",
+      "rationale": "Throttled GetFriendList x per-friend GetPlayerAchievements(appid) fanout via cliutil.AdaptiveLimiter; persisted to player_achievements so subsequent runs hit the local store.",
+      "example": "steam-web-pp-cli achievement-leaderboard 1245620 --my-steamid 76561197960287930 --json",
+      "why_it_matters": "Use this when an agent is asked 'who in my friends is closest to 100% in \u003cgame\u003e' or to seed a competitive completion challenge.",
+      "group": "Friend-graph intelligence"
+    },
+    {
+      "name": "Review velocity for one app",
+      "command": "review-velocity",
+      "description": "Reviews per day and voted-up share over a rolling window for one app — date-bucket aggregation over the cursor-paginated appreviews stream.",
+      "rationale": "Date-bucket SQL on app_reviews.timestamp_created (populated by the appreviews cursor sync); no surveyed competitor MCP ships review-trend aggregation.",
+      "example": "steam-web-pp-cli review-velocity 1245620 --window 30d --json",
+      "why_it_matters": "Use this when an agent is asked to track sentiment shifts after a patch, sale, or controversy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "News full-text search across tracked apps",
+      "command": "news search",
+      "description": "FTS5 search across the title and contents of every news post you've synced, optionally scoped by appid or date range.",
+      "rationale": "SQLite FTS5 over app_news.title and contents; no surveyed competitor MCP ships news search — they ship GetNewsForApp raw and stop.",
+      "example": "steam-web-pp-cli news search 'patch notes' --since 2026-04-01 --json",
+      "why_it_matters": "Use this when an agent is asked to dig up patch notes, devlog mentions, or news around a specific topic across the user's library.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Concurrent-player trend for one app",
+      "command": "play-trend",
+      "description": "Show concurrent-player count over time for one app as a sparkline plus min/max/last over a rolling window — value scales with how often you sample.",
+      "rationale": "Window query over app_player_counts (append-only sampling of GetNumberOfCurrentPlayers); brief explicitly lists this table as time-series append-only. Sparse-output is visible (vs silent) so dogfood-verifiability is preserved.",
+      "example": "steam-web-pp-cli play-trend 1245620 --window 7d --json",
+      "why_it_matters": "Use this when an agent needs to see whether a game's playerbase is growing, falling, or has spiked around an event — sample the count every few hours via cron and the window query becomes meaningful within a week.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Steam Web",
+    "headline": "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and library backlogs into single SQL queries no other tool can answer.",
+    "value_prop": "Mirrors all 169 documented Steam Web API endpoints (and the undocumented store endpoints every wrapper picks one of) with rate-limit-aware throttling for the post-2025 25 req/s budget. Adds a local SQLite layer with FTS5 over apps, news, and achievements so cross-library queries — `next-achievement`, `friends compare`, `library audit`, `achievement-leaderboard` — run as one command instead of an N+1 fanout app rewrite. Ships an MCP server with both stdio and HTTP streamable transport plus a code-orchestration pair (`steam_web_search` + `steam_web_execute`) so the full surface is reachable without flooding your agent's tool catalog.",
+    "auth_narrative": "Standard Steam Web API key auth: get one at https://steamcommunity.com/dev/apikey and set STEAM_WEB_API_KEY in your environment. The key is sent as a `?key=` query parameter on every request. Some endpoints (server time, app list, news) require no auth at all and work without a key. The IAuthenticationService endpoints in the spec are NOT for Web API auth — they implement Steam's interactive QR-code login flow. They remain reachable via the CLI subcommand and the MCP code-orchestration pair for completeness but should not be used as part of normal Web API workflows.",
+    "quickstart": [
+      {
+        "command": "steam-web-pp-cli auth status",
+        "comment": "Reports whether STEAM_WEB_API_KEY is set in your env. Steam keys are env-var only; export it from your shell rather than running auth set-token."
+      },
+      {
+        "command": "steam-web-pp-cli doctor",
+        "comment": "Probes /ISteamWebAPIUtil/GetServerInfo and a key-gated read to confirm both reachability and your key's validity."
+      },
+      {
+        "command": "steam-web-pp-cli sync",
+        "comment": "Pulls profile, owned games, friend list, and recent achievements into the local SQLite store; the cross-library novel features all read from this store."
+      },
+      {
+        "command": "steam-web-pp-cli next-achievement --steamid 76561197960287930 --limit 5",
+        "comment": "Once sync completes, this is the achievement-hunter's daily ritual — five lowest-effort unlocks across your whole library."
+      },
+      {
+        "command": "steam-web-pp-cli friends compare 1245620 --my-steamid 76561197960287930",
+        "comment": "Throttled fan-out across your friend list to rank everyone by hours in app 1245620 (Elden Ring); each call also caches per-friend GetOwnedGames responses to local SQLite for next time."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "GetOwnedGames returns an empty array even though you own games",
+        "fix": "Your Steam profile (or game library) is set to private. Visit https://steamcommunity.com/my/edit/settings, set both 'My profile' and 'Game details' to Public, wait 30s, then retry. Steam returns 200 + empty payload for private profiles instead of a clear error."
+      },
+      {
+        "symptom": "HTTP 429 with x-eresult: 25 or x-eresult: 84",
+        "fix": "Steam tightened rate limits to ~25 req/s in mid-2025. The CLI throttles automatically via cliutil.AdaptiveLimiter, but if you're scripting outside the CLI, slow down. Wait the value of Retry-After (or 60s if absent), then retry."
+      },
+      {
+        "symptom": "store appdetails returns null for an appid",
+        "fix": "Some appids (films, hardware, region-locked) have no store entry. Confirm the appid via `steam-web-pp-cli apps search '\u003cname\u003e'` and try again with the canonical appid."
+      },
+      {
+        "symptom": "GetUserStatsForGame returns empty for a game you just played",
+        "fix": "Steam takes hours-to-days to populate per-user stats for newly-purchased games. Try GetPlayerAchievements instead (achievements populate faster than stats), or wait 24h."
+      },
+      {
+        "symptom": "vanity URL doesn't resolve",
+        "fix": "ResolveVanityURL only finds custom URLs (like /id/foo). For numeric profile URLs (/profiles/76561...), the SteamID is already in the URL — no resolve needed. Use `steam-web-pp-cli ISteamUser ResolveVanityURL --vanityurl foo`."
+      }
+    ],
+    "when_to_use": "Pick this CLI when an agent is asked to query Steam profile, library, achievement, or news data and the question crosses entities — anything joining friends with owned games, achievements with global rarity, or news with a date filter. The local SQLite store turns those questions into one SQL query instead of an N+1 fanout. Every other Steam tool is single-shot read-once; this one compounds. For pure single-endpoint reads (one player's profile, one app's news), the per-endpoint MCP tools work too — but the novel commands are where this CLI earns its weight.",
+    "recipes": [
+      {
+        "title": "Find friends who own a game but never played it",
+        "command": "steam-web-pp-cli friends compare 1245620 --my-steamid 76561197960287930 --filter owns-zero-hours --agent --select results.persona_name,results.steamid",
+        "explanation": "Throttled fan-out to identify dormant owners — the people most likely to actually play if invited."
+      },
+      {
+        "title": "Plan a completion run on one game",
+        "command": "steam-web-pp-cli achievement-hunt 1245620 --steamid 76561197960287930 --locked --agent --select achievements.display_name,achievements.global_pct",
+        "explanation": "Surfaces every locked achievement plus its global rarity so you can rank effort vs. reward."
+      },
+      {
+        "title": "Find low-hanging fruit across your whole library",
+        "command": "steam-web-pp-cli next-achievement --steamid 76561197960287930 --limit 10 --json",
+        "explanation": "Cross-library SQL — the ten achievements with the highest global unlock rate that you still don't have."
+      },
+      {
+        "title": "Audit your backlog after a sale",
+        "command": "steam-web-pp-cli library audit 76561197960287930 --never-launched --json",
+        "explanation": "Reveals what you bought and didn't open; pairs well with `library audit --bounce` for the under-2h paid set."
+      },
+      {
+        "title": "Search your synced news feed for a topic",
+        "command": "steam-web-pp-cli news search 'mod support' --since 2026-04-01 --json",
+        "explanation": "FTS5 search over every news post you've synced — useful for tracking when devs ship features you care about across all your owned games."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I play next on steam",
+      "find friends who own this game",
+      "easiest steam achievement to unlock",
+      "who in my friends has the most hours in",
+      "audit my steam backlog",
+      "use steam-web",
+      "run steam-web"
+    ]
+  }
+}

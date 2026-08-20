@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Tenderned Notice Service - Publicatie XML berichten
+  description: |-
+    De api moet worden aangeroepen met een ```publicatieId```. De ```publicatieId``` vind je op het [aankondigingenplatform](https://www.tenderned.nl/aankondigingen/overzicht) terug in de url van de detailpagina van een aankondiging. Op het aankondigingenplatform kan je met behulp van filters een selectie maken van aankondigingen.
+    
+    De api geeft de publicatie terug in de vorm van een xml. De xml is gebaseerd op de TED xsd schema’s. Hierbij zijn een beperkt aantal velden uit de xsd gefilterd. Dit zijn velden die vertrouwelijk zijn en niet openbaar gepubliceerd mogen worden. 
+
+    **Publicaties vanaf 4 april 2018 kunnen via de publicatie interface opgehaald worden.**
+
+        Deze API is beveiligd via basic authentication (username/wachtwoord).
+        Vraag deze aan via functioneelbeheer@tenderned.nl.
+    
+    Nuttige links:
+    - [Documentatie op data.overheid.nl](https://data.overheid.nl/dataset/26e6440b-1d39-4e28-8d18-57d987042622)
+    - [Tenderned aankondigingenplatform](https://www.tenderned.nl/aankondigingen/overzicht)
+    - [TED xsd schema's](https://op.europa.eu/en/web/eu-vocabularies/e-procurement/tedschemas)
+
+
+  contact:
+    name: Tenderned
+    email: functioneelbeheer@tenderned.nl
+    url: https://www.tenderned.nl/cms/nl/contact
+  license:
+    name: CC-0 (1.0)
+    url: https://creativecommons.org/publicdomain/zero/1.0/deed.nl
+  version: 2.0.0
+servers:
+  - url: https://www.tenderned.nl/papi/tenderned-rs-tns/v2
+    description: Productie API
+tags:
+  - name: PublicatieXML
+    description: Publicatie XML informatie
+    externalDocs:
+      description: XSD Schema's
+      url: https://op.europa.eu/en/web/eu-vocabularies/e-procurement/tedschemas
+paths:
+  /publicaties/{publicatieId}/public-xml:
+    get:
+      tags:
+        - PublicatieXML
+      summary: Deze API geeft de publicatie terug in de vorm van een XML van de TED formulieren.
+      x-rolesAllowed: '{"OpenDataUser"}'
+      security:
+        - basicAuth: []
+      operationId: getPublicXml
+      parameters:
+        - name: publicatieId
+          in: path
+          description: ID van de publicatie
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+          content:
+            text/xml:
+              schema:
+                type: string
+        '404':
+          description: Not found
+        '500':
+          description: Server error
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

@@ -1,0 +1,235 @@
+
+=== verify ===
+
+Verification verdict FAIL (pass rate 97%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/05/31 14:26:08 fix loop: execution failure for listing requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for listing: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for lists requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for lists: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for profile requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for profile: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for tags requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for tags: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for watch requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for watch: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for workflow requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for workflow: manual execution fix required
+2026/05/31 14:26:08 fix loop: execution failure for browser-session-proof requires manual fix
+2026/05/31 14:26:08 fix loop: skip exec_fail for browser-session-proof: manual execution fix required
+Runtime Verification: /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/erank-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+angles                         read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+build                          read         PASS   PASS     PASS     3/3
+check-paddle-restriction       read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+intercom                       read         PASS   PASS     PASS     3/3
+listing                        read         PASS   PASS     FAIL     2/3
+lists                          read         PASS   PASS     FAIL     2/3
+member-shops                   read         PASS   PASS     PASS     3/3
+motd-v3                        read         PASS   PASS     PASS     3/3
+oauth                          read         PASS   PASS     PASS     3/3
+opportunity                    read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+quota                          read         PASS   PASS     PASS     3/3
+refresh-data                   read         PASS   PASS     PASS     3/3
+saturation                     read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     FAIL     2/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+watch                          read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+browser-session-proof          auth         PASS   PASS     FAIL     0/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Browser Session Proof: missing-or-invalid (run auth login --chrome to create a browser-session proof)
+Pass Rate: 97% (33/34 passed, 1 critical)
+Verdict: FAIL
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 97% -> 97% (+0%), 7 fixes applied
+
+=== validate-narrative ===
+OK: 8 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=/Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/research/erank-reprint-spec.yaml overridden by bundled /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/spec.yaml
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Dogfood Report: erank-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MISMATCH
+  Generated: Uses "custom-composed" prefix
+  Detail: composed auth format "{XSRF-TOKEN}" does not start with a recognized scheme prefix
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          7/10 commands have examples (PASS)
+  - angles: missing example
+  - opportunity: missing example
+  - saturation: missing example
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - auth protocol mismatch
+  - 7/7 novel features are TODO stubs: opportunity, listing gaps, tags consensus, watch drift, lists optimize, saturation, angles
+  - 7/7 novel features look reimplemented: opportunity (opportunity.go) — hand-rolled response: no API client call, no store access; listing gaps (listing_gaps.go) — hand-rolled response: no API client call, no store access; tags consensus (tags_consensus.go) — hand-rolled response: no API client call, no store access; watch drift (watch_drift.go) — hand-rolled response: no API client call, no store access; lists optimize (lists_optimize.go) — hand-rolled response: no API client call, no store access; saturation (saturation.go) — hand-rolled response: no API client call, no store access; angles (angles.go) — hand-rolled response: no API client call, no store access
+
+=== workflow-verify ===
+Workflow Verification: erank-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== erank-pp-cli ===
+  ✘ 22 error(s), 0 likely false-positive(s)
+    [positional-args] erank-pp-cli opportunity: got 1 positional args; Use: "opportunity" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli lists optimize: got 1 positional args; Use: "optimize" expects 0–0
+      evidence: SKILL.md: Father's Day mugs
+    [positional-args] erank-pp-cli saturation: got 1 positional args; Use: "saturation" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli listing gaps: got 1 positional args; Use: "gaps" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli tags consensus: got 1 positional args; Use: "consensus" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli watch drift: got 1 positional args; Use: "drift" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli angles: got 1 positional args; Use: "angles" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli opportunity: got 1 positional args; Use: "opportunity" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli tags consensus: got 1 positional args; Use: "consensus" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli listing gaps: got 1 positional args; Use: "gaps" expects 0–0
+      evidence: SKILL.md: dad mug
+    [positional-args] erank-pp-cli opportunity: got 1 positional args; Use: "opportunity" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli tags consensus: got 1 positional args; Use: "consensus" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli opportunity: got 1 positional args; Use: "opportunity" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli lists optimize: got 1 positional args; Use: "optimize" expects 0–0
+      evidence: README.md: Father's Day mugs
+    [positional-args] erank-pp-cli saturation: got 1 positional args; Use: "saturation" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli listing gaps: got 1 positional args; Use: "gaps" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli tags consensus: got 1 positional args; Use: "consensus" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli watch drift: got 1 positional args; Use: "drift" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli angles: got 1 positional args; Use: "angles" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli opportunity: got 1 positional args; Use: "opportunity" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli tags consensus: got 1 positional args; Use: "consensus" expects 0–0
+      evidence: README.md: dad mug
+    [positional-args] erank-pp-cli listing gaps: got 1 positional args; Use: "gaps" expects 0–0
+      evidence: README.md: dad mug
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: erank
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              8/10
+  Vision               10/10
+  Workflows            6/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           2/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 81/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh (staged binary is newer than Go sources)
+  Passed: 0/7  (0% pass rate)
+  Failures:
+    - Niche Opportunity Score: exit 1: Error: TODO: implement novel feature "opportunity"
+    - Top Listing Gap Analyzer: exit 1: Error: TODO: implement novel feature "listing gaps"
+    - Tag Consensus Map: exit 1: Error: TODO: implement novel feature "tags consensus"
+    - Keyword Drift Watcher: exit 1: Error: TODO: implement novel feature "watch drift"
+    - Keyword Portfolio Optimizer: exit 1: Error: TODO: implement novel feature "lists optimize"
+    - Saturation Warning: exit 1: Error: TODO: implement novel feature "saturation"
+    - POD Angle Finder: exit 1: Error: TODO: implement novel feature "angles"
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+  - auth_protocol scored 2/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            FAIL    1         22.912s
+  validate-narrative  PASS    0         486ms
+  dogfood           PASS    0         2.38s
+  workflow-verify   PASS    0         14ms
+  verify-skill      FAIL    1         976ms
+  scorecard         PASS    0         289ms
+
+Verdict: FAIL (2/6 legs failed)

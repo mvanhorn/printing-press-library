@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-151335",
+  "base_printing_press_version": "4.9.0",
+  "date": "2026-05-20",
+  "amend_run_id": "amend-2026-05-20T1500",
+  "summary": "feat(gohighlevel): add contacts + locations_tags + contacts_tags as syncable resources",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "findings_addressed": [
+    "F1",
+    "F2"
+  ],
+  "patch_count": 10,
+  "notes": "Downstream automation (segments refresh, hot follow-up, dedup) needs a local SQLite cache of contacts and tag-application rows for fast SQL queries. Adds POST-list endpoint support (GHL /contacts/search) via a syncFetcher interface, searchAfter cursor pagination (array-shaped cursor JSON-encoded for sync_state.last_cursor), path-key resolution for {locationId} via --global-param/GHL_LOCATION_ID, and per-page derivation of contacts_tags rows from each contact's tags[] array (composite id <contactId>:<tag>, dateUpdated as a coarse tagged_at proxy)."
+}

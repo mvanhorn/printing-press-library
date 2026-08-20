@@ -1,0 +1,8 @@
+f808235 tests: restore dropped catalog/parser tests + add binary-envelope/host-pin/sitemap coverage (peer-test-review); news_get rejects non-positive ids
+72d7c70 fix: watch add/rm emit JSON in --dry-run --json path (dogfood json_fidelity)
+6018084 fix dogfood: watch add/rm emit JSON under --json; news get rejects non-numeric ids (restore phase-5-dogfood-blockers)
+158911b fix: unwrap 4.24.0 base64 binary-response envelope in bluRayGet (sitemap gzip pipeline)
+4e8c58d restore phase-5-deals-filters: --min-discount/--max-price/--limit on deals
+a610629 port hand layer to 4.24.0 framework (codex): store catalog file + context-first client + export wiring
+0c49ff4 place prior hand layer onto 4.24.0 scaffold (pre-adaptation)
+b83108d generated baseline (v4.24.0, 5 novel stubs)

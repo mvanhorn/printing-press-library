@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "intervals-icu-athlete-scoped-sync",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260602-pp-intervals",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Register activity/wellness/events/gear/workouts as syncable with {id} resolved to the athlete and oldest as the date-range param.",
+  "reason": "Every useful intervals.icu resource is athlete-scoped (/athlete/{id}/...), so the generator left only the parameter-free /pace_distances syncable and the local store stayed empty. Resolves {id} from INTERVALS_ICU_ATHLETE_ID (default 0 = self).",
+  "files": ["internal/cli/sync.go", "internal/config/intervals_icu_config.go"],
+  "validated_outcome": "sync --since 365d hydrates activities; search/sql work offline.",
+  "upstream_issue": ""
+}

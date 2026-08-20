@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "webflow",
+  "cli_name": "webflow-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-18T18:50:34Z",
+  "source_commit": "2def5d034d580612a47ad8db5917e3f10ba73fbe",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260728-073020-15799c7c",
+  "changes": [
+    {
+      "title": "feat(webflow): add webflow",
+      "pr": 1621,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1621",
+      "commit": "2def5d034d580612a47ad8db5917e3f10ba73fbe"
+    }
+  ]
+}

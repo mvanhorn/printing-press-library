@@ -1,0 +1,325 @@
+{
+  "api_name": "bird",
+  "novelty_score": 90,
+  "alternatives": [
+    {
+      "name": "messagebird/go-rest-api",
+      "url": "https://github.com/messagebird/go-rest-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "messagebird/python-rest-api",
+      "url": "https://github.com/messagebird/python-rest-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "messagebird/messagebird-nodejs",
+      "url": "https://github.com/messagebird/messagebird-nodejs",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "messagebird/php-rest-api",
+      "url": "https://github.com/messagebird/php-rest-api",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "messagebird/ruby-rest-api",
+      "url": "https://github.com/messagebird/ruby-rest-api",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "messagebird/openapi-specs",
+      "url": "https://github.com/messagebird/openapi-specs",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T07:17:00Z",
+  "novel_features": [
+    {
+      "name": "Delivery audit",
+      "command": "messages audit",
+      "description": "Fold a message and its interactions into a chronological delivery timeline; exit non-zero on terminal failure.",
+      "rationale": "Bird returns the message and its delivery events as separate calls; merging them client-side is the only way to get a single audit row.",
+      "example": "bird-pp-cli messages audit msg_123 --json",
+      "why_it_matters": "Use this when an agent needs a one-shot answer to 'did this SMS land?' with a non-zero exit on failure for pipeline gating.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Failure cluster",
+      "command": "messages failures",
+      "description": "Aggregate recent message-interaction failures grouped by reason code.",
+      "rationale": "Bird has no aggregation endpoint; the answer only exists when interactions are mirrored into the local store.",
+      "example": "bird-pp-cli messages failures --since 24h --group-by reason --json",
+      "why_it_matters": "Reach for this before paging humans about an SMS outage — it tells you whether the failures are clustered (one bad number, one carrier) or spread.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SMS search",
+      "command": "sms search",
+      "description": "Full-text search over message bodies, optionally filtered by sender or recipient phone number.",
+      "rationale": "FTS5 over the synced messages table joined to participants.identifierValue — no Bird endpoint takes a body substring.",
+      "example": "bird-pp-cli sms search \"order confirmation\" --to +31612345678 --json",
+      "why_it_matters": "Use when an agent needs to find a specific outbound SMS without scrolling pages of console output.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CSV bulk dispatch",
+      "command": "sms send-batch",
+      "description": "Send a batch of SMS messages from a CSV with per-row idempotency keys, persisting the batch in the local store for later reconcile.",
+      "rationale": "The SDK leaves dispatch + reconcile as glue code; we ship both halves with idempotency.",
+      "example": "bird-pp-cli sms send-batch --csv recipients.csv --body-template \"Hi {{name}}, your code is {{code}}\" --dry-run",
+      "why_it_matters": "Use this for any batch larger than a handful of recipients where you need to know which ones failed afterward.",
+      "group": "Send + reconcile"
+    },
+    {
+      "name": "Batch reconcile",
+      "command": "sms reconcile",
+      "description": "Re-fetch delivery interactions for every message in a batch, group failures by reason, and optionally retry.",
+      "rationale": "Pairs with send-batch. Reads the persisted batch, hits interactions per message, folds outcomes.",
+      "example": "bird-pp-cli sms reconcile batch_2026_05_10_a --retry-failed --json",
+      "why_it_matters": "Reach for this after every send-batch run — it answers 'how many landed?' and gives you a retry plan in one shot.",
+      "group": "Send + reconcile"
+    },
+    {
+      "name": "Conversation timeline",
+      "command": "conversations timeline",
+      "description": "Render a conversation's messages, participants, and delivery interactions in canonical chronological order.",
+      "rationale": "SQL join over four local tables; no Bird endpoint returns this composite view.",
+      "example": "bird-pp-cli conversations timeline conv_42 --json",
+      "why_it_matters": "Use when triaging a customer thread — one command shows the full back-and-forth plus per-outbound delivery state.",
+      "group": "Triage and reach"
+    },
+    {
+      "name": "Cross-channel customer history",
+      "command": "messages from",
+      "description": "List every message exchanged with one phone number across all conversations.",
+      "rationale": "Joins participants (by identifierValue) → conversations → messages locally — the API only lists by channel or conversation.",
+      "example": "bird-pp-cli messages from +31612345678 --json",
+      "why_it_matters": "Use when an agent needs the complete back-and-forth with one customer regardless of which conversation it lived in.",
+      "group": "Triage and reach"
+    },
+    {
+      "name": "Tenant readiness check",
+      "command": "tenant doctor",
+      "description": "Run an SMS-tenant readiness checklist across channels, channel-config, anti-spam, compliance keywords, and messageability with a single exit code.",
+      "rationale": "Sequences five Bird endpoints into a single agent-readable checklist — bot vendors run this 12-curl flow manually today.",
+      "example": "bird-pp-cli tenant doctor --test-contact contact_42 --json",
+      "why_it_matters": "Use during onboarding for a new workspace or when an existing tenant's outbound SMS suddenly drops to zero.",
+      "group": "Compliance and onboarding"
+    },
+    {
+      "name": "Auto-block from STOP fires",
+      "command": "compliance auto-block",
+      "description": "Scan local inbound messages for STOP-keyword fires within a time window; emit a CSV ready for bulk-add (or apply directly).",
+      "rationale": "Local FTS over inbound bodies; no Bird endpoint correlates STOP fires to block-list candidates.",
+      "example": "bird-pp-cli compliance auto-block --since 7d --json",
+      "why_it_matters": "Use weekly to keep the workspace block list synchronized with customer opt-outs without writing a Python script.",
+      "group": "Compliance and onboarding"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Delivery audit",
+      "command": "messages audit",
+      "description": "Fold a message and its interactions into a chronological delivery timeline; exit non-zero on terminal failure.",
+      "rationale": "Bird returns the message and its delivery events as separate calls; merging them client-side is the only way to get a single audit row.",
+      "example": "bird-pp-cli messages audit msg_123 --json",
+      "why_it_matters": "Use this when an agent needs a one-shot answer to 'did this SMS land?' with a non-zero exit on failure for pipeline gating.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Failure cluster",
+      "command": "messages failures",
+      "description": "Aggregate recent message-interaction failures grouped by reason code.",
+      "rationale": "Bird has no aggregation endpoint; the answer only exists when interactions are mirrored into the local store.",
+      "example": "bird-pp-cli messages failures --since 24h --group-by reason --json",
+      "why_it_matters": "Reach for this before paging humans about an SMS outage — it tells you whether the failures are clustered (one bad number, one carrier) or spread.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SMS search",
+      "command": "sms search",
+      "description": "Full-text search over message bodies, optionally filtered by sender or recipient phone number.",
+      "rationale": "FTS5 over the synced messages table joined to participants.identifierValue — no Bird endpoint takes a body substring.",
+      "example": "bird-pp-cli sms search \"order confirmation\" --to +31612345678 --json",
+      "why_it_matters": "Use when an agent needs to find a specific outbound SMS without scrolling pages of console output.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CSV bulk dispatch",
+      "command": "sms send-batch",
+      "description": "Send a batch of SMS messages from a CSV with per-row idempotency keys, persisting the batch in the local store for later reconcile.",
+      "rationale": "The SDK leaves dispatch + reconcile as glue code; we ship both halves with idempotency.",
+      "example": "bird-pp-cli sms send-batch --csv recipients.csv --body-template \"Hi {{name}}, your code is {{code}}\" --dry-run",
+      "why_it_matters": "Use this for any batch larger than a handful of recipients where you need to know which ones failed afterward.",
+      "group": "Send + reconcile"
+    },
+    {
+      "name": "Batch reconcile",
+      "command": "sms reconcile",
+      "description": "Re-fetch delivery interactions for every message in a batch, group failures by reason, and optionally retry.",
+      "rationale": "Pairs with send-batch. Reads the persisted batch, hits interactions per message, folds outcomes.",
+      "example": "bird-pp-cli sms reconcile batch_2026_05_10_a --retry-failed --json",
+      "why_it_matters": "Reach for this after every send-batch run — it answers 'how many landed?' and gives you a retry plan in one shot.",
+      "group": "Send + reconcile"
+    },
+    {
+      "name": "Conversation timeline",
+      "command": "conversations timeline",
+      "description": "Render a conversation's messages, participants, and delivery interactions in canonical chronological order.",
+      "rationale": "SQL join over four local tables; no Bird endpoint returns this composite view.",
+      "example": "bird-pp-cli conversations timeline conv_42 --json",
+      "why_it_matters": "Use when triaging a customer thread — one command shows the full back-and-forth plus per-outbound delivery state.",
+      "group": "Triage and reach"
+    },
+    {
+      "name": "Cross-channel customer history",
+      "command": "messages from",
+      "description": "List every message exchanged with one phone number across all conversations.",
+      "rationale": "Joins participants (by identifierValue) → conversations → messages locally — the API only lists by channel or conversation.",
+      "example": "bird-pp-cli messages from +31612345678 --json",
+      "why_it_matters": "Use when an agent needs the complete back-and-forth with one customer regardless of which conversation it lived in.",
+      "group": "Triage and reach"
+    },
+    {
+      "name": "Tenant readiness check",
+      "command": "tenant doctor",
+      "description": "Run an SMS-tenant readiness checklist across channels, channel-config, anti-spam, compliance keywords, and messageability with a single exit code.",
+      "rationale": "Sequences five Bird endpoints into a single agent-readable checklist — bot vendors run this 12-curl flow manually today.",
+      "example": "bird-pp-cli tenant doctor --test-contact contact_42 --json",
+      "why_it_matters": "Use during onboarding for a new workspace or when an existing tenant's outbound SMS suddenly drops to zero.",
+      "group": "Compliance and onboarding"
+    },
+    {
+      "name": "Auto-block from STOP fires",
+      "command": "compliance auto-block",
+      "description": "Scan local inbound messages for STOP-keyword fires within a time window; emit a CSV ready for bulk-add (or apply directly).",
+      "rationale": "Local FTS over inbound bodies; no Bird endpoint correlates STOP fires to block-list candidates.",
+      "example": "bird-pp-cli compliance auto-block --since 7d --json",
+      "why_it_matters": "Use weekly to keep the workspace block list synchronized with customer opt-outs without writing a Python script.",
+      "group": "Compliance and onboarding"
+    }
+  ],
+  "narrative": {
+    "display_name": "Bird",
+    "headline": "Terminal-native CLI for Bird's Conversations and SMS APIs with offline search, batch reconcile, and a local SQLite mirror.",
+    "value_prop": "bird-pp-cli wraps every Conversations endpoint plus the SMS-relevant pieces of Bird's Channels API, then layers on what the SDKs miss: send/reconcile pairs with idempotency keys, FTS5 over message bodies, a delivery audit that exits non-zero on failure, and a tenant-readiness checklist that replaces the 12-curl onboarding flow.",
+    "auth_narrative": "Authentication uses Bird's `Authorization: AccessKey \u003ckey\u003e` header. Set BIRD_API_KEY plus BIRD_WORKSPACE_ID (every Bird endpoint is workspace-scoped) before calling any command. An optional BIRD_CHANNEL_ID provides a default for SMS commands so you don't have to pass --channel-id every time.",
+    "quickstart": [
+      {
+        "command": "bird-pp-cli doctor",
+        "comment": "Check that BIRD_API_KEY and BIRD_WORKSPACE_ID resolve and the API is reachable."
+      },
+      {
+        "command": "bird-pp-cli tenant doctor --json",
+        "comment": "Verify your SMS tenant is ready: channels, anti-spam, compliance keywords, and messageability all probed in one shot."
+      },
+      {
+        "command": "bird-pp-cli sms send --to +31612345678 --body \"Hello from bird-pp-cli\" --dry-run",
+        "comment": "Inspect the request without sending; drop --dry-run to actually fire."
+      },
+      {
+        "command": "bird-pp-cli sms search \"otp\" --to +31612345678 --json",
+        "comment": "Find the most recent OTP-shaped SMS sent to that recipient. Works offline once 'bird-pp-cli sync' has populated the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Confirm BIRD_API_KEY is set and the access key is enabled in the Bird dashboard at app.bird.com/settings/security/access-keys."
+      },
+      {
+        "symptom": "404 'workspace not found'",
+        "fix": "Set BIRD_WORKSPACE_ID — every Bird path is workspace-scoped. Find it in the Bird dashboard under Settings → Workspaces."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Bird allows 50 retrieval calls/sec burst, 2000/min steady. The CLI's adaptive limiter respects 429s; retry after the suggested backoff or wait one minute."
+      },
+      {
+        "symptom": "sms search returns nothing",
+        "fix": "Run bird-pp-cli sync first — search reads from the local store, which is empty until the first sync."
+      },
+      {
+        "symptom": "messages audit reports 'no interactions yet'",
+        "fix": "Bird lags interactions a few seconds behind the message create response; retry after 10 seconds or set --wait."
+      }
+    ],
+    "when_to_use": "Reach for bird-pp-cli when an AI agent or operator needs to interact with a Bird workspace from a terminal: sending one-off transactional SMS, batching reminders with reconcile, triaging open conversations, auditing message delivery, or maintaining the workspace allow/block list. Prefer this over raw curl when you want offline search, agent-shaped JSON, or a single command that folds multiple Bird endpoints into one answer.",
+    "recipes": [
+      {
+        "title": "Bulk-send an OTP campaign with reconcile",
+        "command": "bird-pp-cli sms send-batch --csv recipients.csv --body-template \"Your code is {{code}}\" --apply --json",
+        "explanation": "Sends one SMS per CSV row with a deterministic idempotency key and persists the batch in the local store. The returned JSON includes the batchId; pass it to 'bird-pp-cli sms reconcile \u003cbatchId\u003e --json' afterward to re-fetch delivery interactions and group failures by reason."
+      },
+      {
+        "title": "Audit one message",
+        "command": "bird-pp-cli messages audit msg_abc --channel-id ch_sms_1 --json --select status,events",
+        "explanation": "Audit folds the message + interactions into a single timeline with a non-zero exit on terminal failure so it works as a CI gate or a Slackbot trigger."
+      },
+      {
+        "title": "Find an OTP we sent yesterday to one customer",
+        "command": "bird-pp-cli sms search \"code\" --to +31612345678 --json --select id,createdAt,body",
+        "explanation": "Runs FTS5 over the local store; works offline once sync has run, no Bird API call. The --select narrows the response so an agent doesn't burn context on full message envelopes."
+      },
+      {
+        "title": "Onboard a new SMS tenant",
+        "command": "bird-pp-cli tenant doctor --test-contact contact_42 --json",
+        "explanation": "Runs the five-endpoint readiness checklist (channel exists, channel-config enabled, anti-spam on, compliance keywords configured, messageability green) and exits non-zero with the failing check."
+      },
+      {
+        "title": "Sync compliance opt-outs into the block list",
+        "command": "bird-pp-cli compliance auto-block --since 7d --apply --json",
+        "explanation": "auto-block scans local inbound messages for STOP/HELP/UNSUBSCRIBE and emits a structured candidate list. With --apply it calls workspace rules bulk-add internally to write the block rules in one shot. Drop --apply for a print-only dry run."
+      }
+    ],
+    "trigger_phrases": [
+      "send an SMS via Bird",
+      "audit Bird message delivery",
+      "search Bird conversations",
+      "block list opt-outs from Bird",
+      "Bird tenant readiness check",
+      "use bird",
+      "run bird"
+    ]
+  }
+}

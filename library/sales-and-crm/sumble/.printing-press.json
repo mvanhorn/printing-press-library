@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T05:47:24.903879Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "sumble",
+  "display_name": "Sumble",
+  "cli_name": "sumble-pp-cli",
+  "owner": "user",
+  "printer": "cpard",
+  "spec_path": "/Users/kostaspardalis/printing-press/.runstate/montreal-a09dbbac/runs/20260521-201949/research/sumble-v6-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:09523e47f81608abc7d43acf0f8938f5cbd7b1d8f1603f52e1044bc6c5613d63",
+  "run_id": "20260521-201949",
+  "description": "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed call, a running balance, a budget guard, and a local SQLite cache so you never pay twice.",
+  "mcp_binary": "sumble-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SUMBLE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Pre-call cost estimate",
+      "command": "cost-estimate",
+      "description": "See exactly how many credits a billed Sumble call will cost before you run it."
+    },
+    {
+      "name": "Running credit balance",
+      "command": "balance",
+      "description": "Show remaining Sumble credits and recent burn without spending any."
+    },
+    {
+      "name": "Budget ceiling guard",
+      "command": "budget",
+      "description": "Set a credit ceiling so any call whose estimate exceeds it is refused before it dials."
+    },
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "Break down credits spent over time by endpoint and by day."
+    },
+    {
+      "name": "Stale-cache report",
+      "command": "stale",
+      "description": "List cached organizations, people, and jobs older than Sumble's freshness window."
+    },
+    {
+      "name": "Tech-stack diff",
+      "command": "stack-diff",
+      "description": "Compare two cached organizations' technology stacks — shared and unique technologies."
+    },
+    {
+      "name": "Free-first reconcile",
+      "command": "reconcile",
+      "description": "Resolve a CSV of company names/URLs to Sumble IDs via the cheap match endpoint, then report which still need a billed enrich."
+    }
+  ],
+  "category": "sales-and-crm",
+  "printer_name": "Kostas Pardalis"
+}

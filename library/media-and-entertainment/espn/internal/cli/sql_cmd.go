@@ -13,9 +13,9 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "sql <query>",
+		Use:         "sql <query>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Run read-only SQL queries against the local database",
+		Short:       "Run read-only SQL queries against the local database",
 		Long: `Execute raw SQL SELECT queries against the local SQLite database.
 Write operations (INSERT, UPDATE, DELETE, DROP, ALTER, CREATE) are blocked.
 Available tables: events, teams_domain, news_domain, standings, resources.`,

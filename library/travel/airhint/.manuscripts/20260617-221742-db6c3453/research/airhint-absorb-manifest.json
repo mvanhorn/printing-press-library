@@ -1,0 +1,11 @@
+{
+  "api": "airhint",
+  "scanned_at": "2026-06-17T22:35:00Z",
+  "npm_packages": [],
+  "github_repos": [],
+  "pypi_packages": [],
+  "mcp_servers": [],
+  "competing_clis": [],
+  "verdict": "no_prior_art",
+  "notes": "No npm/PyPI wrappers, MCP servers, or community CLIs found for AirHint. AirHint has no public API documentation. This CLI will be the first open wrapper."
+}

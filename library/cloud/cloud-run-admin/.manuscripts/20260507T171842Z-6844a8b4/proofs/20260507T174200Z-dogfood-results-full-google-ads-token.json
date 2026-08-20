@@ -1,0 +1,1231 @@
+{
+  "dir": "~/printing-press/library/cloud-run-admin",
+  "binary": "~/printing-press/library/cloud-run-admin/cloud-run-admin",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 67,
+  "passed": 67,
+  "failed": 0,
+  "skipped": 62,
+  "commands": [
+    "analytics",
+    "cloud-run-admin-jobs create",
+    "cloud-run-admin-jobs executions list",
+    "cloud-run-admin-jobs list",
+    "cloud-run-admin-jobs run",
+    "doctor",
+    "executions tasks list",
+    "feedback list",
+    "import",
+    "operations list",
+    "operations wait",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "services create",
+    "services get-iam-policy",
+    "services list",
+    "services patch",
+    "services revisions delete",
+    "services revisions get",
+    "services revisions list",
+    "services set-iam-policy",
+    "services test-iam-permissions",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  cloud-run-admin-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  cloud-run-admin-pp-cli analytics --type messages\n\n  # Group by a field\n  cloud-run-admin-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  cloud-run-admin-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "cloud-run-admin-jobs create",
+      "kind": "help",
+      "args": [
+        "cloud-run-admin-jobs",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Creates a Job.\n\nUsage:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs create \u003cparent\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs create example-value\n\nFlags:\n      --annotations string                KRM-style annotations for the resource. Unstructured key value map that may be set by external tools to store and...\n      --binary-authorization string       Settings for Binary Authorization feature.\n      --client string                     Arbitrary identifier for the API client.\n      --client-version string             Arbitrary version identifier for the API client.\n      --conditions string                 Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information...\n      --create-time string                Output only. The creation time.\n      --creator string                    Output only. Email address of the authenticated creator.\n      --delete-time string                Output only. The deletion time.\n      --etag string                       Output only. A system-generated fingerprint for this version of the resource. May be used to detect modification...\n      --execution-count int               Output only. Number of executions created for this job.\n      --expire-time string                Output only. For a deleted resource, the time after which it will be permamently deleted.\n      --generation string                 Output only. A number that monotonically increases every time the user modifies the desired state.\n  -h, --help                              help for create\n      --job-id string                     Required. The unique identifier for the Job. The name of the job becomes {parent}/jobs/{job_id}.\n      --labels string                     KRM-style labels for the resource. User-provided labels are shared with Google's billing system, so they can be used...\n      --last-modifier string              Output only. Email address of the last authenticated modifier.\n      --latest-created-execution string   Reference to an Execution. Use /Executions.GetExecution with the given name to get full execution including the...\n      --launch-stage string               The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/terms/launch-stages)....\n      --name string                       The fully qualified name of this Job. Format: projects/{project}/locations/{location}/jobs/{job}\n      --observed-generation reconciling   Output only. The generation of this Job. See comments in reconciling for additional information on reconciliation...\n      --reconciling                       Output only. Returns true if the Job is currently being acted upon by the system to bring it into the desired state....\n      --satisfies-pzs                     Output only. Reserved for future use.\n      --stdin                             Read request body as JSON from stdin\n      --template string                   ExecutionTemplate describes the data an execution should have when created from a template.\n      --terminal-condition string         Defines a status condition for a resource.\n      --uid string                        Output only. Server assigned unique identifier for the Execution. The value is a UUID4 string and guaranteed to...\n      --update-time string                Output only. The last-modified time.\n      --validate-only                     Indicates that the request should be validated and default values populated, without persisting the request or...\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink:…[truncated]"
+    },
+    {
+      "command": "cloud-run-admin-jobs create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs create",
+      "kind": "error_path",
+      "args": [
+        "cloud-run-admin-jobs",
+        "create",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__/jobs returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__/jobs returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs executions list",
+      "kind": "help",
+      "args": [
+        "cloud-run-admin-jobs",
+        "executions",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists Executions from a Job.\n\nUsage:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs executions list \u003cparent\u003e [flags]\n\nAliases:\n  list, get\n\nExamples:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs executions list example-value\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for list\n      --page-size int       Maximum number of Executions to return in this call.\n      --page-token string   A page token received from a previous call to ListExecutions. All other parameters must match.\n      --show-deleted        If true, returns deleted (but unexpired) resources along with active ones.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs executions list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs executions list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs executions list",
+      "kind": "error_path",
+      "args": [
+        "cloud-run-admin-jobs",
+        "executions",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/executions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/executions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs list",
+      "kind": "help",
+      "args": [
+        "cloud-run-admin-jobs",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists Jobs.\n\nUsage:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs list \u003cparent\u003e [flags]\n\nAliases:\n  list, get\n\nExamples:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs list example-value\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for list\n      --page-size int       Maximum number of Jobs to return in this call.\n      --page-token string   A page token received from a previous call to ListJobs. All other parameters must match.\n      --show-deleted        If true, returns deleted (but unexpired) resources along with active ones.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs list",
+      "kind": "error_path",
+      "args": [
+        "cloud-run-admin-jobs",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/jobs returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/jobs returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs run",
+      "kind": "help",
+      "args": [
+        "cloud-run-admin-jobs",
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Triggers creation of a new Execution of this Job.\n\nUsage:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs run \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli cloud-run-admin-jobs run example-resource\n\nFlags:\n      --etag string     A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during...\n  -h, --help            help for run\n      --stdin           Read request body as JSON from stdin\n      --validate-only   Indicates that the request should be validated without actually deleting any resources.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "cloud-run-admin-jobs run",
+      "kind": "error_path",
+      "args": [
+        "cloud-run-admin-jobs",
+        "run",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__:run returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__:run returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cloud-run-admin-jobs run",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  cloud-run-admin-pp-cli doctor [flags]\n\nExamples:\n  cloud-run-admin-pp-cli doctor\n  cloud-run-admin-pp-cli doctor --json\n  cloud-run-admin-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK API: reachable (HTTP 404 at /)\n  OK Credentials: ok (HTTP 404 from /, but auth was accepted)\n  config_path: ~/.config/cloud-run-admin-pp-cli/config.toml\n  base_url: https://run.googleapis.com\n  auth_source: env:CLOUD_RUN_ADMIN_OAUTH2C\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: ~/.local/share/cloud-run-admin-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 135168\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:CLOUD_RUN_ADMIN_OAUTH2C\",\n  \"base_url\": \"https://run.googleapis.com\",\n  \"cache\": {\n    \"db_bytes\": 135168,\n    \"db_path\": \"~/.local/share/cloud-run-admin-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"~/.config/cloud-run-admin-pp-cli/config.toml\",\n  \"credentials\": \"ok (HTTP 404 from /, but auth was accepted)\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "executions tasks list",
+      "kind": "help",
+      "args": [
+        "executions",
+        "tasks",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists Tasks from an Execution of a Job.\n\nUsage:\n  cloud-run-admin-pp-cli executions tasks list \u003cparent\u003e [flags]\n\nAliases:\n  list, get\n\nExamples:\n  cloud-run-admin-pp-cli executions tasks list example-value\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for list\n      --page-size int       Maximum number of Tasks to return in this call.\n      --page-token string   A page token received from a previous call to ListTasks. All other parameters must match.\n      --show-deleted        If true, returns deleted (but unexpired) resources along with active ones.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "executions tasks list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "executions tasks list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "executions tasks list",
+      "kind": "error_path",
+      "args": [
+        "executions",
+        "tasks",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/tasks returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/tasks returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  cloud-run-admin-pp-cli feedback list [flags]\n\nExamples:\n  cloud-run-admin-pp-cli feedback list\n  cloud-run-admin-pp-cli feedback list --limit 5\n  cloud-run-admin-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:25:38.170199Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:25:38.183722Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:26:05.229375Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:26:05.243068Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:34:26.200415Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:34:26.215812Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:25:38.170199Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:25:38.183722Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:26:05.229375Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:26:05.243068Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:34:26.200415Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"cloud-run-admin-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T17:34:26.215812Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  cloud-run-admin-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  cloud-run-admin-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  cloud-run-admin-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | cloud-run-admin-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "operations list",
+      "kind": "help",
+      "args": [
+        "operations",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it...\n\nUsage:\n  cloud-run-admin-pp-cli operations list \u003cname\u003e [flags]\n\nAliases:\n  list, get\n\nExamples:\n  cloud-run-admin-pp-cli operations list example-resource\n\nFlags:\n      --all                 Fetch all pages\n      --filter string       Optional. A filter for matching the completed or in-progress operations. The supported formats of *filter* are: To...\n  -h, --help                help for list\n      --page-size int       The maximum number of records that should be returned. Requested page size cannot exceed 100. If not set or set to...\n      --page-token string   Token identifying which result to start with, which is returned by a previous list call.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "operations list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "operations list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "operations list",
+      "kind": "error_path",
+      "args": [
+        "operations",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/operations returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/operations returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "operations wait",
+      "kind": "help",
+      "args": [
+        "operations",
+        "wait",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Waits until the specified long-running operation is done or reaches at most a specified timeout, returning the...\n\nUsage:\n  cloud-run-admin-pp-cli operations wait \u003cname\u003e [flags]\n\nAliases:\n  wait, create\n\nExamples:\n  cloud-run-admin-pp-cli operations wait example-resource\n\nFlags:\n  -h, --help             help for wait\n      --stdin            Read request body as JSON from stdin\n      --timeout string   The maximum duration to wait before timing out. If left blank, the wait will be at most the time permitted by the...\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "operations wait",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "operations wait",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "operations wait",
+      "kind": "error_path",
+      "args": [
+        "operations",
+        "wait",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__:wait returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__:wait returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "operations wait",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  cloud-run-admin-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli profile delete my-defaults --yes\n  cloud-run-admin-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  cloud-run-admin-pp-cli profile list [flags]\n\nExamples:\n  cloud-run-admin-pp-cli profile list\n  cloud-run-admin-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  cloud-run-admin-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  cloud-run-admin-pp-cli profile save my-defaults --json --compact\n  cloud-run-admin-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  cloud-run-admin-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli profile show my-defaults\n  cloud-run-admin-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  cloud-run-admin-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli profile use my-defaults\n  cloud-run-admin-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  cloud-run-admin-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  cloud-run-admin-pp-cli search \"error timeout\"\n\n  # Force local search only\n  cloud-run-admin-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  cloud-run-admin-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  cloud-run-admin-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/cloud-run-admin-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "services create",
+      "kind": "help",
+      "args": [
+        "services",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Creates a new Service in a given project and location.\n\nUsage:\n  cloud-run-admin-pp-cli services create \u003cparent\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services create example-value\n\nFlags:\n      --annotations string                    Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable...\n      --binary-authorization string           Settings for Binary Authorization feature.\n      --client string                         Arbitrary identifier for the API client.\n      --client-version string                 Arbitrary version identifier for the API client.\n      --conditions string                     Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information...\n      --create-time string                    Output only. The creation time.\n      --creator string                        Output only. Email address of the authenticated creator.\n      --delete-time string                    Output only. The deletion time.\n      --description string                    User-provided description of the Service. This field currently has a 512-character limit.\n      --etag string                           Output only. A system-generated fingerprint for this version of the resource. May be used to detect modification...\n      --expire-time string                    Output only. For a deleted resource, the time after which it will be permamently deleted.\n      --generation string                     Output only. A number that monotonically increases every time the user modifies the desired state. Please note that...\n  -h, --help                                  help for create\n      --ingress string                        Provides the ingress settings for this Service. On output, returns the currently observed ingress settings, or...\n      --labels string                         Map of string keys and values that can be used to organize and categorize objects. User-provided labels are shared...\n      --last-modifier string                  Output only. Email address of the last authenticated modifier.\n      --latest-created-revision reconciling   Output only. Name of the last created revision. See comments in reconciling for additional information on...\n      --latest-ready-revision reconciling     Output only. Name of the latest revision that is serving traffic. See comments in reconciling for additional...\n      --launch-stage string                   The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/terms/launch-stages)....\n      --name string                           The fully qualified name of this Service. In CreateServiceRequest, this field is ignored, and instead composed from...\n      --observed-generation reconciling       Output only. The generation of this Service currently serving traffic. See comments in reconciling for additional...\n      --reconciling                           Output only. Returns true if the Service is currently being acted upon by the system to bring it into the desired...\n      --satisfies-pzs                         Output only. Reserved for future use.\n      --service-id string                     Required. The unique identifier for the Service. It must begin with letter, and cannot end with hyphen; must contain...\n      --stdin                                 Read request body as JSON from stdin\n      --template string                       RevisionTemplate describes the data a revision should have when created from a template.\n      --terminal-condition string             Defines a status condition for a resource.\n      --traffic string                        Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or...\n      --traffic-statuses reconciling          Output only. Detailed status information for corresponding traffic targets. See comments in reconciling for...\n      --uid string                            Output only. Server assigned unique identifier for th…[truncated]"
+    },
+    {
+      "command": "services create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services create",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "create",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__/services returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__/services returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services get-iam-policy",
+      "kind": "help",
+      "args": [
+        "services",
+        "get-iam-policy",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Gets the IAM Access Control policy currently in effect for the given Cloud Run Service. This result does not include...\n\nUsage:\n  cloud-run-admin-pp-cli services get-iam-policy \u003cresource\u003e [flags]\n\nAliases:\n  get-iam-policy, get\n\nExamples:\n  cloud-run-admin-pp-cli services get-iam-policy example-value\n\nFlags:\n  -h, --help                                   help for get-iam-policy\n      --options-requested-policy-version int   Optional. The maximum policy version that will be used to format the policy. Valid values are 0, 1, and 3. Requests...\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services get-iam-policy",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services get-iam-policy",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services get-iam-policy",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "get-iam-policy",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__:getIamPolicy returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__:getIamPolicy returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services list",
+      "kind": "help",
+      "args": [
+        "services",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists Services.\n\nUsage:\n  cloud-run-admin-pp-cli services list \u003cparent\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services list example-value\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for list\n      --page-size int       Maximum number of Services to return in this call.\n      --page-token string   A page token received from a previous call to ListServices. All other parameters must match.\n      --show-deleted        If true, returns deleted (but unexpired) resources along with active ones.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services list",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/services returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/services returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services patch",
+      "kind": "help",
+      "args": [
+        "services",
+        "patch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Updates a Service.\n\nUsage:\n  cloud-run-admin-pp-cli services patch \u003cname\u003e [flags]\n\nAliases:\n  patch, update\n\nExamples:\n  cloud-run-admin-pp-cli services patch example-resource\n\nFlags:\n      --allow-missing                         This field is currently not used by Cloud Run; setting it does not have any effect.\n      --annotations string                    Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable...\n      --binary-authorization string           Settings for Binary Authorization feature.\n      --client string                         Arbitrary identifier for the API client.\n      --client-version string                 Arbitrary version identifier for the API client.\n      --conditions string                     Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information...\n      --create-time string                    Output only. The creation time.\n      --creator string                        Output only. Email address of the authenticated creator.\n      --delete-time string                    Output only. The deletion time.\n      --description string                    User-provided description of the Service. This field currently has a 512-character limit.\n      --etag string                           Output only. A system-generated fingerprint for this version of the resource. May be used to detect modification...\n      --expire-time string                    Output only. For a deleted resource, the time after which it will be permamently deleted.\n      --generation string                     Output only. A number that monotonically increases every time the user modifies the desired state. Please note that...\n  -h, --help                                  help for patch\n      --ingress string                        Provides the ingress settings for this Service. On output, returns the currently observed ingress settings, or...\n      --labels string                         Map of string keys and values that can be used to organize and categorize objects. User-provided labels are shared...\n      --last-modifier string                  Output only. Email address of the last authenticated modifier.\n      --latest-created-revision reconciling   Output only. Name of the last created revision. See comments in reconciling for additional information on...\n      --latest-ready-revision reconciling     Output only. Name of the latest revision that is serving traffic. See comments in reconciling for additional...\n      --launch-stage string                   The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud.google.com/terms/launch-stages)....\n      --observed-generation reconciling       Output only. The generation of this Service currently serving traffic. See comments in reconciling for additional...\n      --reconciling                           Output only. Returns true if the Service is currently being acted upon by the system to bring it into the desired...\n      --satisfies-pzs                         Output only. Reserved for future use.\n      --stdin                                 Read request body as JSON from stdin\n      --template string                       RevisionTemplate describes the data a revision should have when created from a template.\n      --terminal-condition string             Defines a status condition for a resource.\n      --traffic string                        Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or...\n      --traffic-statuses reconciling          Output only. Detailed status information for corresponding traffic targets. See comments in reconciling for...\n      --uid string                            Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain...\n      --update-time string                    Output only. The last-modified time.\n      --uri string                            Output only. The …[truncated]"
+    },
+    {
+      "command": "services patch",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services patch",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services patch",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "patch",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: PATCH /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPATCH /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services patch",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions delete",
+      "kind": "help",
+      "args": [
+        "services",
+        "revisions",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes a Revision.\n\nUsage:\n  cloud-run-admin-pp-cli services revisions delete \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services revisions delete example-resource\n\nFlags:\n      --etag string     A system-generated fingerprint for this version of the resource. This may be used to detect modification conflict...\n  -h, --help            help for delete\n      --validate-only   Indicates that the request should be validated without actually deleting any resources.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services revisions delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions delete",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "revisions",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: DELETE /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nDELETE /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services revisions delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions get",
+      "kind": "help",
+      "args": [
+        "services",
+        "revisions",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Gets information about a Revision.\n\nUsage:\n  cloud-run-admin-pp-cli services revisions get \u003cname\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services revisions get example-resource\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services revisions get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "services revisions get",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "revisions",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services revisions list",
+      "kind": "help",
+      "args": [
+        "services",
+        "revisions",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists Revisions from a given Service, or from a given location.\n\nUsage:\n  cloud-run-admin-pp-cli services revisions list \u003cparent\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services revisions list example-value\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for list\n      --page-size int       Maximum number of revisions to return in this call.\n      --page-token string   A page token received from a previous call to ListRevisions. All other parameters must match.\n      --show-deleted        If true, returns deleted (but unexpired) resources along with active ones.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services revisions list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services revisions list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"parent\" at depth 0"
+    },
+    {
+      "command": "services revisions list",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "revisions",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/__printing_press_invalid__/revisions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/__printing_press_invalid__/revisions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services set-iam-policy",
+      "kind": "help",
+      "args": [
+        "services",
+        "set-iam-policy",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sets the IAM Access control policy for the specified Service. Overwrites any existing policy.\n\nUsage:\n  cloud-run-admin-pp-cli services set-iam-policy \u003cresource\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services set-iam-policy example-value\n\nFlags:\n  -h, --help                 help for set-iam-policy\n      --policy string        An Identity and Access Management (IAM) policy, which specifies access controls for Google Cloud resources. A...\n      --stdin                Read request body as JSON from stdin\n      --update-mask string   OPTIONAL: A FieldMask specifying which fields of the policy to modify. Only the fields in the mask will be modified....\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services set-iam-policy",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services set-iam-policy",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services set-iam-policy",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "set-iam-policy",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__:setIamPolicy returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__:setIamPolicy returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services set-iam-policy",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services test-iam-permissions",
+      "kind": "help",
+      "args": [
+        "services",
+        "test-iam-permissions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns permissions that a caller has on the specified Project. There are no permissions required for making this...\n\nUsage:\n  cloud-run-admin-pp-cli services test-iam-permissions \u003cresource\u003e [flags]\n\nExamples:\n  cloud-run-admin-pp-cli services test-iam-permissions example-value\n\nFlags:\n  -h, --help                   help for test-iam-permissions\n      --permissions resource   The set of permissions to check for the resource. Permissions with wildcards (such as `*` or `storage.*`) are not...\n      --stdin                  Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "services test-iam-permissions",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services test-iam-permissions",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "services test-iam-permissions",
+      "kind": "error_path",
+      "args": [
+        "services",
+        "test-iam-permissions",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: POST /v2/__printing_press_invalid__:testIamPermissions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\nPOST /v2/__printing_press_invalid__:testIamPermissions returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=en\u003e\n  \u003cmeta charset=utf-8\u003e\n  \u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\n  \u003ctitle\u003eError 404 (Not Found)!!1\u003c/title\u003e\n  \u003cstyle\u003e\n    *{ma...\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "services test-iam-permissions",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"resource\" at depth 0"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  cloud-run-admin-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  cloud-run-admin-pp-cli sync\n\n  # Sync specific resources only\n  cloud-run-admin-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  cloud-run-admin-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  cloud-run-admin-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  cloud-run-admin-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  cloud-run-admin-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int     Number of parallel sync workers (default 4)\n      --db string           Database path (default: ~/.local/share/cloud-run-admin-pp-cli/data.db)\n      --full                Full resync (ignore previous checkpoint)\n  -h, --help                help for sync\n      --latest-only         Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int       Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --resources strings   Comma-separated resource types to sync\n      --since string        Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict              Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and script…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  cloud-run-admin-pp-cli which [query] [flags]\n\nExamples:\n  cloud-run-admin-pp-cli which \"stale tickets\"\n  cloud-run-admin-pp-cli which \"bottleneck\"\n  cloud-run-admin-pp-cli which --limit 1 \"send message\"\n  cloud-run-admin-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  cloud-run-admin-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  cloud-run-admin-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  cloud-run-admin-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/cloud-run-admin-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to ~/.local/share/cloud-run-admin-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"~/.local/share/cloud-run-admin-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-07T18:07:05Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  cloud-run-admin-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  cloud-run-admin-pp-cli workflow status\n\n  # Show status as JSON\n  cloud-run-admin-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'cloud-run-admin-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-07T18:07:02.804734Z"
+}

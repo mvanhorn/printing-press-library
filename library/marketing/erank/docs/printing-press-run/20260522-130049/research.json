@@ -1,0 +1,208 @@
+{
+  "api_name": "erank",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T17:30:00Z",
+  "novel_features": [
+    {
+      "name": "Niche Opportunity Score",
+      "command": "opportunity",
+      "description": "Score a keyword as a seller opportunity using eRank stats, difficulty, competition, and current top listings.",
+      "rationale": "Requires joining multiple eRank Keyword Tool endpoints with local scoring and snapshot history.",
+      "example": "erank-pp-cli opportunity \"dad mug\" --source etsy --country USA --agent",
+      "why_it_matters": "Use this when an agent needs a go/no-go read on a keyword instead of separate raw metric calls.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "Top Listing Gap Analyzer",
+      "command": "listing gaps",
+      "description": "Compare a draft listing title and tags against phrases and tags appearing in top eRank results.",
+      "rationale": "Requires correlating top-listing tags, related searches, near matches, and user-supplied draft copy.",
+      "example": "erank-pp-cli listing gaps \"dad mug\" --title \"Funny Dad Coffee Mug\" --tags \"dad gift,fathers day,mug\" --agent",
+      "why_it_matters": "Use this before publishing or rewriting an Etsy listing from keyword evidence.",
+      "group": "Listing optimization"
+    },
+    {
+      "name": "Tag Consensus Map",
+      "command": "tags consensus",
+      "description": "Find tags that repeatedly appear across top listings, Etsy tag data, related searches, and near matches.",
+      "rationale": "Requires local aggregation across several eRank surfaces that the UI shows separately.",
+      "example": "erank-pp-cli tags consensus \"dad mug\" --source etsy --country USA --min-count 3 --agent",
+      "why_it_matters": "Use this when an agent needs defensible tag candidates grounded in multiple signals.",
+      "group": "Listing optimization"
+    },
+    {
+      "name": "Keyword Drift Watcher",
+      "command": "watch drift",
+      "description": "Detect meaningful changes in keyword competition, difficulty, and top listings across saved snapshots.",
+      "rationale": "Requires local historical snapshots; a single API call cannot show drift.",
+      "example": "erank-pp-cli watch drift \"dad mug\" --days 30 --threshold 15 --agent",
+      "why_it_matters": "Use this to monitor seasonal or competitive shifts without rereading full eRank pages.",
+      "group": "Local history"
+    },
+    {
+      "name": "Keyword Portfolio Optimizer",
+      "command": "lists optimize",
+      "description": "Rank saved keyword lists by weak, saturated, overlapping, and missing keyword opportunities.",
+      "rationale": "Requires combining saved keyword-list terms with live keyword metrics and local scoring.",
+      "example": "erank-pp-cli lists optimize \"Father's Day mugs\" --country USA --agent",
+      "why_it_matters": "Use this when an agent needs to clean up a seller's research list before drafting listings.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "Saturation Warning",
+      "command": "saturation",
+      "description": "Flag crowded keywords by combining competition, difficulty, tag reuse, and top-listing density.",
+      "rationale": "Requires local scoring over multiple eRank signals rather than trusting one metric.",
+      "example": "erank-pp-cli saturation \"dad mug\" --source etsy --country USA --agent",
+      "why_it_matters": "Use this to avoid chasing keywords that look popular but are too crowded to enter.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "POD Angle Finder",
+      "command": "angles",
+      "description": "Extract product angles from related searches, near matches, tags, and current top listings.",
+      "rationale": "Requires evidence-backed clustering over eRank keyword and listing data.",
+      "example": "erank-pp-cli angles \"dad mug\" --source etsy --country USA --limit 10 --agent",
+      "why_it_matters": "Use this when an agent needs product-angle ideas tied to observed demand signals.",
+      "group": "Product research"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Niche Opportunity Score",
+      "command": "opportunity",
+      "description": "Score a keyword as a seller opportunity using eRank stats, difficulty, competition, and current top listings.",
+      "rationale": "Requires joining multiple eRank Keyword Tool endpoints with local scoring and snapshot history.",
+      "example": "erank-pp-cli opportunity \"dad mug\" --source etsy --country USA --agent",
+      "why_it_matters": "Use this when an agent needs a go/no-go read on a keyword instead of separate raw metric calls.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "Top Listing Gap Analyzer",
+      "command": "listing gaps",
+      "description": "Compare a draft listing title and tags against phrases and tags appearing in top eRank results.",
+      "rationale": "Requires correlating top-listing tags, related searches, near matches, and user-supplied draft copy.",
+      "example": "erank-pp-cli listing gaps \"dad mug\" --title \"Funny Dad Coffee Mug\" --tags \"dad gift,fathers day,mug\" --agent",
+      "why_it_matters": "Use this before publishing or rewriting an Etsy listing from keyword evidence.",
+      "group": "Listing optimization"
+    },
+    {
+      "name": "Tag Consensus Map",
+      "command": "tags consensus",
+      "description": "Find tags that repeatedly appear across top listings, Etsy tag data, related searches, and near matches.",
+      "rationale": "Requires local aggregation across several eRank surfaces that the UI shows separately.",
+      "example": "erank-pp-cli tags consensus \"dad mug\" --source etsy --country USA --min-count 3 --agent",
+      "why_it_matters": "Use this when an agent needs defensible tag candidates grounded in multiple signals.",
+      "group": "Listing optimization"
+    },
+    {
+      "name": "Keyword Drift Watcher",
+      "command": "watch drift",
+      "description": "Detect meaningful changes in keyword competition, difficulty, and top listings across saved snapshots.",
+      "rationale": "Requires local historical snapshots; a single API call cannot show drift.",
+      "example": "erank-pp-cli watch drift \"dad mug\" --days 30 --threshold 15 --agent",
+      "why_it_matters": "Use this to monitor seasonal or competitive shifts without rereading full eRank pages.",
+      "group": "Local history"
+    },
+    {
+      "name": "Keyword Portfolio Optimizer",
+      "command": "lists optimize",
+      "description": "Rank saved keyword lists by weak, saturated, overlapping, and missing keyword opportunities.",
+      "rationale": "Requires combining saved keyword-list terms with live keyword metrics and local scoring.",
+      "example": "erank-pp-cli lists optimize \"Father's Day mugs\" --country USA --agent",
+      "why_it_matters": "Use this when an agent needs to clean up a seller's research list before drafting listings.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "Saturation Warning",
+      "command": "saturation",
+      "description": "Flag crowded keywords by combining competition, difficulty, tag reuse, and top-listing density.",
+      "rationale": "Requires local scoring over multiple eRank signals rather than trusting one metric.",
+      "example": "erank-pp-cli saturation \"dad mug\" --source etsy --country USA --agent",
+      "why_it_matters": "Use this to avoid chasing keywords that look popular but are too crowded to enter.",
+      "group": "Seller decisions"
+    },
+    {
+      "name": "POD Angle Finder",
+      "command": "angles",
+      "description": "Extract product angles from related searches, near matches, tags, and current top listings.",
+      "rationale": "Requires evidence-backed clustering over eRank keyword and listing data.",
+      "example": "erank-pp-cli angles \"dad mug\" --source etsy --country USA --limit 10 --agent",
+      "why_it_matters": "Use this when an agent needs product-angle ideas tied to observed demand signals.",
+      "group": "Product research"
+    }
+  ],
+  "narrative": {
+    "display_name": "eRank",
+    "headline": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+    "value_prop": "Use eRank from a terminal to capture keyword stats, top listings, tags, related searches, and keyword lists in agent-ready formats. The CLI adds opportunity scoring, drift detection, and listing-gap analysis on top of the captured Keyword Tool workflow.",
+    "auth_narrative": "This CLI uses an authenticated eRank member session. Run the generated auth setup flow before live commands; captured endpoints require the same browser-compatible session that powers eRank's member tools.",
+    "quickstart": [
+      {
+        "command": "erank-pp-cli doctor",
+        "comment": "Confirm eRank session setup and browser-compatible transport."
+      },
+      {
+        "command": "erank-pp-cli keyword-tool list-top-listings --keyword \"dad mug\" --marketplace etsy --country USA --agent --select title,shop_name,price,tags",
+        "comment": "Pull a compact top-listing view for one Etsy keyword."
+      },
+      {
+        "command": "erank-pp-cli opportunity \"dad mug\" --source etsy --country USA --agent",
+        "comment": "Convert raw eRank keyword signals into a seller decision score."
+      },
+      {
+        "command": "erank-pp-cli tags consensus \"dad mug\" --source etsy --country USA --min-count 3 --agent",
+        "comment": "Find recurring tags backed by several eRank surfaces."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return login or empty member data.",
+        "fix": "Refresh the eRank browser session with the generated auth setup flow, then rerun `erank-pp-cli doctor`."
+      },
+      {
+        "symptom": "Keyword calls stop returning data.",
+        "fix": "Run `erank-pp-cli quota list-daily --agent` and retry after quota resets if daily lookups are exhausted."
+      },
+      {
+        "symptom": "POST keyword endpoints fail live verification.",
+        "fix": "Use `--dry-run` first; this capture has weak POST schema confidence from a single keyword workflow."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need repeatable eRank Keyword Tool research from an agent or script. It is strongest for Etsy keyword decisions, tag extraction, top-listing comparisons, and tracking changes over time.",
+    "recipes": [
+      {
+        "title": "Compact top listings for an agent",
+        "command": "erank-pp-cli keyword-tool list-top-listings --keyword \"dad mug\" --marketplace etsy --country USA --agent --select title,shop_name,price,tags",
+        "explanation": "Returns only listing fields an agent needs for comparison."
+      },
+      {
+        "title": "Score a niche before drafting",
+        "command": "erank-pp-cli opportunity \"dad mug\" --source etsy --country USA --agent",
+        "explanation": "Combines eRank keyword and listing signals into a go/no-go score."
+      },
+      {
+        "title": "Find defensible tags",
+        "command": "erank-pp-cli tags consensus \"dad mug\" --source etsy --country USA --min-count 3 --agent",
+        "explanation": "Extracts recurring tag evidence across captured eRank surfaces."
+      },
+      {
+        "title": "Check draft listing gaps",
+        "command": "erank-pp-cli listing gaps \"dad mug\" --title \"Funny Dad Coffee Mug\" --tags \"dad gift,fathers day,mug\" --agent",
+        "explanation": "Compares draft copy to top-ranking listing evidence."
+      }
+    ],
+    "trigger_phrases": [
+      "research dad mug on eRank",
+      "score an Etsy keyword",
+      "find eRank top listings",
+      "compare Etsy listing tags",
+      "use eRank",
+      "run eRank"
+    ]
+  }
+}

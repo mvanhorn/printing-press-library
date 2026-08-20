@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/1password",
+  "research_dir": "\u003ccli-dir\u003e/pipeline",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

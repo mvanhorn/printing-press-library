@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written promoted command. Spec-driven shape declared in spec.yaml.
 
 package cli
@@ -16,9 +16,9 @@ func newPlaysPromotedCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "plays <sport> <league>",
+		Use:         "plays <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Play-by-play feed for a specific event",
+		Short:       "Play-by-play feed for a specific event",
 		Example: `  espn-pp-cli plays football nfl --event 401547417
   espn-pp-cli plays basketball nba --event 401584793 --limit 50
   espn-pp-cli plays baseball mlb --event 401569551 --agent`,

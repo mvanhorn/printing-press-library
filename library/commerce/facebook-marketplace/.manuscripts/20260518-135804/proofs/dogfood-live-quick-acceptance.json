@@ -1,0 +1,104 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/facebook-market",
+  "binary": "/Users/cathrynlavery/printing-press/library/facebook-market/facebook-market-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 5,
+  "passed": 5,
+  "failed": 0,
+  "skipped": 4,
+  "commands": [
+    "api",
+    "composer price-prediction"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  facebook-market-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  facebook-market-pp-cli api\n\n  # Show methods for a specific interface\n  facebook-market-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'facebook-market-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --write                Allow mutating Facebook Marketplace requests after a recent passing doctor check\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'facebook-market-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'facebook-market-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "composer price-prediction",
+      "kind": "help",
+      "args": [
+        "composer",
+        "price-prediction",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch Marketplace composer price prediction.\n\nUsage:\n  facebook-market-pp-cli composer price-prediction [flags]\n\nExamples:\n  facebook-market-pp-cli composer price-prediction --fb-api-req-friendly-name example-resource\n\nFlags:\n      --doc-id string                     Captured Relay document id. (default \"9566914303429765\")\n      --fb-api-req-friendly-name string   Captured Relay operation name. (default \"useMarketplaceComposerPricePredictionQuery\")\n  -h, --help                              help for price-prediction\n      --variables string                  JSON Relay variables. Fill title, category_id, and photo_id. (default \"{\\\"params\\\":{\\\"category_id\\\":\\\"\\\",\\\"currency\\\":\\\"USD\\\",\\\"photo_id\\\":\\\"\\\",\\\"title\\\":\\\"\\\"}}\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'facebook-market-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --write                Allow mutating Facebook Marketplace requests after a recent passing doctor check\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "composer price-prediction",
+      "kind": "happy_path",
+      "args": [
+        "composer",
+        "price-prediction",
+        "--fb-api-req-friendly-name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/graphql/\",\n  \"resource\": \"composer\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://www.facebook.com/api/graphql/\n  Cookie: ****1%7D\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "composer price-prediction",
+      "kind": "json_fidelity",
+      "args": [
+        "composer",
+        "price-prediction",
+        "--fb-api-req-friendly-name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/api/graphql/\",\n  \"resource\": \"composer\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://www.facebook.com/api/graphql/\n  Cookie: ****1%7D\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "composer price-prediction",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "composer price-prediction",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    }
+  ],
+  "ran_at": "2026-05-18T21:03:04.642815Z"
+}

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-12T23:00:40Z",
+  "elapsed_ms": 5582,
+  "legs": [
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:40Z",
+      "elapsed_ms": 2040,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press dogfood --dir /Users/todd_1/printing-press/library/pushover --spec /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/pushover.internal.yaml --research-dir /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827"
+    },
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:42Z",
+      "elapsed_ms": 2994,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press verify --dir /Users/todd_1/printing-press/library/pushover --spec /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/pushover.internal.yaml --fix --env-var PUSHOVER_APP_TOKEN"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:45Z",
+      "elapsed_ms": 16,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press workflow-verify --dir /Users/todd_1/printing-press/library/pushover"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:45Z",
+      "elapsed_ms": 196,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press verify-skill --dir /Users/todd_1/printing-press/library/pushover"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:46Z",
+      "elapsed_ms": 215,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press validate-narrative --strict --full-examples --research /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/research.json --binary /Users/todd_1/printing-press/library/pushover/pushover"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-12T23:00:46Z",
+      "elapsed_ms": 119,
+      "command": "/Users/todd_1/repo/cli-printing-press/printing-press scorecard --dir /Users/todd_1/printing-press/library/pushover --research-dir /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827 --spec /Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/pushover.internal.yaml --live-check"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/rick/printing-press/.runstate/openclawdocker-03c20893/runs/20260524-003533/working/ollama-cloud-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "gisis-pp-mcp",
+  "display_name": "GISIS",
+  "version": "4.18.1",
+  "description": "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gisis-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gisis-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

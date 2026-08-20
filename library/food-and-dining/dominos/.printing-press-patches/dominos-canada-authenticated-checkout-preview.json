@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "id": "dominos-canada-authenticated-checkout-preview",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260505-175548",
+  "base_printing_press_version": "3.9.1+pr639+dominos-rebase",
+  "summary": "Add market-aware Canadian authentication and Power API routing, sanitized saved-card status, and a read-only latest-order checkout readiness preview.",
+  "reason": "The published CLI hardcoded the US storefront even though Domino's Canada exposes compatible Power endpoints. Canadian users could sign in only by manually redirecting the login browser, while order history, validation, pricing, and saved-card availability remained inaccessible through the CLI.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/client/client.go",
+    "internal/client/client_market_test.go",
+    "internal/cli/root.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_login.go",
+    "internal/cli/auth_login_test.go",
+    "internal/cli/customer.go",
+    "internal/cli/customer_orders.go",
+    "internal/cli/customer_loyalty.go",
+    "internal/cli/customer_cards.go",
+    "internal/cli/orders_place.go",
+    "internal/cli/order_quick.go",
+    "internal/cli/checkout.go",
+    "internal/cli/checkout_preview.go",
+    "internal/cli/checkout_preview_test.go",
+    "go.mod",
+    "go.sum",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "A live Canadian account-history call returned the latest order through the CLI client, and checkout preview validated and priced it while reporting saved-card availability without metadata. Automated tests prove that historical payment fields are stripped, raw account/card responses bypass cache, card metadata is never emitted, unknown validation/pricing statuses fail closed, Canadian headers and credential binding are enforced, market caches are isolated, and Canadian placement paths are rejected.",
+  "findings_addressed": [
+    "US-only base URL and sign-in URL prevented Canadian authenticated use",
+    "Canadian Power endpoints require market headers absent from the generated client",
+    "Historical payment identifiers must not be replayed or exposed",
+    "Checkout feasibility needed a CLI-only, non-transactional inspection path",
+    "The published dependency set contained a reachable vulnerability fixed by the current x/text release"
+  ],
+  "deferred_to_upstream": [
+    "Canadian GraphQL BFF support",
+    "Canadian online-card tokenization",
+    "DomChat server-cart creation and mobile handoff",
+    "Canadian order placement, which requires a separate explicit confirmation and payment-method design"
+  ]
+}

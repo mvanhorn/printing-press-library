@@ -1,0 +1,775 @@
+name: openfda
+display_name: OpenFDA
+version: "1.0"
+base_url: https://api.fda.gov
+description: >
+  The FDA safety data terminal. Every drug adverse event, device recall, food
+  contamination, and product label the FDA publishes — synced locally, searchable
+  offline, with trend analysis no other tool offers.
+
+auth:
+  type: api_key
+  in: query
+  header: api_key
+  env_vars:
+    - FDA_API_KEY
+  required: false
+  description: >
+    Optional. Without key: 40 req/min, 1K/day. With key: 240 req/min, 120K/day.
+    Get a free key at https://open.fda.gov/apis/authentication/
+
+query_style: elasticsearch
+query_params:
+  search: search
+  count: count
+  limit: limit
+  skip: skip
+  sort: sort
+  api_key: api_key
+
+pagination:
+  style: offset
+  limit_param: limit
+  offset_param: skip
+  max_limit: 1000
+  max_offset: 25000
+
+resources:
+  drug-events:
+    display_name: Drug Adverse Events
+    description: Reports of drug side effects, medication errors, product quality problems (FAERS). 4.9M+ reports since 2003.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/event.json
+        description: Search drug adverse event reports
+        params:
+          - name: drug
+            flag_name: drug
+            description: Drug name (brand or generic)
+            in: search
+            field: patient.drug.medicinalproduct
+          - name: reaction
+            flag_name: reaction
+            description: Adverse reaction term (MedDRA preferred term)
+            in: search
+            field: patient.reaction.reactionmeddrapt
+          - name: serious
+            flag_name: serious
+            description: Filter to serious reports only
+            in: search
+            field: serious
+            type: boolean
+          - name: outcome
+            flag_name: outcome
+            description: "Patient outcome: 1=recovered, 2=recovering, 3=not recovered, 4=recovered with sequelae, 5=fatal, 6=unknown"
+            in: search
+            field: patient.reaction.reactionoutcome
+          - name: country
+            flag_name: country
+            description: Country where event occurred (2-letter code)
+            in: search
+            field: occurcountry
+          - name: date_from
+            flag_name: from
+            description: Start date for receipt date range (YYYYMMDD)
+            in: search
+            field: receiptdate
+            type: date_range_start
+          - name: date_to
+            flag_name: to
+            description: End date for receipt date range (YYYYMMDD)
+            in: search
+            field: receiptdate
+            type: date_range_end
+          - name: sex
+            flag_name: sex
+            description: "Patient sex: 0=unknown, 1=male, 2=female"
+            in: search
+            field: patient.patientsex
+      count:
+        method: GET
+        path: /drug/event.json
+        description: Count adverse events by field
+        params:
+          - name: field
+            flag_name: field
+            description: Field to count (use .exact for whole phrases)
+            in: count
+            required: true
+
+  drug-labels:
+    display_name: Drug Product Labels
+    description: Structured product information including prescribing info, black box warnings, indications.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/label.json
+        description: Search drug product labels
+        params:
+          - name: brand_name
+            flag_name: brand
+            description: Brand name of the drug
+            in: search
+            field: openfda.brand_name
+          - name: generic_name
+            flag_name: generic
+            description: Generic name of the drug
+            in: search
+            field: openfda.generic_name
+          - name: manufacturer
+            flag_name: manufacturer
+            description: Manufacturer name
+            in: search
+            field: openfda.manufacturer_name
+          - name: active_ingredient
+            flag_name: ingredient
+            description: Active ingredient
+            in: search
+            field: active_ingredient
+          - name: indication
+            flag_name: indication
+            description: Search within indications and usage text
+            in: search
+            field: indications_and_usage
+          - name: route
+            flag_name: route
+            description: Route of administration (oral, topical, etc.)
+            in: search
+            field: openfda.route
+          - name: product_type
+            flag_name: type
+            description: Product type (HUMAN PRESCRIPTION DRUG, HUMAN OTC DRUG, etc.)
+            in: search
+            field: openfda.product_type
+
+  drug-ndc:
+    display_name: NDC Directory
+    description: National Drug Code directory — product identifiers, packaging, and classification.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/ndc.json
+        description: Search NDC directory
+        params:
+          - name: product_ndc
+            flag_name: ndc
+            description: Product NDC code
+            in: search
+            field: product_ndc
+          - name: brand_name
+            flag_name: brand
+            description: Proprietary/brand name
+            in: search
+            field: brand_name
+          - name: generic_name
+            flag_name: generic
+            description: Non-proprietary/generic name
+            in: search
+            field: generic_name
+          - name: labeler_name
+            flag_name: labeler
+            description: Labeler (manufacturer) name
+            in: search
+            field: labeler_name
+          - name: dosage_form
+            flag_name: form
+            description: Dosage form (TABLET, CAPSULE, etc.)
+            in: search
+            field: dosage_form
+          - name: route
+            flag_name: route
+            description: Route of administration
+            in: search
+            field: route
+          - name: substance_name
+            flag_name: substance
+            description: Active substance name
+            in: search
+            field: active_ingredients.name
+
+  drug-recalls:
+    display_name: Drug Recalls
+    description: Drug product recall enforcement reports.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/enforcement.json
+        description: Search drug recall enforcement reports
+        params:
+          - name: product_description
+            flag_name: product
+            description: Description of recalled product
+            in: search
+            field: product_description
+          - name: recalling_firm
+            flag_name: firm
+            description: Name of the recalling firm
+            in: search
+            field: recalling_firm
+          - name: classification
+            flag_name: class
+            description: "Recall classification: Class I (most serious), II, III"
+            in: search
+            field: classification
+          - name: status
+            flag_name: status
+            description: "Recall status: Ongoing, Completed, Terminated, Pending"
+            in: search
+            field: status
+          - name: reason
+            flag_name: reason
+            description: Reason for the recall
+            in: search
+            field: reason_for_recall
+          - name: state
+            flag_name: state
+            description: State where recalling firm is located
+            in: search
+            field: state
+          - name: date_from
+            flag_name: from
+            description: Start of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_start
+          - name: date_to
+            flag_name: to
+            description: End of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_end
+      count:
+        method: GET
+        path: /drug/enforcement.json
+        description: Count drug recalls by field
+        params:
+          - name: field
+            flag_name: field
+            description: Field to count
+            in: count
+            required: true
+
+  drug-approvals:
+    display_name: Drugs@FDA
+    description: FDA-approved drug products since 1939 — applications, submissions, and marketing status.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/drugsfda.json
+        description: Search approved drug products
+        params:
+          - name: sponsor_name
+            flag_name: sponsor
+            description: Name of the application sponsor
+            in: search
+            field: sponsor_name
+          - name: brand_name
+            flag_name: brand
+            description: Brand name
+            in: search
+            field: products.brand_name
+          - name: active_ingredient
+            flag_name: ingredient
+            description: Active ingredient(s)
+            in: search
+            field: products.active_ingredients.name
+          - name: dosage_form
+            flag_name: form
+            description: Dosage form
+            in: search
+            field: products.dosage_form
+          - name: marketing_status
+            flag_name: status
+            description: Marketing status (Prescription, Over-the-counter, etc.)
+            in: search
+            field: products.marketing_status
+          - name: application_number
+            flag_name: app-number
+            description: FDA application number (NDA or ANDA)
+            in: search
+            field: application_number
+
+  drug-shortages:
+    display_name: Drug Shortages
+    description: Current and historical drug shortages from manufacturing issues, delays, and discontinuations.
+    endpoints:
+      list:
+        method: GET
+        path: /drug/shortages.json
+        description: Search drug shortages
+        params:
+          - name: product_name
+            flag_name: product
+            description: Product name
+            in: search
+            field: proprietary_name
+          - name: generic_name
+            flag_name: generic
+            description: Generic name
+            in: search
+            field: nonproprietary_name
+          - name: status
+            flag_name: status
+            description: Shortage status (Currently in Shortage, Resolved, etc.)
+            in: search
+            field: status
+          - name: designation
+            flag_name: designation
+            description: Shortage designation
+            in: search
+            field: shortage_designation
+
+  device-events:
+    display_name: Device Adverse Events
+    description: Medical device adverse event reports (MAUDE/MDR) — injuries, deaths, malfunctions.
+    endpoints:
+      list:
+        method: GET
+        path: /device/event.json
+        description: Search device adverse event reports
+        params:
+          - name: device_name
+            flag_name: device
+            description: Device brand or generic name
+            in: search
+            field: device.brand_name
+          - name: manufacturer
+            flag_name: manufacturer
+            description: Manufacturer name
+            in: search
+            field: device.manufacturer_d_name
+          - name: product_code
+            flag_name: code
+            description: FDA product code
+            in: search
+            field: device.device_report_product_code
+          - name: event_type
+            flag_name: type
+            description: "Event type: Injury, Malfunction, Death, Other"
+            in: search
+            field: event_type
+          - name: date_from
+            flag_name: from
+            description: Start of date range (YYYYMMDD)
+            in: search
+            field: date_received
+            type: date_range_start
+          - name: date_to
+            flag_name: to
+            description: End of date range (YYYYMMDD)
+            in: search
+            field: date_received
+            type: date_range_end
+      count:
+        method: GET
+        path: /device/event.json
+        description: Count device events by field
+        params:
+          - name: field
+            flag_name: field
+            description: Field to count
+            in: count
+            required: true
+
+  device-510k:
+    display_name: 510(k) Clearances
+    description: Premarket notification submissions demonstrating substantial equivalence.
+    endpoints:
+      list:
+        method: GET
+        path: /device/510k.json
+        description: Search 510(k) clearance records
+        params:
+          - name: device_name
+            flag_name: device
+            description: Device name
+            in: search
+            field: device_name
+          - name: applicant
+            flag_name: applicant
+            description: Applicant/company name
+            in: search
+            field: applicant
+          - name: product_code
+            flag_name: code
+            description: Product code
+            in: search
+            field: product_code
+          - name: clearance_type
+            flag_name: type
+            description: Clearance type (Traditional, Special, Abbreviated)
+            in: search
+            field: clearance_type
+          - name: decision_date_from
+            flag_name: from
+            description: Start of decision date range (YYYYMMDD)
+            in: search
+            field: decision_date
+            type: date_range_start
+          - name: decision_date_to
+            flag_name: to
+            description: End of decision date range (YYYYMMDD)
+            in: search
+            field: decision_date
+            type: date_range_end
+
+  device-classification:
+    display_name: Device Classification
+    description: Medical device product codes, specialty areas, and regulatory class.
+    endpoints:
+      list:
+        method: GET
+        path: /device/classification.json
+        description: Search device classifications
+        params:
+          - name: device_name
+            flag_name: device
+            description: Device name
+            in: search
+            field: device_name
+          - name: device_class
+            flag_name: class
+            description: "Device class: 1, 2, or 3"
+            in: search
+            field: device_class
+          - name: medical_specialty
+            flag_name: specialty
+            description: Medical specialty code
+            in: search
+            field: medical_specialty_description
+          - name: product_code
+            flag_name: code
+            description: Product code
+            in: search
+            field: product_code
+          - name: regulation_number
+            flag_name: regulation
+            description: CFR regulation number
+            in: search
+            field: regulation_number
+
+  device-recalls:
+    display_name: Device Recalls
+    description: Medical device recall enforcement reports.
+    endpoints:
+      list:
+        method: GET
+        path: /device/enforcement.json
+        description: Search device recall enforcement reports
+        params:
+          - name: product_description
+            flag_name: product
+            description: Product description
+            in: search
+            field: product_description
+          - name: recalling_firm
+            flag_name: firm
+            description: Recalling firm name
+            in: search
+            field: recalling_firm
+          - name: classification
+            flag_name: class
+            description: "Recall class: Class I, II, III"
+            in: search
+            field: classification
+          - name: status
+            flag_name: status
+            description: Recall status
+            in: search
+            field: status
+          - name: product_code
+            flag_name: code
+            description: Product code
+            in: search
+            field: product_code
+          - name: date_from
+            flag_name: from
+            description: Start of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_start
+          - name: date_to
+            flag_name: to
+            description: End of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_end
+
+  device-pma:
+    display_name: Premarket Approval
+    description: Class III medical device premarket approval decisions.
+    endpoints:
+      list:
+        method: GET
+        path: /device/pma.json
+        description: Search premarket approval records
+        params:
+          - name: trade_name
+            flag_name: device
+            description: Trade/device name
+            in: search
+            field: trade_name
+          - name: applicant
+            flag_name: applicant
+            description: Applicant name
+            in: search
+            field: applicant
+          - name: product_code
+            flag_name: code
+            description: Product code
+            in: search
+            field: product_code
+          - name: decision_code
+            flag_name: decision
+            description: Decision code (APPR, DENY, etc.)
+            in: search
+            field: decision_code
+
+  device-recall-detail:
+    display_name: Device Recall Actions
+    description: Detailed device recall actions addressing defects or health risks.
+    endpoints:
+      list:
+        method: GET
+        path: /device/recall.json
+        description: Search device recall action details
+        params:
+          - name: product_description
+            flag_name: product
+            description: Product description
+            in: search
+            field: product_description
+          - name: recalling_firm
+            flag_name: firm
+            description: Recalling firm
+            in: search
+            field: recalling_firm
+          - name: root_cause
+            flag_name: cause
+            description: Root cause description
+            in: search
+            field: root_cause_description
+
+  device-registration:
+    display_name: Registration & Listing
+    description: Medical device manufacturing establishment registrations and product listings.
+    endpoints:
+      list:
+        method: GET
+        path: /device/registrationlisting.json
+        description: Search device registrations and listings
+        params:
+          - name: establishment_type
+            flag_name: type
+            description: Establishment type
+            in: search
+            field: establishment_type
+          - name: proprietary_name
+            flag_name: name
+            description: Proprietary name
+            in: search
+            field: products.proprietary_name
+
+  device-udi:
+    display_name: Unique Device Identifier
+    description: Global Unique Device Identification Database (GUDID).
+    endpoints:
+      list:
+        method: GET
+        path: /device/udi.json
+        description: Search unique device identifiers
+        params:
+          - name: brand_name
+            flag_name: brand
+            description: Device brand name
+            in: search
+            field: brand_name
+          - name: company_name
+            flag_name: company
+            description: Company name
+            in: search
+            field: company_name
+          - name: device_description
+            flag_name: description
+            description: Device description
+            in: search
+            field: device_description
+
+  device-covid19:
+    display_name: COVID-19 Serology
+    description: COVID-19 serological testing evaluation data.
+    endpoints:
+      list:
+        method: GET
+        path: /device/covid19serology.json
+        description: Search COVID-19 serology test evaluations
+        params:
+          - name: manufacturer
+            flag_name: manufacturer
+            description: Test manufacturer
+            in: search
+            field: manufacturer
+          - name: device
+            flag_name: device
+            description: Test device name
+            in: search
+            field: device
+
+  food-recalls:
+    display_name: Food Recalls
+    description: Food product recall enforcement reports.
+    endpoints:
+      list:
+        method: GET
+        path: /food/enforcement.json
+        description: Search food recall enforcement reports
+        params:
+          - name: product_description
+            flag_name: product
+            description: Product description
+            in: search
+            field: product_description
+          - name: recalling_firm
+            flag_name: firm
+            description: Recalling firm
+            in: search
+            field: recalling_firm
+          - name: classification
+            flag_name: class
+            description: "Recall class: Class I, II, III"
+            in: search
+            field: classification
+          - name: reason
+            flag_name: reason
+            description: Reason for recall
+            in: search
+            field: reason_for_recall
+          - name: status
+            flag_name: status
+            description: Recall status
+            in: search
+            field: status
+          - name: date_from
+            flag_name: from
+            description: Start of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_start
+          - name: date_to
+            flag_name: to
+            description: End of report date range (YYYYMMDD)
+            in: search
+            field: report_date
+            type: date_range_end
+      count:
+        method: GET
+        path: /food/enforcement.json
+        description: Count food recalls by field
+        params:
+          - name: field
+            flag_name: field
+            description: Field to count
+            in: count
+            required: true
+
+  food-events:
+    display_name: Food Adverse Events
+    description: CAERS reports — food, dietary supplement, and cosmetic adverse events.
+    endpoints:
+      list:
+        method: GET
+        path: /food/event.json
+        description: Search food/supplement adverse event reports
+        params:
+          - name: product
+            flag_name: product
+            description: Product name or industry name
+            in: search
+            field: products.name_brand
+          - name: reaction
+            flag_name: reaction
+            description: Reported reaction/symptom
+            in: search
+            field: reactions
+          - name: outcome
+            flag_name: outcome
+            description: Outcome (hospitalization, ER visit, etc.)
+            in: search
+            field: outcomes
+
+  animal-events:
+    display_name: Animal Adverse Events
+    description: Animal drug and device adverse event reports.
+    endpoints:
+      list:
+        method: GET
+        path: /animalandveterinary/event.json
+        description: Search animal adverse event reports
+        params:
+          - name: animal
+            flag_name: animal
+            description: Animal species
+            in: search
+            field: animal.species.name
+          - name: breed
+            flag_name: breed
+            description: Animal breed
+            in: search
+            field: animal.breed.breed_component
+          - name: drug
+            flag_name: drug
+            description: Drug name
+            in: search
+            field: drug.active_ingredients.name
+
+  tobacco-problems:
+    display_name: Tobacco Problems
+    description: Tobacco product problem reports.
+    endpoints:
+      list:
+        method: GET
+        path: /tobacco/problem.json
+        description: Search tobacco problem reports
+        params:
+          - name: product_type
+            flag_name: type
+            description: Product type (cigarettes, e-cigarettes, etc.)
+            in: search
+            field: tobacco_products
+
+  substance:
+    display_name: Substance Data
+    description: Substance data from the FDA substance registration system.
+    endpoints:
+      list:
+        method: GET
+        path: /other/substance.json
+        description: Search substance records
+        params:
+          - name: substance_name
+            flag_name: name
+            description: Substance name
+            in: search
+            field: substance_name
+
+  nsde:
+    display_name: NSDE
+    description: Non-Standardized Drug Entities — drug names that don't map to standard terminology.
+    endpoints:
+      list:
+        method: GET
+        path: /other/nsde.json
+        description: Search non-standardized drug entities
+        params:
+          - name: proprietary_name
+            flag_name: name
+            description: Proprietary drug name
+            in: search
+            field: proprietary_name
+          - name: package_ndc
+            flag_name: ndc
+            description: Package NDC code
+            in: search
+            field: package_ndc
+

@@ -1,0 +1,1 @@
+TMPDIR=/tmp/printing-press/wp-validate.tg76A8

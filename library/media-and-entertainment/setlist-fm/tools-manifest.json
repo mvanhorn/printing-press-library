@@ -1,0 +1,438 @@
+{
+  "api_name": "setlist-fm",
+  "base_url": "https://api.example.com",
+  "description": "\u003cp\u003e\nThe setlist.fm API has been designed to give you easy access to setlist data in order to build fancy websites and\nother applications. Before starting to use the API, be sure to ...\n\u003col\u003e\n\u003cli\u003e... understand how setlist.fm works (the \u003ca href=\"https://www.setlist.fm/faq\"\u003eFAQ\u003c/a\u003e and the\n\u003ca href=\"https://www.setlist.fm/guidelines\"\u003eGuidelines\u003c/a\u003e are a good starting point),\u003c/li\u003e\n\u003cli\u003e... read this documentation carefully and\u003c/li\u003e\n\u003cli\u003e... \u003ca href=\"https://www.setlist.fm/settings/api\"\u003eapply for an API key\u003c/a\u003e (link for logged in users only) - if\nyou're no registered user yet, then \u003ca href=\"https://www.setlist.fm/signup\"\u003eregister first\u003c/a\u003e (it's free).\u003c/li\u003e\n\u003c/ol\u003e\n\u003c/p\u003e\n\u003cp\u003e\nIf this documentation isn't enough or if you've got other things you'd like to tell us about the API, visit the\n\u003ca href=\"https://www.setlist.fm/forum/setlistfm/setlistfm-api\"\u003eAPI Forum\u003c/a\u003e.\n\u003c/p\u003e\n\u003cp\u003e\nNote that the setlist.fm API is, according to the \u003ca href=\"https://www.setlist.fm/help/api-terms\"\u003eAPI terms of\nservice\u003c/a\u003e, only free for non-commercial projects. If you're interested in using the API for commercial purposes,\n\u003ca href=\"https://www.setlist.fm/contact\"\u003econtact us\u003c/a\u003e.\n\u003c/p\u003e\n\n\u003ch2\u003eAbout this Service\u003c/h2\u003e\n\u003cp\u003e\nThis service provides methods to get both setlists and components of setlists such as artists, cities, countries or\nvenues.\n\u003c/p\u003e\n\n\u003ch2\u003eSupported Content Types\u003c/h2\u003e\n\u003cp\u003e\nThe REST service currently supports XML (default) and JSON content.\n\u003c/p\u003e\n\u003cp\u003e\nTo receive a JSON response, set the \u003ccode\u003eAccept\u003c/code\u003e\n\u003ca href=\"https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1\"\u003eheader\u003c/a\u003e to \u003cem\u003eapplication/json\u003c/em\u003e.\n\u003c/p\u003e\n\n\u003ch2\u003eInternationalization\u003c/h2\u003e\n\u003cp\u003e\n\u003csmall\u003e(Please note that this is an experimental feature and does not work for all cities!)\u003c/small\u003e\n\u003c/p\u003e\n\u003cp\u003e\nMost of the featured methods honor the \u003ccode\u003eAccept-Language\u003c/code\u003e\n\u003ca href=\"https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4\"\u003eheader\u003c/a\u003e. This header is used for\nlocalizing cities and countries. The default language is English (en), but you can provide any of the languages\nSpanish (es), French (fr), German (de), Portuguese (pt), Turkish (tr), Italian (it) or Polish (pl).\n\u003c/p\u003e\n\u003cp\u003e\nE.g. if you search a setlist for a concert that took place in Vienna and you pass \u0026quot;de\u0026quot; as header, you'll\nget \u003cem\u003e\u0026quot;Wien, \u0026Ouml;sterreich\u0026quot;\u003c/em\u003e instead of \u003cem\u003e\u0026quot;Vienna, Austria\u0026quot;\u003c/em\u003e.\u003cbr/\u003e\nThis also works if you use a different language than the country's native language.\n\u003c/p\u003e\n\u003cp\u003e\nE.g. for a concert in New York, you'll get \u003cem\u003e\u0026quot;Nueva York, Estados Unidos\u0026quot;\u003c/em\u003e instead of \u003cem\u003e\u0026quot;New\nYork, United States\u0026quot;\u003c/em\u003e if you pass \u0026quot;es\u0026quot; as language.\n\u003c/p\u003e\n\n\u003ch2\u003eAPI Keys\u003c/h2\u003e\n\nAPI keys (\u003ca href=\"https://www.setlist.fm/settings/api\"\u003eapplication form\u003c/a\u003e) must be included in the request with\nthe \u003ccode\u003ex-api-key\u003c/code\u003e header.\n\n\u003ch2\u003eVersion History\u003c/h2\u003e\n\u003ctable class=\"table table-bordered table-versions\"\u003e\n\u003cthead\u003e\n\u003ctr\u003e\n\u003cth\u003eVersion\u003c/th\u003e\n\u003cth\u003eDocs\u003c/th\u003e\n\u003cth\u003eEnd of Service\u003c/th\u003e\n\u003c/tr\u003e\n\u003c/thead\u003e \u003ctbody\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003cstrong\u003e1.0\u003c/strong\u003e\u003c/td\u003e\n\u003ctd\u003e\u003ca href=\"/docs/1.0\"\u003eDocs\u003c/a\u003e\u003c/td\u003e\n\u003ctd\u003e-\u003c/li\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003cstrong\u003e0.1\u003c/strong\u003e\u003c/td\u003e\n\u003ctd\u003e\u003c/td\u003e\n\u003ctd\u003eDecember 31, 2017\u003c/li\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Key",
+    "in": "header",
+    "env_vars": [
+      "SETLIST_FM_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SETLIST_FM_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "1-0_resource-artist-mbid-get-artist-get",
+      "description": "\u003cp\u003e Returns an artist for a given Musicbrainz MBID \u003c/p\u003e. Required: mbid.",
+      "method": "GET",
+      "path": "/1.0/artist/{mbid}",
+      "params": [
+        {
+          "name": "mbid",
+          "type": "string",
+          "location": "path",
+          "description": "a Musicbrainz MBID, e.g. 0bfba3d3-6a04-4779-bb0a-df07df5b0558",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-artist-mbid-setlists-get-artist-setlists-get",
+      "description": "\u003cp\u003e Get a list of an artist's setlists. \u003c/p\u003e. Required: mbid. Optional: p.",
+      "method": "GET",
+      "path": "/1.0/artist/{mbid}/setlists",
+      "params": [
+        {
+          "name": "mbid",
+          "type": "string",
+          "location": "path",
+          "description": "the Musicbrainz MBID of the artist",
+          "required": true
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-city-geo-id-get-city-get",
+      "description": "Get a city by its unique geoId. Required: geoId.",
+      "method": "GET",
+      "path": "/1.0/city/{geoId}",
+      "params": [
+        {
+          "name": "geoId",
+          "type": "string",
+          "location": "path",
+          "description": "the city's geoId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-search-artists-get-artists-get",
+      "description": "Search for artists. Optional: artistMbid, artistName, artistTmid (plus 2 more).",
+      "method": "GET",
+      "path": "/1.0/search/artists",
+      "params": [
+        {
+          "name": "artistMbid",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's Musicbrainz Identifier (mbid)"
+        },
+        {
+          "name": "artistName",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's name"
+        },
+        {
+          "name": "artistTmid",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's Ticketmaster Identifier (tmid) (deprecated)"
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page you'd like to have"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "the sort of the result, either sortName (default) or relevance"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-search-cities-get-cities-get",
+      "description": "Search for a city. Optional: country, name, p (plus 2 more).",
+      "method": "GET",
+      "path": "/1.0/search/cities",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "the city's country"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "name of the city"
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page you'd like to have"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "state the city lies in"
+        },
+        {
+          "name": "stateCode",
+          "type": "string",
+          "location": "query",
+          "description": "state code the city lies in"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-search-countries-get-countries-get",
+      "description": "Get a complete list of all supported countries.",
+      "method": "GET",
+      "path": "/1.0/search/countries",
+      "params": []
+    },
+    {
+      "name": "1-0_resource-search-setlists-get-setlists-get",
+      "description": "Search for setlists. Optional: artistMbid, artistName, artistTmid (plus 13 more).",
+      "method": "GET",
+      "path": "/1.0/search/setlists",
+      "params": [
+        {
+          "name": "artistMbid",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's Musicbrainz Identifier (mbid)"
+        },
+        {
+          "name": "artistName",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's name"
+        },
+        {
+          "name": "artistTmid",
+          "type": "string",
+          "location": "query",
+          "description": "the artist's Ticketmaster Identifier (tmid) (deprecated)"
+        },
+        {
+          "name": "cityId",
+          "type": "string",
+          "location": "query",
+          "description": "the city's geoId"
+        },
+        {
+          "name": "cityName",
+          "type": "string",
+          "location": "query",
+          "description": "the name of the city"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "the country code"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "the date of the event (format dd-MM-yyyy)"
+        },
+        {
+          "name": "lastFm",
+          "type": "string",
+          "location": "query",
+          "description": "the event's Last.fm Event ID (deprecated)"
+        },
+        {
+          "name": "lastUpdated",
+          "type": "string",
+          "location": "query",
+          "description": "the date and time (UTC) when this setlist was last updated (format yyyyMMddHHmmss) - either edited or reverted. search will return setlists that were updated on or after this date"
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "the state"
+        },
+        {
+          "name": "stateCode",
+          "type": "string",
+          "location": "query",
+          "description": "the state code"
+        },
+        {
+          "name": "tourName",
+          "type": "string",
+          "location": "query",
+          "description": "Tour name"
+        },
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "query",
+          "description": "the venue id"
+        },
+        {
+          "name": "venueName",
+          "type": "string",
+          "location": "query",
+          "description": "the name of the venue"
+        },
+        {
+          "name": "year",
+          "type": "string",
+          "location": "query",
+          "description": "the year of the event"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-search-venues-get-venues-get",
+      "description": "Search for venues. Optional: cityId, cityName, country (plus 4 more).",
+      "method": "GET",
+      "path": "/1.0/search/venues",
+      "params": [
+        {
+          "name": "cityId",
+          "type": "string",
+          "location": "query",
+          "description": "the city's geoId"
+        },
+        {
+          "name": "cityName",
+          "type": "string",
+          "location": "query",
+          "description": "name of the city where the venue is located"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "the city's country"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "name of the venue"
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page you'd like to have"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "the city's state"
+        },
+        {
+          "name": "stateCode",
+          "type": "string",
+          "location": "query",
+          "description": "the city's state code"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-setlist-setlist-id-get-setlist-get",
+      "description": "\u003cp\u003e Returns the current version of a setlist. E.g. if you pass the id of a setlist that got edited since you last accessed it, you'll get the current version. \u003c/p\u003e. Required: setlistId.",
+      "method": "GET",
+      "path": "/1.0/setlist/{setlistId}",
+      "params": [
+        {
+          "name": "setlistId",
+          "type": "string",
+          "location": "path",
+          "description": "the setlist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-setlist-version-version-id-get-setlist-version-get",
+      "description": "\u003cp\u003e \u003cstrong\u003eDeprecated\u003c/strong\u003e - always returns \u003cem\u003eNot Found (404)\u003c/em\u003e \u003c/p\u003e \u003cp\u003e Returns a setlist for the given versionId. The setlist returned isn't necessarily the most recent version. E.g. if you pass the versionId of a setlist that got edited since you last accessed it, you'll get the same version as last time. \u003c/p\u003e. Required: versionId.",
+      "method": "GET",
+      "path": "/1.0/setlist/version/{versionId}",
+      "params": [
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "path",
+          "description": "the version id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-user-user-id-attended-get-user-attended-setlists-get",
+      "description": "\u003cp\u003e Get a list of setlists of concerts attended by a user. \u003c/p\u003e. Required: userId. Optional: p.",
+      "method": "GET",
+      "path": "/1.0/user/{userId}/attended",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "the user's userId",
+          "required": true
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-user-user-id-edited-get-user-edited-setlists-get",
+      "description": "\u003cp\u003e Get a list of setlists of concerts edited by a user. The list contains the current version, not the version edited. \u003c/p\u003e. Required: userId. Optional: p.",
+      "method": "GET",
+      "path": "/1.0/user/{userId}/edited",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "the user's userId",
+          "required": true
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page"
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-user-user-id-get-user-get",
+      "description": "Get a user by userId. (deprecated) Note: This endpoint always returns a result, even if the user doesn't exist. Required: userId.",
+      "method": "GET",
+      "path": "/1.0/user/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "the user's userId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-venue-venue-id-get-venue-get",
+      "description": "Get a venue by its unique id. Required: venueId.",
+      "method": "GET",
+      "path": "/1.0/venue/{venueId}",
+      "params": [
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "path",
+          "description": "the venue's id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_resource-venue-venue-id-setlists-get-venue-setlists-get",
+      "description": "\u003cp\u003e Get setlists for a specific venue. \u003c/p\u003e. Required: venueId. Optional: p.",
+      "method": "GET",
+      "path": "/1.0/venue/{venueId}/setlists",
+      "params": [
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "path",
+          "description": "the id of the venue",
+          "required": true
+        },
+        {
+          "name": "p",
+          "type": "string",
+          "location": "query",
+          "description": "the number of the result page"
+        }
+      ]
+    }
+  ]
+}

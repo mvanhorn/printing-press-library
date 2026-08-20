@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T08:49:34.951342703Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "tenderned",
+  "display_name": "TenderNed",
+  "cli_name": "tenderned-pp-cli",
+  "creator": {
+    "handle": "markvandeven",
+    "name": "markvandeven"
+  },
+  "owner": "markvandeven",
+  "printer": "markvandeven",
+  "printer_name": "markvandeven",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:5d98a1ee6e331681cd6759533e987803ab56777836e5d592b297adf86024d4f1",
+  "run_id": "20260527-084934",
+  "regions": [
+    "NL"
+  ],
+  "api_language": "nl",
+  "description": "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees.",
+  "mcp_binary": "tenderned-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none"
+}

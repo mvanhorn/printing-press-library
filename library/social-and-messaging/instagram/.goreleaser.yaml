@@ -1,0 +1,51 @@
+version: 2
+project_name: instagram-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: instagram-pp-cli
+    main: ./cmd/instagram-pp-cli
+    binary: instagram-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/instagram/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: instagram-pp-mcp
+    main: ./cmd/instagram-pp-mcp
+    binary: instagram-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: instagram-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//instagram-pp-cli"
+    description: "Every Instagram Business metric across all your brand accounts"
+    install: |
+      bin.install "instagram-pp-cli"
+      bin.install "instagram-pp-mcp"

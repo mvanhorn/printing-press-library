@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "nutrition",
+  "run_id": "20260702-105700",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 83,
+  "tests_passed": 83,
+  "tests_skipped": 60,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

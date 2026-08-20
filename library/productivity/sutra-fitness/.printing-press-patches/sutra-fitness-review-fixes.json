@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sutra-fitness-review-fixes",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-020029-7f8843b9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Strip a stray backtick the generator appends after the base URL in auth/doctor/helpers/MCP key-hint strings, and rank churn's no-check-in-on-record clients first.",
+  "reason": "The generator templates the 'Get a key at: <base_url>' hints with a trailing backtick, producing a malformed URL that auth setup prints and browser-opens. churn used a -1 sentinel for never-attended clients that sorted them last under descending order, hiding the most at-risk clients.",
+  "files": ["internal/cli/auth.go", "internal/cli/helpers.go", "internal/cli/doctor.go", "internal/mcp/tools.go", "internal/cli/churn.go"],
+  "validated_outcome": "Greptile P1 (malformed auth URL) and P2 (churn sort) resolved; build + shipcheck green.",
+  "upstream_issue": ""
+}

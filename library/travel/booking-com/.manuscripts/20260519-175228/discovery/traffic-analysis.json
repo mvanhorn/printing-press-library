@@ -1,0 +1,206 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.booking.com/",
+    "captured_at": "2026-05-20T01:05:00Z",
+    "entry_count": 14,
+    "api_entry_count": 1,
+    "noise_entry_count": 13,
+    "host_distribution": {
+      "www.booking.com": 4,
+      "secure.booking.com": 2,
+      "otel-gw.booking.com": 1,
+      "sink.gw.booking.com": 1,
+      "d8c14d4960ca.edge.sdk.awswaf.com": 6
+    },
+    "time_start": "2026-05-20T01:00:30Z",
+    "time_end": "2026-05-20T01:04:55Z"
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.9,
+    "reasons": [
+      "stdlib HTTP probe returned HTTP 202 with AWS WAF challenge marker",
+      "Surf+Chrome TLS fingerprint probe returned HTTP 202 text/html with full search-results body",
+      "All authenticated SSR pages (mytrips.html, mywishlist.html) loaded successfully with the user's cookies via real Chrome"
+    ],
+    "evidence": [
+      "stdlib status=202 evidence=AWS WAF marker",
+      "surf-chrome status=202 content-type=text/html elapsed_ms=161",
+      "search-results page rendered 25 property-card blocks server-side with no XHR"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_html",
+      "confidence": 0.95,
+      "details": {
+        "where": "/searchresults.html, /hotel/<country>/<slug>.html, /reviewlist.html, /mytrips.html, /mywishlist.html",
+        "extraction": "data-testid attributes plus JSON-LD Hotel schema",
+        "evidence_paths": "[data-testid=\"property-card\"], [data-testid=\"title\"], [data-testid=\"price-and-discounted-price\"], [data-testid=\"review-score\"], application/ld+json @type=Hotel"
+      }
+    },
+    {
+      "label": "rest_graphql",
+      "confidence": 0.7,
+      "details": {
+        "endpoint": "https://www.booking.com/dml/graphql?lang=en-us",
+        "operations": "FullSearch, MapMarkersDesktop, review pagination",
+        "csrf_header": "X-Booking-CSRF-Token",
+        "csrf_source": "b_csrf_token: '...' in search-results page HTML"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95,
+        "domain_hints": ["www.booking.com"],
+        "evidence": []
+      },
+      {
+        "type": "cookie",
+        "confidence": 0.95,
+        "cookie_names": ["aws-waf-token", "bkng", "bkng_sso_session", "cgumid", "bkng_prue"],
+        "domain_hints": [".booking.com", ".secure.booking.com"],
+        "evidence": []
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "aws_waf",
+      "confidence": 0.95,
+      "notes": [
+        "AWS WAF Bot Control fronts all www.booking.com routes",
+        "stdlib HTTP returns HTTP 202 with WAF challenge body",
+        "Surf with Chrome TLS fingerprint clears the challenge with no clearance cookie required",
+        "Live tab populates an aws-waf-token cookie that the printed CLI should import from Chrome on first auth-required call"
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.booking.com",
+      "method": "GET",
+      "path": "/",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "large"
+    },
+    {
+      "host": "www.booking.com",
+      "method": "GET",
+      "path": "/searchresults.html",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "huge",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {"name": "data-testid=property-card", "type": "selector"},
+          {"name": "b_csrf_token", "type": "string", "format": "csrf"}
+        ]
+      }
+    },
+    {
+      "host": "www.booking.com",
+      "method": "GET",
+      "path": "/hotel/{country}/{slug}.html",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "large",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {"name": "application/ld+json", "type": "object", "format": "schema.org/Hotel"},
+          {"name": "aggregateRating.ratingValue", "type": "float"},
+          {"name": "aggregateRating.reviewCount", "type": "int"},
+          {"name": "address.streetAddress", "type": "string"},
+          {"name": "address.postalCode", "type": "string"}
+        ]
+      }
+    },
+    {
+      "host": "secure.booking.com",
+      "method": "GET",
+      "path": "/mytrips.html",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "huge"
+    },
+    {
+      "host": "www.booking.com",
+      "method": "GET",
+      "path": "/mywishlist.html",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "huge"
+    },
+    {
+      "host": "www.booking.com",
+      "method": "POST",
+      "path": "/dml/graphql",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["application/json"],
+      "request_shape": {
+        "kind": "json",
+        "fields": [
+          {"name": "operationName", "type": "string", "required": true},
+          {"name": "variables", "type": "object", "required": true},
+          {"name": "extensions", "type": "object"}
+        ]
+      }
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "offset",
+      "confidence": 0.95,
+      "evidence": []
+    },
+    {
+      "location": "query",
+      "name": "page",
+      "confidence": 0.8,
+      "evidence": []
+    }
+  ],
+  "candidate_commands": [
+    {"name": "search", "resource": "search", "confidence": 0.95, "rationale": "SSR /searchresults.html returns 25 property cards parseable from HTML."},
+    {"name": "hotel get", "resource": "hotels", "confidence": 0.95, "rationale": "SSR /hotel/<country>/<slug>.html returns full hotel JSON-LD."},
+    {"name": "reviews list", "resource": "reviews", "confidence": 0.85, "rationale": "/reviewlist.html exists as a separate paginated surface."},
+    {"name": "destinations autocomplete", "resource": "destinations", "confidence": 0.8, "rationale": "Autocomplete dropdown on homepage fires destination resolver."},
+    {"name": "trips list", "resource": "trips", "confidence": 0.9, "rationale": "secure.booking.com/mytrips.html loaded with cookie auth and rendered user-specific UI."},
+    {"name": "wishlist get", "resource": "wishlist", "confidence": 0.9, "rationale": "www.booking.com/mywishlist.html?wl_id=<id> loaded with cookie auth."},
+    {"name": "rewards get", "resource": "rewards", "confidence": 0.8, "rationale": "secure.booking.com/rewards_and_wallet.html linked from authenticated header."},
+    {"name": "profile get", "resource": "profile", "confidence": 0.8, "rationale": "secure.booking.com/mysettings.html linked from authenticated header (showed 'Matt Van Horn, Genius Level 3')."}
+  ],
+  "generation_hints": [
+    "requires_browser_http",
+    "requires_browser_cookie_for_auth_endpoints",
+    "has_ssr_html_primary_surface",
+    "has_csrf_token_for_graphql",
+    "supports_offset_pagination"
+  ],
+  "warnings": [
+    {
+      "type": "ssr_dominant",
+      "message": "All observed user-visible pages are server-rendered. Initial searches, hotel detail, trips, and wishlist deliver their data in HTML rather than XHR/GraphQL. The /dml/graphql endpoint exists but was not exercised during this capture; it is documented for future map-markers and review-pagination work.",
+      "confidence": 0.95
+    },
+    {
+      "type": "empty_authenticated_state",
+      "message": "User's trips and wishlist were empty during capture, so response shape for populated cards was not directly observed. Schema fields are inferred from Booking.com documentation, community wrappers, and the empty-state markup.",
+      "confidence": 0.7
+    }
+  ]
+}

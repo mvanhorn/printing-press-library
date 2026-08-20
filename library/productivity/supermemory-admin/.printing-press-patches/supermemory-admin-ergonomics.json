@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-16T21:18:00Z",
+  "base_run_id": "20260616-210531",
+  "base_printing_press_version": "4.24.0",
+  "reason": "Preserve Supermemory-specific operator ergonomics that are not expressed directly in the OpenAPI resource graph.",
+  "changes": [
+    {
+      "path": "spec.json",
+      "summary": "Archived spec includes x-pp-resource aliases for profile, recall search, and connection resource endpoints to avoid generated command/table collisions."
+    },
+    {
+      "path": "internal/config/config.go",
+      "summary": "Map SUPERMEMORY_ADMIN_PROJECT to the x-sm-project request header so operators can scope every request to one Supermemory project."
+    },
+    {
+      "path": "internal/config/config_test.go",
+      "summary": "Add regressions proving project scoping is set from environment while preserving configured custom headers."
+    },
+    {
+      "path": "README.md, SKILL.md, AGENTS.md, internal/cli/agent_context.go, internal/mcp/tools.go, manifest.json, tools-manifest.json",
+      "summary": "Document and expose SUPERMEMORY_ADMIN_PROJECT for CLI, agent-context, and MCPB users."
+    }
+  ],
+  "validated_outcome": "go test ./internal/config passed after patch; full package and publish gates rerun before submission"
+}

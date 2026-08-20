@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -79,11 +79,11 @@ Run 'customer-io-pp-cli sync --resources suppressions,deliveries' first.`,
 			}
 
 			out := map[string]any{
-				"window":      since,
-				"reason":      reasonFilter,
-				"audited":     len(audited),
-				"by_reason":   counts,
-				"records":     audited,
+				"window":    since,
+				"reason":    reasonFilter,
+				"audited":   len(audited),
+				"by_reason": counts,
+				"records":   audited,
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
@@ -131,10 +131,10 @@ func loadSuppressionsForAudit(ctx context.Context, db *sql.DB, cutoff int64, lim
 	var out []suppressionRecord
 	for rows.Next() {
 		var (
-			id       sql.NullString
-			recip    sql.NullString
-			reason   sql.NullString
-			created  sql.NullInt64
+			id      sql.NullString
+			recip   sql.NullString
+			reason  sql.NullString
+			created sql.NullInt64
 		)
 		if scanErr := rows.Scan(&id, &recip, &reason, &created); scanErr != nil {
 			return nil, scanErr

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-odata-workflows",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Add Restaurant365-specific schema discovery, redacted sampling, backfill planning, delete tombstone checks, bounded export, and OData pagination behavior.",
+  "reason": "The generated endpoint wrappers could fetch documented views, but data engineers need safe tenant validation and explicit refresh planning before loading Restaurant365 OData into a warehouse.",
+  "files": [
+    "internal/cli/r365_odata.go",
+    "internal/cli/root.go",
+    "internal/cli/sync.go",
+    "internal/config/config.go",
+    "internal/cli/r365_odata_test.go",
+    "internal/config/r365_env_test.go"
+  ],
+  "validated_outcome": "go test ./..., go build ./cmd/restaurant365-odata-pp-cli, and redacted live Restaurant365 OData validation passed."
+}

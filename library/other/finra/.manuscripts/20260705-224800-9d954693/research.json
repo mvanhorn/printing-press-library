@@ -1,0 +1,265 @@
+{
+  "api_name": "finra",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "cmaurer/finra-mcp-server",
+      "url": "https://github.com/cmaurer/finra-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "chencindyj/finra_api_queries",
+      "url": "https://github.com/chencindyj/finra_api_queries",
+      "language": "Python",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "samgozman/finra-short-api",
+      "url": "https://github.com/samgozman/finra-short-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "whats-a-handle/finra-broker-check",
+      "url": "https://github.com/whats-a-handle/finra-broker-check",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 24,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nikhilxsunder/finra",
+      "url": "https://github.com/nikhilxsunder/finra",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Submission API (U4/U5/BR/NRF filing payload schemas) is not publicly documented \u2014 not implemented, disclosed as a known gap.",
+    "Notification API (poll-based FINRA Rulebook / Draft Registration Filing notifications) has no confirmed response schema in public docs \u2014 not implemented.",
+    "FileX bulk file transfer has no documented REST surface \u2014 out of scope.",
+    "Confirmed via live production testing: registration/firm-family datasets (REGISTRATIONVALIDATIONINDIVIDUAL, INDIVIDUALDELTA, COMPOSITEINDIVIDUAL, FIRMPROFILE, FIRMREGISTRATIONSTATUSHISTORY, 4530FILINGS) require a FINRA credential entitled beyond the basic API tier. Affected commands (complaints new/list, registration individual/firm/timeline/validate-batch) return a clean FINRA 403 permission-denied error for basic-tier credentials; they are expected to work correctly once the credential is entitled for registration/firm data.",
+    "Confirmed via live production testing: FINRA public Query API has no per-CUSIP or per-bond TRACE trade-level dataset accessible to a basic-tier credential. trace search/trace liquidity were retargeted from a per-CUSIP design to FIXEDINCOMEMARKET/TRACEMONTHLYVOLUME (--sub-product, market-wide monthly aggregate). Per-bond TRACE report-card data (REPORTCARD group) is also entitlement-gated."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-05T22:55:00Z",
+  "novel_features": [
+    {
+      "name": "Threshold-list escalation tracker",
+      "command": "regsho threshold-watch",
+      "description": "See which symbols just crossed the Reg SHO 5-day threshold escalation point before it triggers a mandatory close-out.",
+      "rationale": "Requires a consecutive-day streak computed from locally synced daily Threshold List snapshots \u2014 FINRA's API returns only current-day data per call, with no streak concept.",
+      "example": "finra-pp-cli regsho threshold-watch --symbol GME --json",
+      "why_it_matters": "Pick this over a raw threshold-list pull when you need to know how many consecutive days a symbol has been flagged, not just whether it's flagged today.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "New-complaints-since-last-sync",
+      "command": "complaints new",
+      "description": "See 4530 customer complaint filings for a firm within a recent time window, without re-reading the full history.",
+      "rationale": "Filters live 4530 filing queries to a --since window computed client-side, narrowing a compliance check to recent activity in one command instead of manually re-scanning the full filing list.",
+      "example": "finra-pp-cli complaints new --firm 19847 --since 7d --json",
+      "why_it_matters": "Use this for a quick recent-activity check; use complaints list for the full history or a custom date range.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fixed-income market-health snapshot",
+      "command": "fixedincome health",
+      "description": "One snapshot report joining TRACE, Corporate/Agency Debt Market Breadth, and Corporate/Agency Debt Market Sentiment for a time window.",
+      "rationale": "Fans out to four dataset families in one command and reports each dataset's record counts and raw records for the window; no single FINRA endpoint or existing wrapper joins these families together.",
+      "example": "finra-pp-cli fixedincome health --since 7d --json",
+      "why_it_matters": "Use this for a single fixed-income market-condition snapshot instead of four separate dataset pulls stitched together by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "TRACE monthly volume trend",
+      "command": "trace liquidity",
+      "description": "Month-over-month trend in TRACE Monthly Volume trade count and volume for a product category (or market-wide if no category given).",
+      "rationale": "A basic-tier credential's only accessible TRACE dataset is a market-wide monthly aggregate with no CUSIP field \u2014 per-CUSIP trade data requires a higher entitlement tier \u2014 so the trend is computed per subProductCode instead, from data no wrapper otherwise trends over time.",
+      "example": "finra-pp-cli trace liquidity --sub-product CORP --since 180d --json",
+      "why_it_matters": "Use this for a month-over-month volume/trade-count trend for a product category; use 'trace search' for raw monthly aggregate records instead.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Registration timeline",
+      "command": "registration timeline",
+      "description": "Full chronological registration-status history for one person, joining Composite Individual, Firm Registration Status History, and Individual Delta records.",
+      "rationale": "Three-table local join \u2014 no live FINRA endpoint returns merged registration history for a CRD.",
+      "example": "finra-pp-cli registration timeline --crd 1234567 --json",
+      "why_it_matters": "Use this to see how a rep's registration status changed over time; use 'registration individual --crd' for just the current snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Registration validation batch check",
+      "command": "registration validate-batch",
+      "description": "Validate many CRDs from a file in one call instead of checking them one at a time.",
+      "rationale": "Reads CRDs from a local file and calls Registration Validation Individual once per CRD, turning N manual lookups into one batch command.",
+      "example": "finra-pp-cli registration validate-batch --file crds.csv --json",
+      "why_it_matters": "Use this before submitting a batch of registration filings to confirm every CRD is currently valid.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Threshold-list escalation tracker",
+      "command": "regsho threshold-watch",
+      "description": "See which symbols just crossed the Reg SHO 5-day threshold escalation point before it triggers a mandatory close-out.",
+      "rationale": "Requires a consecutive-day streak computed from locally synced daily Threshold List snapshots \u2014 FINRA's API returns only current-day data per call, with no streak concept.",
+      "example": "finra-pp-cli regsho threshold-watch --symbol GME --json",
+      "why_it_matters": "Pick this over a raw threshold-list pull when you need to know how many consecutive days a symbol has been flagged, not just whether it's flagged today.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "New-complaints-since-last-sync",
+      "command": "complaints new",
+      "description": "See 4530 customer complaint filings for a firm within a recent time window, without re-reading the full history.",
+      "rationale": "Filters live 4530 filing queries to a --since window computed client-side, narrowing a compliance check to recent activity in one command instead of manually re-scanning the full filing list.",
+      "example": "finra-pp-cli complaints new --firm 19847 --since 7d --json",
+      "why_it_matters": "Use this for a quick recent-activity check; use complaints list for the full history or a custom date range.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fixed-income market-health snapshot",
+      "command": "fixedincome health",
+      "description": "One snapshot report joining TRACE, Corporate/Agency Debt Market Breadth, and Corporate/Agency Debt Market Sentiment for a time window.",
+      "rationale": "Fans out to four dataset families in one command and reports each dataset's record counts and raw records for the window; no single FINRA endpoint or existing wrapper joins these families together.",
+      "example": "finra-pp-cli fixedincome health --since 7d --json",
+      "why_it_matters": "Use this for a single fixed-income market-condition snapshot instead of four separate dataset pulls stitched together by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "TRACE monthly volume trend",
+      "command": "trace liquidity",
+      "description": "Month-over-month trend in TRACE Monthly Volume trade count and volume for a product category (or market-wide if no category given).",
+      "rationale": "A basic-tier credential's only accessible TRACE dataset is a market-wide monthly aggregate with no CUSIP field \u2014 per-CUSIP trade data requires a higher entitlement tier \u2014 so the trend is computed per subProductCode instead, from data no wrapper otherwise trends over time.",
+      "example": "finra-pp-cli trace liquidity --sub-product CORP --since 180d --json",
+      "why_it_matters": "Use this for a month-over-month volume/trade-count trend for a product category; use 'trace search' for raw monthly aggregate records instead.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Registration timeline",
+      "command": "registration timeline",
+      "description": "Full chronological registration-status history for one person, joining Composite Individual, Firm Registration Status History, and Individual Delta records.",
+      "rationale": "Three-table local join \u2014 no live FINRA endpoint returns merged registration history for a CRD.",
+      "example": "finra-pp-cli registration timeline --crd 1234567 --json",
+      "why_it_matters": "Use this to see how a rep's registration status changed over time; use 'registration individual --crd' for just the current snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Registration validation batch check",
+      "command": "registration validate-batch",
+      "description": "Validate many CRDs from a file in one call instead of checking them one at a time.",
+      "rationale": "Reads CRDs from a local file and calls Registration Validation Individual once per CRD, turning N manual lookups into one batch command.",
+      "example": "finra-pp-cli registration validate-batch --file crds.csv --json",
+      "why_it_matters": "Use this before submitting a batch of registration filings to confirm every CRD is currently valid.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "FINRA",
+    "headline": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+    "value_prop": "FINRA CLI treats the entire ~35-dataset Query API catalog as a live-discoverable surface instead of a hand-curated list, then layers offline SQLite history on top so Reg SHO escalation streaks, TRACE liquidity trends, and 4530 complaint surges become one-command answers instead of manual CSV diffing.",
+    "auth_narrative": "FINRA uses OAuth2 client_credentials: your API Client ID and Client Secret (from the FINRA API Console) are exchanged for a short-lived Bearer token. Set FINRA_CLIENT_ID and FINRA_CLIENT_SECRET, then run 'finra-pp-cli auth login' to fetch and cache a token \u2014 it refreshes automatically before expiry.",
+    "quickstart": [
+      {
+        "command": "finra-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is configured before touching the network"
+      },
+      {
+        "command": "finra-pp-cli catalog --json",
+        "comment": "see every dataset FINRA currently exposes, discovered live"
+      },
+      {
+        "command": "finra-pp-cli regsho volume --symbol GME --since 30d --json",
+        "comment": "pull 30 days of Reg SHO short-volume history for a symbol"
+      },
+      {
+        "command": "finra-pp-cli regsho threshold-watch --symbol GME --json",
+        "comment": "check whether a symbol is escalating toward mandatory close-out"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Confirm FINRA_CLIENT_ID/FINRA_CLIENT_SECRET are set and run 'finra-pp-cli auth login' to refresh the cached token."
+      },
+      {
+        "symptom": "Empty results from a dataset you know has data",
+        "fix": "Check the dataset's real group/name via 'finra-pp-cli catalog --group <group>'. Every confirmed group/name identifier is ALL UPPERCASE (e.g. OTCMARKET, FIXEDINCOMEMARKET, FIRM, REGISTRATION)."
+      },
+      {
+        "symptom": "429 rate limited",
+        "fix": "FINRA caps sync requests at 1,200/min/IP; the client retries with backoff automatically, but heavy scripted loops should add their own delay."
+      }
+    ],
+    "when_to_use": "Use this CLI for FINRA Query API data pulls (equity, fixed income, registration/licensing), compliance monitoring rituals (Reg SHO threshold tracking, 4530 complaint surges), and batch CRD validation before filing submissions.",
+    "anti_triggers": [
+      "Do not use this CLI to submit U4/U5/BR registration filings \u2014 Submission API payload schemas are not publicly documented and are not implemented.",
+      "Do not use this CLI for FileX bulk file transfers \u2014 that is SFTP/HTTPS/S3 infrastructure outside this CLI's scope.",
+      "Do not use this CLI for real-time push notifications \u2014 FINRA's Notification API is poll-based, not a webhook system."
+    ],
+    "recipes": [
+      {
+        "title": "Track a symbol's Reg SHO escalation",
+        "command": "finra-pp-cli regsho threshold-watch --symbol GME --json --select symbol,consecutive_days,escalated",
+        "explanation": "Narrow the streak-tracker output to just the fields that matter for a compliance check."
+      },
+      {
+        "title": "Fixed-income market snapshot",
+        "command": "finra-pp-cli fixedincome health --since 7d --json",
+        "explanation": "One command replaces four separate dataset pulls (TRACE, breadth, sentiment) stitched together by hand."
+      },
+      {
+        "title": "Recent complaint filings for a firm",
+        "command": "finra-pp-cli complaints new --firm 19847 --since 7d --json",
+        "explanation": "Filters 4530 filings to a recent window instead of scanning the full history."
+      },
+      {
+        "title": "Bulk-validate CRDs before a filing batch",
+        "command": "finra-pp-cli registration validate-batch --file crds.csv --json",
+        "explanation": "Turns N one-at-a-time CRD lookups into a single batch call."
+      },
+      {
+        "title": "TRACE monthly volume trend for a product category",
+        "command": "finra-pp-cli trace liquidity --sub-product CORP --since 180d --json --select sub_product,liquidity_trend,avg_trades_per_month",
+        "explanation": "Pairs --json with --select to keep agent output small for a deeply nested trend response."
+      }
+    ],
+    "trigger_phrases": [
+      "check Reg SHO short volume",
+      "look up CRD registration status",
+      "FINRA complaint filings",
+      "TRACE bond data",
+      "FINRA threshold list",
+      "check broker registration",
+      "use finra",
+      "run finra"
+    ]
+  }
+}

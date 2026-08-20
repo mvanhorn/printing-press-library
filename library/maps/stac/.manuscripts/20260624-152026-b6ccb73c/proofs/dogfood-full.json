@@ -1,0 +1,1409 @@
+{
+  "dir": "/Users/shubhankar/printing-press/.runstate/cli-printing-press-413cf840/runs/20260624-152026-b6ccb73c/working/stac-pp-cli",
+  "binary": "/Users/shubhankar/printing-press/.runstate/cli-printing-press-413cf840/runs/20260624-152026-b6ccb73c/working/stac-pp-cli/stac-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 87,
+  "passed": 87,
+  "failed": 0,
+  "skipped": 51,
+  "commands": [
+    "aggregate",
+    "aggregations get",
+    "api",
+    "assets",
+    "clouds",
+    "collections describe",
+    "collections get",
+    "collections items get-feature",
+    "collections items get-features",
+    "compare",
+    "conformance",
+    "coverage",
+    "doctor",
+    "export",
+    "feedback list",
+    "gaps",
+    "import",
+    "items get-search",
+    "items post-search",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "queryables get",
+    "scenes best",
+    "search",
+    "stack-snippet",
+    "sync",
+    "timeline",
+    "watch",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "aggregate",
+      "kind": "help",
+      "args": [
+        "aggregate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Executes one or more aggregations (e.g.\n\nUsage:\n  stac-pp-cli aggregate [flags]\n\nExamples:\n  stac-pp-cli aggregate\n\nFlags:\n      --aggregations string   Comma-separated aggregation names, e.g. cloud_cover_frequency,datetime_frequency\n      --bbox string           Bounding box filter as west,south,east,north\n      --collections string    Comma-separated collection ids to aggregate over\n      --datetime string       Datetime or interval filter, e.g. 2024-06-01/2024-06-30\n  -h, --help                  help for aggregate\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "aggregate",
+      "kind": "happy_path",
+      "args": [
+        "aggregate"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"aggregations\": [],\n    \"links\": [\n      {\n        \"rel\": \"self\",\n        \"type\": \"application/json\",\n        \"href\": \"https://earth-search.aws.element84.com/v1/aggregate\"\n      },\n      {\n        \"rel\": \"root\",\n        \"type\": \"application/json\",\n        \"href\": \"https://earth-search.aws.element84.com/v1\"\n      }\n    ]\n  }\n}\nwarning: 1/1 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "aggregate",
+      "kind": "json_fidelity",
+      "args": [
+        "aggregate",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"aggregations\": [],\n    \"links\": [\n      {\n        \"rel\": \"self\",\n        \"type\": \"application/json\",\n        \"href\": \"https://earth-search.aws.element84.com/v1/aggregate\"\n      },\n      {\n        \"rel\": \"root\",\n        \"type\": \"application/json\",\n        \"href\": \"https://earth-search.aws.element84.com/v1\"\n      }\n    ]\n  }\n}\nwarning: 1/1 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "aggregate",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "aggregations get",
+      "kind": "help",
+      "args": [
+        "aggregations",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists the aggregations available across the catalog (e.g. total_count, datetime_frequency, cloud_cover_frequency).\n\nUsage:\n  stac-pp-cli aggregations get [flags]\n\nAliases:\n  get, list\n\nExamples:\n  stac-pp-cli aggregations get\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "aggregations get",
+      "kind": "happy_path",
+      "args": [
+        "aggregations",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"aggregations\":[{\"data_type\":\"integer\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"frequency_distribution\",\"frequency_distribution_data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"}],\"links\":[{\"href\":\"https://earth-search.aws.element84.com/v1\",\"rel\":\"root\",\"type\":\"application/json\"},{\"href\":\"https://earth-search.aws.element84.com/v1/aggregations\",\"rel\":\"self\",\"type\":\"application/json\"}]}}"
+    },
+    {
+      "command": "aggregations get",
+      "kind": "json_fidelity",
+      "args": [
+        "aggregations",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"aggregations\":[{\"data_type\":\"integer\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"},{\"data_type\":\"frequency_distribution\",\"frequency_distribution_data_type\":\"datetime\",\"name\":\"\u003credacted\u003e\"}],\"links\":[{\"href\":\"https://earth-search.aws.element84.com/v1\",\"rel\":\"root\",\"type\":\"application/json\"},{\"href\":\"https://earth-search.aws.element84.com/v1/aggregations\",\"rel\":\"self\",\"type\":\"application/json\"}]}}"
+    },
+    {
+      "command": "aggregations get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  stac-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  stac-pp-cli api\n\n  # Show methods for a specific interface\n  stac-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'stac-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "assets",
+      "kind": "help",
+      "args": [
+        "assets",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to get ready-to-download band URLs for an item without parsing the raw item JSON. It maps common band names across providers and prefers cloud-optimized GeoTIFFs over their JPEG2000 twins (pass --jp2 to include them).\n\nUsage:\n  stac-pp-cli assets [itemId] [flags]\n\nExamples:\n  stac-pp-cli assets S2A_10SEG_20240622_0_L2A --collection sentinel-2-l2a --bands red,green,blue,nir\n\nFlags:\n      --bands string        Comma-separated band names, e.g. red,green,blue,nir (default: all data bands)\n      --collection string   Collection id the item belongs to (required)\n  -h, --help                help for assets\n      --jp2                 Include JPEG2000 (-jp2) asset twins instead of COG only\n      --roles string        Only include assets carrying this role\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "assets",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [assets] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "assets",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [assets] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "assets",
+      "kind": "error_path",
+      "args": [
+        "assets",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  stac-pp-cli assets [itemId] [flags]\n\nExamples:\n  stac-pp-cli assets S2A_10SEG_20240622_0_L2A --collection sentinel-2-l2a --bands red,green,blue,nir\n\nFlags:\n      --bands string        Comma-separated band names, e.g. red,green,blue,nir (default: all data bands)\n      --collection string   Collection id the item belongs to (required)\n  -h, --help                help for assets\n      --jp2                 Include JPEG2000 (-jp2) asset twins instead of COG only\n      --roles string        Only include assets carrying this role\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\nError: --collection is required\n"
+    },
+    {
+      "command": "clouds",
+      "kind": "help",
+      "args": [
+        "clouds",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to see the cloud-cover distribution before committing to a download. The histogram comes from the server's cloud_cover_frequency aggregation, not a local computation.\n\nUsage:\n  stac-pp-cli clouds [flags]\n\nExamples:\n  stac-pp-cli clouds --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-08-31\n\nFlags:\n      --bbox string         Bounding box filter as west,south,east,north\n      --collection string   Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string     Datetime or interval, e.g. 2024-06-01/2024-08-31\n  -h, --help                help for clouds\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "clouds",
+      "kind": "happy_path",
+      "args": [
+        "clouds",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-08-31"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbox\": \"-122.5,37.7,-122.3,37.9\",\n  \"buckets\": [\n    {\n      \"key\": \"*-5.0\",\n      \"frequency\": 16,\n      \"to\": 5\n    },\n    {\n      \"key\": \"5.0-15.0\",\n      \"frequency\": 2,\n      \"from\": 5,\n      \"to\": 15\n    },\n    {\n      \"key\": \"15.0-40.0\",\n      \"frequency\": 9,\n      \"from\": 15,\n      \"to\": 40\n    },\n    {\n      \"key\": \"40.0-*\",\n      \"frequency\": 11,\n      \"from\": 40\n    }\n  ],\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-06-01/2024-08-31\"\n}\n"
+    },
+    {
+      "command": "clouds",
+      "kind": "json_fidelity",
+      "args": [
+        "clouds",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-08-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbox\": \"-122.5,37.7,-122.3,37.9\",\n  \"buckets\": [\n    {\n      \"key\": \"*-5.0\",\n      \"frequency\": 16,\n      \"to\": 5\n    },\n    {\n      \"key\": \"5.0-15.0\",\n      \"frequency\": 2,\n      \"from\": 5,\n      \"to\": 15\n    },\n    {\n      \"key\": \"15.0-40.0\",\n      \"frequency\": 9,\n      \"from\": 15,\n      \"to\": 40\n    },\n    {\n      \"key\": \"40.0-*\",\n      \"frequency\": 11,\n      \"from\": 40\n    }\n  ],\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-06-01/2024-08-31\"\n}\n"
+    },
+    {
+      "command": "clouds",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "collections describe",
+      "kind": "help",
+      "args": [
+        "collections",
+        "describe",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "A single Feature Collection for the given if `collectionId`.\n\nUsage:\n  stac-pp-cli collections describe \u003ccollectionId\u003e [flags]\n\nExamples:\n  stac-pp-cli collections describe 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for describe\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "collections describe",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections describe",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections describe",
+      "kind": "error_path",
+      "args": [
+        "collections",
+        "describe",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /collections/__printing_press_invalid__ returned HTTP 404: {\"code\":\"NotFound\",\"description\":\"Not Found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "collections get",
+      "kind": "help",
+      "args": [
+        "collections",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "A body of Feature Collections that belong or are used together with additional links.\n\nUsage:\n  stac-pp-cli collections get [flags]\n\nAliases:\n  get, list\n\nExamples:\n  stac-pp-cli collections get\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "collections get",
+      "kind": "happy_path",
+      "args": [
+        "collections",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"collections\":[{\"description\":\"Sentinel-2 Pre-Collection 1 Level-2A (baseline \u003c 05.00), with data and metadata matching collection sentinel-2-c1-l2a\",\"extent\":{\"spatial\":{\"bbox\":[[-180,-90,180,90]]},\"temporal\":{\"interval\":[[\"2015-06-27T10:25:31.456000Z\",null]]}},\"id\":\"sentinel-2-pre-c1-l2a\",\"item_assets\":{\"aot\":{\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":0,\"scale\":0.001,\"spatial_resolution\":20}],\"roles\":[\"data\"],\"title\":\"Aerosol optical thickness (AOT)\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"blue\":{\"eo:bands\":[{\"center_wavelength\":0.49,\"common_name\":\"blue\",\"full_width_half_max\":0.098,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Blue - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"cloud\":{\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint8\",\"nodata\":0,\"spatial_resolution\":20}],\"roles\":[\"data\",\"cloud\"],\"title\":\"Cloud Probabilities\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"coastal\":{\"eo:bands\":[{\"center_wavelength\":0.443,\"common_name\":\"coastal\",\"full_width_half_max\":0.027,\"name\":\"\u003credacted\u003e\"}],\"gsd\":60,\"proj:shape\":[1830,1830],\"proj:transform\":[60,0,600000,0,-60,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":60}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Coastal - 60m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"granule_metadata\":{\"roles\":[\"metadata\"],\"type\":\"application/xml\"},\"green\":{\"eo:bands\":[{\"center_wavelength\":0.56,\"common_name\":\"green\",\"full_width_half_max\":0.045,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Green - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir\":{\"eo:bands\":[{\"center_wavelength\":0.842,\"common_name\":\"nir\",\"full_width_half_max\":0.145,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 1 - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir08\":{\"eo:bands\":[{\"center_wavelength\":0.865,\"common_name\":\"nir08\",\"full_width_half_max\":0.033,\"name\":\"\u003credacted\u003e\"}],\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":20}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 2 - 20m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir09\":{\"eo:bands\":[{\"center_wavelength\":0.945,\"common_name\":\"nir09\",\"full_width_half_max\":0.026,\"name\":\"\u003credacted\u003e\"}],\"gsd\":60,\"proj:shape\":[1830,1830],\"proj:transform\":[60,0,600000,0,-60,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":60}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 3 - 60m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"preview\":{\"eo:bands\":[{\"center_wavelength\":0.665,\"common_name\":\"red\",\"full_width_half_max\":0.038,\"name\":\"\u003credacted\u003e\"},{\"center_wavelength\":0.56,\"common_name\":\"green\",\"full_width_half_max\":0.045,\"name\":\"\u003credacted\u003e\"},{\"center_wavelength\":0.49,\"common_name\":\"blue\",\"full_width_half_max\":0.098,\"name\":\"\u003credacted\u003e\"}],\"roles\":[\"overview\"],\"title\":\"True color preview\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"product_metadata\":{\"roles\":[\"metadata\"],\"type\":\"application/xml\"},\"red\":{\"eo:bands\":[{\"center_wavelength\":0.665,\"comm…[truncated]"
+    },
+    {
+      "command": "collections get",
+      "kind": "json_fidelity",
+      "args": [
+        "collections",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"collections\":[{\"description\":\"Sentinel-2 Pre-Collection 1 Level-2A (baseline \u003c 05.00), with data and metadata matching collection sentinel-2-c1-l2a\",\"extent\":{\"spatial\":{\"bbox\":[[-180,-90,180,90]]},\"temporal\":{\"interval\":[[\"2015-06-27T10:25:31.456000Z\",null]]}},\"id\":\"sentinel-2-pre-c1-l2a\",\"item_assets\":{\"aot\":{\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":0,\"scale\":0.001,\"spatial_resolution\":20}],\"roles\":[\"data\"],\"title\":\"Aerosol optical thickness (AOT)\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"blue\":{\"eo:bands\":[{\"center_wavelength\":0.49,\"common_name\":\"blue\",\"full_width_half_max\":0.098,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Blue - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"cloud\":{\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint8\",\"nodata\":0,\"spatial_resolution\":20}],\"roles\":[\"data\",\"cloud\"],\"title\":\"Cloud Probabilities\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"coastal\":{\"eo:bands\":[{\"center_wavelength\":0.443,\"common_name\":\"coastal\",\"full_width_half_max\":0.027,\"name\":\"\u003credacted\u003e\"}],\"gsd\":60,\"proj:shape\":[1830,1830],\"proj:transform\":[60,0,600000,0,-60,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":60}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Coastal - 60m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"granule_metadata\":{\"roles\":[\"metadata\"],\"type\":\"application/xml\"},\"green\":{\"eo:bands\":[{\"center_wavelength\":0.56,\"common_name\":\"green\",\"full_width_half_max\":0.045,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"Green - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir\":{\"eo:bands\":[{\"center_wavelength\":0.842,\"common_name\":\"nir\",\"full_width_half_max\":0.145,\"name\":\"\u003credacted\u003e\"}],\"gsd\":10,\"proj:shape\":[10980,10980],\"proj:transform\":[10,0,600000,0,-10,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":10}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 1 - 10m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir08\":{\"eo:bands\":[{\"center_wavelength\":0.865,\"common_name\":\"nir08\",\"full_width_half_max\":0.033,\"name\":\"\u003credacted\u003e\"}],\"gsd\":20,\"proj:shape\":[5490,5490],\"proj:transform\":[20,0,600000,0,-20,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":20}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 2 - 20m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"nir09\":{\"eo:bands\":[{\"center_wavelength\":0.945,\"common_name\":\"nir09\",\"full_width_half_max\":0.026,\"name\":\"\u003credacted\u003e\"}],\"gsd\":60,\"proj:shape\":[1830,1830],\"proj:transform\":[60,0,600000,0,-60,4000000],\"raster:bands\":[{\"data_type\":\"uint16\",\"nodata\":0,\"offset\":-0.1,\"scale\":0.0001,\"spatial_resolution\":60}],\"roles\":[\"data\",\"reflectance\"],\"title\":\"NIR 3 - 60m\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"preview\":{\"eo:bands\":[{\"center_wavelength\":0.665,\"common_name\":\"red\",\"full_width_half_max\":0.038,\"name\":\"\u003credacted\u003e\"},{\"center_wavelength\":0.56,\"common_name\":\"green\",\"full_width_half_max\":0.045,\"name\":\"\u003credacted\u003e\"},{\"center_wavelength\":0.49,\"common_name\":\"blue\",\"full_width_half_max\":0.098,\"name\":\"\u003credacted\u003e\"}],\"roles\":[\"overview\"],\"title\":\"True color preview\",\"type\":\"image/tiff; application=geotiff; profile=cloud-optimized\"},\"product_metadata\":{\"roles\":[\"metadata\"],\"type\":\"application/xml\"},\"red\":{\"eo:bands\":[{\"center_wavelength\":0.665,\"comm…[truncated]"
+    },
+    {
+      "command": "collections get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "collections items get-feature",
+      "kind": "help",
+      "args": [
+        "collections",
+        "items",
+        "get-feature",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the feature with id `featureId` in the feature collection with id `collectionId`.\n\nUsage:\n  stac-pp-cli collections items get-feature \u003ccollectionId\u003e \u003cfeatureId\u003e [flags]\n\nAliases:\n  get-feature, get\n\nExamples:\n  stac-pp-cli collections items get-feature 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get-feature\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "collections items get-feature",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections items get-feature",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections items get-feature",
+      "kind": "error_path",
+      "args": [
+        "collections",
+        "items",
+        "get-feature",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: featureId is required\nUsage: stac-pp-cli collections items get-feature \u003cfeatureId\u003e\n"
+    },
+    {
+      "command": "collections items get-features",
+      "kind": "help",
+      "args": [
+        "collections",
+        "items",
+        "get-features",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch features of the feature collection with id `collectionId`. Every feature in a dataset belongs to a collection.\n\nUsage:\n  stac-pp-cli collections items get-features \u003ccollectionId\u003e [flags]\n\nExamples:\n  stac-pp-cli collections items get-features 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all               Fetch all pages\n      --bbox string       Only features that have a geometry that intersects the bounding box are selected.\n      --datetime string   Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339.\n  -h, --help              help for get-features\n      --limit int         The optional limit parameter recommends the number of items that should be present in the response document. (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "collections items get-features",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections items get-features",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "collections items get-features",
+      "kind": "error_path",
+      "args": [
+        "collections",
+        "items",
+        "get-features",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /collections/__printing_press_invalid__/items returned HTTP 404: {\"code\":\"NotFound\",\"description\":\"Not Found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to choose between sensors (e.g. Sentinel-2 vs Landsat) for an AOI. It reports each collection's matched scene count and the mean cloud cover over a small sample.\n\nUsage:\n  stac-pp-cli compare [collectionA] [collectionB] [flags]\n\nExamples:\n  stac-pp-cli compare sentinel-2-l2a landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30\n\nFlags:\n      --bbox string       Bounding box filter as west,south,east,north\n      --datetime string   Datetime or interval, e.g. 2024-01-01/2024-06-30\n  -h, --help              help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": [
+        "compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  stac-pp-cli compare [collectionA] [collectionB] [flags]\n\nExamples:\n  stac-pp-cli compare sentinel-2-l2a landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30\n\nFlags:\n      --bbox string       Bounding box filter as west,south,east,north\n      --datetime string   Datetime or interval, e.g. 2024-01-01/2024-06-30\n  -h, --help              help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\nError: two collection ids are required, e.g. sentinel-2-l2a landsat-c2-l2\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "help",
+      "args": [
+        "conformance",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "A list of all conformance classes specified in a standard that the server conforms to.\n\nUsage:\n  stac-pp-cli conformance [flags]\n\nExamples:\n  stac-pp-cli conformance\n\nFlags:\n  -h, --help   help for conformance\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "happy_path",
+      "args": [
+        "conformance"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"conformsTo\": [\n      \"https://api.stacspec.org/v1.0.0/core\",\n      \"https://api.stacspec.org/v1.0.0/collections\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features\",\n      \"https://api.stacspec.org/v1.0.0/item-search\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#fields\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#sort\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#query\",\n      \"https://api.stacspec.org/v1.0.0/item-search#fields\",\n      \"https://api.stacspec.org/v1.0.0/item-search#sort\",\n      \"https://api.stacspec.org/v1.0.0/item-search#query\",\n      \"https://api.stacspec.org/v0.3.0/aggregation\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson\"\n    ]\n  }\n}\nwarning: 1/1 conformance items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "json_fidelity",
+      "args": [
+        "conformance",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"conformsTo\": [\n      \"https://api.stacspec.org/v1.0.0/core\",\n      \"https://api.stacspec.org/v1.0.0/collections\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features\",\n      \"https://api.stacspec.org/v1.0.0/item-search\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#fields\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#sort\",\n      \"https://api.stacspec.org/v1.0.0/ogcapi-features#query\",\n      \"https://api.stacspec.org/v1.0.0/item-search#fields\",\n      \"https://api.stacspec.org/v1.0.0/item-search#sort\",\n      \"https://api.stacspec.org/v1.0.0/item-search#query\",\n      \"https://api.stacspec.org/v0.3.0/aggregation\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30\",\n      \"http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson\"\n    ]\n  }\n}\nwarning: 1/1 conformance items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "conformance",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "coverage",
+      "kind": "help",
+      "args": [
+        "coverage",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to confirm an AOI has usable data before planning an analysis. It reports the matched scene count and the temporal min/max/frequency from the server's aggregation endpoint.\n\nUsage:\n  stac-pp-cli coverage [flags]\n\nExamples:\n  stac-pp-cli coverage --collection landsat-c2-l2 --bbox -122.5,37.7,-122.3,37.9 --datetime 2023-01-01/2024-12-31\n\nFlags:\n      --bbox string         Bounding box filter as west,south,east,north\n      --collection string   Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string     Datetime or interval, e.g. 2023-01-01/2024-12-31\n  -h, --help                help for coverage\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "coverage",
+      "kind": "happy_path",
+      "args": [
+        "coverage",
+        "--collection",
+        "landsat-c2-l2",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2023-01-01/2024-12-31"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbox\": \"-122.5,37.7,-122.3,37.9\",\n  \"collection\": \"landsat-c2-l2\",\n  \"datetime\": \"2023-01-01/2024-12-31\",\n  \"datetime_max\": \"2024-12-26T18:46:07.523Z\",\n  \"datetime_min\": \"2023-01-05T18:52:18.972Z\",\n  \"frequency\": [\n    {\n      \"key\": \"2023-01-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-02-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2023-03-01T00:00:00.000Z\",\n      \"frequency\": 16\n    },\n    {\n      \"key\": \"2023-04-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-05-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-06-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-07-01T00:00:00.000Z\",\n      \"frequency\": 13\n    },\n    {\n      \"key\": \"2023-08-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-09-01T00:00:00.000Z\",\n      \"frequency\": 16\n    },\n    {\n      \"key\": \"2023-10-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-11-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2023-12-01T00:00:00.000Z\",\n      \"frequency\": 11\n    },\n    {\n      \"key\": \"2024-01-01T00:00:00.000Z\",\n      \"frequency\": 10\n    },\n    {\n      \"key\": \"2024-02-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-03-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-04-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-05-01T00:00:00.000Z\",\n      \"frequency\": 11\n    },\n    {\n      \"key\": \"2024-06-01T00:00:00.000Z\",\n      \"frequency\": 10\n    },\n    {\n      \"key\": \"2024-07-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-08-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-09-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-10-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-11-01T00:00:00.000Z\",\n      \"frequency\": 9\n    },\n    {\n      \"key\": \"2024-12-01T00:00:00.000Z\",\n      \"frequency\": 12\n    }\n  ],\n  \"matched\": 303\n}\n"
+    },
+    {
+      "command": "coverage",
+      "kind": "json_fidelity",
+      "args": [
+        "coverage",
+        "--collection",
+        "landsat-c2-l2",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2023-01-01/2024-12-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbox\": \"-122.5,37.7,-122.3,37.9\",\n  \"collection\": \"landsat-c2-l2\",\n  \"datetime\": \"2023-01-01/2024-12-31\",\n  \"datetime_max\": \"2024-12-26T18:46:07.523Z\",\n  \"datetime_min\": \"2023-01-05T18:52:18.972Z\",\n  \"frequency\": [\n    {\n      \"key\": \"2023-01-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-02-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2023-03-01T00:00:00.000Z\",\n      \"frequency\": 16\n    },\n    {\n      \"key\": \"2023-04-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-05-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-06-01T00:00:00.000Z\",\n      \"frequency\": 15\n    },\n    {\n      \"key\": \"2023-07-01T00:00:00.000Z\",\n      \"frequency\": 13\n    },\n    {\n      \"key\": \"2023-08-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-09-01T00:00:00.000Z\",\n      \"frequency\": 16\n    },\n    {\n      \"key\": \"2023-10-01T00:00:00.000Z\",\n      \"frequency\": 14\n    },\n    {\n      \"key\": \"2023-11-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2023-12-01T00:00:00.000Z\",\n      \"frequency\": 11\n    },\n    {\n      \"key\": \"2024-01-01T00:00:00.000Z\",\n      \"frequency\": 10\n    },\n    {\n      \"key\": \"2024-02-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-03-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-04-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-05-01T00:00:00.000Z\",\n      \"frequency\": 11\n    },\n    {\n      \"key\": \"2024-06-01T00:00:00.000Z\",\n      \"frequency\": 10\n    },\n    {\n      \"key\": \"2024-07-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-08-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-09-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-10-01T00:00:00.000Z\",\n      \"frequency\": 12\n    },\n    {\n      \"key\": \"2024-11-01T00:00:00.000Z\",\n      \"frequency\": 9\n    },\n    {\n      \"key\": \"2024-12-01T00:00:00.000Z\",\n      \"frequency\": 12\n    }\n  ],\n  \"matched\": 303\n}\n"
+    },
+    {
+      "command": "coverage",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  stac-pp-cli doctor [flags]\n\nExamples:\n  stac-pp-cli doctor\n  stac-pp-cli doctor --json\n  stac-pp-cli doctor --fail-on warn\n  stac-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.config/stac-pp-cli/config.toml\n  base_url: https://earth-search.aws.element84.com/v1\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 65536\n    stale_after: 6h0m0s\n    resources:\n      - aggregate: 0 rows, 0s\n      - aggregations: 1 rows, 0s\n      - queryables: 1 rows, 0s\n  Paths:\n    config: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.config/stac-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/state/stac-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.cache/stac-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"api\":\"reachable\",\"auth\":\"not required\",\"base_url\":\"https://earth-search.aws.element84.com/v1\",\"cache\":{\"db_bytes\":65536,\"db_path\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli/data.db\",\"resources\":[{\"last_synced_at\":\"2026-06-24T21:23:34Z\",\"rows\":0,\"staleness\":\"0s\",\"type\":\"aggregate\"},{\"last_synced_at\":\"2026-06-24T21:23:34Z\",\"rows\":1,\"staleness\":\"0s\",\"type\":\"aggregations\"},{\"last_synced_at\":\"2026-06-24T21:23:34Z\",\"rows\":1,\"staleness\":\"0s\",\"type\":\"queryables\"}],\"schema_version\":4,\"stale_after\":\"6h0m0s\",\"status\":\"fresh\"},\"config\":\"ok\",\"config_path\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.config/stac-pp-cli/config.toml\",\"paths\":{\"cache\":{\"dir\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.cache/stac-pp-cli\",\"rung\":\"xdg-env\",\"source\":\"XDG_CACHE_HOME\"},\"config\":{\"dir\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.config/stac-pp-cli\",\"rung\":\"xdg-env\",\"source\":\"XDG_CONFIG_HOME\"},\"data\":{\"dir\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli\",\"rung\":\"xdg-env\",\"source\":\"XDG_DATA_HOME\"},\"state\":{\"dir\":\"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/state/stac-pp-cli\",\"rung\":\"xdg-env\",\"source\":\"XDG_STATE_HOME\"},\"status\":\"ok\"},\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  stac-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  stac-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  stac-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  stac-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: aggregate, aggregations, collections, conformance, queryables\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  stac-pp-cli feedback list [flags]\n\nExamples:\n  stac-pp-cli feedback list\n  stac-pp-cli feedback list --limit 5\n  stac-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "gaps",
+      "kind": "help",
+      "args": [
+        "gaps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to spot coverage holes over an AOI before relying on a time series. It diffs consecutive scene dates against the expected revisit interval and reports windows that exceed it.\n\nUsage:\n  stac-pp-cli gaps [flags]\n\nExamples:\n  stac-pp-cli gaps --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --revisit-days 5\n\nFlags:\n      --bbox string          Bounding box filter as west,south,east,north\n      --collection string    Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string      Datetime or interval, e.g. 2024-01-01/2024-06-30\n  -h, --help                 help for gaps\n      --max-cloud float      Only count scenes with eo:cloud_cover below this percent\n      --max-scan-pages int   Maximum search pages to scan before returning partial results (default 5)\n      --revisit-days int     Expected revisit interval in days (default 5)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "gaps",
+      "kind": "happy_path",
+      "args": [
+        "gaps",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-01-01/2024-06-30",
+        "--revisit-days",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-01-01/2024-06-30\",\n  \"gap_threshold_days\": 8,\n  \"gaps\": [],\n  \"note\": \"no acquisition gaps beyond the revisit threshold over the scanned scenes\",\n  \"revisit_days\": 5,\n  \"scanned_pages\": 1,\n  \"scene_dates_count\": 36\n}\n"
+    },
+    {
+      "command": "gaps",
+      "kind": "json_fidelity",
+      "args": [
+        "gaps",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-01-01/2024-06-30",
+        "--revisit-days",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-01-01/2024-06-30\",\n  \"gap_threshold_days\": 8,\n  \"gaps\": [],\n  \"note\": \"no acquisition gaps beyond the revisit threshold over the scanned scenes\",\n  \"revisit_days\": 5,\n  \"scanned_pages\": 1,\n  \"scene_dates_count\": 36\n}\n"
+    },
+    {
+      "command": "gaps",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  stac-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  stac-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  stac-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | stac-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "items get-search",
+      "kind": "help",
+      "args": [
+        "items",
+        "get-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve Items matching filters. Intended as a shorthand API for simple queries. This method is required to implement.\n\nUsage:\n  stac-pp-cli items get-search [flags]\n\nAliases:\n  get-search, list\n\nExamples:\n  stac-pp-cli items get-search\n\nFlags:\n      --all                  Fetch all pages\n      --bbox string          Only features that have a geometry that intersects the bounding box are selected.\n      --collections string   Array of Collection IDs to include in the search for items.\n      --datetime string      Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339.\n  -h, --help                 help for get-search\n      --ids string           Array of Item ids to return.\n      --intersects string    The optional intersects parameter filters the result Items in the same was as bbox\n      --limit int            The optional limit parameter recommends the number of items that should be present in the response document. (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "items get-search",
+      "kind": "happy_path",
+      "args": [
+        "items",
+        "get-search"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"type\": \"FeatureCollection\",\n    \"stac_version\": \"1.0.0\",\n    \"stac_extensions\": [],\n    \"context\": {\n      \"limit\": 10,\n      \"matched\": 130215560,\n      \"returned\": 10\n    },\n    \"numberMatched\": 130215560,\n    \"numberReturned\": 10,\n    \"features\": [\n      {\n        \"type\": \"Feature\",\n        \"stac_version\": \"1.0.0\",\n        \"id\": \"S1A_IW_GRDH_1SSH_20260624T195224_20260624T195241_065115_083539\",\n        \"properties\": {\n          \"sar:frequency_band\": \"C\",\n          \"sar:center_frequency\": 5.405,\n          \"sar:observation_direction\": \"right\",\n          \"sar:instrument_mode\": \"IW\",\n          \"sar:polarizations\": [\n            \"HH\"\n          ],\n          \"sar:product_type\": \"GRD\",\n          \"sar:resolution_range\": 20,\n          \"sar:resolution_azimuth\": 22,\n          \"sar:pixel_spacing_range\": 10,\n          \"sar:pixel_spacing_azimuth\": 10,\n          \"sar:looks_range\": 5,\n          \"sar:looks_azimuth\": 1,\n          \"sar:looks_equivalent_number\": 4.4,\n          \"sat:platform_international_designator\": \"2014-016A\",\n          \"sat:orbit_state\": \"ascending\",\n          \"sat:absolute_orbit\": 65115,\n          \"sat:relative_orbit\": 118,\n          \"proj:epsg\": 4326,\n          \"proj:bbox\": [\n            2.133382,\n            -68.699959,\n            8.544117,\n            -66.547577\n          ],\n          \"proj:shape\": [\n            25198,\n            11475\n          ],\n          \"proj:transform\": [\n            0.0005586697167755991,\n            0,\n            2.133382,\n            0,\n            -0.00008541876339392026,\n            -66.547577\n          ],\n          \"proj:centroid\": {\n            \"lat\": -67.616,\n            \"lon\": 5.31233\n          },\n          \"platform\": \"sentinel-1a\",\n          \"constellation\": \"sentinel-1\",\n          \"start_datetime\": \"2026-06-24T19:52:24.710231Z\",\n          \"end_datetime\": \"2026-06-24T19:52:41.684833Z\",\n          \"s1:instrument_configuration_ID\": \"7\",\n          \"s1:datatake_id\": \"537913\",\n          \"s1:product_timeliness\": \"Fast-24h\",\n          \"s1:processing_level\": \"1\",\n          \"s1:resolution\": \"high\",\n          \"s1:orbit_source\": \"RESORB\",\n          \"s1:slice_number\": \"4\",\n          \"s1:total_slices\": \"4\",\n          \"s1:shape\": [\n            25198,\n            11475\n          ],\n          \"s1:product_identifier\": \"S1A_IW_GRDH_1SSH_20260624T195224_20260624T195241_065115_083539_1D58\",\n          \"s1:processing_datetime\": \"2026-06-24T20:57:06.000000Z\",\n          \"storage:platform\": \"AWS\",\n          \"storage:region\": \"eu-central-1\",\n          \"storage:requester_pays\": true,\n          \"datetime\": \"2026-06-24T19:52:33.197532Z\",\n          \"processing:software\": {\n            \"sentinel1-to-stac\": \"2025.05.13\"\n          },\n          \"created\": \"2026-06-24T21:21:36.291Z\",\n          \"updated\": \"2026-06-24T21:21:36.291Z\"\n        },\n        \"geometry\": {\n          \"type\": \"Polygon\",\n          \"coordinates\": [\n            [\n              [\n                6.9154621,\n                -66.5569708\n              ],\n              [\n                5.4679279,\n                -66.970552\n              ],\n              [\n                5.5588248,\n                -67.0256583\n              ],\n              [\n                3.8971146,\n                -67.4682129\n              ],\n              [\n                3.9800581,\n                -67.5182063\n              ],\n              [\n                2.3109626,\n                -67.9300831\n              ],\n              [\n                3.6545334,\n                -68.6975944\n              ],\n              [\n                4.916865,\n                -68.3851361\n              ],\n              [\n                6.1252265,\n                -68.0681329\n              ],\n              [\n                7.3205217,\n                -67.7369271\n              ],\n              [\n                8.5243384,\n                -67.3852695\n              ],\n              [\n                6.9154621,\n                -66.5569708\n              ]\n            ]\n          ]\n        },\n        \"links\": [\n          {\n            \"rel\": \"self…[truncated]"
+    },
+    {
+      "command": "items get-search",
+      "kind": "json_fidelity",
+      "args": [
+        "items",
+        "get-search",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"type\": \"FeatureCollection\",\n    \"stac_version\": \"1.0.0\",\n    \"stac_extensions\": [],\n    \"context\": {\n      \"limit\": 10,\n      \"matched\": 130215560,\n      \"returned\": 10\n    },\n    \"numberMatched\": 130215560,\n    \"numberReturned\": 10,\n    \"features\": [\n      {\n        \"type\": \"Feature\",\n        \"stac_version\": \"1.0.0\",\n        \"id\": \"S1A_IW_GRDH_1SSH_20260624T195224_20260624T195241_065115_083539\",\n        \"properties\": {\n          \"sar:frequency_band\": \"C\",\n          \"sar:center_frequency\": 5.405,\n          \"sar:observation_direction\": \"right\",\n          \"sar:instrument_mode\": \"IW\",\n          \"sar:polarizations\": [\n            \"HH\"\n          ],\n          \"sar:product_type\": \"GRD\",\n          \"sar:resolution_range\": 20,\n          \"sar:resolution_azimuth\": 22,\n          \"sar:pixel_spacing_range\": 10,\n          \"sar:pixel_spacing_azimuth\": 10,\n          \"sar:looks_range\": 5,\n          \"sar:looks_azimuth\": 1,\n          \"sar:looks_equivalent_number\": 4.4,\n          \"sat:platform_international_designator\": \"2014-016A\",\n          \"sat:orbit_state\": \"ascending\",\n          \"sat:absolute_orbit\": 65115,\n          \"sat:relative_orbit\": 118,\n          \"proj:epsg\": 4326,\n          \"proj:bbox\": [\n            2.133382,\n            -68.699959,\n            8.544117,\n            -66.547577\n          ],\n          \"proj:shape\": [\n            25198,\n            11475\n          ],\n          \"proj:transform\": [\n            0.0005586697167755991,\n            0,\n            2.133382,\n            0,\n            -0.00008541876339392026,\n            -66.547577\n          ],\n          \"proj:centroid\": {\n            \"lat\": -67.616,\n            \"lon\": 5.31233\n          },\n          \"platform\": \"sentinel-1a\",\n          \"constellation\": \"sentinel-1\",\n          \"start_datetime\": \"2026-06-24T19:52:24.710231Z\",\n          \"end_datetime\": \"2026-06-24T19:52:41.684833Z\",\n          \"s1:instrument_configuration_ID\": \"7\",\n          \"s1:datatake_id\": \"537913\",\n          \"s1:product_timeliness\": \"Fast-24h\",\n          \"s1:processing_level\": \"1\",\n          \"s1:resolution\": \"high\",\n          \"s1:orbit_source\": \"RESORB\",\n          \"s1:slice_number\": \"4\",\n          \"s1:total_slices\": \"4\",\n          \"s1:shape\": [\n            25198,\n            11475\n          ],\n          \"s1:product_identifier\": \"S1A_IW_GRDH_1SSH_20260624T195224_20260624T195241_065115_083539_1D58\",\n          \"s1:processing_datetime\": \"2026-06-24T20:57:06.000000Z\",\n          \"storage:platform\": \"AWS\",\n          \"storage:region\": \"eu-central-1\",\n          \"storage:requester_pays\": true,\n          \"datetime\": \"2026-06-24T19:52:33.197532Z\",\n          \"processing:software\": {\n            \"sentinel1-to-stac\": \"2025.05.13\"\n          },\n          \"created\": \"2026-06-24T21:21:36.291Z\",\n          \"updated\": \"2026-06-24T21:21:36.291Z\"\n        },\n        \"geometry\": {\n          \"type\": \"Polygon\",\n          \"coordinates\": [\n            [\n              [\n                6.9154621,\n                -66.5569708\n              ],\n              [\n                5.4679279,\n                -66.970552\n              ],\n              [\n                5.5588248,\n                -67.0256583\n              ],\n              [\n                3.8971146,\n                -67.4682129\n              ],\n              [\n                3.9800581,\n                -67.5182063\n              ],\n              [\n                2.3109626,\n                -67.9300831\n              ],\n              [\n                3.6545334,\n                -68.6975944\n              ],\n              [\n                4.916865,\n                -68.3851361\n              ],\n              [\n                6.1252265,\n                -68.0681329\n              ],\n              [\n                7.3205217,\n                -67.7369271\n              ],\n              [\n                8.5243384,\n                -67.3852695\n              ],\n              [\n                6.9154621,\n                -66.5569708\n              ]\n            ]\n          ]\n        },\n        \"links\": [\n          {\n            \"rel\": \"self…[truncated]"
+    },
+    {
+      "command": "items get-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "items post-search",
+      "kind": "help",
+      "args": [
+        "items",
+        "post-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve items matching filters. Intended as the standard, full-featured query API.\n\nUsage:\n  stac-pp-cli items post-search [flags]\n\nAliases:\n  post-search, create\n\nExamples:\n  stac-pp-cli items post-search\n\nFlags:\n      --bbox string          Only features that have a geometry that intersects the bounding box are selected.\n      --collections string   Array of Collection IDs to include in the search for items.\n      --datetime string      Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339.\n  -h, --help                 help for post-search\n      --ids string           Array of Item ids to return.\n      --intersects string    Intersects\n      --limit int            The optional limit parameter limits the number of items that are presented in the response document. (default 10)\n      --stdin                Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "items post-search",
+      "kind": "happy_path",
+      "args": [
+        "items",
+        "post-search",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/search\",\n  \"resource\": \"items\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://earth-search.aws.element84.com/v1/search\n  Body:\n{\n    \"limit\": 10\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "items post-search",
+      "kind": "json_fidelity",
+      "args": [
+        "items",
+        "post-search",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/search\",\n  \"resource\": \"items\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://earth-search.aws.element84.com/v1/search\n  Body:\n{\n    \"limit\": 10\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "items post-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "items post-search",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  stac-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  stac-pp-cli profile delete my-defaults --yes\n  stac-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  stac-pp-cli profile list [flags]\n\nExamples:\n  stac-pp-cli profile list\n  stac-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  stac-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  stac-pp-cli profile save my-defaults --json --compact\n  stac-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  stac-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  stac-pp-cli profile show my-defaults\n  stac-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  stac-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  stac-pp-cli profile use my-defaults\n  stac-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "queryables get",
+      "kind": "help",
+      "args": [
+        "queryables",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns the set of queryable properties (JSON Schema) usable in query/filter across the whole catalog.\n\nUsage:\n  stac-pp-cli queryables get [flags]\n\nAliases:\n  get, list\n\nExamples:\n  stac-pp-cli queryables get\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "queryables get",
+      "kind": "happy_path",
+      "args": [
+        "queryables",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n    \"$id\": \"https://earth-search.aws.element84.com/v1/queryables\",\n    \"type\": \"object\",\n    \"title\": \"Queryables for Earth Search by Element 84\",\n    \"properties\": {},\n    \"additionalProperties\": true\n  }\n}\nwarning: 1/1 queryables items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "queryables get",
+      "kind": "json_fidelity",
+      "args": [
+        "queryables",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n    \"$id\": \"https://earth-search.aws.element84.com/v1/queryables\",\n    \"type\": \"object\",\n    \"title\": \"Queryables for Earth Search by Element 84\",\n    \"properties\": {},\n    \"additionalProperties\": true\n  }\n}\nwarning: 1/1 queryables items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "queryables get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "scenes best",
+      "kind": "help",
+      "args": [
+        "scenes",
+        "best",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to pick the single clearest scene for an AOI and date range. It ranks candidates by cloud cover both server-side and client-side (a fallback for providers whose sort is unreliable). For a full list of scenes use 'workflow search'.\n\nUsage:\n  stac-pp-cli scenes best [flags]\n\nExamples:\n  stac-pp-cli scenes best --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30\n\nFlags:\n      --bbox string         Bounding box filter as west,south,east,north\n      --collection string   Collection id to search, e.g. sentinel-2-l2a (required)\n      --datetime string     Datetime or interval, e.g. 2024-06-01/2024-06-30\n  -h, --help                help for best\n      --intersects string   GeoJSON geometry to intersect (overrides --bbox)\n      --max-cloud float     Only consider scenes with eo:cloud_cover below this percent\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "scenes best",
+      "kind": "happy_path",
+      "args": [
+        "scenes",
+        "best",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-06-30"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"assets\": {\n    \"blue\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B02.tif\",\n    \"green\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B03.tif\",\n    \"nir\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B08.tif\",\n    \"red\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B04.tif\",\n    \"thumbnail\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/thumbnail.jpg\",\n    \"visual\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/TCI.tif\"\n  },\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-06-27T19:03:58.658000Z\",\n  \"eo_cloud_cover\": 0.093118,\n  \"grid_code\": \"MGRS-10SEH\",\n  \"id\": \"S2B_10SEH_20240627_0_L2A\",\n  \"matched\": 12,\n  \"platform\": \"sentinel-2b\",\n  \"ranked_from\": 12\n}\n"
+    },
+    {
+      "command": "scenes best",
+      "kind": "json_fidelity",
+      "args": [
+        "scenes",
+        "best",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-06-30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"assets\": {\n    \"blue\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B02.tif\",\n    \"green\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B03.tif\",\n    \"nir\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B08.tif\",\n    \"red\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/B04.tif\",\n    \"thumbnail\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/thumbnail.jpg\",\n    \"visual\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/S/EH/2024/6/S2B_10SEH_20240627_0_L2A/TCI.tif\"\n  },\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-06-27T19:03:58.658000Z\",\n  \"eo_cloud_cover\": 0.093118,\n  \"grid_code\": \"MGRS-10SEH\",\n  \"id\": \"S2B_10SEH_20240627_0_L2A\",\n  \"matched\": 12,\n  \"platform\": \"sentinel-2b\",\n  \"ranked_from\": 12\n}\n"
+    },
+    {
+      "command": "scenes best",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  stac-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  stac-pp-cli search \"error timeout\"\n\n  # Force local search only\n  stac-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  stac-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  stac-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "stack-snippet",
+      "kind": "help",
+      "args": [
+        "stack-snippet",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to jump from scene discovery straight into an xarray workflow. It searches for matching items and prints a runnable Python snippet that loads them into a data cube with stackstac.\n\nUsage:\n  stac-pp-cli stack-snippet [flags]\n\nExamples:\n  stac-pp-cli stack-snippet --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-06-01/2024-06-30 --bands red,green,blue,nir\n\nFlags:\n      --bands string         Comma-separated bands to load (default: red,green,blue,nir)\n      --bbox string          Bounding box filter as west,south,east,north\n      --collection string    Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string      Datetime or interval, e.g. 2024-06-01/2024-06-30\n  -h, --help                 help for stack-snippet\n      --max-scan-pages int   Maximum search pages to scan before returning partial results (default 5)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stack-snippet",
+      "kind": "happy_path",
+      "args": [
+        "stack-snippet",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-06-30",
+        "--bands",
+        "red,green,blue,nir"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"item_count\": 12,\n  \"scanned_pages\": 1,\n  \"snippet\": \"# 12 matching items. Requires: pip install pystac-client stackstac\\nimport stackstac\\nfrom pystac_client import Client\\n\\nclient = Client.open(\\\"https://earth-search.aws.element84.com/v1\\\")\\nsearch = client.search(\\n    collections=[\\\"sentinel-2-l2a\\\"],\\n    bbox=[-122.5, 37.7, -122.3, 37.9],\\n    datetime=\\\"2024-06-01/2024-06-30\\\",\\n)\\nitems = list(search.items())\\nstack = stackstac.stack(items, assets=[\\\"red\\\", \\\"green\\\", \\\"blue\\\", \\\"nir\\\"])\\nprint(stack)\"\n}\n"
+    },
+    {
+      "command": "stack-snippet",
+      "kind": "json_fidelity",
+      "args": [
+        "stack-snippet",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-06-01/2024-06-30",
+        "--bands",
+        "red,green,blue,nir",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"item_count\": 12,\n  \"scanned_pages\": 1,\n  \"snippet\": \"# 12 matching items. Requires: pip install pystac-client stackstac\\nimport stackstac\\nfrom pystac_client import Client\\n\\nclient = Client.open(\\\"https://earth-search.aws.element84.com/v1\\\")\\nsearch = client.search(\\n    collections=[\\\"sentinel-2-l2a\\\"],\\n    bbox=[-122.5, 37.7, -122.3, 37.9],\\n    datetime=\\\"2024-06-01/2024-06-30\\\",\\n)\\nitems = list(search.items())\\nstack = stackstac.stack(items, assets=[\\\"red\\\", \\\"green\\\", \\\"blue\\\", \\\"nir\\\"])\\nprint(stack)\"\n}\n"
+    },
+    {
+      "command": "stack-snippet",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  stac-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  stac-pp-cli sync\n\n  # Sync specific resources only\n  stac-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  stac-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  stac-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  stac-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  stac-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact        …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"aggregate\"}\n{\"event\":\"sync_start\",\"resource\":\"aggregations\"}\n{\"event\":\"sync_start\",\"resource\":\"queryables\"}\n{\"event\":\"sync_warning\",\"resource\":\"queryables\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"aggregations\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"aggregate\",\"consumed\":2,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"aggregate\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"aggregate\",\"total\":0,\"duration_ms\":193}\n{\"event\":\"sync_complete\",\"resource\":\"aggregations\",\"total\":1,\"duration_ms\":303}\n{\"event\":\"sync_complete\",\"resource\":\"queryables\",\"total\":1,\"duration_ms\":316}\n{\"event\":\"sync_summary\",\"total_records\":2,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":317}\nwarning: 2/2 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"aggregate\"}\n{\"event\":\"sync_start\",\"resource\":\"aggregations\"}\n{\"event\":\"sync_start\",\"resource\":\"queryables\"}\n{\"event\":\"sync_warning\",\"resource\":\"queryables\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"aggregations\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"queryables\",\"total\":1,\"duration_ms\":314}\n{\"event\":\"sync_complete\",\"resource\":\"aggregations\",\"total\":1,\"duration_ms\":318}\n{\"event\":\"sync_anomaly\",\"resource\":\"aggregate\",\"consumed\":2,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"aggregate\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"aggregate\",\"total\":0,\"duration_ms\":362}\n{\"event\":\"sync_summary\",\"total_records\":2,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":362}\nwarning: 2/2 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "timeline",
+      "kind": "help",
+      "args": [
+        "timeline",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to assemble a clean observation series for NDVI or change detection. It keeps one low-cloud scene per date, deduped by relative orbit and grid tile. It is not a raw item list — use 'workflow search' for that.\n\nUsage:\n  stac-pp-cli timeline [flags]\n\nExamples:\n  stac-pp-cli timeline --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9 --datetime 2024-01-01/2024-06-30 --max-cloud 30\n\nFlags:\n      --bbox string          Bounding box filter as west,south,east,north\n      --collection string    Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string      Datetime or interval, e.g. 2024-01-01/2024-06-30\n  -h, --help                 help for timeline\n      --max-cloud float      Only include scenes with eo:cloud_cover below this percent\n      --max-scan-pages int   Maximum search pages to scan before returning partial results (default 5)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "timeline",
+      "kind": "happy_path",
+      "args": [
+        "timeline",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-01-01/2024-06-30",
+        "--max-cloud",
+        "30"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-01-01/2024-06-30\",\n  \"observations\": 21,\n  \"scanned_pages\": 1,\n  \"timeline\": [\n    {\n      \"date\": \"2024-01-04\",\n      \"id\": \"S2A_10SEG_20240104_0_L2A\",\n      \"eo_cloud_cover\": 11.331147,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-01-29\",\n      \"id\": \"S2B_10SEH_20240129_0_L2A\",\n      \"eo_cloud_cover\": 19.297324,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-02-18\",\n      \"id\": \"S2B_10SEG_20240218_0_L2A\",\n      \"eo_cloud_cover\": 27.223831,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-02-28\",\n      \"id\": \"S2B_10SEG_20240228_0_L2A\",\n      \"eo_cloud_cover\": 0.004947,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-14\",\n      \"id\": \"S2A_10SEG_20240314_0_L2A\",\n      \"eo_cloud_cover\": 0.492138,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-19\",\n      \"id\": \"S2B_10SEG_20240319_0_L2A\",\n      \"eo_cloud_cover\": 11.077169,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-24\",\n      \"id\": \"S2A_10SEH_20240324_0_L2A\",\n      \"eo_cloud_cover\": 20.411329,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-08\",\n      \"id\": \"S2B_10SEH_20240408_0_L2A\",\n      \"eo_cloud_cover\": 0.003766,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-18\",\n      \"id\": \"S2B_10SEH_20240418_0_L2A\",\n      \"eo_cloud_cover\": 1.948587,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-28\",\n      \"id\": \"S2B_10SEH_20240428_0_L2A\",\n      \"eo_cloud_cover\": 1.059004,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-03\",\n      \"id\": \"S2A_10SEG_20240503_0_L2A\",\n      \"eo_cloud_cover\": 0.0208,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-05-08\",\n      \"id\": \"S2B_10SEG_20240508_0_L2A\",\n      \"eo_cloud_cover\": 0.728926,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-05-13\",\n      \"id\": \"S2A_10SEH_20240513_0_L2A\",\n      \"eo_cloud_cover\": 13.416791,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-23\",\n      \"id\": \"S2A_10SEH_20240523_0_L2A\",\n      \"eo_cloud_cover\": 0.014459,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-28\",\n      \"id\": \"S2B_10SEH_20240528_0_L2A\",\n      \"eo_cloud_cover\": 11.012939,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-02\",\n      \"id\": \"S2A_10SEH_20240602_0_L2A\",\n      \"eo_cloud_cover\": 23.612867,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-07\",\n      \"id\": \"S2B_10SEH_20240607_0_L2A\",\n      \"eo_cloud_cover\": 3.511969,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-12\",\n      \"id\": \"S2A_10SEH_20240612_0_L2A\",\n      \"eo_cloud_cover\": 0.736929,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-17\",\n      \"id\": \"S2B_10SEH_20240617_0_L2A\",\n      \"eo_cloud_cover\": 6.87575,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-22\",\n      \"id\": \"S2A_10SEH_20240622_0_L2A\",\n      \"eo_cloud_cover\": 3.18138,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-27\",\n      \"id\": \"S2B_10SEH_20240627_0_L2A\",\n      \"eo_cloud_cover\": 0.093118,\n      \"grid_code\": \"MGRS-10SEH\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "timeline",
+      "kind": "json_fidelity",
+      "args": [
+        "timeline",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--datetime",
+        "2024-01-01/2024-06-30",
+        "--max-cloud",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"datetime\": \"2024-01-01/2024-06-30\",\n  \"observations\": 21,\n  \"scanned_pages\": 1,\n  \"timeline\": [\n    {\n      \"date\": \"2024-01-04\",\n      \"id\": \"S2A_10SEG_20240104_0_L2A\",\n      \"eo_cloud_cover\": 11.331147,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-01-29\",\n      \"id\": \"S2B_10SEH_20240129_0_L2A\",\n      \"eo_cloud_cover\": 19.297324,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-02-18\",\n      \"id\": \"S2B_10SEG_20240218_0_L2A\",\n      \"eo_cloud_cover\": 27.223831,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-02-28\",\n      \"id\": \"S2B_10SEG_20240228_0_L2A\",\n      \"eo_cloud_cover\": 0.004947,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-14\",\n      \"id\": \"S2A_10SEG_20240314_0_L2A\",\n      \"eo_cloud_cover\": 0.492138,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-19\",\n      \"id\": \"S2B_10SEG_20240319_0_L2A\",\n      \"eo_cloud_cover\": 11.077169,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-03-24\",\n      \"id\": \"S2A_10SEH_20240324_0_L2A\",\n      \"eo_cloud_cover\": 20.411329,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-08\",\n      \"id\": \"S2B_10SEH_20240408_0_L2A\",\n      \"eo_cloud_cover\": 0.003766,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-18\",\n      \"id\": \"S2B_10SEH_20240418_0_L2A\",\n      \"eo_cloud_cover\": 1.948587,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-04-28\",\n      \"id\": \"S2B_10SEH_20240428_0_L2A\",\n      \"eo_cloud_cover\": 1.059004,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-03\",\n      \"id\": \"S2A_10SEG_20240503_0_L2A\",\n      \"eo_cloud_cover\": 0.0208,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-05-08\",\n      \"id\": \"S2B_10SEG_20240508_0_L2A\",\n      \"eo_cloud_cover\": 0.728926,\n      \"grid_code\": \"MGRS-10SEG\"\n    },\n    {\n      \"date\": \"2024-05-13\",\n      \"id\": \"S2A_10SEH_20240513_0_L2A\",\n      \"eo_cloud_cover\": 13.416791,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-23\",\n      \"id\": \"S2A_10SEH_20240523_0_L2A\",\n      \"eo_cloud_cover\": 0.014459,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-05-28\",\n      \"id\": \"S2B_10SEH_20240528_0_L2A\",\n      \"eo_cloud_cover\": 11.012939,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-02\",\n      \"id\": \"S2A_10SEH_20240602_0_L2A\",\n      \"eo_cloud_cover\": 23.612867,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-07\",\n      \"id\": \"S2B_10SEH_20240607_0_L2A\",\n      \"eo_cloud_cover\": 3.511969,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-12\",\n      \"id\": \"S2A_10SEH_20240612_0_L2A\",\n      \"eo_cloud_cover\": 0.736929,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-17\",\n      \"id\": \"S2B_10SEH_20240617_0_L2A\",\n      \"eo_cloud_cover\": 6.87575,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-22\",\n      \"id\": \"S2A_10SEH_20240622_0_L2A\",\n      \"eo_cloud_cover\": 3.18138,\n      \"grid_code\": \"MGRS-10SEH\"\n    },\n    {\n      \"date\": \"2024-06-27\",\n      \"id\": \"S2B_10SEH_20240627_0_L2A\",\n      \"eo_cloud_cover\": 0.093118,\n      \"grid_code\": \"MGRS-10SEH\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "timeline",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch",
+      "kind": "help",
+      "args": [
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Use this command to monitor an AOI for fresh imagery across runs. It diffs a live search against the item IDs already in the local store; pass --record to add the new scenes to the store so the next run only reports newer ones.\n\nUsage:\n  stac-pp-cli watch [flags]\n\nExamples:\n  stac-pp-cli watch --collection sentinel-2-l2a --bbox -122.5,37.7,-122.3,37.9\n\nFlags:\n      --bbox string          Bounding box filter as west,south,east,north\n      --collection string    Collection id, e.g. sentinel-2-l2a (required)\n      --datetime string      Datetime or interval to bound the search\n      --db string            Local store path (defaults to the standard cache location)\n  -h, --help                 help for watch\n      --max-scan-pages int   Maximum search pages to scan before returning partial results (default 5)\n      --record               Record the newly seen scenes into the local store\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"new_count\": 100,\n  \"new_scenes\": [\n    {\n      \"id\": \"S2C_10SEG_20260622_0_L2A\",\n      \"datetime\": \"2026-06-22T19:04:09.172000Z\",\n      \"eo_cloud_cover\": 53.593534\n    },\n    {\n      \"id\": \"S2C_10SEH_20260622_0_L2A\",\n      \"datetime\": \"2026-06-22T19:03:54.454000Z\",\n      \"eo_cloud_cover\": 11.638325\n    },\n    {\n      \"id\": \"S2B_10SEG_20260617_0_L2A\",\n      \"datetime\": \"2026-06-17T19:04:07.965000Z\",\n      \"eo_cloud_cover\": 51.51276\n    },\n    {\n      \"id\": \"S2B_10SEH_20260617_0_L2A\",\n      \"datetime\": \"2026-06-17T19:03:53.253000Z\",\n      \"eo_cloud_cover\": 22.274213\n    },\n    {\n      \"id\": \"S2C_10SEG_20260612_0_L2A\",\n      \"datetime\": \"2026-06-12T19:04:09.259000Z\",\n      \"eo_cloud_cover\": 38.511506\n    },\n    {\n      \"id\": \"S2C_10SEH_20260612_0_L2A\",\n      \"datetime\": \"2026-06-12T19:03:54.543000Z\",\n      \"eo_cloud_cover\": 2.776773\n    },\n    {\n      \"id\": \"S2B_10SEG_20260607_0_L2A\",\n      \"datetime\": \"2026-06-07T19:04:06.900000Z\",\n      \"eo_cloud_cover\": 8.306492\n    },\n    {\n      \"id\": \"S2B_10SEH_20260607_0_L2A\",\n      \"datetime\": \"2026-06-07T19:03:52.187000Z\",\n      \"eo_cloud_cover\": 9.782058\n    },\n    {\n      \"id\": \"S2A_10SEG_20260604_0_L2A\",\n      \"datetime\": \"2026-06-04T19:04:25.628000Z\",\n      \"eo_cloud_cover\": 0.233974\n    },\n    {\n      \"id\": \"S2A_10SEH_20260604_0_L2A\",\n      \"datetime\": \"2026-06-04T19:04:10.914000Z\",\n      \"eo_cloud_cover\": 0.024691\n    },\n    {\n      \"id\": \"S2C_10SEG_20260602_0_L2A\",\n      \"datetime\": \"2026-06-02T19:04:07.761000Z\",\n      \"eo_cloud_cover\": 62.521529\n    },\n    {\n      \"id\": \"S2C_10SEH_20260602_0_L2A\",\n      \"datetime\": \"2026-06-02T19:03:53.043000Z\",\n      \"eo_cloud_cover\": 26.226705\n    },\n    {\n      \"id\": \"S2B_10SEG_20260528_0_L2A\",\n      \"datetime\": \"2026-05-28T19:04:03.972000Z\",\n      \"eo_cloud_cover\": 83.693737\n    },\n    {\n      \"id\": \"S2B_10SEH_20260528_0_L2A\",\n      \"datetime\": \"2026-05-28T19:03:49.268000Z\",\n      \"eo_cloud_cover\": 64.523882\n    },\n    {\n      \"id\": \"S2C_10SEG_20260523_0_L2A\",\n      \"datetime\": \"2026-05-23T19:04:07.698000Z\",\n      \"eo_cloud_cover\": 54.656875\n    },\n    {\n      \"id\": \"S2C_10SEH_20260523_0_L2A\",\n      \"datetime\": \"2026-05-23T19:03:52.982000Z\",\n      \"eo_cloud_cover\": 26.294538\n    },\n    {\n      \"id\": \"S2B_10SEG_20260518_0_L2A\",\n      \"datetime\": \"2026-05-18T19:04:05.887000Z\",\n      \"eo_cloud_cover\": 0.712134\n    },\n    {\n      \"id\": \"S2B_10SEH_20260518_0_L2A\",\n      \"datetime\": \"2026-05-18T19:03:51.175000Z\",\n      \"eo_cloud_cover\": 2.389265\n    },\n    {\n      \"id\": \"S2A_10SEG_20260515_0_L2A\",\n      \"datetime\": \"2026-05-15T19:04:24.441000Z\",\n      \"eo_cloud_cover\": 0.063457\n    },\n    {\n      \"id\": \"S2A_10SEH_20260515_0_L2A\",\n      \"datetime\": \"2026-05-15T19:04:09.729000Z\",\n      \"eo_cloud_cover\": 3.004794\n    },\n    {\n      \"id\": \"S2C_10SEG_20260513_0_L2A\",\n      \"datetime\": \"2026-05-13T19:04:09.551000Z\",\n      \"eo_cloud_cover\": 0.927601\n    },\n    {\n      \"id\": \"S2C_10SEH_20260513_0_L2A\",\n      \"datetime\": \"2026-05-13T19:03:54.834000Z\",\n      \"eo_cloud_cover\": 0.49829\n    },\n    {\n      \"id\": \"S2B_10SEG_20260508_0_L2A\",\n      \"datetime\": \"2026-05-08T19:04:06.642000Z\",\n      \"eo_cloud_cover\": 57.460451\n    },\n    {\n      \"id\": \"S2B_10SEH_20260508_0_L2A\",\n      \"datetime\": \"2026-05-08T19:03:51.922000Z\",\n      \"eo_cloud_cover\": 5.929151\n    },\n    {\n      \"id\": \"S2C_10SEG_20260503_0_L2A\",\n      \"datetime\": \"2026-05-03T19:04:10.471000Z\",\n      \"eo_cloud_cover\": 90.943468\n    },\n    {\n      \"id\": \"S2C_10SEH_20260503_0_L2A\",\n      \"datetime\": \"2026-05-03T19:03:55.760000Z\",\n      \"eo_cloud_cover\": 94.87536\n    },\n    {\n      \"id\": \"S2A_10SEG_20260425_0_L2A\",\n      \"datetime\": \"2026-04-25T19:04:26.315000Z\",\n      \"eo_cloud_cover\": 99.998236\n    },\n    {\n      \"id\": \"S2A_10SEH_20260425_0_L2A\",\n      \"datetime\": \"2026-04-25T19:04:11.604000Z\",\n      \"eo_cloud_cover\": 99.999547\n    },\n    {\n      \"id\": \"S2C_10SEG_20260423_0_L2A\",\n      \"datetime\": \"2026-04-23T19:04:10.074000Z\",\n      \"eo_cloud_cover\": 15.753661\n    },\n    {\n      \"id\": \"S2C_10SEH_20260423_0_L2A\",\n      \"datetime\": \"2026-04-23T19:03:55.360000Z\"…[truncated]"
+    },
+    {
+      "command": "watch",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "--collection",
+        "sentinel-2-l2a",
+        "--bbox",
+        "-122.5,37.7,-122.3,37.9",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"collection\": \"sentinel-2-l2a\",\n  \"new_count\": 100,\n  \"new_scenes\": [\n    {\n      \"id\": \"S2C_10SEG_20260622_0_L2A\",\n      \"datetime\": \"2026-06-22T19:04:09.172000Z\",\n      \"eo_cloud_cover\": 53.593534\n    },\n    {\n      \"id\": \"S2C_10SEH_20260622_0_L2A\",\n      \"datetime\": \"2026-06-22T19:03:54.454000Z\",\n      \"eo_cloud_cover\": 11.638325\n    },\n    {\n      \"id\": \"S2B_10SEG_20260617_0_L2A\",\n      \"datetime\": \"2026-06-17T19:04:07.965000Z\",\n      \"eo_cloud_cover\": 51.51276\n    },\n    {\n      \"id\": \"S2B_10SEH_20260617_0_L2A\",\n      \"datetime\": \"2026-06-17T19:03:53.253000Z\",\n      \"eo_cloud_cover\": 22.274213\n    },\n    {\n      \"id\": \"S2C_10SEG_20260612_0_L2A\",\n      \"datetime\": \"2026-06-12T19:04:09.259000Z\",\n      \"eo_cloud_cover\": 38.511506\n    },\n    {\n      \"id\": \"S2C_10SEH_20260612_0_L2A\",\n      \"datetime\": \"2026-06-12T19:03:54.543000Z\",\n      \"eo_cloud_cover\": 2.776773\n    },\n    {\n      \"id\": \"S2B_10SEG_20260607_0_L2A\",\n      \"datetime\": \"2026-06-07T19:04:06.900000Z\",\n      \"eo_cloud_cover\": 8.306492\n    },\n    {\n      \"id\": \"S2B_10SEH_20260607_0_L2A\",\n      \"datetime\": \"2026-06-07T19:03:52.187000Z\",\n      \"eo_cloud_cover\": 9.782058\n    },\n    {\n      \"id\": \"S2A_10SEG_20260604_0_L2A\",\n      \"datetime\": \"2026-06-04T19:04:25.628000Z\",\n      \"eo_cloud_cover\": 0.233974\n    },\n    {\n      \"id\": \"S2A_10SEH_20260604_0_L2A\",\n      \"datetime\": \"2026-06-04T19:04:10.914000Z\",\n      \"eo_cloud_cover\": 0.024691\n    },\n    {\n      \"id\": \"S2C_10SEG_20260602_0_L2A\",\n      \"datetime\": \"2026-06-02T19:04:07.761000Z\",\n      \"eo_cloud_cover\": 62.521529\n    },\n    {\n      \"id\": \"S2C_10SEH_20260602_0_L2A\",\n      \"datetime\": \"2026-06-02T19:03:53.043000Z\",\n      \"eo_cloud_cover\": 26.226705\n    },\n    {\n      \"id\": \"S2B_10SEG_20260528_0_L2A\",\n      \"datetime\": \"2026-05-28T19:04:03.972000Z\",\n      \"eo_cloud_cover\": 83.693737\n    },\n    {\n      \"id\": \"S2B_10SEH_20260528_0_L2A\",\n      \"datetime\": \"2026-05-28T19:03:49.268000Z\",\n      \"eo_cloud_cover\": 64.523882\n    },\n    {\n      \"id\": \"S2C_10SEG_20260523_0_L2A\",\n      \"datetime\": \"2026-05-23T19:04:07.698000Z\",\n      \"eo_cloud_cover\": 54.656875\n    },\n    {\n      \"id\": \"S2C_10SEH_20260523_0_L2A\",\n      \"datetime\": \"2026-05-23T19:03:52.982000Z\",\n      \"eo_cloud_cover\": 26.294538\n    },\n    {\n      \"id\": \"S2B_10SEG_20260518_0_L2A\",\n      \"datetime\": \"2026-05-18T19:04:05.887000Z\",\n      \"eo_cloud_cover\": 0.712134\n    },\n    {\n      \"id\": \"S2B_10SEH_20260518_0_L2A\",\n      \"datetime\": \"2026-05-18T19:03:51.175000Z\",\n      \"eo_cloud_cover\": 2.389265\n    },\n    {\n      \"id\": \"S2A_10SEG_20260515_0_L2A\",\n      \"datetime\": \"2026-05-15T19:04:24.441000Z\",\n      \"eo_cloud_cover\": 0.063457\n    },\n    {\n      \"id\": \"S2A_10SEH_20260515_0_L2A\",\n      \"datetime\": \"2026-05-15T19:04:09.729000Z\",\n      \"eo_cloud_cover\": 3.004794\n    },\n    {\n      \"id\": \"S2C_10SEG_20260513_0_L2A\",\n      \"datetime\": \"2026-05-13T19:04:09.551000Z\",\n      \"eo_cloud_cover\": 0.927601\n    },\n    {\n      \"id\": \"S2C_10SEH_20260513_0_L2A\",\n      \"datetime\": \"2026-05-13T19:03:54.834000Z\",\n      \"eo_cloud_cover\": 0.49829\n    },\n    {\n      \"id\": \"S2B_10SEG_20260508_0_L2A\",\n      \"datetime\": \"2026-05-08T19:04:06.642000Z\",\n      \"eo_cloud_cover\": 57.460451\n    },\n    {\n      \"id\": \"S2B_10SEH_20260508_0_L2A\",\n      \"datetime\": \"2026-05-08T19:03:51.922000Z\",\n      \"eo_cloud_cover\": 5.929151\n    },\n    {\n      \"id\": \"S2C_10SEG_20260503_0_L2A\",\n      \"datetime\": \"2026-05-03T19:04:10.471000Z\",\n      \"eo_cloud_cover\": 90.943468\n    },\n    {\n      \"id\": \"S2C_10SEH_20260503_0_L2A\",\n      \"datetime\": \"2026-05-03T19:03:55.760000Z\",\n      \"eo_cloud_cover\": 94.87536\n    },\n    {\n      \"id\": \"S2A_10SEG_20260425_0_L2A\",\n      \"datetime\": \"2026-04-25T19:04:26.315000Z\",\n      \"eo_cloud_cover\": 99.998236\n    },\n    {\n      \"id\": \"S2A_10SEH_20260425_0_L2A\",\n      \"datetime\": \"2026-04-25T19:04:11.604000Z\",\n      \"eo_cloud_cover\": 99.999547\n    },\n    {\n      \"id\": \"S2C_10SEG_20260423_0_L2A\",\n      \"datetime\": \"2026-04-23T19:04:10.074000Z\",\n      \"eo_cloud_cover\": 15.753661\n    },\n    {\n      \"id\": \"S2C_10SEH_20260423_0_L2A\",\n      \"datetime\": \"2026-04-23T19:03:55.360000Z\"…[truncated]"
+    },
+    {
+      "command": "watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  stac-pp-cli which [query] [flags]\n\nExamples:\n  stac-pp-cli which \"stale tickets\"\n  stac-pp-cli which \"bottleneck\"\n  stac-pp-cli which --limit 1 \"send message\"\n  stac-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  stac-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  stac-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  stac-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"aggregate\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"aggregate\",\"consumed\":2,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"aggregate\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"aggregate\",\"total\":0,\"duration_ms\":197}\n{\"event\":\"sync_start\",\"resource\":\"aggregations\"}\n{\"event\":\"sync_warning\",\"resource\":\"aggregations\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"aggregations\",\"total\":1,\"duration_ms\":381}\n{\"event\":\"sync_start\",\"resource\":\"queryables\"}\n{\"event\":\"sync_warning\",\"resource\":\"queryables\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"queryables\",\"total\":1,\"duration_ms\":279}\nArchived 2 items across 3 resources to /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli/data.db\nwarning: 2/2 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n  aggregate: 0 synced\n  aggregations: 1 synced\n  queryables: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 3,\n  \"store_path\": \"/var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-24T21:23:48Z\",\n  \"total_items\": 2\n}\n{\"event\":\"sync_start\",\"resource\":\"aggregate\"}\nwarning: 2/2 aggregate items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n{\"event\":\"sync_anomaly\",\"resource\":\"aggregate\",\"consumed\":2,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"aggregate\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"aggregate\",\"total\":0,\"duration_ms\":214}\n  aggregate: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"aggregations\"}\n{\"event\":\"sync_warning\",\"resource\":\"aggregations\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"aggregations\",\"total\":1,\"duration_ms\":116}\n  aggregations: 1 synced\n{\"event\":\"sync_start\",\"resource\":\"queryables\"}\n{\"event\":\"sync_warning\",\"resource\":\"queryables\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"queryables\",\"total\":1,\"duration_ms\":374}\n  queryables: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  stac-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  stac-pp-cli workflow status\n\n  # Show status as JSON\n  stac-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stac-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  aggregations                   5 items\n  items                          10 items\n  queryables                     1 items\n\n  Total: 16 items\n  Store: /var/folders/5p/bhsb4zjs41lblf2nd_bft5cm0000gp/T/printing-press-subprocess-\u003credacted\u003e/.local/share/stac-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"aggregations\": 5,\n  \"items\": 10,\n  \"queryables\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-24T21:23:33.683741Z"
+}

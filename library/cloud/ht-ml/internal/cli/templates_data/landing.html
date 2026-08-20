@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  :root { color-scheme: light dark; --ink:#0f172a; --muted:#64748b; --accent:#6366f1; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color:var(--ink); }
+  .hero { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+          text-align:center; padding:4rem 1.5rem; background:linear-gradient(160deg,#eef2ff,#fff); }
+  h1 { font-size:clamp(2rem,6vw,3.5rem); margin:0 0 1rem; letter-spacing:-0.02em; }
+  p.lede { font-size:1.25rem; color:var(--muted); max-width:36rem; margin:0 0 2rem; }
+  .cta { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+         padding:0.85rem 1.75rem; border-radius:999px; font-weight:600; }
+  footer { text-align:center; color:var(--muted); padding:2rem; font-size:0.9rem; }
+</style>
+</head>
+<body>
+<section class="hero">
+  <h1>{{HEADING}}</h1>
+  <p class="lede">{{BODY}}</p>
+  <a class="cta" href="#">Get started</a>
+</section>
+<footer>Published with ht-ml.app</footer>
+</body>
+</html>

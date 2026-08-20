@@ -1,0 +1,383 @@
+{
+  "api_name": "twilio",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "twilio-cli",
+      "url": "https://github.com/twilio/twilio-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 189,
+      "last_updated": "",
+      "command_count": 27,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "twilio-labs/mcp",
+      "url": "https://github.com/twilio-labs/mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 104,
+      "last_updated": "",
+      "command_count": 27,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "steampipe-plugin-twilio",
+      "url": "https://github.com/turbot/steampipe-plugin-twilio",
+      "language": "Go",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "twilio-python",
+      "url": "https://github.com/twilio/twilio-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2057,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "twilio-node",
+      "url": "https://github.com/twilio/twilio-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1535,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "twilio-go",
+      "url": "https://github.com/twilio/twilio-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 370,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T12:09:41Z",
+  "novel_features": [
+    {
+      "name": "Failed-message breakdown",
+      "command": "delivery-failures",
+      "description": "See why messages failed last week, grouped by error code and destination country, with the dollar cost of those failures totaled.",
+      "rationale": "Requires local SQLite aggregation across synced Messages by ErrorCode and country prefix — Twilio's API returns one row per message, never an aggregation, and twilio-cli has no offline cache.",
+      "example": "twilio-pp-cli delivery-failures --since 7d --json",
+      "why_it_matters": "When debugging delivery, agents need the failure distribution, not 4000 individual rows. This command answers 'why is delivery degraded' in one query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subaccount spend matrix",
+      "command": "subaccount-spend",
+      "description": "One CSV with every subaccount's last-month spend pivoted across SMS, MMS, voice, and recording categories — the agency-billing report nobody else ships.",
+      "rationale": "Twilio's usage/records API returns one row per category per subaccount; the cross-subaccount pivot does not exist in any single API call. Steampipe can do this with a Postgres FDW; this CLI does it with one binary call.",
+      "example": "twilio-pp-cli subaccount-spend --period last-month --csv \u003e march-billing.csv",
+      "why_it_matters": "For agency operators, this is the entire monthly billing report in one command. Agents can run it with --period thisMonth for a live forecast.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Call timeline stitch",
+      "command": "call-trace",
+      "description": "Given a CallSid, return everything that happened on that call: metadata, recordings, transcriptions, conference participation — in one structured output.",
+      "rationale": "The Call → Recordings → Transcriptions → Conference chain is three separate API endpoints in every other tool. The local store collapses it to one read, and the live fallback handles uncached SIDs.",
+      "example": "twilio-pp-cli call-trace CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --json",
+      "why_it_matters": "On-call engineers paged about a dropped call need the full picture in seconds, not three API round trips while the customer waits.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "TCPA opt-out reconciliation",
+      "command": "opt-out-violations",
+      "description": "Find numbers that texted STOP/UNSUBSCRIBE/END/QUIT and any messages your account sent to them afterwards — the TCPA exposure check the Twilio API has no resource for.",
+      "rationale": "Twilio has no opt-out endpoint. This command performs a local temporal join over inbound and outbound Messages keyed by phone-number pair.",
+      "example": "twilio-pp-cli opt-out-violations --since 90d --json --select to,opt_out_at,subsequent_send_at,message_sid",
+      "why_it_matters": "TCPA fines are $500–$1,500 per violation. Compliance teams audit for this quarterly; agents can spot-check it any time.",
+      "group": "Compliance \u0026 audit"
+    },
+    {
+      "name": "Message status funnel",
+      "command": "message-status-funnel",
+      "description": "Distribution of message terminal statuses (delivered, failed, undelivered, sent) with delivery-rate percentages and median time-to-delivery.",
+      "rationale": "Twilio's Console graphs this; no CLI or MCP exposes the numbers. Pure local groupby over the Status enum + median time delta from synced timestamps.",
+      "example": "twilio-pp-cli message-status-funnel --since 24h --json",
+      "why_it_matters": "Operations dashboards need the funnel, not the raw rows. One query is the whole 'is delivery healthy right now' answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Call disposition cross-tab",
+      "command": "call-disposition",
+      "description": "Cross-tab of call Status (completed, busy, no-answer, failed, canceled) by AnsweredBy (human, machine_start, fax), with dollar cost per bucket.",
+      "rationale": "Voicemail-detection rates are a key Twilio Voice metric; no CLI exposes them. Pure local cross-tab on the synced Calls table.",
+      "example": "twilio-pp-cli call-disposition --since 7d --json",
+      "why_it_matters": "Outbound campaign tuning depends on knowing the human-pickup rate vs voicemail rate. Agents can answer this without paging through thousands of call records.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Idle number reclamation",
+      "command": "idle-numbers",
+      "description": "Phone numbers you are paying for but have not used to send or receive in N days — with the dollar amount you are wasting per month.",
+      "rationale": "Three-way LEFT JOIN across IncomingPhoneNumbers, Messages, and Calls — the API has no idle-number endpoint.",
+      "example": "twilio-pp-cli idle-numbers --since 30d --json",
+      "why_it_matters": "At $1/number/month, agencies running 100+ subaccount numbers can save hundreds annually. Agents can run it as a monthly cleanup task.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Webhook orphan audit",
+      "command": "webhook-audit",
+      "description": "Group your IncomingPhoneNumbers by their Voice/SMS webhook URL to find single-use URLs that may be orphans pointing at deleted endpoints. Add --probe for a live HEAD check.",
+      "rationale": "Local groupby over the synced numbers table; --probe is opt-in for live verification. No Twilio tool detects orphan webhooks.",
+      "example": "twilio-pp-cli webhook-audit --probe --json",
+      "why_it_matters": "Orphan webhooks silently fail incoming calls and SMS. Quarterly audit is cheap insurance against silent dropped traffic.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Number conversation feed",
+      "command": "conversation",
+      "description": "All messages and calls involving one phone number, merged into a single timestamped timeline with in/out arrows, body, and duration.",
+      "rationale": "UNION over synced Messages and Calls where From or To matches the number. Twilio's Console has a per-number log; no CLI exposes it.",
+      "example": "twilio-pp-cli conversation +14155551234 --json",
+      "why_it_matters": "When investigating a customer complaint or fraud claim, the full back-and-forth is one query. Agents can answer 'what did we say to this number' without four searches.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Error code explainer",
+      "command": "error-code-explain",
+      "description": "Top error codes from your recent messages and calls, with curated one-line explanations and fixes for the most common Twilio errors.",
+      "rationale": "Local groupby on synced Messages+Calls by ErrorCode joined to a curated // pp:novel-static-reference table covering the top-50 stable Twilio error codes.",
+      "example": "twilio-pp-cli error-code-explain --since 7d --json",
+      "why_it_matters": "Every Twilio user Googles error codes. Bundling the explanation with the count removes a constant context-switch.",
+      "group": "Compliance \u0026 audit"
+    },
+    {
+      "name": "Sync watermark inspector",
+      "command": "sync-status",
+      "description": "Last sync timestamp and row count per resource in the local store — so you know how fresh every other analytic command is.",
+      "rationale": "Local-only watermark read from the synced store. Agents need to know freshness before they trust an aggregation.",
+      "example": "twilio-pp-cli sync-status --json",
+      "why_it_matters": "Without freshness UX every analytic command is suspect. One read tells the agent whether to call sync first.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Live failure tail",
+      "command": "tail-messages",
+      "description": "Stream new messages with a status filter as they happen — twilio-pp-cli's --follow that twilio-cli does not ship.",
+      "rationale": "Polling loop calling messages:list with DateUpdated\u003e=last_seen every N seconds; short-circuits in verify environments via cliutil.IsVerifyEnv().",
+      "example": "twilio-pp-cli tail-messages --status failed --follow",
+      "why_it_matters": "Incident triage and on-call response need a live feed of failures, not a polling shell loop. One command, no daemon.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Failed-message breakdown",
+      "command": "delivery-failures",
+      "description": "See why messages failed last week, grouped by error code and destination country, with the dollar cost of those failures totaled.",
+      "rationale": "Requires local SQLite aggregation across synced Messages by ErrorCode and country prefix — Twilio's API returns one row per message, never an aggregation, and twilio-cli has no offline cache.",
+      "example": "twilio-pp-cli delivery-failures --since 7d --json",
+      "why_it_matters": "When debugging delivery, agents need the failure distribution, not 4000 individual rows. This command answers 'why is delivery degraded' in one query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subaccount spend matrix",
+      "command": "subaccount-spend",
+      "description": "One CSV with every subaccount's last-month spend pivoted across SMS, MMS, voice, and recording categories — the agency-billing report nobody else ships.",
+      "rationale": "Twilio's usage/records API returns one row per category per subaccount; the cross-subaccount pivot does not exist in any single API call. Steampipe can do this with a Postgres FDW; this CLI does it with one binary call.",
+      "example": "twilio-pp-cli subaccount-spend --period last-month --csv \u003e march-billing.csv",
+      "why_it_matters": "For agency operators, this is the entire monthly billing report in one command. Agents can run it with --period thisMonth for a live forecast.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Call timeline stitch",
+      "command": "call-trace",
+      "description": "Given a CallSid, return everything that happened on that call: metadata, recordings, transcriptions, conference participation — in one structured output.",
+      "rationale": "The Call → Recordings → Transcriptions → Conference chain is three separate API endpoints in every other tool. The local store collapses it to one read, and the live fallback handles uncached SIDs.",
+      "example": "twilio-pp-cli call-trace CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --json",
+      "why_it_matters": "On-call engineers paged about a dropped call need the full picture in seconds, not three API round trips while the customer waits.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "TCPA opt-out reconciliation",
+      "command": "opt-out-violations",
+      "description": "Find numbers that texted STOP/UNSUBSCRIBE/END/QUIT and any messages your account sent to them afterwards — the TCPA exposure check the Twilio API has no resource for.",
+      "rationale": "Twilio has no opt-out endpoint. This command performs a local temporal join over inbound and outbound Messages keyed by phone-number pair.",
+      "example": "twilio-pp-cli opt-out-violations --since 90d --json --select to,opt_out_at,subsequent_send_at,message_sid",
+      "why_it_matters": "TCPA fines are $500–$1,500 per violation. Compliance teams audit for this quarterly; agents can spot-check it any time.",
+      "group": "Compliance \u0026 audit"
+    },
+    {
+      "name": "Message status funnel",
+      "command": "message-status-funnel",
+      "description": "Distribution of message terminal statuses (delivered, failed, undelivered, sent) with delivery-rate percentages and median time-to-delivery.",
+      "rationale": "Twilio's Console graphs this; no CLI or MCP exposes the numbers. Pure local groupby over the Status enum + median time delta from synced timestamps.",
+      "example": "twilio-pp-cli message-status-funnel --since 24h --json",
+      "why_it_matters": "Operations dashboards need the funnel, not the raw rows. One query is the whole 'is delivery healthy right now' answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Call disposition cross-tab",
+      "command": "call-disposition",
+      "description": "Cross-tab of call Status (completed, busy, no-answer, failed, canceled) by AnsweredBy (human, machine_start, fax), with dollar cost per bucket.",
+      "rationale": "Voicemail-detection rates are a key Twilio Voice metric; no CLI exposes them. Pure local cross-tab on the synced Calls table.",
+      "example": "twilio-pp-cli call-disposition --since 7d --json",
+      "why_it_matters": "Outbound campaign tuning depends on knowing the human-pickup rate vs voicemail rate. Agents can answer this without paging through thousands of call records.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Idle number reclamation",
+      "command": "idle-numbers",
+      "description": "Phone numbers you are paying for but have not used to send or receive in N days — with the dollar amount you are wasting per month.",
+      "rationale": "Three-way LEFT JOIN across IncomingPhoneNumbers, Messages, and Calls — the API has no idle-number endpoint.",
+      "example": "twilio-pp-cli idle-numbers --since 30d --json",
+      "why_it_matters": "At $1/number/month, agencies running 100+ subaccount numbers can save hundreds annually. Agents can run it as a monthly cleanup task.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Webhook orphan audit",
+      "command": "webhook-audit",
+      "description": "Group your IncomingPhoneNumbers by their Voice/SMS webhook URL to find single-use URLs that may be orphans pointing at deleted endpoints. Add --probe for a live HEAD check.",
+      "rationale": "Local groupby over the synced numbers table; --probe is opt-in for live verification. No Twilio tool detects orphan webhooks.",
+      "example": "twilio-pp-cli webhook-audit --probe --json",
+      "why_it_matters": "Orphan webhooks silently fail incoming calls and SMS. Quarterly audit is cheap insurance against silent dropped traffic.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Number conversation feed",
+      "command": "conversation",
+      "description": "All messages and calls involving one phone number, merged into a single timestamped timeline with in/out arrows, body, and duration.",
+      "rationale": "UNION over synced Messages and Calls where From or To matches the number. Twilio's Console has a per-number log; no CLI exposes it.",
+      "example": "twilio-pp-cli conversation +14155551234 --json",
+      "why_it_matters": "When investigating a customer complaint or fraud claim, the full back-and-forth is one query. Agents can answer 'what did we say to this number' without four searches.",
+      "group": "Cross-entity stitches"
+    },
+    {
+      "name": "Error code explainer",
+      "command": "error-code-explain",
+      "description": "Top error codes from your recent messages and calls, with curated one-line explanations and fixes for the most common Twilio errors.",
+      "rationale": "Local groupby on synced Messages+Calls by ErrorCode joined to a curated // pp:novel-static-reference table covering the top-50 stable Twilio error codes.",
+      "example": "twilio-pp-cli error-code-explain --since 7d --json",
+      "why_it_matters": "Every Twilio user Googles error codes. Bundling the explanation with the count removes a constant context-switch.",
+      "group": "Compliance \u0026 audit"
+    },
+    {
+      "name": "Sync watermark inspector",
+      "command": "sync-status",
+      "description": "Last sync timestamp and row count per resource in the local store — so you know how fresh every other analytic command is.",
+      "rationale": "Local-only watermark read from the synced store. Agents need to know freshness before they trust an aggregation.",
+      "example": "twilio-pp-cli sync-status --json",
+      "why_it_matters": "Without freshness UX every analytic command is suspect. One read tells the agent whether to call sync first.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Live failure tail",
+      "command": "tail-messages",
+      "description": "Stream new messages with a status filter as they happen — twilio-pp-cli's --follow that twilio-cli does not ship.",
+      "rationale": "Polling loop calling messages:list with DateUpdated\u003e=last_seen every N seconds; short-circuits in verify environments via cliutil.IsVerifyEnv().",
+      "example": "twilio-pp-cli tail-messages --status failed --follow",
+      "why_it_matters": "Incident triage and on-call response need a live feed of failures, not a polling shell loop. One command, no daemon.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Twilio",
+    "headline": "Every Twilio Core feature, plus offline message and call history, FTS, and SQL-grade analytics no other Twilio tool ships.",
+    "value_prop": "Twilio's official CLI is a thin Node wrapper with 1–3 second cold start and no local cache. This CLI syncs your Messages, Calls, Recordings, UsageRecords, and IncomingPhoneNumbers into a local SQLite store you can grep, SQL, and aggregate offline. It ships every v2010 endpoint as a typed Cobra command, plus 12 novel features the Twilio ecosystem does not have: delivery-failure breakdowns, subaccount spend matrices, call-trace stitches, TCPA opt-out checks, idle-number reclamation, webhook-orphan audits, and more.",
+    "auth_narrative": "Twilio uses HTTP Basic auth. You can authenticate with your Account SID (AC...) plus your Auth Token, OR with a scoped API Key SID (SK...) plus its Secret. The Account SID is always required because it is part of the URL path. Run `twilio-pp-cli doctor` to verify your credentials, detect whether the key is master or scoped, and warn on parent/subaccount mismatches.",
+    "quickstart": [
+      {
+        "command": "twilio-pp-cli doctor --json",
+        "comment": "Verify auth wiring and connectivity. Reports your auth_mode (master vs scoped) and warns on AC/SK prefix mismatches before any real work."
+      },
+      {
+        "command": "twilio-pp-cli sync-status --json",
+        "comment": "Local-only freshness check. Tells you which resources have data and how old it is so you know whether to run sync first."
+      },
+      {
+        "command": "twilio-pp-cli delivery-failures --since 7d --json",
+        "comment": "First analytic against the local store: failed messages grouped by error code and destination country with cost-of-failures total."
+      },
+      {
+        "command": "twilio-pp-cli idle-numbers --since 30d --json",
+        "comment": "Find phone numbers you are paying for but have not used in 30 days. The cheapest possible monthly cleanup."
+      },
+      {
+        "command": "twilio-pp-cli webhook-audit --json",
+        "comment": "Group IncomingPhoneNumbers by webhook URL to flag orphans. Add --probe to HEAD-check each unique URL."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Authenticate (code 20003)",
+        "fix": "Run `twilio-pp-cli doctor`. Common causes: scoped API Key bound to a different account than the one in TWILIO_ACCOUNT_SID, or a rotated Auth Token in the secondary slot."
+      },
+      {
+        "symptom": "Some commands return empty for a fresh install",
+        "fix": "Run `twilio-pp-cli sync --full` once before the analytic commands. Then `twilio-pp-cli sync-status --json` confirms freshness per resource."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "Twilio's default rate limit is ~100 req/s. Reduce parallelism with `--concurrency 4`, or open a support ticket to raise the cap."
+      },
+      {
+        "symptom": "Subaccount commands fail with 401",
+        "fix": "Scoped API Keys can only operate on the account that minted them. Create a master Auth Token credential or call against the subaccount's own SK key. `twilio-pp-cli doctor` flags this."
+      },
+      {
+        "symptom": "Searching Body returns nothing for known content",
+        "fix": "FTS reads the local store. Re-run `twilio-pp-cli sync --resources messages` to refresh. The `\\\\b` boundary regex in queries needs a doubled backslash on shells that interpret the single one."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or operator needs Twilio data they cannot get in one API call: cross-subaccount aggregation, delivery-failure analysis, TCPA opt-out audits, idle-number cleanup, or any 'how was last week' question. It is also the right tool for incident triage when a CallSid needs the full Call+Recording+Transcription stitch in one command. Skip it for one-off message sends if you already have twilio-cli configured — but for any analytic or investigative workflow it is faster, offline-capable, and agent-native.",
+    "recipes": [
+      {
+        "title": "Weekly delivery-failure report",
+        "command": "twilio-pp-cli delivery-failures --since 7d --json --select error_code,to_country,count,cost_total",
+        "explanation": "Runs the failure aggregation against the local store, narrows the response to the four fields that matter so an agent can summarise without parsing 4000 raw rows."
+      },
+      {
+        "title": "Last-month agency billing CSV",
+        "command": "twilio-pp-cli subaccount-spend --period last-month --csv \u003e march-billing.csv",
+        "explanation": "Walks every subaccount, calls usage/records per subaccount, pivots categories to columns, writes one wide CSV the finance team can paste straight into a spreadsheet."
+      },
+      {
+        "title": "On-call call-trace from a Slack page",
+        "command": "twilio-pp-cli call-trace CAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --json --select call.status,call.duration,recordings,transcriptions.text",
+        "explanation": "Single command for the full Call → Recording → Transcription chain. Use --select with dotted paths to keep the response small enough that an agent can summarise it in a Slack reply."
+      },
+      {
+        "title": "Quarterly TCPA opt-out audit",
+        "command": "twilio-pp-cli opt-out-violations --since 90d --csv \u003e q1-opt-out-audit.csv",
+        "explanation": "Local temporal join finds inbound STOP/UNSUBSCRIBE messages and any subsequent outbound messages to the same number — the report compliance teams pay legal teams to construct manually today."
+      },
+      {
+        "title": "Find idle numbers wasting money",
+        "command": "twilio-pp-cli idle-numbers --since 30d --json --select phone_number,friendly_name,monthly_cost,last_activity",
+        "explanation": "LEFT JOIN over IncomingPhoneNumbers / Messages / Calls flagging numbers with no activity in 30 days. Output is one row per number with the dollar amount being wasted per month."
+      }
+    ],
+    "trigger_phrases": [
+      "send an SMS via Twilio",
+      "list Twilio messages",
+      "Twilio call recordings",
+      "Twilio usage cost",
+      "Twilio opt-out audit",
+      "use twilio",
+      "run twilio"
+    ]
+  }
+}

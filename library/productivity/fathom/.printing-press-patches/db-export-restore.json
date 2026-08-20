@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "db-export-restore",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Added 'db export' and 'db restore' commands for local store backup and transfer without API calls.",
+  "reason": "Built-in export hits the live API and returns paginated envelopes — not suitable for dumping all synced data. db export writes one JSONL record per line from local SQLite; db restore loads it back. Also supports SQLite file format via --format sqlite.",
+  "files": [
+    "internal/cli/db_ff.go"
+  ],
+  "validated_outcome": "db export of 3,366 meetings produces 3,366-line JSONL (300MB); db restore into a fresh DB recovers all 3,366 rows."
+}

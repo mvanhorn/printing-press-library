@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "yahoo-finance-pp-mcp",
   "display_name": "Yahoo Finance",
-  "version": "1.3.2",
-  "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance \u2014 no API key, with Chrome-session fallback for rate-limited IPs",
+  "version": "4.14.0",
+  "description": "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener, and Chrome-cookie fallback the libraries don't ship.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "yahoo-finance-pp-cli"
+  }
 }

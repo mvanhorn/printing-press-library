@@ -1,0 +1,1486 @@
+{
+  "api_name": "zoho-expense",
+  "base_url": "https://www.zohoapis.in/expense/v1",
+  "description": "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "format": "Zoho-oauthtoken {ZOHO_EXPENSE_CLIENT_ID}",
+    "env_vars": [
+      "ZOHO_EXPENSE_CLIENT_ID",
+      "ZOHO_EXPENSE_CLIENT_SECRET",
+      "ZOHO_EXPENSE_REFRESH_TOKEN",
+      "ZOHO_EXPENSE_ORGANIZATION_ID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZOHO_EXPENSE_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "description": "OAuth client ID from api-console.zoho.in self-client"
+      },
+      {
+        "name": "ZOHO_EXPENSE_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "OAuth client secret from api-console.zoho.in self-client"
+      },
+      {
+        "name": "ZOHO_EXPENSE_REFRESH_TOKEN",
+        "kind": "harvested",
+        "required": true,
+        "sensitive": true,
+        "description": "Long-lived refresh token issued after exchanging a 10-min authorization code"
+      },
+      {
+        "name": "ZOHO_EXPENSE_ORGANIZATION_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Zoho Expense organization ID (sent as X-com-zoho-expense-organizationid header on every request)"
+      }
+    ],
+    "key_url": "https://api-console.zoho.in/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "currencies_create",
+      "description": "Add a currency to the org. Required: currency_code. Optional: exchange_rate. Returns the new Currency.",
+      "method": "POST",
+      "path": "/settings/currencies",
+      "params": [
+        {
+          "name": "currency_code",
+          "type": "string",
+          "location": "body",
+          "description": "ISO currency code (e.g. USD, INR)",
+          "required": true
+        },
+        {
+          "name": "exchange_rate",
+          "type": "number",
+          "location": "body",
+          "description": "Initial exchange rate to base currency"
+        }
+      ]
+    },
+    {
+      "name": "currencies_delete",
+      "description": "Delete a currency. Required: currency_id. Destructive.",
+      "method": "DELETE",
+      "path": "/settings/currencies/{currency_id}",
+      "params": [
+        {
+          "name": "currency_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "currencies_get",
+      "description": "Get a currency. Required: currency_id. Returns the Currency.",
+      "method": "GET",
+      "path": "/settings/currencies/{currency_id}",
+      "params": [
+        {
+          "name": "currency_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "currencies_list",
+      "description": "List currencies configured in the org. Returns array of Currency.",
+      "method": "GET",
+      "path": "/settings/currencies",
+      "params": []
+    },
+    {
+      "name": "currencies_update",
+      "description": "Update a currency. Required: currency_id. Optional: exchange_rate.",
+      "method": "PUT",
+      "path": "/settings/currencies/{currency_id}",
+      "params": [
+        {
+          "name": "currency_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "exchange_rate",
+          "type": "number",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "customers_create",
+      "description": "Create a customer. Required: contact_name. Optional: company_name, email, phone. Returns the new Customer.",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "contact_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "customers_delete",
+      "description": "Delete a customer. Required: customer_id. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{customer_id}",
+      "params": [
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer. Required: customer_id. Returns the Customer.",
+      "method": "GET",
+      "path": "/contacts/{customer_id}",
+      "params": [
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "List customers. Optional: page, per_page. Returns array of Customer.",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "customers_update",
+      "description": "Update a customer. Required: customer_id. Optional: contact_name, company_name, email (plus 1 more).",
+      "method": "PUT",
+      "path": "/contacts/{customer_id}",
+      "params": [
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "contact_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_create",
+      "description": "Create an expense category. Required: name. Optional: description, account_id. Returns the new ExpenseCategory.",
+      "method": "POST",
+      "path": "/expensecategories",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Linked accounting account"
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_delete",
+      "description": "Delete an expense category. Required: category_id. Destructive.",
+      "method": "DELETE",
+      "path": "/expensecategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_disable",
+      "description": "Disable a category. Required: category_id.",
+      "method": "POST",
+      "path": "/expensecategories/{category_id}/hide",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_enable",
+      "description": "Enable a category. Required: category_id.",
+      "method": "POST",
+      "path": "/expensecategories/{category_id}/show",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_get",
+      "description": "Get an expense category. Required: category_id. Returns the ExpenseCategory.",
+      "method": "GET",
+      "path": "/expensecategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_list",
+      "description": "List expense categories. Optional: page, per_page. Returns array of ExpenseCategory.",
+      "method": "GET",
+      "path": "/expensecategories",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "expense_categories_update",
+      "description": "Update an expense category. Required: category_id. Optional: name, description. Returns the updated ExpenseCategory.",
+      "method": "PUT",
+      "path": "/expensecategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_approval_history",
+      "description": "View the approval history of a report. Required: report_id.",
+      "method": "GET",
+      "path": "/expensereports/{report_id}/approvalhistory",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_approve",
+      "description": "Approve an expense report. Required: report_id.",
+      "method": "POST",
+      "path": "/expensereports/{report_id}/approve",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_create",
+      "description": "Create an expense report. Required: report_name. Optional: report_date, business_purpose, expense_ids. Returns the new ExpenseReport.",
+      "method": "POST",
+      "path": "/expensereports",
+      "params": [
+        {
+          "name": "report_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "business_purpose",
+          "type": "string",
+          "location": "body",
+          "description": "Why the report exists (e.g. 'October 2026 expenses')"
+        },
+        {
+          "name": "expense_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Expense IDs to attach"
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_get",
+      "description": "Get an expense report (includes attached expenses). Required: report_id. Returns the ExpenseReport.",
+      "method": "GET",
+      "path": "/expensereports/{report_id}",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_list",
+      "description": "List expense reports. Optional: page, per_page, filter_by. Returns array of ExpenseReport.",
+      "method": "GET",
+      "path": "/expensereports",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "filter_by",
+          "type": "string",
+          "location": "query",
+          "description": "Status filter (e.g. Status.All, Status.Draft, Status.Submitted, Status.Approved)"
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_reimburse",
+      "description": "Mark an expense report as reimbursed. Required: report_id.",
+      "method": "POST",
+      "path": "/expensereports/{report_id}/reimburse",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_reject",
+      "description": "Reject an expense report. Required: report_id. Optional: comments.",
+      "method": "POST",
+      "path": "/expensereports/{report_id}/reject",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "comments",
+          "type": "string",
+          "location": "body",
+          "description": "Rejection reason"
+        }
+      ]
+    },
+    {
+      "name": "expense_reports_update",
+      "description": "Update an expense report — used to attach more expenses. Required: report_id. Optional: report_name, business_purpose, expense_ids. Returns the updated ExpenseReport.",
+      "method": "PUT",
+      "path": "/expensereports/{report_id}",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "report_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "business_purpose",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "expense_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Replacement list of attached expense IDs"
+        }
+      ]
+    },
+    {
+      "name": "expenses_create",
+      "description": "Create an expense (JSON body — for receipt upload use 'receipt upload'). Required: amount, expense_date. Optional: currency_id, exchange_rate, category_id (plus 11 more). Returns the new Expense.",
+      "method": "POST",
+      "path": "/expenses",
+      "params": [
+        {
+          "name": "amount",
+          "type": "number",
+          "location": "body",
+          "description": "Expense amount in the expense currency",
+          "required": true
+        },
+        {
+          "name": "expense_date",
+          "type": "string",
+          "location": "body",
+          "description": "Expense date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "currency_id",
+          "type": "string",
+          "location": "body",
+          "description": "Currency ID; omit to use org default"
+        },
+        {
+          "name": "exchange_rate",
+          "type": "number",
+          "location": "body",
+          "description": "Exchange rate to base currency"
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "body",
+          "description": "Expense category ID"
+        },
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant ID"
+        },
+        {
+          "name": "merchant_name",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant name (creates merchant on the fly)"
+        },
+        {
+          "name": "paid_through_account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account the expense was paid through"
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "Customer this expense is for"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "body",
+          "description": "Project this expense belongs to"
+        },
+        {
+          "name": "is_billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as billable to customer"
+        },
+        {
+          "name": "is_reimbursable",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as reimbursable to user"
+        },
+        {
+          "name": "is_inclusive_tax",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether amount is tax-inclusive"
+        },
+        {
+          "name": "tax_id",
+          "type": "string",
+          "location": "body",
+          "description": "Tax ID for this expense"
+        },
+        {
+          "name": "reference_number",
+          "type": "string",
+          "location": "body",
+          "description": "Reference number / receipt number"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Free-form description / notes"
+        }
+      ]
+    },
+    {
+      "name": "expenses_get",
+      "description": "Get a single expense. Required: expense_id. Returns the Expense.",
+      "method": "GET",
+      "path": "/expenses/{expense_id}",
+      "params": [
+        {
+          "name": "expense_id",
+          "type": "string",
+          "location": "path",
+          "description": "Expense ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expenses_list",
+      "description": "List expenses with rich filters (date range, status, user, category, project). Optional: page, per_page, filter_by (plus 7 more). Returns array of Expense.",
+      "method": "GET",
+      "path": "/reports/expensedetails",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (default 200, max 200)"
+        },
+        {
+          "name": "filter_by",
+          "type": "string",
+          "location": "query",
+          "description": "Status filter e.g. Status.All, Status.Unreported, Status.Reported"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest expense date (YYYY-MM-DD)"
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "Latest expense date (YYYY-MM-DD)"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user ID"
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by expense category"
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by customer/contact"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by project"
+        },
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by merchant"
+        }
+      ]
+    },
+    {
+      "name": "expenses_merge",
+      "description": "Merge multiple expenses (used to dedupe a scanned-receipt expense with a manual one). Required: expense_id. Optional: expense_ids.",
+      "method": "POST",
+      "path": "/expenses/{expense_id}/merge",
+      "params": [
+        {
+          "name": "expense_id",
+          "type": "string",
+          "location": "path",
+          "description": "Primary expense ID — others merge into this one",
+          "required": true
+        },
+        {
+          "name": "expense_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Other expense IDs to merge into the primary"
+        }
+      ]
+    },
+    {
+      "name": "expenses_update",
+      "description": "Update an expense — used to add category/project/tags after autoscan. Required: expense_id. Optional: amount, expense_date, currency_id (plus 11 more). Returns the updated Expense.",
+      "method": "PUT",
+      "path": "/expenses/{expense_id}",
+      "params": [
+        {
+          "name": "expense_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "location": "body",
+          "description": "Expense amount"
+        },
+        {
+          "name": "expense_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "currency_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "merchant_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "merchant_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "is_billable",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "is_reimbursable",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "is_inclusive_tax",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "tax_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "reference_number",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "organizations_get",
+      "description": "Get organization details. Required: organization_id. Returns the Organization.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_list",
+      "description": "List organizations accessible to the authenticated user. Returns array of Organization.",
+      "method": "GET",
+      "path": "/organizations",
+      "params": []
+    },
+    {
+      "name": "projects_activate",
+      "description": "Mark a project active. Required: project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/active",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a project. Required: project_name. Optional: customer_id, description. Returns the new Project.",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "project_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "Linked customer"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "projects_deactivate",
+      "description": "Mark a project inactive. Required: project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/inactive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Delete a project. Required: project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get a project. Required: project_id. Returns the Project.",
+      "method": "GET",
+      "path": "/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List projects. Optional: page, per_page. Returns array of Project.",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Update a project. Required: project_id. Optional: project_name, customer_id, description.",
+      "method": "PUT",
+      "path": "/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "project_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "receipts_upload",
+      "description": "Upload a receipt file (multipart). Server queues for autoscan; poll `expenses get` for status. Required: receipt.",
+      "method": "POST",
+      "path": "/expenses",
+      "params": [
+        {
+          "name": "receipt",
+          "type": "file",
+          "location": "body",
+          "description": "Receipt file (JPG, PNG, PDF; up to 5 MB)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_activate",
+      "description": "Activate a reporting tag. Required: tag_id.",
+      "method": "POST",
+      "path": "/reportingtags/{tag_id}/active",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_create",
+      "description": "Create a reporting tag. Required: tag_name. Returns the new ReportingTag.",
+      "method": "POST",
+      "path": "/reportingtags",
+      "params": [
+        {
+          "name": "tag_name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name (e.g. 'Cost Center')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_deactivate",
+      "description": "Deactivate a reporting tag. Required: tag_id.",
+      "method": "POST",
+      "path": "/reportingtags/{tag_id}/inactive",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_delete",
+      "description": "Delete a reporting tag. Required: tag_id. Destructive.",
+      "method": "DELETE",
+      "path": "/reportingtags/{tag_id}",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_get",
+      "description": "Get a reporting tag. Required: tag_id. Returns the ReportingTag.",
+      "method": "GET",
+      "path": "/reportingtags/{tag_id}",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_list",
+      "description": "List reporting tags. Returns array of ReportingTag.",
+      "method": "GET",
+      "path": "/reportingtags",
+      "params": []
+    },
+    {
+      "name": "reporting_tags_list_options",
+      "description": "List all options for a reporting tag. Required: tag_id.",
+      "method": "GET",
+      "path": "/reportingtags/{tag_id}/options/all",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reporting_tags_update",
+      "description": "Update a reporting tag. Required: tag_id. Optional: tag_name.",
+      "method": "PUT",
+      "path": "/reportingtags/{tag_id}",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "tag_name",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "taxes_create",
+      "description": "Create a tax. Required: tax_name, tax_percentage. Optional: tax_type. Returns the new Tax.",
+      "method": "POST",
+      "path": "/settings/taxes",
+      "params": [
+        {
+          "name": "tax_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "tax_percentage",
+          "type": "number",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "tax_type",
+          "type": "string",
+          "location": "body",
+          "description": "tax | tax_group"
+        }
+      ]
+    },
+    {
+      "name": "taxes_delete",
+      "description": "Delete a tax. Required: tax_id. Destructive.",
+      "method": "DELETE",
+      "path": "/settings/taxes/{tax_id}",
+      "params": [
+        {
+          "name": "tax_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "taxes_get",
+      "description": "Get a tax. Required: tax_id. Returns the Tax.",
+      "method": "GET",
+      "path": "/settings/taxes/{tax_id}",
+      "params": [
+        {
+          "name": "tax_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "taxes_list",
+      "description": "List taxes. Returns array of Tax.",
+      "method": "GET",
+      "path": "/settings/taxes",
+      "params": []
+    },
+    {
+      "name": "taxes_update",
+      "description": "Update a tax. Required: tax_id. Optional: tax_name, tax_percentage.",
+      "method": "PUT",
+      "path": "/settings/taxes/{tax_id}",
+      "params": [
+        {
+          "name": "tax_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "tax_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "tax_percentage",
+          "type": "number",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "trips_approve",
+      "description": "Approve a trip. Required: trip_id.",
+      "method": "POST",
+      "path": "/trips/{trip_id}/approve",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_cancel",
+      "description": "Cancel a trip. Required: trip_id.",
+      "method": "POST",
+      "path": "/trips/{trip_id}/cancel",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_close",
+      "description": "Close a trip (no further expenses can be added). Required: trip_id.",
+      "method": "POST",
+      "path": "/trips/{trip_id}/close",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_create",
+      "description": "Create a trip. Required: trip_name. Optional: from_date, to_date, destination (plus 1 more). Returns the new Trip.",
+      "method": "POST",
+      "path": "/trips",
+      "params": [
+        {
+          "name": "trip_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "trips_delete",
+      "description": "Delete a trip. Required: trip_id. Destructive.",
+      "method": "DELETE",
+      "path": "/trips/{trip_id}",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_get",
+      "description": "Get a trip. Required: trip_id. Returns the Trip.",
+      "method": "GET",
+      "path": "/trips/{trip_id}",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_list",
+      "description": "List trips. Optional: page, per_page. Returns array of Trip.",
+      "method": "GET",
+      "path": "/trips",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "trips_reject",
+      "description": "Reject a trip. Required: trip_id.",
+      "method": "POST",
+      "path": "/trips/{trip_id}/reject",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_update",
+      "description": "Update a trip. Required: trip_id. Optional: trip_name, from_date, to_date (plus 2 more).",
+      "method": "PUT",
+      "path": "/trips/{trip_id}",
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "trip_name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "from_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "to_date",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "users_activate",
+      "description": "Mark a user as active. Required: user_id.",
+      "method": "POST",
+      "path": "/users/{user_id}/active",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_deactivate",
+      "description": "Mark a user as inactive. Required: user_id.",
+      "method": "POST",
+      "path": "/users/{user_id}/inactive",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_delete",
+      "description": "Delete a user. Required: user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user. Required: user_id. Returns the User.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_invite",
+      "description": "Invite a user into the org. Required: email_id. Optional: name, role_id. Returns the new User.",
+      "method": "POST",
+      "path": "/users",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "body",
+          "description": "User email address",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User display name"
+        },
+        {
+          "name": "role_id",
+          "type": "string",
+          "location": "body",
+          "description": "Role ID to assign"
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List users. Optional: page, per_page. Returns array of User.",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (default 1)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (default 200, max 200)"
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Get the authenticated user's profile. Returns the User.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    },
+    {
+      "name": "users_update",
+      "description": "Update a user. Required: user_id. Optional: name, role_id. Returns the updated User.",
+      "method": "PUT",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "role_id",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info:
+  title: POP API
+  version: 1.0.0
+  description: |
+    Snapshot marker for the POP printed CLI manuscript bundle.
+
+    The canonical working spec for this run lives at:
+    `/Users/mircobabini/Desktop/Workspace/cli-printing-press/catalog/specs/pop-spec.yaml`
+
+    This manuscript copy exists so the published library retains a
+    self-contained pointer to the docs-backed spec source used for the POP
+    8-tool print.
+paths: {}

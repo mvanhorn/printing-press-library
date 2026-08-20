@@ -1,0 +1,62 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-expense-pp-mcp",
+  "display_name": "Zoho Expense",
+  "version": "4.12.0",
+  "description": "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-expense-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-expense-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHO_EXPENSE_ORGANIZATION_ID": "${user_config.zoho_expense_organization_id}",
+        "ZOHO_EXPENSE_CLIENT_ID": "${user_config.zoho_expense_client_id}",
+        "ZOHO_EXPENSE_CLIENT_SECRET": "${user_config.zoho_expense_client_secret}",
+        "ZOHO_EXPENSE_REFRESH_TOKEN": "${user_config.zoho_expense_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "zoho_expense_organization_id": {
+      "type": "string",
+      "title": "ZOHO_EXPENSE_ORGANIZATION_ID",
+      "description": "Zoho Expense organization ID (sent as X-com-zoho-expense-organizationid header on every request)",
+      "required": true
+    },
+    "zoho_expense_client_id": {
+      "type": "string",
+      "title": "ZOHO_EXPENSE_CLIENT_ID",
+      "description": "OAuth client ID from api-console.zoho.in self-client",
+      "required": true,
+      "sensitive": false
+    },
+    "zoho_expense_client_secret": {
+      "type": "string",
+      "title": "ZOHO_EXPENSE_CLIENT_SECRET",
+      "description": "OAuth client secret from api-console.zoho.in self-client",
+      "required": true,
+      "sensitive": true
+    },
+    "zoho_expense_refresh_token": {
+      "type": "string",
+      "title": "ZOHO_EXPENSE_REFRESH_TOKEN",
+      "description": "Long-lived refresh token issued after exchanging a 10-min authorization code",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+warning: resource "analytics" from path "/v1/analytics/libraries/{file_key}/component/actions" would shadow framework cobra command "analytics"; renamed to "figma-analytics"
+warning: novel feature command "webhooks" maps to generated command path; skipping novel stub
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+FAIL govulncheck ./...
+Error: validating generated project: gate "govulncheck ./..." failed: exit status 1
+go: downloading golang.org/x/vuln v1.3.0
+go: downloading golang.org/x/telemetry v0.0.0-20260421165255-392afab6f40e
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/Users/vincenzoscagliarini/printing-press/.runstate/vincenzoscagliarini-89891e2f/runs/20260619-123141-3dcd8ab9/working/figma-pp-cli/internal/cli/webhooks.go:25:17: undefined: newNovelWebhooksTestCmd
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+
+exit status 1
+validating generated project: gate "govulncheck ./..." failed: exit status 1
+go: downloading golang.org/x/vuln v1.3.0
+go: downloading golang.org/x/telemetry v0.0.0-20260421165255-392afab6f40e
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/Users/vincenzoscagliarini/printing-press/.runstate/vincenzoscagliarini-89891e2f/runs/20260619-123141-3dcd8ab9/working/figma-pp-cli/internal/cli/webhooks.go:25:17: undefined: newNovelWebhooksTestCmd
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+
+exit status 1

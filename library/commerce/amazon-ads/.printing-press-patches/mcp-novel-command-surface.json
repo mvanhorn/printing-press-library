@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "mcp-novel-command-surface",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Add runtime MCP mirror coverage for Amazon Ads novel commands.",
+  "reason": "The static tools manifest only lists generated endpoint tools, while the MCP server exposes novel Cobra commands through the runtime cobratree mirror.",
+  "files": [
+    "internal/mcp/cobratree/classify.go",
+    "internal/mcp/cobratree/walker.go",
+    "internal/mcp/cobratree/novel_surface_test.go",
+    "internal/mcp/server_smoke_test.go"
+  ],
+  "validated_outcome": "go test ./internal/mcp ./internal/mcp/cobratree passes; the MCP server handles initialize and tools/list, exposes code-orchestration/framework/novel runtime tools, and marks automation tools destructive/open-world."
+}

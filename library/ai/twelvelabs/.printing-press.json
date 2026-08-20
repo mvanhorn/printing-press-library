@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-05T15:06:27.902623Z",
+  "printing_press_version": "4.21.0",
+  "api_name": "twelvelabs",
+  "display_name": "Twelvelabs Video Understanding",
+  "cli_name": "twelvelabs-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://raw.githubusercontent.com/twelvelabs-io/twelvelabs-developer-experience/main/api-spec/openapi-1.3.yaml",
+  "spec_path": "normalized-twelvelabs-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d6c17cebc09fd24d74810ead127afa4cd25b56c2bcffd81d19afa760c8b2ee11",
+  "run_id": "20260605-150627",
+  "description": "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows.",
+  "mcp_binary": "twelvelabs-pp-mcp",
+  "mcp_tool_count": 54,
+  "mcp_ready": "full",
+  "api_version": "1.3.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TWELVELABS_X_API_KEY"
+  ],
+  "auth_key_url": "https://playground.twelvelabs.io/dashboard/api-keys",
+  "novel_features": [
+    {
+      "name": "Upload and wait for indexing",
+      "command": "upload-video",
+      "description": "Upload a local video file or register a public URL, then poll Twelve Labs until indexing reaches a terminal status."
+    },
+    {
+      "name": "Editor-ready video brief",
+      "command": "video-brief",
+      "description": "Generate a deterministic JSON or Markdown editing plan with title, topics, hashtags, chapters, highlights, and recommended cuts."
+    },
+    {
+      "name": "Video embedding workflow",
+      "command": "embed",
+      "description": "Create a video embedding task from a local file or public URL and optionally wait for ready results."
+    },
+    {
+      "name": "Local clip cutting from plans",
+      "command": "clips",
+      "description": "Cut local clip files with ffmpeg from a video-brief JSON plan without inventing timestamps."
+    }
+  ],
+  "category": "ai",
+  "catalog_description": "Upload, index, search, summarize, embed, and analyze video with TwelveLabs, including editor-ready briefs and waitable workflows."
+}

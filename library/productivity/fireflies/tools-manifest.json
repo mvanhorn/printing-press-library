@@ -1,0 +1,312 @@
+{
+  "api_name": "fireflies-pp-cli",
+  "base_url": "https://api.example.com",
+  "description": "Generated from GraphQL schema",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "env_vars": [
+      "FIREFLIES_PP_CLI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FIREFLIES_PP_CLI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "active-meetings_get",
+      "description": "Get a single activemeeting. Optional: email, states. Returns the ActiveMeeting.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "states",
+          "type": "array",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "active-meetings_update",
+      "description": "Update a activemeeting. Required: id, state. Returns the updated ActiveMeeting.",
+      "method": "PATCH",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analyticses_get",
+      "description": "Get a single analytics. Optional: start_time, end_time. Returns the Analytics.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "app-outputs_get",
+      "description": "Get a single appoutput. Optional: transcript_id, limit. Returns the AppOutput.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "transcript_id",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "ask-fred-responses_create",
+      "description": "Create a askfredresponse. Required: query. Optional: transcript_id, response_language. Returns the new AskFredResponse.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "transcript_id",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "response_language",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "ask-fred-thread-summaries_get",
+      "description": "Get a single askfredthreadsummary. Returns the AskFredThreadSummary.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "ask-fred-threads_get",
+      "description": "Get a single askfredthread. Required: id. Returns the AskFredThread.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bites_create",
+      "description": "Create a bite. Required: transcript_id, start_time, end_time. Optional: title. Returns the new Bite.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "transcript_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "number",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "number",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "bites_get",
+      "description": "Get a single bite. Required: id. Returns the Bite.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "channels_get",
+      "description": "Get a single channel. Required: id. Returns the Channel.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Get a single contact. Returns the Contact.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "live-action-items_create",
+      "description": "Create a liveactionitem. Required: meeting_id, description. Optional: assigned_to. Returns the new LiveActionItem.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "meeting_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "assigned_to",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "live-action-items_get",
+      "description": "Get a single liveactionitem. Required: meeting_id. Returns the LiveActionItem.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "meeting_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mutation-results_delete",
+      "description": "Delete a mutationresult. Required: thread_id. Returns the MutationResult. Destructive.",
+      "method": "DELETE",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mutation-results_update",
+      "description": "Update a mutationresult. Required: id, channel_id. Returns the updated MutationResult.",
+      "method": "PATCH",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transcripts_get",
+      "description": "Get a single transcript. Required: id. Returns the Transcript.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user-groups_get",
+      "description": "Get a single usergroup. Returns the UserGroup.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "users_get",
+      "description": "Get a single user. Returns the User.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    }
+  ]
+}

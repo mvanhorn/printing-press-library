@@ -1,0 +1,326 @@
+name: superhuman
+description: "Read, draft, and respond to Superhuman email from your terminal or Claude Code. Durable Chrome-session auth, local SQLite store, agent-native I/O."
+version: "0.1.0"
+base_url: "https://mail.superhuman.com/~backend"
+http_transport: standard
+health_check_path: "/v3/teams.suggest?includeSingletons=true"
+
+required_headers:
+  - name: Content-Type
+    value: "text/plain;charset=UTF-8"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  scheme: superhumanFirebaseJWT
+  in: header
+  env_vars:
+    - SUPERHUMAN_JWT
+
+config:
+  format: toml
+  path: "~/.config/superhuman-pp-cli/config.toml"
+
+resources:
+  threads:
+    description: "Email threads — read, list, search, archive, label"
+    endpoints:
+      list:
+        method: POST
+        path: "/v3/userdata.getThreads"
+        description: "List recent threads"
+        body:
+          - name: limit
+            type: int
+            default: 50
+            description: "Max threads to return"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Thread
+      get:
+        method: POST
+        path: "/v3/userdata.getThreads"
+        description: "Get a thread by ID"
+        params:
+          - name: thread_id
+            type: string
+            required: true
+            positional: true
+            description: "Thread ID"
+        response:
+          type: object
+          item: Thread
+
+  messages:
+    description: "Individual messages within threads"
+    endpoints:
+      send:
+        method: POST
+        path: "/messages/send"
+        description: "Send a draft (with optional undo delay)"
+        body:
+          - name: draft_message_id
+            type: string
+            required: true
+            description: "Draft ID (draft00 + 14 hex)"
+          - name: thread_id
+            type: string
+            required: true
+            description: "Thread ID for the send"
+          - name: delay
+            type: int
+            default: 0
+            description: "Undo window in seconds (0-30)"
+        response:
+          type: object
+          item: SendResult
+
+  drafts:
+    description: "Drafts — create, update, send, delete"
+    endpoints:
+      list:
+        method: POST
+        path: "/v3/userdata.getThreads"
+        description: "List drafts"
+        body:
+          - name: limit
+            type: int
+            default: 50
+            description: "Max drafts"
+        response:
+          type: array
+          item: Draft
+      write:
+        method: POST
+        path: "/v3/userdata.writeMessage"
+        description: "Create or update a draft (write to draft path)"
+        body:
+          - name: thread_id
+            type: string
+            required: true
+            description: "Thread ID"
+          - name: draft_id
+            type: string
+            required: true
+            description: "Draft ID (draft00 + 14 hex)"
+          - name: subject
+            type: string
+            description: "Subject"
+          - name: body
+            type: string
+            description: "Body (HTML or plain text)"
+          - name: to
+            type: string
+            description: "To addresses (comma-separated)"
+          - name: cc
+            type: string
+            description: "CC addresses"
+          - name: bcc
+            type: string
+            description: "BCC addresses"
+        response:
+          type: object
+          item: WriteResult
+
+  reminders:
+    description: "Snooze reminders for threads"
+    endpoints:
+      create:
+        method: POST
+        path: "/reminders/create"
+        description: "Create a snooze reminder for a thread"
+        body:
+          - name: thread_id
+            type: string
+            required: true
+            description: "Thread to snooze"
+          - name: trigger_at
+            type: string
+            required: true
+            description: "ISO timestamp to wake the thread"
+        response:
+          type: object
+          item: Reminder
+      cancel:
+        method: POST
+        path: "/reminders/cancel"
+        description: "Cancel a snooze (un-snooze a thread)"
+        body:
+          - name: reminder_id
+            type: string
+            required: true
+            description: "Reminder ID"
+          - name: thread_id
+            type: string
+            required: true
+            description: "Thread ID"
+
+  attachments:
+    description: "Upload, list, download attachments"
+    endpoints:
+      upload:
+        method: POST
+        path: "/v3/attachments.upload"
+        description: "Upload an attachment for a draft"
+        body:
+          - name: draft_message_id
+            type: string
+            required: true
+            description: "Draft to attach to"
+          - name: thread_id
+            type: string
+            required: true
+            description: "Thread ID"
+          - name: content_type
+            type: string
+            required: true
+            description: "MIME type"
+          - name: content
+            type: string
+            required: true
+            description: "Base64-encoded content"
+        response:
+          type: object
+          item: UploadResult
+
+  ai:
+    description: "Semantic search via Ask AI"
+    endpoints:
+      ask:
+        method: POST
+        path: "/v3/ai.askAIProxy"
+        description: "Ask AI semantic search (SSE stream)"
+        body:
+          - name: query
+            type: string
+            required: true
+            description: "Natural-language query"
+        response:
+          type: object
+          item: AIResponse
+
+  teams:
+    description: "Team and account info"
+    endpoints:
+      suggest:
+        method: GET
+        path: "/v3/teams.suggest?includeSingletons=true"
+        description: "List teams the user belongs to"
+        response:
+          type: array
+          item: Team
+
+  users:
+    description: "User account state"
+    endpoints:
+      achievements:
+        method: GET
+        path: "/v3/users.achievements"
+        description: "User achievements / gamification state"
+        response:
+          type: object
+          item: Achievement
+
+types:
+  Thread:
+    fields:
+      - name: id
+        type: string
+      - name: subject
+        type: string
+      - name: snippet
+        type: string
+      - name: date
+        type: string
+      - name: message_count
+        type: int
+      - name: unread
+        type: bool
+      - name: starred
+        type: bool
+
+  Message:
+    fields:
+      - name: id
+        type: string
+      - name: thread_id
+        type: string
+      - name: subject
+        type: string
+      - name: date
+        type: string
+      - name: snippet
+        type: string
+      - name: from_email
+        type: string
+      - name: from_name
+        type: string
+
+  Draft:
+    fields:
+      - name: id
+        type: string
+      - name: thread_id
+        type: string
+      - name: subject
+        type: string
+      - name: body
+        type: string
+      - name: to
+        type: string
+      - name: cc
+        type: string
+      - name: bcc
+        type: string
+      - name: action
+        type: string
+      - name: client_created_at
+        type: string
+
+  SendResult:
+    fields:
+      - name: send_at
+        type: int
+
+  WriteResult:
+    fields:
+      - name: current_history_id
+        type: int
+
+  Reminder:
+    fields:
+      - name: reminder_id
+        type: string
+      - name: thread_id
+        type: string
+      - name: trigger_at
+        type: string
+
+  UploadResult:
+    fields:
+      - name: download_url
+        type: string
+
+  AIResponse:
+    fields:
+      - name: content
+        type: string
+
+  Team:
+    fields:
+      - name: team_id
+        type: string
+      - name: name
+        type: string
+
+  Achievement:
+    fields:
+      - name: name
+        type: string
+      - name: progress
+        type: int

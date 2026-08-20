@@ -1,0 +1,58 @@
+name: clarity
+display_name: PP Clarity
+description: "Client-side instrumentation helpers for Microsoft Clarity."
+cli_description: "Generate Microsoft Clarity client API snippets and inspect the Clarity tag script."
+version: "0.1.0"
+base_url: "https://www.clarity.ms"
+website_url: "https://clarity.microsoft.com"
+category: marketing
+spec_source: docs
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/clarity-pp-cli/config.toml"
+resources:
+  tag:
+    description: "Inspect the Microsoft Clarity tracking tag script"
+    endpoints:
+      get:
+        method: GET
+        path: "/tag/{project_id}"
+        description: "Fetch the Clarity tracking tag script for a project ID"
+        params:
+          - name: project_id
+            flag_name: project-id
+            type: string
+            required: true
+            positional: true
+            description: "Microsoft Clarity project ID from Settings -> Setup"
+        response:
+          type: object
+          item: TagScript
+extra_commands:
+  - name: snippet install
+    description: "Render the tracking snippet for a Clarity project ID"
+  - name: snippet consent
+    description: "Render the Cookie consent client API call"
+  - name: snippet identify
+    description: "Render the custom identifiers client API call"
+  - name: snippet set
+    description: "Render the custom tags client API call"
+  - name: snippet event
+    description: "Render the custom event client API call"
+  - name: snippet upgrade
+    description: "Render the session-priority client API call"
+  - name: snippet mask
+    description: "Render Clarity mask or unmask HTML attributes"
+  - name: audit html
+    description: "Check an HTML file for a Clarity install snippet and client API calls"
+  - name: insights live
+    description: "Fetch Microsoft Clarity Data Export API live insights"
+types:
+  TagScript:
+    fields:
+      - name: body
+        type: string
+      - name: project_id
+        type: string

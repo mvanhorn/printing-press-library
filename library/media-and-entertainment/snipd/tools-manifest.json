@@ -1,0 +1,1504 @@
+{
+  "api_name": "snipd",
+  "base_url": "https://api.snipd.com/v1/public/api",
+  "description": "Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "SNIPD_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SNIPD_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "aggregate",
+      "description": "Group the corpus and count. Dimensions: by-episode, by-show, by-tag, favorites.\nDefaults to by-show. Read-only over the local mirror.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "Local SQLite mirror path (default: per-user data dir)"
+        },
+        {
+          "name": "dimension",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument [dimension]"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Maximum groups to return (0 = all) (default: 0)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "analytics",
+      "description": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "group-by",
+          "type": "string",
+          "location": "",
+          "description": "Field to group by"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Max groups to show (default: 25)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "",
+          "description": "Resource type to analyze"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "catalog_list",
+      "description": "List your episodes available for export (ids, snip counts, batches). Pass updated_after for an incremental view of what changed. Optional: updated_after. Returns the ExportMetadata.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "",
+          "description": "ISO-8601 timestamp; only surface episodes updated after this (incremental sync cursor)"
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "method": "",
+      "path": "",
+      "params": []
+    },
+    {
+      "name": "filter",
+      "description": "Return snips matching structured criteria — a show, favorites only, a tag, or\nan episode date range. Combine flags to narrow further, or add --count for just\nthe number. For free-text concepts use search or synthesize instead.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "count",
+          "type": "boolean",
+          "location": "",
+          "description": "Return just the matching count (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "Local SQLite mirror path (default: per-user data dir)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "favorite",
+          "type": "boolean",
+          "location": "",
+          "description": "Only favorited snips (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Maximum rows to return (0 = all) (default: 50)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "show",
+          "type": "string",
+          "location": "",
+          "description": "Restrict to a single show"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "",
+          "description": "Only snips whose episode published on/after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "",
+          "description": "Only snips carrying this tag"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "transcript",
+          "type": "boolean",
+          "location": "",
+          "description": "Include full transcripts (larger output) (default: false)"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "",
+          "description": "Only snips whose episode published on/before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "pull",
+      "description": "Build (or refresh) the local snip corpus from your Snipd account.\n\npull is the populate step every other command reads from: it fetches the\nexport catalog, downloads your snips through the sanctioned Obsidian export\nAPI, and upserts them into a local SQLite mirror with a full-text index.\nRun it once to seed the corpus, then again (optionally with --updated-after)\nto pull in what changed. Read-only against Snipd; requires SNIPD_TOKEN.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "Local SQLite mirror path (default: per-user data dir)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Max episodes to pull this run (0 = all) (default: 0)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "updated-after",
+          "type": "string",
+          "location": "",
+          "description": "Only pull episodes updated after this ISO-8601 time (incremental sync)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "quote",
+      "description": "Return the verbatim pull-quote and speaker for snips matching a query, or\nfor a specific snip via --snip. Use this when you need a citable line, not a\nparaphrase or the whole transcript. Only snips that carry a quote are returned.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "Local SQLite mirror path (default: per-user data dir)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Maximum quotes to return (default: 10)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <query>",
+          "required": true
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "snip",
+          "type": "string",
+          "location": "",
+          "description": "Return the quote for a specific snip id"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Max results (default 25)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sync",
+      "description": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes & warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "concurrency",
+          "type": "number",
+          "location": "",
+          "description": "Number of parallel sync workers (default: 4)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "full",
+          "type": "boolean",
+          "location": "",
+          "description": "Full resync (ignore previous checkpoint) (default: false)"
+        },
+        {
+          "name": "global-param",
+          "type": "string",
+          "location": "",
+          "description": "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting."
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "latest-only",
+          "type": "boolean",
+          "location": "",
+          "description": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins). (default: false)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "max-pages",
+          "type": "number",
+          "location": "",
+          "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 0)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "no-prune",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition) (default: false)"
+        },
+        {
+          "name": "param",
+          "type": "string",
+          "location": "",
+          "description": "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state."
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "resource-param",
+          "type": "string",
+          "location": "",
+          "description": "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict."
+        },
+        {
+          "name": "resources",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping)."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "",
+          "description": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)"
+        },
+        {
+          "name": "strict",
+          "type": "boolean",
+          "location": "",
+          "description": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero). (default: false)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "synthesize",
+      "description": "Assemble a compact evidence feed for a concept across your snips — ranked by\nfull-text relevance, deduped, and projected to snippet fields (no transcript\nunless --transcript). Use this to hand an agent exactly what it needs to\nsynthesize a cross-show answer without dragging whole transcripts through\ncontext. Plain stemmed terms work best; the index is porter-stemmed.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "Local SQLite mirror path (default: per-user data dir)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Maximum snips in the evidence set (default: 20)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <query>",
+          "required": true
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "show",
+          "type": "string",
+          "location": "",
+          "description": "Restrict to a single show"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "transcript",
+          "type": "boolean",
+          "location": "",
+          "description": "Include full transcripts (larger output) (default: false)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "workflow",
+      "description": "Compound workflows that combine multiple API operations",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "workflow_archive",
+      "description": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "full",
+          "type": "boolean",
+          "location": "",
+          "description": "Full re-archive (ignore previous sync state) (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "workflow_status",
+      "description": "Show local archive status and sync state for all resources",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "agent",
+          "type": "boolean",
+          "location": "",
+          "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)"
+        },
+        {
+          "name": "compact",
+          "type": "boolean",
+          "location": "",
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as CSV (table and array responses) (default: false)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "location": "",
+          "description": "Show request without sending (default: false)"
+        },
+        {
+          "name": "human-friendly",
+          "type": "boolean",
+          "location": "",
+          "description": "Enable colored output and rich formatting (default: false)"
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as JSON (default: false)"
+        },
+        {
+          "name": "max-age",
+          "type": "string",
+          "location": "",
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)"
+        },
+        {
+          "name": "no-cache",
+          "type": "boolean",
+          "location": "",
+          "description": "Bypass response cache (default: false)"
+        },
+        {
+          "name": "no-color",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable colored output (default: false)"
+        },
+        {
+          "name": "no-input",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)"
+        },
+        {
+          "name": "no-learn",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)"
+        },
+        {
+          "name": "plain",
+          "type": "boolean",
+          "location": "",
+          "description": "Output as plain tab-separated text (default: false)"
+        },
+        {
+          "name": "quiet",
+          "type": "boolean",
+          "location": "",
+          "description": "Bare output, one value per line (default: false)"
+        },
+        {
+          "name": "rate-limit",
+          "type": "number",
+          "location": "",
+          "description": "Max requests per second (0 to disable) (default: 0)"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated fields to include in output (e.g. --select id,name,status)"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "",
+          "description": "Request timeout (default: 1m0s)"
+        },
+        {
+          "name": "yes",
+          "type": "boolean",
+          "location": "",
+          "description": "Skip confirmation prompts (for agents and scripts) (default: false)"
+        }
+      ]
+    }
+  ]
+}

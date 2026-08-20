@@ -1,0 +1,25 @@
+{
+  "status": "fail",
+  "exit_code": 3,
+  "command": "cli-printing-press dogfood --live --level quick",
+  "auth_env": "SRAM_AXS_TOKEN",
+  "pii_policy": "raw live output not persisted",
+  "dogfood": {
+    "verdict": "FAIL",
+    "level": "quick",
+    "matrix_size": 18,
+    "passed": 16,
+    "failed": 2,
+    "skipped": 6
+  },
+  "acceptance": {
+    "status": "fail",
+    "level": "quick",
+    "matrix_size": 18,
+    "tests_passed": 16,
+    "tests_failed": 2,
+    "tests_skipped": 6,
+    "failure_summary_present": true
+  },
+  "stderr_redacted": "Error: live dogfood failed: 2/18 tests failed\nlive dogfood failed: 2/18 tests failed\n"
+}

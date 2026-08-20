@@ -1,0 +1,225 @@
+{
+  "api_name": "jobber",
+  "base_url": "https://api.getjobber.com/api/graphql",
+  "description": "Read-only Jobber GraphQL surface synced to local SQLite — clients, invoices, jobs, properties, quotes, visits, payment records — plus FTS5 search, ad-hoc SQL, and a context tool. The CLI never emits a mutation. MCP also mirrors every read-only Cobra command via the runtime cobratree bridge.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "env_vars": [
+      "JOBBER_CLIENT_ID",
+      "JOBBER_CLIENT_SECRET",
+      "JOBBER_CALLBACK_URL",
+      "JOBBER_ACCESS_TOKEN",
+      "JOBBER_REFRESH_TOKEN",
+      "JOBBER_GRAPHQL_VERSION"
+    ],
+    "env_var_specs": [
+      {
+        "name": "JOBBER_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "Jobber OAuth2 client_id from your Developer Center app."
+      },
+      {
+        "name": "JOBBER_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "Jobber OAuth2 client_secret paired with JOBBER_CLIENT_ID."
+      },
+      {
+        "name": "JOBBER_CALLBACK_URL",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "description": "OAuth2 redirect URI registered on the Jobber app (e.g. http://localhost:8765/callback)."
+      },
+      {
+        "name": "JOBBER_ACCESS_TOKEN",
+        "kind": "bearer",
+        "required": true,
+        "sensitive": true,
+        "description": "Current Jobber bearer access token. Refreshed automatically on 401."
+      },
+      {
+        "name": "JOBBER_REFRESH_TOKEN",
+        "kind": "refresh",
+        "required": true,
+        "sensitive": true,
+        "description": "Jobber refresh token. Jobber rotates this on every refresh; the CLI persists the new value back to the Windows User environment so the rotation chain stays alive."
+      },
+      {
+        "name": "JOBBER_GRAPHQL_VERSION",
+        "kind": "config",
+        "required": true,
+        "sensitive": false,
+        "description": "GraphQL schema version pinned in the X-JOBBER-GRAPHQL-VERSION header (e.g. 2025-04-16)."
+      }
+    ]
+  },
+  "required_headers": [
+    "X-JOBBER-GRAPHQL-VERSION"
+  ],
+  "tools": [
+    {
+      "name": "clients_get",
+      "description": "Get a client by EncodedId. Required: id. Returns the Client.",
+      "method": "GET",
+      "path": "/clients/{id}",
+      "params": [
+        {"name": "id", "type": "string", "location": "path", "description": "Client EncodedId", "required": true}
+      ]
+    },
+    {
+      "name": "clients_list",
+      "description": "List clients with optional filters. Optional: first (default: 100), after, is-company (plus 5 more). Returns array of Client.",
+      "method": "GET",
+      "path": "/clients",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page (Relay cursor `first`)"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after` for pagination"},
+        {"name": "is-company", "type": "bool", "location": "query", "description": "Filter: company clients only"},
+        {"name": "is-lead", "type": "bool", "location": "query", "description": "Filter: lead clients only"},
+        {"name": "is-archived", "type": "bool", "location": "query", "description": "Filter: archived clients only"},
+        {"name": "updated-since", "type": "string", "location": "query", "description": "Filter: updatedAt >= this ISO8601 timestamp"},
+        {"name": "created-since", "type": "string", "location": "query", "description": "Filter: createdAt >= this ISO8601 timestamp"},
+        {"name": "tags", "type": "string", "location": "query", "description": "Filter: comma-separated tag labels"}
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "List invoices with optional filters. Optional: first (default: 100), after, client-id (plus 7 more). Returns array of Invoice.",
+      "method": "GET",
+      "path": "/invoices",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "client-id", "type": "string", "location": "query", "description": "Filter: invoices for this client (singular `clientId`)"},
+        {"name": "invoice-number", "type": "string", "location": "query", "description": "Filter: exact invoice number"},
+        {"name": "status", "type": "string", "location": "query", "description": "Filter: InvoiceStatusTypeEnum value"},
+        {"name": "issued-since", "type": "string", "location": "query", "description": "Filter: issuedDate >= this ISO8601 timestamp"},
+        {"name": "due-before", "type": "string", "location": "query", "description": "Filter: dueDate <= this ISO8601 timestamp"},
+        {"name": "updated-since", "type": "string", "location": "query", "description": "Filter: updatedAt >= this ISO8601 timestamp"},
+        {"name": "created-since", "type": "string", "location": "query", "description": "Filter: createdAt >= this ISO8601 timestamp"},
+        {"name": "exclude-origin", "type": "string", "location": "query", "description": "Filter: excludeOrigin enum value"}
+      ]
+    },
+    {
+      "name": "jobber_jobs_get",
+      "description": "Get a job by EncodedId. Required: id. Returns the Job.",
+      "method": "GET",
+      "path": "/jobs/{id}",
+      "params": [
+        {"name": "id", "type": "string", "location": "path", "description": "Job EncodedId", "required": true}
+      ]
+    },
+    {
+      "name": "jobber_jobs_list",
+      "description": "List jobs with optional filters. Optional: first (default: 100), after, job-type (plus 7 more). Returns array of Job.",
+      "method": "GET",
+      "path": "/jobs",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "job-type", "type": "string", "location": "query", "description": "Filter: JobTypeTypeEnum value (RECURRING|ONE_OFF)"},
+        {"name": "status", "type": "string", "location": "query", "description": "Filter: JobStatusTypeEnum value"},
+        {"name": "created-since", "type": "string", "location": "query", "description": "Filter: createdAt >= this ISO8601 timestamp"},
+        {"name": "start-since", "type": "string", "location": "query", "description": "Filter: startAt >= this ISO8601 timestamp"},
+        {"name": "end-before", "type": "string", "location": "query", "description": "Filter: endAt <= this ISO8601 timestamp"},
+        {"name": "completed-since", "type": "string", "location": "query", "description": "Filter: completedAt >= this ISO8601 timestamp"},
+        {"name": "include-unscheduled", "type": "bool", "location": "query", "description": "Filter: include jobs without scheduled visits"},
+        {"name": "only-invoiceable", "type": "bool", "location": "query", "description": "Filter: jobs ready to invoice"}
+      ]
+    },
+    {
+      "name": "payment-records_list",
+      "description": "List payment records with optional filters (entryDate is exclusive both ends - pad +/-1 day). Optional: first (default: 100), after, client-id (plus 4 more). Returns array of PaymentRecord.",
+      "method": "GET",
+      "path": "/payment-records",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "client-id", "type": "string", "location": "query", "description": "Filter: payment records for this client"},
+        {"name": "entry-since", "type": "string", "location": "query", "description": "Filter: entryDate (EXCLUSIVE both ends; pad +/-1 day)"},
+        {"name": "adjustment-type", "type": "string", "location": "query", "description": "Filter: IncomeAdjustmentType value"},
+        {"name": "payment-type", "type": "string", "location": "query", "description": "Filter: payment type value"},
+        {"name": "refundable", "type": "bool", "location": "query", "description": "Filter: refundable payments only"}
+      ]
+    },
+    {
+      "name": "properties_list",
+      "description": "List properties with optional filters. Optional: first (default: 100), after, client-id (plus 1 more). Returns array of Property.",
+      "method": "GET",
+      "path": "/properties",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "client-id", "type": "string", "location": "query", "description": "Filter: properties belonging to this client EncodedId"},
+        {"name": "primary", "type": "bool", "location": "query", "description": "Filter: primary properties only"}
+      ]
+    },
+    {
+      "name": "quotes_list",
+      "description": "List quotes with optional filters. Optional: first (default: 100), after, client-id (plus 6 more). Returns array of Quote.",
+      "method": "GET",
+      "path": "/quotes",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "client-id", "type": "string", "location": "query", "description": "Filter: quotes for this client"},
+        {"name": "quote-number", "type": "string", "location": "query", "description": "Filter: exact quote number"},
+        {"name": "status", "type": "string", "location": "query", "description": "Filter: QuoteStatusTypeEnum value"},
+        {"name": "sent-since", "type": "string", "location": "query", "description": "Filter: sentAt >= this ISO8601 timestamp"},
+        {"name": "updated-since", "type": "string", "location": "query", "description": "Filter: updatedAt >= this ISO8601 timestamp"},
+        {"name": "created-since", "type": "string", "location": "query", "description": "Filter: createdAt >= this ISO8601 timestamp"},
+        {"name": "salesperson-id", "type": "string", "location": "query", "description": "Filter: salesperson user EncodedId"}
+      ]
+    },
+    {
+      "name": "visits_list",
+      "description": "List visits with optional filters. Optional: first (default: 100), after, status (plus 6 more). Returns array of Visit.",
+      "method": "GET",
+      "path": "/visits",
+      "params": [
+        {"name": "first", "type": "int", "location": "query", "description": "Max results per page"},
+        {"name": "after", "type": "string", "location": "query", "description": "Relay cursor `after`"},
+        {"name": "status", "type": "string", "location": "query", "description": "Filter: VisitStatusTypeEnum value"},
+        {"name": "created-since", "type": "string", "location": "query", "description": "Filter: createdAt >= this ISO8601 timestamp"},
+        {"name": "start-since", "type": "string", "location": "query", "description": "Filter: startAt >= this ISO8601 timestamp"},
+        {"name": "end-before", "type": "string", "location": "query", "description": "Filter: endAt <= this ISO8601 timestamp"},
+        {"name": "completed-since", "type": "string", "location": "query", "description": "Filter: completedAt >= this ISO8601 timestamp"},
+        {"name": "invoice-status", "type": "string", "location": "query", "description": "Filter: visit invoice status"},
+        {"name": "assigned-to", "type": "string", "location": "query", "description": "Filter: assigned user EncodedId"}
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "method": "LOCAL",
+      "path": "",
+      "params": [
+        {"name": "query", "type": "string", "location": "body", "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)", "required": true},
+        {"name": "limit", "type": "int", "location": "body", "description": "Max results (default 25)"}
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "method": "LOCAL",
+      "path": "",
+      "params": [
+        {"name": "query", "type": "string", "location": "body", "description": "SQL query (SELECT or WITH...SELECT). Tables match resource names.", "required": true}
+      ]
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "method": "LOCAL",
+      "path": "",
+      "params": []
+    }
+  ]
+}

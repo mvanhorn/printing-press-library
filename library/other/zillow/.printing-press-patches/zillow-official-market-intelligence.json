@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "zillow-official-market-intelligence",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-222156",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve the official Zillow Research CSV loader, normalized SQLite layer, explainable market workflows, safe optional Bridge boundary, and cross-platform HOME behavior on every reprint.",
+  "reason": "Zillow's public research surface is wide CSV rather than JSON, and the useful product is regional time-series intelligence rather than endpoint wrapping. The CLI must remain scraper-free, attribution-rich, offline-capable, and explicit about financial assumptions.",
+  "files": [
+    "internal/zillowdata/data.go",
+    "internal/zillowdata/data_test.go",
+    "internal/zillowdata/sqlite.go",
+    "internal/zillowdata/sqlite_test.go",
+    "internal/cli/zillow_market.go",
+    "internal/cli/zillow_offline.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cliutil/paths.go"
+  ],
+  "validated_outcome": "Full Go test suite, go vet, CLI/MCP builds, live Austin analytics smoke, SQLite sync/SQL round-trip, local watch diff, and Printing Press full live dogfood (215/215 tests, zero failures) passed."
+}

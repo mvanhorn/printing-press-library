@@ -1,0 +1,316 @@
+{
+  "api_name": "resend",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "resend/resend-cli",
+      "url": "https://github.com/resend/resend-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 368,
+      "last_updated": "",
+      "command_count": 53,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/mcp-send-email",
+      "url": "https://github.com/resend/mcp-send-email",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 510,
+      "last_updated": "",
+      "command_count": 49,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/resend-node",
+      "url": "https://github.com/resend/resend-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 907,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/resend-go",
+      "url": "https://github.com/resend/resend-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/resend-python",
+      "url": "https://github.com/resend/resend-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/resend-openapi",
+      "url": "https://github.com/resend/resend-openapi",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "resend/n8n-nodes-resend",
+      "url": "https://github.com/resend/n8n-nodes-resend",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T20:51:00Z",
+  "novel_features": [
+    {
+      "name": "Recipient email timeline",
+      "command": "emails to",
+      "description": "Every email sent to a single recipient address, with delivery status and timestamps, ordered newest-first.",
+      "rationale": "Resend has no API filter by recipient — answering 'what did we send to alice@?' today requires scanning every email manually.",
+      "example": "resend-pp-cli emails to <your-email> --json --select id,subject,status,sent_at",
+      "why_it_matters": "Reach for this when an agent needs to reconstruct what a single user has received — support tickets, GDPR exports, dispute investigations.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Cross-event delivery trace",
+      "command": "emails timeline",
+      "description": "Collapsed event chain for a single email: sent → delivered → opened → clicked → bounced, in one ordered table.",
+      "rationale": "The Resend API splits delivery state across /emails/{id} and /logs; reconstructing the chain requires two requests and client-side merging.",
+      "example": "resend-pp-cli emails timeline 4ef9a417-d4ff-4ec5-9af2-c80a4d5d2c1f --json",
+      "why_it_matters": "Use when debugging 'why didn't this arrive?' — one command shows whether it was sent, delivered, opened, or bounced and when.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Audience inventory rollup",
+      "command": "audiences inventory",
+      "description": "Per-audience rollup: contact count, unsubscribed count, last-broadcast timestamp, recent open-rate.",
+      "rationale": "No aggregate endpoint exists; the dashboard shows one audience at a time.",
+      "example": "resend-pp-cli audiences inventory --json",
+      "why_it_matters": "Use before planning a campaign — quickly see which audiences are healthy and recently engaged.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Cross-audience contact lookup",
+      "command": "contacts where",
+      "description": "Find every audience, segment, and topic a contact (by email or name) belongs to in one query.",
+      "rationale": "Today this requires N API calls — one list per audience — and merging client-side.",
+      "example": "resend-pp-cli contacts where <contact-email> --json --select audience_name,subscribed",
+      "why_it_matters": "Use when triaging unsubscribe requests, GDPR deletions, or 'why is bob getting this email?'.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Broadcast performance dashboard",
+      "command": "broadcasts performance",
+      "description": "Open / click / bounce rate across all broadcasts, sortable; not limited to a single broadcast or 30-day window.",
+      "rationale": "The Resend dashboard shows one broadcast at a time and caps the window at 30 days.",
+      "example": "resend-pp-cli broadcasts performance --json --select broadcasts,count,status",
+      "why_it_matters": "Use to compare campaign performance across the lifetime of the account.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "Domain health summary",
+      "command": "domains health",
+      "description": "Verification + DKIM/SPF/DMARC status across every domain in one table, flags missing or unverified records.",
+      "rationale": "No aggregate endpoint exists; today this requires N GET /domains/{id} calls.",
+      "example": "resend-pp-cli domains health --json",
+      "why_it_matters": "Use on call-out / deliverability incidents to confirm all sending domains are fully verified.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "Deliverability summary",
+      "command": "deliverability summary",
+      "description": "Bounce rate, complaint rate, and suppression count over a rolling window (default 7d) computed from local event data.",
+      "rationale": "Resend's suppression/bounce lists aren't queryable in aggregate — direct answer to the documented deliverability blind spot.",
+      "example": "resend-pp-cli deliverability summary --window 7d --json",
+      "why_it_matters": "Use weekly to monitor IP/domain reputation trends before they cause deliverability incidents.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "API-key rotation audit",
+      "command": "api-keys rotation",
+      "description": "API keys sorted by age + last-used timestamp (joined from logs); flags stale keys older than N days.",
+      "rationale": "The /api-keys list endpoint does not include last_used_at at scale — joining requires log queries per key.",
+      "example": "resend-pp-cli api-keys rotation --older-than 90d --json",
+      "why_it_matters": "Use during quarterly security reviews — find unused keys that should be rotated or revoked.",
+      "group": "Operational hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recipient email timeline",
+      "command": "emails to",
+      "description": "Every email sent to a single recipient address, with delivery status and timestamps, ordered newest-first.",
+      "rationale": "Resend has no API filter by recipient — answering 'what did we send to alice@?' today requires scanning every email manually.",
+      "example": "resend-pp-cli emails to user@example.com --json --select id,subject,status,sent_at",
+      "why_it_matters": "Reach for this when an agent needs to reconstruct what a single user has received — support tickets, GDPR exports, dispute investigations.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Cross-event delivery trace",
+      "command": "emails timeline",
+      "description": "Collapsed event chain for a single email: sent → delivered → opened → clicked → bounced, in one ordered table.",
+      "rationale": "The Resend API splits delivery state across /emails/{id} and /logs; reconstructing the chain requires two requests and client-side merging.",
+      "example": "resend-pp-cli emails timeline 4ef9a417-d4ff-4ec5-9af2-c80a4d5d2c1f --json",
+      "why_it_matters": "Use when debugging 'why didn't this arrive?' — one command shows whether it was sent, delivered, opened, or bounced and when.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Audience inventory rollup",
+      "command": "audiences inventory",
+      "description": "Per-audience rollup: contact count, unsubscribed count, last-broadcast timestamp, recent open-rate.",
+      "rationale": "No aggregate endpoint exists; the dashboard shows one audience at a time.",
+      "example": "resend-pp-cli audiences inventory --json",
+      "why_it_matters": "Use before planning a campaign — quickly see which audiences are healthy and recently engaged.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Cross-audience contact lookup",
+      "command": "contacts where",
+      "description": "Find every audience, segment, and topic a contact (by email or name) belongs to in one query.",
+      "rationale": "Today this requires N API calls — one list per audience — and merging client-side.",
+      "example": "resend-pp-cli contacts where contact@example.com --json --select audience_name,subscribed",
+      "why_it_matters": "Use when triaging unsubscribe requests, GDPR deletions, or 'why is bob getting this email?'.",
+      "group": "Cross-resource queries over local state"
+    },
+    {
+      "name": "Broadcast performance dashboard",
+      "command": "broadcasts performance",
+      "description": "Open / click / bounce rate across all broadcasts, sortable; not limited to a single broadcast or 30-day window.",
+      "rationale": "The Resend dashboard shows one broadcast at a time and caps the window at 30 days.",
+      "example": "resend-pp-cli broadcasts performance --json --select broadcasts,count,status",
+      "why_it_matters": "Use to compare campaign performance across the lifetime of the account.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "Domain health summary",
+      "command": "domains health",
+      "description": "Verification + DKIM/SPF/DMARC status across every domain in one table, flags missing or unverified records.",
+      "rationale": "No aggregate endpoint exists; today this requires N GET /domains/{id} calls.",
+      "example": "resend-pp-cli domains health --json",
+      "why_it_matters": "Use on call-out / deliverability incidents to confirm all sending domains are fully verified.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "Deliverability summary",
+      "command": "deliverability summary",
+      "description": "Bounce rate, complaint rate, and suppression count over a rolling window (default 7d) computed from local event data.",
+      "rationale": "Resend's suppression/bounce lists aren't queryable in aggregate — direct answer to the documented deliverability blind spot.",
+      "example": "resend-pp-cli deliverability summary --window 7d --json",
+      "why_it_matters": "Use weekly to monitor IP/domain reputation trends before they cause deliverability incidents.",
+      "group": "Aggregate analytics from local store"
+    },
+    {
+      "name": "API-key rotation audit",
+      "command": "api-keys rotation",
+      "description": "API keys sorted by age + last-used timestamp (joined from logs); flags stale keys older than N days.",
+      "rationale": "The /api-keys list endpoint does not include last_used_at at scale — joining requires log queries per key.",
+      "example": "resend-pp-cli api-keys rotation --older-than 90d --json",
+      "why_it_matters": "Use during quarterly security reviews — find unused keys that should be rotated or revoked.",
+      "group": "Operational hygiene"
+    }
+  ],
+  "narrative": {
+    "display_name": "Resend",
+    "headline": "The full Resend API (100 endpoints across emails, broadcasts, audiences, contacts, domains, templates, webhooks) plus a local SQLite cache that powers cross-resource queries the dashboard and SDK cannot answer.",
+    "value_prop": "The official Resend CLI is fast and one-shot per command; this CLI is the agent-native companion with --json --select --dry-run consistency, FTS5 search over sent emails, and rollups (audiences inventory, broadcasts performance, deliverability summary, contacts where, emails to \u003crecipient\u003e) that exist only because every Resend resource is mirrored locally.",
+    "quickstart": [
+      {
+        "command": "resend-pp-cli doctor",
+        "comment": "Verify RESEND_API_KEY and reach api.resend.com."
+      },
+      {
+        "command": "resend-pp-cli sync --full",
+        "comment": "Populate the local SQLite store with audiences, contacts, domains, broadcasts, and templates."
+      },
+      {
+        "command": "resend-pp-cli domains list --json --select id,name,status",
+        "comment": "First read — confirm sync landed."
+      },
+      {
+        "command": "resend-pp-cli audiences inventory --json",
+        "comment": "Cross-audience rollup the official CLI cannot produce."
+      },
+      {
+        "command": "resend-pp-cli search invoice --json",
+        "comment": "FTS across emails, contacts, broadcasts, and templates."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 unauthorized on every command",
+        "fix": "Confirm RESEND_API_KEY is exported. Keys start with re_… and are visible at resend.com/api-keys."
+      },
+      {
+        "symptom": "Local commands return zero rows",
+        "fix": "Run `resend-pp-cli sync --full` — local-only commands read from the SQLite cache."
+      },
+      {
+        "symptom": "429 rate limit",
+        "fix": "Resend documents Retry-After. Lower --rate-limit (default 0 = unbounded) or run sync in off-hours."
+      },
+      {
+        "symptom": "Domain reports unverified after creation",
+        "fix": "Resend caches DNS for ~24h; `domains verify \u003cid\u003e` triggers re-check, and `domains get \u003cid\u003e` shows current DKIM/SPF/DMARC state."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to answer cross-resource questions about a Resend account that the dashboard or SDK cannot answer in one call — what did we send to a specific recipient, which audiences is a contact in, how does broadcast performance trend over time, what's the 7-day bounce rate. Stick with `npx resend send` for one-shot transactional sends or with React Email for templates; this CLI is the agent-facing companion, not a replacement.",
+    "recipes": [
+      {
+        "title": "Reconstruct what a user has received",
+        "command": "resend-pp-cli emails to user@example.com --json --select id,subject,status,sent_at,opened_at --limit 50",
+        "explanation": "Use this for support tickets and GDPR exports — every email sent to one recipient, with delivery state."
+      },
+      {
+        "title": "Pre-campaign audience check",
+        "command": "resend-pp-cli audiences inventory --json --select name,contact_count,unsubscribed_count,last_broadcast_at",
+        "explanation": "Run before scheduling a broadcast — surfaces audiences with high unsubscribe rates or stale engagement."
+      },
+      {
+        "title": "Weekly deliverability review",
+        "command": "resend-pp-cli deliverability summary --window 7d --agent --select bounce_rate,complaint_rate,suppression_count",
+        "explanation": "Trend snapshot for IP/domain reputation; pipe through `jq` to alert on threshold breaches."
+      },
+      {
+        "title": "Audit stale API keys",
+        "command": "resend-pp-cli api-keys rotation --older-than 90d --json --select name,created_at,last_used_at",
+        "explanation": "Find unused keys during quarterly security reviews."
+      },
+      {
+        "title": "Search every sent email for a phrase",
+        "command": "resend-pp-cli search password --json --select id,subject,to,sent_at",
+        "explanation": "FTS5-backed; needs `sync --full` first."
+      }
+    ],
+    "trigger_phrases": [
+      "send an email with resend",
+      "check resend deliverability",
+      "list resend audiences",
+      "what did we send to \u003cemail\u003e",
+      "use resend",
+      "run resend"
+    ]
+  }
+}

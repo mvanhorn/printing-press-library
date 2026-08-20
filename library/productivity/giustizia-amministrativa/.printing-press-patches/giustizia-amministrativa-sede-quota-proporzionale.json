@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-sede-quota-proporzionale",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "`--sede-sweep` ripartisce ora `--limit` fra le sedi in proporzione ai totali dichiarati dal portale, invece che in parti uguali. Aggiunto `--sede-quota proporzionale|uguale` (predefinito proporzionale) per tenere la vecchia semantica dove serve. Aggiunto inoltre l'envelope `{items, avvisi}` sullo stdout JSON delle ricerche quando ci sono avvisi.",
+  "reason": "Lo sweep dava a ogni sede la stessa fetta, quindi il campione dichiarava implicitamente che la materia e' distribuita uniformemente sul paese. Misurato su `appalto` 2026: il portale dichiara 2187 provvedimenti, di cui Roma 373 (17%), Consiglio di Stato 339 (16%) e Napoli 282 (13%) - il 45% in tre sedi. Con `--limit 100` la quota uguale dava a ciascuna il 4%, sottorappresentando Roma di quattro volte e sovrarappresentando Aosta (1 provvedimento, 0,05%) di ottanta. A Pescara, che ne ha 3, assegnava 4 posti: piu' di quanti ne esistano. La distribuzione di `stats` era gia' stata corretta a monte (usa i totali del portale, non il campione): il difetto restava solo in cosa `search` restituiva. Il costo e' minimo perche' `searchOnce` scaricava gia' una pagina intera da 10 righe e la tagliava a 4 - 186 righe scaricate e buttate su uno sweep con limit 100; la prima passata ora le tiene, e servono pagine extra solo per le sedi la cui quota supera la pagina (tre, su limit 100). Riscritto anche l'avviso sul limite basso, che sotto la nuova semantica invitava a una 'copertura equilibrata' che la modalita' proporzionale non insegue: una sede assente perche' ha un solo provvedimento non e' una lacuna. L'envelope JSON nasce da un difetto trovato mentre si verificava questo: gli avvisi che spiegano un risultato parziale (ricorsi gemelli raggruppati, totale dichiarato piu' alto del campione) viaggiavano solo su stderr, e un agente che legge `--json` chiedeva 100 righe, ne riceveva 92 e non aveva modo di sapere perche'. Il livello MCP li inseriva gia' in `avvisi` (shellout.go); ora lo fa anche la CLI. Senza avvisi lo stdout resta l'array nudo, quindi il contratto ordinario non cambia.",
+  "files": [
+    "internal/gaclient/sedequota.go",
+    "internal/gaclient/sedequota_test.go",
+    "internal/gaclient/client.go",
+    "internal/cli/search.go",
+    "internal/cli/ga_core.go",
+    "internal/cli/emit_ricerca_test.go",
+    "docs/come-cercare.md"
+  ],
+  "validated_outcome": "go build/vet/test verdi. Dal vivo su `appalto` 2026 con --limit 100: proporzionale da' Roma 14, Consiglio di Stato 13, Napoli 12, Milano 6 (contro il 17/16/13/6% reale); `--sede-quota uguale` conserva i 4 a testa di prima. `stats` resta invariato (`conteggi_da: totali dichiarati dal portale per sede`). Valori non riconosciuti e uso senza --sede-sweep escono con codice 5. Senza avvisi lo stdout JSON resta un array; con avvisi diventa {items, avvisi} e --select continua a filtrare gli items."
+}

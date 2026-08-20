@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T16:29:11.385718Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "robinhood",
+  "display_name": "Robinhood",
+  "cli_name": "robinhood-pp-cli",
+  "owner": "zaydiscold",
+  "printer": "zaydiscold",
+  "printer_name": "zaydiscold",
+  "spec_url": "https://docs.robinhood.com/crypto/trading/",
+  "spec_path": "robinhood/api-map-draft/openapi/robinhood-crypto.openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:77570267ad181af7cbcbc2a6dbc229c8f70ab7c3022ebdc3a640bdfdea811cd7",
+  "run_id": "20260522-162911",
+  "description": "Agent-native CLI + MCP for the whole of Robinhood: brokerage accounts (individual + retirement), positions, options and option chains, portfolio performance (YTD/1w/1m/1y/5y/all), transfers, dividends, orders, and watchlists across api.robinhood.com and the bonfire gateway — plus the official Robinhood Crypto Trading API as the documented subset. Reads are live; writes default to dry-run behind a ROBINHOOD_PP_ALLOW_WRITES gate.",
+  "mcp_binary": "robinhood-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ROBINHOOD_API_KEY",
+    "ROBINHOOD_PRIVATE_KEY_B64"
+  ],
+  "auth_key_url": "https://robinhood.com/account/crypto",
+  "novel_features": [
+    {
+      "name": "Unified Robinhood browser plus official Crypto route map",
+      "command": "brokerage all-routes",
+      "description": "Expose the merged Robinhood-published Crypto OpenAPI and authenticated brokerage/account browser route inventory so agents can search stocks, options, account, history, documents, transfers, and crypto from one map."
+    },
+    {
+      "name": "Write-gated brokerage and crypto execution previews",
+      "command": "brokerage execute",
+      "description": "Plan and dry-run Robinhood brokerage/account and official Crypto API requests with explicit risk labels, default dry-run write behavior, and the ROBINHOOD_PP_ALLOW_WRITES=1 gate before any PP-side live mutation."
+    },
+    {
+      "name": "Ticker and account surface evidence pack",
+      "command": "brokerage browser-routes",
+      "description": "Ship the sanitized CDP route templates captured across ticker, option-chain, portfolio, account, settings, documents, transfer, market, and crypto pages for downstream agent routing."
+    }
+  ]
+}

@@ -1,0 +1,335 @@
+{
+  "api_name": "openart",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "replicate/cli",
+      "url": "https://github.com/replicate/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "replicate (npm)",
+      "url": "https://github.com/replicate/replicate-javascript",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fal-client (PyPI)",
+      "url": "https://docs.fal.ai/model-apis/quickstart/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@fal-ai/client (npm)",
+      "url": "https://docs.fal.ai/model-apis/quickstart/",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Higgsfield MCP",
+      "url": "https://higgsfield.ai/mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fal-image-video-mcp",
+      "url": "https://github.com/RamboRogers/fal-image-video-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No native cancel API: OpenArt does not expose a cancel endpoint for in-flight generations. Once submitted, credits are consumed regardless. The cost-preview command (cost estimate) is the workaround.",
+    "Reverse-engineered API: OpenArt has no public API. The CLI relies on the unofficial /suite/api/* surface and Clerk session cookies. Frontend redeploys could break commands. Mitigation: re-import cookies, refresh model catalog with openart-pp-cli sync."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T15:35:00Z",
+  "novel_features": [
+    {
+      "name": "Cost preview before submit",
+      "command": "cost estimate",
+      "description": "Project the credit cost of a generation before you spend.",
+      "rationale": "Local models table joined with optional /suite/api/topaz/estimate; OpenArt's UI does not show projected cost for batches.",
+      "example": "openart-pp-cli cost estimate --model byte-plus-seedance-2 --duration 10 --count 4 --agent",
+      "why_it_matters": "Use before any batch submit to avoid burning credits on a misconfigured run.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Credit burn breakdown",
+      "command": "credits burn",
+      "description": "Aggregate credit spend by model, tool, day, or project.",
+      "rationale": "Pure local SQL over the synced credits_ledger; the OpenArt web UI shows entries serially with no aggregation.",
+      "example": "openart-pp-cli credits burn --since 7d --by model --agent",
+      "why_it_matters": "Answers 'where did my credits go?' so you can shift work to cheaper models.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Credit runway forecast",
+      "command": "credits forecast",
+      "description": "Project how many weeks of runway your current balance gives at recent burn.",
+      "rationale": "Joins rolling 4-week burn from local credits_ledger against current free_credit_balance; UI shows neither rate nor projection.",
+      "example": "openart-pp-cli credits forecast --agent",
+      "why_it_matters": "Surfaces 'this paid plan covers another 6 weeks' so you can decide when to top up or slow down.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Cheapest-model lookup",
+      "command": "models cheapest",
+      "description": "Find the cheapest model that satisfies a target shape (type/duration/resolution/features).",
+      "rationale": "Pure local query against the models catalog ranked by credits_per_unit_default; OpenArt UI buries cost behind per-model tooltips.",
+      "example": "openart-pp-cli models cheapest --type video --duration 10 --resolution 720p --agent",
+      "why_it_matters": "Lets agents try a prompt on Grok Imagine for 150 credits before committing to Seedance 2's 800.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Cross-model fan-out compare",
+      "command": "compare",
+      "description": "Run one prompt across multiple models in parallel; return a side-by-side report with cost and URLs.",
+      "rationale": "Submits N parallel form posts and joins results with the local models catalog; no other tool spans OpenArt's underlying model mix.",
+      "example": "openart-pp-cli compare --prompt \"a phoenix in molten gold\" --models byte-plus-seedance-2,kling2-6,grok-imagine --duration 5 --agent",
+      "why_it_matters": "Decide which model deserves the long Seedance shoot before committing.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Replay a past generation",
+      "command": "prompts replay",
+      "description": "Re-run a past generation, optionally on a different model, with parameter bumps.",
+      "rationale": "Reads media.input from local store and remaps params across model schemas; re-issues real submit. Single-pool tools (Replicate/Fal) cannot do cross-model remap.",
+      "example": "openart-pp-cli prompts replay 3dVHEhDjyq82gLwBudaG --model byte-plus-seedance-2 --bump duration=10 --agent",
+      "why_it_matters": "Iterate on past wins without retyping prompts; A/B test models cheaply.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Prompt FTS recovery search",
+      "command": "prompts find",
+      "description": "Full-text search prior generations by prompt text with OpenArt-specific filters (model, audio, duration, starred, since).",
+      "rationale": "FTS5 over media_fts joined to per-resource metadata; OpenArt's media library has no prompt search.",
+      "example": "openart-pp-cli prompts find \"molten dragon\" --model byte-plus-seedance-2 --has-audio --since 30d --agent",
+      "why_it_matters": "Recover the prompt you wrote three weeks ago instead of paying to recreate it.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Prompt spend leaderboard",
+      "command": "prompts top",
+      "description": "Rank past prompts by total credit spend over a window.",
+      "rationale": "Joins media.prompt x credits_ledger.amount via resource id; OpenArt UI never aggregates per-prompt across jobs.",
+      "example": "openart-pp-cli prompts top --since 30d --by spend --agent",
+      "why_it_matters": "Surface 'I have spent 8k credits iterating this dragon prompt' before iterating again.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Library stats blob",
+      "command": "stats",
+      "description": "One-shot stats over the local media library: counts per type/model/period and rolling spend.",
+      "rationale": "Single SQL query across media + credits_ledger; pure local aggregation.",
+      "example": "openart-pp-cli stats --since 30d --agent",
+      "why_it_matters": "A 'where am I' snapshot for both human users and agents starting a session.",
+      "group": "Prompt history as memory"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cost preview before submit",
+      "command": "cost estimate",
+      "description": "Project the credit cost of a generation before you spend.",
+      "rationale": "Local models table joined with optional /suite/api/topaz/estimate; OpenArt's UI does not show projected cost for batches.",
+      "example": "openart-pp-cli cost estimate --model byte-plus-seedance-2 --duration 10 --count 4 --agent",
+      "why_it_matters": "Use before any batch submit to avoid burning credits on a misconfigured run.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Credit burn breakdown",
+      "command": "credits burn",
+      "description": "Aggregate credit spend by model, tool, day, or project.",
+      "rationale": "Pure local SQL over the synced credits_ledger; the OpenArt web UI shows entries serially with no aggregation.",
+      "example": "openart-pp-cli credits burn --since 7d --by model --agent",
+      "why_it_matters": "Answers 'where did my credits go?' so you can shift work to cheaper models.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Credit runway forecast",
+      "command": "credits forecast",
+      "description": "Project how many weeks of runway your current balance gives at recent burn.",
+      "rationale": "Joins rolling 4-week burn from local credits_ledger against current free_credit_balance; UI shows neither rate nor projection.",
+      "example": "openart-pp-cli credits forecast --agent",
+      "why_it_matters": "Surfaces 'this paid plan covers another 6 weeks' so you can decide when to top up or slow down.",
+      "group": "Credit-aware spending"
+    },
+    {
+      "name": "Cheapest-model lookup",
+      "command": "models cheapest",
+      "description": "Find the cheapest model that satisfies a target shape (type/duration/resolution/features).",
+      "rationale": "Pure local query against the models catalog ranked by credits_per_unit_default; OpenArt UI buries cost behind per-model tooltips.",
+      "example": "openart-pp-cli models cheapest --type video --duration 10 --resolution 720p --agent",
+      "why_it_matters": "Lets agents try a prompt on Grok Imagine for 150 credits before committing to Seedance 2's 800.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Cross-model fan-out compare",
+      "command": "compare",
+      "description": "Run one prompt across multiple models in parallel; return a side-by-side report with cost and URLs.",
+      "rationale": "Submits N parallel form posts and joins results with the local models catalog; no other tool spans OpenArt's underlying model mix.",
+      "example": "openart-pp-cli compare --prompt \"a phoenix in molten gold\" --models byte-plus-seedance-2,kling2-6,grok-imagine --duration 5 --agent",
+      "why_it_matters": "Decide which model deserves the long Seedance shoot before committing.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Replay a past generation",
+      "command": "prompts replay",
+      "description": "Re-run a past generation, optionally on a different model, with parameter bumps.",
+      "rationale": "Reads media.input from local store and remaps params across model schemas; re-issues real submit. Single-pool tools (Replicate/Fal) cannot do cross-model remap.",
+      "example": "openart-pp-cli prompts replay 3dVHEhDjyq82gLwBudaG --model byte-plus-seedance-2 --bump duration=10 --agent",
+      "why_it_matters": "Iterate on past wins without retyping prompts; A/B test models cheaply.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Prompt FTS recovery search",
+      "command": "prompts find",
+      "description": "Full-text search prior generations by prompt text with OpenArt-specific filters (model, audio, duration, starred, since).",
+      "rationale": "FTS5 over media_fts joined to per-resource metadata; OpenArt's media library has no prompt search.",
+      "example": "openart-pp-cli prompts find \"molten dragon\" --model byte-plus-seedance-2 --has-audio --since 30d --agent",
+      "why_it_matters": "Recover the prompt you wrote three weeks ago instead of paying to recreate it.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Prompt spend leaderboard",
+      "command": "prompts top",
+      "description": "Rank past prompts by total credit spend over a window.",
+      "rationale": "Joins media.prompt x credits_ledger.amount via resource id; OpenArt UI never aggregates per-prompt across jobs.",
+      "example": "openart-pp-cli prompts top --since 30d --by spend --agent",
+      "why_it_matters": "Surface 'I have spent 8k credits iterating this dragon prompt' before iterating again.",
+      "group": "Prompt history as memory"
+    },
+    {
+      "name": "Library stats blob",
+      "command": "stats",
+      "description": "One-shot stats over the local media library: counts per type/model/period and rolling spend.",
+      "rationale": "Single SQL query across media + credits_ledger; pure local aggregation.",
+      "example": "openart-pp-cli stats --since 30d --agent",
+      "why_it_matters": "A 'where am I' snapshot for both human users and agents starting a session.",
+      "group": "Prompt history as memory"
+    }
+  ],
+  "narrative": {
+    "display_name": "OpenArt",
+    "headline": "Spend your OpenArt credits programmatically. Generate videos with Seedance, Kling, Veo and friends from the terminal — async, agent-native, with offline credit accounting no other tool gives you.",
+    "value_prop": "OpenArt has no public API. This CLI reverse-engineers the suite to give you fire-and-forget video generation, cross-model A/B comparisons, full-text prompt recovery, and credit-spend analytics that the OpenArt web UI does not surface. Your credits, your account, your terminal.",
+    "auth_narrative": "Auth is your existing OpenArt browser session. Run `openart-pp-cli auth login --chrome` once to import the Clerk session cookies from your logged-in Chrome profile. No API key. If the session expires, log back into openart.ai in Chrome and re-import.",
+    "quickstart": [
+      {
+        "command": "openart-pp-cli version",
+        "comment": "Confirm the CLI is on PATH. Then run 'openart-pp-cli auth login --chrome' (interactive, requires Chrome) to import your OpenArt session cookies."
+      },
+      {
+        "command": "openart-pp-cli models list --family video --json --select slug,display_name,credits_per_video_default",
+        "comment": "See every video model the CLI knows about, ordered by the catalog. No auth needed."
+      },
+      {
+        "command": "openart-pp-cli cost estimate --model byte-plus-seedance-2 --duration 10 --count 2",
+        "comment": "See what a Seedance run will actually cost before you spend. Pure local lookup, no auth needed."
+      },
+      {
+        "command": "openart-pp-cli video gen --prompt \"a phoenix\" --model byte-plus-seedance-2 --duration 10 --count 2 --dry-run",
+        "comment": "Preview the request that would be submitted without spending credits. Drop --dry-run + add --wait --download ./videos/ to actually generate."
+      },
+      {
+        "command": "openart-pp-cli credits burn --since 7d --by model",
+        "comment": "After running 'openart-pp-cli sync' to populate the local store, see where your last week of credits actually went."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / 403 from any command after a few days idle",
+        "fix": "Open openart.ai in Chrome, sign back in if prompted, then run `openart-pp-cli auth login --chrome` to refresh the imported cookies."
+      },
+      {
+        "symptom": "`video gen --wait` exits before the video URL is populated",
+        "fix": "Increase the timeout: `--timeout 30m`. Seedance 2 at 1080p/15s commonly takes 12-15 minutes."
+      },
+      {
+        "symptom": "`compare` reports one model as failed but others succeed",
+        "fix": "Check `openart-pp-cli media get \u003cresourceId\u003e` for the failed entry — most failures are model-specific (audio not supported, duration out of range)."
+      },
+      {
+        "symptom": "Cost estimate disagrees with the OpenArt UI",
+        "fix": "Run `openart-pp-cli sync` to refresh the local models catalog; OpenArt updates per-model pricing periodically."
+      },
+      {
+        "symptom": "`auth login --chrome` cannot find OpenArt cookies",
+        "fix": "Make sure Chrome is fully closed (cmd-Q) before running it — Chrome locks the cookie database while running. Re-open Chrome to use the site after import."
+      }
+    ],
+    "when_to_use": "Reach for openart-pp-cli when you have an OpenArt account and want to spend credits without sitting in a browser tab. Best for batched video prototyping with Seedance/Kling/Veo, scripted A/B tests across models, and recovering past prompts. Skip it when you want to do single ad-hoc generations interactively — the OpenArt web UI is fine for that.",
+    "recipes": [
+      {
+        "title": "Generate two Seedance videos and download them",
+        "command": "openart-pp-cli video gen --prompt \"a phoenix soaring over molten gold canyons\" --model byte-plus-seedance-2 --duration 10 --count 2 --wait --download ./out/",
+        "explanation": "The --wait flag polls every 5 seconds until both resources finish; --download streams the CDN MP4s to disk. Cost is shown before submit."
+      },
+      {
+        "title": "Compare a prompt across three models in parallel",
+        "command": "openart-pp-cli compare --prompt \"neon koi swimming through clouds\" --models byte-plus-seedance-2,kling2-6,grok-imagine --duration 5 --agent --select results.model,results.credits,results.url",
+        "explanation": "Fans out three parallel submits, polls all to completion, returns a markdown table. The --select narrowing keeps the agent payload small. Use --select on any list-shaped command."
+      },
+      {
+        "title": "Find the cheapest model that meets your shape",
+        "command": "openart-pp-cli models cheapest --family video --duration 10 --resolution 720p --json",
+        "explanation": "Ranks the video catalog by credits-per-video at 10s/720p. Pure local lookup — useful before submitting a non-precious prompt."
+      },
+      {
+        "title": "Audit weekly credit spend by model",
+        "command": "openart-pp-cli credits burn --since 7d --by model --agent",
+        "explanation": "Surfaces 'Seedance 2 ate 24,000 credits this week, Kling 1,400, Grok 600' so you can shift work toward cheaper models."
+      },
+      {
+        "title": "Submit a single Seedance video without waiting",
+        "command": "openart-pp-cli video gen --prompt \"a phoenix\" --model byte-plus-seedance-2 --duration 10 --count 1 --notify",
+        "explanation": "Submits the gen and returns immediately with the historyId/resourceIds. Add --wait to block until completion (~10 min for Seedance 2). The terminal bell rings on completion when --wait is also set."
+      }
+    ],
+    "trigger_phrases": [
+      "generate a video on openart",
+      "use my openart credits",
+      "spend openart credits",
+      "seedance 2 video",
+      "kling video generation",
+      "find that prompt I used on openart",
+      "compare openart models",
+      "openart credit balance",
+      "use openart-pp-cli",
+      "run openart"
+    ]
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "timestamp": "2026-05-22T01:15:56.8563778Z",
+  "cli_dir": "\u003ccli-dir\u003e\\strava-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "activities",
+      "file": "activities.go",
+      "line": 11,
+      "evidence": "Manage activities",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper with parentNoSubcommandRunE — no own RunE, MCP walker skips it; needs generator-template fix for richer grouper Shorts"
+    },
+    {
+      "kind": "thin-short",
+      "command": "comments",
+      "file": "activities_comments.go",
+      "line": 11,
+      "evidence": "Manage comments",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for activity comments endpoint — 'Manage comments' is a routing node, not a callable tool; generator should emit 'List comments on an activity' style Shorts for groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "kudos",
+      "file": "activities_kudos.go",
+      "line": 11,
+      "evidence": "Manage kudos",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for activity kudos endpoint — routing node only, not independently callable; generator template fix needed"
+    },
+    {
+      "kind": "thin-short",
+      "command": "laps",
+      "file": "activities_laps.go",
+      "line": 11,
+      "evidence": "Manage laps",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for activity laps endpoint — parentNoSubcommandRunE means it delegates to subcommands only; generator fix required"
+    },
+    {
+      "kind": "thin-short",
+      "command": "streams",
+      "file": "activities_streams.go",
+      "line": 11,
+      "evidence": "Manage streams",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for activity streams — multiple 'streams' groupers across routes/segments/activities all share same thin-Short pattern from generator template"
+    },
+    {
+      "kind": "thin-short",
+      "command": "zones",
+      "file": "activities_zones.go",
+      "line": 11,
+      "evidence": "Manage zones",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for activity heart-rate zones — single child command get-by-activity-id; generator template emits 'Manage \u003cresource\u003e' pattern for all single-child groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "athlete",
+      "file": "athlete.go",
+      "line": 11,
+      "evidence": "Manage athlete",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper aggregating athlete get/update/clubs/activities/zones — Hidden:true so not visible in main help; generator should produce domain-scoped Shorts like 'Access logged-in athlete profile and activity history'"
+    },
+    {
+      "kind": "thin-short",
+      "command": "athletes",
+      "file": "athletes.go",
+      "line": 11,
+      "evidence": "Manage athletes",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for athletes routes and stats — Hidden:true, routes to promoted surface commands; generator should produce 'Access athlete routes and stats data' style Shorts"
+    },
+    {
+      "kind": "thin-short",
+      "command": "routes",
+      "file": "athletes_routes.go",
+      "line": 11,
+      "evidence": "Manage routes",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; athletes sub-grouper for route listing — parentNoSubcommandRunE with one child; context-scoped 'routes' under athletes namespace; generator should emit 'List routes for an athlete by athlete ID' for single-child groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "stats",
+      "file": "athletes_stats.go",
+      "line": 11,
+      "evidence": "Manage stats",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; athletes sub-grouper for stats retrieval — single child get command; generator template produces 'Manage stats' for all stats groupers regardless of read-only semantics"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "stats",
+      "file": "athletes_stats.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; cannot add mcp:read-only annotation without editing generated source; retro candidate — generator should auto-annotate read-pattern groupers that have only read-shaped children"
+    },
+    {
+      "kind": "thin-short",
+      "command": "activities",
+      "file": "clubs_activities.go",
+      "line": 11,
+      "evidence": "Manage activities",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; clubs sub-grouper for listing club activities — same thin-Short pattern as activities.go but scoped to clubs context; generator fix needed for context-scoped groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "admins",
+      "file": "clubs_admins.go",
+      "line": 11,
+      "evidence": "Manage admins",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; clubs sub-grouper for listing club admins — single child get-club-by-id; generator should emit 'List admins for a club by club ID' for single-endpoint groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "members",
+      "file": "clubs_members.go",
+      "line": 11,
+      "evidence": "Manage members",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; clubs sub-grouper for listing club members — parentNoSubcommandRunE, routing only; generator should produce 'List members of a club by club ID' for these single-child nodes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "export-gpx",
+      "file": "routes_export-gpx.go",
+      "line": 11,
+      "evidence": "Manage export gpx",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; routes sub-grouper for GPX export — 'Manage export gpx' is particularly confusing for agents since it sounds mutable; generator should produce 'Export a route as a GPX file by route ID' for export-shaped groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "export-tcx",
+      "file": "routes_export-tcx.go",
+      "line": 11,
+      "evidence": "Manage export tcx",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; routes sub-grouper for TCX export — parallel to export-gpx; generator should produce 'Export a route as a TCX file by route ID' for TCX export groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "streams",
+      "file": "routes_streams.go",
+      "line": 11,
+      "evidence": "Manage streams",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; routes sub-grouper for route streams data — fourth 'streams' grouper; generator produces same template text regardless of domain (activities vs routes vs segments); fix needed in template"
+    },
+    {
+      "kind": "thin-short",
+      "command": "segment-efforts",
+      "file": "segment-efforts.go",
+      "line": 11,
+      "evidence": "Manage segment efforts",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; top-level grouper for segment efforts — Hidden:true; aggregates get-by-id, get-efforts-by-segment-id, streams; generator should produce 'Access segment effort records, streams, and leaderboard data'"
+    },
+    {
+      "kind": "thin-short",
+      "command": "streams",
+      "file": "segment-efforts_streams.go",
+      "line": 11,
+      "evidence": "Manage streams",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; segment-efforts sub-grouper for effort streams — fifth streams grouper sharing the same generator-template thin-Short pattern; retro: generator should use parent+resource name to disambiguate grouper Shorts"
+    },
+    {
+      "kind": "thin-short",
+      "command": "segments",
+      "file": "segments.go",
+      "line": 11,
+      "evidence": "Manage segments",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; top-level grouper for segments — Hidden:true, aggregates explore/get/starred/streams/progress/KOM-gap; generator should produce 'Explore and analyze Strava route segments, starred segments, and KOM gaps'"
+    },
+    {
+      "kind": "thin-short",
+      "command": "starred",
+      "file": "segments_starred.go",
+      "line": 11,
+      "evidence": "Manage starred",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; segments sub-grouper for star/unstar segment — single child star-segment; 'Manage starred' is ambiguous; generator should produce 'Star or unstar a segment by segment ID' for mutation-shaped single-child groupers"
+    },
+    {
+      "kind": "thin-short",
+      "command": "streams",
+      "file": "segments_streams.go",
+      "line": 11,
+      "evidence": "Manage streams",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; segments sub-grouper for segment streams — sixth streams grouper; generator template fix is the only durable solution since hand-edits to all six files would be overwritten on next regen"
+    },
+    {
+      "kind": "thin-short",
+      "command": "uploads",
+      "file": "uploads.go",
+      "line": 11,
+      "evidence": "Manage uploads",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; top-level grouper for uploads — Hidden:true, aggregates create and get-by-id; generator should produce 'Upload activity files (FIT, GPX, TCX) and check upload status'"
+    }
+  ]
+}

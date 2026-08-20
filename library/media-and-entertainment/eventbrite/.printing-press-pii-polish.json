@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-05-23T19:40:22.245486Z",
+  "cli_dir": "\u003ccli-dir\u003e/eventbrite",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "internal/cli/eventbrite_store_test.go",
+      "line": 18,
+      "column": 12,
+      "matched_span": "Buyer.A@Example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "const buyerA = \"Buyer.A@Example.com\" // mixed-case on purpose: readers must lowercase + trim. RFC 2606 reserved @example.com domain; file header states 'All emails use the RFC 2606 example.com domain so they can never resolve to a real mailbox.'"
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/eventbrite_store_test.go",
+      "line": 19,
+      "column": 12,
+      "matched_span": "buyer.b@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "const buyerB = \"buyer.b@example.com\" — second synthetic fixture constant alongside buyerA. RFC 2606 reserved @example.com domain, used only to seed the temp SQLite store in unit tests."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/eventbrite_store_test.go",
+      "line": 66,
+      "column": 66,
+      "matched_span": "buyer.a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Assertion in TestReadEBOrders_DedupAndNullSafety: 'got.Email != \"buyer.a@example.com\"' — the lowercased form of the buyerA fixture, asserting the reader normalizes case. RFC 2606 reserved domain."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/eventbrite_store_test.go",
+      "line": 92,
+      "column": 86,
+      "matched_span": "buyer.a@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Assertion in TestReadEBAttendees_CheckinAndNameFallback: 'got.Email != \"buyer.a@example.com\"' — lowercased buyerA fixture, asserting attendee-email normalization. RFC 2606 reserved domain."
+    }
+  ],
+  "findings_count_before": 4
+}

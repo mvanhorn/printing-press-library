@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T07:32:32.704337Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "ollama-cloud",
+  "display_name": "Ollama Cloud",
+  "cli_name": "ollama-cloud-pp-cli",
+  "creator": {
+    "handle": "rvdlaar",
+    "name": "Rick van de Laar"
+  },
+  "owner": "rvdlaar",
+  "printer": "rvdlaar",
+  "printer_name": "Rick van de Laar",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:5f89c4aae0ca6bdb194b2190184ae5d60aa25849d030114728f446e6af0cb2c2",
+  "run_id": "20260524-003533",
+  "category": "ai",
+  "description": "Ollama Cloud is Ollama's hosted inference API.",
+  "mcp_binary": "ollama-cloud-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "OLLAMA_CLOUD_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Model advisor",
+      "command": "advise",
+      "description": "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak."
+    },
+    {
+      "name": "Side-by-side comparison",
+      "command": "compare",
+      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, and latency."
+    },
+    {
+      "name": "Advisor explain",
+      "command": "advise",
+      "description": "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale."
+    },
+    {
+      "name": "Advisor replay",
+      "command": "advise-replay",
+      "description": "Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary; the prompt corpus is not retained so judge-LLM scoring is not in scope until a corpus sidecar ships."
+    },
+    {
+      "name": "Budget probe",
+      "command": "budget",
+      "description": "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota before launching long sessions."
+    },
+    {
+      "name": "Cost trace",
+      "command": "cost-trace",
+      "description": "Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend."
+    }
+  ]
+}

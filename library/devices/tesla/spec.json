@@ -1,0 +1,3034 @@
+{
+  "name": "tesla",
+  "description": "Combined CLI for multiple API services",
+  "version": "0.1.0",
+  "base_url": "https://owner-api.teslamotors.com",
+  "owner": "mvanhorn",
+  "owner_name": "Matt Van Horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_source": "sniffed",
+  "http_transport": "standard",
+  "website_url": "https://owner-api.teslamotors.com",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "",
+    "env_vars": [
+      "TESLA_AUTH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TESLA_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Tesla iOS-app OAuth bearer token (8-hour TTL). Mint via tesla auth login."
+      }
+    ]
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/tesla-pp-cli/config.toml"
+  },
+  "resources": {
+    "charging": {
+      "description": "Supercharger queue position and charging status",
+      "endpoints": {
+        "get_queue": {
+          "method": "GET",
+          "path": "/api/1/charging/queue",
+          "description": "Current Supercharger queue position (which stall, ETA)",
+          "params": [
+            {
+              "name": "vin",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "queue"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "diagnostics": {
+      "description": "Vehicle diagnostic feature config",
+      "endpoints": {
+        "get_diagnostics": {
+          "method": "GET",
+          "path": "/api/1/diagnostics",
+          "description": "Vehicle diagnostic feature flags",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "diagnostics"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "energy_sites": {
+      "description": "Powerwall and solar energy site config",
+      "endpoints": {
+        "get_rate_tariffs": {
+          "method": "GET",
+          "path": "/api/1/energy_sites/rate_tariffs",
+          "description": "Utility rate plans for Powerwall scheduling",
+          "params": [
+            {
+              "name": "language",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "rate_tariffs"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "logs": {
+      "description": "Client-side telemetry sink",
+      "endpoints": {
+        "create_logs": {
+          "method": "POST",
+          "path": "/api/1/logs",
+          "description": "Forward client-side log events (mostly internal use)",
+          "params": [],
+          "body": [
+            {
+              "name": "details",
+              "type": "object",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "name": "app_id",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": [],
+                  "format": "uuid"
+                },
+                {
+                  "name": "app_instance_id",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": [],
+                  "format": "uuid"
+                },
+                {
+                  "name": "app_mode",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "app_state",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "app_version",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "build_number",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "central_state",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "debug",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "duration",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "history",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "last_beacon_signal_seconds_ago",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "launch_time",
+                  "type": "integer",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "os_version",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "peripheral",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "pid",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "platform",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "process_uptime",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "seconds_from_GMT",
+                  "type": "integer",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "state_machine_state",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "state_restoration",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "system_uptime",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "system_version",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "time_since_launch_ms",
+                  "type": "integer",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "timeout",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "type",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "user_agent",
+                  "type": "string",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                }
+              ]
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "logs"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "notification_preferences": {
+      "description": "Push notification settings",
+      "endpoints": {
+        "create_notification_preferences": {
+          "method": "POST",
+          "path": "/api/1/notification_preferences",
+          "description": "Update push notification preferences",
+          "params": [],
+          "body": [
+            {
+              "name": "app_version",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "device_token",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "device_type",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "notification_preferences",
+              "type": "object",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": [
+                {
+                  "name": "alarm",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "autopark_completed_success",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "autopark_forward_started",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "autopark_unavailable_plugged_in",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "charging_complete",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "charging_interrupted",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "charging_started",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "grid_outage",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                },
+                {
+                  "name": "update_available",
+                  "type": "boolean",
+                  "required": true,
+                  "positional": false,
+                  "default": null,
+                  "description": "",
+                  "fields": []
+                }
+              ]
+            },
+            {
+              "name": "platform",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "notification_preferences"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "products": {
+      "description": "Vehicles, Powerwalls, and solar products owned by the user",
+      "endpoints": {
+        "get_products": {
+          "method": "GET",
+          "path": "/api/1/products",
+          "description": "List vehicles, Powerwalls, and solar products owned",
+          "params": [
+            {
+              "name": "orders",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "products"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "tesla-energy_sites": {
+      "description": "energy_sites commands (extended)",
+      "endpoints": {
+        "create_set_backup_reserve": {
+          "method": "POST",
+          "path": "/api/1/energy_sites/{site_id}/backup",
+          "description": "Set Powerwall backup reserve percent",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "backup_reserve_percent",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Percent 0-100",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_backup_reserve"
+          },
+          "pagination": null
+        },
+        "create_set_operation": {
+          "method": "POST",
+          "path": "/api/1/energy_sites/{site_id}/operation",
+          "description": "Set Powerwall operation mode",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "default_real_mode",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "self_consumption | backup | autonomous",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_operation"
+          },
+          "pagination": null
+        },
+        "get_calendar_history": {
+          "method": "GET",
+          "path": "/api/1/energy_sites/{site_id}/calendar_history",
+          "description": "Historical energy data per day/month",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "kind",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "energy | power | self_consumption | savings",
+              "fields": null
+            },
+            {
+              "name": "period",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "day | month | year",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "get_calendar_history"
+          },
+          "pagination": null
+        },
+        "get_live_status": {
+          "method": "GET",
+          "path": "/api/1/energy_sites/{site_id}/live_status",
+          "description": "Real-time Powerwall solar/grid/battery power",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_live_status"
+          },
+          "pagination": null
+        },
+        "get_site_info": {
+          "method": "GET",
+          "path": "/api/1/energy_sites/{site_id}/site_info",
+          "description": "Energy site config (capacity, type, address)",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_site_info"
+          },
+          "pagination": null
+        },
+        "get_site_status": {
+          "method": "GET",
+          "path": "/api/1/energy_sites/{site_id}/site_status",
+          "description": "Backup-reserve and operation mode",
+          "params": [
+            {
+              "name": "site_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Energy site id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_site_status"
+          },
+          "pagination": null
+        }
+      }
+    },
+    "tesla-vehicles": {
+      "description": "vehicles commands (extended)",
+      "endpoints": {
+        "create_actuate_trunk": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/actuate_trunk",
+          "description": "Open/close trunk or frunk; which_trunk = front | rear",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "which_trunk",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "front or rear",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_actuate_trunk"
+          },
+          "pagination": null
+        },
+        "create_add_charge_schedule": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/add_charge_schedule",
+          "description": "Add a charging schedule (location + time window)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "lat",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule location latitude",
+              "fields": null
+            },
+            {
+              "name": "lon",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule location longitude",
+              "fields": null
+            },
+            {
+              "name": "start_enabled",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Enable start time",
+              "fields": null
+            },
+            {
+              "name": "end_enabled",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Enable end time",
+              "fields": null
+            },
+            {
+              "name": "start_time",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Minutes from midnight",
+              "fields": null
+            },
+            {
+              "name": "end_time",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Minutes from midnight",
+              "fields": null
+            },
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Schedule active",
+              "fields": null
+            },
+            {
+              "name": "one_time",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "One-time vs recurring",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_add_charge_schedule"
+          },
+          "pagination": null
+        },
+        "create_add_precondition_schedule": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/add_precondition_schedule",
+          "description": "Add a preconditioning schedule",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "lat",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule location latitude",
+              "fields": null
+            },
+            {
+              "name": "lon",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule location longitude",
+              "fields": null
+            },
+            {
+              "name": "precondition_time",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Minutes from midnight to be ready",
+              "fields": null
+            },
+            {
+              "name": "days_of_week",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Days mask e.g. \"Weekdays\" or \"All\"",
+              "fields": null
+            },
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Schedule active",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_add_precondition_schedule"
+          },
+          "pagination": null
+        },
+        "create_adjust_volume": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/adjust_volume",
+          "description": "Set volume to specific level",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "volume",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Target volume level",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_adjust_volume"
+          },
+          "pagination": null
+        },
+        "create_bioweapon_mode": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_bioweapon_mode",
+          "description": "Toggle bioweapon defense mode (HEPA recirculation)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "on",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable",
+              "fields": null
+            },
+            {
+              "name": "manual_override",
+              "type": "boolean",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "force toggle",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_bioweapon_mode"
+          },
+          "pagination": null
+        },
+        "create_cancel_software_update": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/cancel_software_update",
+          "description": "Cancel pending software update",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_cancel_software_update"
+          },
+          "pagination": null
+        },
+        "create_charge_max_range": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_max_range",
+          "description": "Set charge limit to Max Range (100%)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_max_range"
+          },
+          "pagination": null
+        },
+        "create_charge_port_door_close": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_port_door_close",
+          "description": "Close the charge port",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_port_door_close"
+          },
+          "pagination": null
+        },
+        "create_charge_port_door_open": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_port_door_open",
+          "description": "Open the charge port",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_port_door_open"
+          },
+          "pagination": null
+        },
+        "create_charge_standard": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_standard",
+          "description": "Set charge limit to Standard (~90%)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_standard"
+          },
+          "pagination": null
+        },
+        "create_charge_start": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_start",
+          "description": "Start charging",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_start"
+          },
+          "pagination": null
+        },
+        "create_charge_stop": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/charge_stop",
+          "description": "Stop charging",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_charge_stop"
+          },
+          "pagination": null
+        },
+        "create_climate_keeper_mode": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_climate_keeper_mode",
+          "description": "Climate keeper mode: 0=off, 1=on, 2=dog, 3=camp",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "climate_keeper_mode",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "0=off 1=on 2=dog 3=camp",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_climate_keeper_mode"
+          },
+          "pagination": null
+        },
+        "create_erase_user_data": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/erase_user_data",
+          "description": "Erase guest-session user data",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_erase_user_data"
+          },
+          "pagination": null
+        },
+        "create_flash_lights": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/flash_lights",
+          "description": "Flash headlights",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_flash_lights"
+          },
+          "pagination": null
+        },
+        "create_guest_mode": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/guest_mode",
+          "description": "Enable/disable Guest mode",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "enable",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_guest_mode"
+          },
+          "pagination": null
+        },
+        "create_honk_horn": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/honk_horn",
+          "description": "Honk the horn",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_honk_horn"
+          },
+          "pagination": null
+        },
+        "create_max_defrost": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_preconditioning_max",
+          "description": "Toggle max defrost",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "on",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable max defrost",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_max_defrost"
+          },
+          "pagination": null
+        },
+        "create_media_next_favorite": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_next_favorite",
+          "description": "Next favorite station",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_next_favorite"
+          },
+          "pagination": null
+        },
+        "create_media_next_track": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_next_track",
+          "description": "Next track",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_next_track"
+          },
+          "pagination": null
+        },
+        "create_media_prev_favorite": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_prev_favorite",
+          "description": "Previous favorite station",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_prev_favorite"
+          },
+          "pagination": null
+        },
+        "create_media_prev_track": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_prev_track",
+          "description": "Previous track",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_prev_track"
+          },
+          "pagination": null
+        },
+        "create_media_toggle_playback": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_toggle_playback",
+          "description": "Toggle play/pause",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_toggle_playback"
+          },
+          "pagination": null
+        },
+        "create_media_volume_down": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_volume_down",
+          "description": "Volume down",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_volume_down"
+          },
+          "pagination": null
+        },
+        "create_media_volume_up": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/media_volume_up",
+          "description": "Volume up",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_media_volume_up"
+          },
+          "pagination": null
+        },
+        "create_navigation_gps_request": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/navigation_gps_request",
+          "description": "Send lat/lng directly to navigation",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "lat",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Latitude",
+              "fields": null
+            },
+            {
+              "name": "lon",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Longitude",
+              "fields": null
+            },
+            {
+              "name": "order",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Waypoint order",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_navigation_gps_request"
+          },
+          "pagination": null
+        },
+        "create_remove_charge_schedule": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/remove_charge_schedule",
+          "description": "Remove charging schedule by id",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule id",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_remove_charge_schedule"
+          },
+          "pagination": null
+        },
+        "create_remove_precondition_schedule": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/remove_precondition_schedule",
+          "description": "Remove preconditioning schedule by id",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "id",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Schedule id",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_remove_precondition_schedule"
+          },
+          "pagination": null
+        },
+        "create_reset_valet_pin": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/reset_valet_pin",
+          "description": "Reset Valet PIN",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_reset_valet_pin"
+          },
+          "pagination": null
+        },
+        "create_schedule_software_update": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/schedule_software_update",
+          "description": "Schedule the pending software update",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "offset_sec",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Seconds from now",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_schedule_software_update"
+          },
+          "pagination": null
+        },
+        "create_seat_heater_request": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/remote_seat_heater_request",
+          "description": "Set seat heater level (0-3) at a seat position (0=driver, 1=passenger, 2-5=rear)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "heater",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "0-5 seat position",
+              "fields": null
+            },
+            {
+              "name": "level",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "0-3 heat level",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_seat_heater_request"
+          },
+          "pagination": null
+        },
+        "create_set_charge_limit": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_charge_limit",
+          "description": "Set charge limit percent (50-100)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "percent",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Target SOC percent 50-100",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_charge_limit"
+          },
+          "pagination": null
+        },
+        "create_set_charging_amps": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_charging_amps",
+          "description": "Set charging amps draw",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "charging_amps",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Amperes",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_charging_amps"
+          },
+          "pagination": null
+        },
+        "create_set_sentry_mode": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_sentry_mode",
+          "description": "Enable/disable Sentry mode",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "on",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_sentry_mode"
+          },
+          "pagination": null
+        },
+        "create_set_temps": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_temps",
+          "description": "Set driver and passenger climate temps (Celsius)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "driver_temp",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Driver-side temp in Celsius",
+              "fields": null
+            },
+            {
+              "name": "passenger_temp",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Passenger-side temp in Celsius",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_temps"
+          },
+          "pagination": null
+        },
+        "create_set_valet_mode": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/set_valet_mode",
+          "description": "Enable/disable Valet mode with optional PIN",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "on",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable",
+              "fields": null
+            },
+            {
+              "name": "password",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "4-digit PIN",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_set_valet_mode"
+          },
+          "pagination": null
+        },
+        "create_share": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/share",
+          "description": "Send navigation destination to the car (address or coordinates)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "share_ext_content_raw default",
+              "fields": null
+            },
+            {
+              "name": "value",
+              "type": "object",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Object containing destination text or coords",
+              "fields": null
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "en-US default",
+              "fields": null
+            },
+            {
+              "name": "timestamp_ms",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Unix ms; defaults to now",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_share"
+          },
+          "pagination": null
+        },
+        "create_speed_limit_activate": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_activate",
+          "description": "Activate Speed Limit mode",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "pin",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "4-digit PIN",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_speed_limit_activate"
+          },
+          "pagination": null
+        },
+        "create_speed_limit_clear_pin": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_clear_pin",
+          "description": "Clear Speed Limit PIN",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "pin",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Current 4-digit PIN",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_speed_limit_clear_pin"
+          },
+          "pagination": null
+        },
+        "create_speed_limit_deactivate": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_deactivate",
+          "description": "Deactivate Speed Limit mode",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "pin",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "4-digit PIN",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_speed_limit_deactivate"
+          },
+          "pagination": null
+        },
+        "create_speed_limit_set_limit": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/speed_limit_set_limit",
+          "description": "Set Speed Limit value (mph)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "limit_mph",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Speed limit in MPH",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_speed_limit_set_limit"
+          },
+          "pagination": null
+        },
+        "create_steering_wheel_heater_request": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/remote_steering_wheel_heater_request",
+          "description": "Toggle steering wheel heater",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "on",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "true to enable",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_steering_wheel_heater_request"
+          },
+          "pagination": null
+        },
+        "create_sun_roof_control": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/sun_roof_control",
+          "description": "Sun roof: state = vent | close",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "state",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "vent or close",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_sun_roof_control"
+          },
+          "pagination": null
+        },
+        "create_trigger_homelink": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/trigger_homelink",
+          "description": "Trigger HomeLink garage door",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "lat",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Current latitude (HomeLink uses geofence)",
+              "fields": null
+            },
+            {
+              "name": "lon",
+              "type": "number",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Current longitude",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_trigger_homelink"
+          },
+          "pagination": null
+        },
+        "create_wake_up": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/wake_up",
+          "description": "Wake the vehicle from sleep",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "create_wake_up"
+          },
+          "pagination": null
+        },
+        "create_window_control": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/window_control",
+          "description": "Vent or close all windows; command = vent | close",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "command",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "vent or close",
+              "fields": null
+            },
+            {
+              "name": "lat",
+              "type": "number",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Required for vent (geofence)",
+              "fields": null
+            },
+            {
+              "name": "lon",
+              "type": "number",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Required for vent (geofence)",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "create_window_control"
+          },
+          "pagination": null
+        },
+        "get_compose_image": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/composite_image",
+          "description": "Compose a rendered image of the configured vehicle",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "view",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "STUD_3QTR | STUD_REAR | STUD_SIDE | STUD_REAR_QUARTER",
+              "fields": null
+            },
+            {
+              "name": "options",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Option codes (optional override)",
+              "fields": null
+            },
+            {
+              "name": "size",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Image size in pixels",
+              "fields": null
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "get_compose_image"
+          },
+          "pagination": null
+        },
+        "get_data_charge_state": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/charge_state",
+          "description": "Charge state subset (faster than full vehicle_data)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_charge_state"
+          },
+          "pagination": null
+        },
+        "get_data_climate_state": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/climate_state",
+          "description": "Climate state subset",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_climate_state"
+          },
+          "pagination": null
+        },
+        "get_data_drive_state": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/drive_state",
+          "description": "Drive state (location, speed, shift) subset",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_drive_state"
+          },
+          "pagination": null
+        },
+        "get_data_gui_settings": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/gui_settings",
+          "description": "GUI settings (units, time format)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_gui_settings"
+          },
+          "pagination": null
+        },
+        "get_data_vehicle_config": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/vehicle_config",
+          "description": "Vehicle config (model, options, trim)",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_vehicle_config"
+          },
+          "pagination": null
+        },
+        "get_data_vehicle_state": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/data_request/vehicle_state",
+          "description": "Vehicle state (locks, software, sentry) subset",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_data_vehicle_state"
+          },
+          "pagination": null
+        },
+        "get_mobile_enabled": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/mobile_enabled",
+          "description": "Is mobile control enabled in the car",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_mobile_enabled"
+          },
+          "pagination": null
+        },
+        "get_nearby_chargers": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/nearby_charging_sites",
+          "description": "Nearby Supercharger sites with stall availability subfield",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_nearby_chargers"
+          },
+          "pagination": null
+        },
+        "get_release_notes": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/release_notes",
+          "description": "Release notes for the current/queued software update",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "get_release_notes"
+          },
+          "pagination": null
+        }
+      }
+    },
+    "users": {
+      "description": "Account config, feature flags, orders, and key/credential management",
+      "endpoints": {
+        "create_keys": {
+          "method": "POST",
+          "path": "/api/1/users/keys",
+          "description": "Add a virtual phone key or BLE key",
+          "params": [],
+          "body": [
+            {
+              "name": "battery_level",
+              "type": "integer",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "bluetooth_authorization",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "bluetooth_enabled",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "device_token",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "device_type",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "kind",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "locale",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "location_permissions",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "low_power_mode",
+              "type": "boolean",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "model",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "public_key",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "tag",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "keys"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "get_app_config": {
+          "method": "GET",
+          "path": "/api/1/users/app_config",
+          "description": "Mobile app feature flags and runtime config",
+          "params": [
+            {
+              "name": "country",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "page",
+              "type": "integer",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "app_config"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "get_feature_config": {
+          "method": "GET",
+          "path": "/api/1/users/feature_config",
+          "description": "Account-level feature gating",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "feature_config"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "get_orders": {
+          "method": "GET",
+          "path": "/api/1/users/orders",
+          "description": "Tesla orders (new vehicle deliveries, accessory purchases)",
+          "params": [
+            {
+              "name": "device_country",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "device_language",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            },
+            {
+              "name": "ttp_locale",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "orders"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    },
+    "vehicles": {
+      "description": "Per-vehicle data, climate, locks, remote start, and Hermes telemetry token",
+      "endpoints": {
+        "create_auto_conditioning_start": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/auto_conditioning_start",
+          "description": "POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_start",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "auto_conditioning_start"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "create_auto_conditioning_stop": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop",
+          "description": "POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "auto_conditioning_stop"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "create_door_lock": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/door_lock",
+          "description": "POST /api/1/vehicles/{vehicle_id}/command/door_lock",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "door_lock"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "create_door_unlock": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/door_unlock",
+          "description": "POST /api/1/vehicles/{vehicle_id}/command/door_unlock",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "door_unlock"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "create_hermes": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/jwt/hermes",
+          "description": "POST /api/1/vehicles/{vehicle_id}/jwt/hermes",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [
+            {
+              "name": "uuid",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": [],
+              "format": "uuid"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "hermes"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "create_remote_start_drive": {
+          "method": "POST",
+          "path": "/api/1/vehicles/{vehicle_id}/command/remote_start_drive",
+          "description": "POST /api/1/vehicles/{vehicle_id}/command/remote_start_drive",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "remote_start_drive"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "get_service_data": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/service_data",
+          "description": "Open service appointments and recent service history for this vehicle",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            },
+            {
+              "name": "version",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "service_data"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        },
+        "get_vehicle_data": {
+          "method": "GET",
+          "path": "/api/1/vehicles/{vehicle_id}/vehicle_data",
+          "description": "Full vehicle state snapshot: charge, climate, drive, GUI, vehicle config, and software",
+          "params": [
+            {
+              "name": "vehicle_id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Vehicle id from /api/1/products (the integer id field, NOT the VIN)",
+              "fields": []
+            },
+            {
+              "name": "endpoints",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "",
+              "fields": []
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "vehicle_data"
+          },
+          "pagination": null,
+          "observed_auth": [
+            "authorization"
+          ]
+        }
+      }
+    }
+  },
+  "types": {},
+  "cache": {},
+  "share": {},
+  "mcp": {
+    "transport": [
+      "stdio",
+      "http"
+    ],
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "throttling": {}
+}

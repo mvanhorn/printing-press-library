@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T02:59:26.570609261Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "doordash",
+  "display_name": "DoorDash",
+  "cli_name": "doordash-pp-cli",
+  "creator": {
+    "handle": "bricenice17",
+    "name": "bricenice17"
+  },
+  "owner": "bricenice17",
+  "printer": "bricenice17",
+  "printer_name": "bricenice17",
+  "spec_path": "generated-cli/spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9a4e97b04e17894050fe6289c60d0462e0b6e0cca707b49c48c1c57b9335cd7b",
+  "mcp_binary": "doordash-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "partial",
+  "api_version": "0.2.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Safe store search",
+      "command": "search",
+      "description": "Search DoorDash stores through the consumer GraphQL autocomplete feed without mutating cart or order state."
+    },
+    {
+      "name": "Menu and option inspection",
+      "command": "menu",
+      "description": "Fetch DoorDash store menus in a normalized shape without changing the cart."
+    },
+    {
+      "name": "Item customization discovery",
+      "command": "item-options",
+      "description": "Inspect item option groups and nested add-ons before adding anything to a cart."
+    },
+    {
+      "name": "Redacted account reads",
+      "command": "recent-orders",
+      "description": "Read recent DoorDash order summaries without placing a new order."
+    },
+    {
+      "name": "Guarded cart commands",
+      "command": "cart",
+      "description": "Expose cart inspection and mutations as a separately named, guarded command family rather than mixing them into search/menu reads."
+    }
+  ],
+  "regen_note": "Regenerated manifest metadata with Printing Press 4.12.0 from spec.yaml, then retained DoorDash-specific safe read/cart/session patches and release-gated run_id 20260515-181004.",
+  "run_id": "20260515-181004",
+  "category": "commerce"
+}

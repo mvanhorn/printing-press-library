@@ -1,0 +1,51 @@
+version: 2
+project_name: etherpad-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: etherpad-pp-cli
+    main: ./cmd/etherpad-pp-cli
+    binary: etherpad-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/etherpad/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: etherpad-pp-mcp
+    main: ./cmd/etherpad-pp-mcp
+    binary: etherpad-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: etherpad-pp-cli
+    repository:
+      owner: john-mclear
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Etherpad is a real-time collaborative editor scalable to thousands of simultaneous real time users. It provides full..."
+    install: |
+      bin.install "etherpad-pp-cli"
+      bin.install "etherpad-pp-mcp"

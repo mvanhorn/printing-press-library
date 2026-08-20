@@ -1,0 +1,91 @@
+{
+  "endpoint": "GET /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data",
+  "method": "GET",
+  "raw_url": "https://owner-api.teslamotors.com/api/1/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data?endpoints=vehicle_data_only%3Bcharge_state%3Bclimate_state%3Bclosures_state%3Bdrive_state%3Bgui_settings%3Blocation_state%3Bvehicle_config%3Bparked_accessory%3Bpreconditioning_schedule_data%3Bcharge_schedule_data%3Bvehicle_state2%3Bvehicle_detail%3Btire_pressure%3Bmedia%3Bmedia_detail%3Bparental_controls%3Bstate_of_health%3Bsoftware_update%3Balert_state%3Blight_show%3Bcar_wrap_id%3Bsuspension_state%3Bchild_presence_detection_state",
+  "status": 200,
+  "request_headers": {
+    "accept": "*/*",
+    "accept-encoding": "gzip",
+    "accept-language": "en",
+    "authorization": "<redacted>",
+    "baggage": "sentry-environment=tesla,sentry-public_key=c1ad0d1b7177450aaaf8a91863960dc7,sentry-release=com.teslamotors.TeslaApp%404.57.0-4306,sentry-trace_id=74e3e9b31a484793b845b5ebadd7f932",
+    "cache-control": "no-cache",
+    "charset": "utf-8",
+    "content-type": "application/json",
+    "priority": "u=3, i",
+    "sentry-trace": "74e3e9b31a484793b845b5ebadd7f932-fa868ccd4e02499a-0",
+    "user-agent": "TeslaV4/4.57.0 (com.teslamotors.TeslaApp; build:4306; iOS 26.5.0) Alamofire/5.2.1",
+    "x-app-state": "active",
+    "x-tesla-app-key": "684260B3F7B372B67DFECD8A023131784979490A",
+    "x-tesla-user-agent": "com.teslamotors.TeslaApp/4.57.0-4306/b937ef26/iOS/26.5",
+    "x-txid": "01C7B52A-F9DE-45FC-9C9F-D25695A4FDC8"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, no-store, private, s-max-age=0",
+    "content-encoding": "gzip",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 18 May 2026 22:57:30 GMT",
+    "etag": "W/\"7582fe728e61bc032093228891e8980e\"",
+    "server": "envoy",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "vary": "Accept,Accept-Encoding",
+    "x-content-type-options": "nosniff",
+    "x-envoy-upstream-service-time": "502",
+    "x-frame-options": "DENY",
+    "x-request-id": "7201e0f4-299d-42b2-90f1-0d8741d95836",
+    "x-txid": "01C7B52A-F9DE-45FC-9C9F-D25695A4FDC8",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "response": {
+      "access_type": "OWNER",
+      "api_version": 92,
+      "backseat_token": null,
+      "backseat_token_updated_at": null,
+      "ble_autopair_enrolled": true,
+      "calendar_enabled": true,
+      "charge_schedule_data": {
+        "charge_buffer": 6,
+        "charge_schedule_window": null,
+        "charge_schedules": [],
+        "max_num_charge_schedules": 100,
+        "next_schedule": true,
+        "show_schedule_complete_state": false,
+        "timestamp": {
+          "nanos": 126000000,
+          "seconds": 1779145051
+        }
+      },
+      "color": null,
+      "granular_access": {
+        "hide_private": false
+      },
+      "id": 1492930888996556,
+      "id_s": "1492930888996556",
+      "in_service": false,
+      "preconditioning_schedule_data": {
+        "max_num_precondition_schedules": 100,
+        "next_schedule": true,
+        "precondition_schedules": [],
+        "preconditioning_schedule_window": null,
+        "timestamp": {
+          "nanos": 126000000,
+          "seconds": 1779145051
+        }
+      },
+      "state": "online",
+      "supercharger_payment_needed": "false",
+      "supercharging_enabled": "true",
+      "tokens": null,
+      "user_id": 661720,
+      "vehicle_data": "EiYKAhIAEgIKABoCGgAqAhIAOgsI27Ku0AYQwLLNO8AGANAGAeAGABrdAQoCEgCaAgIaAOICCwjbsq7QBhCAjPsp6gICCgDyAgDABlrIBlrQBjLYBmToBgDwBgD9BhnzDEONB/+VMEOQBzeYBzelB148N0KtBwAACkO1BwAALUO4BwDABzDIBwDQBwDoBwDwBwD4BwCQCACoCAHICDDQCDCgCQCoCTDACQDICQHQCQDYCQDlCQAAAADyCQgKAgoAEgAaAPgJAIILCg2sKz5CFXpr9MKKCwoNbE4+QhUUavTCvQspXL9AwgsDVVNEzQtcj8I+8gsGCMjSpsoGmAwBoAwAqAxasAwAIpwB8gECCgCKAgsI27Ku0AYQwLLNO5oCAgoArQZnZsZBtQYAAHBBvQYAAKhBxQYAAKhByAbw/v////////8B0Abw/v////////8B2AYA4AYA6AYD8AYB/QYAAHBBhQcAAOBBiAcAkAcAmAcAoAcAwAcAyAcA0AcA2AcA6AcA8AcA+AcAgAgBiAgBsAgAwAgB6AgB8AgA+AgBkAkDsAkAKiYKAhIAIgsI27Ku0AYQwLLNO4UBv8PYQ40B7w+wQ7gGAcgGtebaBDqRAgoCCgASA7oBADoCEgBCAgoASgOiAgBaAhIAYgIKAGoDwgEAggECKgCKAQIKAJIBAiIAmgECEgC6AQIKANoBCwjbsq7QBhDAss074gECQgDqAQIqAPoBAgoAggICGgCKAgIKAOgDALgGAMAGAMgGANAGAfAGAZAHAJgHAcAHAMgHANAHAeAHAfAHAbAIAMAIAcgIAdAIAdgIAOgIAfAIAfgIAIAJ34kDiAkAkgkQNywwLDI1NSwwLjksMC4wMZgJAaoJBUJsYWNrsAkE2AkA4AkA6AkB8AkB+AkAggoRNVlKWENCRTI4SkYxMzk0ODSQCgCYCgC4CgHACgHICgHgCgCICwCgCwG4CwCADACKDAJVU0IpWgsI27Ku0AYQwLLNO4oHEzUwMCBCZWxsZXZ1ZSBXYXkgTkXFBwAAgD9KYnoCCgCaAQISALIBGLgGAMAGANUGAADwQt0GAABIQuUGAACqQqgGALAGALgGAMAGAMgGANAGANgGAOAGAOgGAPAGAIgHAZAHAKAHAagHALAHAcAHAYJ9Cwjbsq7QBhDAss07Ygx2ZWhpY2xlX2RhdGF6FhgGIGQoATAAgn0LCNuyrtAGEIC3ijyCARIYZCABgn0LCNuyrtAGEIC3ijySAY4BCgsI27Ku0AYQwLLNOxBcGAEgASgBMghub19lcnJvcjgDQgIKAEgBUAB4AIABAJoBAgoAogECGgCoAQGwAQG4AQLCAQz/9//OD/+48jKkoQrIAQDQAQDgAQDoAQD4AQCAAgCIAgCQAgCYAgCgAgCoAgCwAgC4AgHAAgDIAgDAA7mfqdAG0AMAigQECAEQAZoBdwoLCNuyrtAGEMCyzTsVMzNLQB3NzExAJZqZSUAtzcxMQDIMCNPyrNAGEMCRgc8DOgwI0/Ks0AYQwJGBzwNCDAjT8qzQBhDAkYHPA0oMCNPyrNAGEMCRgc8DUABYAGAAaABwAHgAgAEAiAEAlQGamTlAnQGamTlAogEmCgsI27Ku0AYQgLeKPBABGgAiAC02qypANauqqj49VVUlQUAISACqAT8KCwjbsq7QBhCAt4o8KgAyE05vIGRldmljZSBjb25uZWN0ZWQ6Dk1WSCBpUGhvbmUgKDIpSgdEaXNuZXkrUACyATIKCwjbsq7QBhCAt4o8EgZTdGVsbGEaCTIwMjYuMTQuNjIHdjEyLjYuNDoHTWF0dGhld7oBHQoCCgDABowV0AYB2gYBIOIGCwjbsq7QBhCAt4o8ygEOgn0LCNuyrtAGEIC3ijy4PgE=",
+      "vehicle_id": 1807748557,
+      "vin": "5YJ3E1EA6XXXXXXXX"
+    }
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.authorization"
+  ]
+}

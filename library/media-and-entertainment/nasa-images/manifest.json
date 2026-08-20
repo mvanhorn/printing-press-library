@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "nasa-images-pp-mcp",
+  "display_name": "NASA Image and Video Library",
+  "version": "4.9.0",
+  "description": "NASA Image and Video Library API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nasa-images-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nasa-images-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

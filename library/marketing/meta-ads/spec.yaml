@@ -1,0 +1,852 @@
+openapi: 3.0.3
+info:
+  title: Meta Marketing API
+  version: v19.0
+  description: |
+    Read-only CLI for Meta (Facebook) Marketing API focused on creative-fatigue
+    analysis, audience overlap, and insights forensics. All endpoints require
+    only ads_read scope. The CLI discovers accessible ad accounts via the token
+    at runtime; account IDs are never persisted in config.
+  contact:
+    name: Meta Marketing API Docs
+    url: https://developers.facebook.com/docs/marketing-api
+
+servers:
+  - url: https://graph.facebook.com/v19.0
+    description: Meta Graph API v19.0 (Marketing API)
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: ad-accounts
+    description: Ad account discovery and metadata
+  - name: campaigns
+    description: Campaign-level read operations
+  - name: adsets
+    description: Ad set-level read operations
+  - name: ads
+    description: Ad-level read operations
+  - name: insights
+    description: Performance and delivery insights (the creative-fatigue observatory)
+  - name: creatives
+    description: Ad creative metadata
+  - name: audiences
+    description: Custom audience and lookalike read operations
+
+paths:
+  /me/adaccounts:
+    get:
+      tags: [ad-accounts]
+      summary: List accessible ad accounts
+      description: |
+        Returns every ad account the access token has been granted access to.
+        Use this on first run to discover which accounts you can query.
+      operationId: listAdAccounts
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of ad accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdAccountList'
+
+  /{adAccountId}:
+    get:
+      tags: [ad-accounts]
+      summary: Get ad account details
+      operationId: getAdAccount
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Ad account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdAccount'
+
+  /{adAccountId}/campaigns:
+    get:
+      tags: [campaigns]
+      summary: List campaigns in an ad account
+      description: |
+        Returns campaigns with status, objective, and budget metadata. Use
+        effective_status (not status) for the live delivery state - status is
+        what you set; effective_status is what Meta is actually doing.
+      operationId: listCampaigns
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+        - name: effective_status
+          in: query
+          description: Filter by effective status array, e.g. ["ACTIVE","PAUSED"]
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignList'
+
+  /{campaignId}:
+    get:
+      tags: [campaigns]
+      summary: Get campaign details
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Campaign details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+
+  /{adAccountId}/adsets:
+    get:
+      tags: [adsets]
+      summary: List ad sets in an ad account
+      description: |
+        Returns ad sets with targeting summary, budget, optimization goal, and
+        bid strategy. Includes learning_phase metadata when adsets are still
+        exiting the algorithm's learning window.
+      operationId: listAdSets
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of ad sets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdSetList'
+
+  /{adSetId}:
+    get:
+      tags: [adsets]
+      summary: Get ad set details
+      operationId: getAdSet
+      parameters:
+        - $ref: '#/components/parameters/AdSetId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Ad set details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdSet'
+
+  /{adAccountId}/ads:
+    get:
+      tags: [ads]
+      summary: List ads in an ad account
+      operationId: listAds
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of ads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdList'
+
+  /{adId}:
+    get:
+      tags: [ads]
+      summary: Get ad details
+      operationId: getAd
+      parameters:
+        - $ref: '#/components/parameters/AdId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Ad details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+
+  /{adAccountId}/insights:
+    get:
+      tags: [insights]
+      summary: Get account-level insights
+      description: |
+        Returns aggregated insights across the entire ad account. Requires
+        either time_range or date_preset - there is no default time window.
+        Breakdowns are mutually exclusive in groups (age+gender works,
+        age+placement does not).
+      operationId: getAccountInsights
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/DatePreset'
+        - $ref: '#/components/parameters/TimeRange'
+        - $ref: '#/components/parameters/TimeIncrement'
+        - $ref: '#/components/parameters/Breakdowns'
+        - $ref: '#/components/parameters/Level'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Insights data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightsList'
+
+  /{campaignId}/insights:
+    get:
+      tags: [insights]
+      summary: Get campaign-level insights
+      operationId: getCampaignInsights
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/DatePreset'
+        - $ref: '#/components/parameters/TimeRange'
+        - $ref: '#/components/parameters/TimeIncrement'
+        - $ref: '#/components/parameters/Breakdowns'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Insights data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightsList'
+
+  /{adSetId}/insights:
+    get:
+      tags: [insights]
+      summary: Get ad set-level insights
+      operationId: getAdSetInsights
+      parameters:
+        - $ref: '#/components/parameters/AdSetId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/DatePreset'
+        - $ref: '#/components/parameters/TimeRange'
+        - $ref: '#/components/parameters/TimeIncrement'
+        - $ref: '#/components/parameters/Breakdowns'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Insights data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightsList'
+
+  /{adId}/insights:
+    get:
+      tags: [insights]
+      summary: Get ad-level insights (the core fatigue signal)
+      description: |
+        Ad-level insights with frequency, CPM, CTR over time. With
+        time_increment=1 and a date_preset like last_30d, this returns the
+        daily series that powers creative-fatigue detection.
+      operationId: getAdInsights
+      parameters:
+        - $ref: '#/components/parameters/AdId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/DatePreset'
+        - $ref: '#/components/parameters/TimeRange'
+        - $ref: '#/components/parameters/TimeIncrement'
+        - $ref: '#/components/parameters/Breakdowns'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Insights data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightsList'
+
+  /{adId}/adcreatives:
+    get:
+      tags: [creatives]
+      summary: Get creatives attached to an ad
+      operationId: listAdCreatives
+      parameters:
+        - $ref: '#/components/parameters/AdId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of creatives
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreativeList'
+
+  /{creativeId}:
+    get:
+      tags: [creatives]
+      summary: Get creative details
+      operationId: getCreative
+      parameters:
+        - $ref: '#/components/parameters/CreativeId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Creative details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Creative'
+
+  /{adAccountId}/customaudiences:
+    get:
+      tags: [audiences]
+      summary: List custom audiences in an ad account
+      operationId: listCustomAudiences
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: List of custom audiences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomAudienceList'
+
+  /{audienceId}:
+    get:
+      tags: [audiences]
+      summary: Get custom audience details
+      operationId: getCustomAudience
+      parameters:
+        - $ref: '#/components/parameters/AudienceId'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Custom audience details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomAudience'
+
+  /{adAccountId}/delivery_estimate:
+    get:
+      tags: [audiences]
+      summary: Get reach/impressions delivery estimate
+      operationId: getDeliveryEstimate
+      parameters:
+        - $ref: '#/components/parameters/AdAccountId'
+        - name: targeting_spec
+          in: query
+          description: JSON-encoded targeting specification
+          schema:
+            type: string
+        - name: optimization_goal
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery estimate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryEstimate'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: meta-access-token
+      description: |
+        Meta access token with ads_read scope. Can be a User Access Token
+        (short-lived) or System User Token (long-lived, recommended). See
+        https://developers.facebook.com/docs/marketing-api/access for setup.
+      x-auth-env-vars:
+        - META_ACCESS_TOKEN
+
+  parameters:
+    AdAccountId:
+      name: adAccountId
+      in: path
+      required: true
+      description: Ad account ID with "act_" prefix (e.g., act_1234567890)
+      schema:
+        type: string
+        pattern: '^act_[0-9]+$'
+    CampaignId:
+      name: campaignId
+      in: path
+      required: true
+      description: Campaign ID (numeric string)
+      schema:
+        type: string
+    AdSetId:
+      name: adSetId
+      in: path
+      required: true
+      description: Ad set ID (numeric string)
+      schema:
+        type: string
+    AdId:
+      name: adId
+      in: path
+      required: true
+      description: Ad ID (numeric string)
+      schema:
+        type: string
+    CreativeId:
+      name: creativeId
+      in: path
+      required: true
+      description: Creative ID (numeric string)
+      schema:
+        type: string
+    AudienceId:
+      name: audienceId
+      in: path
+      required: true
+      description: Custom audience ID (numeric string)
+      schema:
+        type: string
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated list of fields to return
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: Maximum results per page (default 25, max 500)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 500
+    DatePreset:
+      name: date_preset
+      in: query
+      description: |
+        Preset time window. Common values: today, yesterday, this_week_mon_today,
+        last_7d, last_14d, last_28d, last_30d, last_90d, this_month, last_month.
+      schema:
+        type: string
+    TimeRange:
+      name: time_range
+      in: query
+      description: |
+        JSON-encoded time range, e.g., {"since":"2026-01-01","until":"2026-01-31"}.
+        Mutually exclusive with date_preset.
+      schema:
+        type: string
+    TimeIncrement:
+      name: time_increment
+      in: query
+      description: |
+        Group results into N-day buckets. Use "1" for daily series (required
+        for fatigue detection). Use "monthly" for monthly summary.
+      schema:
+        type: string
+    Breakdowns:
+      name: breakdowns
+      in: query
+      description: |
+        Comma-separated breakdowns. Compatible groups: age, gender, country,
+        region, placement, publisher_platform, platform_position, device_platform.
+        Some combinations are not allowed by Meta (e.g., age+placement).
+      schema:
+        type: string
+    Level:
+      name: level
+      in: query
+      description: Aggregation level (account, campaign, adset, ad)
+      schema:
+        type: string
+        enum: [account, campaign, adset, ad]
+
+  schemas:
+    AdAccountList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdAccount'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    AdAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Prefixed form, e.g., act_1234567890
+        account_id:
+          type: string
+          description: Bare numeric form, e.g., 1234567890
+        name:
+          type: string
+        account_status:
+          type: integer
+          description: 1=ACTIVE, 2=DISABLED, 3=UNSETTLED, 7=PENDING_RISK_REVIEW, 9=IN_GRACE_PERIOD, 100=PENDING_CLOSURE, 101=CLOSED, 201=ANY_ACTIVE, 202=ANY_CLOSED
+        currency:
+          type: string
+        timezone_name:
+          type: string
+        amount_spent:
+          type: string
+        balance:
+          type: string
+        spend_cap:
+          type: string
+        business:
+          type: object
+        created_time:
+          type: string
+          format: date-time
+
+    CampaignList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Campaign'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          description: ACTIVE | PAUSED | DELETED | ARCHIVED
+        effective_status:
+          type: string
+          description: |
+            Live delivery state - what Meta is ACTUALLY doing. Differs from
+            status when there are issues. Values include ACTIVE, PAUSED,
+            DELETED, PENDING_REVIEW, DISAPPROVED, PREAPPROVED, PENDING_BILLING_INFO,
+            CAMPAIGN_PAUSED, ARCHIVED, ADSET_PAUSED, IN_PROCESS, WITH_ISSUES.
+        objective:
+          type: string
+          description: OUTCOME_AWARENESS | OUTCOME_TRAFFIC | OUTCOME_ENGAGEMENT | OUTCOME_LEADS | OUTCOME_APP_PROMOTION | OUTCOME_SALES
+        daily_budget:
+          type: string
+        lifetime_budget:
+          type: string
+        start_time:
+          type: string
+          format: date-time
+        stop_time:
+          type: string
+          format: date-time
+        created_time:
+          type: string
+          format: date-time
+        updated_time:
+          type: string
+          format: date-time
+        special_ad_categories:
+          type: array
+          items:
+            type: string
+
+    AdSetList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdSet'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    AdSet:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        campaign_id:
+          type: string
+        status:
+          type: string
+        effective_status:
+          type: string
+        daily_budget:
+          type: string
+        lifetime_budget:
+          type: string
+        bid_strategy:
+          type: string
+        optimization_goal:
+          type: string
+        billing_event:
+          type: string
+        targeting:
+          type: object
+          description: Full targeting spec (geo, demographics, interests, behaviors)
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        configured_status:
+          type: string
+        learning_stage_info:
+          type: object
+          description: Indicates whether the adset is in the algorithmic learning phase
+          properties:
+            status:
+              type: string
+              description: LEARNING | SUCCESS | FAIL
+            attribution_windows:
+              type: array
+              items:
+                type: string
+
+    AdList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ad'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    Ad:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        adset_id:
+          type: string
+        campaign_id:
+          type: string
+        creative:
+          $ref: '#/components/schemas/CreativeRef'
+        status:
+          type: string
+        effective_status:
+          type: string
+        created_time:
+          type: string
+          format: date-time
+        updated_time:
+          type: string
+          format: date-time
+
+    CreativeRef:
+      type: object
+      properties:
+        id:
+          type: string
+        creative_id:
+          type: string
+
+    CreativeList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Creative'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    Creative:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        image_url:
+          type: string
+        thumbnail_url:
+          type: string
+        object_type:
+          type: string
+        call_to_action_type:
+          type: string
+        effective_object_story_id:
+          type: string
+
+    InsightsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsightsRow'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    InsightsRow:
+      type: object
+      description: |
+        One row of insights metrics. Field set varies by level and breakdowns.
+        Currency normalization is per-ad-account (not per-ad) - read the
+        ad account's currency field for proper aggregation.
+      properties:
+        account_id:
+          type: string
+          description: Bare numeric ID
+        account_name:
+          type: string
+        campaign_id:
+          type: string
+        campaign_name:
+          type: string
+        adset_id:
+          type: string
+        adset_name:
+          type: string
+        ad_id:
+          type: string
+        ad_name:
+          type: string
+        date_start:
+          type: string
+        date_stop:
+          type: string
+        impressions:
+          type: string
+        reach:
+          type: string
+        frequency:
+          type: string
+        spend:
+          type: string
+        cpm:
+          type: string
+        cpp:
+          type: string
+        ctr:
+          type: string
+        cpc:
+          type: string
+        clicks:
+          type: string
+        unique_clicks:
+          type: string
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action_type:
+                type: string
+              value:
+                type: string
+        action_values:
+          type: array
+          items:
+            type: object
+        cost_per_action_type:
+          type: array
+          items:
+            type: object
+        purchase_roas:
+          type: array
+          items:
+            type: object
+
+    CustomAudienceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAudience'
+        paging:
+          $ref: '#/components/schemas/Paging'
+
+    CustomAudience:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        subtype:
+          type: string
+          description: CUSTOM | LOOKALIKE | WEBSITE | etc.
+        approximate_count_lower_bound:
+          type: integer
+        approximate_count_upper_bound:
+          type: integer
+        time_created:
+          type: string
+        time_updated:
+          type: string
+        operation_status:
+          type: object
+        lookalike_spec:
+          type: object
+
+    DeliveryEstimate:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              daily_outcomes_curve:
+                type: array
+                items:
+                  type: object
+              estimate_ready:
+                type: boolean
+              estimate_dau:
+                type: integer
+              estimate_mau_lower_bound:
+                type: integer
+              estimate_mau_upper_bound:
+                type: integer
+
+    Paging:
+      type: object
+      properties:
+        cursors:
+          type: object
+          properties:
+            before:
+              type: string
+            after:
+              type: string
+        next:
+          type: string
+        previous:
+          type: string

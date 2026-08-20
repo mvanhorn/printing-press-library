@@ -1,0 +1,7 @@
+actor: apify/smart-article-extractor
+title: [title]
+url: [url, sourceUrl]
+body: [text, content, body, articleContent]
+author: [author, authorName, byline]
+published_at: [publishedAt, date, publishDate]
+engagement: []

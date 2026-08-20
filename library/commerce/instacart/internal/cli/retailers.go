@@ -14,9 +14,9 @@ import (
 
 func newRetailersCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "retailers",
+		Use:         "retailers",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List and inspect retailers available at your address",
+		Short:       "List and inspect retailers available at your address",
 	}
 	cmd.AddCommand(newRetailersListCmd(), newRetailersShowCmd())
 	return cmd
@@ -24,9 +24,9 @@ func newRetailersCmd() *cobra.Command {
 
 func newRetailersListCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
+		Use:         "list",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List retailers that deliver to your saved address",
+		Short:       "List retailers that deliver to your saved address",
 		Long: `Shows retailers cached locally. If the cache is empty or stale, hits
 Instacart's ShopCollectionUnscoped query to refresh. Use --refresh to force.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -61,10 +61,10 @@ Instacart's ShopCollectionUnscoped query to refresh. Use --refresh to force.`,
 
 func newRetailersShowCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "show <slug>",
+		Use:         "show <slug>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Look up a retailer by slug and cache it locally",
-		Args:  cobra.ExactArgs(1),
+		Short:       "Look up a retailer by slug and cache it locally",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			slug := strings.ToLower(strings.TrimSpace(args[0]))
 			app, err := newAppContext(cmd)
@@ -100,13 +100,11 @@ func resolveRetailer(app *AppContext, slug string) (*store.Retailer, error) {
 		return nil, coded(ExitNotFound, "retailer %q not cached and no postal code configured (set `postal_code` in ~/.config/instacart/config.json)", slug)
 	}
 	client := gql.NewClient(app.Session, app.Cfg, app.Store)
-	vars := instacart.ShopCollectionScopedVars{
-		RetailerSlug:           slug,
-		PostalCode:             app.Cfg.PostalCode,
-		Coordinates:            &instacart.Coordinates{Latitude: app.Cfg.Latitude, Longitude: app.Cfg.Longitude},
-		AddressID:              app.Cfg.AddressID,
-		AllowCanonicalFallback: false,
-	}
+	// PATCH (fix-shop-collection-coordinates):
+	// Use the typed constructor so coordinates is omitted when neither
+	// latitude nor longitude is set, instead of sending the invalid {0,0}
+	// pair. See mvanhorn/printing-press-library#501.
+	vars := instacart.NewShopCollectionScopedVars(slug, app.Cfg.PostalCode, app.Cfg.AddressID, app.Cfg.Latitude, app.Cfg.Longitude)
 	resp, err := client.Query(app.Ctx, "ShopCollectionScoped", vars)
 	if err != nil {
 		return nil, err

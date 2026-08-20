@@ -1,0 +1,9 @@
+description: Invalid or deleted item
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Not Found

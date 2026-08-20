@@ -1,0 +1,786 @@
+{
+  "api_name": "judge-me",
+  "base_url": "https://api.judge.me/api/v1",
+  "description": "Our REST API lets you access to resources and perform actions on behalf of a store.\nFor more information, read our [integration guidelines](https://help.judge.me/en/articles/8278390-integrating-with-judge-me) and [FAQs](https://help.judge.me/en/articles/8278477-faqs-for-integration-partners), or contact partnerships@judge.me for help.\n\n# Authentication\nPass your API token in the `X-Api-Token` HTTP header (recommended):\n```\ncurl -H \"X-Api-Token: YOUR_API_TOKEN\" https://api.judge.me/api/v1/widgets/product_review?shop_domain=example.myshopify.com\u0026id=123\n```\n\n## OAuth\n[Judge.me](http://judge.me/) uses OAuth2 to grant App Developers access to [Judge.me](http://judge.me/) API. You need to use the OAuth api_token generated from the Judge.me app [following this guide](https://help.judge.me/en/articles/8283047-setting-up-the-oauth-flow-for-your-app-in-judge-me).\nExample of how to authenticate with OAuth:\n```\nGET https://app.judge.me/oauth/authorize?client_id=[your_client_id]\u0026redirect_uri=[your_redirect_uri]\u0026response_type=code\u0026scope=[list_of_permissions_you_are_asking]\u0026state=[state]\n```",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Token",
+    "in": "header",
+    "env_vars": [
+      "JUDGE_ME_PRIVATE_APIKEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "JUDGE_ME_PRIVATE_APIKEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://help.judge.me/en/articles/8278390-integrating-with-judge-me"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "private-replies_create",
+      "description": "Create a private email reply to a [Judge.me](http://judge.me/) review privately via your app interface. Required: private_reply, review_id. Optional: send_private_email.",
+      "method": "POST",
+      "path": "/private_replies",
+      "params": [
+        {
+          "name": "private-reply-email-body",
+          "wire_name": "private_reply.email_body",
+          "type": "string",
+          "location": "body",
+          "description": "Email body",
+          "required": true
+        },
+        {
+          "name": "private-reply-email-subject",
+          "wire_name": "private_reply.email_subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject",
+          "required": true
+        },
+        {
+          "name": "review_id",
+          "type": "float",
+          "location": "body",
+          "description": "Judge.me internal ID of the resource. Note: this ID is from Judge.me internally.",
+          "required": true
+        },
+        {
+          "name": "send_private_email",
+          "type": "bool",
+          "location": "body",
+          "description": "To indicate whether to send email to reviewer. Default is true"
+        }
+      ]
+    },
+    {
+      "name": "replies_create",
+      "description": "Create a reply to a Judge.me review on the public [Judge.me](http://judge.me/) review widget via your app interface. Required: reply, review_id. Optional: send_reply_email.",
+      "method": "POST",
+      "path": "/replies",
+      "params": [
+        {
+          "name": "reply-content",
+          "wire_name": "reply.content",
+          "type": "string",
+          "location": "body",
+          "description": "Content of the reply",
+          "required": true
+        },
+        {
+          "name": "review_id",
+          "type": "float",
+          "location": "body",
+          "description": "Judge.me internal ID of the resource. Note: this ID is from Judge.me internally.",
+          "required": true
+        },
+        {
+          "name": "send_reply_email",
+          "type": "bool",
+          "location": "body",
+          "description": "To indicate whether to send email to reviewer. Default is `true`"
+        }
+      ]
+    },
+    {
+      "name": "reviewers_data-request",
+      "description": "Data Request.",
+      "method": "POST",
+      "path": "/reviewers/data_request",
+      "params": []
+    },
+    {
+      "name": "reviewers_get",
+      "description": "Get information of the reviewers such as name and email. This is useful when you are building automated flow for users to follow up with reviewers. Required: id. Optional: external_id, email. Returns the ReviewersGetResponse.",
+      "method": "GET",
+      "path": "/reviewers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Reviewer. Set to `-1` and use `external_id` or `email` param to find Reviewer by external (Shopify) ID or by email of the Reviewer.",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "float",
+          "location": "query",
+          "description": "External (Shopify) ID of the Reviewer. Note: this is NOT internal Reviewer ID of Judge.me."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        }
+      ]
+    },
+    {
+      "name": "reviewers_update",
+      "description": "Create or update a reviewer via your app interface. Required: id. Optional: external_id, email, reviewer. Returns the updated ReviewersUpdateResponse.",
+      "method": "PUT",
+      "path": "/reviewers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Reviewer. Set to `-1` and use `external_id` or `email` param to find Reviewer by external (Shopify) ID or by email of the Reviewer.",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "float",
+          "location": "query",
+          "description": "External (Shopify) ID of the Reviewer. Note: this is NOT internal Reviewer ID of Judge.me."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        },
+        {
+          "name": "reviewer-accepts-marketing",
+          "wire_name": "reviewer.accepts_marketing",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepts marketing"
+        },
+        {
+          "name": "reviewer-email",
+          "wire_name": "reviewer.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "reviewer-id",
+          "wire_name": "reviewer.id",
+          "type": "float",
+          "location": "body",
+          "description": "External (Shopify) ID of the resource. Note: this is NOT internal ID of Judge.me.",
+          "required": true
+        },
+        {
+          "name": "reviewer-name",
+          "wire_name": "reviewer.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "reviewer-phone",
+          "wire_name": "reviewer.phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "reviewer-tags",
+          "wire_name": "reviewer.tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags"
+        },
+        {
+          "name": "reviewer-unsubscribed-at",
+          "wire_name": "reviewer.unsubscribed_at",
+          "type": "string",
+          "location": "body",
+          "description": "The time when user has unsubscribed to marketing emails. Blank if user still subscribes."
+        }
+      ]
+    },
+    {
+      "name": "reviews_create",
+      "description": "Create a web review in background, similar to submitting a review via the public form on product pages (no authorization required). This endpoint doesn't create any review if the store [disables web reviews](https://help.judge.me/en/articles/8375147-restricting-web-reviews). Required: body, email, name, platform, rating, shop_domain. Optional: cf_answers, id, ip_addr (plus 3 more). (public)",
+      "method": "POST",
+      "path": "/reviews",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "cf_answers",
+          "type": "array",
+          "location": "body",
+          "description": "Answers to the shop's custom forms"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "float",
+          "location": "body",
+          "description": "External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me. If blank, the review is considered as a shop-level review."
+        },
+        {
+          "name": "ip_addr",
+          "type": "string",
+          "location": "body",
+          "description": "IP address of the reviewer, used to display location of the review. If blank, Judge.me will use IP address that makes the API request"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "picture_urls",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Picture urls"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "description": "Platform of the shop",
+          "required": true
+        },
+        {
+          "name": "rating",
+          "type": "float",
+          "location": "body",
+          "description": "Rating",
+          "required": true
+        },
+        {
+          "name": "reviewer_name_format",
+          "type": "string",
+          "location": "body",
+          "description": "How the `reviewers` want to show their name publicly. Default is showing full name. `Stores` can also choose how they want to display reviewer’s names in all reviews on their stores. When showing reviews, Judge.me will choose the most restrictive option between reviewer's option and store’s option. For example, if a reviewer set their display format as all_initials while the store sets the format as last_initial, we will show the reviewer’s name as all initials, which is J.S., not John S.."
+        },
+        {
+          "name": "shop_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain of the shop",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "reviews_get",
+      "description": "Get info of a specific review. Required: id. Returns the ReviewsGetResponse.",
+      "method": "GET",
+      "path": "/reviews/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Review",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reviews_index",
+      "description": "Get info of reviews of a product. If `product_id` is not provided, return all product and store reviews of that store. Optional: per_page, page, reviewer_id (plus 2 more). Returns array of ResponseReview.",
+      "method": "GET",
+      "path": "/reviews",
+      "params": [
+        {
+          "name": "per_page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "reviewer_id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Reviewer"
+        },
+        {
+          "name": "product_id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Product"
+        },
+        {
+          "name": "rating",
+          "type": "float",
+          "location": "query",
+          "description": "Only include reviews with this rating"
+        }
+      ]
+    },
+    {
+      "name": "reviews_reviewers-count",
+      "description": "Get count of reviews for a specific product or reviewer. If product_id is not provided, return the count of all product and store reviews of that store. Optional: reviewer_id, product_id, rating.",
+      "method": "GET",
+      "path": "/reviews/count",
+      "params": [
+        {
+          "name": "reviewer_id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Reviewer"
+        },
+        {
+          "name": "product_id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Product"
+        },
+        {
+          "name": "rating",
+          "type": "float",
+          "location": "query",
+          "description": "Only include reviews with this rating"
+        }
+      ]
+    },
+    {
+      "name": "reviews_update",
+      "description": "Publish or hide a [Judge.me](http://judge.me/) review via your app interface. For authenticity reason, we don’t support editing reviews via API. Required: id. Optional: curated. Returns the updated ReviewsUpdateResponse.",
+      "method": "PUT",
+      "path": "reviews/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Review",
+          "required": true
+        },
+        {
+          "name": "curated",
+          "type": "string",
+          "location": "body",
+          "description": "value is either ok or spam: ok is for publish reviews, spam is for hide review"
+        }
+      ]
+    },
+    {
+      "name": "settings_index",
+      "description": "Get multiple settings values of the store in [Judge.me](http://judge.me/), which can serve as conditions for your app integrations. Optional: setting_keys[]. Returns the SettingsIndexResponse.",
+      "method": "GET",
+      "path": "/settings",
+      "params": [
+        {
+          "name": "setting_keys[]",
+          "type": "array",
+          "location": "query",
+          "description": "Array of keys of settings"
+        }
+      ]
+    },
+    {
+      "name": "shops_comments-create",
+      "description": "Create a checkout comment. Available in Checkout Comments app only. Optional: content, create_from, customer (plus 1 more).",
+      "method": "POST",
+      "path": "/shops",
+      "params": [
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "create_from",
+          "type": "string",
+          "location": "body",
+          "description": "Create from"
+        },
+        {
+          "name": "customer-email",
+          "wire_name": "customer.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "customer-external-id",
+          "wire_name": "customer.external_id",
+          "type": "float",
+          "location": "body",
+          "description": "External (Shopify) ID of the resource. Note: this is NOT internal ID of Judge.me."
+        },
+        {
+          "name": "customer-first-name",
+          "wire_name": "customer.first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "customer-last-name",
+          "wire_name": "customer.last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "external_product_id",
+          "type": "float",
+          "location": "body",
+          "description": "External (Shopify) ID of the resource. Note: this is NOT internal ID of Judge.me."
+        }
+      ]
+    },
+    {
+      "name": "shops_destroy",
+      "description": "Uninstall the store from Judge.me. Destructive.",
+      "method": "DELETE",
+      "path": "/shops",
+      "params": []
+    },
+    {
+      "name": "shops_info",
+      "description": "Get the basic information of the store such as [Judge.me](http://judge.me/) plan, owner name, email, e-commerce platform, etc. This is helpful when you are developing your app for specific segment of users (e.g. your integration is only available to Judge.me Awesome users).",
+      "method": "GET",
+      "path": "/shops/info",
+      "params": []
+    },
+    {
+      "name": "shops_update",
+      "description": "Update store information.",
+      "method": "PUT",
+      "path": "/shops",
+      "params": []
+    },
+    {
+      "name": "webhooks_bulk-create",
+      "description": "Bulk Create. Optional: webhooks.",
+      "method": "POST",
+      "path": "/webhooks/bulk_create",
+      "params": [
+        {
+          "name": "webhooks",
+          "type": "array",
+          "location": "body",
+          "description": "Webhooks"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook in Judge.me with a `key` and a `url`. When an event associated with `key` happens, Judge.me will send a POST request to the webhook's `url`. Optional: webhook. Returns the new WebhooksCreateResponse.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "webhook-key",
+          "wire_name": "webhook.key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "webhook-url",
+          "wire_name": "webhook.url",
+          "type": "string",
+          "location": "body",
+          "description": "URL that receives the webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_destroy",
+      "description": "Delete. Optional: key, url. Returns the WebhooksDestroyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get. Required: id. Returns the WebhooksGetResponse.",
+      "method": "GET",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_index",
+      "description": "Index. Returns array of ResponseWebhook.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update. Required: id. Optional: webhook. Returns the updated WebhooksUpdateResponse.",
+      "method": "PUT",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "Judge.me internal ID of the Webhook",
+          "required": true
+        },
+        {
+          "name": "webhook-key",
+          "wire_name": "webhook.key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "webhook-url",
+          "wire_name": "webhook.url",
+          "type": "string",
+          "location": "body",
+          "description": "URL that receives the webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "widgets_all-reviews-count",
+      "description": "Return a single total number of product and store reviews.",
+      "method": "GET",
+      "path": "/widgets/all_reviews_count",
+      "params": []
+    },
+    {
+      "name": "widgets_all-reviews-page",
+      "description": "All Reviews Page is a dedicated page to showcase all product and store reviews all in one place. Optional: page, review_type.",
+      "method": "GET",
+      "path": "/widgets/all_reviews_page",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "review_type",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to show product reviews, or shop reviews, default to product reviews"
+        }
+      ]
+    },
+    {
+      "name": "widgets_all-reviews-rating",
+      "description": "Return a single number of average rating of product reviews and store reviews.",
+      "method": "GET",
+      "path": "/widgets/all_reviews_rating",
+      "params": []
+    },
+    {
+      "name": "widgets_checkout-comments",
+      "description": "Return Checkout Comments widget for a product (for Checkout Comments app only). You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product. Optional: handle, external_id, id.",
+      "method": "GET",
+      "path": "/widgets/checkout_comments_widget",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Handle"
+        },
+        {
+          "name": "external_id",
+          "type": "float",
+          "location": "query",
+          "description": "External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me."
+        },
+        {
+          "name": "id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Product"
+        }
+      ]
+    },
+    {
+      "name": "widgets_featured-carousel",
+      "description": "Reviews Carousel is usually placed on the homepage to showcase specific reviews featured by the store.",
+      "method": "GET",
+      "path": "/widgets/featured_carousel",
+      "params": []
+    },
+    {
+      "name": "widgets_html-miracle",
+      "description": "Return special HTML that helps show essential parts of widgets before the JS and CSS files are loaded.",
+      "method": "GET",
+      "path": "/widgets/html_miracle",
+      "params": []
+    },
+    {
+      "name": "widgets_preview-badge",
+      "description": "Preview Badge is usually placed below product titles on product pages or inside product thumbnails on collection pages. This widget display the average star rating and review count of each product. You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product. Optional: handle, external_id, id.",
+      "method": "GET",
+      "path": "/widgets/preview_badge",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Handle"
+        },
+        {
+          "name": "external_id",
+          "type": "float",
+          "location": "query",
+          "description": "External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me."
+        },
+        {
+          "name": "id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Product"
+        }
+      ]
+    },
+    {
+      "name": "widgets_product-review",
+      "description": "Review Widget is usually placed at the bottom of each product page, displaying all reviews of a product. You can use product handle, external ID, or [Judge.me](http://judge.me/) internal ID to specify the product. Optional: handle, external_id, id (plus 2 more).",
+      "method": "GET",
+      "path": "/widgets/product_review",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Handle"
+        },
+        {
+          "name": "external_id",
+          "type": "float",
+          "location": "query",
+          "description": "External (Shopify) ID of the Product. Note: this is NOT internal Product ID of Judge.me."
+        },
+        {
+          "name": "id",
+          "type": "float",
+          "location": "query",
+          "description": "Judge.me internal ID of the Product"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "per_page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        }
+      ]
+    },
+    {
+      "name": "widgets_reviews-tab",
+      "description": "Floating Reviews Tab display all product and store reviews via a floating button on any pages. Optional: page, per_page, review_type.",
+      "method": "GET",
+      "path": "/widgets/reviews_tab",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "per_page",
+          "type": "float",
+          "location": "query",
+          "description": "For pagination"
+        },
+        {
+          "name": "review_type",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to show product reviews, or shop reviews, default to product reviews"
+        }
+      ]
+    },
+    {
+      "name": "widgets_settings",
+      "description": "Return widget settings of the shop, under HTML format, containing a `\u003cscript\u003e` tag and a `\u003cstyle\u003e` tag. This contains values of widget customization in [Judge.me](http://judge.me/) such as text and color, which helps you display the widget correctly.",
+      "method": "GET",
+      "path": "/widgets/settings",
+      "params": []
+    },
+    {
+      "name": "widgets_shop-reviews-count",
+      "description": "Return a single total number of store reviews.",
+      "method": "GET",
+      "path": "/widgets/shop_reviews_count",
+      "params": []
+    },
+    {
+      "name": "widgets_shop-reviews-rating",
+      "description": "Return a single number of average rating of store reviews.",
+      "method": "GET",
+      "path": "/widgets/shop_reviews_rating",
+      "params": []
+    },
+    {
+      "name": "widgets_verified-badge",
+      "description": "Verified Reviews Count Badge displays the number of verified published reviews. Stores need at least 20 verified reviews to use this widget.",
+      "method": "GET",
+      "path": "/widgets/verified_badge",
+      "params": []
+    }
+  ]
+}

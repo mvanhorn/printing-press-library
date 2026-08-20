@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // `velocity` returns the rank trajectory of one story across all

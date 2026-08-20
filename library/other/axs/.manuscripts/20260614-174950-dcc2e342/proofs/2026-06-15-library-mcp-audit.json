@@ -1,0 +1,38 @@
+[
+  {
+    "api": "axs",
+    "has_mcp": true,
+    "transport": "both",
+    "tool_design": "endpoint-mirror",
+    "endpoint_count": 24,
+    "intent_count": 0,
+    "recommend": "declare mcp.intents for common workflows"
+  },
+  {
+    "api": "ikon",
+    "has_mcp": true,
+    "transport": "both",
+    "tool_design": "endpoint-mirror",
+    "endpoint_count": 11,
+    "intent_count": 0,
+    "recommend": "declare mcp.intents for common workflows"
+  },
+  {
+    "api": "wahoo",
+    "has_mcp": true,
+    "transport": "both",
+    "tool_design": "endpoint-mirror",
+    "endpoint_count": 31,
+    "intent_count": 0,
+    "recommend": "declare mcp.intents for common workflows"
+  },
+  {
+    "api": "withings",
+    "has_mcp": true,
+    "transport": "both",
+    "tool_design": "endpoint-mirror",
+    "endpoint_count": 16,
+    "intent_count": 0,
+    "recommend": "declare mcp.intents for common workflows"
+  }
+]

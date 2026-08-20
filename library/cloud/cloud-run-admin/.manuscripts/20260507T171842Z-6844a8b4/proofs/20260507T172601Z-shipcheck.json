@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-07T17:34:20Z",
+  "elapsed_ms": 6646,
+  "legs": [
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-07T17:34:20Z",
+      "elapsed_ms": 3094,
+      "command": "~/conductor/workspaces/cli-printing-press/mogadishu/printing-press dogfood --dir ~/printing-press/library/cloud-run-admin --spec ~/printing-press/library/cloud-run-admin/spec.yaml --research-dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline"
+    },
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-07T17:34:23Z",
+      "elapsed_ms": 3295,
+      "command": "~/conductor/workspaces/cli-printing-press/mogadishu/printing-press verify --dir ~/printing-press/library/cloud-run-admin --spec ~/printing-press/library/cloud-run-admin/spec.yaml --fix"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-07T17:34:26Z",
+      "elapsed_ms": 15,
+      "command": "~/conductor/workspaces/cli-printing-press/mogadishu/printing-press workflow-verify --dir ~/printing-press/library/cloud-run-admin"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-07T17:34:26Z",
+      "elapsed_ms": 97,
+      "command": "~/conductor/workspaces/cli-printing-press/mogadishu/printing-press verify-skill --dir ~/printing-press/library/cloud-run-admin"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-07T17:34:26Z",
+      "elapsed_ms": 144,
+      "command": "~/conductor/workspaces/cli-printing-press/mogadishu/printing-press scorecard --dir ~/printing-press/library/cloud-run-admin --research-dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline --spec ~/printing-press/library/cloud-run-admin/spec.yaml --live-check"
+    }
+  ]
+}

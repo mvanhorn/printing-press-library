@@ -1,0 +1,47 @@
+# Verification manifest for the digg-pp-cli read-only research workflow:
+# (1) sync the current /ai feed and pipeline events,
+# (2) read the current top stories,
+# (3) ask why a specific story is top-ranked,
+# (4) tail recent fast_climb events for movers in the last hour.
+#
+# Every step is read-only against Digg. Run via:
+#   printing-press workflow-verify --dir <cli-dir>
+name: digg-ai-research-flow
+description: Power-user research flow over Digg AI's top stories and pipeline events
+goal: |
+  Pull a fresh snapshot of the AI news feed, list today's top clusters,
+  drill into one cluster's score components, and tail any fast-climb events
+  from the last hour.
+
+steps:
+  - name: doctor
+    command: digg-pp-cli doctor
+    expect:
+      exit_code: 0
+
+  - name: sync
+    command: digg-pp-cli sync
+    expect:
+      exit_code: 0
+      output_contains:
+        - "synced"
+
+  - name: top-stories
+    command: digg-pp-cli top --limit 5 --json --select clusterUrlId,currentRank,delta,tldr
+    expect:
+      exit_code: 0
+      output_contains:
+        - "clusterUrlId"
+
+  - name: tail-fast-climb-events
+    command: digg-pp-cli events --since 1h --type fast_climb --json --select clusterId,label,delta,currentRank,previousRank
+    expect:
+      exit_code: 0
+
+  - name: pipeline-status
+    command: digg-pp-cli pipeline status --json
+    expect:
+      exit_code: 0
+      output_contains:
+        - "storiesToday"
+        - "clustersToday"

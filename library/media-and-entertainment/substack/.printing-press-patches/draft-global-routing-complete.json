@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "draft-global-routing-complete",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Route all Substack draft authoring endpoints and portfolio draft sync through the global substack.com API with numeric publication_id.",
+  "reason": "Live custom-domain sessions still received 403s from publication-host draft list and portfolio draft sync even after draft create/image upload were moved to global routes. Dry-run sweep also showed draft get/update/delete/prepublish/publish/schedule still rendering publication-host writer URLs.",
+  "files": [
+    "internal/cli/drafts_list.go",
+    "internal/cli/drafts_get.go",
+    "internal/cli/drafts_update.go",
+    "internal/cli/drafts_delete.go",
+    "internal/cli/drafts_prepublish.go",
+    "internal/cli/drafts_publish.go",
+    "internal/cli/drafts_schedule.go",
+    "internal/cli/portfolio_sync.go",
+    "internal/cli/sync.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/publication_paths_test.go",
+    "internal/cli/portfolio_sync_routes_test.go"
+  ],
+  "upstream_pr": "https://github.com/mvanhorn/cli-printing-press/pull/3191"
+}

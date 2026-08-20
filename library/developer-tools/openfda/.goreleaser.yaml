@@ -1,0 +1,51 @@
+version: 2
+project_name: openfda-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: openfda-pp-cli
+    main: ./cmd/openfda-pp-cli
+    binary: openfda-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: openfda-pp-mcp
+    main: ./cmd/openfda-pp-mcp
+    binary: openfda-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: openfda-pp-cli
+    repository:
+      owner: h179922
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The FDA safety data terminal. Every drug adverse event, device recall, food contamination, and product label the FDA..."
+    install: |
+      bin.install "openfda-pp-cli"
+      bin.install "openfda-pp-mcp"

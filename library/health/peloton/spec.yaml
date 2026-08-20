@@ -1,0 +1,173 @@
+# Generator input derived solely from the accepted U1 manuscript (including its
+# parent-approved U2 authentication Delta Note). It is a static contract, not
+# a provider capture; all IDs and values used in later tests are fabricated.
+name: peloton
+description: Read-only Peloton workout, class, and structural-provider facts in a private local store.
+version: 0.1.0
+base_url: https://api.onepeloton.com
+auth:
+  type: oauth2_refresh
+  in: header
+  header: Authorization
+  token_url: https://auth.onepeloton.com/oauth/token
+  env_var_specs:
+    - name: PELOTON_OAUTH_USERNAME
+      kind: auth_flow_input
+      required: false
+      sensitive: true
+      description: Private bootstrap username supplied by the caller's credential wrapper.
+    - name: PELOTON_OAUTH_PASSWORD
+      kind: auth_flow_input
+      required: false
+      sensitive: true
+      description: Private bootstrap password supplied by the caller's credential wrapper.
+required_headers:
+  - {name: Peloton-Platform, value: web}
+config:
+  format: toml
+  path: ~/.config/peloton-pp-cli/config.toml
+learn:
+  disabled: true
+resources:
+  account:
+    description: Current account/profile fact; no implicit account expansion.
+    endpoints:
+      show:
+        method: GET
+        path: /api/me
+        description: Show the current profile fact.
+        response: {type: object, item: Profile}
+  workouts:
+    description: Read-only recorded workout history, detail, and recorded performance facts.
+    endpoints:
+      list:
+        method: GET
+        path: /api/user/{user_id}/workouts
+        description: List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact.
+        params:
+          - {name: user_id, type: string, required: true, positional: true, path_param: true, description: Provider user identifier.}
+          - {name: joins, type: string, default: ride, description: Include linked ride metadata.}
+          - {name: limit, type: int, default: 100, description: Maximum records per page.}
+          - {name: page, type: int, default: 0, description: Zero-based history page.}
+          - {name: sort, type: string, default: -start_time, description: Newest-first sort order.}
+        response: {type: array, item: Workout}
+        response_path: data
+        pagination: {type: page, limit_param: limit, cursor_param: page}
+      show:
+        method: GET
+        path: /api/workout/{workout_id}
+        description: Show a recorded workout detail payload.
+        params:
+          - {name: workout_id, type: string, required: true, positional: true, path_param: true, description: Provider workout identifier.}
+        response: {type: object, item: WorkoutDetail}
+      performance:
+        method: GET
+        path: /api/workout/{workout_id}/performance_graph
+        description: Show recorded performance samples and summaries for one workout.
+        params:
+          - {name: workout_id, type: string, required: true, positional: true, path_param: true, description: Provider workout identifier.}
+          - {name: every_n, type: int, default: 1, description: Sample stride; one preserves full samples.}
+        response: {type: object, item: PerformanceGraph}
+  classes:
+    description: Read-only catalog, class detail, planned structure, and provider filter vocabulary.
+    endpoints:
+      catalog:
+        method: GET
+        path: /api/v2/ride/archived
+        description: List a caller-scoped archived class catalog page.
+        params:
+          - {name: browse_category, type: string, required: true, description: Required catalog category.}
+          - {name: content_format, type: string, required: true, description: Required provider content format.}
+          - {name: limit, type: int, default: 100, description: Maximum records per page.}
+          - {name: page, type: int, default: 0, description: Zero-based catalog page.}
+          - {name: sort_by, type: string, default: original_air_time, description: Provider catalog sort field.}
+          - {name: desc, type: bool, default: true, description: Sort descending.}
+          - {name: instructor_id, type: string, description: Optional embedded-instructor filter.}
+          - {name: class_type_id, type: string, description: Optional provider class-type filter.}
+        response: {type: array, item: Class}
+        response_path: data
+        pagination: {type: page, limit_param: limit, cursor_param: page}
+      show:
+        method: GET
+        path: /api/ride/{ride_id}/details
+        description: Show class metadata and supported planned structure.
+        params:
+          - {name: ride_id, type: string, required: true, positional: true, path_param: true, description: Provider class identifier.}
+        response: {type: object, item: ClassDetail}
+      structure:
+        method: GET
+        path: /api/ride/{ride_id}/details
+        description: Inspect ordered provider segments and target ranges without coaching labels.
+        params:
+          - {name: ride_id, type: string, required: true, positional: true, path_param: true, description: Provider class identifier.}
+        response: {type: object, item: ClassDetail}
+      filters:
+        method: GET
+        path: /api/ride/filters
+        description: Show provider class/filter vocabulary and embedded instructor metadata.
+        params:
+          - {name: include_icon_images, type: bool, default: true, description: Include provider icon image references.}
+          - {name: library_type, type: string, default: on_demand, description: Provider library type.}
+          - {name: browse_category, type: string, required: true, description: Provider browse category.}
+        response: {type: object, item: FilterVocabulary}
+      search:
+        method: GET
+        path: /api/v2/ride/archived
+        description: Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates.
+        params:
+          - {name: browse_category, type: string, required: true, description: Required catalog category.}
+          - {name: content_format, type: string, required: true, description: Required provider content format.}
+          - {name: limit, type: int, default: 100, description: Maximum records per page.}
+          - {name: page, type: int, default: 0, description: Zero-based catalog page.}
+          - {name: sort_by, type: string, default: original_air_time, description: Provider catalog sort field.}
+          - {name: desc, type: bool, default: true, description: Sort descending.}
+          - {name: instructor_id, type: string, description: Optional embedded-instructor filter.}
+          - {name: class_type_id, type: string, description: Optional provider class-type filter.}
+        response: {type: array, item: Class}
+        response_path: data
+        pagination: {type: page, limit_param: limit, cursor_param: page}
+  strength:
+    description: Provider-supplied performed movement facts present only in workout detail payloads.
+    endpoints:
+      movements:
+        method: GET
+        path: /api/workout/{workout_id}
+        description: Inspect provider workout detail containing movement_tracker_data when present; no template fallback.
+        params:
+          - {name: workout_id, type: string, required: true, positional: true, path_param: true, description: Provider workout identifier.}
+        response: {type: object, item: WorkoutDetail}
+types:
+  Profile:
+    fields:
+      - {name: id, type: string, description: Provider profile identifier.}
+      - {name: username, type: string, description: Provider profile display field.}
+  Workout:
+    fields:
+      - {name: id, type: string, description: Provider workout identifier.}
+      - {name: start_time, type: string, description: Provider-recorded start time.}
+      - {name: ride_id, type: string, description: Linked class identifier when present.}
+      - {name: title, type: string, description: Provider workout title.}
+  WorkoutDetail:
+    fields:
+      - {name: id, type: string, description: Provider workout identifier.}
+      - {name: ride, type: object, description: Embedded class metadata when present.}
+      - {name: movement_tracker_data, type: object, description: Provider movement facts when present.}
+  PerformanceGraph:
+    fields:
+      - {name: id, type: string, description: Provider graph identifier when present.}
+      - {name: metrics, type: object, description: Provider performance metric payload.}
+  Class:
+    fields:
+      - {name: id, type: string, description: Provider class identifier.}
+      - {name: title, type: string, description: Provider class title.}
+      - {name: duration, type: int, description: Provider duration in seconds.}
+      - {name: instructor, type: object, description: Embedded instructor metadata when present.}
+  ClassDetail:
+    fields:
+      - {name: id, type: string, description: Provider class identifier.}
+      - {name: segments, type: object, description: Ordered provider segments when present.}
+      - {name: target_metrics, type: object, description: Provider target ranges when present.}
+      - {name: instructor, type: object, description: Embedded instructor metadata when present.}
+  FilterVocabulary:
+    fields:
+      - {name: filters, type: object, description: Provider filter vocabulary.}

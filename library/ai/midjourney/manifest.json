@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "midjourney-pp-mcp",
+  "display_name": "Midjourney",
+  "version": "4.13.0",
+  "description": "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/midjourney-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/midjourney-pp-mcp",
+      "args": [],
+      "env": {
+        "MIDJOURNEY_COOKIE_HEADER": "${user_config.midjourney_cookie_header}"
+      }
+    }
+  },
+  "user_config": {
+    "midjourney_cookie_header": {
+      "type": "string",
+      "title": "MIDJOURNEY_COOKIE_HEADER",
+      "description": "Sets MIDJOURNEY_COOKIE_HEADER for the Midjourney MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

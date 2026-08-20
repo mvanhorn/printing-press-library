@@ -1,0 +1,77 @@
+{
+  "api_name": "ucp",
+  "base_url": "https://api.psp.example.com",
+  "description": "CLI for ucp (generated from docs)",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {API_TOKEN}",
+    "env_vars": [
+      "API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "checkout_create_checkout",
+      "description": "POST /checkout. Optional: version, spec, schema (plus 4 more).",
+      "method": "POST",
+      "path": "/checkout",
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "The version parameter"
+        },
+        {
+          "name": "spec",
+          "type": "string",
+          "location": "body",
+          "description": "The spec parameter"
+        },
+        {
+          "name": "schema",
+          "type": "string",
+          "location": "body",
+          "description": "The schema parameter"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The id parameter"
+        },
+        {
+          "name": "config",
+          "type": "object",
+          "location": "body",
+          "description": "The config parameter"
+        },
+        {
+          "name": "transport",
+          "type": "string",
+          "location": "body",
+          "description": "The transport parameter"
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The endpoint parameter"
+        }
+      ]
+    }
+  ]
+}

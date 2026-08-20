@@ -1,0 +1,51 @@
+version: 2
+project_name: vestaboard-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: vestaboard-pp-cli
+    main: ./cmd/vestaboard-pp-cli
+    binary: vestaboard-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/vestaboard/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: vestaboard-pp-mcp
+    main: ./cmd/vestaboard-pp-mcp
+    binary: vestaboard-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: vestaboard-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output."
+    install: |
+      bin.install "vestaboard-pp-cli"
+      bin.install "vestaboard-pp-mcp"

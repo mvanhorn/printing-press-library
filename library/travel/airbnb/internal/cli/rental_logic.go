@@ -21,6 +21,7 @@ import (
 	_ "github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/searchbackend/tavily"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/source/airbnb"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/source/vrbo"
+	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/store"
 )
 
 type listingRef struct {
@@ -35,6 +36,16 @@ type cheapestParams struct {
 	Guests           int
 	SearchBackend    string
 	MaxDirectResults int
+
+	// store, when non-nil, receives a best-effort persistence side-effect:
+	// computeCheapest writes the scraped listing, its host, and (when a real
+	// price was scraped) a price snapshot into it. nil disables persistence
+	// entirely. Callers that already hold a store handle pass it through so
+	// computeCheapest reuses it instead of opening a second connection;
+	// callers that want persistence but hold no handle open one with
+	// openScrapeStore and pass it. Persistence never affects the returned
+	// result or error — a store failure is swallowed/stderr-warned.
+	store *store.Store
 }
 
 type cheapestOutput struct {
@@ -112,6 +123,13 @@ func computeCheapest(ctx context.Context, rawURL string, p cheapestParams) (*che
 		if total == 0 {
 			platformOption["note"] = airbnbPricingUnavailableNote
 		}
+		// PATCH: best-effort persist the scraped listing, host, and (when a real
+		// price was scraped) a price snapshot. persistPriceSnapshot is guarded
+		// on total > 0 internally, so an unavailable SSR price never writes a
+		// phantom $0 snapshot. All three calls are no-ops when p.store is nil.
+		persistAirbnbListing(p.store, l)
+		persistHost(p.store, host)
+		persistPriceSnapshot(p.store, ref.ID, ref.Platform, p.Checkin, p.Checkout, total, fees)
 	case "vrbo":
 		return nil, apiErr(vrbo.ErrDisabled)
 	}
@@ -169,11 +187,11 @@ func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTi
 		searchLimit = 10
 	}
 	var (
-		results          []searchbackend.Result
-		activeBackend    string
-		attemptedNames   []string
-		backendErrors    []string
-		usedFallback     bool
+		results        []searchbackend.Result
+		activeBackend  string
+		attemptedNames []string
+		backendErrors  []string
+		usedFallback   bool
 	)
 	for i, backend := range chain {
 		attemptedNames = append(attemptedNames, backend.Name())

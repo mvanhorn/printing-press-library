@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "figma-pp-mcp",
+  "display_name": "Figma",
+  "version": "0.0.0",
+  "description": "This is the OpenAPI specification for the [Figma REST API](https://developers.figma.com/docs/rest-api/).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/figma-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/figma-pp-mcp",
+      "args": [],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${user_config.figma_access_token}",
+        "FIGMA_API_KEY": "${user_config.figma_api_key}",
+        "FIGMA_API_TOKEN": "${user_config.figma_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "figma_access_token": {
+      "type": "string",
+      "title": "FIGMA_ACCESS_TOKEN",
+      "description": "Sets FIGMA_ACCESS_TOKEN for the Figma MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "figma_api_key": {
+      "type": "string",
+      "title": "FIGMA_API_KEY",
+      "description": "Sets FIGMA_API_KEY for the Figma MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "figma_api_token": {
+      "type": "string",
+      "title": "FIGMA_API_TOKEN",
+      "description": "Sets FIGMA_API_TOKEN for the Figma MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

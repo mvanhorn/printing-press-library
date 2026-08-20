@@ -13,9 +13,9 @@ func newRivalsCmd(flags *rootFlags) *cobra.Command {
 	var teams, dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "rivals <sport> <league>",
+		Use:         "rivals <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Head-to-head record between two teams from synced data",
+		Short:       "Head-to-head record between two teams from synced data",
 		Example: `  espn-pp-cli rivals football nfl --teams KC,BUF
   espn-pp-cli rivals basketball nba --teams LAL,BOS --json
   espn-pp-cli rivals baseball mlb --teams NYY,BOS`,

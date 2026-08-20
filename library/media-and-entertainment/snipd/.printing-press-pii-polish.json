@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-07-14T08:14:07.069275Z",
+  "cli_dir": "\u003ccli-dir\u003e/snipd",
+  "findings": [
+    {
+      "kind": "postal-address",
+      "file": ".printing-press-patches/snipd-source-and-retrieval-commands.json",
+      "line": 22,
+      "column": 1119,
+      "matched_span": "528 Finding Our Way",
+      "status": "accepted",
+      "note": "'528' is a snip count and 'Finding Our Way' is a podcast show name from an aggregate-by-show verification result, not a street address.",
+      "category": "other",
+      "evidence_context": "Inside the patch record's validated_outcome field: '...Retrieval verified at scale against the real corpus: aggregate by-show (528 Finding Our Way / 336 Lenny's / ...), favorites count 11...' — a press-emitted provenance note quoting per-show snip counts."
+    }
+  ],
+  "findings_count_before": 1
+}

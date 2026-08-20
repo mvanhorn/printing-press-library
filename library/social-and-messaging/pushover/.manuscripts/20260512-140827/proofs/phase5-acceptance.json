@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "pushover",
+  "run_id": "20260512-140827",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 112,
+  "tests_passed": 112,
+  "tests_skipped": 104,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": true
+  }
+}

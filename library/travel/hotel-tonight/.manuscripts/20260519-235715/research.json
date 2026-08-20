@@ -1,0 +1,187 @@
+{
+  "api_name": "hotel-tonight",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T07:10:00Z",
+  "novel_features": [
+    {
+      "name": "Price-drop watch",
+      "command": "watch",
+      "description": "Snapshot a location's deals now and get told which rooms dropped below your threshold or fell since you last looked.",
+      "rationale": "Requires diffing the current inventory against a local time-series of past observations for the same geo and date; HotelTonight has no watchlist, alert, or price memory.",
+      "example": "hotel-tonight-pp-cli watch --lat 37.7749 --lng -122.4194 --when tonight --below 150 --agent",
+      "why_it_matters": "Reach for this when an agent needs to monitor a city for last-minute hotel price drops over time instead of re-querying blind.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Price history",
+      "command": "history",
+      "description": "Show the recorded price and % off history for one hotel from the local store.",
+      "rationale": "Reads the price_snapshots time-series from SQLite; the app deliberately erases prior prices, so this history exists nowhere else.",
+      "example": "hotel-tonight-pp-cli history \"Argonaut Hotel\" --days 30 --agent",
+      "why_it_matters": "Use when you need the actual price trajectory of a hotel rather than a single ephemeral quote.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Is-this-a-deal verdict",
+      "command": "verdict",
+      "description": "Classify a hotel's current quoted price against its own observed low/median/high as cheap, typical, or expensive.",
+      "rationale": "Computes percentile bands from the hotel's stored snapshot history — an objective baseline the app never surfaces. Mechanical math, no model.",
+      "example": "hotel-tonight-pp-cli verdict \"Argonaut Hotel\" --agent",
+      "why_it_matters": "Reach for this to answer 'is this actually cheap?' with a grounded baseline instead of a guess.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Neighborhood compare",
+      "command": "compare-neighborhoods",
+      "description": "Group tonight's deals in a metro by neighborhood and rank the neighborhoods by median price or best % off.",
+      "rationale": "A local group-by over inventory rows; the flat /v6/inventory feed returns no neighborhood rollup and the app shows one pin at a time.",
+      "example": "hotel-tonight-pp-cli compare-neighborhoods --metro 1 --when tonight --agent",
+      "why_it_matters": "Use when deciding which area of a city has the best last-minute value tonight.",
+      "group": "Live deal views"
+    },
+    {
+      "name": "Date-shift scan",
+      "command": "datescan",
+      "description": "Compare a location's deals across tonight, tomorrow, and the weekend in one ranked side-by-side view.",
+      "rationale": "Fans out real inventory calls per date and assembles a comparison the app only shows one date at a time.",
+      "example": "hotel-tonight-pp-cli datescan --lat 30.3071 --lng -97.7354 --agent",
+      "why_it_matters": "Reach for this to find the cheapest night to stay in an area without running the search repeatedly.",
+      "group": "Live deal views"
+    },
+    {
+      "name": "Daily Drop tracker",
+      "command": "daily-drop",
+      "description": "Reveal today's Daily Drop hotel and its real discounted price for a market (the app hides it behind a slide-to-unlock gate), and with --history read the recorded run of past Daily Drops.",
+      "rationale": "The Daily Drop is gated behind an account-only unlock in the app, but the full deal (hotel, price, savings) is embedded in the server-rendered results page; this reads it anonymously and persists it, recording the once-a-day deal the app makes ephemeral.",
+      "example": "hotel-tonight-pp-cli daily-drop --metro 1 --agent",
+      "why_it_matters": "Use to see and track HotelTonight's exclusive once-a-day flash deal, which the app hides until you unlock it and erases each day.",
+      "group": "Live deal views"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price-drop watch",
+      "command": "watch",
+      "description": "Snapshot a location's deals now and get told which rooms dropped below your threshold or fell since you last looked.",
+      "rationale": "Requires diffing the current inventory against a local time-series of past observations for the same geo and date; HotelTonight has no watchlist, alert, or price memory.",
+      "example": "hotel-tonight-pp-cli watch --lat 37.7749 --lng -122.4194 --when tonight --below 150 --agent",
+      "why_it_matters": "Reach for this when an agent needs to monitor a city for last-minute hotel price drops over time instead of re-querying blind.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Price history",
+      "command": "history",
+      "description": "Show the recorded price and % off history for one hotel from the local store.",
+      "rationale": "Reads the price_snapshots time-series from SQLite; the app deliberately erases prior prices, so this history exists nowhere else.",
+      "example": "hotel-tonight-pp-cli history \"Argonaut Hotel\" --days 30 --agent",
+      "why_it_matters": "Use when you need the actual price trajectory of a hotel rather than a single ephemeral quote.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Is-this-a-deal verdict",
+      "command": "verdict",
+      "description": "Classify a hotel's current quoted price against its own observed low/median/high as cheap, typical, or expensive.",
+      "rationale": "Computes percentile bands from the hotel's stored snapshot history — an objective baseline the app never surfaces. Mechanical math, no model.",
+      "example": "hotel-tonight-pp-cli verdict \"Argonaut Hotel\" --agent",
+      "why_it_matters": "Reach for this to answer 'is this actually cheap?' with a grounded baseline instead of a guess.",
+      "group": "Local price intelligence"
+    },
+    {
+      "name": "Neighborhood compare",
+      "command": "compare-neighborhoods",
+      "description": "Group tonight's deals in a metro by neighborhood and rank the neighborhoods by median price or best % off.",
+      "rationale": "A local group-by over inventory rows; the flat /v6/inventory feed returns no neighborhood rollup and the app shows one pin at a time.",
+      "example": "hotel-tonight-pp-cli compare-neighborhoods --metro 1 --when tonight --agent",
+      "why_it_matters": "Use when deciding which area of a city has the best last-minute value tonight.",
+      "group": "Live deal views"
+    },
+    {
+      "name": "Date-shift scan",
+      "command": "datescan",
+      "description": "Compare a location's deals across tonight, tomorrow, and the weekend in one ranked side-by-side view.",
+      "rationale": "Fans out real inventory calls per date and assembles a comparison the app only shows one date at a time.",
+      "example": "hotel-tonight-pp-cli datescan --lat 30.3071 --lng -97.7354 --agent",
+      "why_it_matters": "Reach for this to find the cheapest night to stay in an area without running the search repeatedly.",
+      "group": "Live deal views"
+    },
+    {
+      "name": "Daily Drop tracker",
+      "command": "daily-drop",
+      "description": "Reveal today's Daily Drop hotel and its real discounted price for a market (the app hides it behind a slide-to-unlock gate), and with --history read the recorded run of past Daily Drops.",
+      "rationale": "The Daily Drop is gated behind an account-only unlock in the app, but the full deal (hotel, price, savings) is embedded in the server-rendered results page; this reads it anonymously and persists it, recording the once-a-day deal the app makes ephemeral.",
+      "example": "hotel-tonight-pp-cli daily-drop --metro 1 --agent",
+      "why_it_matters": "Use to see and track HotelTonight's exclusive once-a-day flash deal, which the app hides until you unlock it and erases each day.",
+      "group": "Live deal views"
+    }
+  ],
+  "narrative": {
+    "display_name": "HotelTonight",
+    "headline": "Last-minute hotel deals with a local price-history database no HotelTonight client has — snapshot deals over time, watch a city for drops, and rank by real % off.",
+    "value_prop": "HotelTonight's deals are deliberately ephemeral and geo-local: they appear, drop, and vanish, and you only ever see now, here. This CLI syncs the anonymous deal feed into a local SQLite store and snapshots prices over time, so you (or an agent) can watch a city for drops, see a hotel's real price history, and get an objective cheap/typical/expensive verdict — none of which the app supports.",
+    "auth_narrative": "No account or API key. HotelTonight's consumer endpoints are reachable anonymously; the CLI sends the app-identifying headers it needs automatically. Booking still happens in the app — this tool is read-only.",
+    "quickstart": [
+      {
+        "command": "hotel-tonight-pp-cli markets list",
+        "comment": "See HotelTonight's major markets and their ids (1 = San Francisco, 72 = Austin)."
+      },
+      {
+        "command": "hotel-tonight-pp-cli deals --lat 37.7749 --lng -122.4194 --sort discount",
+        "comment": "Pull tonight's deals near a location ranked by % off; this also records a price snapshot so history and watch have data to work with."
+      },
+      {
+        "command": "hotel-tonight-pp-cli watch --lat 37.7749 --lng -122.4194 --when tonight --below 150",
+        "comment": "Flag rooms under $150 or that dropped since the last snapshot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "inventory search returns an error about a bad request",
+        "fix": "Pass both --latitude and --longitude; the deal feed is geo-anchored and needs a coordinate pair."
+      },
+      {
+        "symptom": "history or verdict says no data for a hotel",
+        "fix": "Run sync for that area first — those commands read the local snapshot store, which starts empty."
+      },
+      {
+        "symptom": "a market id is not in 'markets list'",
+        "fix": "The list is a curated set of major markets; any numeric id still resolves via 'markets get \u003cid\u003e', and search works from any lat/lng."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs last-minute hotel deal data from HotelTonight that persists and compounds: monitoring a city for price drops, building a price history for a hotel, judging whether a quoted rate is actually cheap, or comparing neighborhoods and dates. It is read-only and anonymous — it never books and never needs a login.",
+    "recipes": [
+      {
+        "title": "Tonight's cheapest near a coordinate, trimmed for agents",
+        "command": "hotel-tonight-pp-cli inventory --latitude 37.7749 --longitude -122.4194 --agent --select rooms.hotel.name,rooms.hotel.neighborhood,rooms.customer_price_per_night,rooms.strikethrough_price,rooms.deal_type",
+        "explanation": "The raw inventory payload is tens of KB of nested deal data; --select with dotted paths returns just the hotel, neighborhood, price, 30-day-high, and deal type so an agent doesn't burn context."
+      },
+      {
+        "title": "Watch a neighborhood for a price target",
+        "command": "hotel-tonight-pp-cli watch --lat 37.7749 --lng -122.4194 --when tonight --below 150",
+        "explanation": "Snapshots current deals and reports rooms now under $150 or cheaper than the last observation — run it on a cron to catch drops while you're away."
+      },
+      {
+        "title": "Decide which night to stay",
+        "command": "hotel-tonight-pp-cli datescan --lat 30.3071 --lng -97.7354",
+        "explanation": "Lines up tonight vs tomorrow vs the weekend for the same area so you can pick the cheapest night in one view."
+      },
+      {
+        "title": "Is this rate actually good?",
+        "command": "hotel-tonight-pp-cli verdict \"Argonaut Hotel\"",
+        "explanation": "Classifies the current quote against the hotel's own recorded low/median/high — requires a few prior syncs to build the baseline."
+      }
+    ],
+    "trigger_phrases": [
+      "find a last-minute hotel tonight",
+      "watch this city for hotel price drops",
+      "is this hotel price a good deal",
+      "what's the daily drop in San Francisco",
+      "cheapest hotel night this weekend",
+      "use hotel-tonight",
+      "run hotel-tonight"
+    ]
+  }
+}

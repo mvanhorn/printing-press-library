@@ -1,4 +1,4 @@
-// Copyright 2026 cathryn-lavery. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 // Cobra command layout follows Printing Press CLI ergonomics while keeping unsafe operations deferred.
 
 package cli
@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "0.1.0"
+var version = "2026.8.1"
 var noColor bool
 
 type rootFlags struct {

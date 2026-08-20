@@ -1,0 +1,340 @@
+{
+  "api_name": "exchangerate-api",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "TimothyYe/exchangerate",
+      "url": "https://github.com/TimothyYe/exchangerate",
+      "language": "Go",
+      "install_method": "",
+      "stars": 33,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wesbos/currency-conversion-mcp",
+      "url": "https://github.com/wesbos/currency-conversion-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 35,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "markwragg/PowerShell-CurrencyConverter",
+      "url": "https://github.com/markwragg/PowerShell-CurrencyConverter",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cahthuranag/realtime-exchange-rate-mcp",
+      "url": "https://github.com/cahthuranag/realtime-exchange-rate-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "VersBinarii/poile",
+      "url": "https://github.com/VersBinarii/poile",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T02:56:00Z",
+  "novel_features": [
+    {
+      "name": "Local history reconstruction",
+      "command": "history-cache",
+      "description": "Reconstruct historical FX rates from your prior `latest` syncs — free tier gets time travel without `/history` quota.",
+      "rationale": "Requires append-only `rates_snapshots` table populated from every `latest` call; no competing CLI persists snapshots.",
+      "example": "exchangerate-api-pp-cli history-cache USD EUR --since 30d --json",
+      "why_it_matters": "Use when the user asks for past rates and the API key is on the Free or Standard tier where `/history` returns plan-upgrade-required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist with drift alerts",
+      "command": "watch check",
+      "description": "Define currency pairs with movement thresholds; one command reports which crossed since the last check.",
+      "rationale": "Requires a persistent `watchlist` table joined against `rates_snapshots`; no other CLI has a watchlist concept.",
+      "example": "exchangerate-api-pp-cli watch check --json",
+      "why_it_matters": "Use as a periodic monitor (cron/agent loop) instead of polling a paid alerting service.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drift detection between syncs",
+      "command": "drift",
+      "description": "Diff the latest snapshot against any prior point and report the biggest movers as ranked output.",
+      "rationale": "Joins two rows of `rates_snapshots`; requires local history nobody else stores.",
+      "example": "exchangerate-api-pp-cli drift --base USD --since 24h --top 10 --json",
+      "why_it_matters": "Use to surface unusual FX moves the user cares about without writing a custom analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota burn projection",
+      "command": "quota burn",
+      "description": "Fit a trend over `quota_snapshots` and project when your quota will exhaust before refresh day.",
+      "rationale": "Requires longitudinal quota history; the single-call `/quota` endpoint cannot do this.",
+      "example": "exchangerate-api-pp-cli quota burn --json",
+      "why_it_matters": "Use before deploying anything that will hammer the API — the projection tells you if you'll survive the month.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "N×N cross-rate matrix",
+      "command": "matrix",
+      "description": "Show full cross-rate matrix for any set of currencies from a single `latest` call — N² rates, 1 quota tick.",
+      "rationale": "Computes cross-rates locally from one base; no other tool does this from one API call.",
+      "example": "exchangerate-api-pp-cli matrix USD,EUR,GBP,JPY --base USD --json",
+      "why_it_matters": "Use when comparing many pairs at once; saves quota and runs offline after one sync.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "Batch conversion from stdin",
+      "command": "convert-batch",
+      "description": "Pipe a list of amounts to a single command; converts all of them with one rate fetch.",
+      "rationale": "Standard `convert` calls the API per invocation; batching with one fetch is unique here.",
+      "example": "exchangerate-api-pp-cli convert-batch --from USD --to EUR --input /dev/null --json",
+      "why_it_matters": "Use when processing many amounts (orders, transactions) without burning the quota linearly.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "Plan/tier probe",
+      "command": "plan-check",
+      "description": "Probe each tier-gated endpoint with a single low-cost request; reports which tier your key supports.",
+      "rationale": "No competitor probes which tier the user is on; everyone reads pricing pages by hand.",
+      "example": "exchangerate-api-pp-cli plan-check --json",
+      "why_it_matters": "Use right after `doctor` to know which commands will work without `plan-upgrade-required`.",
+      "group": "Onboarding"
+    },
+    {
+      "name": "Time-traveling cache reads",
+      "command": "pair --as-of",
+      "description": "Look up the rate from local snapshots at any historical timestamp — free tier time travel.",
+      "rationale": "Reads `rates_snapshots` for the closest captured rate at a timestamp; no other CLI captures snapshots.",
+      "example": "exchangerate-api-pp-cli rates pair USD EUR --as-of 1h --json",
+      "why_it_matters": "Use when reconstructing the rate that was live at a specific moment without needing the paid `/history` endpoint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversion log",
+      "command": "log show",
+      "description": "Every `convert` call is logged; query the log by base, target, time window for recurring conversion analysis.",
+      "rationale": "Persistent log isn't an API feature; only a local store can offer it.",
+      "example": "exchangerate-api-pp-cli log show --since 7d --json",
+      "why_it_matters": "Use to remind an agent what FX work was done recently without re-querying the API.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "MCP server for agents",
+      "command": "mcp serve",
+      "description": "Every user-facing command is exposed as an MCP tool with read-only annotations on safe queries.",
+      "rationale": "Generator emits the cobratree mirror; no existing ExchangeRate-API MCP server exists.",
+      "example": "exchangerate-api-pp-cli mcp serve",
+      "why_it_matters": "Use when wiring Claude/Cursor/Windsurf to FX context — no competing MCP for this API today.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local history reconstruction",
+      "command": "history-cache",
+      "description": "Reconstruct historical FX rates from your prior `latest` syncs — free tier gets time travel without `/history` quota.",
+      "rationale": "Requires append-only `rates_snapshots` table populated from every `latest` call; no competing CLI persists snapshots.",
+      "example": "exchangerate-api-pp-cli history-cache USD EUR --since 30d --json",
+      "why_it_matters": "Use when the user asks for past rates and the API key is on the Free or Standard tier where `/history` returns plan-upgrade-required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist with drift alerts",
+      "command": "watch check",
+      "description": "Define currency pairs with movement thresholds; one command reports which crossed since the last check.",
+      "rationale": "Requires a persistent `watchlist` table joined against `rates_snapshots`; no other CLI has a watchlist concept.",
+      "example": "exchangerate-api-pp-cli watch check --json",
+      "why_it_matters": "Use as a periodic monitor (cron/agent loop) instead of polling a paid alerting service.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drift detection between syncs",
+      "command": "drift",
+      "description": "Diff the latest snapshot against any prior point and report the biggest movers as ranked output.",
+      "rationale": "Joins two rows of `rates_snapshots`; requires local history nobody else stores.",
+      "example": "exchangerate-api-pp-cli drift --base USD --since 24h --top 10 --json",
+      "why_it_matters": "Use to surface unusual FX moves the user cares about without writing a custom analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota burn projection",
+      "command": "quota burn",
+      "description": "Fit a trend over `quota_snapshots` and project when your quota will exhaust before refresh day.",
+      "rationale": "Requires longitudinal quota history; the single-call `/quota` endpoint cannot do this.",
+      "example": "exchangerate-api-pp-cli quota burn --json",
+      "why_it_matters": "Use before deploying anything that will hammer the API — the projection tells you if you'll survive the month.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "N×N cross-rate matrix",
+      "command": "matrix",
+      "description": "Show full cross-rate matrix for any set of currencies from a single `latest` call — N² rates, 1 quota tick.",
+      "rationale": "Computes cross-rates locally from one base; no other tool does this from one API call.",
+      "example": "exchangerate-api-pp-cli matrix USD,EUR,GBP,JPY --base USD --json",
+      "why_it_matters": "Use when comparing many pairs at once; saves quota and runs offline after one sync.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "Batch conversion from stdin",
+      "command": "convert-batch",
+      "description": "Pipe a list of amounts to a single command; converts all of them with one rate fetch.",
+      "rationale": "Standard `convert` calls the API per invocation; batching with one fetch is unique here.",
+      "example": "exchangerate-api-pp-cli convert-batch --from USD --to EUR --input /dev/null --json",
+      "why_it_matters": "Use when processing many amounts (orders, transactions) without burning the quota linearly.",
+      "group": "Quota intelligence"
+    },
+    {
+      "name": "Plan/tier probe",
+      "command": "plan-check",
+      "description": "Probe each tier-gated endpoint with a single low-cost request; reports which tier your key supports.",
+      "rationale": "No competitor probes which tier the user is on; everyone reads pricing pages by hand.",
+      "example": "exchangerate-api-pp-cli plan-check --json",
+      "why_it_matters": "Use right after `doctor` to know which commands will work without `plan-upgrade-required`.",
+      "group": "Onboarding"
+    },
+    {
+      "name": "Time-traveling cache reads",
+      "command": "pair --as-of",
+      "description": "Look up the rate from local snapshots at any historical timestamp — free tier time travel.",
+      "rationale": "Reads `rates_snapshots` for the closest captured rate at a timestamp; no other CLI captures snapshots.",
+      "example": "exchangerate-api-pp-cli rates pair USD EUR --as-of 1h --json",
+      "why_it_matters": "Use when reconstructing the rate that was live at a specific moment without needing the paid `/history` endpoint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversion log",
+      "command": "log show",
+      "description": "Every `convert` call is logged; query the log by base, target, time window for recurring conversion analysis.",
+      "rationale": "Persistent log isn't an API feature; only a local store can offer it.",
+      "example": "exchangerate-api-pp-cli log show --since 7d --json",
+      "why_it_matters": "Use to remind an agent what FX work was done recently without re-querying the API.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "MCP server for agents",
+      "command": "mcp serve",
+      "description": "Every user-facing command is exposed as an MCP tool with read-only annotations on safe queries.",
+      "rationale": "Generator emits the cobratree mirror; no existing ExchangeRate-API MCP server exists.",
+      "example": "exchangerate-api-pp-cli mcp serve",
+      "why_it_matters": "Use when wiring Claude/Cursor/Windsurf to FX context — no competing MCP for this API today.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "ExchangeRate-API",
+    "headline": "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server no one else ships.",
+    "value_prop": "This CLI exposes every ExchangeRate-API endpoint (latest, pair, codes, quota, enriched, history) as typed commands and layers on offline-first features the API can't provide: local snapshots in SQLite, watchlists with drift alerts, quota burn projection, N×N cross-rate matrices from a single API call, and an MCP server for AI agents. Free-tier users get time travel from their own captured history without paying for /history access.",
+    "auth_narrative": "Set `EXCHANGERATE_API_KEY` from your ExchangeRate-API dashboard (https://app.exchangerate-api.com/). All commands route through `https://v6.exchangerate-api.com/v6/{key}/...`. The `open` command uses the keyless `https://open.er-api.com/v6/latest/{base}` endpoint and requires the 'Rates By Exchange Rate API' attribution if you redistribute its output.",
+    "quickstart": [
+      {
+        "command": "exchangerate-api-pp-cli doctor",
+        "comment": "Confirms key works and the API is reachable"
+      },
+      {
+        "command": "exchangerate-api-pp-cli sync-rates --base USD",
+        "comment": "Pulls latest rates and seeds local snapshots; foundation for offline + history features"
+      },
+      {
+        "command": "exchangerate-api-pp-cli rates pair USD EUR",
+        "comment": "Single-pair lookup, the most common request"
+      },
+      {
+        "command": "exchangerate-api-pp-cli convert 250 USD EUR,GBP,JPY --json",
+        "comment": "Multi-target conversion with one API call"
+      },
+      {
+        "command": "exchangerate-api-pp-cli matrix USD,EUR,GBP,JPY --base USD --json",
+        "comment": "Cross-rate matrix — N² rates, 1 quota tick"
+      },
+      {
+        "command": "exchangerate-api-pp-cli quota burn --json",
+        "comment": "How fast you're burning the monthly 1500-call quota"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`error-type: invalid-key`",
+        "fix": "Run `exchangerate-api-pp-cli doctor` to confirm `EXCHANGERATE_API_KEY` is exported in the current shell."
+      },
+      {
+        "symptom": "`error-type: quota-reached`",
+        "fix": "Hit your monthly limit. Use cached data via `pair --as-of`, `history-cache`, or wait until your refresh day (see `quota` output)."
+      },
+      {
+        "symptom": "`error-type: plan-upgrade-required` on `enriched`/`history`",
+        "fix": "Those endpoints require a paid tier. Use `plan-check` to see which endpoints your key supports."
+      },
+      {
+        "symptom": "`history` returns nothing",
+        "fix": "Fall back to local snapshots: `history-cache \u003cBASE\u003e \u003cTARGET\u003e` if you've been syncing."
+      },
+      {
+        "symptom": "`open` rate-limited (HTTP 429)",
+        "fix": "Open-access endpoint resets after 20 minutes. Switch to a keyed `latest \u003cBASE\u003e` call."
+      }
+    ],
+    "when_to_use": "Reach for exchangerate-api-pp-cli whenever an agent or script needs live FX rates, multi-target conversions, or persistent historical context. It's the right pick over a one-off HTTP call when the agent will run more than once on the same data, when quota matters (1500/mo Free tier), or when the workflow benefits from a watchlist, drift report, or cross-rate matrix that requires local state. Use the MCP server (`mcp serve`) when wiring FX context into Claude Desktop, Cursor, or Windsurf.",
+    "recipes": [
+      {
+        "title": "One-shot conversion in a script",
+        "command": "exchangerate-api-pp-cli convert 1000 USD EUR --json --select conversion_result",
+        "explanation": "Returns just the converted number for downstream piping."
+      },
+      {
+        "title": "Daily sync + drift report (cron)",
+        "command": "exchangerate-api-pp-cli sync-rates --base USD \u0026\u0026 exchangerate-api-pp-cli drift --base USD --since 24h --top 10 --json",
+        "explanation": "Captures today's rates and surfaces the largest movers vs the prior snapshot."
+      },
+      {
+        "title": "Pre-deploy quota check",
+        "command": "exchangerate-api-pp-cli quota burn --json --select projected_exhaustion,requests_remaining",
+        "explanation": "Projects when the monthly quota will run out, given recent usage."
+      },
+      {
+        "title": "Cross-rate matrix for a portfolio",
+        "command": "exchangerate-api-pp-cli matrix USD,EUR,GBP,JPY,CHF,CAD --base USD --csv",
+        "explanation": "Full N×N matrix from one API call; pipes cleanly into spreadsheets."
+      },
+      {
+        "title": "Watch a pair and alert when it moves",
+        "command": "exchangerate-api-pp-cli watch add USD EUR --threshold 1.0 \u0026\u0026 exchangerate-api-pp-cli watch check --json",
+        "explanation": "Stores a threshold; subsequent `watch check` calls flag any pair that crossed."
+      }
+    ],
+    "trigger_phrases": [
+      "convert USD to EUR",
+      "what's the exchange rate for",
+      "check my FX quota",
+      "sync exchange rates",
+      "what was USD/EUR last week",
+      "use exchangerate-api",
+      "run exchangerate-api"
+    ]
+  }
+}

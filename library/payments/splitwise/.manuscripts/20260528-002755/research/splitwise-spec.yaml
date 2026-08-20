@@ -1,0 +1,1894 @@
+openapi: 3.0.1
+info:
+  version: 3.0.0
+  title: Splitwise API
+  x-logo:
+    url: https://www.splitwise.com/assets/press/logos/sw.svg
+    altText: Splitwise logo and name
+  description: The Splitwise API for managing shared expenses, groups, friends, and settle-ups. See https://dev.splitwise.com
+    for full docs and terms of use.
+servers:
+- url: https://secure.splitwise.com/api/v3.0
+  variables: {}
+security:
+- ApiKeyAuth: []
+- OAuth: []
+tags:
+- name: users
+  x-displayName: Users
+  description: Resources to access and modify user information.
+- name: groups
+  x-displayName: Groups
+  description: A Group represents a collection of users who share expenses together. For example, some users use a Group to
+    aggregate expenses related to a home. Others use it to represent a trip. Expenses assigned to a group are split among
+    the users of that group. Importantly, two users in a Group can also have expenses with one another outside of the Group.
+- name: friends
+  x-displayName: Friends
+- name: expenses
+  x-displayName: Expenses
+- name: comments
+  x-displayName: Comments
+- name: notifications
+  x-displayName: Notifications
+- name: other
+  x-displayName: Other
+paths:
+  /get_current_user:
+    get:
+      tags:
+      - users
+      summary: Get information about the current user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/current_user'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /get_user/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - users
+      summary: Get information about another user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/user'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /update_user/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    post:
+      tags:
+      - users
+      summary: Update a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                locale:
+                  type: string
+                default_currency:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /get_groups:
+    get:
+      tags:
+      - groups
+      summary: List the current user's groups
+      description: '**Note**: Expenses that are not associated with a group are listed in a group with ID 0.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /get_group/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - groups
+      summary: Get information about a group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group:
+                    $ref: '#/components/schemas/group'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /create_group:
+    post:
+      tags:
+      - groups
+      summary: Create a group
+      description: 'Creates a new group. Adds the current user to the group by default.
+
+
+        **Note**: group user parameters must be flattened into the format `users__{index}__{property}`, where
+
+        `property` is `user_id`, `first_name`, `last_name`, or `email`.
+
+        The user''s email or ID must be provided.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                group_type:
+                  type: string
+                  enum:
+                  - home
+                  - trip
+                  - couple
+                  - other
+                  - apartment
+                  - house
+                  example: home
+                  description: 'What is the group used for?
+
+
+                    **Note**: It is recommended to use `home` in place of `house` or `apartment`.
+
+                    '
+                simplify_by_default:
+                  type: boolean
+                  description: Turn on simplify debts?
+              additionalProperties:
+                type: string
+                x-additionalPropertiesName: users__{index}__{property}
+              example:
+                name: The Brain Trust
+                group_type: trip
+                users__0__first_name: Alan
+                users__0__last_name: Turing
+                users__0__email: alan@example.org
+                users__1__id: 5823
+              required:
+              - name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group:
+                    $ref: '#/components/schemas/group'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      base:
+                        type: array
+                        items:
+                          type: string
+                          example: You cannot add unknown users to a group by user_id
+  /delete_group/{id}:
+    post:
+      tags:
+      - groups
+      summary: Delete a group
+      description: Delete an existing group. Destroys all associated records (expenses, etc.)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /undelete_group/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    post:
+      tags:
+      - groups
+      summary: Restore a group
+      description: 'Restores a deleted group.
+
+
+        **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: string
+              examples:
+                Success:
+                  value:
+                    success: true
+                Failure:
+                  value:
+                    success: false
+                    errors:
+                    - You do not have permission to undelete this group.
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /add_user_to_group:
+    post:
+      tags:
+      - groups
+      summary: Add a user to a group
+      description: '**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                title: User ID
+                properties:
+                  group_id:
+                    type: integer
+                    example: 49012
+                  user_id:
+                    type: integer
+                    example: 7999632
+                required:
+                - user_id
+              - type: object
+                title: User info
+                properties:
+                  group_id:
+                    type: integer
+                    example: 49012
+                  first_name:
+                    type: string
+                    example: Grace
+                  last_name:
+                    type: string
+                    example: Hopper
+                  email:
+                    type: string
+                    example: gracehopper@example.com
+                required:
+                - first_name
+                - last_name
+                - email
+              required:
+              - group_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/user'
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+              examples:
+                Success:
+                  value:
+                    success: true
+                    user: {}
+                    errors: {}
+                Failure:
+                  value:
+                    success: false
+                    user: null
+                    errors:
+                      base:
+                      - That user cannot be a member of this group
+  /remove_user_from_group:
+    post:
+      tags:
+      - groups
+      summary: Remove a user from a group
+      description: 'Remove a user from a group. Does not succeed if the user has a non-zero balance.
+
+
+        **Note:** 200 OK does not indicate a successful response. You must check the success value of the response.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_id:
+                  type: integer
+                  example: 4012
+                user_id:
+                  type: integer
+                  example: 940142
+              required:
+              - user_id
+              - group_id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+              examples:
+                Success:
+                  value:
+                    success: true
+                    errors: {}
+                Failure:
+                  value:
+                    success: false
+                    errors:
+                      base:
+                      - The user has a non-zero balance
+  /get_friends:
+    get:
+      tags:
+      - friends
+      summary: List current user's friends
+      description: '**Note**: `group` objects only include group balances with that friend.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friends:
+                    type: array
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/friend'
+                      - title: User
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /get_friend/{id}:
+    parameters:
+    - in: path
+      name: id
+      description: User ID of the friend
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - friends
+      summary: Get details about a friend
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friend:
+                    $ref: '#/components/schemas/friend'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /create_friend:
+    post:
+      tags:
+      - friends
+      summary: Add a friend
+      description: 'Adds a friend. If the other user does not exist, you must supply `user_first_name`.
+
+        If the other user exists, `user_first_name` and `user_last_name` will be ignored.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_email:
+                  type: string
+                  example: ada@example.com
+                user_first_name:
+                  type: string
+                  example: Ada
+                user_last_name:
+                  type: string
+                  example: Lovelace
+              required:
+              - email
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friend:
+                    $ref: '#/components/schemas/friend'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /create_friends:
+    post:
+      tags:
+      - friends
+      summary: Add friends
+      description: 'Add multiple friends at once.
+
+
+        For each user, if the other user does not exist, you must supply `users__{index}__first_name`.
+
+
+        **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where
+
+        `property` is `first_name`, `last_name`, or `email`.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+                x-additionalPropertiesName: users__{index}__{property}
+            example:
+              users__0__first_name: Alan
+              users__0__last_name: Turing
+              users__0__email: alan@example.org
+              users__1__email: existing_user@example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/friend'
+                      - title: User
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/friend'
+                      - title: User
+                    example: []
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      base:
+                      - Please supply a name for this user
+                example:
+                  users: []
+                  errors:
+                    base:
+                    - That user cannot be a member of this group
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /delete_friend/{id}:
+    post:
+      tags:
+      - friends
+      summary: Delete friendship
+      description: 'Given a friend ID, break off the friendship between the current user and the specified user.
+
+
+        **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.
+
+        '
+      parameters:
+      - in: path
+        name: id
+        description: User ID of the friend
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+              examples:
+                Success:
+                  value:
+                    success: true
+                    errors: []
+                Failure:
+                  value:
+                    success: false
+                    errors:
+                      base:
+                      - There was an issue deleting that friendship
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /get_currencies:
+    get:
+      tags:
+      - other
+      summary: Supported currencies
+      security: []
+      description: 'Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do
+
+        sometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin).
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currencies:
+                    type: array
+                    items:
+                      type: object
+                      title: Currency
+                      properties:
+                        currency_code:
+                          type: string
+                          example: BRL
+                        unit:
+                          type: string
+                          example: R$
+  /get_expense/{id}:
+    parameters:
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    get:
+      tags:
+      - expenses
+      summary: Get expense information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expense:
+                    $ref: '#/components/schemas/expense'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /get_expenses:
+    get:
+      tags:
+      - expenses
+      summary: List the current user's expenses
+      parameters:
+      - in: query
+        name: group_id
+        schema:
+          type: integer
+        description: If provided, only expenses in that group will be returned, and `friend_id` will be ignored.
+      - in: query
+        name: friend_id
+        schema:
+          type: integer
+        description: ID of another user. If provided, only expenses between the current and provided user will be returned.
+      - in: query
+        name: dated_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: dated_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: updated_after
+        schema:
+          type: string
+          format: update-time
+      - in: query
+        name: updated_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 20
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/expense'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /create_expense:
+    post:
+      tags:
+      - expenses
+      summary: Create an expense
+      description: 'Creates an expense. You may either split an expense equally (only with `group_id` provided),
+
+        or supply a list of shares.
+
+
+        When splitting equally, the authenticated user is assumed to be the payer.
+
+
+        When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by
+        one of the following:
+
+        - `email`, `first_name`, and `last_name`
+
+        - `user_id`
+
+
+        **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/equal_group_split'
+                title: Equal group split
+              - $ref: '#/components/schemas/by_shares'
+                title: Split by shares
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/expense'
+                  errors:
+                    type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      base:
+                        type: array
+                        items:
+                          type: string
+                          example: Unrecognized parameter `bad_parameter`
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /update_expense/{id}:
+    post:
+      tags:
+      - expenses
+      summary: Update an expense
+      description: 'Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters
+
+        that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_
+
+        shares for the expense will be overwritten with the provided values.
+
+
+        **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty.
+
+        '
+      parameters:
+      - in: path
+        name: id
+        description: ID of the expense to update
+        schema:
+          type: integer
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/by_shares'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/expense'
+                  errors:
+                    type: object
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /delete_expense/{id}:
+    post:
+      tags:
+      - expenses
+      summary: Delete an expense
+      description: '**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success`
+        is true.
+
+        '
+      parameters:
+      - in: path
+        name: id
+        description: ID of the expense to delete
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errors:
+                    type: object
+                required:
+                - success
+              examples:
+                Success:
+                  value:
+                    success: true
+                Failure:
+                  value:
+                    success: false
+                    errors:
+                      expense:
+                      - does not exist, or has already been deleted
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /undelete_expense/{id}:
+    post:
+      tags:
+      - expenses
+      summary: Restore an expense
+      description: '**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success`
+        is true.
+
+        '
+      parameters:
+      - in: path
+        name: id
+        description: ID of the expense to restore
+        schema:
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+  /get_comments:
+    get:
+      tags:
+      - comments
+      summary: Get expense comments
+      parameters:
+      - in: query
+        name: expense_id
+        schema:
+          type: integer
+        required: true
+        example: 4193
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /create_comment:
+    post:
+      tags:
+      - comments
+      summary: Create a comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expense_id:
+                  type: integer
+                  example: 5123
+                content:
+                  type: string
+                  example: Does this include the delivery fee?
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comment:
+                    allOf:
+                    - $ref: '#/components/schemas/comment'
+                    - type: object
+                      properties:
+                        relation_id:
+                          example: 5123
+                        comment_type:
+                          example: User
+                        content:
+                          example: Does this include the delivery fee?
+                        user:
+                          $ref: '#/components/schemas/comment_user'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /delete_comment/{id}:
+    post:
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - comments
+      summary: Delete a comment
+      description: Deletes a comment. Returns the deleted comment.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comment:
+                    allOf:
+                    - $ref: '#/components/schemas/comment'
+                    - type: object
+                      properties:
+                        comment_type:
+                          example: User
+                        content:
+                          example: Does this include the delivery fee?
+                        user:
+                          $ref: '#/components/schemas/comment_user'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/not_found'
+  /get_notifications:
+    get:
+      tags:
+      - notifications
+      summary: Get notifications
+      description: "Return a list of recent activity on the users account with the most recent items first.\n`content` will\
+        \ be suitable for display in HTML and uses only the `<strong>`, `<strike>`, `<small>`,\n`<br>` and `<font color=\"\
+        #FFEE44\">` tags.\n\nThe `type` value indicates what the notification is about. Notification types may be added in\
+        \ the future\nwithout warning. Below is an incomplete list of notification types.\n\n| Type | Meaning |\n| ---- |\
+        \ ------- |\n| 0    | Expense added |\n| 1    | Expense updated |\n| 2\t   | Expense deleted |\n| 3\t   | Comment\
+        \ added |\n| 4\t   | Added to group |\n| 5\t   | Removed from group |\n| 6\t   | Group deleted |\n| 7\t   | Group\
+        \ settings changed |\n| 8\t   | Added as friend |\n| 9\t   | Removed as friend |\n| 10\t | News (a URL should be included)\
+        \ |\n| 11\t | Debt simplification |\n| 12\t | Group undeleted |\n| 13\t | Expense undeleted |\n| 14\t | Group currency\
+        \ conversion |\n| 15\t | Friend currency conversion |\n\n**Note**: While all parameters are optional, the server sets\
+        \ arbitrary (but large) limits\non the number of notifications returned if you set a very old `updated_after` value\
+        \ or `limit` of `0` for a\nuser with many notifications.\n"
+      parameters:
+      - in: query
+        name: updated_after
+        schema:
+          type: string
+          format: date-time
+          example: '2020-07-28T20:46:00Z'
+        description: If provided, returns only notifications after this time.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 0
+        description: Omit (or provide `0`) to get the maximum number of notifications.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/notification'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+  /get_categories:
+    get:
+      tags:
+      - other
+      summary: Supported categories
+      security: []
+      description: 'Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent
+        groups of categories with subcategories for more specific categorization.
+
+        When creating expenses, you must use a subcategory, not a parent category.
+
+        If you intend for an expense to be represented by the parent category and nothing more specific, please use the "Other"
+        subcategory.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/parent_category'
+components:
+  securitySchemes:
+    OAuth:
+      type: oauth2
+      description: 'Splitwise uses OAuth 2 with the authorization code flow. To connect via OAuth 2, you''ll need to [register
+        your app](https://secure.splitwise.com/apps). When you register, you''ll be given a key and secret.
+
+
+        **Note**: OAuth can be a very confusing protocol to implement correctly, and we **strongly** recommend
+
+        that you use an existing OAuth library to connect to Splitwise. You can find a list of OAuth client libraries at the
+
+        [OAuth community site](https://oauth.net/code/#client-libraries).
+
+
+        For more information on using OAuth, check out the following resources:
+
+
+        - The OAuth community [getting started guide](https://oauth.net/getting-started/)
+
+        - The oauth.com [OAuth 2.0 playground](https://www.oauth.com/playground/) (great for debugging authorization issues)
+
+        - This [old Splitwise blog post](https://blog.splitwise.com/2013/07/15/setting-up-oauth-for-the-splitwise-api/) about
+        OAuth
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth/authorize
+          tokenUrl: /oauth/token
+          scopes: {}
+    ApiKeyAuth:
+      type: http
+      description: 'For speed and ease of prototyping, you can generate a personal API key on your app''s details page. You
+        should present this key to the server via the Authorization header as a Bearer token. The API key is an access token
+        for your personal account, so keep it as safe as you would a password.
+
+        If your key becomes compromised or you want to invalidate your existing key for any other reason, you can do so on
+        the app details page by generating a new key.'
+      scheme: bearer
+      bearerFormat: API key
+      x-auth-env-vars:
+      - SPLITWISE_API_KEY
+  responses:
+    Unauthorized:
+      $ref: '#/components/responses/unauthorized'
+    Forbidden:
+      $ref: '#/components/responses/forbidden'
+    Not_Found:
+      $ref: '#/components/responses/not_found'
+    unauthorized:
+      description: Invalid API key or OAuth access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/unauthorized'
+    forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/forbidden'
+    not_found:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/not_found'
+  schemas:
+    Debt:
+      $ref: '#/components/schemas/debt'
+    User:
+      $ref: '#/components/schemas/user'
+    CurrentUser:
+      $ref: '#/components/schemas/current_user'
+    NotificationSettings:
+      $ref: '#/components/schemas/notification_settings'
+    Group:
+      $ref: '#/components/schemas/group'
+    UnauthorizedError:
+      $ref: '#/components/schemas/unauthorized'
+    ForbiddenError:
+      $ref: '#/components/schemas/forbidden'
+    NotFoundError:
+      $ref: '#/components/schemas/not_found'
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+          example: Ada
+        last_name:
+          type: string
+          example: Lovelace
+          nullable: true
+        email:
+          type: string
+          example: ada@example.com
+        registration_status:
+          type: string
+          enum:
+          - confirmed
+          - dummy
+          - invited
+        picture:
+          type: object
+          properties:
+            small:
+              type: string
+            medium:
+              type: string
+            large:
+              type: string
+        custom_picture:
+          type: boolean
+          example: false
+    notification_settings:
+      type: object
+      description: User's notification preferences
+      additionalProperties:
+        type: boolean
+      example:
+        added_as_friend: true
+    current_user:
+      allOf:
+      - $ref: '#/components/schemas/user'
+      - type: object
+        properties:
+          notifications_read:
+            type: string
+            example: '2017-06-02T20:21:57Z'
+            description: ISO 8601 date/time indicating the last time notifications were read
+          notifications_count:
+            type: integer
+            example: 12
+            description: Number of unread notifications since notifiations_read
+          notifications:
+            $ref: '#/components/schemas/notification_settings'
+          default_currency:
+            type: string
+            example: USD
+          locale:
+            type: string
+            example: en
+            description: ISO_639-1 2-letter locale code
+    unauthorized:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'Invalid API request: you are not logged in'
+    forbidden:
+      type: object
+      properties:
+        errors:
+          type: object
+          properties:
+            base:
+              type: array
+              items:
+                type: string
+                example: 'Invalid API request: you do not have permission to perform that action'
+    not_found:
+      type: object
+      properties:
+        errors:
+          type: object
+          properties:
+            base:
+              type: array
+              items:
+                type: string
+                example: 'Invalid API Request: record not found'
+    debt:
+      type: object
+      properties:
+        from:
+          type: integer
+          example: 18523
+          description: User ID
+        to:
+          type: integer
+          example: 90261
+          description: User ID
+        amount:
+          type: string
+          example: '414.5'
+        currency_code:
+          type: string
+          example: USD
+    group:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 321
+        name:
+          type: string
+          example: Housemates 2020
+        group_type:
+          type: string
+          enum:
+          - home
+          - trip
+          - couple
+          - other
+          - apartment
+          - house
+          example: home
+          description: 'What is the group used for?
+
+
+            **Note**: It is recommended to use `home` in place of `house` or `apartment`.
+
+            '
+        updated_at:
+          type: string
+          format: date-time
+        simplify_by_default:
+          type: boolean
+        members:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/user'
+            - type: object
+              properties:
+                balance:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      currency_code:
+                        type: string
+                        example: USD
+                      amount:
+                        type: string
+                        example: '-5.02'
+        original_debts:
+          type: array
+          items:
+            $ref: '#/components/schemas/debt'
+        simplified_debts:
+          type: array
+          items:
+            $ref: '#/components/schemas/debt'
+        avatar:
+          type: object
+          properties:
+            original:
+              type: string
+              nullable: true
+              example: null
+            xxlarge:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-1000px.png
+            xlarge:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-500px.png
+            large:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-200px.png
+            medium:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-100px.png
+            small:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-50px.png
+        custom_avatar:
+          type: boolean
+        cover_photo:
+          type: object
+          properties:
+            xxlarge:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_cover_photos/coverphoto-ruby-1000px.png
+            xlarge:
+              type: string
+              example: https://s3.amazonaws.com/splitwise/uploads/group/default_cover_photos/coverphoto-ruby-500px.png
+        invite_link:
+          type: string
+          example: https://www.splitwise.com/join/abQwErTyuI+12
+          description: A link the user can send to a friend to join the group directly
+    balance:
+      type: object
+      properties:
+        currency_code:
+          type: string
+          example: USD
+        amount:
+          type: string
+          example: '414.5'
+    friend:
+      allOf:
+      - $ref: '#/components/schemas/user'
+      - type: object
+        properties:
+          groups:
+            type: array
+            items:
+              type: object
+              properties:
+                group_id:
+                  type: integer
+                  example: 571
+                balance:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/balance'
+          balance:
+            type: array
+            items:
+              $ref: '#/components/schemas/balance'
+          updated_at:
+            type: string
+            format: date-time
+    common:
+      type: object
+      properties:
+        cost:
+          type: string
+          example: '25'
+          description: A string representation of a decimal value, limited to 2 decimal places
+        description:
+          type: string
+          description: A short description of the expense
+          example: Grocery run
+        details:
+          type: string
+          description: Also known as "notes."
+          nullable: true
+        date:
+          type: string
+          description: The date and time the expense took place. May differ from `created_at`
+          format: date-time
+          example: '2012-05-02T13:00:00Z'
+        repeat_interval:
+          type: string
+          enum:
+          - never
+          - weekly
+          - fortnightly
+          - monthly
+          - yearly
+        currency_code:
+          type: string
+          example: USD
+          description: A currency code. Must be in the list from `get_currencies`
+        category_id:
+          type: integer
+          description: A category id from `get_categories`
+          example: 15
+    comment_user:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 491923
+        first_name:
+          type: string
+          example: Jane
+        last_name:
+          type: string
+          example: Doe
+        picture:
+          type: object
+          properties:
+            medium:
+              type: string
+              example: image_url
+    share:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/comment_user'
+        user_id:
+          type: integer
+          example: 491923
+        paid_share:
+          type: string
+          example: '8.99'
+        owed_share:
+          type: string
+          example: '4.5'
+        net_balance:
+          type: string
+          example: '4.49'
+    comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 79800950
+        content:
+          type: string
+          example: 'John D. updated this transaction: - The cost changed from $6.99 to $8.99'
+        comment_type:
+          type: string
+          enum:
+          - System
+          - User
+        relation_type:
+          type: string
+          enum:
+          - ExpenseComment
+        relation_id:
+          type: integer
+          example: 855870953
+          description: ID of the subject of the comment
+        created_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        user:
+          $ref: '#/components/schemas/comment_user'
+    expense:
+      allOf:
+      - $ref: '#/components/schemas/common'
+      - type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            example: 51023
+          group_id:
+            type: integer
+            example: 391
+            nullable: true
+            description: Null if the expense is not associated with a group.
+          friendship_id:
+            type: integer
+            example: 4818
+            nullable: true
+            description: Null if the expense is not associated with a friendship.
+          expense_bundle_id:
+            type: integer
+            example: 491030
+            nullable: true
+          description:
+            type: string
+            example: Brunch
+          repeats:
+            type: boolean
+            description: Whether the expense recurs automatically
+          repeat_interval:
+            type: string
+            enum:
+            - never
+            - weekly
+            - fortnightly
+            - monthly
+            - yearly
+          email_reminder:
+            type: boolean
+            description: 'Whether a reminder will be sent to involved users in advance of the next occurrence of a recurring
+              expense.
+
+              Only applicable if the expense recurs.
+
+              '
+          email_reminder_in_advance:
+            type: integer
+            description: 'Number of days in advance to remind involved users about the next occurrence of a new expense.
+
+              Only applicable if the expense recurs.
+
+              '
+            enum:
+            - null
+            - -1
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 14
+            nullable: true
+          next_repeat:
+            type: string
+            nullable: true
+            description: The date of the next occurrence of a recurring expense. Only applicable if the expense recurs.
+          details:
+            type: string
+            description: Also known as "notes."
+            nullable: true
+          comments_count:
+            type: integer
+          payment:
+            type: boolean
+            description: Whether this was a payment between users
+          transaction_confirmed:
+            type: boolean
+            description: If a payment was made via an integrated third party service, whether it was confirmed by that service.
+          cost:
+            type: string
+            example: '25.0'
+          currency_code:
+            type: string
+            example: USD
+          repayments:
+            type: array
+            items:
+              type: object
+              properties:
+                from:
+                  type: integer
+                  description: ID of the owing user
+                  example: 6788709
+                to:
+                  type: integer
+                  description: ID of the owed user
+                  example: 270896089
+                amount:
+                  type: string
+                  example: '25.0'
+          date:
+            type: string
+            format: date-time
+            description: The date and time the expense took place. May differ from `created_at`
+            example: '2012-05-02T13:00:00Z'
+          created_at:
+            type: string
+            format: date-time
+            description: The date and time the expense was created on Splitwise
+            example: '2012-07-27T06:17:09Z'
+          created_by:
+            allOf:
+            - $ref: '#/components/schemas/user'
+            - nullable: true
+          updated_at:
+            type: string
+            description: The last time the expense was updated.
+            format: date-time
+            example: '2012-12-23T05:47:02Z'
+          updated_by:
+            allOf:
+            - $ref: '#/components/schemas/user'
+            - nullable: true
+          deleted_at:
+            type: string
+            description: If the expense was deleted, when it was deleted.
+            format: date-time
+            example: '2012-12-23T05:47:02Z'
+            nullable: true
+          deleted_by:
+            allOf:
+            - $ref: '#/components/schemas/user'
+            - nullable: true
+          category:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 5
+              name:
+                type: string
+                example: Electricity
+                description: Translated to the current user's locale
+          receipt:
+            type: object
+            properties:
+              large:
+                type: string
+                nullable: true
+                example: https://splitwise.s3.amazonaws.com/uploads/expense/receipt/3678899/large_95f8ecd1-536b-44ce-ad9b-0a9498bb7cf0.png
+              original:
+                type: string
+                nullable: true
+                example: https://splitwise.s3.amazonaws.com/uploads/expense/receipt/3678899/95f8ecd1-536b-44ce-ad9b-0a9498bb7cf0.png
+          users:
+            type: array
+            items:
+              $ref: '#/components/schemas/share'
+          comments:
+            type: array
+            items:
+              $ref: '#/components/schemas/comment'
+    equal_group_split:
+      allOf:
+      - $ref: '#/components/schemas/common'
+      - type: object
+        properties:
+          group_id:
+            type: integer
+            description: The group to put this expense in.
+          split_equally:
+            type: boolean
+            enum:
+            - true
+      - required:
+        - group_id
+        - split_equally
+        - description
+        - cost
+    by_shares:
+      allOf:
+      - $ref: '#/components/schemas/common'
+      - type: object
+        properties:
+          group_id:
+            type: integer
+            description: The group to put this expense in, or `0` to create an expense outside of a group.
+          users__0__user_id:
+            type: integer
+            example: 54123
+          users__0__paid_share:
+            type: string
+            example: '25'
+            description: Decimal amount as a string with 2 decimal places. The amount this user paid for the expense
+          users__0__owed_share:
+            type: string
+            example: '13.55'
+            description: Decimal amount as a string with 2 decimal places. The amount this user owes for the expense
+          users__1__first_name:
+            type: string
+            example: Neu
+          users__1__last_name:
+            type: string
+            example: Yewzer
+          users__1__email:
+            type: string
+            example: neuyewxyz@example.com
+          users__1__paid_share:
+            type: string
+            example: '0'
+            description: Decimal amount as a string with 2 decimal places. The amount this user paid for the expense
+          users__1__owed_share:
+            type: string
+            example: '11.45'
+            description: Decimal amount as a string with 2 decimal places. The amount this user owes for the expense
+        additionalProperties:
+          x-additionalPropertiesName: users__{index}__{property}
+          type: string
+      - required:
+        - group_id
+        - description
+        - cost
+    notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 32514315
+        type:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: integer
+          example: 2
+        source:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              example: Expense
+            id:
+              type: integer
+              example: 865077
+            url:
+              type: string
+              nullable: true
+        image_url:
+          type: string
+          example: https://s3.amazonaws.com/splitwise/uploads/notifications/v2/0-venmo.png
+        image_shape:
+          type: string
+          enum:
+          - square
+          - circle
+        content:
+          type: string
+          example: <strong>You</strong> paid <strong>Jon H.</strong>.<br><font color=\"#5bc5a7\">You paid $23.45</font>
+    category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 48
+        name:
+          type: string
+          example: Cleaning
+        icon:
+          type: string
+          example: https://s3.amazonaws.com/splitwise/uploads/category/icon/square/utilities/cleaning.png
+        icon_types:
+          type: object
+          properties:
+            slim:
+              type: object
+              properties:
+                small:
+                  type: string
+                  format: uri
+                large:
+                  type: string
+                  format: uri
+            square:
+              type: object
+              properties:
+                large:
+                  type: string
+                  format: uri
+                xlarge:
+                  type: string
+                  format: uri
+    parent_category:
+      allOf:
+      - $ref: '#/components/schemas/category'
+      - type: object
+        properties:
+          id:
+            example: 1
+          name:
+            example: Utilities
+          subcategories:
+            type: array
+            items:
+              $ref: '#/components/schemas/category'

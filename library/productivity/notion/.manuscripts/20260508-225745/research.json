@@ -1,0 +1,217 @@
+{
+  "api_name": "notion",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "notion-cli (4ier)",
+      "url": "https://github.com/4ier/notion-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 192,
+      "last_updated": "",
+      "command_count": 39,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notion2md",
+      "url": "https://github.com/echo724/notion2md",
+      "language": "Python",
+      "install_method": "",
+      "stars": 758,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notion-mcp-server (official)",
+      "url": "https://github.com/makenotion/notion-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4307,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-notion-server (suekou)",
+      "url": "https://github.com/suekou/mcp-notion-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 887,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notion-sdk-js",
+      "url": "https://github.com/makenotion/notion-sdk-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 5598,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notion-sdk-py",
+      "url": "https://github.com/ramnes/notion-sdk-py",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2171,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notionapi (Go)",
+      "url": "https://github.com/jomei/notionapi",
+      "language": "Go",
+      "install_method": "",
+      "stars": 574,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "notion-cli (kris-hansen)",
+      "url": "https://github.com/kris-hansen/notion-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 132,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T22:57:45Z",
+  "novel_features": [
+    {
+      "name": "Workspace Change Diff",
+      "command": "changed",
+      "description": "Show everything in the workspace added, edited, or deleted since your last sync or a given timestamp.",
+      "rationale": "API is stateless; delta detection requires a prior snapshot, which only the local store provides.",
+      "example": "notion-pp-cli changed --since 2h --json",
+      "why_it_matters": "Use at the start of an agent session to orient on what has changed before taking action.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Page Detection",
+      "command": "stale",
+      "description": "List pages and records not edited in N days, filterable by database, parent, or tag.",
+      "rationale": "No API filter for 'last-edited before date' across multiple databases simultaneously.",
+      "example": "notion-pp-cli stale --days 30 --db ProjectDB --agent",
+      "why_it_matters": "Use to identify dead pages before workspace cleanup or to flag deliverables overdue for review.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Workspace Change Diff",
+      "command": "changed",
+      "description": "Show everything in the workspace added, edited, or deleted since your last sync or a given timestamp.",
+      "rationale": "API is stateless; delta detection requires a prior snapshot, which only the local store provides.",
+      "example": "notion-pp-cli changed --since 2h --json",
+      "why_it_matters": "Use at the start of an agent session to orient on what has changed before taking action.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Page Detection",
+      "command": "stale",
+      "description": "List pages and records not edited in N days, filterable by database, parent, or tag.",
+      "rationale": "No API filter for 'last-edited before date' across multiple databases simultaneously.",
+      "example": "notion-pp-cli stale --days 30 --db ProjectDB --agent",
+      "why_it_matters": "Use to identify dead pages before workspace cleanup or to flag deliverables overdue for review.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Notion",
+    "headline": "Every Notion database queryable offline — cross-workspace SQL joins, stale detection, and relation graph traversal the UI can never give you.",
+    "value_prop": "notion-pp-cli syncs your Notion workspace into a local SQLite store and exposes commands that answer compound questions the Notion UI cannot: cross-database joins, status drift, dead links, workspace health, and who owns what across every client. Works offline and ships a full MCP server so agents can load rich project context in a single call instead of 30.",
+    "auth_narrative": "Requires a Notion Internal Integration token. Create one at notion.so/my-integrations, then share your databases with it. Set NOTION_TOKEN in your environment. Run `notion-pp-cli sync` once to populate the local store.",
+    "quickstart": [
+      {
+        "command": "notion-pp-cli auth set-token",
+        "comment": "Paste your NOTION_TOKEN from notion.so/my-integrations"
+      },
+      {
+        "command": "notion-pp-cli sync --full",
+        "comment": "Mirror your entire workspace to local SQLite — takes 30-120 seconds depending on workspace size"
+      },
+      {
+        "command": "notion-pp-cli stale --days 30 --json",
+        "comment": "Find everything untouched for 30+ days"
+      },
+      {
+        "command": "notion-pp-cli workspace-health",
+        "comment": "Get a hygiene scorecard for the whole workspace"
+      },
+      {
+        "command": "notion-pp-cli sql \"SELECT title, last_edited_time FROM pages ORDER BY last_edited_time DESC LIMIT 20\" --agent",
+        "comment": "Raw SQL against the local store for custom queries"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "sync returns 'object not found' for some databases",
+        "fix": "Share those databases with your integration at notion.so/my-integrations — the token only sees what you've explicitly shared"
+      },
+      {
+        "symptom": "stale/cross-db query returns empty results",
+        "fix": "Run `notion-pp-cli sync --full` first to populate the local store"
+      },
+      {
+        "symptom": "NOTION_TOKEN not recognized",
+        "fix": "Token format is `ntn_...` for internal integrations — do not use your Notion account password or OAuth tokens"
+      }
+    ],
+    "when_to_use": "Use notion-pp-cli when you need compound queries across multiple linked Notion databases, workspace-wide status checks, or offline Notion access. Ideal for consultants managing multiple client workspaces, agents that need token-efficient project context, or anyone doing periodic workspace cleanup. Not a substitute for the Notion web UI for day-to-day editing.",
+    "recipes": [
+      {
+        "title": "Cross-database join: open tasks by client",
+        "command": "notion-pp-cli sql \"SELECT p.title, i.status, i.assignee FROM pages p JOIN data_source_items i ON i.page_id = p.id WHERE i.status != 'Done' ORDER BY p.title\" --agent --select title,status,assignee",
+        "explanation": "Joins pages and data source items to produce a flat list of all open work across every database — impossible in the Notion UI."
+      },
+      {
+        "title": "Morning triage: what changed overnight",
+        "command": "notion-pp-cli changed --since 8h --json",
+        "explanation": "Show everything edited in the last 8 hours — use at session start to orient before taking action."
+      },
+      {
+        "title": "Load agent project context",
+        "command": "notion-pp-cli context TrackFrame --agent --select databases,open_items,recent_edits",
+        "explanation": "Returns a structured snapshot of a project in one call — replaces 10-30 sequential API calls in agent workflows."
+      },
+      {
+        "title": "Find stalled work items",
+        "command": "notion-pp-cli status-drift --days 14 --status 'In Progress' --agent",
+        "explanation": "Surface tasks nominally in progress but untouched for 2 weeks — the Notion UI has no equivalent filter."
+      },
+      {
+        "title": "Workspace cleanup: orphans and dead links",
+        "command": "notion-pp-cli orphans --json \u0026\u0026 notion-pp-cli dead-links --json",
+        "explanation": "Two commands to find pages safe to delete and relations that are already broken — run before any workspace restructuring."
+      }
+    ],
+    "trigger_phrases": [
+      "query notion databases",
+      "find stale notion pages",
+      "notion workspace health",
+      "cross-database notion query",
+      "sync notion to local",
+      "use notion-pp-cli",
+      "run notion"
+    ]
+  }
+}

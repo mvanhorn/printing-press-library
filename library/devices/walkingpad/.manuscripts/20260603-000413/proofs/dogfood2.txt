@@ -1,0 +1,34 @@
+dogfood: using spec /Users/tmchow/printing-press/.runstate/parrotfish-70cc69c0/runs/20260603-000413/research/walkingpad-device.yaml (--spec)
+warning: no servers defined in spec; generated CLI will require base_url in config
+Dogfood Report: walkingpad-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MISMATCH
+  Detail: failed to read client.go: open /Users/tmchow/printing-press/.runstate/parrotfish-70cc69c0/runs/20260603-000413/working/walkingpad-pp-cli/internal/client/client.go: no such file or directory
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: uses generic Upsert only
+  Search: uses generic Search only or direct SQL
+  Domain tables: 0
+
+Examples:          SKIP (could not discover command tree from agent-context: agent-context failed: Error: unknown command "agent-context" for "walkingpad-pp-cli"
+Run 'walkingpad-pp-cli --help' for usage.)
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       SKIP (no internal/mcp/tools.go; CLI does not ship an MCP surface)
+
+Verdict: FAIL
+  - auth protocol mismatch
+  - sync uses generic Upsert only
+  - example check skipped: could not discover command tree from agent-context: agent-context failed: Error: unknown command "agent-context" for "walkingpad-pp-cli"
+Run 'walkingpad-pp-cli --help' for usage.

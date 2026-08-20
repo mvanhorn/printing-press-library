@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "degraded-reads-repeat-the-providers-own-reason",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "When a read-only audit degrades on a 401 or 403, the note must quote the API's own message and code rather than assuming a missing scope.",
+  "reason": "Webflow returns 403 for several distinct conditions. Missing scope is one; plan gating is another (the redirects endpoint answers not_enterprise_plan_site on non-Enterprise sites). A blanket 'add the required scope' hint sends the user after a permission they cannot grant at any price and hides the real cause. Repeating the provider's message and code keeps the remediation honest and survives Webflow adding new 403 conditions.",
+  "files": ["internal/cli/webflow_localq.go"],
+  "validated_outcome": "redirects audit against a Starter-plan site now reports: This site is not associated with an Enterprise plan [not_enterprise_plan_site] (HTTP 403).",
+  "upstream_issue": ""
+}

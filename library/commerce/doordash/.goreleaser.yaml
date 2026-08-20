@@ -1,0 +1,51 @@
+version: 2
+project_name: doordash-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: doordash-pp-cli
+    main: ./cmd/doordash-pp-cli
+    binary: doordash-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/doordash/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: doordash-pp-mcp
+    main: ./cmd/doordash-pp-mcp
+    binary: doordash-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: doordash-pp-cli
+    repository:
+      owner: bricenice17
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Discovered API spec for doordash"
+    install: |
+      bin.install "doordash-pp-cli"
+      bin.install "doordash-pp-mcp"

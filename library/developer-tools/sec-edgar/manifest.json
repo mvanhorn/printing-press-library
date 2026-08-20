@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sec-edgar-pp-mcp",
+  "display_name": "SEC EDGAR",
+  "version": "4.2.2",
+  "description": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sec-edgar-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sec-edgar-pp-mcp",
+      "args": [],
+      "env": {
+        "SEC_EDGAR_USER_AGENT": "${user_config.sec_edgar_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "sec_edgar_user_agent": {
+      "type": "string",
+      "title": "SEC EDGAR User-Agent",
+      "description": "The SEC requires a User-Agent header with a name and contact email on every request to data.sec.gov and www.sec.gov. There is no API key. Set SEC_EDGAR_USER_AGENT='Your Name your@email.com' and the CLI will send it on every call.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

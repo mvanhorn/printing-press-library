@@ -1,0 +1,169 @@
+{
+  "api_name": "opensnow",
+  "base_url": "https://api.opensnow.com",
+  "description": "Hyper-local weather forecasts and conditions for any mountain location and elevation, worldwide. Provides current conditions, hourly forecasts, 5-day day/night snow forecasts, resort snow reports, and expert-written Daily Snow posts. Authentication via api_key query parameter (partnership access only).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "OPENSNOW_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OPENSNOW_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "daily-reads_content_get-daily-snow",
+      "description": "Retrieve the most recent Daily Snow post — a written forecast authored by an OpenSnow meteorologist. Includes post body, author info, and related announcements. Access level 10. Required: id_or_slug.",
+      "method": "GET",
+      "path": "/daily-reads/{id_or_slug}/content",
+      "params": [
+        {
+          "name": "id_or_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Unique id (integer) or slug (string) for the Daily Read region. Examples: colorado, telluride, tahoe",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forecast_get-by-point",
+      "description": "Get a forecast for any lng,lat point on earth (on land). Returns current conditions, hourly detail, day/night periods, and optional rolled-up multi-hour summaries. Access level 5. Required: point, elev. Optional: units (default: imperial), current (default: true), hours (default: 0) (plus 4 more).",
+      "method": "GET",
+      "path": "/forecast/{point}",
+      "params": [
+        {
+          "name": "point",
+          "type": "string",
+          "location": "path",
+          "description": "lng,lat pair as comma-separated string, rounded to 4 decimals (e.g. -105.2705,40.015)",
+          "required": true
+        },
+        {
+          "name": "elev",
+          "type": "int",
+          "location": "query",
+          "description": "Elevation at the forecast point (feet if imperial, meters if metric)",
+          "required": true
+        },
+        {
+          "name": "units",
+          "type": "string",
+          "location": "query",
+          "description": "Units for returned values"
+        },
+        {
+          "name": "current",
+          "type": "bool",
+          "location": "query",
+          "description": "Include the current-hour forecast"
+        },
+        {
+          "name": "hours",
+          "type": "int",
+          "location": "query",
+          "description": "Number of hourly forecast periods to return (0-24)"
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Number of daily forecast periods to return (0-5)"
+        },
+        {
+          "name": "rollup",
+          "type": "int",
+          "location": "query",
+          "description": "Number of rolled-up hourly periods"
+        },
+        {
+          "name": "rollup_duration",
+          "type": "int",
+          "location": "query",
+          "description": "Duration of each rollup period in hours (3-24)"
+        },
+        {
+          "name": "rollup_current",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, first rollup starts at current hour; if false, rollups align to 6am/6pm"
+        }
+      ]
+    },
+    {
+      "name": "forecast_get-detail",
+      "description": "Get a 5-day forecast for any named OpenSnow location. Returns current, hourly, and daily forecasts along with location metadata. Access level 10. Required: id_or_slug. Optional: units (default: imperial).",
+      "method": "GET",
+      "path": "/forecast/detail/{id_or_slug}",
+      "params": [
+        {
+          "name": "id_or_slug",
+          "type": "string",
+          "location": "path",
+          "description": "A unique integer id or string slug for the OpenSnow location (e.g. 1, alta, steamboat)",
+          "required": true
+        },
+        {
+          "name": "units",
+          "type": "string",
+          "location": "query",
+          "description": "Units"
+        }
+      ]
+    },
+    {
+      "name": "forecast_get-snow-detail",
+      "description": "Get a 5-day day + night snowfall forecast for any named OpenSnow location. Periods split into daytime (6am-6pm) and overnight (6pm-6am) segments. Access level 10. Required: id_or_slug. Optional: units (default: imperial).",
+      "method": "GET",
+      "path": "/forecast/snow-detail/{id_or_slug}",
+      "params": [
+        {
+          "name": "id_or_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Integer id or slug (e.g. aspenhighlands)",
+          "required": true
+        },
+        {
+          "name": "units",
+          "type": "string",
+          "location": "query",
+          "description": "Units"
+        }
+      ]
+    },
+    {
+      "name": "snow-report_get",
+      "description": "Retrieve the most recent snow report — resort-reported snowfall, base depth, operating status, and conditions. Access level 10. Required: id_or_slug. Optional: units (default: imperial).",
+      "method": "GET",
+      "path": "/snow-report/{id_or_slug}",
+      "params": [
+        {
+          "name": "id_or_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Location id (integer) or slug (string). Examples: 1, alta, steamboat",
+          "required": true
+        },
+        {
+          "name": "units",
+          "type": "string",
+          "location": "query",
+          "description": "Units"
+        }
+      ]
+    }
+  ]
+}

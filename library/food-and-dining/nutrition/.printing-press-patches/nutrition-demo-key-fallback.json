@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "nutrition-demo-key-fallback",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260702-105700",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Config.AuthHeader() returns USDA's public DEMO_KEY when no personal key is set, so the CLI works out of the box.",
+  "reason": "USDA FoodData Central accepts DEMO_KEY (rate-limited ~30/hr) with no signup; applied at the credential-read point only so config credential resolution and precedence stay untouched.",
+  "files": ["internal/config/config.go"],
+  "validated_outcome": "Keyless doctor + live search succeed on DEMO_KEY; real FDC_API_KEY still overrides.",
+  "upstream_issue": ""
+}

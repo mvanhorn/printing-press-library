@@ -1,0 +1,302 @@
+{
+  "api_name": "fathom",
+  "novelty_score": 87,
+  "alternatives": [
+    {
+      "name": "Dot-Fun/fathom-mcp",
+      "url": "https://github.com/Dot-Fun/fathom-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lukas-bekr/fathom-mcp",
+      "url": "https://github.com/lukas-bekr/fathom-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "druellan/Fathom-Simple-MCP",
+      "url": "https://github.com/druellan/Fathom-Simple-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mackenly/fathom-api",
+      "url": "https://github.com/mackenly/fathom-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T09:04:03Z",
+  "novel_features": [
+    {
+      "name": "Cross-Meeting Commitment Tracker",
+      "command": "commitments",
+      "description": "See every open action item you promised across all calls — grouped by meeting, assignee, and date — without opening a single recording.",
+      "rationale": "Requires cross-meeting action item aggregation across all meetings in a local SQLite store; no API endpoint exists for 'all my open promises across all recordings.'",
+      "example": "fathom-pp-cli commitments --assignee me --since 30d --agent",
+      "why_it_matters": "Use when you need a weekly accountability audit of all meeting commitments before a 1:1 or team sync.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic Frequency Tracker",
+      "command": "topics",
+      "description": "Find out how often 'pricing,' 'onboarding,' or any keyword has surfaced in your meetings over the past N weeks — with week-over-week trend.",
+      "rationale": "FTS5 term counting over all locally stored transcripts by ISO week; 60 req/min rate limit makes live scanning of 100+ transcripts infeasible without a local store.",
+      "example": "fathom-pp-cli topics --terms pricing,onboarding --weeks 12 --agent",
+      "why_it_matters": "Use before a board meeting or quarterly review to synthesize what themes have been dominating customer calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-Call Account Brief",
+      "command": "brief",
+      "description": "Get a chronological history of every meeting with a specific person or company — past topics, open action items, last contact date — before you join a call.",
+      "rationale": "Participant-keyed retrospective joining meetings, summaries, and action items in local SQLite; no single API endpoint returns all history with a given person or domain.",
+      "example": "fathom-pp-cli brief --domain acme.com --agent",
+      "why_it_matters": "Use immediately before a customer call to surface prior commitments and context without opening multiple browser tabs.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Engagement Velocity Tracker",
+      "command": "velocity",
+      "description": "Track whether your meeting cadence with a key account is accelerating, stable, or stalling — month by month.",
+      "rationale": "Month-by-month meeting count per external domain computed from all participant records; live-API tools cannot compute this without exhausting the 60 req/min limit.",
+      "example": "fathom-pp-cli velocity --domain stripe.com --months 6 --agent",
+      "why_it_matters": "Use for pipeline health reviews: a stalling cadence with a key account is an early warning signal before the deal goes cold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Team Meeting Workload",
+      "command": "workload",
+      "description": "See which team members are spending the most hours in meetings per week and whether the load is worsening.",
+      "rationale": "Per-member weekly meeting hour aggregation requires joining every meeting a person appeared in; live scan would exhaust rate limit for a 10-person team in under a minute.",
+      "example": "fathom-pp-cli workload --team Engineering --weeks 4 --threshold 15 --agent",
+      "why_it_matters": "Use in 1:1 prep or team planning to identify who is in 'meeting hell' before assigning more collaborative work.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Account Relationship History",
+      "command": "account",
+      "description": "View a complete, domain-keyed history with any company: every meeting, topics discussed, action items, and cadence — in one structured output.",
+      "rationale": "Fathom's API is recording-centric; account-centric intelligence requires a domain-keyed join across meetings, participants, and action items that only a local store enables.",
+      "example": "fathom-pp-cli account --domain notion.so --agent",
+      "why_it_matters": "Use during account reviews, renewal prep, or CRM updates to get a full picture of all interactions with a company.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Recording Detector",
+      "command": "stale",
+      "description": "Find recordings that were captured but have no transcript, summary, or action items synced — useful for operators debugging pipeline gaps.",
+      "rationale": "Store integrity introspection differentiates never-synced, empty-transcript, and summary-missing states; live API cannot distinguish 'webhook fired but data missing' from 'never synced.'",
+      "example": "fathom-pp-cli stale --since 7d --agent",
+      "why_it_matters": "Use on Monday morning to audit which recordings from last week are missing data before your team needs them.",
+      "group": "Operational tooling"
+    },
+    {
+      "name": "CRM Gap Audit",
+      "command": "crm-gaps",
+      "description": "Surface CRM-matched meetings where no action items were logged — calls that touched active deals but left no paper trail.",
+      "rationale": "Three-table join across meetings, crm_matches, and action_items; this sales hygiene query is impossible with per-meeting live API calls.",
+      "example": "fathom-pp-cli crm-gaps --since 30d --agent",
+      "why_it_matters": "Use in RevOps audits to find sales calls where reps talked to prospects but forgot to log next steps in the CRM.",
+      "group": "Operational tooling"
+    },
+    {
+      "name": "Recording Coverage Report",
+      "command": "coverage",
+      "description": "Track how reliably a recurring meeting (weekly planning, standup, 1:1) is being recorded over time.",
+      "rationale": "Coverage detection across a recurring series requires historical local data; the API returns no 'series' concept, so meetings are grouped by fuzzy title pattern.",
+      "example": "fathom-pp-cli coverage --pattern 'Weekly Planning' --weeks 10 --agent",
+      "why_it_matters": "Use to verify that mandatory-record meetings are actually being captured before auditing team performance.",
+      "group": "Operational tooling"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-Meeting Commitment Tracker",
+      "command": "commitments",
+      "description": "See every open action item you promised across all calls — grouped by meeting, assignee, and date — without opening a single recording.",
+      "rationale": "Requires cross-meeting action item aggregation across all meetings in a local SQLite store; no API endpoint exists for 'all my open promises across all recordings.'",
+      "example": "fathom-pp-cli commitments --assignee me --since 30d --agent",
+      "why_it_matters": "Use when you need a weekly accountability audit of all meeting commitments before a 1:1 or team sync.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic Frequency Tracker",
+      "command": "topics",
+      "description": "Find out how often 'pricing,' 'onboarding,' or any keyword has surfaced in your meetings over the past N weeks — with week-over-week trend.",
+      "rationale": "FTS5 term counting over all locally stored transcripts by ISO week; 60 req/min rate limit makes live scanning of 100+ transcripts infeasible without a local store.",
+      "example": "fathom-pp-cli topics --terms pricing,onboarding --weeks 12 --agent",
+      "why_it_matters": "Use before a board meeting or quarterly review to synthesize what themes have been dominating customer calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-Call Account Brief",
+      "command": "brief",
+      "description": "Get a chronological history of every meeting with a specific person or company — past topics, open action items, last contact date — before you join a call.",
+      "rationale": "Participant-keyed retrospective joining meetings, summaries, and action items in local SQLite; no single API endpoint returns all history with a given person or domain.",
+      "example": "fathom-pp-cli brief --domain acme.com --agent",
+      "why_it_matters": "Use immediately before a customer call to surface prior commitments and context without opening multiple browser tabs.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Engagement Velocity Tracker",
+      "command": "velocity",
+      "description": "Track whether your meeting cadence with a key account is accelerating, stable, or stalling — month by month.",
+      "rationale": "Month-by-month meeting count per external domain computed from all participant records; live-API tools cannot compute this without exhausting the 60 req/min limit.",
+      "example": "fathom-pp-cli velocity --domain stripe.com --months 6 --agent",
+      "why_it_matters": "Use for pipeline health reviews: a stalling cadence with a key account is an early warning signal before the deal goes cold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Team Meeting Workload",
+      "command": "workload",
+      "description": "See which team members are spending the most hours in meetings per week and whether the load is worsening.",
+      "rationale": "Per-member weekly meeting hour aggregation requires joining every meeting a person appeared in; live scan would exhaust rate limit for a 10-person team in under a minute.",
+      "example": "fathom-pp-cli workload --team Engineering --weeks 4 --threshold 15 --agent",
+      "why_it_matters": "Use in 1:1 prep or team planning to identify who is in 'meeting hell' before assigning more collaborative work.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Account Relationship History",
+      "command": "account",
+      "description": "View a complete, domain-keyed history with any company: every meeting, topics discussed, action items, and cadence — in one structured output.",
+      "rationale": "Fathom's API is recording-centric; account-centric intelligence requires a domain-keyed join across meetings, participants, and action items that only a local store enables.",
+      "example": "fathom-pp-cli account --domain notion.so --agent",
+      "why_it_matters": "Use during account reviews, renewal prep, or CRM updates to get a full picture of all interactions with a company.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Recording Detector",
+      "command": "stale",
+      "description": "Find recordings that were captured but have no transcript, summary, or action items synced — useful for operators debugging pipeline gaps.",
+      "rationale": "Store integrity introspection differentiates never-synced, empty-transcript, and summary-missing states; live API cannot distinguish 'webhook fired but data missing' from 'never synced.'",
+      "example": "fathom-pp-cli stale --since 7d --agent",
+      "why_it_matters": "Use on Monday morning to audit which recordings from last week are missing data before your team needs them.",
+      "group": "Operational tooling"
+    },
+    {
+      "name": "CRM Gap Audit",
+      "command": "crm-gaps",
+      "description": "Surface CRM-matched meetings where no action items were logged — calls that touched active deals but left no paper trail.",
+      "rationale": "Three-table join across meetings, crm_matches, and action_items; this sales hygiene query is impossible with per-meeting live API calls.",
+      "example": "fathom-pp-cli crm-gaps --since 30d --agent",
+      "why_it_matters": "Use in RevOps audits to find sales calls where reps talked to prospects but forgot to log next steps in the CRM.",
+      "group": "Operational tooling"
+    },
+    {
+      "name": "Recording Coverage Report",
+      "command": "coverage",
+      "description": "Track how reliably a recurring meeting (weekly planning, standup, 1:1) is being recorded over time.",
+      "rationale": "Coverage detection across a recurring series requires historical local data; the API returns no 'series' concept, so meetings are grouped by fuzzy title pattern.",
+      "example": "fathom-pp-cli coverage --pattern 'Weekly Planning' --weeks 10 --agent",
+      "why_it_matters": "Use to verify that mandatory-record meetings are actually being captured before auditing team performance.",
+      "group": "Operational tooling"
+    }
+  ],
+  "narrative": {
+    "display_name": "Fathom",
+    "headline": "Sync your Fathom meetings once, then search, analyze, and act on them forever — offline, at scale, without burning API quota.",
+    "value_prop": "fathom-pp-cli pulls every meeting, transcript, summary, and action item into a local SQLite store, then unlocks cross-meeting intelligence no MCP server or web UI can provide: commitment tracking across all your calls, topic trend analysis over weeks, pre-call account briefs, pipeline velocity detection, and team meeting-load audits.",
+    "auth_narrative": "Fathom uses an API key passed via the X-Api-Key header. Generate one at fathom.video → User Settings → API Access. Set FATHOM_PP_CLI_API_KEY in your environment, then run doctor to verify.",
+    "quickstart": [
+      {
+        "command": "fathom-pp-cli doctor",
+        "comment": "Verify API key and connectivity"
+      },
+      {
+        "command": "fathom-pp-cli sync --full",
+        "comment": "Pull all meetings, transcripts, summaries, and action items into local SQLite"
+      },
+      {
+        "command": "fathom-pp-cli commitments --assignee me --since 30d",
+        "comment": "See everything you've promised in the last 30 days"
+      },
+      {
+        "command": "fathom-pp-cli topics --terms pricing,onboarding --weeks 8",
+        "comment": "Track topic frequency trends across recent customer calls"
+      },
+      {
+        "command": "fathom-pp-cli brief --domain acme.com",
+        "comment": "Get a pre-call brief for your next Acme meeting"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor returns 401 Unauthorized",
+        "fix": "Check FATHOM_PP_CLI_API_KEY is set; generate a new key at fathom.video → User Settings → API Access"
+      },
+      {
+        "symptom": "sync returns 429 Too Many Requests",
+        "fix": "Fathom rate limit is 60 req/min; run fathom-pp-cli sync with --throttle to slow down bulk fetching"
+      },
+      {
+        "symptom": "transcript or summary is empty in local store",
+        "fix": "Run fathom-pp-cli stale --since 7d to find affected recordings, then fathom-pp-cli sync --recording-id \u003cid\u003e to re-sync individually"
+      },
+      {
+        "symptom": "brief or account shows no results for a domain",
+        "fix": "Ensure sync ran with --include-transcript --include-summary --include-action-items; re-run fathom-pp-cli sync --full if needed"
+      }
+    ],
+    "when_to_use": "Use fathom-pp-cli when you need cross-meeting intelligence that the Fathom web UI and MCP servers cannot provide: commiment audits across all calls, topic trend analysis over weeks or months, pre-call account briefs, or pipeline cadence monitoring. Run sync once per day to keep the local store current, then all analysis commands run offline. Not a substitute for the Fathom web UI for reviewing individual recordings or managing your account.",
+    "recipes": [
+      {
+        "title": "Pre-call brief for a customer",
+        "command": "fathom-pp-cli brief --domain acme.com --agent --select meetings.title,meetings.date,open_action_items",
+        "explanation": "Pull all history with Acme before joining a call — past topics, open commitments, last meeting date."
+      },
+      {
+        "title": "Weekly commitment audit",
+        "command": "fathom-pp-cli commitments --since 7d --agent --select meeting_title,description,assignee.name,completed",
+        "explanation": "Surface every action item from last week's calls, grouped by meeting — know what's still open before Monday standup."
+      },
+      {
+        "title": "Topic trend for board prep",
+        "command": "fathom-pp-cli topics --terms 'pricing,churn,roadmap' --weeks 12 --agent",
+        "explanation": "Show week-over-week frequency of key themes across all customer calls for the past quarter."
+      },
+      {
+        "title": "Pipeline velocity check",
+        "command": "fathom-pp-cli velocity --domain acme.com --months 6 --agent",
+        "explanation": "See whether your meeting cadence with Acme has been increasing, flat, or stalling — early warning for deals going cold."
+      },
+      {
+        "title": "Team meeting load audit",
+        "command": "fathom-pp-cli workload --team Engineering --weeks 4 --threshold 15 --agent --select name,weekly_hours,trend",
+        "explanation": "Find which engineers are spending over 15h/week in meetings and whether it's getting worse."
+      }
+    ],
+    "trigger_phrases": [
+      "what did I promise in my calls",
+      "how often has pricing come up in meetings",
+      "brief me on my Acme calls",
+      "which team members are in too many meetings",
+      "use fathom",
+      "run fathom-pp-cli"
+    ]
+  }
+}

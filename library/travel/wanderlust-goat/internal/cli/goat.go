@@ -1,63 +1,107 @@
 package cli
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/dispatch"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/googleplaces"
 )
 
-// `goat` is the no-LLM compound. It uses the same Fanout engine as `near`
-// but explicitly relies on the static criteria→tag and criteria→reddit-keyword
-// maps in `internal/criteria/`. The brief mandates a heuristic-only path
-// so the CLI works standalone without an agent caller.
+// newGoatCmd is `near` with --llm forced off and the human-table output
+// trimmed for token efficiency. Matches the brief: "Same as near but
+// explicitly no-LLM (heuristic criteria match)."
 func newGoatCmd(flags *rootFlags) *cobra.Command {
 	var (
-		criteria string
-		identity string
-		minutes  int
+		criteria      string
+		identity      string
+		minutes       float64
+		top           int
+		seedLimit     int
+		includedTypes []string
+		anchorFlag    string
 	)
 	cmd := &cobra.Command{
-		Use:   "goat <anchor>",
-		Short: "Same fanout as 'near' but with no LLM in the runtime path — criteria-to-source mapping uses static lookup tables so the CLI works standalone.",
-		Long: `Heuristic GOAT compound. Identical fanout to 'near' but explicitly
-guarantees no LLM is invoked at runtime: criteria phrases are translated to
-OSM tag filters and Reddit body keywords through static lookup tables in
-internal/criteria/. Use 'goat' from shell pipelines, cron jobs, and any
-context where you cannot or should not delegate to an agent.`,
+		Use:   "goat [anchor]",
+		Short: "Same as near, no-LLM, deterministic heuristic criteria match",
+		Long: `goat is the no-LLM compound. Identical pipeline to near but the criteria-match
+score is computed from the static keyword table in internal/criteria/, never
+ANTHROPIC_API_KEY. Use this when you want determinism, when no API budget is
+available, or in CI.`,
 		Example: strings.Trim(`
-  # Lat,lng anchor with no agent in the loop
-  wanderlust-goat-pp-cli goat 35.6895,139.6917 \
-    --criteria "vintage clothing, vinyl, hidden" --minutes 20
-
-  # CSV mode for cron-driven shortlists
-  wanderlust-goat-pp-cli goat "Marais, Paris" \
-    --criteria "natural wine, no scene" --minutes 15 --csv`, "\n"),
+  wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria "bouldering gym" --minutes 20
+  wanderlust-goat-pp-cli goat "Hotel Okura" --criteria "kissaten" --minutes 12 --json
+`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			anchor := anchorFlag
+			if anchor == "" && len(args) > 0 {
+				anchor = args[0]
+			}
+			if anchor == "" {
 				return cmd.Help()
 			}
-			anchor := strings.Join(args, " ")
 			if dryRunOK(flags) {
 				return nil
 			}
 			ctx := cmd.Context()
-			res, err := resolveAnchor(ctx, anchor)
-			if err != nil {
-				return err
+			if ctx == nil {
+				ctx = context.Background()
 			}
-			store, err := openGoatStore(cmd, flags)
+			res, err := dispatch.ResolveAnchor(ctx, anchor)
 			if err != nil {
-				return err
+				return apiErr(err)
 			}
-			defer store.Close()
-			out := Fanout(ctx, res, criteria, identity, minutes, store)
-			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			d, err := dispatch.New()
+			if err != nil {
+				if errors.Is(err, googleplaces.ErrMissingAPIKey) {
+					return authErr(fmt.Errorf("%w (set GOOGLE_PLACES_API_KEY; doctor will show the setup)", err))
+				}
+				return configErr(err)
+			}
+			effectiveTypes := includedTypes
+			if len(effectiveTypes) == 0 {
+				effectiveTypes = defaultIncludedTypesFromCriteria(criteria, identity)
+			}
+			plan := dispatch.Plan{
+				Anchor:        anchor,
+				Resolved:      res,
+				Criteria:      criteria,
+				Identity:      identity,
+				RadiusMinutes: minutes,
+				SeedLimit:     seedLimit,
+				IncludedTypes: effectiveTypes,
+				UseLLM:        false, // brief: explicitly no-LLM
+			}
+			results, trace, err := d.Run(ctx, plan)
+			if err != nil {
+				return apiErr(err)
+			}
+			if top > 0 && len(results) > top {
+				results = results[:top]
+			}
+			out := struct {
+				Anchor  dispatch.AnchorResolution `json:"anchor"`
+				Results []dispatch.Result         `json:"results"`
+				Trace   dispatch.Trace            `json:"trace"`
+			}{Anchor: res, Results: results, Trace: trace}
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			renderResultsTable(cmd, results, res)
+			return nil
 		},
 	}
-	cmd.Flags().StringVar(&criteria, "criteria", "", "Free-text criteria (e.g. \"hand-pulled noodles, locals only\").")
-	cmd.Flags().StringVar(&identity, "identity", "", "Free-text identity — informs ranking but does not invoke an LLM.")
-	cmd.Flags().IntVar(&minutes, "minutes", 15, "Walking-time radius in minutes.")
+	cmd.Flags().StringVar(&anchorFlag, "anchor", "", "anchor as <lat>,<lng> or address (positional also accepted)")
+	cmd.Flags().StringVar(&criteria, "criteria", "", "free-text criteria")
+	cmd.Flags().StringVar(&identity, "identity", "", "free-text identity / persona")
+	cmd.Flags().Float64Var(&minutes, "minutes", 15, "walking-time radius in minutes")
+	cmd.Flags().IntVar(&top, "top", 5, "return top N results")
+	cmd.Flags().IntVar(&seedLimit, "seed-limit", 20, "max Google Places candidates to seed (1-20)")
+	cmd.Flags().StringSliceVar(&includedTypes, "type", nil, "Google Places type filter, repeatable")
 	return cmd
 }

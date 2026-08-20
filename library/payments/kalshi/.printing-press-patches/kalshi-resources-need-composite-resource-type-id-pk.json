@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "kalshi-resources-need-composite-resource-type-id-pk",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260504-204550",
+  "base_printing_press_version": "3.9.0",
+  "summary": "A Kalshi market and its settlement can share one ticker, so the local `resources` store must key on (resource_type, id) rather than id alone.",
+  "reason": "Under the generator's id-only primary key, upserting a settlement clobbered the market row that shared its ticker (and vice versa), corrupting winrate/attribution/heatmap; the v1-to-v2 rebuild backfills `updated_at` before copying because SQLite resolves column names at prepare time and aborts the migration if a legacy table predates that column.",
+  "files": ["internal/store/store.go"],
+  "validated_outcome": "internal/store/composite_pk_test.go covers fresh-DB composite PK, v1-to-v2 migration including a pre-updated_at legacy table, and idempotent re-open."
+}

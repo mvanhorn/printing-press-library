@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // waterfall: Clay-style multi-source enrichment. Tries free sources first
 // (LinkedIn + Happenstance), then Deepline with BYOK when configured, and
@@ -57,9 +57,9 @@ func newWaterfallCmd(flags *rootFlags) *cobra.Command {
 	var companyDomain string
 
 	cmd := &cobra.Command{
-		Use:   "waterfall <target>",
+		Use:         "waterfall <target>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Clay-style waterfall enrichment: free sources first, Deepline with BYOK or managed",
+		Short:       "Clay-style waterfall enrichment: free sources first, Deepline with BYOK or managed",
 		Long: `Enrich a person starting from the cheapest source and waterfalling into
 progressively more expensive ones.
 

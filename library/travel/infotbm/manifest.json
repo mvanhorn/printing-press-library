@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "infotbm-pp-mcp",
+  "display_name": "TBM Bordeaux",
+  "version": "4.18.1",
+  "description": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/infotbm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/infotbm-pp-mcp",
+      "args": [],
+      "env": {
+        "INFOTBM_API_KEY": "${user_config.infotbm_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "infotbm_api_key": {
+      "type": "string",
+      "title": "INFOTBM_API_KEY",
+      "description": "Sets INFOTBM_API_KEY for the TBM Bordeaux MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

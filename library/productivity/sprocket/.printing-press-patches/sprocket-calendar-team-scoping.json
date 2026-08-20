@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-calendar-team-scoping",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "fetchCalendar looks up the user's team IDs and queries the calendar POST with teamID[] (plus a club-wide layer), using ISO datetimes and 30-day chunking.",
+  "reason": "Live testing showed the minimal {start,end} calendar body returns only club-wide events; the dashboard scopes by teamID to get the user's training/games. Without this the flagship schedule commands return near-empty.",
+  "files": ["internal/cli/sprocket_schedule.go"],
+  "validated_outcome": "Direct curl confirmed teamID[] returns the 6 training events vs 1 club event for the bare body; agenda 0 -> 12 events after the fix."
+}

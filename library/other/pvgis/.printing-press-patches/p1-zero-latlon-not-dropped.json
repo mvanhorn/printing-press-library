@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "p1-zero-latlon-not-dropped",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Always send `lat` and `lon` query params for all 5 PVGIS endpoints, regardless of their value. The previous `if flagLat != 0.0` / `if flagLon != 0.0` gates silently dropped the equator (lat=0) and the prime meridian (lon=0, valid for sites in Ghana, the UK, Spain, etc.).",
+  "reason": "Greptile review (P1) flagged that the generator's `!= 0.0` gate omits valid required params for sites on the equator or prime meridian. `cmd.Flags().Changed(...)` correctly passes the required-flag pre-check, but the zero value was then silently dropped before the HTTP call, so PVGIS would receive a request missing a required coordinate. Lat and lon are required for every PVGIS endpoint, so the simplest correct fix is to always include them (no Changed-gate needed). Verified with `--lat 0 --lon 0 --dry-run`: the URL now correctly includes `&lat=0&lon=0`. This is another generator-template shape that ships across every CLI in the library; applying the patch locally per the same AGENTS.md rule as p2-toctou-window.",
+  "files": [
+    "internal/cli/production_hourly.go",
+    "internal/cli/production_monthly.go",
+    "internal/cli/promoted_radiation.go",
+    "internal/cli/promoted_weather.go",
+    "internal/cli/promoted_horizon.go"
+  ],
+  "validated_outcome": "`pvgis-pp-cli radiation --lat 0 --lon 0 --json --dry-run` now emits `&lat=0&lon=0` in the GET URL; normal cases (45, 9) still work; `go build`, `go vet`, and `go test ./...` all clean.",
+  "upstream_issue": "TBD — generator's `if flag<Param> != 0` pattern is unsafe for any required numeric param whose valid range includes zero."
+}

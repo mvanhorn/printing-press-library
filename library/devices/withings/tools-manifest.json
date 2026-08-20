@@ -1,0 +1,461 @@
+{
+  "api_name": "withings",
+  "base_url": "https://wbsapi.withings.net",
+  "description": "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {WITHINGS_ACCESS_TOKEN}",
+    "env_vars": [
+      "WITHINGS_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WITHINGS_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activity_get",
+      "description": "Daily activity aggregates (getactivity). Optional: action (default: getactivity), startdateymd, enddateymd (plus 3 more). Returns array of Activity.",
+      "method": "POST",
+      "path": "/v2/measure",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getactivity)"
+        },
+        {
+          "name": "startdateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range start YYYY-MM-DD"
+        },
+        {
+          "name": "enddateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range end YYYY-MM-DD"
+        },
+        {
+          "name": "lastupdate",
+          "type": "int",
+          "location": "body",
+          "description": "Return only rows updated since this epoch (sync mode)"
+        },
+        {
+          "name": "data_fields",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated fields: steps,distance,elevation,calories,totalcalories,hr_average,hr_min,hr_max,hr_zone_0,hr_zone_1,hr_zone_2,hr_zone_3"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "activity_intraday",
+      "description": "High-resolution intraday activity series (getintradayactivity). Required: startdate, enddate. Optional: action (default: getintradayactivity), data_fields. Returns the new IntradayResult.",
+      "method": "POST",
+      "path": "/v2/measure",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getintradayactivity)"
+        },
+        {
+          "name": "startdate",
+          "type": "int",
+          "location": "body",
+          "description": "Range start (unix epoch)",
+          "required": true
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "body",
+          "description": "Range end (unix epoch)",
+          "required": true
+        },
+        {
+          "name": "data_fields",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated: steps,elevation,calories,distance,stroke,pool_lap,duration,heart_rate,spo2_auto"
+        }
+      ]
+    },
+    {
+      "name": "devices_list",
+      "description": "List linked devices (getdevice): model, battery, last sync. Optional: action (default: getdevice). Returns array of Device.",
+      "method": "POST",
+      "path": "/v2/user",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getdevice)"
+        }
+      ]
+    },
+    {
+      "name": "goals_get",
+      "description": "Get user goals (getgoals). Optional: action (default: getgoals). Returns the new Goals.",
+      "method": "POST",
+      "path": "/v2/user",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getgoals)"
+        }
+      ]
+    },
+    {
+      "name": "heart_ecg",
+      "description": "Get a single raw ECG signal by signalid (get). Required: signalid. Optional: action (default: get). Returns the new EcgSignal.",
+      "method": "POST",
+      "path": "/v2/heart",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (get)"
+        },
+        {
+          "name": "signalid",
+          "type": "int",
+          "location": "body",
+          "description": "ECG signal id from 'heart list'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "heart_list",
+      "description": "List heart recordings (list): ECG signalids, AFib classification, BP. Optional: action (default: list), startdate, enddate (plus 1 more). Returns array of HeartRecord.",
+      "method": "POST",
+      "path": "/v2/heart",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (list)"
+        },
+        {
+          "name": "startdate",
+          "type": "int",
+          "location": "body",
+          "description": "Range start (unix epoch)"
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "body",
+          "description": "Range end (unix epoch)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "measure_get",
+      "description": "Get body measurements (getmeas). Filter by type codes and date range. Optional: action (default: getmeas), meastypes, category (default: 1) (plus 4 more). Returns array of MeasureGroup.",
+      "method": "POST",
+      "path": "/measure",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getmeas)"
+        },
+        {
+          "name": "meastypes",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated measure type codes, e.g. 1,5,6,8 (1=weight,6=fat ratio,9=diastolic,10=systolic,11=heart pulse,54=SpO2)"
+        },
+        {
+          "name": "category",
+          "type": "int",
+          "location": "body",
+          "description": "1=real measures, 2=user objectives"
+        },
+        {
+          "name": "startdate",
+          "type": "int",
+          "location": "body",
+          "description": "Range start (unix epoch)"
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "body",
+          "description": "Range end (unix epoch)"
+        },
+        {
+          "name": "lastupdate",
+          "type": "int",
+          "location": "body",
+          "description": "Return only rows updated since this epoch (sync mode)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination cursor from prior response body.offset"
+        }
+      ]
+    },
+    {
+      "name": "notify_get",
+      "description": "Get one subscription (get). Required: callbackurl, appli. Optional: action (default: get). Returns the new NotifyProfile.",
+      "method": "POST",
+      "path": "/notify",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (get)"
+        },
+        {
+          "name": "callbackurl",
+          "type": "string",
+          "location": "body",
+          "description": "The subscribed callback URL",
+          "required": true
+        },
+        {
+          "name": "appli",
+          "type": "int",
+          "location": "body",
+          "description": "Category code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notify_list",
+      "description": "List webhook subscriptions (list). Optional: action (default: list), appli. Returns array of NotifyProfile.",
+      "method": "POST",
+      "path": "/notify",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (list)"
+        },
+        {
+          "name": "appli",
+          "type": "int",
+          "location": "body",
+          "description": "Filter by category code (1=weight,4=BP/HR,16=activity,44=sleep,54=ECG,...)"
+        }
+      ]
+    },
+    {
+      "name": "notify_revoke",
+      "description": "Revoke a webhook subscription (revoke). Required: callbackurl. Optional: action (default: revoke), appli. Returns the new NotifyResult.",
+      "method": "POST",
+      "path": "/notify",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (revoke)"
+        },
+        {
+          "name": "callbackurl",
+          "type": "string",
+          "location": "body",
+          "description": "The callback URL to revoke",
+          "required": true
+        },
+        {
+          "name": "appli",
+          "type": "int",
+          "location": "body",
+          "description": "Category code"
+        }
+      ]
+    },
+    {
+      "name": "notify_subscribe",
+      "description": "Subscribe a webhook (subscribe). Required: callbackurl, appli. Optional: action (default: subscribe), comment. Returns the new NotifyResult.",
+      "method": "POST",
+      "path": "/notify",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (subscribe)"
+        },
+        {
+          "name": "callbackurl",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS callback URL (must return 200 to verification probe)",
+          "required": true
+        },
+        {
+          "name": "appli",
+          "type": "int",
+          "location": "body",
+          "description": "Category code to subscribe to",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Optional label"
+        }
+      ]
+    },
+    {
+      "name": "sleep_series",
+      "description": "High-frequency sleep stage series (get). Required: startdate, enddate. Optional: action (default: get), data_fields. Returns array of SleepPhase.",
+      "method": "POST",
+      "path": "/v2/sleep",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (get)"
+        },
+        {
+          "name": "startdate",
+          "type": "int",
+          "location": "body",
+          "description": "Night start (unix epoch)",
+          "required": true
+        },
+        {
+          "name": "enddate",
+          "type": "int",
+          "location": "body",
+          "description": "Night end (unix epoch)",
+          "required": true
+        },
+        {
+          "name": "data_fields",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated: hr,rr,snoring,sdnn_1,rmssd,mvt_score"
+        }
+      ]
+    },
+    {
+      "name": "sleep_summary",
+      "description": "Per-night sleep summary (getsummary): durations, HR, RR, snoring, AHI, sleep score. Optional: action (default: getsummary), startdateymd, enddateymd (plus 2 more). Returns array of SleepSummary.",
+      "method": "POST",
+      "path": "/v2/sleep",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getsummary)"
+        },
+        {
+          "name": "startdateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range start YYYY-MM-DD"
+        },
+        {
+          "name": "enddateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range end YYYY-MM-DD"
+        },
+        {
+          "name": "lastupdate",
+          "type": "int",
+          "location": "body",
+          "description": "Return only rows updated since this epoch (sync mode)"
+        },
+        {
+          "name": "data_fields",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated summary fields (total_sleep_time,deepsleepduration,remsleepduration,sleep_score,apnea_hypopnea_index,snoring,hr_average,...)"
+        }
+      ]
+    },
+    {
+      "name": "workouts_list",
+      "description": "List workout sessions (getworkouts). Optional: action (default: getworkouts), startdateymd, enddateymd (plus 3 more). Returns array of Workout.",
+      "method": "POST",
+      "path": "/v2/measure",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "API action (getworkouts)"
+        },
+        {
+          "name": "startdateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range start YYYY-MM-DD"
+        },
+        {
+          "name": "enddateymd",
+          "type": "string",
+          "location": "body",
+          "description": "Range end YYYY-MM-DD"
+        },
+        {
+          "name": "lastupdate",
+          "type": "int",
+          "location": "body",
+          "description": "Return only rows updated since this epoch (sync mode)"
+        },
+        {
+          "name": "data_fields",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated workout data fields (calories,hr_average,hr_zone_0..3,distance,elevation,steps,spo2_average,...)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination cursor"
+        }
+      ]
+    }
+  ]
+}

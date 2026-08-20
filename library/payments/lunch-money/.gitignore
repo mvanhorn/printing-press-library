@@ -1,0 +1,47 @@
+# Build artifacts
+/dist/
+/build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go test/coverage
+*.test
+*.out
+coverage.*
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*~
+.worktrees/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local-only state that shouldn't be committed (defense in depth — these live
+# in ~/.config/lunch-money-pp-cli/ and ~/.local/share/, not in this tree, but
+# guarding against accidental moves).
+internal-cookies.json
+*.cookie
+*.token
+.env
+.env.*
+
+# Misc dump files from ad-hoc testing
+/tmp/
+/scratch/
+*.scratch.json
+
+# Subagent / printing-press transient outputs
+/dogfood-results.json
+
+# Re-include files some operators block in their global gitignore. AGENTS.md
+# and .manuscripts/research|proofs are canonical artifacts of a published CLI
+# (the publish verifier hard-fails when they're missing), so they must be
+# trackable inside this tree even if a global ignore would normally skip them.
+!AGENTS.md
+!/.manuscripts/

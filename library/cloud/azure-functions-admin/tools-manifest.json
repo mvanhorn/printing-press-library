@@ -1,0 +1,204 @@
+{
+  "api_name": "azure-functions-admin",
+  "base_url": "https://management.azure.com",
+  "description": "Read-only inspector for Azure Functions: inventory, app settings, keys, plans, and Application Insights-backed cold-start and plan-fit analysis.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {AZURE_TENANT_ID}",
+    "env_vars": [
+      "AZURE_TENANT_ID",
+      "AZURE_CLIENT_ID",
+      "AZURE_CLIENT_SECRET",
+      "AZURE_SUBSCRIPTION_ID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AZURE_TENANT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "AZURE_CLIENT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "AZURE_CLIENT_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "AZURE_SUBSCRIPTION_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apps_get",
+      "description": "Get a single Function App. Required: subscriptionId, resourceGroup, name. Returns the Site.",
+      "method": "GET",
+      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID",
+          "required": true
+        },
+        {
+          "name": "resourceGroup",
+          "type": "string",
+          "location": "path",
+          "description": "Resource group name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Function App name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "List Function Apps in a subscription (filter kind~functionapp). Required: subscriptionId. Returns array of Site.",
+      "method": "GET",
+      "path": "/subscriptions/{subscriptionId}/providers/Microsoft.Web/sites?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID (defaults to AZURE_SUBSCRIPTION_ID)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_list",
+      "description": "List functions in a Function App. Required: subscriptionId, resourceGroup, name. Returns array of FunctionEnvelope.",
+      "method": "GET",
+      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/functions?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID",
+          "required": true
+        },
+        {
+          "name": "resourceGroup",
+          "type": "string",
+          "location": "path",
+          "description": "Resource group name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Function App name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "plans_list",
+      "description": "List hosting plans (tier decode: Y1=Consumption, EP*=Premium, P*=Dedicated). Required: subscriptionId. Returns array of AppServicePlan.",
+      "method": "GET",
+      "path": "/subscriptions/{subscriptionId}/providers/Microsoft.Web/serverfarms?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_list",
+      "description": "List application settings (values are masked by the analysis layer). Required: subscriptionId, resourceGroup, name. Returns the new StringDictionary.",
+      "method": "POST",
+      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/config/appsettings/list?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID",
+          "required": true
+        },
+        {
+          "name": "resourceGroup",
+          "type": "string",
+          "location": "path",
+          "description": "Resource group name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Function App name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "slots_list",
+      "description": "List deployment slots. Required: subscriptionId, resourceGroup, name. Returns array of Site.",
+      "method": "GET",
+      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Web/sites/{name}/slots?api-version=2024-11-01",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Azure subscription ID",
+          "required": true
+        },
+        {
+          "name": "resourceGroup",
+          "type": "string",
+          "location": "path",
+          "description": "Resource group name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Function App name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_list",
+      "description": "List accessible subscriptions. Returns array of Subscription.",
+      "method": "GET",
+      "path": "/subscriptions?api-version=2022-12-01",
+      "params": []
+    }
+  ]
+}

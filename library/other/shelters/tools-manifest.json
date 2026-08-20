@@ -1,0 +1,61 @@
+{
+  "api_name": "shelters",
+  "base_url": "https://gis.fema.gov",
+  "description": "Credible, real-time disaster shelter information for AI agents and people: which FEMA-tracked shelters are open right now, where they are, which take pets, and which are filling up. Sourced from FEMA's National Shelter System OpenShelters feed, honest about missing data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "shelters-pp-cli (https://github.com/abe238/shelters-pp-cli)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "shelters_list",
+      "description": "List open shelters from the FEMA OpenShelters feed. Returns few or none when no disaster is active (quiet baseline); counts spike during named events. Data is reported roughly twice a day and may lag reality. Optional: where (default: 1=1), out-fields (default: *), return-geometry (default: false) (plus 2 more).",
+      "method": "GET",
+      "path": "/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "where",
+          "type": "string",
+          "location": "query",
+          "description": "ArcGIS SQL filter; defaults to all open shelters. Most users filter via the higher-level flags instead."
+        },
+        {
+          "name": "out-fields",
+          "wire_name": "outFields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return; defaults to all 22."
+        },
+        {
+          "name": "return-geometry",
+          "wire_name": "returnGeometry",
+          "type": "string",
+          "location": "query",
+          "description": "Geometry is not needed; latitude/longitude come back as attributes."
+        },
+        {
+          "name": "max-records",
+          "wire_name": "resultRecordCount",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side cap on rows returned per request."
+        },
+        {
+          "name": "format",
+          "wire_name": "f",
+          "type": "string",
+          "location": "query",
+          "description": "ArcGIS response format; must stay json."
+        }
+      ]
+    }
+  ]
+}

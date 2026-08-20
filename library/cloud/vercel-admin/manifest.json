@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "vercel-admin-pp-mcp",
+  "display_name": "Vercel",
+  "version": "0.0.0",
+  "description": "Vercel combines the best developer experience with an obsessive focus on end-user performance.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vercel-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vercel-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "VERCEL_ADMIN_TOKEN": "${user_config.vercel_admin_token}"
+      }
+    }
+  },
+  "user_config": {
+    "vercel_admin_token": {
+      "type": "string",
+      "title": "VERCEL_ADMIN_TOKEN",
+      "description": "Sets VERCEL_ADMIN_TOKEN for the Vercel MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

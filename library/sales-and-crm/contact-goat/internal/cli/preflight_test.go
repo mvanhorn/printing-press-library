@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -75,9 +75,9 @@ func TestPreflightWaterfallDeeplineValidKey(t *testing.T) {
 
 func TestShouldPreflightDossier(t *testing.T) {
 	cases := []struct {
-		name         string
-		sections     []string
-		enrichEmail  bool
+		name          string
+		sections      []string
+		enrichEmail   bool
 		wantPreflight bool
 	}{
 		{"no-email-no-enrich", []string{"profile", "research"}, false, false},
@@ -98,12 +98,12 @@ func TestNormalizePersonInputHandlesURLVariants(t *testing.T) {
 	// This helper is the one Unit 3 relies on for the linkedin_url ->
 	// linkedin_username fix. Lock the behavior in a test.
 	cases := map[string]string{
-		"williamhgates":                               "williamhgates",
-		"https://www.linkedin.com/in/williamhgates":   "williamhgates",
-		"https://www.linkedin.com/in/williamhgates/":  "williamhgates",
-		"http://linkedin.com/in/alonsovelasco":        "alonsovelasco",
-		"/in/alonsovelasco/":                          "alonsovelasco",
-		"https://www.linkedin.com/in/mkscrg":          "mkscrg",
+		"williamhgates": "williamhgates",
+		"https://www.linkedin.com/in/williamhgates":  "williamhgates",
+		"https://www.linkedin.com/in/williamhgates/": "williamhgates",
+		"http://linkedin.com/in/alonsovelasco":       "alonsovelasco",
+		"/in/alonsovelasco/":                         "alonsovelasco",
+		"https://www.linkedin.com/in/mkscrg":         "mkscrg",
 	}
 	for in, want := range cases {
 		if got := normalizePersonInput(in); got != want {

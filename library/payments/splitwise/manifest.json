@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "splitwise-pp-mcp",
+  "display_name": "Splitwise",
+  "version": "4.19.0",
+  "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/splitwise-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/splitwise-pp-mcp",
+      "args": [],
+      "env": {
+        "SPLITWISE_API_KEY": "${user_config.splitwise_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "splitwise_api_key": {
+      "type": "string",
+      "title": "SPLITWISE_API_KEY",
+      "description": "Sets SPLITWISE_API_KEY for the Splitwise MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

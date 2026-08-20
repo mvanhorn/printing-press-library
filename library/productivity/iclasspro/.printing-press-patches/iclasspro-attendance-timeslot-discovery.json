@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-attendance-timeslot-discovery",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Resolve the Office Portal attendance timeslot from a class and date when the caller omits the internal ID.",
+  "reason": "Class search exposes schedules but not the tsId required by the roster endpoint, so the published attendance command could not be used from its own discoverable output.",
+  "files": [
+    "internal/cli/iclasspro_staff.go",
+    "internal/cli/iclasspro_staff_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "PASS: omitted timeslot discovery and explicit timeslot compatibility tests passed; full Go tests, go vet, go build, verify-skill, a live read-only roster smoke, 134/134 public dogfood checks, strict PII audit, supply-chain scan, and publish validation passed.",
+  "findings_addressed": [
+    "F1"
+  ],
+  "publication_status": "pr_open",
+  "reapply_notes": "Keep the optional fourth positional argument for backward compatibility. When it is absent, query /schedule/{class-id}/class/{date}/{date}, require one unique tsId for the requested date, and then read the existing roster endpoint."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "u5-discovery-surfaces-schema-v4",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Doctor gains fleet_auth + relay + signed_command_paths sections via the existing OK/INFO/WARN/FAIL dispatch table. Reachability adds additive recommended_via and available_paths fields (existing v3 classification enum preserved exactly). agent-context schema bumped 3 -> 4 with three new Fleet env vars and a SignedCommandPaths top-level block (fleet{available,audience,scopes,expiry}, hermes{running,port}, per_vehicle[]). manifest.json user_config gains tesla_fleet_token + tesla_fleet_client_id + tesla_fleet_client_secret keys (object-map shape preserved, all sensitive=true required=false).",
+  "reason": "Discovery surfaces are the agent-readable contract. Without these updates, an MCP agent looking at agent-context wouldn't know the new Fleet/Hermes paths exist on this install. Schema bump signals the additive change; v3 fields remain at the same paths so v3 readers continue to work.",
+  "files": [
+    "internal/cli/doctor.go",
+    "internal/cli/tesla_reachability.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/agent_context_test.go",
+    "internal/cli/tesla_reachability_test.go",
+    "manifest.json"
+  ],
+  "validated_outcome": "15 tests pass (6 agent-context + 6 reachability + 3 signed-paths reused from U4): schema_version=4, all 3 Fleet env vars in envVars list, SignedCommandPaths well-formed with and without Fleet creds, no-token-literal-leak guard (scans JSON output for access_token/refresh_token/client_secret/client_id byte sequences), v3 backcompat shape preserved with omitempty on new reachability fields.",
+  "upstream_issue": "doctor.go, tesla_reachability.go, agent_context.go all carry generator DO NOT EDIT headers; the edits are templated drift. R7 permits this with documentation. Future generator hook should make these extension points."
+}

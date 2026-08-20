@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "drafts-send-and-get-by-id",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Add 'drafts get <id>' and 'drafts send <id>' subcommands. The send subcommand fetches the current server-side draftValue via /v3/userdata.read and dispatches it via the existing Gmail-API path, so any edits a user makes in the Superhuman UI between draft creation and send are honored.",
+  "reason": "2026-05-22 Esper-to-Gradle send: an agent created a draft via 'drafts new', the user edited it in the Superhuman web UI, and the agent then called 'send' with the original body it had on file. 'send' built a brand-new draft from local --to/--subject/--body and dispatched THAT, silently discarding the UI edits. The CLI had no drafts get / drafts send verbs, no path to ship an existing draft by id. New subcommand mirrors the drafts discard shape (positional draft-id arg, hidden namespace, resolveActiveAccount/readDraft helpers, JSON envelope). Skips step1WriteMessage on purpose: re-writing risks racing with another active client (Superhuman web) that may have just persisted a fresh edit.",
+  "files": [
+    "internal/cli/drafts.go",
+    "internal/cli/drafts_get.go",
+    "internal/cli/drafts_get_test.go",
+    "internal/cli/drafts_send.go",
+    "internal/cli/drafts_send_test.go",
+    "internal/cli/userdata_read.go"
+  ],
+  "validated_outcome": "drafts_send_test.go TestDraftsSend_HonorsServerSideBody asserts the Gmail wire payload carries the server-side draft body bytes, not anything the caller composed. Round-trip: drafts new -> edit body in Superhuman web -> drafts send <id> ships the edited body."
+}

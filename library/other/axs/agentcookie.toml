@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "axs-pp-cli"
+display_name = "SRAM AXS"
+description = "SRAM AXS CLI for bikes, components, registrations, ride activities, and synced component-summary analytics."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/axs-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SRAM_AXS_TOKEN = true

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "whoop",
+  "cli_name": "whoop-pp-cli",
+  "run_id": "20260509-091026",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "Whoop uses OAuth 2.0 authorization-code flow — no static API key. A fresh access token is short-lived (1 hour) and is obtained interactively via 'whoop-pp-cli auth login --client-id --client-secret', which requires a registered redirect URI on the user's Whoop OAuth app and a browser approval step. The token used during this run expired at 2026-05-09T10:27:41-04:00 before publish-time live dogfood could be re-run. The CLI was manually exercised end-to-end during the run: auth login (browser flow), profile/recovery/cycle/workout/sleep GETs (live), sync (live, after fixing limit<=25 cap), and the 9 novel local-only commands against an empty store (graceful 'No data' messages). All structural checks (go build, go vet, govulncheck, --help, --version, manifest, verify-skill) pass."
+}

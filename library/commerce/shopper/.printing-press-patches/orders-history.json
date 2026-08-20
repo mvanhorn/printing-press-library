@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "orders-history",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-074112",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add an `orders` command group: `orders history` (GET /orders/orders) and `orders spend`, a month-over-month spend rollup that by default covers all four Shopper storefronts (programada, fresh, pet, unica).",
+  "reason": "The web 'Histórico de compras' page reads GET /orders/orders?size=N, an endpoint the sniffed spec never captured, so the CLI could not show past orders or actual spend. Order totals are what the customer was charged, so they roll up directly into month-over-month spend. All four stores are queried so the report is complete for any account; empty store columns are hidden from the human table (and named on stderr) but always present in --json.",
+  "files": [
+    "internal/cli/orders.go",
+    "internal/cli/orders_test.go",
+    "internal/client/shopper_headers.go",
+    "internal/client/shopper_headers_test.go"
+  ],
+  "validated_outcome": "`orders spend --months 12` queries all 4 stores; for an account using 2 it shows a clean Programada/Fresh table matching web totals (Apr/26 Fresh R$2.908,54, Programada R$2.124,65) and notes 'No spend ... for: pet, unica'. Widening --months surfaces older Compra Única one-off orders (Jun/24, May/25).",
+  "deferred_to_upstream": [
+    {
+      "feature": "spec.yaml should include the /orders/orders endpoint so `orders history` is generated (with sync/search/MCP support) rather than hand-written.",
+      "reason": "Missing public API endpoint not present in the captured spec; the local command is a bridge until the spec carries it."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forkable-dry-run-json-fidelity",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Every read-only novel command's --dry-run path must honor --json/--agent/piped-stdout by emitting a JSON envelope instead of unconditional prose, matching the emitDryRunShortCircuit helper the write commands in forkable_orders.go already use.",
+  "reason": "All 7 novel read commands (served-history, preference-drift, why-picked, spend-trend, allowance-burn, upcoming-digest, venue-rotation) independently hand-rolled an unconditional fmt.Fprintln on the dry-run path, so `<command> --dry-run --json` (or --agent, or piped stdout) printed prose instead of valid JSON — breaking the agent contract AGENTS.md documents (`<command> --dry-run --agent` before an unfamiliar command) and dogfood's json_fidelity check. emitDryRunShortCircuit already existed in forkable_orders.go as a general-purpose helper (not write-command-specific) and was simply unused by the read commands; retrofitting it is a one-line-per-file swap that is byte-identical on the human/terminal prose path and only changes behavior on the previously-broken machine-output path.",
+  "files": ["internal/cli/served_history.go", "internal/cli/preference_drift.go", "internal/cli/why_picked.go", "internal/cli/spend_trend.go", "internal/cli/allowance_burn.go", "internal/cli/upcoming_digest.go", "internal/cli/venue_rotation.go"],
+  "validated_outcome": "go build clean across all 7 files (fmt import still used elsewhere in each); manual verification that `venue-rotation --dry-run --json` now emits {\"dry_run\":true,\"action\":\"...\"} instead of prose.",
+  "upstream_issue": ""
+}

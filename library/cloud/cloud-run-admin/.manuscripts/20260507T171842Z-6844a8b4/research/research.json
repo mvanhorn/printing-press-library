@@ -1,0 +1,275 @@
+{
+  "api_name": "cloud-run-admin",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "gcloud run",
+      "url": "https://cloud.google.com/sdk/gcloud/reference/run/",
+      "language": "Python",
+      "install_method": "gcloud",
+      "stars": 0,
+      "last_updated": "official Google Cloud CLI",
+      "command_count": 40,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "Google Cloud Run Admin API REST reference",
+      "url": "https://docs.cloud.google.com/run/docs/reference/rest",
+      "language": "REST",
+      "install_method": "documentation",
+      "stars": 0,
+      "last_updated": "official API reference",
+      "command_count": 20,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "cloud.google.com/go/run/apiv2",
+      "url": "https://docs.cloud.google.com/go/docs/reference/cloud.google.com/go/run/latest/apiv2",
+      "language": "Go",
+      "install_method": "go get",
+      "stars": 0,
+      "last_updated": "official client library",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "lpmourato/c9s",
+      "url": "https://github.com/lpmourato/c9s",
+      "language": "Go",
+      "install_method": "source",
+      "stars": 0,
+      "last_updated": "2025-09-03",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "kameshsampath/drone-gcloud-run",
+      "url": "https://github.com/kameshsampath/drone-gcloud-run",
+      "language": "Go",
+      "install_method": "drone plugin",
+      "stars": 2,
+      "last_updated": "2024-02-06",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "The official gcloud run surface is strong for deploy/update workflows but is not a small standalone API-shaped CLI with generated command coverage for services, jobs, executions, tasks, operations, revisions, and IAM helpers.",
+    "gcloud output filtering is powerful, but agents still need to know the right command group and shape; a dedicated which command lowers command-discovery cost for Cloud Run resource work.",
+    "The official CLI does not maintain a local SQLite cache for offline search, SQL inspection, or repeated analysis of synced services, jobs, revisions, executions, and tasks.",
+    "Small third-party Cloud Run tools found in GitHub search are narrow deploy or monitoring helpers rather than broad Admin API wrappers."
+  ],
+  "patterns": [
+    "Google's official CLI uses project and region context, supports machine-readable formatting, and has mature auth through gcloud.",
+    "Cloud Run operators frequently inspect services, jobs, revisions, executions, and tasks together while debugging rollout or job execution state.",
+    "Read-only list/get/status operations are safe candidates for agent use when token output is compact and selectable.",
+    "Long-running operations and job executions benefit from workflow commands that combine resource lookup with operation/execution status checks."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T17:24:00Z",
+  "competitor_insights": {
+    "analyses": [
+      {
+        "repo_url": "https://cloud.google.com/sdk/gcloud/reference/run/",
+        "commands_found": [
+          "gcloud run deploy",
+          "gcloud run services describe",
+          "gcloud run jobs execute",
+          "gcloud run revisions list"
+        ],
+        "feature_requests": [
+          "agent-oriented command discovery",
+          "local cache for repeated analysis",
+          "single-purpose Admin API wrapper"
+        ],
+        "abandoned_prs": [],
+        "pain_points": [
+          "large general-purpose CLI surface",
+          "users must translate Admin API resource names into gcloud command groups"
+        ],
+        "command_count": 40
+      },
+      {
+        "repo_url": "https://github.com/lpmourato/c9s",
+        "commands_found": [
+          "local Cloud Run service monitor"
+        ],
+        "feature_requests": [
+          "broader services/jobs/revisions/executions coverage"
+        ],
+        "abandoned_prs": [],
+        "pain_points": [
+          "narrow monitoring scope",
+          "not an Admin API command mirror"
+        ],
+        "command_count": 1
+      }
+    ],
+    "command_target": 18,
+    "unmet_features": [
+      "offline search and SQL over Cloud Run inventory",
+      "agent-native JSON and field selection by default",
+      "workflow-level status checks across services/jobs/executions",
+      "command discovery by Cloud Run operator intent"
+    ],
+    "pain_points_to_avoid": [
+      "requiring agents to parse large default text output",
+      "hiding required resource-name formats",
+      "mixing write/delete calls into automatic live checks"
+    ]
+  },
+  "novel_features": [
+    {
+      "name": "Agent-ready service inventory",
+      "command": "services list",
+      "description": "Lists Cloud Run services through the Admin API with agent-friendly JSON, compact output, and field selection.",
+      "rationale": "The official gcloud surface is broad; this focused service inventory command gives agents a direct API-shaped read path with selectable fields.",
+      "example": "cloud-run-admin-pp-cli services list projects/PROJECT_ID/locations/REGION --agent --select services.name,services.uri,nextPageToken",
+      "why_it_matters": "Use this when an agent needs a compact inventory of Cloud Run services in a project and region.",
+      "group": "Agent-native Cloud Run operations"
+    },
+    {
+      "name": "Local Cloud Run inventory",
+      "command": "sync",
+      "description": "Syncs Cloud Run resources into a local SQLite store so services, jobs, revisions, executions, tasks, and operations can be searched without repeating every API call.",
+      "rationale": "The official CLI is excellent at live operations, but it does not provide a dedicated local data layer for repeated analysis.",
+      "example": "cloud-run-admin-pp-cli sync --json",
+      "why_it_matters": "Use this before offline search, SQL inspection, or repeated multi-resource analysis.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Offline resource search",
+      "command": "search",
+      "description": "Searches synced Cloud Run inventory locally or falls back to live API calls depending on the data-source mode.",
+      "rationale": "Cloud Run debugging often starts with partial names or fragments; local full-text search reduces repeated API calls and context size.",
+      "example": "cloud-run-admin-pp-cli search \"api\" --type services --json --select resource_type,title",
+      "why_it_matters": "Use this when you need to locate Cloud Run resources by remembered fragments.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Cloud Run analytics",
+      "command": "analytics",
+      "description": "Runs local analysis against synced Cloud Run data for inventory and status-oriented questions.",
+      "rationale": "The Admin API exposes raw resources; operators still need compact summaries to spot stale revisions, failed executions, or inventory shape.",
+      "example": "cloud-run-admin-pp-cli analytics --json",
+      "why_it_matters": "Use this after sync when the question is about trends or inventory health rather than a single resource.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Compound Cloud Run workflows",
+      "command": "workflow",
+      "description": "Provides compound workflows that combine multiple Cloud Run Admin API operations into one operator-facing flow.",
+      "rationale": "Services, jobs, executions, revisions, and operations are related during rollouts and job runs; workflow commands keep those checks together.",
+      "example": "cloud-run-admin-pp-cli workflow --help",
+      "why_it_matters": "Use this when the task spans more than one Cloud Run resource type.",
+      "group": "Workflow status checks"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent-ready service inventory",
+      "command": "services list",
+      "description": "Lists Cloud Run services through the Admin API with agent-friendly JSON, compact output, and field selection.",
+      "rationale": "The official gcloud surface is broad; this focused service inventory command gives agents a direct API-shaped read path with selectable fields.",
+      "example": "cloud-run-admin-pp-cli services list projects/PROJECT_ID/locations/REGION --agent --select services.name,services.uri,nextPageToken",
+      "why_it_matters": "Use this when an agent needs a compact inventory of Cloud Run services in a project and region.",
+      "group": "Agent-native Cloud Run operations"
+    },
+    {
+      "name": "Local Cloud Run inventory",
+      "command": "sync",
+      "description": "Syncs Cloud Run resources into a local SQLite store so services, jobs, revisions, executions, tasks, and operations can be searched without repeating every API call.",
+      "rationale": "The official CLI is excellent at live operations, but it does not provide a dedicated local data layer for repeated analysis.",
+      "example": "cloud-run-admin-pp-cli sync --json",
+      "why_it_matters": "Use this before offline search, SQL inspection, or repeated multi-resource analysis.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Offline resource search",
+      "command": "search",
+      "description": "Searches synced Cloud Run inventory locally or falls back to live API calls depending on the data-source mode.",
+      "rationale": "Cloud Run debugging often starts with partial names or fragments; local full-text search reduces repeated API calls and context size.",
+      "example": "cloud-run-admin-pp-cli search \"api\" --type services --json --select resource_type,title",
+      "why_it_matters": "Use this when you need to locate Cloud Run resources by remembered fragments.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Cloud Run analytics",
+      "command": "analytics",
+      "description": "Runs local analysis against synced Cloud Run data for inventory and status-oriented questions.",
+      "rationale": "The Admin API exposes raw resources; operators still need compact summaries to spot stale revisions, failed executions, or inventory shape.",
+      "example": "cloud-run-admin-pp-cli analytics --json",
+      "why_it_matters": "Use this after sync when the question is about trends or inventory health rather than a single resource.",
+      "group": "Local state and analysis"
+    },
+    {
+      "name": "Compound Cloud Run workflows",
+      "command": "workflow",
+      "description": "Provides compound workflows that combine multiple Cloud Run Admin API operations into one operator-facing flow.",
+      "rationale": "Services, jobs, executions, revisions, and operations are related during rollouts and job runs; workflow commands keep those checks together.",
+      "example": "cloud-run-admin-pp-cli workflow --help",
+      "why_it_matters": "Use this when the task spans more than one Cloud Run resource type.",
+      "group": "Workflow status checks"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Cloud Run",
+    "headline": "A focused Cloud Run Admin API CLI with agent-native output, local inventory, and command discovery.",
+    "value_prop": "This CLI wraps the Cloud Run Admin API directly for services, jobs, executions, tasks, operations, revisions, and IAM helpers. It complements gcloud by giving agents a smaller API-shaped surface with JSON-first output, field selection, local sync, search, analytics, and workflow commands.",
+    "auth_narrative": "Cloud Run Admin uses Google OAuth bearer tokens with the cloud-platform scope. For local use, run `gcloud auth print-access-token` and export the value as `CLOUD_RUN_ADMIN_OAUTH2C`; do not commit the token or paste it into docs.",
+    "quickstart": [
+      {
+        "command": "cloud-run-admin-pp-cli auth status --json",
+        "comment": "Confirm whether an OAuth token is already available before calling the Admin API."
+      },
+      {
+        "command": "cloud-run-admin-pp-cli which \"list services\" --json",
+        "comment": "Find the exact command path for a Cloud Run task."
+      },
+      {
+        "command": "cloud-run-admin-pp-cli services list projects/PROJECT_ID/locations/REGION --json --select services.name,services.uri",
+        "comment": "List services with selected fields for agent-friendly output."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Cloud Run returns authentication or permission errors",
+        "fix": "Refresh the token with `gcloud auth print-access-token`, export `CLOUD_RUN_ADMIN_OAUTH2C`, and confirm the account has Cloud Run Viewer or a role with the required Admin API permission."
+      },
+      {
+        "symptom": "A command asks for `parent` or `name`",
+        "fix": "Use Google resource names such as `projects/PROJECT_ID/locations/REGION` for parent list calls and full resource names for get/update/delete calls."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs focused Cloud Run Admin API access without navigating the full gcloud surface. It is strongest for read-heavy inspection, local inventory sync, search, field-selected JSON, and workflows that correlate services, jobs, executions, revisions, tasks, and operations.",
+    "recipes": [
+      {
+        "title": "Find the right Cloud Run command",
+        "command": "cloud-run-admin-pp-cli which \"show service revisions\" --json",
+        "explanation": "Use intent search before calling a specific Cloud Run Admin command."
+      },
+      {
+        "title": "List services with compact agent output",
+        "command": "cloud-run-admin-pp-cli services list projects/PROJECT_ID/locations/REGION --agent --select services.name,services.uri,nextPageToken",
+        "explanation": "Combines agent defaults with field selection so agents avoid parsing large service payloads."
+      },
+      {
+        "title": "Search synced inventory",
+        "command": "cloud-run-admin-pp-cli search \"api\" --type services --json --select resource_type,title",
+        "explanation": "Search local Cloud Run inventory after a sync."
+      }
+    ],
+    "trigger_phrases": [
+      "inspect Cloud Run services",
+      "list Cloud Run jobs",
+      "find Cloud Run revisions",
+      "check Cloud Run executions",
+      "search Cloud Run inventory"
+    ]
+  }
+}

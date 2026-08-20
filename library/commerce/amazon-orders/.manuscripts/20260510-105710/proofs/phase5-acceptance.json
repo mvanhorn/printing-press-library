@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "amazon-orders",
+  "run_id": "20260510-105710",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 79,
+  "tests_passed": 79,
+  "tests_skipped": 42,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

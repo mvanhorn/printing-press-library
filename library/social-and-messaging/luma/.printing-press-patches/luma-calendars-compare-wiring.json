@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "luma-calendars-compare-wiring",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-093926-b732f35f",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Wire the hand-authored 'calendars compare' novel command as a subcommand of the generated promoted 'calendars' command in root.go.",
+  "reason": "The generator skipped the novel stub because 'calendars' maps to a generated command path; the subcommand must be attached manually.",
+  "files": ["internal/cli/root.go", "internal/cli/calendars_compare.go"],
+  "validated_outcome": "'calendars compare cal-A cal-B' returns a ranked comparison; registered exactly once.",
+  "upstream_issue": ""
+}

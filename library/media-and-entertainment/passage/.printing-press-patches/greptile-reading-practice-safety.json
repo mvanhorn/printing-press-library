@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greptile-reading-practice-safety",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260710-103451",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Keep daily recommendations fail-closed, reading-log state and metadata internally consistent, and fallback excerpts filtered and bounded.",
+  "reason": "Local database failures must not disable anti-repeat behavior, status-only updates must preserve supplied book metadata while clearing stale completion data, and unusual Gutenberg layouts must not expose front matter as a reading excerpt.",
+  "files": [
+    "internal/cli/today.go",
+    "internal/practice/practice.go",
+    "internal/source/gutendex/gutendex.go"
+  ],
+  "validated_outcome": "Regression tests cover database error propagation, read-to-reading transitions with title and rating preservation, reserved query encoding, and filtered bounded verse fallback."
+}

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Primary flight-goat commands: Google Flights search, cheapest-dates, and
 // Kayak-style nonstop explore. These are the headline features and do NOT
 // require any API key. FlightAware commands live elsewhere and are optional.
@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -28,22 +29,92 @@ import (
 func registerPrimaryCommands(rootCmd *cobra.Command, flags *rootFlags) {
 	rootCmd.AddCommand(newGfFlightsCmd(flags))
 	rootCmd.AddCommand(newGfDatesCmd(flags))
+	rootCmd.AddCommand(newSoarCmd(flags))
 	rootCmd.AddCommand(newKayakExploreCmd(flags))
 	rootCmd.AddCommand(newKayakLonghaulCmd(flags))
+}
+
+// classifyGoogleFlightsErr maps gflights backend errors to the CLI's
+// exit-code contract. Google's HTTP 429 becomes a rate-limit error (exit 7)
+// with an actionable hint; everything else passes through unchanged.
+// The generated classifyAPIError in helpers.go only serves the AeroAPI
+// commands, so every Google-backed command (flights, dates, batch,
+// transcend's fare probes) routes its errors through this mapping.
+// PATCH(amend-2026-07-31): see flights_batch.go for the dogfood origin.
+func classifyGoogleFlightsErr(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, gflights.ErrRateLimited) {
+		return rateLimitErr(fmt.Errorf("%w\nhint: Google Flights rate-limits per IP and the block can persist for 15+ minutes."+
+			"\n      Wait before retrying — rapid retries extend the block."+
+			"\n      For bulk fare probes, run them in one paced invocation: flights --trip \"SEA>DEN@2026-09-14\" --trip \"PDX>DEN@2026-09-15\" --pace 3s"+
+			"\n      For a second price opinion right now, 'soar' (FlySoar) and 'explore'/'longhaul' (Kayak) use different backends and are not affected.", err))
+	}
+	return err
 }
 
 // ----- search: Google Flights one-shot search -----
 
 func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
-	var returnDate, timeWindow, cabin, stops, sortBy string
+	// PATCH(upstream cli-printing-press#804): expose currency only on Google
+	// Flights-backed price commands, not as a misleading root flag.
+	var returnDate, timeWindow, cabin, stops, sortBy, currencyCode string
 	var airlines []string
 	var passengers int
 	var excludeBasic bool
+	// PATCH(upstream cli-printing-press): new filters unlocked by the
+	// native Google Flights backend (see internal/gflights/flights_native.go).
+	var emissions string
+	var checkedBags int
+	var carryOn bool
+	var layoverAirports []string
+	var maxLayoverMinutes int
+	var limitedResults bool
+	// PATCH(library): multi-city — repeatable --segment "ORIG>DEST@YYYY-MM-DD"
+	// triggers cross-provider multi-city search. See multicity.go +
+	// internal/kayak/multicity.go.
+	var segmentStrs []string
+	var provider string
+	var nonstop bool
+	// PATCH(amend-2026-07-31): batch fare probes with built-in pacing.
+	// See flights_batch.go for the dogfood origin.
+	var tripStrs []string
+	var pace time.Duration
+
+	// buildSearchBase constructs the SearchOptions shared by every mode
+	// (single search, batch trips). One construction site so a future flag
+	// cannot reach one mode and silently miss the other (review finding).
+	buildSearchBase := func() gflights.SearchOptions {
+		base := gflights.SearchOptions{
+			TimeWindow:     timeWindow,
+			Airlines:       airlines,
+			CabinClass:     cabin,
+			MaxStops:       stops,
+			SortBy:         sortBy,
+			Passengers:     passengers,
+			ExcludeBasic:   excludeBasic,
+			Currency:       currencyCode,
+			Emissions:      emissions,
+			LimitedResults: limitedResults,
+		}
+		if checkedBags > 0 || carryOn {
+			base.Bags = &gflights.BagsFilter{CheckedBags: checkedBags, CarryOn: carryOn}
+		}
+		if len(layoverAirports) > 0 || maxLayoverMinutes > 0 {
+			base.Layover = &gflights.LayoverRestrictions{Airports: layoverAirports, MaxDuration: maxLayoverMinutes}
+		}
+		return base
+	}
 
 	cmd := &cobra.Command{
-		Use:   "flights <origin> <destination> <date>",
+		// PATCH(amend-2026-07-31): positionals are bracketed because two
+		// flag-driven modes replace them entirely: multi-city (>=2 --segment)
+		// and batch (--trip). The Args validator still requires exactly 3
+		// positionals for the plain single-search form.
+		Use:         "flights [origin destination date]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Search Google Flights for a specific date (free, no API key required)",
+		Short:       "Search Google Flights for a specific date (free, no API key required)",
 		Long: `flights is flight-goat's headline command. It queries Google Flights via
 flight-goat's native Go backend (no Python dependency) and returns real prices,
 durations, airlines, and leg details. No API key. No auth. Just results.`,
@@ -56,23 +127,117 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
   # Morning departures on British Airways or KLM
   flight-goat-pp-cli flights JFK LHR 2026-07-01 --time 6-12 --airlines BA,KL
 
+  # Show prices in GBP
+  flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
+
   # Round trip with return date
-  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10`,
-		Args: cobra.ExactArgs(3),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			opts := gflights.SearchOptions{
-				Origin:        strings.ToUpper(args[0]),
-				Destination:   strings.ToUpper(args[1]),
-				DepartureDate: args[2],
-				ReturnDate:    returnDate,
-				TimeWindow:    timeWindow,
-				Airlines:      airlines,
-				CabinClass:    cabin,
-				MaxStops:      stops,
-				SortBy:        sortBy,
-				Passengers:    passengers,
-				ExcludeBasic:  excludeBasic,
+  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10
+
+  # Multi-city (repeat --segment, positional args become optional)
+  flight-goat-pp-cli flights --segment "SFO>NRT@2026-08-15" --segment "NRT>ICN@2026-08-28" --segment "ICN>SFO@2026-09-05"
+
+  # Batch of independent searches with built-in pacing (Google rate-limits
+  # bulk probes per IP — never fan these out in a shell loop)
+  flight-goat-pp-cli flights --trip "SEA>DEN@2026-09-14" --trip "PDX>DEN@2026-09-15@2026-09-17" --pace 3s --currency EUR`,
+		Args: func(cmd *cobra.Command, args []string) error {
+			// PATCH(amend-2026-07-31): batch mode (--trip) replaces the
+			// positional query entirely; mixing modes would be ambiguous.
+			// These conflict checks run BEFORE the multi-city early return —
+			// otherwise >=2 --segment would silently win over --trip
+			// (review finding: batch trips dropped without an error).
+			if len(tripStrs) > 0 {
+				if len(segmentStrs) > 0 {
+					return usageErr(fmt.Errorf("--trip (batch of independent searches) cannot be combined with --segment (one multi-city itinerary)"))
+				}
+				if len(args) > 0 {
+					return usageErr(fmt.Errorf("--trip replaces the positional <origin> <destination> <date>; drop the positional args or the --trip flags"))
+				}
+				if returnDate != "" {
+					return usageErr(fmt.Errorf("--return does not apply to --trip batches; encode the return per trip as ORIG>DEST@DEPART@RETURN"))
+				}
+				if pace < 0 {
+					return usageErr(fmt.Errorf("--pace must be >= 0 (got %s); pacing protects against Google's per-IP rate limit", pace))
+				}
+				return nil
 			}
+			// PATCH(library): multi-city mode (>=2 --segment values) makes
+			// the positional <origin> <destination> <date> optional and
+			// ignored. Single-segment positional invocation remains required
+			// for one-way / round-trip.
+			if len(segmentStrs) >= 2 {
+				return nil
+			}
+			return cobra.ExactArgs(3)(cmd, args)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var origin, destination, departureDate string
+			var segments []gflights.Segment
+			if len(segmentStrs) >= 2 {
+				parsed, perr := parseMultiCitySegments(segmentStrs)
+				if perr != nil {
+					return perr
+				}
+				segments = parsed
+				// PATCH(library): multi-city has its own provider dispatch
+				// below; it does NOT flow through the normal gflights.Search
+				// path because Kayak is the data source.
+				return runMultiCity(cmd, flags, segments, provider, passengers, cabin, nonstop, currencyCode)
+			} else if len(segmentStrs) == 1 {
+				return fmt.Errorf("--segment requires >= 2 values for multi-city; got 1. Use the positional <origin> <destination> <date> form for a one-way search")
+			} else if len(tripStrs) > 0 {
+				// PATCH(amend-2026-07-31): batch mode — parse now so a bad
+				// trip fails before any network call, then hand off to the
+				// paced sequential runner in flights_batch.go.
+				trips, perr := parseBatchTrips(tripStrs)
+				if perr != nil {
+					// PATCH(review-2026-08-01): a malformed --trip is a usage
+					// error (exit 2), matching the conflict checks above.
+					return usageErr(perr)
+				}
+				base := buildSearchBase()
+				// PATCH(review-2026-08-01): validate the shared knobs once,
+				// before any network call — otherwise an invalid --currency
+				// or --stops fails identically on every trip with --pace
+				// sleeps in between, and exits 5 instead of 2.
+				if verr := gflights.ValidateSearchBase(base); verr != nil {
+					return usageErr(verr)
+				}
+				if flags.dryRun {
+					fmt.Fprintf(cmd.OutOrStdout(), "flights batch: %d trips, pace %s", len(trips), pace)
+					// PATCH(review-2026-08-01): mirror the single-search
+					// dry-run so shared filters are visible per batch too.
+					if base.Currency != "" {
+						fmt.Fprintf(cmd.OutOrStdout(), " currency=%s", strings.ToUpper(strings.TrimSpace(base.Currency)))
+					}
+					if base.MaxStops != "" {
+						fmt.Fprintf(cmd.OutOrStdout(), " stops=%s", strings.ToUpper(base.MaxStops))
+					}
+					if len(base.Airlines) > 0 {
+						fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(base.Airlines, ","))
+					}
+					fmt.Fprintln(cmd.OutOrStdout())
+					for _, t := range trips {
+						fmt.Fprintf(cmd.OutOrStdout(), "  gflights.Search(%s -> %s on %s", t.Origin, t.Destination, t.DepartureDate)
+						if t.ReturnDate != "" {
+							fmt.Fprintf(cmd.OutOrStdout(), " return=%s", t.ReturnDate)
+						}
+						fmt.Fprintln(cmd.OutOrStdout(), ")")
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), "(dry run - no request sent)")
+					return nil
+				}
+				return runFlightsBatch(cmd, flags, trips, base, pace)
+			} else {
+				origin = strings.ToUpper(args[0])
+				destination = strings.ToUpper(args[1])
+				departureDate = args[2]
+			}
+			opts := buildSearchBase()
+			opts.Origin = origin
+			opts.Destination = destination
+			opts.DepartureDate = departureDate
+			opts.ReturnDate = returnDate
+			opts.Segments = segments
 			if flags.dryRun {
 				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
 				if opts.ReturnDate != "" {
@@ -84,6 +249,9 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				if len(opts.Airlines) > 0 {
 					fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(opts.Airlines, ","))
 				}
+				if opts.Currency != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " currency=%s", strings.ToUpper(strings.TrimSpace(opts.Currency)))
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "\n(dry run - no request sent)")
 				return nil
 			}
@@ -91,7 +259,9 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 			ctx := context.Background()
 			result, err := gflights.Search(ctx, opts)
 			if err != nil {
-				return err
+				// PATCH(amend-2026-07-31): map Google 429s to the CLI's
+				// rate-limit exit code + pacing hint (see flights_batch.go).
+				return classifyGoogleFlightsErr(err)
 			}
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -127,8 +297,8 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 					depart = trimTime(f.Legs[0].DepartureTime)
 					arrive = trimTime(f.Legs[len(f.Legs)-1].ArrivalTime)
 				}
-				fmt.Fprintf(tw, "$%.0f\t%s\t%d\t%s\t%s\t%s\n",
-					f.Price, minutesToHM(f.DurationMinutes), f.Stops, strings.Join(carrierList, ","), depart, arrive)
+				fmt.Fprintf(tw, "%s\t%s\t%d\t%s\t%s\t%s\n",
+					formatPrice(f.Currency, f.Price), minutesToHM(f.DurationMinutes), f.Stops, strings.Join(carrierList, ","), depart, arrive)
 			}
 			tw.Flush()
 			return nil
@@ -139,25 +309,241 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().StringSliceVarP(&airlines, "airlines", "a", nil, "Airline IATA codes (e.g. BA,KL,DL)")
 	cmd.Flags().StringVarP(&cabin, "class", "c", "", "Cabin class: economy, premium_economy, business, first")
 	cmd.Flags().StringVarP(&stops, "stops", "s", "", "Max stops: any, non_stop, one_stop, two_plus_stops")
-	cmd.Flags().StringVar(&sortBy, "sort", "", "Sort by: cheapest, duration, departure_time, arrival_time")
+	cmd.Flags().StringVar(&sortBy, "sort", "", "Sort by: cheapest, top_flights, best, departure_time, arrival_time, duration, emissions")
 	cmd.Flags().IntVarP(&passengers, "passengers", "p", 1, "Number of passengers")
 	cmd.Flags().BoolVar(&excludeBasic, "exclude-basic", false, "Exclude basic economy fares")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
+	// PATCH(upstream cli-printing-press): new flags exposing the filters
+	// unlocked by the native Google Flights backend.
+	cmd.Flags().StringVar(&emissions, "emissions", "", "Emissions filter: ALL (default) or LESS for lower-emission itineraries only")
+	cmd.Flags().IntVarP(&checkedBags, "bags", "b", 0, "Include N checked-bag fees in the returned price (0, 1, or 2)")
+	cmd.Flags().BoolVar(&carryOn, "carry-on", false, "Include carry-on bag fee in the returned price")
+	cmd.Flags().StringSliceVarP(&layoverAirports, "layover", "l", nil, "Restrict layovers to specific airports (repeatable, e.g. -l ORD -l DFW)")
+	cmd.Flags().IntVar(&maxLayoverMinutes, "max-layover", 0, "Maximum layover duration in minutes (0 = no constraint)")
+	cmd.Flags().BoolVar(&limitedResults, "limited", false, "Return only the ~30 Google-curated results instead of the full set")
+	cmd.Flags().StringSliceVar(&segmentStrs, "segment", nil, "Multi-city: repeatable segment in 'ORIG>DEST@YYYY-MM-DD' form. Pass >=2 to trigger multi-city search; positional args become optional and ignored.")
+	cmd.Flags().StringVar(&provider, "provider", "auto", "Multi-city provider: 'auto' (Kayak for prices + Google URL fallback, default), 'kayak' (prices only), or 'google' (URL only — opens authenticated multi-city search in browser).")
+	cmd.Flags().BoolVar(&nonstop, "nonstop", false, "Multi-city only: restrict to nonstop flights on every leg. Equivalent to /nonstop on Kayak.")
+	cmd.Flags().StringSliceVar(&tripStrs, "trip", nil, "Batch: repeatable independent search in 'ORIG>DEST@YYYY-MM-DD' or 'ORIG>DEST@DEPART@RETURN' form. Trips run sequentially with --pace between them; positional args must be omitted.")
+	cmd.Flags().DurationVar(&pace, "pace", 2*time.Second, "Batch only: delay between consecutive --trip searches (Google rate-limits bulk probes per IP)")
 	return cmd
+}
+
+// runMultiCity dispatches a multi-city flight search to Kayak (which works
+// server-side without auth) and/or the Google Flights URL builder.
+//
+// provider:
+//
+//	auto   — Kayak prices + Google URL appended (default)
+//	kayak  — Kayak only
+//	google — Google URL only (no prices; user opens in browser)
+func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segment, provider string, passengers int, cabin string, nonstop bool, currencyCode string) error {
+	if flags.dryRun {
+		fmt.Fprintf(cmd.OutOrStdout(), "multi-city: %d segments provider=%s\n", len(segments), provider)
+		return nil
+	}
+	provider = strings.ToLower(strings.TrimSpace(provider))
+	if provider == "" {
+		provider = "auto"
+	}
+
+	// Google URL is cheap; always compute when 'auto' or 'google'.
+	var googleURL string
+	if provider == "auto" || provider == "google" {
+		mcsegs := make([]gflights.Segment, len(segments))
+		copy(mcsegs, segments)
+		u, err := gflights.MultiCityBookingURL(mcsegs, currencyCode)
+		if err != nil {
+			return fmt.Errorf("multi-city: google url: %w", err)
+		}
+		googleURL = u
+	}
+
+	// google-only short-circuit: emit URL-only envelope, no Kayak call.
+	if provider == "google" {
+		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
+			Success:    true,
+			Complete:   true, // URL builder always produces the full deeplink
+			Source:     "google_flights",
+			SearchType: "flights_multicity",
+			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+			GoogleURL:  googleURL,
+		})
+	}
+
+	// kayak | auto: call Kayak for live prices.
+	kc, err := kayak.NewMultiCityClient()
+	if err != nil {
+		return fmt.Errorf("multi-city: %w", err)
+	}
+	ksegs := make([]kayak.Segment, len(segments))
+	for i, s := range segments {
+		ksegs[i] = kayak.Segment{Origin: s.Origin, Destination: s.Destination, DepartureDate: s.DepartureDate}
+	}
+	ctx, cancel := context.WithTimeout(cmd.Context(), 90*time.Second)
+	defer cancel()
+	kres, err := kc.SearchMultiCity(ctx, kayak.MultiCityOptions{
+		Segments:   ksegs,
+		Passengers: passengers,
+		Cabin:      cabin,
+		Nonstop:    nonstop,
+		Currency:   currencyCode,
+	})
+	if err != nil {
+		if provider == "kayak" {
+			return fmt.Errorf("multi-city: kayak: %w", err)
+		}
+		// auto mode: degrade gracefully to URL-only with the kayak error attached
+		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
+			Success:    true,
+			Complete:   true, // the Google deeplink is fully formed even when Kayak fails
+			Source:     "google_flights",
+			SearchType: "flights_multicity",
+			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+			GoogleURL:  googleURL,
+			Note:       fmt.Sprintf("kayak unavailable, falling back to Google URL: %v", err),
+		})
+	}
+
+	env := multiCityEnvelope{
+		Success:     true,
+		Complete:    kres.Complete,
+		Source:      "kayak",
+		SearchType:  "flights_multicity",
+		Query:       multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+		TotalCount:  kres.TotalCount,
+		Count:       kres.Count,
+		Itineraries: kres.Itineraries,
+		KayakURL:    kres.SearchURL,
+		GoogleURL:   googleURL, // populated only when provider==auto
+	}
+	if !kres.Complete {
+		// Kayak's incremental search ran out of poll attempts before
+		// converging — surface that the itineraries are partial so an
+		// agent/user doesn't read Count as the full result set.
+		env.Note = fmt.Sprintf("kayak search did not finish before the poll limit; showing %d of %d itineraries (partial — re-run for more)", kres.Count, kres.TotalCount)
+	}
+	return emitMultiCityResult(cmd, flags, env)
+}
+
+// multiCityEnvelope is the user-facing JSON shape for multi-city responses.
+// Distinct from SearchResult because the leg shape differs materially: each
+// itinerary covers all N requested segments rather than a single pair.
+type multiCityEnvelope struct {
+	Success bool `json:"success"`
+	// Complete is false when a Kayak search exhausted its poll budget before
+	// finishing; Itineraries is then a partial set and Note carries a warning.
+	Complete    bool                    `json:"complete"`
+	Source      string                  `json:"source"`
+	SearchType  string                  `json:"search_type"`
+	Query       multiCityQuery          `json:"query"`
+	TotalCount  int                     `json:"total_count,omitempty"`
+	Count       int                     `json:"count"`
+	Itineraries []kayak.MultiCityFlight `json:"itineraries,omitempty"`
+	KayakURL    string                  `json:"kayak_url,omitempty"`
+	GoogleURL   string                  `json:"google_url,omitempty"`
+	Note        string                  `json:"note,omitempty"`
+}
+
+type multiCityQuery struct {
+	Segments   []gflights.Segment `json:"segments"`
+	Passengers int                `json:"passengers"`
+	Cabin      string             `json:"cabin,omitempty"`
+	Nonstop    bool               `json:"nonstop,omitempty"`
+	Currency   string             `json:"currency,omitempty"`
+}
+
+func multiCityQueryEcho(segs []gflights.Segment, pax int, cabin string, nonstop bool, currency string) multiCityQuery {
+	return multiCityQuery{Segments: segs, Passengers: pax, Cabin: cabin, Nonstop: nonstop, Currency: currency}
+}
+
+// emitMultiCityResult writes the envelope as JSON when --json/agent is set,
+// otherwise a compact human-readable summary.
+func emitMultiCityResult(cmd *cobra.Command, flags *rootFlags, env multiCityEnvelope) error {
+	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+		b, _ := json.MarshalIndent(env, "", "  ")
+		fmt.Fprintln(cmd.OutOrStdout(), string(b))
+		return nil
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "Multi-city via %s — %d itineraries (of %d total)\n",
+		env.Source, env.Count, env.TotalCount)
+	if env.Note != "" {
+		fmt.Fprintf(cmd.OutOrStdout(), "  note: %s\n", env.Note)
+	}
+	for i, f := range env.Itineraries {
+		if i >= 10 {
+			fmt.Fprintf(cmd.OutOrStdout(), "  ... and %d more (use --json)\n", len(env.Itineraries)-10)
+			break
+		}
+		price := f.LocalizedPrice
+		if price == "" && f.Price > 0 {
+			price = fmt.Sprintf("%.0f %s", f.Price, f.Currency)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "  %-12s %d legs  %s\n", price, len(f.Legs), summarizeLegs(f.Legs))
+	}
+	if env.GoogleURL != "" {
+		fmt.Fprintf(cmd.OutOrStdout(), "\n  google: %s\n", env.GoogleURL)
+	}
+	return nil
+}
+
+func summarizeLegs(legs []kayak.MultiCityLeg) string {
+	parts := make([]string, 0, len(legs))
+	for _, l := range legs {
+		parts = append(parts, fmt.Sprintf("%s→%s", l.Origin, l.Destination))
+	}
+	return strings.Join(parts, ", ")
+}
+
+// parseMultiCitySegments parses repeated --segment values of the form
+// "ORIG>DEST@YYYY-MM-DD" into gflights.Segment objects. Lenient on whitespace
+// and case but strict on the date format (YYYY-MM-DD) and the >/@ separators.
+func parseMultiCitySegments(in []string) ([]gflights.Segment, error) {
+	out := make([]gflights.Segment, 0, len(in))
+	for i, raw := range in {
+		s := strings.TrimSpace(raw)
+		atIdx := strings.LastIndex(s, "@")
+		if atIdx <= 0 {
+			return nil, fmt.Errorf("--segment %d %q: missing date suffix '@YYYY-MM-DD'", i+1, raw)
+		}
+		route := strings.TrimSpace(s[:atIdx])
+		date := strings.TrimSpace(s[atIdx+1:])
+		gtIdx := strings.Index(route, ">")
+		if gtIdx <= 0 || gtIdx >= len(route)-1 {
+			return nil, fmt.Errorf("--segment %d %q: route must look like ORIG>DEST", i+1, raw)
+		}
+		origin := strings.ToUpper(strings.TrimSpace(route[:gtIdx]))
+		destination := strings.ToUpper(strings.TrimSpace(route[gtIdx+1:]))
+		if len(origin) < 3 || len(destination) < 3 {
+			return nil, fmt.Errorf("--segment %d %q: origin and destination must be 3-letter IATA codes", i+1, raw)
+		}
+		// Validate date format here so the error message blames the user's
+		// input rather than a downstream Kayak/Google failure when the
+		// provider is Kayak-only (which skips gflights.MultiCityBookingURL,
+		// the other date validator).
+		if _, derr := time.Parse("2006-01-02", date); derr != nil {
+			return nil, fmt.Errorf("--segment %d %q: date must be YYYY-MM-DD (e.g. 2026-08-15), got %q", i+1, raw, date)
+		}
+		out = append(out, gflights.Segment{Origin: origin, Destination: destination, DepartureDate: date})
+	}
+	return out, nil
 }
 
 // ----- dates: cheapest-dates discovery -----
 
 func newGfDatesCmd(flags *rootFlags) *cobra.Command {
-	var from, to, cabin, stops string
+	// PATCH(upstream cli-printing-press#804): mirror the flights currency flag
+	// on the calendar-price command that uses the same Google Flights backend.
+	var from, to, cabin, stops, currencyCode string
 	var duration int
 	var round, doSort bool
 	var airlines []string
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "dates <origin> <destination>",
+		Use:         "dates <origin> <destination>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find the cheapest dates to fly between two airports (free, no API key required)",
+		Short:       "Find the cheapest dates to fly between two airports (free, no API key required)",
 		Long: `dates scans Google Flights for the cheapest days to travel a route over
 a range of dates. No API key required. Uses flight-goat's native Go backend
 (no Python dependency).`,
@@ -166,6 +552,9 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 
   # Non-stop business class, next month only
   flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --stops non_stop --class business
+
+  # Cheapest dates priced in EUR
+  flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort
 
   # Round trip with 7-day duration
   flight-goat-pp-cli dates SEA HNL --round --duration 7 --sort`,
@@ -182,9 +571,14 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 				MaxStops:    stops,
 				CabinClass:  cabin,
 				Sort:        doSort,
+				Currency:    currencyCode,
 			}
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Dates(%s -> %s from=%s to=%s)\n", opts.Origin, opts.Destination, opts.From, opts.To)
+				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Dates(%s -> %s from=%s to=%s", opts.Origin, opts.Destination, opts.From, opts.To)
+				if opts.Currency != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " currency=%s", strings.ToUpper(strings.TrimSpace(opts.Currency)))
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), ")")
 				fmt.Fprintln(cmd.OutOrStdout(), "(dry run - no request sent)")
 				return nil
 			}
@@ -192,7 +586,8 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 			ctx := context.Background()
 			result, err := gflights.Dates(ctx, opts)
 			if err != nil {
-				return err
+				// PATCH(amend-2026-07-31): see classifyGoogleFlightsErr.
+				return classifyGoogleFlightsErr(err)
 			}
 
 			dates := result.Dates
@@ -209,16 +604,22 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 					Destination string               `json:"destination"`
 					Count       int                  `json:"count"`
 					Dates       []gflights.DatePrice `json:"dates"`
-				}{opts.Origin, opts.Destination, len(dates), dates}, "", "  ")
+					// PATCH(amend-2026-06-11): surface the HTML-fallback note
+					// (set when Google's calendar RPC is blocked) to agents.
+					Note string `json:"note,omitempty"`
+				}{opts.Origin, opts.Destination, len(dates), dates, result.Note}, "", "  ")
 				fmt.Fprintln(cmd.OutOrStdout(), string(bts))
 				return nil
 			}
 
+			if result.Note != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", result.Note)
+			}
 			fmt.Fprintf(cmd.ErrOrStderr(), "%d dates priced for %s -> %s\n", len(dates), opts.Origin, opts.Destination)
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, "DATE\tPRICE")
 			for _, p := range dates {
-				fmt.Fprintf(tw, "%s\t$%.0f\n", p.DepartureDate, p.Price)
+				fmt.Fprintf(tw, "%s\t%s\n", p.DepartureDate, formatPrice(p.Currency, p.Price))
 			}
 			tw.Flush()
 			return nil
@@ -233,10 +634,19 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 	cmd.Flags().StringVarP(&cabin, "class", "c", "", "Cabin class: economy, premium_economy, business, first")
 	cmd.Flags().BoolVar(&doSort, "sort", false, "Sort by price ascending")
 	cmd.Flags().IntVarP(&limit, "limit", "l", 0, "Limit to top N dates (0 = all)")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 
 // ----- shared helpers -----
+
+func formatPrice(code string, price float64) string {
+	code = strings.ToUpper(strings.TrimSpace(code))
+	if code == "" {
+		code = "USD"
+	}
+	return fmt.Sprintf("%s %.0f", code, price)
+}
 
 func minutesToHM(m int) string {
 	if m <= 0 {
@@ -262,9 +672,9 @@ func newKayakExploreCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "explore <airport>",
+		Use:         "explore <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Every nonstop destination from an airport (free, via Kayak /direct)",
+		Short:       "Every nonstop destination from an airport (free, via Kayak /direct)",
 		Long: `explore fetches Kayak's /direct/<airport> page and parses the nonstop
 destinations table that Kayak server-renders into the HTML. Same data you see
 on www.kayak.com/direct/SEA, but in your terminal as structured output.
@@ -326,10 +736,10 @@ duration, number of daily flights, and operating airlines.`,
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				bts, _ := json.MarshalIndent(struct {
-					Origin  string        `json:"origin"`
-					Source  string        `json:"source"`
-					Count   int           `json:"count"`
-					Routes  []kayak.Route `json:"routes"`
+					Origin string        `json:"origin"`
+					Source string        `json:"source"`
+					Count  int           `json:"count"`
+					Routes []kayak.Route `json:"routes"`
 				}{airport, "kayak-direct", len(filtered), filtered}, "", "  ")
 				fmt.Fprintln(cmd.OutOrStdout(), string(bts))
 				return nil
@@ -364,9 +774,9 @@ func newKayakLonghaulCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "longhaul <airport>",
+		Use:         "longhaul <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Nonstop destinations from an airport filtered by minimum flight duration (free, via Kayak)",
+		Short:       "Nonstop destinations from an airport filtered by minimum flight duration (free, via Kayak)",
 		Long: `longhaul is the headline flight-goat command. It answers the classic
 travel-hacker question: "show me every nonstop flight from my airport that's
 at least N hours long, so I know where I can actually use a long-haul redemption."

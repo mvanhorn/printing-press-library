@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-events-dedup",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add 'events dedup --strategy id|name-venue-date|tour-leg' stream filter that reads a JSON array from stdin or local store and emits the deduped stream to stdout.",
+  "reason": "Composable agent-native filter for merging results from multiple queries or sources. The brief's Data Layer section calls out 'deduplicate across calls' as a primary persistence purpose.",
+  "files": [
+    "internal/cli/events_dedup.go",
+    "internal/cli/events.go"
+  ],
+  "validated_outcome": "--help pass; accepts both top-level array and Discovery `{_embedded.events: [...]}` envelope on stdin."
+}

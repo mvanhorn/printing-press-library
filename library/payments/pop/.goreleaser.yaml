@@ -1,0 +1,51 @@
+version: 2
+project_name: pop-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: pop-pp-cli
+    main: ./cmd/pop-pp-cli
+    binary: pop-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/pop/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: pop-pp-mcp
+    main: ./cmd/pop-pp-mcp
+    binary: pop-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: pop-pp-cli
+    repository:
+      owner: mirco-babini
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "POP API for European electronic invoicing workflows. This Printing Press blueprint intentionally exposes only the..."
+    install: |
+      bin.install "pop-pp-cli"
+      bin.install "pop-pp-mcp"

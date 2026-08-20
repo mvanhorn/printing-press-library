@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  :root { color-scheme: light dark; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --good:#16a34a; }
+  body { font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         color:var(--ink); max-width:46rem; margin:3rem auto; padding:0 1.25rem; }
+  h1 { font-size:2rem; margin:0 0 0.25rem; }
+  .sub { color:var(--muted); margin:0 0 2rem; }
+  .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(8rem,1fr)); gap:1rem; margin:0 0 2rem; }
+  .metric { border:1px solid var(--line); border-radius:0.75rem; padding:1rem; }
+  .metric .n { font-size:1.75rem; font-weight:700; }
+  .metric .l { color:var(--muted); font-size:0.85rem; }
+  h2 { font-size:1.15rem; margin:2rem 0 0.5rem; }
+  ul { padding-left:1.1rem; }
+</style>
+</head>
+<body>
+<h1>{{HEADING}}</h1>
+<p class="sub">{{BODY}}</p>
+<div class="metrics">
+  <div class="metric"><div class="n">0</div><div class="l">Shipped</div></div>
+  <div class="metric"><div class="n">0</div><div class="l">In progress</div></div>
+  <div class="metric"><div class="n">0</div><div class="l">Blocked</div></div>
+</div>
+<h2>Highlights</h2>
+<ul><li>Replace with this week's wins.</li></ul>
+<h2>Risks</h2>
+<ul><li>Replace with what could slip.</li></ul>
+<h2>Next</h2>
+<ul><li>Replace with next steps.</li></ul>
+</body>
+</html>

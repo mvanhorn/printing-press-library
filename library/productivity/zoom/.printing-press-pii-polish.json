@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-21T17:11:53.041869Z",
+  "cli_dir": "/tmp/printing-press/publish/zoom-yOf5iV/package/library/productivity/zoom",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260519-094503/research/2026-05-19-094503-novel-features-brainstorm.md",
+      "line": 30,
+      "column": 255,
+      "matched_span": "joaquin@co.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "Persona-narrative prose in a novel-features brainstorm doc: 'He'd kill for one tool that can do `zoom users create` and `zoom recordings cloud list --user joaquin@co.com`'. 'Joaquin' is a fictional admin persona invented for the research, and 'co.com' is a placeholder company domain, not a real customer mailbox."
+    }
+  ],
+  "findings_count_before": 0
+}

@@ -1,0 +1,24 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.rappi.com.mx/",
+    "entry_count": 11,
+    "api_entry_count": 10,
+    "noise_entry_count": 1,
+    "host_distribution": {
+      "www.rappi.com.mx": 11
+    },
+    "time_start": "2026-05-18T20:10:00Z",
+    "time_end": "2026-05-18T20:11:00Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "Direct stdlib HTTP with real-Chrome UA returns 200 OK across homepage, list, detail, and category pages",
+      "probe-reachability returned standard_http mode with no browser-only signals"
+    ]
+  },
+  "auth": {},
+  "candidate_commands": []
+}

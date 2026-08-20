@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T22:23:07.869602Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "context-dev",
+  "display_name": "Context",
+  "cli_name": "context-dev-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://app.stainless.com/api/spec/documented/context.dev/openapi.documented.yml",
+  "run_id": "20260623-222307",
+  "category": "ai",
+  "description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests.",
+  "mcp_binary": "context-dev-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "CONTEXT_DEV_API_KEY",
+    "CONTEXT_API_KEY",
+    "CONTEXT_DEV_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Scrape Markdown",
+      "command": "scrape",
+      "description": "One-argument URL-to-Markdown wrapper for LLM-ready page content."
+    },
+    {
+      "name": "Same-domain crawl",
+      "command": "crawl",
+      "description": "Credit-aware crawl wrapper with same-domain URL regex, default max-pages 5, estimate mode, and confirmation above 25 pages."
+    },
+    {
+      "name": "Typed extraction",
+      "command": "extract",
+      "description": "URL plus JSON Schema file wrapper for structured website extraction."
+    },
+    {
+      "name": "Styleguide extraction",
+      "command": "styleguide",
+      "description": "One-argument design-system extraction wrapper for domains or URLs."
+    },
+    {
+      "name": "Screenshot preview",
+      "command": "screenshot",
+      "description": "One-argument screenshot wrapper for domains or direct URLs."
+    },
+    {
+      "name": "Entity discover",
+      "command": "entity-discover",
+      "description": "Fielded public entity search with brand and scrape enrichment, sensitive/free-form input rejection, heuristic ranking, and per-record provenance."
+    },
+    {
+      "name": "Brand brief",
+      "command": "brand-brief",
+      "description": "Domain-to-normalized brand profile composing brand retrieval, styleguide, screenshot, scrape summary, contact surfaces, and provenance."
+    },
+    {
+      "name": "Competitor map",
+      "command": "competitor-map",
+      "description": "Competitor discovery and enrichment from a seed domain or query, clustered by category/market with ranking rationale and overlap signals."
+    },
+    {
+      "name": "Crawl budget plan",
+      "command": "crawl-budget-plan",
+      "description": "Non-spending crawl planner that estimates same-domain urlRegex scope, max pages, credits, coverage, risks, and recommended crawl command."
+    },
+    {
+      "name": "Source pack",
+      "command": "source-pack",
+      "description": "Search-and-scrape source collection with optional schema extraction, cited source URLs, zero-result distinction, and per-claim/source provenance."
+    },
+    {
+      "name": "Website change digest",
+      "command": "website-change-digest",
+      "description": "State-dir website snapshots for scrape, styleguide, and screenshot signals with local diff output across copy, facts/links, and visual identity."
+    },
+    {
+      "name": "Schema lab",
+      "command": "schema-lab",
+      "description": "Batch extraction schema test harness for sample URLs with fill rates, parse failures, example misses, per-URL statuses, and partial-failure tolerance."
+    },
+    {
+      "name": "Asset pack",
+      "command": "asset-pack",
+      "description": "Compact designer/agent asset bundle composing logo, palette, fonts, styleguide, screenshot, favicon, socials, and provenance."
+    },
+    {
+      "name": "Trust check",
+      "command": "trust-check",
+      "description": "Website, social, address, phone, logo, title/domain, and web-signal consistency report that phrases output as risk signals, not fraud claims."
+    },
+    {
+      "name": "Lead enrich batch",
+      "command": "lead-enrich-batch",
+      "description": "CSV lead enrichment with per-row success/error output, provenance, resume/output support, rate-limit compatibility, and strict-mode opt-in."
+    }
+  ],
+  "catalog_description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests."
+}

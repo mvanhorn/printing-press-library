@@ -1,0 +1,259 @@
+{
+  "api_name": "smartlead",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "smartlead-ai/API-Python-Library",
+      "url": "https://github.com/smartlead-ai/API-Python-Library",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bcharleson/smartlead-cli",
+      "url": "https://github.com/bcharleson/smartlead-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 41,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "LeadMagic/smartlead-mcp-server",
+      "url": "https://github.com/LeadMagic/smartlead-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 18,
+      "last_updated": "",
+      "command_count": 122,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jonathan-politzki/smartlead-mcp-server",
+      "url": "https://github.com/jonathan-politzki/smartlead-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "LeadMagic/cold-email-cli",
+      "url": "https://github.com/LeadMagic/cold-email-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T07:00:00Z",
+  "novel_features": [
+    {
+      "name": "Campaign health scorecard",
+      "command": "health",
+      "description": "One-shot scorecard for every campaign — bounce rate, reply rate, silent-lead count, sender count, and a stale flag — without clicking through the dashboard.",
+      "rationale": "Joins campaigns, statistics, leads, and email accounts in the local store; the API has no campaign-health endpoint and needs 4+ calls per campaign.",
+      "example": "smartlead-pp-cli health --json",
+      "why_it_matters": "Reach for this first when an agent needs to know which campaigns are healthy before drilling into any one of them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Silent-lead finder",
+      "command": "silent",
+      "description": "Finds leads that were emailed but have not replied within N days — the exact set to follow up with or retire.",
+      "rationale": "Time-window query over local send/open/reply event timestamps; no SmartLead endpoint answers 'sent but no reply in N days'.",
+      "example": "smartlead-pp-cli silent --campaign 12345 --days 7 --json",
+      "why_it_matters": "Use this to build a follow-up list instead of paging the whole lead set and diffing timestamps by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-campaign dupe and domain ledger",
+      "command": "dupes",
+      "description": "Scans the whole lead mirror for emails or domains that appear in two or more campaigns; --domain prints the full pitch ledger for one site.",
+      "rationale": "Cross-campaign join over the local leads table; the SmartLead API is campaign-scoped and cannot answer this in one call.",
+      "example": "smartlead-pp-cli dupes --domain example.com --json",
+      "why_it_matters": "Run this before adding leads to a campaign to avoid double-contacting a prospect already in flight.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender health ranking",
+      "command": "sender-health",
+      "description": "Ranks every email sender account by a composite of inbox-warmup landing rate, SMTP/IMAP connection health, and sending utilization.",
+      "rationale": "Fleet-wide deliverability ranking computed from each account's warmup-stats and connection state — no SmartLead endpoint ranks the whole sender pool.",
+      "example": "smartlead-pp-cli sender-health --json",
+      "why_it_matters": "Reach for this to find which sender accounts are dragging deliverability before they tank a campaign.",
+      "group": "Deliverability intelligence"
+    },
+    {
+      "name": "Warmup-readiness gate",
+      "command": "warmup-gate",
+      "description": "Checks each sender account against warmup thresholds (--min-days, --min-inbox-rate); with --strict it exits non-zero when any account fails — a scriptable launch gate.",
+      "rationale": "Turns per-account warmup-stats into a binary launch decision with a --strict exit code, usable as a CI-style gate.",
+      "example": "smartlead-pp-cli warmup-gate --account 6789 --json",
+      "why_it_matters": "Call this in a launch script to block attaching a sender account that is not warmed up yet.",
+      "group": "Deliverability intelligence"
+    },
+    {
+      "name": "Reply-rate drift",
+      "command": "drift",
+      "description": "Computes week-over-week reply, open, and bounce deltas for a campaign by querying analytics one seven-day window at a time.",
+      "rationale": "The SmartLead API has no trend endpoint; the week-over-week deltas are computed here from per-window analytics queries.",
+      "example": "smartlead-pp-cli drift --campaign 12345 --weeks 4 --json",
+      "why_it_matters": "Use this to catch a campaign decaying over time rather than judging it from a single point-in-time stat.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Campaign health scorecard",
+      "command": "health",
+      "description": "One-shot scorecard for every campaign — bounce rate, reply rate, silent-lead count, sender count, and a stale flag — without clicking through the dashboard.",
+      "rationale": "Joins campaigns, statistics, leads, and email accounts in the local store; the API has no campaign-health endpoint and needs 4+ calls per campaign.",
+      "example": "smartlead-pp-cli health --json",
+      "why_it_matters": "Reach for this first when an agent needs to know which campaigns are healthy before drilling into any one of them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Silent-lead finder",
+      "command": "silent",
+      "description": "Finds leads that were emailed but have not replied within N days — the exact set to follow up with or retire.",
+      "rationale": "Time-window query over local send/open/reply event timestamps; no SmartLead endpoint answers 'sent but no reply in N days'.",
+      "example": "smartlead-pp-cli silent --campaign 12345 --days 7 --json",
+      "why_it_matters": "Use this to build a follow-up list instead of paging the whole lead set and diffing timestamps by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-campaign dupe and domain ledger",
+      "command": "dupes",
+      "description": "Scans the whole lead mirror for emails or domains that appear in two or more campaigns; --domain prints the full pitch ledger for one site.",
+      "rationale": "Cross-campaign join over the local leads table; the SmartLead API is campaign-scoped and cannot answer this in one call.",
+      "example": "smartlead-pp-cli dupes --domain example.com --json",
+      "why_it_matters": "Run this before adding leads to a campaign to avoid double-contacting a prospect already in flight.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender health ranking",
+      "command": "sender-health",
+      "description": "Ranks every email sender account by a composite of inbox-warmup landing rate, SMTP/IMAP connection health, and sending utilization.",
+      "rationale": "Fleet-wide deliverability ranking computed from each account's warmup-stats and connection state — no SmartLead endpoint ranks the whole sender pool.",
+      "example": "smartlead-pp-cli sender-health --json",
+      "why_it_matters": "Reach for this to find which sender accounts are dragging deliverability before they tank a campaign.",
+      "group": "Deliverability intelligence"
+    },
+    {
+      "name": "Warmup-readiness gate",
+      "command": "warmup-gate",
+      "description": "Checks each sender account against warmup thresholds (--min-days, --min-inbox-rate); with --strict it exits non-zero when any account fails — a scriptable launch gate.",
+      "rationale": "Turns per-account warmup-stats into a binary launch decision with a --strict exit code, usable as a CI-style gate.",
+      "example": "smartlead-pp-cli warmup-gate --account 6789 --json",
+      "why_it_matters": "Call this in a launch script to block attaching a sender account that is not warmed up yet.",
+      "group": "Deliverability intelligence"
+    },
+    {
+      "name": "Reply-rate drift",
+      "command": "drift",
+      "description": "Computes week-over-week reply, open, and bounce deltas for a campaign by querying analytics one seven-day window at a time.",
+      "rationale": "The SmartLead API has no trend endpoint; the week-over-week deltas are computed here from per-window analytics queries.",
+      "example": "smartlead-pp-cli drift --campaign 12345 --weeks 4 --json",
+      "why_it_matters": "Use this to catch a campaign decaying over time rather than judging it from a single point-in-time stat.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "SmartLead",
+    "headline": "Every SmartLead API feature, plus a local mirror that answers campaign-health, silent-lead, and cross-campaign dedupe questions the API cannot.",
+    "value_prop": "Beyond wrapping all 41 SmartLead REST endpoints with JSON-first, agent-native output, this CLI adds a local SQLite mirror no other SmartLead tool has. Sync once, then run health, silent, dupes, sender-health, warmup-gate, and drift offline — cross-campaign questions that otherwise cost a multi-call API loop per answer.",
+    "auth_narrative": "SmartLead authenticates with an API key passed as the api_key query parameter. Set SMARTLEAD_API_KEY in your environment (find the key under Settings -\u003e API in the SmartLead app). No OAuth, no login flow.",
+    "quickstart": [
+      {
+        "command": "smartlead-pp-cli doctor",
+        "comment": "Confirm the API key is set and SmartLead is reachable before anything else."
+      },
+      {
+        "command": "smartlead-pp-cli sync",
+        "comment": "Mirror campaigns, leads, email accounts, and statistics into the local SQLite store."
+      },
+      {
+        "command": "smartlead-pp-cli campaigns list --json",
+        "comment": "List every campaign now served instantly from the local mirror."
+      },
+      {
+        "command": "smartlead-pp-cli health --json",
+        "comment": "Get the bounce/reply/silent-lead scorecard across all campaigns at once."
+      },
+      {
+        "command": "smartlead-pp-cli dupes --domain example.com --json",
+        "comment": "Check whether a domain is already pitched before adding new leads."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 rate limit errors during sync",
+        "fix": "The client auto-throttles and retries with backoff; if it persists, re-run sync later or lower --concurrency."
+      },
+      {
+        "symptom": "sync returns no campaigns or empty tables",
+        "fix": "Confirm SMARTLEAD_API_KEY is exported and valid: run smartlead-pp-cli doctor."
+      },
+      {
+        "symptom": "health or drift show stale numbers",
+        "fix": "Offline commands read the local mirror; re-run smartlead-pp-cli sync to refresh it."
+      },
+      {
+        "symptom": "drift reports no history for a campaign",
+        "fix": "drift needs at least two synced snapshots over time; run sync on a schedule so history accumulates."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs to audit cold-email outreach in SmartLead: checking which campaigns are healthy, building follow-up lists of silent leads, deduplicating leads across campaigns before launch, or ranking sender accounts by deliverability. It is the right tool when the question spans multiple campaigns or needs week-over-week history, because those answers come from the local mirror rather than a single API call.",
+    "recipes": [
+      {
+        "title": "Morning campaign triage",
+        "command": "smartlead-pp-cli sync \u0026\u0026 smartlead-pp-cli health --json",
+        "explanation": "Refresh the mirror, then get the all-campaigns health scorecard in one structured payload."
+      },
+      {
+        "title": "Pre-launch dedupe check",
+        "command": "smartlead-pp-cli dupes --domain prospect-site.com --json",
+        "explanation": "See every campaign, category, and last-contact date for a domain before pitching it again."
+      },
+      {
+        "title": "Build a follow-up list",
+        "command": "smartlead-pp-cli silent --campaign 12345 --days 10 --json",
+        "explanation": "Pull leads emailed but silent for 10+ days to feed into a follow-up sequence."
+      },
+      {
+        "title": "Trim a verbose campaign payload",
+        "command": "smartlead-pp-cli campaigns list --agent --select id,name,status",
+        "explanation": "SmartLead campaign objects are large; --agent with --select narrows the response to just the fields an agent needs."
+      },
+      {
+        "title": "Gate a launch on sender warmup",
+        "command": "smartlead-pp-cli warmup-gate --account 6789 --json",
+        "explanation": "Returns a typed exit code so a launch script can block on a sender that is not warmed up."
+      }
+    ],
+    "trigger_phrases": [
+      "check my smartlead campaigns",
+      "which leads went silent",
+      "is this domain already pitched",
+      "rank my sender accounts",
+      "use smartlead",
+      "run smartlead"
+    ]
+  }
+}

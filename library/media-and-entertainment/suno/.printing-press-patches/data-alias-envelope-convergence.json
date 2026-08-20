@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "data-alias-envelope-convergence",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add a stable top-level 'data' alias to the enveloped JSON command families (provenance-wrapped reads, list/create/mutate, generate) so consumers can read .data uniformly; non-breaking (existing results/clips/meta keys retained). Does NOT cover the bare printJSONFiltered novel commands (credits, top, tree, lineage, analytics, status, models, grep, sessions, vibes, burn), which emit a bare typed value with no envelope.",
+  "reason": "Dogfooding showed scripted/agent consumers must guess the payload key per command: list/create/mutate emit {action,data}, endpoint-mirror read commands emit {meta,results} (via wrapWithProvenance), and generate emits {status,clips}. Chose non-breaking convergence (option B): wrapWithProvenance now also emits data mirroring results (covers all provenance-wrapped read commands in one seam), and generate's JSON output adds data mirroring clips. The standard envelope already carried data. Scope note: hand-written novel commands that emit a bare typed slice/struct straight through printJSONFiltered have no envelope at all, so they carry no data alias; giving them one would require wrapping bare JSON arrays, which is the breaking full-standardization (option A/C) deliberately deferred.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/suno_generate_run.go",
+    "internal/cli/data_alias_test.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "data-alias-envelope-convergence"
+  ]
+}

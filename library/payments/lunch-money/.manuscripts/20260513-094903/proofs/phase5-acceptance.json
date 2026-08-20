@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "lunch-money",
+  "run_id": "20260513-094903",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 2,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

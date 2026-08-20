@@ -19,6 +19,28 @@ type ShopCollectionScopedVars struct {
 	AllowCanonicalFallback bool         `json:"allowCanonicalFallback"`
 }
 
+// PATCH (fix-shop-collection-coordinates):
+// NewShopCollectionScopedVars builds the variable bundle and omits
+// `coordinates` entirely when neither latitude nor longitude is set, instead
+// of sending the zero-valued {0,0} pair. Instacart's `UsersCoordinatesInput`
+// rejects {0,0} as invalid (it's a point in the Atlantic Ocean) which surfaces
+// as a server-side "no shops" / "variable was provided invalid value" failure
+// at every search/add/cart-show bootstrap when the user has only configured
+// postal_code. The local op declaration types coordinates as optional, so
+// omitting it is the correct shape when the caller has none to provide.
+// Reported in mvanhorn/printing-press-library#501.
+func NewShopCollectionScopedVars(retailerSlug, postalCode, addressID string, latitude, longitude float64) ShopCollectionScopedVars {
+	v := ShopCollectionScopedVars{
+		RetailerSlug: retailerSlug,
+		PostalCode:   postalCode,
+		AddressID:    addressID,
+	}
+	if latitude != 0 || longitude != 0 {
+		v.Coordinates = &Coordinates{Latitude: latitude, Longitude: longitude}
+	}
+	return v
+}
+
 type AutosuggestionsVars struct {
 	RetailerInventorySessionToken string `json:"retailerInventorySessionToken,omitempty"`
 	Query                         string `json:"query"`

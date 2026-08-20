@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260511-211333/working/granola-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

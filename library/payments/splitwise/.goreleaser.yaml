@@ -1,0 +1,51 @@
+version: 2
+project_name: splitwise-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: splitwise-pp-cli
+    main: ./cmd/splitwise-pp-cli
+    binary: splitwise-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: splitwise-pp-mcp
+    main: ./cmd/splitwise-pp-mcp
+    binary: splitwise-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: splitwise-pp-cli
+    repository:
+      owner: vinnyp
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics"
+    install: |
+      bin.install "splitwise-pp-cli"
+      bin.install "splitwise-pp-mcp"

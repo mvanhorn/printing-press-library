@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "notes-cache-and-bundle-fix",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Cache /notes as a single envelope (it's ID-less, like results-report) and rewrite `bundle`'s notes + recommendations parsing for the real shapes: notes = {notes:[{note,category}]} matched by the biomarker's category or a whole-word, distinctive-name prose mention with HTML-entity decode; recommendations = nested envelope joined by Quest code.",
+  "reason": "bundle parsed notes as {body,text,biomarker} and recs as {title,body,biomarker} — neither matches reality, so both sections were empty. notes also never cached (no extractable ID). Whole-word + distinctive-name gating prevents a short biomarker name like 'Lead'/'Iron' from matching the English verb in note prose.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/bundle.go"
+  ],
+  "validated_outcome": "Live: bundle Hematocrit returns 3 relevant Blood notes (entities decoded) + omega-3 food recs; bundle Lead falls back to category-only (no 'lead to'/'lead a' verb false-positives)."
+}

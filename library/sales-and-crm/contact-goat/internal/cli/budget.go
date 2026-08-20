@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // budget: aggregate Deepline credit spend tracked in the local deepline_log
 // table.
@@ -24,9 +24,9 @@ func newBudgetCmd(flags *rootFlags) *cobra.Command {
 	var historyLimit int
 
 	cmd := &cobra.Command{
-		Use:   "budget",
+		Use:         "budget",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Deepline credit spend: totals, top tools, and history",
+		Short:       "Deepline credit spend: totals, top tools, and history",
 		Long: `Aggregate Deepline credit spend from the local log (no network calls).
 
 Every deepline execute call — including dry-runs and errors — is logged to
@@ -148,9 +148,9 @@ The limit is stored at ~/.local/share/contact-goat-pp-cli/budget.toml.`,
 
 func newBudgetHistoryCmd(flags *rootFlags, limit *int) *cobra.Command {
 	return &cobra.Command{
-		Use:   "history",
+		Use:         "history",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Last N Deepline calls (tool, credits, status, timestamp)",
+		Short:       "Last N Deepline calls (tool, credits, status, timestamp)",
 		Example: `  contact-goat-pp-cli budget history
   contact-goat-pp-cli budget history --limit 100 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {

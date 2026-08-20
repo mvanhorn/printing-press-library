@@ -1,0 +1,57 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://gravitus.com/profile/",
+    "entry_count": 190,
+    "api_entry_count": 0,
+    "noise_entry_count": 190,
+    "host_distribution": {
+      "cdn.iubenda.com": 30,
+      "cdn.jsdelivr.net": 21,
+      "cs.iubenda.com": 10,
+      "d2rf5xu5rxzcu4.cloudfront.net": 80,
+      "gravitus-production.s3.amazonaws.com": 9,
+      "gravitus.com": 10,
+      "hits-i.iubenda.com": 10,
+      "www.googletagmanager.com": 10,
+      "www.iubenda.com": 10
+    },
+    "time_start": "2026-05-18T06:19:43.951Z",
+    "time_end": "2026-05-18T06:21:29.687Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "gravitus.com",
+          "path": "/profile/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 188,
+          "method": "GET",
+          "host": "cdn.iubenda.com",
+          "path": "/cookie_solution/iframe_bridge.html",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": []
+}

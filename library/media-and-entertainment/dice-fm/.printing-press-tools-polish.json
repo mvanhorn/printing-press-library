@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-27T15:40:00.772725Z",
+  "cli_dir": "\u003ccli-dir\u003e/dice-fm",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 330,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Framework version command; 'Print version' is accurate and brief, and version is on the MCP framework-skip list so it is never an agent-facing tool description"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-27T07:07:21.368679Z"
+  }
+}

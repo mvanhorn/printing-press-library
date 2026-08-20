@@ -1,0 +1,19 @@
+{
+  "api": "reachable (HTTP 400 at /)",
+  "auth": "parameter credentials",
+  "base_url": "https://api.pushover.net",
+  "cache": {
+    "db_bytes": 151552,
+    "db_path": "/Users/todd_1/.local/share/pushover-pp-cli/data.db",
+    "hint": "sync_state is empty; run 'pushover-pp-cli sync' to hydrate.",
+    "resources": null,
+    "schema_version": 2,
+    "stale_after": "6h0m0s",
+    "status": "unknown"
+  },
+  "config": "ok",
+  "config_path": "/Users/todd_1/.config/pushover-pp-cli/config.toml",
+  "credentials": "valid",
+  "env_vars": "app_token=present(PUSHOVER_APP_TOKEN), user_key=present(PUSHOVER_USER_KEY), client_secret=missing, device_id=missing",
+  "version": "1.0.0"
+}

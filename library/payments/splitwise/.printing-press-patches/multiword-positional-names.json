@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "multiword-positional-names",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Name-positional commands settle-up, resolve, split, and ledger rejoin multi-word names from multiple positional args instead of reading only args[0], so a name the MCP command-mirror whitespace-split (args:\"EDCO 2021\" -> [\"EDCO\",\"2021\"]) resolves correctly. joinNameArgs is defined canonically here in splitwise_settle.go.",
+  "reason": "settle-up/resolve/split/ledger read input from args[0] only, so a multi-word group/friend name split into several positionals (cobratree SplitShellArgs whitespace-splits the args string when the agent doesn't inner-quote) was truncated to the first token, then substring-matched several groups and errored as ambiguous (observed dogfooding settle_up on 'EDCO 2021'). Added shared joinNameArgs(args) used by all four (split and ledger added after Greptile flagged them as carrying the same defect). The fairness nudge command (not present on this base) carries the same fix on its own PR.",
+  "files": [
+    "internal/cli/splitwise_settle.go",
+    "internal/cli/splitwise_balances.go",
+    "internal/cli/splitwise_split.go",
+    "internal/cli/splitwise_spend.go",
+    "internal/cli/splitwise_settle_input_test.go"
+  ],
+  "validated_outcome": "TestJoinNameArgs, TestSettleResolvesMultiWordGroupName, TestLedgerResolvesMultiWordGroupName, and TestNameCommandsAcceptMultiWordPositionals (the last guards the cobra Args validator accepts 2+ positionals for settle-up, resolve, split, and ledger) pass; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator/cobratree: a command taking a multi-word positional name should not require the agent to inner-quote it in the MCP command-mirror args string (the SplitShellArgs whitespace-split is the root cause).",
+      "reason": "Generator-shaped — related to the cobratree command-mirror discoverability gap (cli-printing-press#2517). The library-side joinNameArgs is the local mitigation."
+    }
+  ]
+}

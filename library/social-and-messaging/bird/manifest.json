@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "bird-pp-mcp",
+  "display_name": "Bird",
+  "version": "4.5.2",
+  "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local SQLite mirror nobody else ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bird-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bird-pp-mcp",
+      "args": [],
+      "env": {
+        "BIRD_API_KEY": "${user_config.bird_api_key}",
+        "BIRD_WORKSPACE_ID": "${user_config.bird_workspace_id}"
+      }
+    }
+  },
+  "user_config": {
+    "bird_api_key": {
+      "type": "string",
+      "title": "BIRD_API_KEY",
+      "description": "Bird uses an Access Key passed in the Authorization header. Generate one at\nhttps://app.bird.com/settings/security/access-keys and export it as BIRD_API_KEY.",
+      "sensitive": true,
+      "required": true
+    },
+    "bird_workspace_id": {
+      "type": "string",
+      "title": "BIRD_WORKSPACE_ID",
+      "description": "Sets BIRD_WORKSPACE_ID for the endpoint template variable {workspace_id}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

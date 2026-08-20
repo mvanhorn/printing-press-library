@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: category, cuisine, ingredient, occasion — Allrecipes browse
 // pages. Each command keeps its `Use:` literal in the cobra.Command so
 // static AST scanners (verify-skill) can find them.

@@ -1,0 +1,3818 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Roam HQ Chat API (Alpha)",
+    "description": "The Roam HQ Chat API (Alpha) provides advanced chat, meeting, and user management capabilities for building powerful integrations with your Roam Virtual Office.\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n\n## Endpoints Overview\n\n### Chat & Messaging\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/chat.list`](/docs/chat-api/chat-list) | GET | List all accessible chats (DMs, MultiDMs, Channels) |\n| [`/chat.post`](/docs/chat-api/chat-post) | POST | Send a message to any chat, group, or user (supports [Block Kit](/docs/guides/block-kit)) |\n| [`/chat.typing`](/docs/chat-api/chat-typing) | POST | Show typing indicator to other participants |\n| [`/chat.update`](/docs/chat-api/chat-update) | POST | Edit a previously posted bot message |\n| [`/chat.delete`](/docs/chat-api/chat-delete) | POST | Delete a previously posted bot message |\n| [`/chat.history`](/docs/chat-api/chat-history) | GET | Retrieve message history for a chat |\n| [`/item.upload`](/docs/chat-api/item-upload) | POST | Upload files to attach to messages |\n| [`/reaction.add`](/docs/chat-api/reaction-add) | POST | Add emoji reaction to a message |\n\n### Groups & Channels\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/group.create`](/docs/chat-api/group-create) | POST | Create a new group/channel |\n| [`/group.rename`](/docs/chat-api/group-rename) | POST | Rename an existing group |\n| [`/group.archive`](/docs/chat-api/group-archive) | POST | Archive a group |\n| [`/group.members`](/docs/chat-api/group-members) | GET | List members in a group |\n| [`/group.add`](/docs/chat-api/group-add) | POST | Add members or admins to a group |\n| [`/group.remove`](/docs/chat-api/group-remove) | POST | Remove members from a group |\n\n### Users\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/user.list`](/docs/chat-api/user-list) | GET | List all users in the account |\n| [`/user.info`](/docs/chat-api/user-info) | GET | Get detailed info about a single user |\n| [`/user.lookup`](/docs/chat-api/user-lookup) | GET | Look up a user by email |\n| [`/addr.info`](/docs/chat-api/addr-info) | GET | Get detailed info about any chat address |\n| [`/userauditlog.list`](/docs/chat-api/userauditlog-list) | GET | Retrieve user audit log entries |\n\n### Meetings & Transcripts\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/meeting.list`](/docs/chat-api/meeting-list) | GET | List meetings with participant info |\n| [`/meetinglink.create`](/docs/chat-api/meetinglink-create) | POST | Create a shareable meeting link |\n| [`/meetinglink.info`](/docs/chat-api/meetinglink-info) | POST | Get meeting link details |\n| [`/meetinglink.update`](/docs/chat-api/meetinglink-update) | POST | Update meeting link properties |\n| [`/transcript.list`](/docs/chat-api/list-transcripts) | GET | List meeting transcripts |\n| [`/transcript.info`](/docs/chat-api/get-transcript) | GET | Get full transcript with cues and action items |\n| [`/transcript.prompt`](/docs/chat-api/prompt-transcript) | POST | Ask an AI question about a transcript |\n\n### Lobbies & Scheduling\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/lobby.list`](/docs/chat-api/lobby-list) | GET | List active lobby configurations |\n| [`/lobbyBooking.list`](/docs/chat-api/lobby-booking-list) | GET | List bookings for a lobby |\n\n### App Management\n| Endpoint | Method | Description |\n|----------|--------|-------------|\n| [`/token.info`](/docs/chat-api/token-info) | GET | Get info about the current access token |\n| [`/app.uninstall`](/docs/chat-api/uninstall-app) | POST | Revoke access token and uninstall app |\n\n## Access Models\n\nEndpoints support [Organization access](/docs/guides/access-models) by default. Some endpoints additionally support **Personal access**, where the integration acts as the authenticated user and sees only their data.\n\nEndpoints supporting both access models:\n- [`/token.info`](/docs/chat-api/token-info) -- Organization and Personal\n- [`/chat.post`](/docs/chat-api/chat-post) -- Organization and Personal (Org: sends as bot, Personal: sends as you)\n- [`/chat.history`](/docs/chat-api/chat-history) -- Organization and Personal (Personal: only your chats)\n- [`/transcript.list`](/docs/chat-api/list-transcripts) -- Organization and Personal (Personal: only your meetings)\n- [`/transcript.info`](/docs/chat-api/get-transcript) -- Organization and Personal (Personal: only your meetings)\n\n- [`/meetinglink.create`](/docs/chat-api/meetinglink-create) -- Organization and Personal (Personal: creates link for authenticated user)\n\nAll other endpoints support Organization access only. See the [Access Models guide](/docs/guides/access-models) for details.\n\n## Common Use Cases\n\n### Build a Chat Bot\nCreate an OAuth app with `chat:read` and `chat:write` scopes, configure a webhook URL to receive messages, then respond programmatically.\n- Subscribe to [`chat:message:dm`](/docs/webhooks/chat-message) or [`chat:message:channel`](/docs/webhooks/chat-message) events\n- Use [`/reaction.add`](/docs/chat-api/reaction-add) to acknowledge receipt\n- Use [`/chat.typing`](/docs/chat-api/chat-typing) to show typing indicator\n- Use [`/chat.post`](/docs/chat-api/chat-post) to send a response\n- Use [Block Kit](/docs/guides/block-kit) for rich, structured messages with buttons and formatting\n\n### Post-Meeting Automation\nAutomatically process recordings and transcripts after meetings end.\n- Subscribe to [`transcript:saved`](/docs/webhooks/transcript-saved) or [`recording:saved`](/docs/webhooks/recording-saved) events\n- Use [`/transcript.info`](/docs/chat-api/get-transcript) to retrieve summaries, action items, and full transcript\n\n### Scheduling Integrations\nCreate meeting links and sync lobby bookings with external calendars.\n- Subscribe to [`lobby:booked`](/docs/webhooks/lobby-booked) for new bookings\n- Use [`/meetinglink.create`](/docs/chat-api/meetinglink-create) to generate shareable links\n\n## Authentication\n\n```\nAuthorization: Bearer YOUR_TOKEN\n```\n\n## Base URL\n\n```\nhttps://api.ro.am/v0\n```\n\n---\nHave questions? Contact us via [Roam Support Chat](https://ro.am/support/contact-us) or email [developer@ro.am](mailto:developer@ro.am).\n",
+    "version": "0.1",
+    "termsOfService": "https://ro.am/terms",
+    "contact": {
+      "name": "Developer Support",
+      "email": "developer@ro.am",
+      "url": "https://developer.ro.am"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.ro.am/v0",
+      "description": "Production Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Chat",
+      "description": "Send and receive messages"
+    },
+    {
+      "name": "Groups",
+      "description": "Create and manage groups"
+    },
+    {
+      "name": "Users",
+      "description": "List and look up users"
+    },
+    {
+      "name": "Meetings",
+      "description": "Meeting links, transcripts, lobbies, and recordings"
+    },
+    {
+      "name": "App",
+      "description": "Token info and app management"
+    }
+  ],
+  "externalDocs": {
+    "description": "Chat API Documentation",
+    "url": "https://developer.ro.am/docs/chat-api"
+  },
+  "paths": {
+    "/chat.list": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "List chats",
+        "description": "List all accessible chats, which consist of all DMs, MultiDMs, and Channels\nthat your bot has been added to, in addition to all public groups regardless\nof membership.\n\nChats are returned in reverse chronological order of the chat's start\ntimestamp, so the first page of results contains the most recently started\nchats.\n\n**Access:** Organization only.\n\n**Required scope:** `chat:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of chats to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "started",
+                          "name"
+                        ],
+                        "properties": {
+                          "id": {
+                            "$ref": "#/components/schemas/TaggedUUID",
+                            "description": "The Chat ID"
+                          },
+                          "started": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Timestamp that the chat started"
+                          },
+                          "group": {
+                            "$ref": "#/components/schemas/TaggedUUID",
+                            "description": "The Group ID. **Only present for channel chats** (group conversations).\nAbsent for DMs and Multi-DMs.\n"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Descriptive name for the chat, set as follows:\n\n* Channel - the group name\n* DM - the name of the other party.\n* Multi-DM, a comma separated list of all participant names.\n"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "chats": [
+                    {
+                      "id": "C-295155ae-7df5-4ed5-9ebc-89a170559c81",
+                      "started": "2025-12-13T05:07:54Z",
+                      "name": "Engineering Team",
+                      "group": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661"
+                    },
+                    {
+                      "id": "C-f2976612-ffdc-4240-8ff6-6dda54bc4917",
+                      "started": "2025-11-13T22:21:51Z",
+                      "name": "Sales Team",
+                      "group": "G-c6040d77-a61c-4834-a939-fe3e687ffd72"
+                    },
+                    {
+                      "id": "D-53b8a72b-b442-4da2-94ea-41b6116c14ea",
+                      "started": "2025-10-18T23:29:25Z",
+                      "name": "Alex Chen"
+                    }
+                  ],
+                  "nextCursor": "1760830165105000"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/chat.post": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Post to a chat",
+        "description": "Post a message to a chat. Messages can be plain markdown text, rich [Block Kit](/docs/guides/block-kit) layouts, or polls.\n\nMessages may be posted to a chat, a group, or one or more addresses (e.g. users, bots).\n\nMentions are supported with the syntax `<@USER_ID>`, e.g. `<!@U-7861a4c6-765a-495d-898d-fae3d8fbba2d>` or `<@all>` to notify everyone in the chat.\nWhen rendered in the client, the tag will automatically be replaced with the human-readable display name (or \"everyone\" for `<@all>`).\n\n**Access:** Organization and Personal. In Organization mode, messages are sent with the app's bot persona. In Personal mode, messages are sent as the authenticated user.\n\n**Required scope:** `chat:send_message` or `chat:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.post",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Exactly one content type is required: `text`/`items`, `blocks`, or `poll`. They cannot be combined.\n",
+                "properties": {
+                  "chat": {
+                    "description": "A Tagged ID (chat, group, or address). You can also provide an array of user addresses to create a Multi-DM.",
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "threadTimestamp": {
+                    "type": "integer",
+                    "description": "Reply to a specific thread by providing the thread's timestamp.\nIf the timestamp doesn't correspond to an existing message, a 400 error is returned.\nMutually exclusive with `threadKey`.\n"
+                  },
+                  "threadKey": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "A stable external identifier used to group related messages into a thread.\nOn the first use of a given `threadKey`, a new message is posted and the resulting\nthread timestamp is stored. Subsequent messages with the same `threadKey` are\nautomatically threaded under the original message.\n\nThis is useful for external integrations (e.g. PagerDuty, Grafana, Sentry) that\nwant to thread related messages using their own identifiers (such as `dedup_key`,\n`fingerprint`, or `group_id`) without tracking Roam's internal thread timestamps.\n\nMutually exclusive with `threadTimestamp`. When `threadKey` is provided, the\nresponse is always synchronous (equivalent to `sync: true`).\n"
+                  },
+                  "text": {
+                    "type": "string",
+                    "format": "markdown",
+                    "description": "Markdown-formatted text content. Required unless `blocks` is provided.\nCannot be combined with `blocks`.\n"
+                  },
+                  "markdown": {
+                    "type": "boolean",
+                    "description": "Text is markdown by default. If this is set to false, markdown interpretation will be disabled."
+                  },
+                  "items": {
+                    "type": "array",
+                    "description": "Array of Item IDs to attach to this message. Cannot be combined with `blocks`.",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "description": "Array of [Block Kit](/docs/guides/block-kit) block objects for rich message formatting.\nCannot be combined with `text` or `items`. Maximum 10 blocks, 8,000 bytes total payload.\n",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "header",
+                            "section",
+                            "context",
+                            "divider",
+                            "actions"
+                          ],
+                          "description": "The block type."
+                        }
+                      }
+                    }
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Colored vertical strip on the side of the message. Only used with `blocks`.\nNamed values: `good` (green), `warning` (yellow), `danger` (red), or a hex color like `#5B3FD9`.\n"
+                  },
+                  "poll": {
+                    "type": "object",
+                    "description": "Create a poll message. Mutually exclusive with `text`, `items`, and `blocks`.\n",
+                    "properties": {
+                      "question": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "description": "The poll question (1–256 characters)."
+                      },
+                      "options": {
+                        "type": "array",
+                        "minItems": 2,
+                        "description": "Poll answer options (at least 2, each 1–128 characters).",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 128
+                        }
+                      },
+                      "allowMultipleAnswers": {
+                        "type": "boolean",
+                        "description": "Whether voters can select multiple options. Defaults to false."
+                      },
+                      "closesAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Optional RFC-3339 datetime when the poll automatically closes."
+                      }
+                    },
+                    "required": [
+                      "question",
+                      "options"
+                    ]
+                  },
+                  "sync": {
+                    "type": "boolean",
+                    "description": "If set, the post will be performed synchronously and its timestamp returned."
+                  }
+                },
+                "required": [
+                  "chat"
+                ]
+              },
+              "examples": {
+                "text_message": {
+                  "summary": "Text message",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "text": "Hello from the **API**"
+                  }
+                },
+                "block_kit_message": {
+                  "summary": "Block Kit message",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "blocks": [
+                      {
+                        "type": "header",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Build Complete"
+                        }
+                      },
+                      {
+                        "type": "section",
+                        "text": {
+                          "type": "mrkdwn",
+                          "text": "All checks passed for *main* branch."
+                        }
+                      }
+                    ],
+                    "color": "good"
+                  }
+                },
+                "poll_message": {
+                  "summary": "Poll message",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "poll": {
+                      "question": "When should we have the team standup?",
+                      "options": [
+                        "9:00 AM",
+                        "10:00 AM",
+                        "11:00 AM"
+                      ],
+                      "allowMultipleAnswers": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chat": {
+                      "$ref": "#/components/schemas/TaggedUUID",
+                      "description": "ID of the containing Chat."
+                    },
+                    "threadTimestamp": {
+                      "type": "integer"
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "description": "Identifying timestamp, present if sync is set."
+                    }
+                  }
+                },
+                "example": {
+                  "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                  "timestamp": 1765602474760032
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Common causes:\n- Invalid chat/group/address ID\n- `threadTimestamp` does not correspond to an existing message\n- Both `threadKey` and `threadTimestamp` were provided (they are mutually exclusive)\n- `threadKey` exceeds 64 characters\n- Invalid bot code format\n- Multiple content types provided (only one of `text`/`items`, `blocks`, or `poll` allowed)\n- `blocks` array exceeds 10 blocks or 8,000 bytes\n- Invalid block structure (see [Block Kit guide](/docs/guides/block-kit))\n- Interactive buttons sent without an Interactivity URL configured\n- Invalid `color` value\n- Poll question empty or exceeds 256 characters\n- Poll has fewer than 2 options, or an option exceeds 128 characters\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "description": "Forbidden. The bot lacks access to the target:\n- Bot is not a member of the chat or group\n- Group does not exist in your Roam\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "description": "Message content exceeds the maximum allowed size.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/chat.update": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Update a message",
+        "description": "Edit a previously posted bot message. The updated message can contain plain markdown text or rich [Block Kit](/docs/guides/block-kit) layouts.\n\nThe bot must own the message being updated (matched by address ID). Personal access tokens are not supported for this endpoint.\n\n**Access:** Organization only.\n\n**Required scope:** `chat:send_message` or `chat:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.update",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Either `text` or `blocks` is required. They cannot be combined — a message is either plain text or Block Kit.\n",
+                "properties": {
+                  "chat": {
+                    "description": "Tagged ID of the chat containing the message.",
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Timestamp of the message to update."
+                  },
+                  "threadTimestamp": {
+                    "type": "integer",
+                    "description": "Thread timestamp, if the message is in a thread."
+                  },
+                  "text": {
+                    "type": "string",
+                    "format": "markdown",
+                    "description": "Updated markdown-formatted text content. Required unless `blocks` is provided.\nCannot be combined with `blocks`.\n"
+                  },
+                  "markdown": {
+                    "type": "boolean",
+                    "description": "Text is markdown by default. If this is set to false, markdown interpretation will be disabled."
+                  },
+                  "items": {
+                    "type": "array",
+                    "description": "Array of Item IDs to attach to this message. Cannot be combined with `blocks`.",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "description": "Array of [Block Kit](/docs/guides/block-kit) block objects for rich message formatting.\nCannot be combined with `text` or `items`. Maximum 10 blocks, 8,000 bytes total payload.\n",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "header",
+                            "section",
+                            "context",
+                            "divider",
+                            "actions"
+                          ],
+                          "description": "The block type."
+                        }
+                      }
+                    }
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Colored vertical strip on the side of the message. Only used with `blocks`.\nNamed values: `good` (green), `warning` (yellow), `danger` (red), or a hex color like `#5B3FD9`.\n"
+                  }
+                },
+                "required": [
+                  "chat",
+                  "timestamp"
+                ]
+              },
+              "examples": {
+                "update_text": {
+                  "summary": "Update text content",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "timestamp": 1765602474760032,
+                    "text": "Updated message content with **bold text**"
+                  }
+                },
+                "update_blocks": {
+                  "summary": "Update with Block Kit",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "timestamp": 1765602474760032,
+                    "blocks": [
+                      {
+                        "type": "header",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Build Status Updated"
+                        }
+                      },
+                      {
+                        "type": "section",
+                        "text": {
+                          "type": "mrkdwn",
+                          "text": "Deployment *succeeded* for production."
+                        }
+                      }
+                    ],
+                    "color": "good"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chat": {
+                      "$ref": "#/components/schemas/TaggedUUID",
+                      "description": "Tagged ID of the chat."
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "description": "Timestamp of the updated message."
+                    },
+                    "threadTimestamp": {
+                      "type": "integer",
+                      "description": "Thread timestamp, if the message is in a thread."
+                    }
+                  }
+                },
+                "example": {
+                  "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                  "timestamp": 1765602474760032
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Common causes:\n- Invalid chat ID\n- Invalid or missing `timestamp`\n- Both `text`/`items` and `blocks` provided (mutually exclusive)\n- `blocks` array exceeds 10 blocks or 8,000 bytes\n- Invalid block structure (see [Block Kit guide](/docs/guides/block-kit))\n- Interactive buttons sent without an Interactivity URL configured\n- Invalid `color` value\n- Personal access token used (not supported)\n- Bot does not own the message\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "description": "Forbidden. The bot lacks access to the target chat.\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "description": "Message content exceeds the maximum allowed size.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/chat.delete": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Delete a message",
+        "description": "Delete a previously posted bot message. The bot must own the message being deleted (matched by address ID). Personal access tokens are not supported for this endpoint.\n\nDeleting an already-deleted message is idempotent and returns success.\n\n**Access:** Organization only.\n\n**Required scope:** `chat:send_message` or `chat:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.delete",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chat": {
+                    "description": "Tagged ID of the chat containing the message.",
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Timestamp of the message to delete."
+                  },
+                  "threadTimestamp": {
+                    "type": "integer",
+                    "description": "Thread timestamp, if the message is in a thread."
+                  }
+                },
+                "required": [
+                  "chat",
+                  "timestamp"
+                ]
+              },
+              "examples": {
+                "delete_message": {
+                  "summary": "Delete a message",
+                  "value": {
+                    "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                    "timestamp": 1765602474760032
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chat": {
+                      "$ref": "#/components/schemas/TaggedUUID",
+                      "description": "Tagged ID of the chat."
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "description": "Timestamp of the deleted message."
+                    },
+                    "threadTimestamp": {
+                      "type": "integer",
+                      "description": "Thread timestamp, if the message was in a thread."
+                    }
+                  }
+                },
+                "example": {
+                  "chat": "D-757dfe66-37b4-4772-baa5-8c86ec68c176",
+                  "timestamp": 1765602474760032
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Common causes:\n- Invalid chat ID\n- Invalid or missing `timestamp`\n- Personal access token used (not supported)\n- Bot does not own the message\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "description": "Forbidden. The bot lacks access to the target chat.\n",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/chat.typing": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Send a typing indicator",
+        "description": "Notify other chat participants that you are working on a response.\nIf they have the chat open, they will see \"(Bot name) is typing...\".\n\n**Access:** Organization only.\n\n**Required scope:** `chat:send_message` or `chat:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.typing",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chat": {
+                    "$ref": "#/components/schemas/TaggedUUID",
+                    "description": "The chat address to fetch information for."
+                  },
+                  "threadTimestamp": {
+                    "type": "integer",
+                    "description": "Timestamp of the message being replied to."
+                  }
+                },
+                "required": [
+                  "chat"
+                ]
+              },
+              "example": {
+                "chat": "C-295155ae-7df5-4ed5-9ebc-89a170559c81"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Typing indicator successfully sent"
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/chat.history": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Get Chat Messages",
+        "description": "List messages in a chat, filtered by date range (after/before).\n\nThe ordering of results depends on the filter specified:\n\n- When no parameters are provided, the most recent recordings are returned,\n  sorted in reverse chronological order. This is equivalent to specifying `before`\n  as NOW and leaving `after` unspecified.\n\n- If `after` is specified, the results are sorted in forward chronological order.\n\nEither dates or datetimes may be specified. Dates are interpreted in UTC.\n\nNote that the API operates in UTC with respect to the date range filter.\n\n**Access:** Organization and Personal. In Personal mode, only chats where the authenticated user is a participant are accessible.\n\n**Required scope:** `chat:history`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "chat.history",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chat",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The chat address to fetch information for.",
+            "required": true
+          },
+          {
+            "name": "threadTimestamp",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Read replies of the message with this timestamp.",
+            "required": false
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime to begin listing transcripts (YYYY-MM-DD or RFC-3339).\nDefaults to \"no filter\".\n"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime until which to list transcripts (YYYY-MM-DD or RFC-3339).\nDefaults to \"now\".\n"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`.",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "maximum": 200
+            },
+            "description": "Number of messages to return (default 10, max 200).",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chat": {
+                      "$ref": "#/components/schemas/TaggedUUID"
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "A cursor to fetch the next page of results"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ChatMessage"
+                      }
+                    }
+                  },
+                  "required": [
+                    "chat",
+                    "messages"
+                  ]
+                },
+                "example": {
+                  "chat": "C-295155ae-7df5-4ed5-9ebc-89a170559c81",
+                  "messages": [
+                    {
+                      "type": "message",
+                      "contentType": "text",
+                      "sender": "U-ad1e9cc0-0ffd-47e5-895c-2630a73327b4",
+                      "chat": "C-295155ae-7df5-4ed5-9ebc-89a170559c81",
+                      "timestamp": 1765602474760032,
+                      "text": "Hey team, can we sync up on the roadmap this afternoon?"
+                    },
+                    {
+                      "type": "message",
+                      "contentType": "text",
+                      "sender": "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                      "chat": "C-295155ae-7df5-4ed5-9ebc-89a170559c81",
+                      "timestamp": 1765602480123456,
+                      "text": "Sure, I'm free at 3pm!"
+                    },
+                    {
+                      "type": "message",
+                      "contentType": "poll",
+                      "sender": "B-ad1e9cc0-0ffd-47e5-895c-2630a73327b4",
+                      "chat": "C-295155ae-7df5-4ed5-9ebc-89a170559c81",
+                      "timestamp": 1765602490000000,
+                      "poll": {
+                        "question": "When should we have the team standup?",
+                        "options": [
+                          {
+                            "id": "01968a3b-7c00-7000-8000-000000000001",
+                            "text": "9:00 AM"
+                          },
+                          {
+                            "id": "01968a3b-7c00-7000-8000-000000000002",
+                            "text": "10:00 AM"
+                          },
+                          {
+                            "id": "01968a3b-7c00-7000-8000-000000000003",
+                            "text": "11:00 AM"
+                          }
+                        ],
+                        "allowMultipleAnswers": false
+                      }
+                    }
+                  ],
+                  "nextCursor": "1765602474760032"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "description": "Bot is not a member of this chat.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/item.upload": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Upload an item",
+        "description": "Upload a file so that it can be sent as a chat message attachment.\nThe returned object contains an item ID which can be used with [chat.post](/docs/chat-api/chat-post).\n\nUnlike other endpoints, this uses raw binary upload with metadata in HTTP headers\nrather than JSON. This is more efficient for file transfers.\n\n**Limits:**\n- Maximum file size: 10 MB\n\n**Supported Content Types:**\n\n| Content-Type | In-Product Behavior |\n|--------------|---------------------|\n| `image/png`, `image/jpeg`, `image/gif`, `image/webp` | Displayed inline with preview thumbnail |\n| `application/octet-stream` | Download link only (no preview) |\n\n**Important:** Use `application/octet-stream` for **any file type not listed above** (e.g., `.txt`, `.docx`, `.xlsx`, `.zip`, `.pdf`, etc.).\nThese files will be stored and downloadable, but won't have in-product preview functionality.\n\n**Validation:**\n- The `Content-Type` header must match the actual file content (server validates this for images)\n- For images, if the filename lacks the correct extension, it will be appended automatically\n\n**Access:** Organization only.\n\n**Required scope:** `item:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "item.upload",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "description": "The MIME type of the file being uploaded.\n\nUse `application/octet-stream` for any file type not specifically listed (txt, docx, xlsx, zip, etc.).\n",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "image/png",
+                "image/jpeg",
+                "image/gif",
+                "image/webp",
+                "application/octet-stream"
+              ]
+            }
+          },
+          {
+            "in": "header",
+            "name": "Content-Disposition",
+            "required": true,
+            "description": "Must be in the format: `attachment; filename=\"yourfile.png\"`\n\nThe filename is required and will be used as the item name.\n",
+            "schema": {
+              "type": "string"
+            },
+            "example": "attachment; filename=\"screenshot.png\""
+          }
+        ],
+        "requestBody": {
+          "description": "The raw binary file content (not base64 encoded, not multipart)",
+          "required": true,
+          "content": {
+            "image/png": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/gif": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/webp": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatItem"
+                },
+                "example": {
+                  "id": "019be84b-0fa8-788f-8850-96de4cc39130",
+                  "type": "photo",
+                  "created": "2026-01-21T10:30:00Z",
+                  "name": "screenshot.png",
+                  "url": "https://ro.am/card-images/019be84b-0fa8-7897-9b52-b064ddb3d185",
+                  "thumbnail": "https://ro.am/card-images/019be84b-0fa8-7897-9b52-b064ddb3d185",
+                  "size": 245678,
+                  "width": 1920,
+                  "height": 1080
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "description": "An unsupported media type was provided.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/addr.info": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get info on Address",
+        "description": "Get information about a chat address, which is the name for any entity that\nmay participate in a chat, such as a user, visitor, or bot.\n\n**Access:** Organization only.\n\n**Required scope:** `chat:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "addr.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "addr",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/TaggedUUID"
+            },
+            "description": "The chat address to fetch information for."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/AddressUser"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AddressBot"
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "user": "#/components/schemas/AddressUser",
+                      "bot": "#/components/schemas/AddressBot"
+                    }
+                  }
+                },
+                "examples": {
+                  "user": {
+                    "summary": "User address",
+                    "value": {
+                      "type": "user",
+                      "id": "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                      "email": "alex.chen@example.com",
+                      "displayName": "Alex Chen",
+                      "displayImageUrl": "https://ro.am/card-images/7be550c0-6994-4b8f-9a41-48825c6fc62a"
+                    }
+                  },
+                  "bot": {
+                    "summary": "Bot address",
+                    "value": {
+                      "type": "bot",
+                      "id": "B-b893c426-6d54-4d9a-8e71-6bd53b26124e",
+                      "integrationId": "app_12345abcde",
+                      "displayName": "Calendar Bot",
+                      "displayDetail": "Manages calendar integrations",
+                      "displayImageUrl": "https://ro.am/card-images/bot-avatar.png"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.create": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Create a group",
+        "description": "Create a group address that can be used for chat.\n\nGroups which specify an admin will operate in an \"Admin only\" management\nmode, where only admins may change settings. Otherwise, all members have\nthat capability.\n\nGroups require at least one member or admin.\nAdmins appear only in the admin list, not in both.\n\n**Access:** Organization only.\n\n**Required scope:** `group:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.create",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 1024
+                  },
+                  "private": {
+                    "type": "boolean"
+                  },
+                  "enforceThreads": {
+                    "type": "boolean"
+                  },
+                  "members": {
+                    "type": "array",
+                    "description": "Member email addresses or IDs",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "admins": {
+                    "type": "array",
+                    "description": "Admin email addresses or IDs",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "example": {
+                "name": "Engineering Team",
+                "description": "Channel for engineering discussions and updates",
+                "private": false,
+                "enforceThreads": true,
+                "members": [
+                  "alex.chen@example.com",
+                  "taylor@example.com"
+                ],
+                "admins": [
+                  "jordan.smith@example.com"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Group created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/TaggedUUID",
+                      "description": "The ID of the newly created group"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the group"
+                    },
+                    "private": {
+                      "type": "boolean",
+                      "description": "Whether the group is private"
+                    },
+                    "dateCreated": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the group was created"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661",
+                  "name": "Engineering Team",
+                  "private": false,
+                  "dateCreated": "2026-01-21T10:30:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.rename": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Rename a group",
+        "description": "Rename a group by ID.\n\nApps may only rename groups for which they are an admin.\n\n**Access:** Organization only.\n\n**Required scope:** `group:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.rename",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/components/schemas/TaggedUUID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "example": {
+                "id": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661",
+                "name": "Product Engineering"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Group renamed successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "403": {
+            "$ref": "#/components/responses/Error",
+            "description": "App does not have admin access to this group."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "Group not found."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.archive": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Archive a group",
+        "description": "Archive a group by ID.\n\n**Access:** Organization only.\n\n**Required scope:** `group:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.archive",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/TaggedUUID"
+            },
+            "description": "The group address to archive.",
+            "required": true,
+            "example": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Group archived successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "403": {
+            "$ref": "#/components/responses/Error",
+            "description": "App does not have admin access to this group."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "Group not found."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.members": {
+      "get": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "List group members",
+        "description": "List members in a group.\n\nApps may list members if one of the following conditions is true:\n1. It is a public group in their Roam.\n2. They are a member of the group.\n\n**Access:** Organization only.\n\n**Required scope:** `groups:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.members",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/TaggedUUID"
+            },
+            "description": "Group ID."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of members to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TaggedUUID"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "members": [
+                    "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                    "U-af6663d5-0f37-4105-95df-4fea20ef7c7c",
+                    "U-f589a8cb-78ac-493e-8719-0fa8a22f65e0"
+                  ],
+                  "nextCursor": "abc123"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Invalid request, e.g. group does not exist."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Unauthorized."
+          },
+          "403": {
+            "$ref": "#/components/responses/Error",
+            "description": "App does not have access to this group."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.add": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Add group members",
+        "description": "Add one or more group members and/or admins.\n\nApps may add members to a group if one of the following conditions is true:\n1. It is a public group in their Roam.\n2. They are a member of the group.\n\nIf attempting to add an admin, the app must be an admin of the group.\n\n**Access:** Organization only.\n\n**Required scope:** `group:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.add",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "$ref": "#/components/schemas/TaggedUUID"
+                  },
+                  "admins": {
+                    "type": "array",
+                    "description": "List of admin IDs",
+                    "items": {
+                      "$ref": "#/components/schemas/TaggedUUID"
+                    }
+                  },
+                  "members": {
+                    "type": "array",
+                    "description": "List of member IDs",
+                    "items": {
+                      "$ref": "#/components/schemas/TaggedUUID"
+                    }
+                  }
+                },
+                "required": [
+                  "group"
+                ]
+              },
+              "example": {
+                "group": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661",
+                "members": [
+                  "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                  "U-f589a8cb-78ac-493e-8719-0fa8a22f65e0"
+                ],
+                "admins": [
+                  "U-af6663d5-0f37-4105-95df-4fea20ef7c7c"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Members added successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Invalid request, e.g. group does not exist or incorrect user IDs."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Unauthorized."
+          },
+          "403": {
+            "$ref": "#/components/responses/Error",
+            "description": "App does not have permission to add members to this group."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/group.remove": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Remove group members",
+        "description": "Remove one or more group members.\n\nApps may remove members from a group if one of the following conditions is true:\n1. It is a public group in their Roam.\n2. They are a member of the group.\n\nRemoving members with the Admin role is not yet supported.\n\n**Access:** Organization only.\n\n**Required scope:** `group:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "group.remove",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "$ref": "#/components/schemas/TaggedUUID"
+                  },
+                  "members": {
+                    "type": "array",
+                    "description": "List of member IDs",
+                    "items": {
+                      "$ref": "#/components/schemas/TaggedUUID"
+                    }
+                  }
+                },
+                "required": [
+                  "group",
+                  "members"
+                ]
+              },
+              "example": {
+                "group": "G-88bebce7-6cbb-4666-96f9-5c02d73e6661",
+                "members": [
+                  "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Members removed successfully"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Invalid request, e.g. group does not exist or incorrect user IDs."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Unauthorized."
+          },
+          "403": {
+            "$ref": "#/components/responses/Error",
+            "description": "App does not have permission to remove members from this group."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/token.info": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Access token info",
+        "description": "Get information about the access token, such as the Chat Address.\n\n**Access:** Organization and Personal.\n\n**No specific scope required.**\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "token.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "addr": {
+                      "$ref": "#/components/schemas/TaggedUUID",
+                      "description": "The bot's chat address"
+                    },
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of OAuth scopes granted to this token"
+                    },
+                    "roam": {
+                      "type": "object",
+                      "description": "Information about the Roam workspace",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The Roam's external ID"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The Roam's display name"
+                        },
+                        "imageUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL of the Roam's profile image"
+                        },
+                        "iconUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL of the Roam's icon"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "addr",
+                    "scopes",
+                    "roam"
+                  ]
+                },
+                "example": {
+                  "addr": "B-b893c426-6d54-4d9a-8e71-6bd53b26124e",
+                  "scopes": [
+                    "chat:read",
+                    "chat:send_message",
+                    "user:read",
+                    "user:read.email"
+                  ],
+                  "roam": {
+                    "id": "12QJUIKR29",
+                    "name": "Acme Corp",
+                    "imageUrl": "https://ro.am/card-images/b5313458-1363-4832-a408-deaf740ad014",
+                    "iconUrl": "https://ro.am/card-images/08705e4f-7e32-4a5f-8f57-39e24eaadcbd"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/user.list": {
+      "get": {
+        "summary": "List users",
+        "description": "List all users in the account.\n\nUsers are returned in the order they were added to the account.\n\n**Access:** Organization or Personal.\n\n**Required scope:** `user:read` (add `user:read.email` to include email addresses, `user:read.status` to expand presence status)\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "user.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of users to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of additional fields to include in the response. Supported values&#58; `status` (requires `user:read.status` scope)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Pagination cursor for fetching the next page of results"
+                    }
+                  }
+                },
+                "example": {
+                  "users": [
+                    {
+                      "id": "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                      "name": "Alex Chen",
+                      "imageUrl": "https://ro.am/card-images/7be550c0-6994-4b8f-9a41-48825c6fc62a",
+                      "email": "alex.chen@example.com",
+                      "isAdmin": false,
+                      "status": "checkedIn"
+                    },
+                    {
+                      "id": "U-af6663d5-0f37-4105-95df-4fea20ef7c7c",
+                      "name": "Jordan Smith",
+                      "imageUrl": "https://ro.am/card-images/41b2a910-e37f-4ffb-9cdd-5be7d05e9f6f",
+                      "email": "jordan.smith@example.com",
+                      "isAdmin": true,
+                      "status": "checkedOut"
+                    },
+                    {
+                      "id": "U-f589a8cb-78ac-493e-8719-0fa8a22f65e0",
+                      "name": "Taylor Williams",
+                      "imageUrl": "https://ro.am/photos/people/taylor-williams.png",
+                      "email": "taylor@example.com",
+                      "isAdmin": false,
+                      "status": "checkedIn"
+                    }
+                  ],
+                  "nextCursor": "546"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/user.info": {
+      "get": {
+        "summary": "Get user info",
+        "description": "Get detailed information about a single user by ID.\n\n**Access:** Organization only.\n\n**Required scope:** `user:read` (add `user:read.email` to include email address, `user:read.status` to expand presence status and availability)\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "user.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TaggedUUID"
+            },
+            "description": "The User ID to look up."
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of additional fields to include in the response. Supported values&#58; `status`, `available` (each requires `user:read.status` scope)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User info retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfo"
+                },
+                "example": {
+                  "id": "U-709b8a57-70bc-427a-b6f0-b16ba5297f8c",
+                  "name": "Alex Chen",
+                  "imageUrl": "https://ro.am/card-images/7be550c0-6994-4b8f-9a41-48825c6fc62a",
+                  "email": "alex.chen@example.com",
+                  "isAdmin": false,
+                  "status": "checkedIn",
+                  "available": true
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "User not found."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occurred."
+          }
+        }
+      }
+    },
+    "/user.lookup": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Look up user",
+        "description": "Look up users in the account by email.\n\n**Access:** Organization only.\n\n**Required scopes:** `user:read` and `user:read.email`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "user.lookup",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "U-0cc74785-e31e-4403-aa5e-0cc7c1897e66",
+                  "name": "Alex Chen",
+                  "imageUrl": "https://ro.am/card-images/072b6fb4-e972-45eb-811d-70f541d114ab",
+                  "email": "alex.chen@example.com",
+                  "isAdmin": true,
+                  "jobTitle": "Software Engineer",
+                  "location": "San Francisco, CA"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "User not found."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/transcript.list": {
+      "get": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "List meeting transcripts",
+        "description": "Lists all transcripts in your home Roam, filtered by date range (after/before).\n\nThis endpoint returns transcript metadata only. To retrieve the full transcript\ncontent including cues (speaker text), summary, and action items, use\n[`/transcript.info`](/docs/chat-api/get-transcript).\n\nThe ordering of results depends on the filter specified:\n\n- When no parameters are provided, the most recent recordings are returned,\n  sorted in reverse chronological order. This is equivalent to specifying `before`\n  as NOW and leaving `after` unspecified.\n\n- If `after` is specified, the results are sorted in forward chronological order.\n\nEither dates or datetimes may be specified. Dates are interpreted in UTC.\n\nNote that the API operates in UTC with respect to the date range filter.\n\n**Access:** Organization and Personal. In Personal mode, only transcripts from meetings where the authenticated user was a participant are returned.\n\n**Required scope:** `transcript:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "listTranscripts",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime to begin listing transcripts (YYYY-MM-DD or RFC-3339).\nDefaults to \"no filter\".\n"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime until which to list transcripts (YYYY-MM-DD or RFC-3339).\nDefaults to \"now\".\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of transcripts to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transcripts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TranscriptMetadata"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Returned if there is a subsequent page of transcripts."
+                    }
+                  }
+                },
+                "example": {
+                  "transcripts": [
+                    {
+                      "id": "f9274881-c48f-4838-865d-98140ea7016d",
+                      "meetingId": "dde68f39-3eb0-42ef-9873-511509c8764f",
+                      "start": "2026-01-21T17:32:39Z",
+                      "end": "2026-01-21T17:48:04Z",
+                      "participants": [
+                        {
+                          "name": "Alex Chen",
+                          "email": "alex.chen@example.com",
+                          "user": "U-0cc74785-e31e-4403-aa5e-0cc7c1897e66"
+                        },
+                        {
+                          "name": "Jordan Smith",
+                          "email": "jordan.smith@example.com",
+                          "user": "U-6a897aa3-0cab-4ba4-a48b-4be14a9585d0"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "59bbf979-ec0a-4cd7-a29b-d09bced32819",
+                      "meetingId": "419479dd-b506-4fa4-bd04-e1b871309fe9",
+                      "start": "2026-01-21T17:29:13Z",
+                      "end": "2026-01-21T17:32:39Z",
+                      "participants": [
+                        {
+                          "name": "Alex Chen",
+                          "email": "alex.chen@example.com",
+                          "user": "U-0cc74785-e31e-4403-aa5e-0cc7c1897e66"
+                        },
+                        {
+                          "name": "Taylor Williams",
+                          "email": "taylor@example.com",
+                          "user": "U-6a897aa3-0cab-4ba4-a48b-4be14a9585d0"
+                        }
+                      ]
+                    }
+                  ],
+                  "nextCursor": "MjAyNi0wMS0yMVQxNzoyODo1OS4wMDBa"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transcript.info": {
+      "get": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "Get meeting transcript",
+        "description": "Retrieve a transcript by ID from your home Roam. Works for both completed and live (ongoing) meetings.\n\nFor live meetings (during Magic Minutes), the `end` field will be empty. Use the `sinceOffset` parameter to poll for incremental transcript updates — only cues with `startOffset` greater than or equal to the given value are returned.\n\n**Access:** Organization and Personal. In Personal mode, only transcripts from meetings where the authenticated user was a participant are accessible.\n\n**Required scope:** `transcript:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "getTranscript",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The transcript id."
+          },
+          {
+            "name": "sinceOffset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Only return cues with `startOffset` greater than or equal to this value (milliseconds since transcript start).\nUse this to poll for incremental transcript updates during live meetings. Omit or pass `0` to return all cues.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transcript"
+                },
+                "example": {
+                  "id": "f9274881-c48f-4838-865d-98140ea7016d",
+                  "meetingId": "dde68f39-3eb0-42ef-9873-511509c8764f",
+                  "start": "2026-01-21T17:32:39Z",
+                  "end": "2026-01-21T17:48:04Z",
+                  "participants": [
+                    {
+                      "name": "Alex Chen",
+                      "email": "alex.chen@example.com",
+                      "user": "U-0cc74785-e31e-4403-aa5e-0cc7c1897e66"
+                    },
+                    {
+                      "name": "Jordan Smith",
+                      "email": "jordan.smith@example.com",
+                      "user": "U-6a897aa3-0cab-4ba4-a48b-4be14a9585d0"
+                    }
+                  ],
+                  "summary": "The team discussed Q1 priorities and assigned action items for the upcoming product launch.",
+                  "cues": [
+                    {
+                      "speaker": "Alex Chen",
+                      "text": "Good morning everyone. Let's review our Q1 priorities.",
+                      "startOffset": 0,
+                      "endOffset": 4500
+                    },
+                    {
+                      "speaker": "Jordan Smith",
+                      "text": "I've prepared the roadmap document. Should I share my screen?",
+                      "startOffset": 4500,
+                      "endOffset": 9200
+                    },
+                    {
+                      "speaker": "Alex Chen",
+                      "text": "Yes, please go ahead. We should also discuss the launch timeline.",
+                      "startOffset": 9200,
+                      "endOffset": 14000
+                    }
+                  ],
+                  "actionItems": [
+                    {
+                      "title": "Finalize roadmap document",
+                      "description": "Complete the Q1 roadmap with updated timelines and share with stakeholders.",
+                      "assignee": "U-6a897aa3-0cab-4ba4-a48b-4be14a9585d0"
+                    },
+                    {
+                      "title": "Schedule launch planning meeting",
+                      "description": "Set up a follow-up meeting with the product team to finalize launch details.",
+                      "assignee": "U-0cc74785-e31e-4403-aa5e-0cc7c1897e66"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transcript.prompt": {
+      "post": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "Prompt a meeting transcript",
+        "description": "Ask a question about a specific meeting transcript and receive an\nAI-generated answer based on its content.\n\nUse [`/transcript.info`](/docs/chat-api/get-transcript) to retrieve the\ntranscript ID, or [`/transcript.list`](/docs/chat-api/list-transcripts) to\nbrowse available transcripts.\n\n**Required scope:** `transcript:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "promptTranscript",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "prompt"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The transcript ID."
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "description": "The question to ask about the transcript."
+                  }
+                }
+              },
+              "example": {
+                "id": "f9274881-c48f-4838-865d-98140ea7016d",
+                "prompt": "What action items were assigned to Alex?"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "string",
+                      "description": "The AI-generated answer to the prompt."
+                    }
+                  }
+                },
+                "example": {
+                  "response": "Alex was assigned two action items: (1) Finalize the roadmap document with updated timelines and share with stakeholders, and (2) Schedule a launch planning meeting with the product team."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/meetinglink.create": {
+      "post": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "Create a meeting link",
+        "description": "Create a meeting link.\n\n**Access:** Organization and Personal. In Organization mode, specify the host by email. In Personal mode, the host defaults to the authenticated user.\n\n**Required scope:** `meeting:write` or `meetinglink:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "meetinglink.create",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Meeting Name"
+                  },
+                  "host": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Meeting Host Email, matching a member of your Roam.\n\nRequired for Organization tokens. For Personal tokens, this is optional and defaults to the authenticated user. If provided with a Personal token, it must match the authenticated user's email.\n"
+                  },
+                  "start": {
+                    "type": "string",
+                    "format": "datetime",
+                    "description": "(Optional) Meeting start time in RFC3339."
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "datetime",
+                    "description": "(Optional) Meeting end time in RFC3339."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "example": {
+                "name": "Q1 Planning Session",
+                "host": "alex.chen@example.com",
+                "start": "2026-02-15T14:00:00Z",
+                "end": "2026-02-15T15:00:00Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Meeting link successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Meeting link ID"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Meeting link URL"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "url": "https://ro.am/r/#/d/abc123xyz/def456uvw"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/meetinglink.info": {
+      "post": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "Get a meeting link",
+        "description": "Get a meeting link.\n\n**Access:** Organization only.\n\n**Required scope:** `meetinglink:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "meetinglink.info",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Meeting Link ID"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              },
+              "example": {
+                "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Meeting link info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Meeting Link ID"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Meeting Name"
+                    },
+                    "host": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Meeting Host Email, matching a member of your Roam."
+                    },
+                    "start": {
+                      "type": "string",
+                      "format": "datetime",
+                      "description": "(Optional) Meeting start time in RFC3339."
+                    },
+                    "end": {
+                      "type": "string",
+                      "format": "datetime",
+                      "description": "(Optional) Meeting end time in RFC3339."
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "Meeting link URL"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "host",
+                    "url"
+                  ]
+                },
+                "example": {
+                  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "name": "Q1 Planning Session",
+                  "host": "alex.chen@example.com",
+                  "start": "2026-02-15T14:00:00Z",
+                  "end": "2026-02-15T15:00:00Z",
+                  "url": "https://ro.am/r/#/d/abc123xyz/def456uvw"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/meetinglink.update": {
+      "post": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "Update a meeting link",
+        "description": "Update a meeting link.\n\n**Access:** Organization only.\n\n**Required scope:** `meetinglink:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "meetinglink.update",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Meeting Link ID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Meeting Name"
+                  },
+                  "host": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "(Optional) Meeting Host Email.\n\nThe Host may NOT be updated.\nAs a result, this property may be omitted or empty.\nIf it is provided, it MUST match the existing value.\n"
+                  },
+                  "start": {
+                    "type": "string",
+                    "format": "datetime",
+                    "description": "(Optional) Meeting start time in RFC3339."
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "datetime",
+                    "description": "(Optional) Meeting end time in RFC3339."
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "example": {
+                "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                "name": "Q1 Planning Session - Updated",
+                "start": "2026-02-15T15:00:00Z",
+                "end": "2026-02-15T16:30:00Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Meeting link successfully updated"
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/meeting.list": {
+      "get": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "List meetings",
+        "description": "Lists all meetings in your home Roam, filtered by date range (after/before).\n\nThe ordering of results depends on the filter specified:\n\n- When no parameters are provided, the most recent meetings are returned,\n  sorted in reverse chronological order. This is equivalent to specifying `before`\n  as NOW and leaving `after` unspecified.\n\n- If `after` is specified, the results are sorted in forward chronological order.\n\nEither dates or datetimes may be specified. Dates are interpreted in UTC.\n\n**Access:** Organization only.\n\n**Required scope:** `meetings:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "meeting.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime to begin listing meetings (YYYY-MM-DD or RFC-3339).\nDefaults to \"no filter\".\n"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime until which to list meetings (YYYY-MM-DD or RFC-3339).\nDefaults to \"now\".\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of meetings to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meetings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Meeting"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Returned if there is a subsequent page of meetings."
+                    }
+                  }
+                },
+                "example": {
+                  "meetings": [
+                    {
+                      "meetingId": "559d2f5c-4384-440d-89c0-8195871ab180",
+                      "place": "room-48",
+                      "room": "Conference Room A",
+                      "roomType": "MeetingRoom",
+                      "start": "2026-01-21T09:48:04Z",
+                      "end": "2026-01-21T10:54:59Z",
+                      "participants": [
+                        {
+                          "name": "Alex Chen",
+                          "email": "alex.chen@example.com",
+                          "seconds": 4015
+                        },
+                        {
+                          "name": "Jordan Smith",
+                          "email": "jordan.smith@example.com",
+                          "seconds": 4015
+                        }
+                      ]
+                    },
+                    {
+                      "meetingId": "dde68f39-3eb0-42ef-9873-511509c8764f",
+                      "place": "room-47",
+                      "room": "Huddle Space",
+                      "roomType": "MeetingRoom",
+                      "start": "2026-01-21T09:32:39Z",
+                      "end": "2026-01-21T09:47:57Z",
+                      "participants": [
+                        {
+                          "name": "Alex Chen",
+                          "email": "alex.chen@example.com",
+                          "seconds": 918
+                        },
+                        {
+                          "name": "Taylor Williams",
+                          "email": "taylor@example.com",
+                          "seconds": 918
+                        }
+                      ]
+                    }
+                  ],
+                  "nextCursor": "MjAyNi0wMS0yMVQwOToyOToxMy4wMDBa"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lobby.list": {
+      "get": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "List lobbies",
+        "description": "Lists active lobbies in your account.\n\nA lobby URL has the form `ro.am/{handle}` or `ro.am/{handle}/{slug}`.\n- The \"handle\" is the first path segment\n- The \"slug\" is the optional second path segment. It may be empty for the default lobby under a handle\n\nOptionally filter by a specific lobby handle. If provided, only lobbies\nassociated with that handle are returned.\n\n**Access:** Organization only.\n\n**Required scope:** `lobby:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "lobby.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by lobby handle (first path segment), e.g., `robfig` for\n`ro.am/robfig` or `ro.am/robfig/tour`.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lobbies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Unique identifier of the lobby configuration (UUID)"
+                          },
+                          "slug": {
+                            "type": "string",
+                            "description": "Optional second path segment for the lobby. May be empty.\n"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "description": "Human-readable name of the lobby configuration"
+                          },
+                          "active": {
+                            "type": "boolean",
+                            "description": "Whether the lobby configuration is active"
+                          },
+                          "url": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "Public URL of the lobby (e.g., `https://ro.am/handle` or `https://ro.am/handle/slug`)"
+                          },
+                          "handle": {
+                            "type": "string",
+                            "description": "First path segment of the lobby URL\n"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "lobbies": [
+                    {
+                      "id": "6a2e0a6c-2a63-4a7d-9f2e-9b63f2a6c4b1",
+                      "slug": "",
+                      "displayName": "Default Lobby",
+                      "active": true,
+                      "url": "https://ro.am/person",
+                      "handle": "person"
+                    },
+                    {
+                      "id": "7b3c1d92-6d6f-4f23-9c2a-2a5f8e1d4c77",
+                      "slug": "tour",
+                      "displayName": "Tour Lobby",
+                      "active": true,
+                      "url": "https://ro.am/person/tour",
+                      "handle": "person"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "Handle not found."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/lobbyBooking.list": {
+      "get": {
+        "tags": [
+          "Meetings"
+        ],
+        "summary": "List lobby bookings",
+        "description": "Lists bookings for a specific lobby configuration, filtered by date range (after/before).\n\nThe ordering of results depends on the filter specified:\n\n- When no parameters are provided, the most recent bookings are returned,\n  sorted in reverse chronological order. This is equivalent to specifying `before`\n  as NOW and leaving `after` unspecified.\n\n- If `after` is specified, the results are sorted in forward chronological order.\n\nEither dates or datetimes may be specified. Dates are interpreted in UTC.\n\n**Access:** Organization only.\n\n**Required scope:** `lobby:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "lobbyBooking.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lobbyId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The lobby configuration ID to list bookings for."
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime to begin listing bookings (YYYY-MM-DD or RFC-3339).\nDefaults to \"no filter\".\n"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The datetime until which to list bookings (YYYY-MM-DD or RFC-3339).\nDefaults to \"now\".\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "The number of bookings to return per response. Default is 10."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque pagination cursor from a previous response's `nextCursor`. Do not construct cursors manually."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bookings": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LobbyBooking"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Returned if there is a subsequent page of bookings."
+                    }
+                  }
+                },
+                "example": {
+                  "bookings": [
+                    {
+                      "id": "018f3f37-eca3-7d07-8a12-9e65a8a0c1b9",
+                      "start": "2025-08-03T14:10:54Z",
+                      "end": "2025-08-03T14:40:54Z",
+                      "status": "active",
+                      "timeZone": "America/Los_Angeles",
+                      "notes": "Intro call",
+                      "created": "2025-08-01T10:00:00Z",
+                      "hosts": [
+                        {
+                          "name": "Alex Doe",
+                          "email": "alex@example.com",
+                          "isOrganizer": true
+                        }
+                      ],
+                      "invitees": [
+                        {
+                          "name": "Sam Smith",
+                          "email": "sam@example.com",
+                          "status": "invited",
+                          "isBooker": true
+                        }
+                      ]
+                    }
+                  ],
+                  "nextCursor": "018f3f39-2b5c-7b3d-9f96-8b2f1c0e1234"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Bad request."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Presented invalid authentication credentials."
+          },
+          "404": {
+            "$ref": "#/components/responses/Error",
+            "description": "Lobby not found."
+          },
+          "405": {
+            "$ref": "#/components/responses/Error",
+            "description": "An unsupported method was requested."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/app.uninstall": {
+      "post": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Uninstall an app",
+        "description": "Revoke an access token and uninstall your app.\nOn successful response, your access token will no longer be recognized.\n\nThis operation is only valid for OAuth access tokens, not for API keys.\n\n**Access:** Organization only.\n\n**No specific scope required.**\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "uninstallApp",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/userauditlog.list": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "User Audit Log",
+        "description": "Get a list of user audit log entries for the account.\n\n**Access:** Organization only.\n\n**Required scope:** `userauditlog:read`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "userauditlog.list",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "description": "The date to pull audit log entries from.  All activities from that date in UTC are returned.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit log entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auditLogs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserAuditLog"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "auditLogs": [
+                    {
+                      "timestamp": "2026-01-21T07:59:59.199Z",
+                      "eventType": "ENTER_ROOM",
+                      "name": "Alex Chen",
+                      "email": "alex.chen@example.com",
+                      "data": {
+                        "location": {
+                          "kind": "RoomLocation",
+                          "roomId": 266,
+                          "positionNumber": 3
+                        }
+                      }
+                    },
+                    {
+                      "timestamp": "2026-01-21T07:58:30.000Z",
+                      "eventType": "LEAVE_ROOM",
+                      "name": "Jordan Smith",
+                      "email": "jordan.smith@example.com",
+                      "data": {
+                        "location": {
+                          "kind": "RoomLocation",
+                          "roomId": 215,
+                          "positionNumber": 14
+                        }
+                      }
+                    },
+                    {
+                      "timestamp": "2026-01-21T07:55:00.000Z",
+                      "eventType": "ENTER_ROOM",
+                      "name": "Taylor Williams",
+                      "email": "taylor@example.com",
+                      "data": {
+                        "location": {
+                          "kind": "AudienceLocation",
+                          "roomId": 215,
+                          "sectionNumber": 0,
+                          "positionNumber": 46
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error",
+            "description": "Invalid request, e.g. date not provided."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error",
+            "description": "Unauthorized."
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    },
+    "/reaction.add": {
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Add reaction to message",
+        "description": "Add a reaction to a message in a chat.\n\n**Access:** Organization only.\n\n**Required scope:** `chat:send_message` or `chat:write`\n\n---\n\n**OpenAPI Spec:** [chat.json](https://developer.ro.am/chat.json)\n",
+        "operationId": "reaction.add",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chat": {
+                    "$ref": "#/components/schemas/TaggedUUID",
+                    "description": "The chat containing the message to react to."
+                  },
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Timestamp of the message to react to."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the reaction to add (e.g. \"100\")."
+                  }
+                },
+                "required": [
+                  "chat",
+                  "timestamp",
+                  "name"
+                ]
+              },
+              "example": {
+                "chat": "G-7be17589-4b9a-4524-bddb-ce60abea08e6",
+                "timestamp": 1755723832718034,
+                "name": "100"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reaction successfully added"
+          },
+          "400": {
+            "description": "Bad request.",
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "description": "Presented invalid authentication credentials.",
+            "$ref": "#/components/responses/Error"
+          },
+          "405": {
+            "description": "An unsupported method was requested.",
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "description": "An internal error occured."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Pass your API Key or OAuth access token as a Bearer token.\nExample: `Authorization: Bearer <token>`\n"
+      }
+    },
+    "schemas": {
+      "AddressUser": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of address",
+            "enum": [
+              "user"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "The tagged address ID"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The user's email address"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The user's display name"
+          },
+          "displayImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The user's display image URL"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "email",
+          "displayName"
+        ]
+      },
+      "AddressBot": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of address",
+            "enum": [
+              "bot"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "The tagged address ID"
+          },
+          "integrationId": {
+            "type": "string",
+            "description": "The app's client ID"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The user's display name"
+          },
+          "displayDetail": {
+            "type": "string",
+            "description": "A description of the app"
+          },
+          "displayImageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The user's display image URL"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "integrationId",
+          "displayName"
+        ]
+      },
+      "Error": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "A description of the error."
+                }
+              }
+            }
+          }
+        }
+      },
+      "TaggedUUID": {
+        "type": "string",
+        "pattern": "^[BUVGMDPC]-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "description": "A UUID prefixed by a tag identifying the specific type of object"
+      },
+      "ChatItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID identifying this item"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "photo",
+              "blob"
+            ],
+            "description": "Type of item:\n\n- **photo**: Images with inline preview and thumbnail\n  - image/jpeg, image/png, image/gif, image/webp\n\n- **blob**: Any other file type (download only, no preview)\n  - application/octet-stream\n"
+          },
+          "mime": {
+            "type": "string",
+            "description": "MIME type of the file (e.g., \"application/octet-stream\").\nMay be omitted for photo items where the type is inferred from the image format.\n"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the item was created"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the item (typically the filename)."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the uploaded item."
+          },
+          "thumbnail": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for a thumbnail of the uploaded item (photo type only).\nThis may be equal to the item's main URL if it is suitable to use as a thumbnail.\n"
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the item in bytes"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Width in pixels (images only)"
+          },
+          "height": {
+            "type": "integer",
+            "description": "Height in pixels (images only)"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "created",
+          "name",
+          "url"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The User ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the user's profile image"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the user (requires `user:read.email` scope)"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Whether the user is an admin of the Roam"
+          },
+          "jobTitle": {
+            "type": "string",
+            "description": "User's job title"
+          },
+          "location": {
+            "type": "string",
+            "description": "User's location"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "checkedIn",
+              "checkedOut"
+            ],
+            "description": "User's current presence status. Only included when `expand=status` is requested and the `user:read.status` scope is granted."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Reaction": {
+        "type": "object",
+        "description": "A reaction added to a chat message",
+        "properties": {
+          "chat": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The chat containing the message that was reacted to."
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Timestamp of the message that was reacted to."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the reaction that was added (e.g. \"thumbs_up\", \"heart\")."
+          },
+          "user": {
+            "$ref": "#/components/schemas/User",
+            "description": "The user who added the reaction."
+          }
+        },
+        "required": [
+          "chat",
+          "timestamp",
+          "name",
+          "user"
+        ]
+      },
+      "ChatMessage": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "message"
+            ],
+            "description": "Message type identifier"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "block",
+              "voice",
+              "poll"
+            ],
+            "description": "Type of message content"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "The message sender's Address ID"
+          },
+          "chat": {
+            "$ref": "#/components/schemas/TaggedUUID",
+            "description": "ID of the chat in which the message was sent"
+          },
+          "threadTimestamp": {
+            "type": "integer",
+            "description": "Key of the message that this is a reply to. Omitted if this is not a reply."
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Key of the message within a chat, as Unix microseconds"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text of the message, formatted as github-flavored markdown"
+          },
+          "items": {
+            "type": "array",
+            "description": "Items attached to this message",
+            "items": {
+              "$ref": "#/components/schemas/ChatItem"
+            }
+          },
+          "blocks": {
+            "type": "array",
+            "description": "Block Kit blocks, present when contentType is `block`. See the [Block Kit guide](/docs/guides/block-kit).",
+            "items": {
+              "type": "object"
+            }
+          },
+          "color": {
+            "type": "string",
+            "description": "Color strip on the message. One of: `good`, `warning`, `danger`, or a hex color like `#5B3FD9`. Present only on Block Kit messages."
+          },
+          "poll": {
+            "type": "object",
+            "description": "Poll content, present when contentType is `poll`.",
+            "properties": {
+              "question": {
+                "type": "string",
+                "description": "The poll question."
+              },
+              "options": {
+                "type": "array",
+                "description": "The poll answer options.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique option identifier."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Option display text."
+                    }
+                  }
+                }
+              },
+              "allowMultipleAnswers": {
+                "type": "boolean",
+                "description": "Whether voters can select multiple options."
+              },
+              "closesAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the poll closes (RFC-3339). Omitted if no close time is set."
+              }
+            }
+          },
+          "replyTimestamp": {
+            "type": "integer",
+            "description": "Key of the message that this is a reply to. This applies only in DM chats which lack real threads."
+          },
+          "reactions": {
+            "type": "array",
+            "description": "Reactions on this message",
+            "items": {
+              "$ref": "#/components/schemas/Reaction"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "contentType",
+          "sender",
+          "chat",
+          "timestamp"
+        ]
+      },
+      "UserInfo": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "available": {
+                "type": "boolean",
+                "description": "Whether the user is currently available for visitors. Only included when `expand=available` is requested and the `user:read.status` scope is granted."
+              }
+            }
+          }
+        ]
+      },
+      "ConversationParticipant": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "unconfirmedEmail": {
+            "type": "string",
+            "description": "Self-reported email address provided by a guest participant. Not verified — the guest was not logged in."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "member",
+              "guest"
+            ],
+            "description": "Whether the participant is a workspace member or a guest"
+          },
+          "user": {
+            "$ref": "#/components/schemas/TaggedUUID"
+          }
+        }
+      },
+      "TranscriptMetadata": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the transcript"
+          },
+          "meetingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the meeting.\nA meeting may encompass 0 or multiple transcripts.\n"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript began"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript stopped"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationParticipant"
+            }
+          }
+        }
+      },
+      "TranscriptCue": {
+        "type": "object",
+        "properties": {
+          "speaker": {
+            "type": "string",
+            "description": "Name of the person speaking"
+          },
+          "text": {
+            "type": "string",
+            "description": "The transcribed text of what was said."
+          },
+          "startOffset": {
+            "type": "integer",
+            "description": "Milliseconds from the start of the transcript when the utterance began."
+          },
+          "endOffset": {
+            "type": "integer",
+            "description": "Milliseconds from the start of the transcript when the utterance ended."
+          }
+        },
+        "required": [
+          "speaker",
+          "text",
+          "startOffset",
+          "endOffset"
+        ]
+      },
+      "TranscriptActionItem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Short name for the action item."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional context or details about the action item."
+          },
+          "assignee": {
+            "type": "string",
+            "description": "Person responsible for the action item, if known."
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "Transcript": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the transcript"
+          },
+          "meetingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the meeting.\nA meeting may encompass 0 or multiple transcripts.\n"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript began"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the transcript stopped"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationParticipant"
+            }
+          },
+          "cues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptCue"
+            }
+          },
+          "eventName": {
+            "type": "string",
+            "description": "Name of meeting event associated with the transcript (optional)"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Magic Minutes Summary"
+          },
+          "actionItems": {
+            "type": "array",
+            "description": "Action items identified during the meeting.",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptActionItem"
+            }
+          },
+          "meetingLinkId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Meeting link identifier, if this transcript is from a scheduled calendar event"
+          },
+          "invitees": {
+            "type": "array",
+            "description": "Email addresses of calendar event invitees",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        }
+      },
+      "MeetingParticipant": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "integer",
+            "description": "Duration of time that this participant was in the meeting (in seconds)."
+          }
+        },
+        "required": [
+          "name",
+          "seconds"
+        ]
+      },
+      "Meeting": {
+        "type": "object",
+        "properties": {
+          "meetingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A unique identifier for the meeting"
+          },
+          "place": {
+            "type": "string",
+            "description": "Internal identifier for the room location"
+          },
+          "room": {
+            "type": "string",
+            "description": "Name of the room where the meeting took place"
+          },
+          "roomType": {
+            "type": "string",
+            "description": "Type of the room where the meeting took place (e.g., MeetingRoom, LobbyRoom)"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the meeting began"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Exact time when the meeting ended"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeetingParticipant"
+            },
+            "description": "List of participants in the meeting"
+          },
+          "meetingLinkIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "List of meeting link IDs used to join this meeting, if any"
+          }
+        },
+        "required": [
+          "meetingId",
+          "start",
+          "end"
+        ]
+      },
+      "LobbyBookingHost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the host"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the host"
+          },
+          "isOrganizer": {
+            "type": "boolean",
+            "description": "Whether this host is the organizer"
+          }
+        },
+        "required": [
+          "email",
+          "isOrganizer"
+        ]
+      },
+      "LobbyBookingInvitee": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the invitee"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the invitee"
+          },
+          "status": {
+            "type": "string",
+            "description": "Invitee's RSVP or booking status"
+          },
+          "isBooker": {
+            "type": "boolean",
+            "description": "Whether this invitee created the booking"
+          }
+        },
+        "required": [
+          "email",
+          "status"
+        ]
+      },
+      "LobbyBooking": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique booking identifier"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start time in RFC3339"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End time in RFC3339"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the booking"
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone of the booking times"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes provided by the booker"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation time"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LobbyBookingHost"
+            }
+          },
+          "invitees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LobbyBookingInvitee"
+            }
+          },
+          "meetingLink": {
+            "type": "string",
+            "format": "uri",
+            "description": "Meeting link URL, used to join the meeting"
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end",
+          "status"
+        ]
+      },
+      "UserAuditLog": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Time at which the audit log entry occurred (UTC)"
+          },
+          "eventType": {
+            "type": "string",
+            "description": "Type of the audit event"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user associated with this event"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the user associated with this event"
+          },
+          "data": {
+            "type": "object",
+            "description": "JSON payload containing event type specific data, such as chat recipients or which room was knocked on",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "A description of the error."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,131 @@
+name: shelters
+description: "Credible, real-time disaster shelter information for AI agents and people: which FEMA-tracked shelters are open right now, where they are, which take pets, and which are filling up. Sourced from FEMA's National Shelter System OpenShelters feed, honest about missing data."
+version: "0.1.0"
+base_url: "https://gis.fema.gov"
+health_check_path: "/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query?where=1%3D1&returnCountOnly=true&f=json"
+required_headers:
+  - name: User-Agent
+    value: "shelters-pp-cli (https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/shelters-pp-cli/config.toml"
+
+resources:
+  shelters:
+    description: "Open disaster shelters from FEMA's National Shelter System (OpenShelters feed, all states/territories)"
+    endpoints:
+      list:
+        method: GET
+        path: "/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query"
+        description: "List open shelters from the FEMA OpenShelters feed. Returns few or none when no disaster is active (quiet baseline); counts spike during named events. Data is reported roughly twice a day and may lag reality."
+        params:
+          - name: where
+            flag_name: where
+            type: string
+            required: false
+            default: "1=1"
+            description: "ArcGIS SQL filter; defaults to all open shelters. Most users filter via the higher-level flags instead."
+          - name: outFields
+            flag_name: out-fields
+            type: string
+            required: false
+            default: "*"
+            description: "Comma-separated fields to return; defaults to all 22."
+          - name: returnGeometry
+            flag_name: return-geometry
+            type: string
+            required: false
+            default: "false"
+            description: "Geometry is not needed; latitude/longitude come back as attributes."
+          - name: resultRecordCount
+            flag_name: max-records
+            type: string
+            required: false
+            default: "2000"
+            description: "Server-side cap on rows returned per request."
+          - name: f
+            flag_name: format
+            type: string
+            required: false
+            default: "json"
+            description: "ArcGIS response format; must stay json."
+        response:
+          type: array
+          item: Shelter
+        response_path: "features"
+        response_format: json
+
+types:
+  Shelter:
+    description: "One shelter record. Live fields arrive nested under each feature's attributes object; the CLI flattens them. Many fields are null when unreported, which is normal."
+    fields:
+      - name: shelter_id
+        type: int
+        description: "STABLE identifier; join on this, never on objectid."
+      - name: objectid
+        type: int
+        description: "ArcGIS row id; UNSTABLE across snapshots, do not join on it."
+      - name: shelter_name
+        type: string
+        description: "Facility name."
+      - name: address
+        type: string
+        description: "Street address (usually present, even when lat/lon are null)."
+      - name: city
+        type: string
+        description: "City."
+      - name: state
+        type: string
+        description: "Two-letter state or territory."
+      - name: zip
+        type: string
+        description: "ZIP code."
+      - name: shelter_status
+        type: string
+        description: "Operational status; OPEN in the live feed. FULL may appear when reported (treated as reported-full, not guaranteed)."
+      - name: evacuation_capacity
+        type: int
+        description: "Pre-hazard capacity at 20 sq ft/person; often null. Primary utilization denominator."
+      - name: post_impact_capacity
+        type: int
+        description: "Reduced post-impact capacity at 40 sq ft/person; often null. Fallback denominator."
+      - name: total_population
+        type: int
+        description: "People currently sheltering; often null. Utilization numerator."
+      - name: hours_open
+        type: string
+        description: "Opening time as a STRING, not a datetime."
+      - name: hours_close
+        type: string
+        description: "Closing time as a STRING, not a datetime."
+      - name: org_name
+        type: string
+        description: "Managing organization; often null."
+      - name: org_id
+        type: int
+        description: "Managing organization id."
+      - name: match_type
+        type: string
+        description: "Internal record-match provenance (A/M/blank); surfaced verbatim."
+      - name: subfacility_code
+        type: string
+        description: "Sub-facility code."
+      - name: ada_compliant
+        type: string
+        description: "ADA compliance: YES / NO / UNK. Treat UNK and blank as not-confirmed."
+      - name: pet_accommodations_code
+        type: string
+        description: "Pet handling: NONE (no pets), COHABIT (pets stay with owner), ONSITE (pets sheltered onsite)."
+      - name: wheelchair_accessible
+        type: string
+        description: "Wheelchair access: YES / NO / UNK. Treat UNK and blank as not-confirmed."
+      - name: latitude
+        type: float
+        description: "Latitude; FREQUENTLY null even when open. Geocode from the address when missing."
+      - name: longitude
+        type: float
+        description: "Longitude; frequently null. Geocode from the address when missing."

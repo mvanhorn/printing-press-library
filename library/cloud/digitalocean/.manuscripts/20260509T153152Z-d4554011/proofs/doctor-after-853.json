@@ -1,0 +1,20 @@
+{
+  "api": "reachable",
+  "auth": "configured",
+  "auth_source": "env:DIGITALOCEAN_BEARER_AUTH",
+  "base_url": "https://api.digitalocean.com",
+  "cache": {
+    "db_bytes": 1019904,
+    "db_path": "/Users/bobshah/.local/share/digitalocean-pp-cli/data.db",
+    "hint": "sync_state is empty; run 'digitalocean-pp-cli sync' to hydrate.",
+    "resources": null,
+    "schema_version": 1,
+    "stale_after": "6h0m0s",
+    "status": "unknown"
+  },
+  "config": "ok",
+  "config_path": "/Users/bobshah/.config/digitalocean-pp-cli/config.toml",
+  "credentials": "present (not verified — set auth.verify_path in spec for an API acceptance check)",
+  "env_vars": "OK credentials available from env:DIGITALOCEAN_BEARER_AUTH",
+  "version": "1.0.0"
+}

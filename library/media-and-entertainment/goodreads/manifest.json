@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "goodreads-pp-mcp",
+  "display_name": "Goodreads Web Undocumented",
+  "version": "4.11.0",
+  "description": "This is an evidence-backed starting map for a future Goodreads CLI.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/goodreads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/goodreads-pp-mcp",
+      "args": [],
+      "env": {
+        "GOODREADS_GOODREADS_COOKIE_SESSION": "${user_config.goodreads_goodreads_cookie_session}"
+      }
+    }
+  },
+  "user_config": {
+    "goodreads_goodreads_cookie_session": {
+      "type": "string",
+      "title": "GOODREADS_GOODREADS_COOKIE_SESSION",
+      "description": "Sets GOODREADS_GOODREADS_COOKIE_SESSION for the Goodreads Web Undocumented MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

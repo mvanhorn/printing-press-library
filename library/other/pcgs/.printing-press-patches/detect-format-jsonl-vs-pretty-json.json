@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "detect-format-jsonl-vs-pretty-json",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "detectFormat now distinguishes JSONL streams from pretty-printed JSON wrapper objects by validating the first non-empty line as a complete JSON value before classifying as `jsonl`.",
+  "reason": "Previously any input starting with `{` and containing a newline was classified as `jsonl`. That misroutes a pretty-printed `{\"holdings\": [...]}` payload to parseJSONLines, where the first line alone (`{`) fails to unmarshal and the command exits with `line 1: unexpected end of JSON input`. Breaks `coin batch --file -` for any user piping formatted JSON and any file without a `.json` extension. Greptile P1 finding on PR #630 (review 6).",
+  "files": [
+    "internal/cli/coin_batch.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./..."
+}

@@ -1,0 +1,1476 @@
+{
+  "api_name": "ynab",
+  "base_url": "https://api.ynab.com/v1",
+  "description": "Every YNAB feature, plus a local mirror that makes reconciliation, payee trend analysis, and a ready-made ProjectionLab export instant instead of manual.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "YNAB_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YNAB_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://api.ynab.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_create",
+      "description": "Creates a new account. Required: plan_id, account. Returns the new AccountResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/accounts",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan ('last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "account-balance",
+          "wire_name": "account.balance",
+          "type": "int",
+          "location": "body",
+          "description": "The current balance of the account in milliunits format",
+          "required": true
+        },
+        {
+          "name": "account-name",
+          "wire_name": "account.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the account",
+          "required": true
+        },
+        {
+          "name": "account-type",
+          "wire_name": "account.type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of account to create or update",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Returns all accounts. Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/accounts",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "accounts_get-by-id",
+      "description": "Get a single account by id. Required: plan_id, account_id. Returns the account's name, type, on_budget/closed flags, and cleared/uncleared/available balances (both raw milliunits and currency-formatted). Use this when you already have the account id; use accounts_get to list all accounts and find the id first.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/accounts/{account_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_transactions_get-by-account",
+      "description": "Returns all transactions for a specified account, excluding any pending transactions. Required: plan_id, account_id. Optional: since_date, until_date, type (plus 1 more).",
+      "method": "GET",
+      "path": "/plans/{plan_id}/accounts/{account_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the account",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or after this date will be included."
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or before this date will be included."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions of the specified type will be included."
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "categories_create-category",
+      "description": "Creates a new category. Required: plan_id, category. Returns the new SaveCategoryResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/categories",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan ('last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category-category-group-id",
+          "wire_name": "category.category_group_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the category group to which this category belongs. An internal category group may not be specified.",
+          "required": true
+        },
+        {
+          "name": "category-goal-frequency",
+          "wire_name": "category.goal_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "When specified, configures a recurring 'NEED' target of goal_target that repeats at this frequency, replacing any existing target. Requires goal_target. Cannot be combined with goal_target_date and is not supported for Credit Card Payment categories. Omit to leave an existing target's cadence unchanged."
+        },
+        {
+          "name": "category-goal-needs-whole-amount",
+          "wire_name": "category.goal_needs_whole_amount",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the goal requires the full target amount each period. Only supported for 'NEED' goals. When true, the goal is configured as 'Set aside another...'. When false, the goal is configured as 'Refill up to...'."
+        },
+        {
+          "name": "category-goal-target",
+          "wire_name": "category.goal_target",
+          "type": "int",
+          "location": "body",
+          "description": "The goal target amount in milliunits format. If value is specified and goal has not already been configured for category, a monthly goal will be created for the category with this target amount. If goal_type is not specified, it will default to 'NEED' or 'MF' for Credit Card Payment categories. When updating a category, passing null removes any existing target."
+        },
+        {
+          "name": "category-goal-target-date",
+          "wire_name": "category.goal_target_date",
+          "type": "string",
+          "location": "body",
+          "description": "The goal target date in ISO format (e.g. 2016-12-01)."
+        },
+        {
+          "name": "category-name",
+          "wire_name": "category.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "category-note",
+          "wire_name": "category.note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Returns all categories grouped by category group. Amounts (assigned, activity, available, etc.) are specific to the current plan month (UTC). Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/categories",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "categories_get-category-by-id",
+      "description": "Returns a single category. Amounts (assigned, activity, available, etc.) are specific to the current plan month (UTC). Required: plan_id, category_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/categories/{category_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_update-category",
+      "description": "Update a category. Required: plan_id, category_id, category. Returns the updated SaveCategoryResponse.",
+      "method": "PATCH",
+      "path": "/plans/{plan_id}/categories/{category_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category",
+          "required": true
+        },
+        {
+          "name": "category-category-group-id",
+          "wire_name": "category.category_group_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the category group to which this category belongs. An internal category group may not be specified."
+        },
+        {
+          "name": "category-goal-frequency",
+          "wire_name": "category.goal_frequency",
+          "type": "string",
+          "location": "body",
+          "description": "When specified, configures a recurring 'NEED' target of goal_target that repeats at this frequency, replacing any existing target. Requires goal_target. Cannot be combined with goal_target_date and is not supported for Credit Card Payment categories. Omit to leave an existing target's cadence unchanged."
+        },
+        {
+          "name": "category-goal-needs-whole-amount",
+          "wire_name": "category.goal_needs_whole_amount",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the goal requires the full target amount each period. Only supported for 'NEED' goals. When true, the goal is configured as 'Set aside another...'. When false, the goal is configured as 'Refill up to...'."
+        },
+        {
+          "name": "category-goal-target",
+          "wire_name": "category.goal_target",
+          "type": "int",
+          "location": "body",
+          "description": "The goal target amount in milliunits format. If value is specified and goal has not already been configured for category, a monthly goal will be created for the category with this target amount. If goal_type is not specified, it will default to 'NEED' or 'MF' for Credit Card Payment categories. When updating a category, passing null removes any existing target."
+        },
+        {
+          "name": "category-goal-target-date",
+          "wire_name": "category.goal_target_date",
+          "type": "string",
+          "location": "body",
+          "description": "The goal target date in ISO format (e.g. 2016-12-01)."
+        },
+        {
+          "name": "category-name",
+          "wire_name": "category.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "category-note",
+          "wire_name": "category.note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        }
+      ]
+    },
+    {
+      "name": "categories_transactions_get-by-category",
+      "description": "Returns all transactions for a specified category, excluding any pending transactions. Required: plan_id, category_id. Optional: since_date, until_date, type (plus 1 more).",
+      "method": "GET",
+      "path": "/plans/{plan_id}/categories/{category_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or after this date will be included."
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or before this date will be included."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions of the specified type will be included."
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "category-groups_create",
+      "description": "Creates a new category group. Required: plan_id, category_group. Returns the new SaveCategoryGroupResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/category_groups",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan ('last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category-group-name",
+          "wire_name": "category_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the category group. The name must be a maximum of 50 characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "category-groups_update",
+      "description": "Update a category group. Required: plan_id, category_group_id, category_group. Returns the updated SaveCategoryGroupResponse.",
+      "method": "PATCH",
+      "path": "/plans/{plan_id}/category_groups/{category_group_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "category_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category group",
+          "required": true
+        },
+        {
+          "name": "category-group-name",
+          "wire_name": "category_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the category group. The name must be a maximum of 50 characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "money-movement-groups_get",
+      "description": "List money movement groups for a plan. Required: plan_id. Returns each group's id, month, group_created_at, optional note, and performed_by_user_id, plus server_knowledge for delta sync. Each group aggregates one or more individual money movements (see money-movements_get) that share a money_movement_group_id — use this to see movements batched by the action that created them.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/money_movement_groups",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "money-movements_get",
+      "description": "List money movements for a plan. Required: plan_id. A money movement is a record of funds reassigned between budget categories (not a transaction). Returns each movement's id, month, amount (milliunits and currency-formatted), from_category_id, to_category_id, optional note, moved_at timestamp, and money_movement_group_id, plus server_knowledge for delta sync.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/money_movements",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_get-plan",
+      "description": "Returns all plan months. Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "months_get-plan-plans",
+      "description": "Returns a single plan month. Required: plan_id, month.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months/{month}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_categories_get-month-category-by-id",
+      "description": "Returns a single category for a specific plan month. Amounts (assigned, activity, available, etc.) are specific to the current plan month (UTC). Required: plan_id, month, category_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months/{month}/categories/{category_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_categories_update-month-category",
+      "description": "Update a category for a specific month. Only `budgeted` (assigned) amount can be updated. Required: plan_id, month, category_id, category. Returns the updated SaveCategoryResponse.",
+      "method": "PATCH",
+      "path": "/plans/{plan_id}/months/{month}/categories/{category_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the category",
+          "required": true
+        },
+        {
+          "name": "category-budgeted",
+          "wire_name": "category.budgeted",
+          "type": "int",
+          "location": "body",
+          "description": "Assigned (budgeted) amount in milliunits format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_money-movement-groups_get-by-month",
+      "description": "Returns all money movement groups for a specific month. Required: plan_id, month.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months/{month}/money_movement_groups",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_money-movements_get-by-month",
+      "description": "Returns all money movements for a specific month. Required: plan_id, month.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months/{month}/money_movements",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_transactions_get-by-month",
+      "description": "Returns all transactions for a specified month, excluding any pending transactions. Required: plan_id, month. Optional: since_date, until_date, type (plus 1 more).",
+      "method": "GET",
+      "path": "/plans/{plan_id}/months/{month}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "The plan month in ISO format (e.",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or after this date will be included. The date should be ISO formatted (e.g. 2016-12-30)."
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or before this date will be included."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions of the specified type will be included."
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "payee-locations_get",
+      "description": "List payee locations for a plan. Required: plan_id. Returns each location's id, payee_id, latitude, longitude, and deleted flag — the geo-coordinates YNAB's mobile apps record when a transaction's payee is entered near a physical location. Use to correlate transactions with where they were made.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payee_locations",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payee-locations_get-by-id",
+      "description": "Returns a single payee location. Required: plan_id, payee_location_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payee_locations/{payee_location_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee_location_id",
+          "type": "string",
+          "location": "path",
+          "description": "id of payee location",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_create",
+      "description": "Creates a new payee. Required: plan_id, payee. Returns the new SavePayeeResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/payees",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee-name",
+          "wire_name": "payee.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the payee.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_get",
+      "description": "Returns all payees. Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payees",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "payees_get-by-id",
+      "description": "Get a single payee by id. Required: plan_id, payee_id. Returns the payee's name, transfer_account_id (set only if this is a transfer payee), and deleted flag. Use this when you already have the payee id; use payees_get to list all payees and find the id first.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payees/{payee_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the payee",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_update",
+      "description": "Update a payee. Required: plan_id, payee_id, payee. Returns the updated SavePayeeResponse.",
+      "method": "PATCH",
+      "path": "/plans/{plan_id}/payees/{payee_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the payee",
+          "required": true
+        },
+        {
+          "name": "payee-name",
+          "wire_name": "payee.name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the payee."
+        }
+      ]
+    },
+    {
+      "name": "payees_payee-locations_get-by-payee",
+      "description": "Returns all payee locations for a specified payee. Required: plan_id, payee_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payees/{payee_id}/payee_locations",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee_id",
+          "type": "string",
+          "location": "path",
+          "description": "id of payee",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_transactions_get-by-payee",
+      "description": "Returns all transactions for a specified payee, excluding any pending transactions. Required: plan_id, payee_id. Optional: since_date, until_date, type (plus 1 more).",
+      "method": "GET",
+      "path": "/plans/{plan_id}/payees/{payee_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "payee_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the payee",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or after this date will be included."
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or before this date will be included."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions of the specified type will be included."
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "plans_get",
+      "description": "Returns plans list with summary information. Optional: include_accounts.",
+      "method": "GET",
+      "path": "/plans",
+      "params": [
+        {
+          "name": "include_accounts",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include the list of plan accounts"
+        }
+      ]
+    },
+    {
+      "name": "plans_get-by-id",
+      "description": "Returns a single plan with all related entities. This resource is effectively a full plan export. Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "scheduled-transactions_create",
+      "description": "Creates a single scheduled transaction (a transaction with a future date). Required: plan_id, scheduled_transaction. Returns the new ScheduledTransactionResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/scheduled_transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-account-id",
+          "wire_name": "scheduled_transaction.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-amount",
+          "wire_name": "scheduled_transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "The scheduled transaction amount in milliunits format."
+        },
+        {
+          "name": "scheduled-transaction-category-id",
+          "wire_name": "scheduled_transaction.category_id",
+          "type": "string",
+          "location": "body",
+          "description": "The category for the scheduled transaction. Credit Card Payment categories are not permitted. Creating a split scheduled transaction is not currently supported."
+        },
+        {
+          "name": "scheduled-transaction-date",
+          "wire_name": "scheduled_transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled transaction date in ISO format (e.g. 2016-12-01). This should be a future date no more than 5 years into the future.",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-flag-color",
+          "wire_name": "scheduled_transaction.flag_color",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction flag"
+        },
+        {
+          "name": "scheduled-transaction-frequency",
+          "wire_name": "scheduled_transaction.frequency",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled transaction frequency"
+        },
+        {
+          "name": "scheduled-transaction-memo",
+          "wire_name": "scheduled_transaction.memo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo"
+        },
+        {
+          "name": "scheduled-transaction-payee-id",
+          "wire_name": "scheduled_transaction.payee_id",
+          "type": "string",
+          "location": "body",
+          "description": "The payee for the scheduled transaction. To create a transfer between two accounts, use the account transfer payee pointing to the target account. Account transfer payees are specified as `transfer_payee_id` on the account resource."
+        },
+        {
+          "name": "scheduled-transaction-payee-name",
+          "wire_name": "scheduled_transaction.payee_name",
+          "type": "string",
+          "location": "body",
+          "description": "The payee name for the the scheduled transaction. If a `payee_name` value is provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either (1) a payee with the same name or (2) creation of a new payee."
+        }
+      ]
+    },
+    {
+      "name": "scheduled-transactions_delete",
+      "description": "Deletes a scheduled transaction. Required: plan_id, scheduled_transaction_id. Returns the ScheduledTransactionResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/plans/{plan_id}/scheduled_transactions/{scheduled_transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "scheduled_transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the scheduled transaction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduled-transactions_get",
+      "description": "Returns all scheduled transactions. Required: plan_id. Optional: last_knowledge_of_server.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/scheduled_transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "scheduled-transactions_get-by-id",
+      "description": "Returns a single scheduled transaction. Required: plan_id, scheduled_transaction_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/scheduled_transactions/{scheduled_transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "scheduled_transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the scheduled transaction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduled-transactions_update",
+      "description": "Updates a single scheduled transaction. Required: plan_id, scheduled_transaction_id, scheduled_transaction. Returns the updated ScheduledTransactionResponse.",
+      "method": "PUT",
+      "path": "/plans/{plan_id}/scheduled_transactions/{scheduled_transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "scheduled_transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the scheduled transaction",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-account-id",
+          "wire_name": "scheduled_transaction.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-amount",
+          "wire_name": "scheduled_transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "The scheduled transaction amount in milliunits format."
+        },
+        {
+          "name": "scheduled-transaction-category-id",
+          "wire_name": "scheduled_transaction.category_id",
+          "type": "string",
+          "location": "body",
+          "description": "The category for the scheduled transaction. Credit Card Payment categories are not permitted. Creating a split scheduled transaction is not currently supported."
+        },
+        {
+          "name": "scheduled-transaction-date",
+          "wire_name": "scheduled_transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled transaction date in ISO format (e.g. 2016-12-01). This should be a future date no more than 5 years into the future.",
+          "required": true
+        },
+        {
+          "name": "scheduled-transaction-flag-color",
+          "wire_name": "scheduled_transaction.flag_color",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction flag"
+        },
+        {
+          "name": "scheduled-transaction-frequency",
+          "wire_name": "scheduled_transaction.frequency",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled transaction frequency"
+        },
+        {
+          "name": "scheduled-transaction-memo",
+          "wire_name": "scheduled_transaction.memo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo"
+        },
+        {
+          "name": "scheduled-transaction-payee-id",
+          "wire_name": "scheduled_transaction.payee_id",
+          "type": "string",
+          "location": "body",
+          "description": "The payee for the scheduled transaction. To create a transfer between two accounts, use the account transfer payee pointing to the target account. Account transfer payees are specified as `transfer_payee_id` on the account resource."
+        },
+        {
+          "name": "scheduled-transaction-payee-name",
+          "wire_name": "scheduled_transaction.payee_name",
+          "type": "string",
+          "location": "body",
+          "description": "The payee name for the the scheduled transaction. If a `payee_name` value is provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either (1) a payee with the same name or (2) creation of a new payee."
+        }
+      ]
+    },
+    {
+      "name": "settings_get-plan-by-id",
+      "description": "Get a plan's display settings. Required: plan_id. Returns date_format and currency_format (symbol, decimal digits/separator, group separator, ISO code, example format) — the formatting rules YNAB's web and mobile apps use to render dates and amounts for this plan. Use before formatting raw amounts/dates yourself so output matches the user's plan configuration.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/settings",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_create",
+      "description": "Creates a single transaction or multiple transactions. If you provide a body containing a `transaction` object, a single transaction will be created and if you provide a body containing a `transactions` array, multiple transactions will be created. Scheduled transactions (transactions with a future date) cannot be created on this endpoint. Required: plan_id. Optional: transaction, transactions. Returns the new SaveTransactionsResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "transaction-account-id",
+          "wire_name": "transaction.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id"
+        },
+        {
+          "name": "transaction-amount",
+          "wire_name": "transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "The transaction amount in milliunits format. Split transaction amounts cannot be changed and if a different amount is supplied it will be ignored."
+        },
+        {
+          "name": "transaction-approved",
+          "wire_name": "transaction.approved",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the transaction is approved. If not supplied, transaction will be unapproved by default."
+        },
+        {
+          "name": "transaction-category-id",
+          "wire_name": "transaction.category_id",
+          "type": "string",
+          "location": "body",
+          "description": "The category for the transaction. To configure a split transaction, you can specify null for `category_id` and provide a `subtransactions` array as part of the transaction object. If an existing transaction is a split, the `category_id` cannot be changed. Credit Card Payment categories are not permitted and will be ignored if supplied."
+        },
+        {
+          "name": "transaction-cleared",
+          "wire_name": "transaction.cleared",
+          "type": "string",
+          "location": "body",
+          "description": "The cleared status of the transaction"
+        },
+        {
+          "name": "transaction-date",
+          "wire_name": "transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction date in ISO format (e.g. 2016-12-01). Future dates (scheduled transactions) are not permitted. Split transaction dates cannot be changed and if a different date is supplied it will be ignored."
+        },
+        {
+          "name": "transaction-flag-color",
+          "wire_name": "transaction.flag_color",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction flag"
+        },
+        {
+          "name": "transaction-import-id",
+          "wire_name": "transaction.import_id",
+          "type": "string",
+          "location": "body",
+          "description": "If specified, a new transaction will be assigned this `import_id` and considered 'imported'. We will also attempt to match this imported transaction to an existing 'user-entered' transaction on the same account, with the same amount, and with a date +/-10 days from the imported transaction date. Transactions imported through File Based Import or Direct Import (not through the API) are assigned an import_id in the format: 'YNAB:[milliunit_amount]:[iso_date]:[occurrence]'. For example, a transaction dated 2015-12-30 in the amount of -$294.23 USD would have an import_id of 'YNAB:-294230:2015-12-30:1'. If a second transaction on the same account was imported and had the same date and same amount, its import_id would be 'YNAB:-294230:2015-12-30:2'. Using a consistent format will prevent duplicates through Direct Import and File Based Import. If import_id is omitted or specified as null, the transaction will be treated as a 'user-entered' transaction. As such, it will be eligible to be matched against transactions later being imported (via DI, FBI, or API)."
+        },
+        {
+          "name": "transaction-memo",
+          "wire_name": "transaction.memo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo"
+        },
+        {
+          "name": "transaction-payee-id",
+          "wire_name": "transaction.payee_id",
+          "type": "string",
+          "location": "body",
+          "description": "The payee for the transaction. To create a transfer between two accounts, use the account transfer payee pointing to the target account. Account transfer payees are specified as `transfer_payee_id` on the account resource."
+        },
+        {
+          "name": "transaction-payee-name",
+          "wire_name": "transaction.payee_name",
+          "type": "string",
+          "location": "body",
+          "description": "The payee name. If a `payee_name` value is provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule (only if `import_id` is also specified) or (2) a payee with the same name or (3) creation of a new payee."
+        },
+        {
+          "name": "transaction-subtransactions",
+          "wire_name": "transaction.subtransactions",
+          "type": "array",
+          "location": "body",
+          "description": "An array of subtransactions to configure a transaction as a split. Updating `subtransactions` on an existing split transaction is not supported and will return an error. Splits are not allowed on tracking accounts or on transfers between on-budget accounts; a transfer to a tracking account can be a split."
+        },
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "Transactions"
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete",
+      "description": "Deletes a transaction. Required: plan_id, transaction_id. Returns the TransactionResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/plans/{plan_id}/transactions/{transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the transaction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_get",
+      "description": "Returns plan transactions, excluding any pending transactions. Required: plan_id. Optional: since_date, until_date, type (plus 1 more).",
+      "method": "GET",
+      "path": "/plans/{plan_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or after this date will be included."
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions on or before this date will be included."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "If specified, only transactions of the specified type will be included."
+        },
+        {
+          "name": "last_knowledge_of_server",
+          "type": "int",
+          "location": "query",
+          "description": "The starting server knowledge."
+        }
+      ]
+    },
+    {
+      "name": "transactions_get-by-id",
+      "description": "Returns a single transaction. Required: plan_id, transaction_id.",
+      "method": "GET",
+      "path": "/plans/{plan_id}/transactions/{transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the transaction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_import",
+      "description": "Imports available transactions on all linked accounts for the given plan. Linked accounts allow transactions to be imported directly from a specified financial institution and this endpoint initiates that import. Sending a request to this endpoint is the equivalent of clicking 'Import' on each account in the web application or tapping the 'New Transactions' banner in the mobile applications. The response for this endpoint contains the transaction ids that have been imported. Required: plan_id. Returns the new TransactionsImportResponse.",
+      "method": "POST",
+      "path": "/plans/{plan_id}/transactions/import",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_update",
+      "description": "Updates multiple transactions, by `id` or `import_id`. Required: plan_id, transactions. Returns the updated SaveTransactionsResponse.",
+      "method": "PATCH",
+      "path": "/plans/{plan_id}/transactions",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "Transactions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_update-plans",
+      "description": "Updates a single transaction. Required: plan_id, transaction_id, transaction. Returns the updated TransactionResponse.",
+      "method": "PUT",
+      "path": "/plans/{plan_id}/transactions/{transaction_id}",
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the plan. 'last-used' can be used to specify the last used plan and 'default' can...",
+          "required": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the transaction",
+          "required": true
+        },
+        {
+          "name": "transaction-account-id",
+          "wire_name": "transaction.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Account id"
+        },
+        {
+          "name": "transaction-amount",
+          "wire_name": "transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "The transaction amount in milliunits format. Split transaction amounts cannot be changed and if a different amount is supplied it will be ignored."
+        },
+        {
+          "name": "transaction-approved",
+          "wire_name": "transaction.approved",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the transaction is approved. If not supplied, transaction will be unapproved by default."
+        },
+        {
+          "name": "transaction-category-id",
+          "wire_name": "transaction.category_id",
+          "type": "string",
+          "location": "body",
+          "description": "The category for the transaction. To configure a split transaction, you can specify null for `category_id` and provide a `subtransactions` array as part of the transaction object. If an existing transaction is a split, the `category_id` cannot be changed. Credit Card Payment categories are not permitted and will be ignored if supplied."
+        },
+        {
+          "name": "transaction-cleared",
+          "wire_name": "transaction.cleared",
+          "type": "string",
+          "location": "body",
+          "description": "The cleared status of the transaction"
+        },
+        {
+          "name": "transaction-date",
+          "wire_name": "transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction date in ISO format (e.g. 2016-12-01). Future dates (scheduled transactions) are not permitted. Split transaction dates cannot be changed and if a different date is supplied it will be ignored."
+        },
+        {
+          "name": "transaction-flag-color",
+          "wire_name": "transaction.flag_color",
+          "type": "string",
+          "location": "body",
+          "description": "The transaction flag"
+        },
+        {
+          "name": "transaction-memo",
+          "wire_name": "transaction.memo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo"
+        },
+        {
+          "name": "transaction-payee-id",
+          "wire_name": "transaction.payee_id",
+          "type": "string",
+          "location": "body",
+          "description": "The payee for the transaction. To create a transfer between two accounts, use the account transfer payee pointing to the target account. Account transfer payees are specified as `transfer_payee_id` on the account resource."
+        },
+        {
+          "name": "transaction-payee-name",
+          "wire_name": "transaction.payee_name",
+          "type": "string",
+          "location": "body",
+          "description": "The payee name. If a `payee_name` value is provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule (only if `import_id` is also specified) or (2) a payee with the same name or (3) creation of a new payee."
+        },
+        {
+          "name": "transaction-subtransactions",
+          "wire_name": "transaction.subtransactions",
+          "type": "array",
+          "location": "body",
+          "description": "An array of subtransactions to configure a transaction as a split. Updating `subtransactions` on an existing split transaction is not supported and will return an error. Splits are not allowed on tracking accounts or on transfers between on-budget accounts; a transfer to a tracking account can be a split."
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get the authenticated user's id. No parameters. Returns a single uuid identifying the YNAB account the configured token belongs to. Use to confirm which user/token is active, e.g. before an operation whose scope depends on the caller's identity.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    }
+  ]
+}

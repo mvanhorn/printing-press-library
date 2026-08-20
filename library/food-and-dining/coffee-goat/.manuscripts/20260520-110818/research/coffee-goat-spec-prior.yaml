@@ -1,0 +1,322 @@
+name: coffee-goat
+display_name: "Coffee GOAT"
+description: "The third-wave coffee terminal: cross-roaster search across 24 elite specialty roasters, a local brew log, and analytics that diagnose your grinder from your rating drift."
+cli_description: "Search 24 elite specialty roasters, log brews, and let the CLI diagnose your grinder from your rating drift."
+kind: synthetic
+spec_source: community
+http_transport: standard
+version: "0.1.0"
+base_url: "https://coffee-goat.local"
+website_url: "https://github.com/justinwfu/coffee-goat-pp-cli"
+category: food-and-dining
+owner: justinwfu
+owner_name: "Justin Fu"
+printer: justinwfu
+printer_name: "Justin Fu"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/coffee-goat/config.toml"
+
+# Anchor resource: the unified Product corpus. Synthetic — every command
+# that touches roaster_products is hand-authored against the local store
+# rather than emitted from the spec. The list endpoint exists so the
+# generator has a structural anchor for the store/types layer.
+resources:
+  products:
+    description: "Unified roaster product corpus synced from 24 specialty coffee roasters"
+    endpoints:
+      list:
+        method: GET
+        path: "/products"
+        description: "List synced roaster products with structured filters"
+        params:
+          - name: roaster
+            type: string
+            description: "Filter by roaster slug"
+          - name: origin
+            type: string
+            description: "Filter by origin country (e.g. Ethiopia, Colombia, Kenya)"
+          - name: process
+            type: string
+            description: "Filter by process (washed, natural, anaerobic, honey)"
+          - name: in_stock
+            type: bool
+            description: "Show only beans currently in stock"
+          - name: limit
+            type: int
+            description: "Maximum rows to return"
+        response:
+          type: array
+          item: Product
+
+types:
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: roaster
+        type: string
+      - name: title
+        type: string
+      - name: handle
+        type: string
+      - name: vendor
+        type: string
+      - name: product_type
+        type: string
+      - name: origin
+        type: string
+      - name: region
+        type: string
+      - name: producer
+        type: string
+      - name: process
+        type: string
+      - name: varietal
+        type: string
+      - name: altitude_m_min
+        type: int
+      - name: altitude_m_max
+        type: int
+      - name: roast_level
+        type: string
+      - name: tags
+        type: string
+      - name: price_cents
+        type: int
+      - name: currency
+        type: string
+      - name: weight_g
+        type: int
+      - name: url
+        type: string
+      - name: image_url
+        type: string
+      - name: in_stock
+        type: bool
+      - name: body_text
+        type: string
+      - name: published_at
+        type: string
+      - name: updated_at
+        type: string
+
+  Roaster:
+    fields:
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: country
+        type: string
+      - name: website
+        type: string
+      - name: sync_url
+        type: string
+      - name: source_tier
+        type: string
+      - name: transport
+        type: string
+      - name: last_synced_at
+        type: string
+
+  Bean:
+    fields:
+      - name: id
+        type: string
+      - name: product_id
+        type: string
+      - name: roaster
+        type: string
+      - name: name
+        type: string
+      - name: roast_date
+        type: string
+      - name: purchase_date
+        type: string
+      - name: purchase_price_cents
+        type: int
+      - name: current_mass_g
+        type: int
+      - name: rating
+        type: int
+      - name: notes
+        type: string
+
+  Brew:
+    fields:
+      - name: id
+        type: string
+      - name: bean_id
+        type: string
+      - name: method
+        type: string
+      - name: grind
+        type: string
+      - name: dose_g
+        type: int
+      - name: yield_g
+        type: int
+      - name: time_s
+        type: int
+      - name: temperature_c
+        type: int
+      - name: water_tds_ppm
+        type: int
+      - name: rating
+        type: int
+      - name: notes
+        type: string
+      - name: brewed_at
+        type: string
+
+  Watch:
+    fields:
+      - name: id
+        type: string
+      - name: query
+        type: string
+      - name: filters_json
+        type: string
+      - name: last_sync_anchor
+        type: string
+
+  Review:
+    fields:
+      - name: id
+        type: string
+      - name: product_id
+        type: string
+      - name: roaster
+        type: string
+      - name: bean_name
+        type: string
+      - name: score
+        type: int
+      - name: descriptors_json
+        type: string
+      - name: reviewer
+        type: string
+      - name: published_at
+        type: string
+
+  Producer:
+    fields:
+      - name: name
+        type: string
+      - name: country
+        type: string
+      - name: region
+        type: string
+      - name: first_seen_at
+        type: string
+
+# All hand-written novel-feature commands declared so SKILL.md documents
+# them. The actual Cobra commands are hand-authored in internal/cli/ during
+# Phase 3 — none of these are code-generated.
+extra_commands:
+  # Sync + corpus
+  - name: sync
+    description: "Pull catalogs from all 24 roasters into the local store"
+    args: "[--roaster <slug>] [--limit N]"
+  - name: roasters list
+    description: "List the 24 known roasters with tier, country, and last-synced timestamps"
+  - name: roasters show
+    description: "Show one roaster's details and current product count"
+    args: "<slug>"
+
+  # Personal data verbs (cellar + brew log)
+  - name: beans add
+    description: "Add a bag to your cellar"
+    args: "--product <slug> --roast-date <YYYY-MM-DD> [--mass <g>]"
+  - name: beans list
+    description: "List beans in your cellar with freshness flags"
+  - name: beans use
+    description: "Record bean usage; decrements current_mass_g"
+    args: "<bean-id> --grams <N>"
+  - name: beans rate
+    description: "Rate a bean and add notes"
+    args: "<bean-id> --score <N> --notes <text>"
+  - name: beans archive
+    description: "Archive a bean (e.g. finished or thrown out)"
+    args: "<bean-id>"
+  - name: brews log
+    description: "Log a brew session"
+    args: "--bean <id> --method <m> --dose <g> --yield <g> --time <s> --rating <N> [...more]"
+  - name: brews list
+    description: "List brews with optional filters"
+  - name: methods list
+    description: "List brewing method profiles"
+  - name: water add
+    description: "Add a water profile"
+    args: "--name <n> --tds <ppm> --hardness <ppm> [...]"
+  - name: cup score
+    description: "Record an SCA cupping score for a bean"
+    args: "<bean-id> --score <N> --aromatics <...> --acidity <N> --body <N> --finish <N>"
+  - name: cafe checkin
+    description: "Record a cafe visit"
+    args: "<cafe-name> [--bean <id>] [--rating <N>]"
+
+  # Bag scan (LLM-powered, opt-in)
+  - name: beans scan
+    description: "Identify roaster + bean from a photo of a coffee bag (requires OPENROUTER_API_KEY)"
+    args: "<photo-path>"
+
+  # 13 transcendence features (HEADLINE)
+  - name: search
+    description: "Cross-roaster FTS5 search over the synced corpus"
+    args: "<query> [--origin --process --price-lt --in-stock]"
+  - name: dial-in
+    description: "Bayesian recipe recommendation from your brew history of similar beans"
+    args: "<bean> [--method <m>]"
+  - name: shelf
+    description: "Your cellar with per-method freshness windows (espresso 8-21d, filter 5-28d)"
+    args: "[--by freshness|rating|roaster]"
+  - name: watch
+    description: "Persisted query; emits new matches on sync diff (cron-safe, silent when empty)"
+    args: "<query>"
+  - name: compare
+    description: "Side-by-side bean table with deltas + Coffee Review scores"
+    args: "<bean-a> <bean-b> [<bean-c>...]"
+  - name: twin
+    description: "Closest current match for a bean across all 24 roasters via attribute similarity"
+    args: "<bean> [--top N]"
+  - name: blind-cup
+    description: "Blind cupping session; reveals correlate user scores with Coffee Review (Spearman ρ)"
+    args: "[--beans N] [--from-shelf]"
+  - name: fx
+    description: "FX-normalized $/oz across roasters + curated ship-to landed cost"
+    args: "<roaster|bean> [--ship-to <country>]"
+  - name: producer
+    description: "Track a producer or farm across every synced roaster, multi-year"
+    args: "<name> [--years N]"
+  - name: refill-plan
+    description: "Consumption-rate from brews + shelf depletion + ranked replacement picks"
+  - name: roaster-style
+    description: "Per-roaster fingerprint (origin/process mix, $/oz median); --similar-to ranks similar roasters"
+    args: "<name> [--similar-to]"
+  - name: drift
+    description: "OLS regression on rating-vs-day across beans; flags grinder/water/technique drift"
+    args: "[--window <Nd>]"
+  - name: whats-next
+    description: "Recommend what to brew next from your shelf, scored by descriptor match × rating affinity × freshness"
+    args: "[--method <m>] [--mood <fruity|chocolate|floral>]"
+
+  # Editorial sync
+  - name: reviews sync
+    description: "Sync Coffee Review WP REST score corpus into the local store"
+  - name: reviews show
+    description: "Show Coffee Review entries matched to a bean or roaster"
+    args: "<bean-or-roaster>"
+
+  # Auth (cookie-based for Sprudge editorial fallback only)
+  - name: auth sprudge
+    description: "Import current Chrome cookies for Sprudge Cloudflare clearance"
+    args: "[--chrome]"
+
+mcp:
+  transport: [stdio, http]

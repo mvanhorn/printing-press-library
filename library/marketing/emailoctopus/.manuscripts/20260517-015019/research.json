@@ -1,0 +1,312 @@
+{
+  "api_name": "emailoctopus",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Zapier MCP for EmailOctopus",
+      "url": "https://zapier.com/mcp/emailoctopus",
+      "language": "hosted",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Activepieces EmailOctopus piece",
+      "url": "https://github.com/activepieces/activepieces",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 18000,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "goran-popovic/email-octopus-php",
+      "url": "https://github.com/goran-popovic/email-octopus-php",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kartoffelkraft/email-octopus-ts",
+      "url": "https://github.com/kartoffelkraft/email-octopus-ts",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tubbo/email_octopus",
+      "url": "https://github.com/tubbo/email_octopus",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wthomsen/email-octopus",
+      "url": "https://github.com/wthomsen/email-octopus",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T08:55:30Z",
+  "novel_features": [
+    {
+      "name": "Per-contact engagement scorecard",
+      "command": "contacts engagement",
+      "description": "Score every contact by opens, clicks, and inactive-since across all campaigns. The API has no engagement-history endpoint; we synthesize it locally.",
+      "rationale": "Requires joining synced campaign contact-reports with the contacts table — an answer no single EmailOctopus endpoint returns.",
+      "example": "emailoctopus-pp-cli contacts engagement --list \u003clist_id\u003e --inactive-since 90d --json",
+      "why_it_matters": "Pick this when an agent needs to find cold subscribers, build a reactivation cohort, or score engagement without paginating every campaign report by hand.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "Cross-list duplicate finder",
+      "command": "contacts dedupe",
+      "description": "Find contacts that appear on multiple lists in the account, optionally consolidating them onto one canonical list.",
+      "rationale": "EmailOctopus contacts are list-scoped; only a local cross-list join answers 'who's on more than one list'.",
+      "example": "emailoctopus-pp-cli contacts dedupe --json",
+      "why_it_matters": "Pick this when an agent needs to clean up subscriber duplication, audit list sprawl, or plan a merge across multiple lists.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "Campaign performance digest",
+      "command": "campaigns digest",
+      "description": "One-shot campaign report combining summary, top-N links, contact-level breakdown, and per-domain opens — rendered for terminal or Markdown paste.",
+      "rationale": "Joins three real report endpoints plus a local domain breakdown so a paste-ready report comes out of a single command instead of four browser tabs.",
+      "example": "emailoctopus-pp-cli campaigns digest \u003ccampaign_id\u003e --md",
+      "why_it_matters": "Pick this when an agent needs to summarize a campaign's results for a stakeholder doc without screen-scraping the EmailOctopus dashboard.",
+      "group": "Workflow accelerators"
+    },
+    {
+      "name": "List churn diff",
+      "command": "lists diff",
+      "description": "Show contacts touched in this list since a relative time. Surfaces the change-set the API can't return — useful for incremental syncs, audit logs, or alerting on recent activity.",
+      "rationale": "The EmailOctopus API has no updated_after filter or change feed; the only way to find recently-touched contacts is to compare local synced_at timestamps against a relative cutoff.",
+      "example": "emailoctopus-pp-cli lists diff \u003clist_id\u003e --since yesterday --json",
+      "why_it_matters": "Pick this when an agent needs to see which contacts were touched in the last hour/day/week or run an incremental change-detection workflow.",
+      "group": "Local snapshots over time"
+    },
+    {
+      "name": "Tag set-algebra query",
+      "command": "tags intersect",
+      "description": "Find contacts matching boolean combinations of tags: --has trial-started --not activated returns the trial cohort that hasn't converted.",
+      "rationale": "EmailOctopus has no segmentation API; set algebra over tags requires either client-side filtering of every contact or — like we do — local SQL.",
+      "example": "emailoctopus-pp-cli tags intersect --list \u003clist_id\u003e --has trial-started --not activated --json",
+      "why_it_matters": "Pick this when an agent needs to segment subscribers by tag combinations for targeted outreach, churn reactivation, or audience reporting.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "CSV upsert with mapping",
+      "command": "contacts sync-csv",
+      "description": "Push a CSV into EmailOctopus with mapped fields and tags. Dry-runs the diff against the local store first, then chunks into batch-upsert calls paced under the rate limit.",
+      "rationale": "The native batch endpoint exists, but mapping a real CSV (Stripe export, Postgres dump, Notion table) into the right field/tag payload is hand-work today. Local-store dry-run shows the diff before any bytes hit the wire.",
+      "example": "emailoctopus-pp-cli contacts sync-csv ./subscribers.csv --list \u003clist_id\u003e --map email=Email,tag.plan=Plan --dry-run",
+      "why_it_matters": "Pick this when an agent needs to atomically sync a CSV of contacts with tag/field mapping and pre-flight the change before applying it.",
+      "group": "Workflow accelerators"
+    },
+    {
+      "name": "Rate-budgeted bulk delete",
+      "command": "contacts bulk-delete",
+      "description": "Delete many contacts matching a local predicate, paced under the 10/sec API limit with a resumable progress file.",
+      "rationale": "The EmailOctopus API has no bulk-delete endpoint; naive loops trip rate limits. Predicate resolution happens against the local store before any DELETE fires.",
+      "example": "emailoctopus-pp-cli contacts bulk-delete --list \u003clist_id\u003e --where 'status=unsubscribed' --rate 8 --dry-run",
+      "why_it_matters": "Pick this when an agent needs to clean up unsubscribed, bounced, or stale contacts in bulk without hitting 429s or losing progress mid-run.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Bulk automation trigger",
+      "command": "automations trigger-batch",
+      "description": "Queue an automation for many contacts from stdin or CSV, paced under the rate limit with retry on 429.",
+      "rationale": "The native queue endpoint accepts one contact at a time; bulk triggers from app events (trial-end, plan upgrade, win-back) require client-side fan-out with backoff.",
+      "example": "cat trial-ending.csv | emailoctopus-pp-cli automations trigger-batch \u003cautomation_id\u003e --stdin",
+      "why_it_matters": "Pick this when an agent needs to start an automation for a batch of contacts (trial-ending cohort, plan-upgrade celebration) without writing loop+backoff boilerplate.",
+      "group": "Mutation safety"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Per-contact engagement scorecard",
+      "command": "contacts engagement",
+      "description": "Score every contact by opens, clicks, and inactive-since across all campaigns. The API has no engagement-history endpoint; we synthesize it locally.",
+      "rationale": "Requires joining synced campaign contact-reports with the contacts table — an answer no single EmailOctopus endpoint returns.",
+      "example": "emailoctopus-pp-cli contacts engagement --list \u003clist_id\u003e --inactive-since 90d --json",
+      "why_it_matters": "Pick this when an agent needs to find cold subscribers, build a reactivation cohort, or score engagement without paginating every campaign report by hand.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "Cross-list duplicate finder",
+      "command": "contacts dedupe",
+      "description": "Find contacts that appear on multiple lists in the account, optionally consolidating them onto one canonical list.",
+      "rationale": "EmailOctopus contacts are list-scoped; only a local cross-list join answers 'who's on more than one list'.",
+      "example": "emailoctopus-pp-cli contacts dedupe --json",
+      "why_it_matters": "Pick this when an agent needs to clean up subscriber duplication, audit list sprawl, or plan a merge across multiple lists.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "Campaign performance digest",
+      "command": "campaigns digest",
+      "description": "One-shot campaign report combining summary, top-N links, contact-level breakdown, and per-domain opens — rendered for terminal or Markdown paste.",
+      "rationale": "Joins three real report endpoints plus a local domain breakdown so a paste-ready report comes out of a single command instead of four browser tabs.",
+      "example": "emailoctopus-pp-cli campaigns digest \u003ccampaign_id\u003e --md",
+      "why_it_matters": "Pick this when an agent needs to summarize a campaign's results for a stakeholder doc without screen-scraping the EmailOctopus dashboard.",
+      "group": "Workflow accelerators"
+    },
+    {
+      "name": "List churn diff",
+      "command": "lists diff",
+      "description": "Show contacts touched in this list since a relative time. Surfaces the change-set the API can't return — useful for incremental syncs, audit logs, or alerting on recent activity.",
+      "rationale": "The EmailOctopus API has no updated_after filter or change feed; the only way to find recently-touched contacts is to compare local synced_at timestamps against a relative cutoff.",
+      "example": "emailoctopus-pp-cli lists diff \u003clist_id\u003e --since yesterday --json",
+      "why_it_matters": "Pick this when an agent needs to see which contacts were touched in the last hour/day/week or run an incremental change-detection workflow.",
+      "group": "Local snapshots over time"
+    },
+    {
+      "name": "Tag set-algebra query",
+      "command": "tags intersect",
+      "description": "Find contacts matching boolean combinations of tags: --has trial-started --not activated returns the trial cohort that hasn't converted.",
+      "rationale": "EmailOctopus has no segmentation API; set algebra over tags requires either client-side filtering of every contact or — like we do — local SQL.",
+      "example": "emailoctopus-pp-cli tags intersect --list \u003clist_id\u003e --has trial-started --not activated --json",
+      "why_it_matters": "Pick this when an agent needs to segment subscribers by tag combinations for targeted outreach, churn reactivation, or audience reporting.",
+      "group": "Local joins the API can't do"
+    },
+    {
+      "name": "CSV upsert with mapping",
+      "command": "contacts sync-csv",
+      "description": "Push a CSV into EmailOctopus with mapped fields and tags. Dry-runs the diff against the local store first, then chunks into batch-upsert calls paced under the rate limit.",
+      "rationale": "The native batch endpoint exists, but mapping a real CSV (Stripe export, Postgres dump, Notion table) into the right field/tag payload is hand-work today. Local-store dry-run shows the diff before any bytes hit the wire.",
+      "example": "emailoctopus-pp-cli contacts sync-csv ./subscribers.csv --list \u003clist_id\u003e --map email=Email,tag.plan=Plan --dry-run",
+      "why_it_matters": "Pick this when an agent needs to atomically sync a CSV of contacts with tag/field mapping and pre-flight the change before applying it.",
+      "group": "Workflow accelerators"
+    },
+    {
+      "name": "Rate-budgeted bulk delete",
+      "command": "contacts bulk-delete",
+      "description": "Delete many contacts matching a local predicate, paced under the 10/sec API limit with a resumable progress file.",
+      "rationale": "The EmailOctopus API has no bulk-delete endpoint; naive loops trip rate limits. Predicate resolution happens against the local store before any DELETE fires.",
+      "example": "emailoctopus-pp-cli contacts bulk-delete --list \u003clist_id\u003e --where 'status=unsubscribed' --rate 8 --dry-run",
+      "why_it_matters": "Pick this when an agent needs to clean up unsubscribed, bounced, or stale contacts in bulk without hitting 429s or losing progress mid-run.",
+      "group": "Mutation safety"
+    },
+    {
+      "name": "Bulk automation trigger",
+      "command": "automations trigger-batch",
+      "description": "Queue an automation for many contacts from stdin or CSV, paced under the rate limit with retry on 429.",
+      "rationale": "The native queue endpoint accepts one contact at a time; bulk triggers from app events (trial-end, plan upgrade, win-back) require client-side fan-out with backoff.",
+      "example": "cat trial-ending.csv | emailoctopus-pp-cli automations trigger-batch \u003cautomation_id\u003e --stdin",
+      "why_it_matters": "Pick this when an agent needs to start an automation for a batch of contacts (trial-ending cohort, plan-upgrade celebration) without writing loop+backoff boilerplate.",
+      "group": "Mutation safety"
+    }
+  ],
+  "narrative": {
+    "display_name": "EmailOctopus",
+    "headline": "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API can't do on its own.",
+    "value_prop": "EmailOctopus is the only major email-marketing platform whose free tier includes API access — but until now no maintained v2 CLI or SDK existed. This CLI ships all 25 endpoints with --json, --select, --csv, --dry-run, plus a local SQLite store that powers cross-list dedupe, per-contact engagement scoring, list churn diffs over time, and rate-budgeted bulk delete.",
+    "auth_narrative": "Generate a v2 key at https://api.emailoctopus.com/developer/api-keys/create and export it as `EMAILOCTOPUS_API_KEY`. Keys created before October 2024 are v1-only and will return 401 against the v2 API — regenerate if you see auth errors.",
+    "quickstart": [
+      {
+        "command": "emailoctopus-pp-cli doctor",
+        "comment": "Verify auth and reachability before doing anything else."
+      },
+      {
+        "command": "emailoctopus-pp-cli lists list --json",
+        "comment": "Inventory your lists and grab the list_id you'll use below."
+      },
+      {
+        "command": "emailoctopus-pp-cli sync --full",
+        "comment": "Pull every list, contact, tag, field, and campaign into the local SQLite store."
+      },
+      {
+        "command": "emailoctopus-pp-cli contacts engagement --list \u003clist_id\u003e --inactive-since 90d --json",
+        "comment": "Surface cold subscribers — the API has no equivalent."
+      },
+      {
+        "command": "emailoctopus-pp-cli campaigns digest \u003ccampaign_id\u003e --md",
+        "comment": "Paste-ready campaign report in one command."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any v2 endpoint",
+        "fix": "Your API key was minted before October 2024. Regenerate it at https://api.emailoctopus.com/developer/api-keys/create and re-export EMAILOCTOPUS_API_KEY."
+      },
+      {
+        "symptom": "429 rate-limited during a bulk loop",
+        "fix": "Use `contacts bulk-delete --rate 8` or `automations trigger-batch` — both pace under the documented 10 req/sec budget and respect the X-RateLimit-Retry-After header."
+      },
+      {
+        "symptom": "`contacts engagement` returns empty results",
+        "fix": "Run `emailoctopus-pp-cli sync --full` first. Engagement scoring joins local campaign-report tables that only populate after sync."
+      },
+      {
+        "symptom": "`contacts sync-csv` shows the wrong mapping",
+        "fix": "Always run with `--dry-run` first; the dry-run diff against the local store shows exactly which contacts will be created, updated, or no-op'd before any API call fires."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs the full EmailOctopus v2 surface — lists, contacts, tags, custom fields, campaign reports, and automation triggers — plus the local-join queries the hosted API can't answer (cross-list duplicates, per-contact engagement scoring, list churn since the last snapshot, tag set-algebra). Especially valuable for indie newsletter operators, small-SaaS growth engineers, and agencies running many client lists, since it works offline once synced and paces all mutations under the documented 10 req/sec rate limit.",
+    "recipes": [
+      {
+        "title": "Find cold subscribers across a list",
+        "command": "emailoctopus-pp-cli contacts engagement --list \u003clist_id\u003e --inactive-since 90d --json --select email_address,last_engaged_at,opens,clicks",
+        "explanation": "Joins synced contacts with all campaign contact-reports to surface anyone who hasn't opened or clicked in 90 days. The --select narrows the response to just the fields an agent needs, dropping the ~10KB of nested per-campaign detail."
+      },
+      {
+        "title": "Generate a paste-ready campaign report",
+        "command": "emailoctopus-pp-cli campaigns digest \u003ccampaign_id\u003e --md",
+        "explanation": "One command renders summary metrics, top-clicked links, per-domain opens, and unsubscribe breakdown as Markdown — paste straight into Notion or a stakeholder doc."
+      },
+      {
+        "title": "Find contacts on more than one list",
+        "command": "emailoctopus-pp-cli contacts dedupe --json",
+        "explanation": "Local SQL groups contacts by lowercased email across every synced list, returning the duplicates with their list memberships. Useful before consolidating lists or auditing subscriber sprawl."
+      },
+      {
+        "title": "Segment by tag set-algebra",
+        "command": "emailoctopus-pp-cli tags intersect --list \u003clist_id\u003e --has trial-started --not activated --json",
+        "explanation": "Returns the contacts tagged trial-started but not activated — the cohort that's still in trial but hasn't converted. EmailOctopus has no native segmentation API."
+      },
+      {
+        "title": "Bulk delete with a safety net",
+        "command": "emailoctopus-pp-cli contacts bulk-delete --where status=unsubscribed --list c81c21ca-51cc-11f1-ad3e-ffeba75576ac --rate 8 --dry-run",
+        "explanation": "Resolves the predicate against the local store and shows what would be deleted. Drop --dry-run to actually delete, paced at 8 req/sec under the 10/sec API limit, with a resumable progress file in case the run is interrupted."
+      },
+      {
+        "title": "Diff a list to see what changed",
+        "command": "emailoctopus-pp-cli lists diff \u003clist_id\u003e --since yesterday --json",
+        "explanation": "Compares the current state to yesterday's sync snapshot. Classifies contacts as added, removed, status-changed, or tag-changed — the change feed the API doesn't provide."
+      }
+    ],
+    "trigger_phrases": [
+      "manage my EmailOctopus list",
+      "sync subscribers to EmailOctopus",
+      "EmailOctopus campaign report",
+      "find cold subscribers",
+      "dedupe my email lists",
+      "use emailoctopus",
+      "run emailoctopus"
+    ]
+  }
+}

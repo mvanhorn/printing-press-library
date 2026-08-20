@@ -1,0 +1,115 @@
+{
+  "api_name": "trustpilot",
+  "base_url": "https://www.trustpilot.com",
+  "description": "Pull Trustpilot reviews into a local store, with a balanced good-and-bad agent bundle for last30days-style enrichment",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/json"
+    },
+    {
+      "name": "x-nextjs-data",
+      "value": "1"
+    }
+  ],
+  "tools": [
+    {
+      "name": "companies_search",
+      "description": "Search for companies matching a name; returns identifyingName domains usable with reviews fetch. Required: search_build_id, query.",
+      "method": "GET",
+      "path": "/_next/data/{search_build_id}/search.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search_build_id",
+          "type": "string",
+          "location": "path",
+          "description": "Next.js search-pages build id",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Company name or fragment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "Fetch a page of reviews for a company by domain (use 'reviews fetch \u003cdomain\u003e' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login. Required: review_build_id, domain, businessUnit. Optional: page (default: 1), stars, languages (plus 3 more). Returns the ReviewPage.",
+      "method": "GET",
+      "path": "/_next/data/{review_build_id}/review/{domain}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "review_build_id",
+          "type": "string",
+          "location": "path",
+          "description": "Next.js review-pages build id (harvested at session start)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Trustpilot company domain (e.g. www.thriftbooks.com)",
+          "required": true
+        },
+        {
+          "name": "businessUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Same as domain; Trustpilot wire param",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (20 reviews per page)"
+        },
+        {
+          "name": "stars",
+          "type": "int",
+          "location": "query",
+          "description": "Filter to a specific star rating (1-5)"
+        },
+        {
+          "name": "languages",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 639-1 language code (e.g. en)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: recency or relevance"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date window: last30days, last3months, last6months, last12months"
+        },
+        {
+          "name": "verified",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to verified reviews only"
+        }
+      ]
+    }
+  ]
+}

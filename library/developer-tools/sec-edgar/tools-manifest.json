@@ -1,0 +1,144 @@
+{
+  "api_name": "sec-edgar",
+  "base_url": "https://data.sec.gov",
+  "description": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "User-Agent",
+    "in": "header",
+    "env_vars": [
+      "SEC_EDGAR_USER_AGENT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SEC_EDGAR_USER_AGENT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.sec.gov/os/accessing-edgar-data"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "companies_tickers",
+      "description": "Full ticker-to-CIK map for every public-equity issuer with a listed ticker (~10k entries).",
+      "method": "GET",
+      "path": "/files/company_tickers.json",
+      "params": []
+    },
+    {
+      "name": "companies_tickers_exchange",
+      "description": "Ticker-to-CIK map keyed by exchange (Nasdaq, NYSE, etc.).",
+      "method": "GET",
+      "path": "/files/company_tickers_exchange.json",
+      "params": []
+    },
+    {
+      "name": "companies_tickers_mf",
+      "description": "Mutual fund ticker-to-CIK map (one row per share class).",
+      "method": "GET",
+      "path": "/files/company_tickers_mf.json",
+      "params": []
+    },
+    {
+      "name": "facts_company",
+      "description": "Get all XBRL facts for a company across every reporting period. Required: cik.",
+      "method": "GET",
+      "path": "/api/xbrl/companyfacts/CIK{cik}.json",
+      "params": [
+        {
+          "name": "cik",
+          "type": "string",
+          "location": "path",
+          "description": "10-digit zero-padded CIK",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facts_frame",
+      "description": "Get one XBRL concept value reported by every public filer for one period (cross-company slice). Required: taxonomy, tag, unit, period.",
+      "method": "GET",
+      "path": "/api/xbrl/frames/{taxonomy}/{tag}/{unit}/{period}.json",
+      "params": [
+        {
+          "name": "taxonomy",
+          "type": "string",
+          "location": "path",
+          "description": "Taxonomy: us-gaap, dei, ifrs-full, srt",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "XBRL element name",
+          "required": true
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "path",
+          "description": "Unit of measure: USD, USD/shares, shares, pure, etc.",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "path",
+          "description": "Period code: CY2024Q1I (instantaneous), CY2024Q1 (quarterly average), CY2024 (annual)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facts_get",
+      "description": "Get a single XBRL concept time series for one company (one tag across all of its filings). Required: cik, taxonomy, tag.",
+      "method": "GET",
+      "path": "/api/xbrl/companyconcept/CIK{cik}/{taxonomy}/{tag}.json",
+      "params": [
+        {
+          "name": "cik",
+          "type": "string",
+          "location": "path",
+          "description": "10-digit zero-padded CIK",
+          "required": true
+        },
+        {
+          "name": "taxonomy",
+          "type": "string",
+          "location": "path",
+          "description": "Taxonomy: us-gaap, dei, ifrs-full, srt",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "XBRL element name (e.g., Revenues, OperatingIncomeLoss, AccountsPayableCurrent)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_get",
+      "description": "Get full submissions history for a filer by 10-digit zero-padded CIK. Required: cik.",
+      "method": "GET",
+      "path": "/submissions/CIK{cik}.json",
+      "params": [
+        {
+          "name": "cik",
+          "type": "string",
+          "location": "path",
+          "description": "10-digit zero-padded Central Index Key (e.g. 0000320193 for Apple)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T09:18:54.292097Z",
+  "printing_press_version": "4.13.1",
+  "api_name": "ucp",
+  "display_name": "UCP",
+  "cli_name": "ucp-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "david"
+  },
+  "owner": "beetz12",
+  "printer": "beetz12",
+  "printer_name": "david",
+  "spec_path": "https://developers.google.com/merchant/ucp",
+  "run_id": "20260524-004358",
+  "category": "commerce",
+  "description": "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP, search across them in parallel, build carts, and prep checkout drafts that an AP2 CLI can authorize.",
+  "mcp_binary": "ucp-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "UCP merchant manifest validator",
+      "command": "check",
+      "description": "Fetch `/.well-known/ucp` for any domain and return a graded report covering schema validity, advertised transports, and capability coverage — works against any merchant publishing a UCP manifest, including MCP-only Shopify-hosted stores."
+    },
+    {
+      "name": "Bundled pure-Go mock UCP merchant",
+      "command": "mock serve",
+      "description": "Spawn a UCP-compliant reference merchant locally (pure-Go, no external runtime) so `ucp check`, `search`, `cart`, and `checkout prep` flows work end-to-end without a third-party UCP merchant or extra language toolchains."
+    }
+  ]
+}

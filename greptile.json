@@ -1,0 +1,84 @@
+{
+  "statusCheck": true,
+  "triggerOnUpdates": true,
+  "customContext": {
+    "files": [
+      {
+        "scope": ["library/**/.printing-press.json", "library/**", "registry.json", "cli-skills/**"],
+        "path": "AGENTS.md"
+      }
+    ],
+    "rules": [
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is added, the directory containing it must be named with the slug only — e.g. library/<cat>/<slug>/, never library/<cat>/<slug>-pp-cli/ or library/<cat>/<slug>-pp-mcp/. The -pp-cli / -pp-mcp infix belongs to binary names, not directory names. Flag any directory whose name ends in -pp-cli or -pp-mcp."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is added, it must declare api_name matching the directory slug, cli_name matching cmd/<cli_name>/main.go, a non-empty run_id with a matching .manuscripts/<run_id>/ directory, a printer that is not USER/unknown/changeme, a non-empty printing_press_version, and a non-empty novel_features array. Flag any of these missing on a new submission."
+      },
+      {
+        "scope": ["cli-skills/pp-*/SKILL.md", "registry.json"],
+        "rule": "These files are auto-regenerated post-merge by tools/generate-skills/ and tools/generate-registry/. A PR that hand-edits them in the same change as adding library/<cat>/<slug>/.printing-press.json indicates the author is bypassing the printing-press publish flow. Flag and recommend re-running /printing-press."
+      },
+      {
+        "scope": ["cli-skills/pp-*/SKILL.md"],
+        "rule": "P0. cli-skills/pp-*/SKILL.md is a verbatim bot-regenerated mirror of library/<category>/<slug>/SKILL.md. Any commit authored by a human or coding-agent that modifies a file under cli-skills/pp-*/SKILL.md is silently overwritten on the next regen (post-merge by generate-skills.yml, on-PR by the parity step in verify-library-conventions.yml) and produces needless merge conflicts in the meantime — exactly what burned PR #454. Flag every non-bot commit that touches cli-skills/pp-*/SKILL.md, regardless of whether the content happens to match what regeneration would produce: the auto-fix step covers correctness, not author behavior. The fix is to drop the cli-skills/ changes from the diff entirely and edit library/<category>/<slug>/SKILL.md instead; the post-merge regen will update the mirror after the library change lands. The repo also enforces this via the Guard against hand-edits to cli-skills mirror step in verify-library-conventions.yml and the cli-skills/AGENTS.md file."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "For PRs adding this manifest, the branch name must be exactly feat/<slug> and the PR title must be exactly feat(<slug>): add <slug>. Flag titles like feat(library): add <slug>, feat(<slug>): add <slug> — <description>, branches like add-<slug>, and Co-Authored-By or 🤖 Generated with Claude Code trailers."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "For PRs adding this manifest, the PR body must follow the publish-skill template: ## <slug> heading, **API:** … | **Category:** … | **Press version:** … line, **Spec:** line, ### CLI Shape with --help output, ### What This CLI Does, ### Manuscripts, ### Validation Results table, optionally ### Publication Path / ### Novel Commands / ### Gaps. Flag bodies that use generic ## Summary / ## Why This Matters / ## What It Does / ## Endpoints / ## Test plan templates instead."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. A workflow that combines a pull_request_target trigger with a checkout step whose ref points at PR-head code (github.event.pull_request.head.sha, github.event.pull_request.head.ref, or refs/pull/<n>/merge) is the TanStack mini-Shai-Hulud attack shape — head code runs with base-context secrets and OIDC tokens, which attackers exfiltrate from runner memory. The repo's existing pull_request_target workflows (greptile-policy-gate.yml) make API calls only and do not check out PR head; new workflows must follow that posture. Flag any new pull_request_target workflow that overrides the checkout ref. Recommend switching to pull_request, or removing the ref override so checkout defaults to the base commit."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. id-token: write mints OIDC tokens consumers use to publish to npm, AWS, Sigstore, etc. It must appear only in workflows that actually publish. In this repo the sole allowlist entry is .github/workflows/npm-publish.yml (OIDC Trusted Publishing for @mvanhorn/printing-press). Any new workflow granting id-token: write outside that allowlist is the TanStack OIDC-theft attack shape. Flag and recommend either removing the permission or consolidating publishing logic into the allowlisted workflow."
+      },
+      {
+        "scope": ["library/**/go.mod"],
+        "rule": "P0 for remote targets; P1 for local. A new `replace` directive in a library CLI's go.mod can silently redirect every `go install` consumer (BufferZoneCorp attack shape). Two tiers: targets pointing at a URL or remote module path (github.com/..., gitlab.com/..., https://..., any host segment with a dot) are P0 — block until reverted or explicitly justified. Targets pointing at a local path (./..., ../...) are P1 advisory — legitimate vendoring exists in this repo (library/food-and-dining/ordertogo/go.mod has three local-vendoring replaces) but every new local replace deserves a sanity check that the local target is also checked into the PR and recorded in .printing-press-patches.json."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. Setting GOPROXY, GOFLAGS, GONOSUMCHECK, GOSUMDB, or GONOSUMDB inside a workflow env block (workflow, job, or step level) lets PR authors redirect Go module resolution to an attacker proxy or suppress checksum verification (BufferZoneCorp attack shape). The repo does not use any of these overrides on origin/main as of 2026-05-17; new ones are forward-looking attack vectors. Flag any addition and recommend configuring private proxies at the org/runner level under operator review instead."
+      },
+      {
+        "scope": ["npm/package.json"],
+        "rule": "P0. Adding preinstall, postinstall, or prepare scripts to npm/package.json is the Axios and TanStack attack shape — lifecycle hooks fire on every `npm install` and `npx -y @mvanhorn/printing-press install ...` invocation, running attacker code in user shells. The npm wrapper's existing scripts (build, clean, test, prepublishOnly) are all CI-only and unaffected. Flag any new lifecycle script and recommend moving build logic to CI, not user-machine install hooks."
+      },
+      {
+        "scope": ["library/**/go.mod"],
+        "rule": "P0. The `module` directive in library/<cat>/<slug>/go.mod is the canonical module path used by `go install` and the registry generator. ANY change to an existing CLI's module directive should block, whether it drifts outside the canonical prefix github.com/mvanhorn/printing-press-library/library/ (the original BufferZoneCorp redirect-to-attacker-fork shape) OR stays within the canonical prefix as a rename (e.g., kalshi → kalshi-evil — still redirects `go install` for users pinned to the old slug). Renaming or moving a published CLI is a generator-pipeline operation, not a manual go.mod edit. Flag any module-directive change on an existing CLI. New CLIs must still use the canonical prefix."
+      },
+      {
+        "scope": ["library/**/internal/**/*.go", "library/**/cmd/**/*.go"],
+        "rule": "Judge whether the CLI's purpose plausibly explains any credential-path read. Patterns to weigh: literal strings or os.Getenv calls for ~/.aws, ~/.ssh, ~/.kube, ~/.claude, ~/.vscode (the node-ipc and TanStack persistence/exfil paths), or env vars AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, ACTIONS_ID_TOKEN_REQUEST_URL, GITHUB_TOKEN, NPM_TOKEN. A CLI named aws-* reading .aws/credentials is fine; a weather or trade-tracker CLI doing the same is the node-ipc credential-harvesting shape. Flag P0 when the read is incongruous with the CLI's documented purpose (read SKILL.md, README.md, and .printing-press.json display_name to judge). No CLI in this catalog should write to ~/.claude/ or ~/.vscode/ — those were the TanStack persistence sinks; flag any write there regardless of CLI purpose."
+      },
+      {
+        "scope": ["library/**/internal/**/*.go", "library/**/cmd/**/*.go"],
+        "rule": "P1. When a PR modifies the Go source of an ALREADY-PUBLISHED CLI (its .printing-press.json exists on the base branch — not a new-CLI add, not a full reprint), the same PR must record the customization in that CLI's patches index: a new or extended .printing-press-patches/<id>.json (preferred form) or a new entry in the legacy .printing-press-patches.json. This is the AGENTS.md contract under '.printing-press-patches/ records library-side customizations'. CI does NOT enforce accrual — verify_publish_package.py validates only patch-file shape, deliberately deferring accrual to code review — so this rule IS that enforcement. Flag any PR that changes internal/**/*.go or cmd/**/*.go for an existing CLI with no patches-index file added or modified in the same diff (the granola PR #1022 miss; flight-goat PR #1008 did this correctly). Carve-outs: bot/regen commits, full reprints (most files in the CLI dir regenerated), and comment-only or formatting-only edits. Recommend the entry be written as a durable reprint-guard — the lesson a future regen must preserve — not a diff replay of the commit."
+      },
+      {
+        "scope": ["library/**/.printing-press.json", "library/**/internal/**/*.go", "library/**/cmd/**/*.go", "library/**/README.md", "library/**/NOTICE"],
+        "rule": "P2. Contributor attribution must stay in sync across three surfaces: contributors[] in .printing-press.json, the README byline ('Contributors: [@handle](url) (Name).' under 'Created by …'), and NOTICE (a 'Contributors:' block). Flag two failure modes: (a) a PR adds or changes contributors[] but does not update the matching README byline and NOTICE lines — the manifest-only divergence that slipped through on granola #1022 and flight-goat #1008; (b) a substantive change to a published CLI's internal/**/cmd/** source by an author who is neither the creator nor already listed in contributors[] lands with no contributors[] addition at all. AGENTS.md requires self-accrual on every fix/improvement and notes that 'cli-printing-press contributors add' writes only the manifest, so the README byline and NOTICE need a 'tools/sweep-canonical -readme-only' run or a hand-edit. Skip bot/regen commits, creator-authored changes, and trivial edits. Advisory: recommend the fix, do not block merge."
+      }
+    ],
+    "other": [
+      {
+        "scope": ["library/**/.manuscripts/**"],
+        "rule": "When a PR adds .manuscripts/<run-id>/research/ and .manuscripts/<run-id>/proofs/ files for a new library/<cat>/<slug>/ directory, judge whether the files contain real research output (API endpoints discussed, generation decisions documented, dogfood/shipcheck evidence with concrete numbers and command output) or whether they are stubs / placeholders / single-paragraph summaries. Stub manuscripts strongly suggest the author hand-built the tree without running the printing-press generator and dropped a sketch into .manuscripts/ to satisfy CI's file-existence check. Flag and recommend re-running /printing-press end-to-end."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is modified (not added) and printing_press_version changed, judge whether the surrounding diff looks like a full reprint (most files in the same library/<cat>/<slug>/ regenerated, fresh .manuscripts/<run-id>/ directory, dogfood-results.json updated) or just a metadata fix (one or two field tweaks only). If the diff looks like a reprint, apply the same expectations as a new-CLI PR: feat/<slug> branch, feat(<slug>): add <slug> title, validation-table-bearing PR body, populated manuscripts. Flag reprints that drop any of these. Do not flag genuine metadata-only fixes."
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "tidycal-pp-mcp",
+  "display_name": "TidyCal",
+  "version": "4.19.0",
+  "description": "Scheduling and booking API for meetings, contacts, booking types, and team calendars.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tidycal-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tidycal-pp-mcp",
+      "args": [],
+      "env": {
+        "TIDYCAL_API_TOKEN": "${user_config.tidycal_api_token}",
+        "TIDYCAL_BEARER_AUTH": "${user_config.tidycal_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "tidycal_api_token": {
+      "type": "string",
+      "title": "TIDYCAL_API_TOKEN",
+      "description": "Optional. Sets TIDYCAL_API_TOKEN for the TidyCal MCP server. Get a credential from https://tidycal.com/integrations/oauth.",
+      "sensitive": true
+    },
+    "tidycal_bearer_auth": {
+      "type": "string",
+      "title": "TIDYCAL_BEARER_AUTH",
+      "description": "Optional. Sets TIDYCAL_BEARER_AUTH for the TidyCal MCP server. Get a credential from https://tidycal.com/integrations/oauth.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

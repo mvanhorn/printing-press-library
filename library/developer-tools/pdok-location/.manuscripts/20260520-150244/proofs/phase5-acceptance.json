@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "pdok-location",
+  "run_id": "20260520-150244",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 128,
+  "tests_passed": 128,
+  "tests_skipped": 65,
+  "auth_context": {
+    "type": "none"
+  }
+}

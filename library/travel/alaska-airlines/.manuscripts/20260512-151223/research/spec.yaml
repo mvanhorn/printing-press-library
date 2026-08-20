@@ -1,0 +1,174 @@
+# Alaska Airlines CLI — Internal Spec
+# Captured via CDP browser-sniff 2026-05-12. See discovery/browser-sniff-report.md.
+
+name: alaska-airlines
+display_name: Alaska Airlines
+description: Search Alaska Airlines flights, manage Atmos Rewards, prepare bookings for one-click checkout in your browser. Reverse-engineered from alaskaair.com — single static Go binary, offline SQLite, agent-native.
+
+base_url: https://www.alaskaair.com
+
+cli_description: Alaska Airlines flight search, Atmos Rewards, and pre-checkout deeplink booking - all from the terminal, offline-cached, agent-native.
+
+auth:
+  type: composed
+  cookie_domain: alaskaair.com
+  cookies:
+    - AS_ACNT
+    - AS_NAME
+    - guestsession
+    - guestidentity
+    - ASSession
+    - ASSessionSSL
+    - as_pers
+  refresh_endpoint: /account/token
+  jwt_lifetime_seconds: 1800
+  description: |
+    Auth uses cookies extracted from your logged-in Chrome session at alaskaair.com.
+    The primary Auth0 JWT lives inside the `guestsession` cookie's AccessToken field;
+    it expires every 30 minutes and is refreshed by calling /account/token (cookies
+    auto-rotate). Run `alaska-airlines-pp-cli auth login --chrome` to import cookies
+    once; future commands replay them via Surf (browser-fingerprint HTTP).
+
+http_transport: browser-chrome
+
+resources:
+  airports:
+    description: Airport lookup, codeshare partner info, and full catalog
+    endpoints:
+      list:
+        method: GET
+        path: /search/api/citySearch/getAllAirports
+        no_auth: true
+        description: Full Alaska Airlines + codeshare airport list (IATA + city + region + lat/lon)
+      get:
+        method: GET
+        path: /search/api/citySearch/lookup/codeshare/{code}
+        no_auth: true
+        description: Get airport details by IATA code, including codeshare carrier coverage
+        params:
+          - name: code
+            in: path
+            flag_name: iata
+            description: IATA airport code (e.g. SFO, SEA, HNL)
+            required: true
+
+  flights:
+    description: Search Alaska Airlines flights with pricing, fare classes, and flexible-date matrices
+    endpoints:
+      search:
+        method: GET
+        path: /search/results/__data.json
+        no_auth: true
+        response_format: json
+        description: Search flights between two airports for given dates and passenger mix. Returns the fare matrix per flight per cabin class (Saver / Main / Premium / First).
+        params:
+          - name: O
+            in: query
+            flag_name: origin
+            description: Origin IATA code (e.g. SFO)
+            required: true
+          - name: D
+            in: query
+            flag_name: destination
+            description: Destination IATA code (e.g. SEA)
+            required: true
+          - name: OD
+            in: query
+            flag_name: depart
+            description: Outbound date YYYY-MM-DD
+            required: true
+          - name: DD
+            in: query
+            flag_name: return
+            description: Return date YYYY-MM-DD (omit for one-way)
+            required: false
+          - name: A
+            in: query
+            flag_name: adults
+            description: Adult passenger count
+            required: false
+            default: 1
+          - name: C
+            in: query
+            flag_name: children
+            description: Child passenger count
+            required: false
+            default: 0
+          - name: L
+            in: query
+            flag_name: lap-infants
+            description: Lap-infant count
+            required: false
+            default: 0
+          - name: RT
+            in: query
+            flag_name: round-trip
+            description: true for round-trip, false for one-way
+            required: false
+            default: true
+          - name: locale
+            in: query
+            description: Locale string
+            required: false
+            default: en-us
+      shoulder_dates:
+        method: POST
+        path: /search/api/shoulderDates
+        no_auth: true
+        description: Flexible-date pricing matrix — get fares for dates near your target
+      get_features:
+        method: POST
+        path: /search/api/getFeatures/false
+        description: Feature flags scoped to a user
+      et_info:
+        method: GET
+        path: /search/api/etinfo
+        description: Electronic ticket info / general metadata
+      business:
+        method: GET
+        path: /search/api/alaskaForBusiness
+        description: Alaska for Business program metadata
+
+  cart:
+    description: View cart contents (deeplinked itinerary in flight)
+    endpoints:
+      view:
+        method: GET
+        path: /search/cart/__data.json
+        response_format: json
+        description: Cart state for a constructed itinerary deeplink
+
+  atmos_rewards:
+    description: Atmos Rewards loyalty program account data
+    endpoints:
+      balance:
+        method: GET
+        path: /1/marketing/loyaltymanagement/wallet/wallet/balance
+        base_url: https://apis.alaskaair.com
+        description: Current Atmos Rewards points balance
+        params:
+          - name: mileagePlanNumber
+            in: query
+            flag_name: member
+            description: Atmos Rewards member number
+            required: true
+      token_refresh:
+        method: GET
+        path: /atmosrewards/account/token
+        description: Refresh Atmos Rewards token via cookie session
+
+  account:
+    description: Login status, session tokens
+    endpoints:
+      login_status:
+        method: GET
+        path: /services/v1/myaccount/getloginstatus
+        description: Check if current cookie session is authenticated
+      token:
+        method: GET
+        path: /account/token
+        description: Refresh primary session JWT
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code

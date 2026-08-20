@@ -1,0 +1,65 @@
+{
+  "api_name": "gisis",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "category": "other",
+  "cli_name": "gisis-pp-cli",
+  "description": "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+  "display_name": "GISIS",
+  "generated_at": "2026-05-30T14:30:07.986316Z",
+  "mcp_binary": "gisis-pp-mcp",
+  "mcp_ready": "partial",
+  "mcp_tool_count": 1,
+  "novel_features": [
+    {
+      "name": "Batch IMO lookup with throttled persistence",
+      "command": "ship batch",
+      "description": "Resolve a list of IMOs in one invocation, honoring the 1 req/2-3s throttle and persisting each to the local cache."
+    },
+    {
+      "name": "Local cache browse with FTS",
+      "command": "ship list",
+      "description": "Browse vessels you have already fetched, with filters on flag/owner/type and full-text search on name/owner."
+    },
+    {
+      "name": "Watchlist with selective refresh",
+      "command": "ship pin",
+      "description": "Pin vessels for an active deal or story, then refresh only the pinned ones at a chosen cadence."
+    },
+    {
+      "name": "Cross-snapshot ship history (flag-hop detector)",
+      "command": "ship history",
+      "description": "Show how a vessel's particulars have changed across snapshots \u2014 flag, name, owner, operator, classification society, status."
+    },
+    {
+      "name": "Stale-cache report",
+      "command": "ship stale",
+      "description": "List cached vessels whose particulars haven't been refreshed in N days."
+    },
+    {
+      "name": "Owner-fleet listing from accumulated cache",
+      "command": "owner fleet",
+      "description": "List every cached vessel for a given owner string (the Companies module isn't in v1)."
+    },
+    {
+      "name": "Session liveness ping",
+      "command": "auth ping",
+      "description": "Single fast GET to /Public/SHIPS/Default.aspx; exits 0 if session is live, non-zero if re-login needed."
+    }
+  ],
+  "owner": "user",
+  "printer": "6myfzqx6bv-ctrl",
+  "printer_name": "ivory_elephant",
+  "printing_press_version": "4.18.1",
+  "run_id": "20260527-211808",
+  "schema_version": 1,
+  "spec_checksum": "sha256:10c26cbe681137c03847fe16c3564cd75afeae2d494941dcd2eba9066739daa9",
+  "spec_format": "internal",
+  "spec_path": "gisis-spec.yaml",
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
+}

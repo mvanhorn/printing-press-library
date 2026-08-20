@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "doctor-per-source-probes",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-150244",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Extended doctor.go to add a `sources` block in the report with explicit per-upstream probes for Locatieserver (`/free?q=...`) and Kadaster Location API (`/conformance`), each with status, base path, role, and impact-on-failure.",
+  "reason": "The base-URL probe (`GET /`) doesn't distinguish which of the two PDOK services is up. When one upstream is degraded the user needs to know which commands still work. The new `doctor --json` output exposes `sources.locatieserver` and `sources.kadaster_location_api` keys so agents can reason about partial availability.",
+  "files": [
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "`pdok-location-pp-cli doctor --json` includes per-source status, role, and impact strings."
+}

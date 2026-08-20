@@ -1,0 +1,388 @@
+openapi: 3.0.3
+info:
+  title: Ollama Cloud
+  version: "1.0.0"
+  description: |
+    Ollama Cloud is Ollama's hosted inference API. Supports OpenAI-compatible endpoints at `/v1/*`
+    and native Ollama endpoints at `/api/*`. Models include Qwen3, GPT-OSS, DeepSeek-V3, Kimi-K2,
+    GLM, Llama, Gemma, and growing.
+
+    Authentication: bearer token via `OLLAMA_CLOUD_API_KEY` (intentionally distinct from any local
+    Ollama daemon env var). Free tier is rate-limited weekly; 429 responses surface the upgrade path.
+
+servers:
+  - url: https://ollama.com
+    description: Ollama Cloud production
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+      x-auth-env-vars:
+        - OLLAMA_CLOUD_API_KEY
+  schemas:
+    Model:
+      type: object
+      properties:
+        name: { type: string, example: "qwen3-coder:480b" }
+        model: { type: string, example: "qwen3-coder:480b" }
+        modified_at: { type: string, format: date-time }
+        size: { type: integer, format: int64 }
+        digest: { type: string }
+        details:
+          type: object
+          properties:
+            parent_model: { type: string }
+            format: { type: string }
+            family: { type: string }
+            families:
+              type: array
+              items: { type: string }
+            parameter_size: { type: string }
+            quantization_level: { type: string }
+    TagsResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items: { $ref: '#/components/schemas/Model' }
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role: { type: string, enum: [system, user, assistant, tool] }
+        content: { type: string }
+        images:
+          type: array
+          items: { type: string, description: base64-encoded image }
+        tool_calls:
+          type: array
+          items: { type: object }
+    ChatOptions:
+      type: object
+      description: Generation parameters
+      properties:
+        temperature: { type: number, format: float, example: 0.7 }
+        top_p: { type: number, format: float, example: 0.9 }
+        top_k: { type: integer, example: 40 }
+        num_predict: { type: integer, description: max output tokens, example: 1024 }
+        num_ctx: { type: integer, description: context window, example: 8192 }
+        seed: { type: integer }
+        stop:
+          type: array
+          items: { type: string }
+    ChatRequest:
+      type: object
+      required: [model, messages]
+      properties:
+        model: { type: string, example: "qwen3-coder:480b" }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/ChatMessage' }
+        stream: { type: boolean, default: false }
+        format:
+          oneOf:
+            - { type: string, enum: [json] }
+            - { type: object }
+        options: { $ref: '#/components/schemas/ChatOptions' }
+        keep_alive: { type: string, example: "5m" }
+        tools:
+          type: array
+          items: { type: object }
+    ChatResponse:
+      type: object
+      properties:
+        model: { type: string }
+        created_at: { type: string, format: date-time }
+        message: { $ref: '#/components/schemas/ChatMessage' }
+        done: { type: boolean }
+        total_duration: { type: integer, format: int64 }
+        load_duration: { type: integer, format: int64 }
+        prompt_eval_count: { type: integer }
+        prompt_eval_duration: { type: integer, format: int64 }
+        eval_count: { type: integer }
+        eval_duration: { type: integer, format: int64 }
+    EmbeddingsRequest:
+      type: object
+      required: [model, prompt]
+      properties:
+        model: { type: string, example: "embeddinggemma" }
+        prompt: { type: string, example: "the quick brown fox" }
+        options: { $ref: '#/components/schemas/ChatOptions' }
+        keep_alive: { type: string }
+    EmbeddingsResponse:
+      type: object
+      properties:
+        embedding:
+          type: array
+          items: { type: number, format: double }
+    ShowRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, example: "qwen3-coder:480b" }
+        verbose: { type: boolean, default: false }
+    ShowResponse:
+      type: object
+      properties:
+        modelfile: { type: string }
+        parameters: { type: string }
+        template: { type: string }
+        details: { type: object }
+        model_info: { type: object }
+        capabilities:
+          type: array
+          items: { type: string, example: "tools" }
+    PsResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              model: { type: string }
+              size: { type: integer, format: int64 }
+              digest: { type: string }
+              expires_at: { type: string, format: date-time }
+              size_vram: { type: integer, format: int64 }
+    OpenAIModel:
+      type: object
+      properties:
+        id: { type: string, example: "qwen3-coder:480b" }
+        object: { type: string, example: "model" }
+        created: { type: integer, format: int64 }
+        owned_by: { type: string, example: "ollama" }
+    OpenAIModelsResponse:
+      type: object
+      properties:
+        object: { type: string, example: "list" }
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/OpenAIModel' }
+    OpenAIChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role: { type: string, enum: [system, user, assistant, tool] }
+        content: { type: string }
+        name: { type: string }
+    OpenAIChatRequest:
+      type: object
+      required: [model, messages]
+      properties:
+        model: { type: string, example: "gpt-oss:120b" }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/OpenAIChatMessage' }
+        temperature: { type: number, format: float }
+        top_p: { type: number, format: float }
+        n: { type: integer, default: 1 }
+        stream: { type: boolean, default: false }
+        max_tokens: { type: integer }
+        stop:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+        presence_penalty: { type: number, format: float }
+        frequency_penalty: { type: number, format: float }
+        seed: { type: integer }
+        tools:
+          type: array
+          items: { type: object }
+        tool_choice:
+          oneOf:
+            - { type: string }
+            - { type: object }
+    OpenAIChatResponse:
+      type: object
+      properties:
+        id: { type: string }
+        object: { type: string, example: "chat.completion" }
+        created: { type: integer, format: int64 }
+        model: { type: string }
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              index: { type: integer }
+              message: { $ref: '#/components/schemas/OpenAIChatMessage' }
+              finish_reason: { type: string }
+        usage:
+          type: object
+          properties:
+            prompt_tokens: { type: integer }
+            completion_tokens: { type: integer }
+            total_tokens: { type: integer }
+    OpenAIEmbeddingsRequest:
+      type: object
+      required: [model, input]
+      properties:
+        model: { type: string, example: "embeddinggemma" }
+        input:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+        encoding_format: { type: string, enum: [float, base64], default: float }
+        dimensions: { type: integer }
+    OpenAIEmbeddingsResponse:
+      type: object
+      properties:
+        object: { type: string, example: "list" }
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              object: { type: string, example: "embedding" }
+              index: { type: integer }
+              embedding:
+                type: array
+                items: { type: number, format: double }
+        model: { type: string }
+        usage:
+          type: object
+          properties:
+            prompt_tokens: { type: integer }
+            total_tokens: { type: integer }
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+
+paths:
+  /api/tags:
+    get:
+      summary: List models in catalog (native)
+      description: Returns the live catalog of hosted Ollama Cloud models.
+      operationId: tags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TagsResponse' }
+  /api/chat:
+    post:
+      summary: Chat completion (native)
+      description: Native Ollama chat endpoint. Supports streaming.
+      operationId: chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChatRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChatResponse' }
+            application/x-ndjson:
+              schema:
+                description: NDJSON stream when stream=true
+                type: string
+        '429':
+          description: Rate limited (free-tier weekly cap)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /api/embeddings:
+    post:
+      summary: Generate embeddings (native)
+      description: Native Ollama embeddings endpoint.
+      operationId: embed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmbeddingsRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmbeddingsResponse' }
+  /api/show:
+    post:
+      summary: Show model details (native)
+      description: Returns model metadata, template, modelfile, capabilities.
+      operationId: show
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ShowRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShowResponse' }
+  /api/ps:
+    get:
+      summary: List running models (native)
+      description: Shows currently-loaded models. On Ollama Cloud this typically reflects models with active sessions.
+      operationId: ps
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PsResponse' }
+  /v1/models:
+    get:
+      summary: List models (OpenAI-compatible)
+      description: Catalog in OpenAI list-models format.
+      operationId: models
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OpenAIModelsResponse' }
+  /v1/chat/completions:
+    post:
+      summary: Chat completion (OpenAI-compatible)
+      description: OpenAI-compatible chat completions endpoint.
+      operationId: completions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OpenAIChatRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OpenAIChatResponse' }
+            text/event-stream:
+              schema:
+                description: SSE stream when stream=true
+                type: string
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /v1/embeddings:
+    post:
+      summary: Generate embeddings (OpenAI-compatible)
+      operationId: openaiEmbed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OpenAIEmbeddingsRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OpenAIEmbeddingsResponse' }

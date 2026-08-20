@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "finra-live-dogfood-fixtures",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260705-224800-9d954693",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added pp:happy-args annotations (realistic --symbol/--firm/--crd/--file/--sub-product values) to all 12 hand-written novel/absorbed commands, and pp:requires-tier: \"entitled\" to the 6 commands that hit registration/firm datasets gated behind a higher FINRA credential tier.",
+  "reason": "The hand-written commands' Example fields were flag-only (no command-path prefix), so the live dogfood happy-path prober could not derive a runnable invocation and failed all 12 with \"missing runnable example\". Separately, live testing with a real basic-tier credential confirmed 6 commands (complaints new/list, registration individual/firm/timeline/validate-batch) return a clean FINRA 403 for registration/firm datasets requiring a higher entitlement tier; pp:requires-tier lets live dogfood skip them by tier instead of failing, and lets a future entitled-tier run exercise them for real via --auth-tier.",
+  "files": [
+    "internal/cli/regsho_threshold_watch.go", "internal/cli/regsho_volume.go", "internal/cli/otc_weekly.go",
+    "internal/cli/fixedincome_health.go", "internal/cli/trace_liquidity.go", "internal/cli/trace_search.go",
+    "internal/cli/complaints_new.go", "internal/cli/complaints_list.go",
+    "internal/cli/registration_individual.go", "internal/cli/registration_firm.go",
+    "internal/cli/registration_timeline.go", "internal/cli/registration_validate_batch.go"
+  ],
+  "validated_outcome": "Publish-time live dogfood (--level full --auth-tier basic): 74/74 runnable tests passed, 63 skipped (tier-gated + mutating fixtures), 0 failed.",
+  "upstream_issue": null
+}

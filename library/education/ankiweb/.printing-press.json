@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T01:29:51.352069Z",
+  "printing_press_version": "4.16.0",
+  "api_name": "ankiweb",
+  "display_name": "Ankiweb",
+  "cli_name": "ankiweb-pp-cli",
+  "printer": "paulb",
+  "printer_name": "Paul Bockewitz",
+  "run_id": "20260525-182034",
+  "category": "education",
+  "mcp_binary": "ankiweb-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "ANKIWEB_COOKIES"
+  ],
+  "novel_features": [
+    {
+      "name": "Approval-rate ranking",
+      "command": "shared rank",
+      "description": "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor, instead of the raw vote counts the website shows."
+    },
+    {
+      "name": "Audio/image coverage filter",
+      "command": "shared search",
+      "description": "Filter shared decks by whether they include audio or images, critical for language learners."
+    },
+    {
+      "name": "Side-by-side deck comparison",
+      "command": "compare",
+      "description": "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness."
+    },
+    {
+      "name": "Freshness ranking",
+      "command": "shared fresh",
+      "description": "Rank or filter shared decks by last-modified date to surface actively maintained decks."
+    },
+    {
+      "name": "New-deck drift watch",
+      "command": "watch",
+      "description": "Show shared decks that are new or changed for a search term since your last sync."
+    },
+    {
+      "name": "Owned-deck download drift",
+      "command": "drift",
+      "description": "Track download-count changes on the decks you've published, between syncs."
+    },
+    {
+      "name": "Discovery briefing",
+      "command": "brief",
+      "description": "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
+}

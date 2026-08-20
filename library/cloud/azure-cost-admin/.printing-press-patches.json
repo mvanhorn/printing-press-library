@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260608-azure-cost-admin",
+  "base_printing_press_version": "4.18.1",
+  "patches": [
+    {
+      "id": "azure-cost-admin-finops-workflows",
+      "summary": "Add read-only Azure Cost Management, Resource Graph, anomaly, and retail price workflows.",
+      "reason": "A generated command scaffold needed real FinOps behavior before publishing so engineers can validate actual Azure spend and tag hygiene locally.",
+      "files": [
+        "internal/cli/azure.go",
+        "internal/cli/doctor.go",
+        "internal/cli/spend_summary.go",
+        "internal/cli/spend_by-service.go",
+        "internal/cli/spend_by-resource-group.go",
+        "internal/cli/spend_by-tag.go",
+        "internal/cli/anomalies.go",
+        "internal/cli/tags_untagged.go",
+        "internal/cli/price_search.go",
+        "internal/cli/azure_test.go"
+      ],
+      "validated_outcome": "Go tests passed, command dry-runs produced read-only request shapes, and live local validation passed for Cost Management, Resource Graph, and Retail Prices with sanitized output."
+    },
+    {
+      "id": "azure-cost-admin-human-docs",
+      "summary": "Add plain-language README and skill guidance for actual spend, tag hygiene, and estimate workflows.",
+      "reason": "Cloud cost tooling needs to explain the difference between actual billed spend and public retail prices for nontechnical readers and agent users.",
+      "files": [
+        "README.md",
+        "SKILL.md",
+        ".manuscripts/20260608-azure-cost-admin/proofs/live-validation-summary.md",
+        ".manuscripts/20260608-azure-cost-admin/proofs/phase5-acceptance.json"
+      ],
+      "validated_outcome": "README and skill examples use placeholders only and do not include Azure subscription IDs, tenant IDs, emails, resource IDs, resource group names, or exact spend values."
+    }
+  ]
+}

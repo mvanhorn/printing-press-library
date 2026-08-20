@@ -1,0 +1,164 @@
+{
+  "api_name": "anylist",
+  "novelty_score": 9,
+  "alternatives": [
+    {"name": "bobby060/anylist-mcp", "url": "https://github.com/bobby060/anylist-mcp", "language": "TypeScript", "stars": 0, "command_count": 20},
+    {"name": "davidashman/anylist-mcp", "url": "https://github.com/davidashman/anylist-mcp", "language": "TypeScript", "stars": 0, "command_count": 11},
+    {"name": "kevdliu/hacs-anylist", "url": "https://github.com/kevdliu/hacs-anylist", "language": "Python", "stars": 0, "command_count": 6},
+    {"name": "codetheweb/anylist", "url": "https://github.com/codetheweb/anylist", "language": "JavaScript", "stars": 0, "command_count": 15},
+    {"name": "phildenhoff/anylist_rs", "url": "https://github.com/phildenhoff/anylist_rs", "language": "Rust", "stars": 0, "command_count": 12},
+    {"name": "bcspragu/anylist", "url": "https://github.com/bcspragu/anylist", "language": "Go", "stars": 0, "command_count": 4}
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Recipe Ingredient Search",
+      "command": "recipe search --ingredient",
+      "description": "Find every recipe that uses a given ingredient instantly — no scrolling, no guessing.",
+      "rationale": "Requires a join across the local recipes and ingredients tables that only exists after a SQLite sync; the live API has no ingredient-based search endpoint.",
+      "example": "anylist-pp-cli recipe search --ingredient chicken --agent",
+      "why_it_matters": "Use this when an agent needs to suggest meals from available pantry items without making multiple API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recipe Filter by Metadata",
+      "command": "recipe filter",
+      "description": "Filter your entire recipe library by prep time, rating, serving count, and collection simultaneously.",
+      "rationale": "Requires querying multiple PBRecipe fields (prep_time, rating, servings, collection membership) across the full library — only possible with local SQLite; the app offers only name search.",
+      "example": "anylist-pp-cli recipe filter --max-prep 30 --min-rating 4 --collection Weeknight --agent",
+      "why_it_matters": "Use this when an agent needs to find recipes that fit a time or quality constraint for meal planning.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Store-Partitioned Shopping Output",
+      "command": "list by-store",
+      "description": "Split a shopping list into per-store groups sorted by store aisle order — ready for multi-store shopping trips.",
+      "rationale": "Requires joining items.store_ids → stores.sort_index from the local SQLite cache; the app shows items per list but never groups them by store.",
+      "example": "anylist-pp-cli list by-store Groceries --agent",
+      "why_it_matters": "Use this when an agent needs to generate a structured shopping route across multiple stores.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cron-Safe Meal-Plan-to-List",
+      "command": "meal add-to-list",
+      "description": "Automatically build this week's shopping list from your meal plan — idempotent, quantity-merging, and safe to run on a schedule.",
+      "rationale": "Requires merging ingredient quantities across multiple recipes and writing idempotently via /data/shopping-lists/update; no existing tool has --dry-run or idempotency guarantees.",
+      "example": "anylist-pp-cli meal add-to-list --week --list Groceries --dry-run",
+      "why_it_matters": "Use this in a cron job or agent workflow to pre-populate the shopping list before a weekly grocery trip.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Recipe Add-to-List with Quantity Merge",
+      "command": "recipe add-to-list",
+      "description": "Add a recipe's ingredients to your list and automatically sum quantities when an ingredient is already present.",
+      "rationale": "Reads current list state from local cache and computes arithmetic merges (e.g. 1 tbsp + 2 tbsp = 3 tbsp) before writing; no existing tool merges quantities.",
+      "example": "anylist-pp-cli recipe add-to-list \"Pasta Bake\" Groceries --scale 4 --merge",
+      "why_it_matters": "Use this when adding multiple recipes to avoid duplicate line items with fractional quantities that confuse shoppers.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Missing-Ingredients Check",
+      "command": "recipe missing",
+      "description": "See exactly which ingredients you still need to buy before adding a recipe — skip what's already on your list.",
+      "rationale": "Computes the set difference between recipe ingredients and current unchecked list items using a local SQLite join; no API call needed, and no existing tool does this.",
+      "example": "anylist-pp-cli recipe missing \"Pasta Bake\" --list Groceries --agent",
+      "why_it_matters": "Use this before adding a recipe to a list to avoid redundant items and show users only the net-new ingredients they need.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meal Plan Weekly Grid",
+      "command": "meal summary",
+      "description": "Render a Mon–Sun meal plan grid with Breakfast/Lunch/Dinner labels — pasteable into messages or scripts.",
+      "rationale": "Joins meal_plan_events + calendar_labels + recipe names in local SQLite to render a structured grid; no existing CLI or MCP tool renders a terminal calendar view.",
+      "example": "anylist-pp-cli meal summary --week | pbcopy",
+      "why_it_matters": "Use this when an agent needs to present the week's meal plan in a human-readable format for sharing or review.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly List Reset",
+      "command": "list reset",
+      "description": "Clear all checked items from a list in one command — idempotent and safe for cron to run after every shopping trip.",
+      "rationale": "Issues a batched PbListOperationList update to uncheck (or remove) all checked items at once; no existing tool has a bulk reset with --keep-unchecked semantics.",
+      "example": "anylist-pp-cli list reset Groceries --keep-unchecked",
+      "why_it_matters": "Use this in a post-trip automation to reset the list for the next week without manually unchecking each item.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-List Item Search",
+      "command": "item search",
+      "description": "Find any item across all your shopping lists at once — shows which list it's on and whether it's checked.",
+      "rationale": "Queries the items table across all list_ids in local SQLite; every other tool (app, MCP, npm) scopes search to a single named list.",
+      "example": "anylist-pp-cli item search \"almond milk\" --agent",
+      "why_it_matters": "Use this when an agent needs to locate an item without knowing which list it was added to.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync Cache Staleness Check",
+      "command": "sync status",
+      "description": "Report how fresh your local cache is per entity type, with exit code 1 if any data is stale.",
+      "rationale": "Reads _sync_meta table timestamps; the exit-code contract enables cron and CI scripts to fail fast before operating on stale data.",
+      "example": "anylist-pp-cli sync status --max-age 24h || anylist-pp-cli sync",
+      "why_it_matters": "Use this as a cron preflight check to ensure agent operations run against up-to-date local data.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "AnyList",
+    "headline": "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile app can match.",
+    "value_prop": "anylist-pp-cli syncs your shopping lists, recipes, and meal plan to a local SQLite database, then lets you query and automate everything from the shell. Search recipes by ingredient, split shopping lists by store, and build this week's grocery list from your meal plan — all scriptable, JSON-outputting, and safe to run on a schedule.",
+    "auth_narrative": "AnyList uses email + password authentication returning a short-lived access_token and a refresh_token. The CLI stores these in ~/.config/anylist-pp-cli/config.toml and transparently refreshes on 401 responses. All requests require two additional headers: X-AnyLeaf-API-Version: 3 and a stable X-AnyLeaf-Client-Identifier (a 32-char hex UUID generated once per device and reused).",
+    "quickstart": [
+      {"command": "anylist-pp-cli auth login", "comment": "Authenticate with your AnyList email and password"},
+      {"command": "anylist-pp-cli sync", "comment": "Pull all your lists, recipes, and meal plan into the local SQLite cache"},
+      {"command": "anylist-pp-cli lists list", "comment": "See all your shopping lists"},
+      {"command": "anylist-pp-cli items list Groceries --unchecked --json | jq '.[].name'", "comment": "Pipe unchecked items to jq for scripting"},
+      {"command": "anylist-pp-cli meal summary --week", "comment": "View this week's meal plan as a Mon-Sun grid"},
+      {"command": "anylist-pp-cli meal add-to-list --week --list Groceries --dry-run", "comment": "Preview adding this week's recipe ingredients to your grocery list"}
+    ],
+    "troubleshoots": [
+      {"symptom": "401 Unauthorized on every request", "fix": "Run `anylist-pp-cli auth refresh` to force a token refresh, or `auth login` to re-authenticate"},
+      {"symptom": "Commands return stale data (old item names, missing lists)", "fix": "Run `anylist-pp-cli sync --force` to pull the latest state from the server"},
+      {"symptom": "recipe search --ingredient returns no results", "fix": "Run `anylist-pp-cli sync` first — ingredient search queries the local cache which must be populated"},
+      {"symptom": "X-AnyLeaf-Client-Identifier errors", "fix": "The client identifier in ~/.config/anylist-pp-cli/config.toml must be a stable 32-char hex string; delete the config and re-run `auth login` to regenerate"}
+    ],
+    "when_to_use": "Use anylist-pp-cli when you need to automate grocery and meal planning workflows from the shell or in agent pipelines. It excels at cron-based shopping list generation from meal plans, offline recipe search by ingredient or metadata, and store-optimized shopping output. It is the right choice when you need JSON output from AnyList operations for downstream processing with jq, or when you want to build Home Assistant / n8n automations beyond what the basic hacs-anylist integration supports.",
+    "recipes": [
+      {
+        "title": "Sunday meal-prep: build grocery list from this week's plan",
+        "command": "anylist-pp-cli meal add-to-list --week --list Groceries --merge --dry-run && anylist-pp-cli meal add-to-list --week --list Groceries --merge",
+        "explanation": "Preview then execute: merges ingredient quantities from all this week's meal plan events into the Groceries list, idempotently."
+      },
+      {
+        "title": "Find quick weeknight recipes with available chicken",
+        "command": "anylist-pp-cli recipe search --ingredient chicken --agent | anylist-pp-cli recipe filter --max-prep 30 --min-rating 4",
+        "explanation": "Search by ingredient then filter by metadata — pure offline SQLite, no API calls."
+      },
+      {
+        "title": "Check what you still need before adding a recipe",
+        "command": "anylist-pp-cli recipe missing \"Thai Green Curry\" --list Groceries --agent",
+        "explanation": "Shows only the ingredients not already on your shopping list — prevents duplicates."
+      },
+      {
+        "title": "Get per-store shopping route as structured JSON",
+        "command": "anylist-pp-cli list by-store Groceries --agent --select name,storeName,category",
+        "explanation": "Groups items by store with sort_index ordering; --select narrows the payload for agent context."
+      },
+      {
+        "title": "Post-trip cleanup + next-week reset via cron",
+        "command": "anylist-pp-cli list reset Groceries --keep-unchecked && anylist-pp-cli sync status --max-age 12h || anylist-pp-cli sync",
+        "explanation": "Remove checked items, keep unchecked, then ensure cache is fresh — safe to run in a cron job."
+      }
+    ],
+    "trigger_phrases": [
+      "add to my grocery list",
+      "what recipes can I make with",
+      "build my shopping list from meal plan",
+      "check off items on anylist",
+      "use anylist",
+      "run anylist"
+    ]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T12:30:00Z"
+}

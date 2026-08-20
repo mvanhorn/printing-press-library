@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // digest is a transcendence command that joins multiple AeroAPI endpoints
 // (departures, delays, weather) into a single daily brief. Extracted from
 // transcend.go so each novel compound command lives in its own file.
@@ -18,11 +18,11 @@ import (
 
 func newDigestCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "digest <airport>",
+		Use:         "digest <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "One-command daily brief: departures, delays, weather, disruptions",
-		Example: `  flight-goat-pp-cli digest SEA`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "One-command daily brief: departures, delays, weather, disruptions",
+		Example:     `  flight-goat-pp-cli digest SEA`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			airport := upperCode(args[0])
 
@@ -50,7 +50,7 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 			now := time.Now().UTC()
 			start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
 			end := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC).Format(time.RFC3339)
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/flights/departures", airport),
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/flights/departures", airport),
 				map[string]string{"start": start, "end": end, "max_pages": "3"}); err == nil {
 				var page scheduledDeparturesPage
 				_ = json.Unmarshal(raw, &page)
@@ -84,10 +84,10 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/delays", airport), nil); err == nil {
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/delays", airport), nil); err == nil {
 				d.ActiveDelays = raw
 			}
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/weather/observations", airport), nil); err == nil {
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/weather/observations", airport), nil); err == nil {
 				d.Weather = raw
 			}
 

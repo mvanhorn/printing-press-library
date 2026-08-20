@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // tools_test.go: characterization tests for the four public-API MCP
 // tools added in unit 8 (api_search, api_research, api_groups_list,

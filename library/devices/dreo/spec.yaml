@@ -1,0 +1,137 @@
+name: dreo
+description: "Standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and local history every other Dreo tool throws away."
+cli_description: "Control Dreo smart fans, heaters, air purifiers, humidifiers, and ACs from the command line."
+version: "0.1.0"
+base_url: "https://app-api-us.dreo-tech.com"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  in: header
+  env_vars:
+    - DREO_USERNAME
+    - DREO_PASSWORD
+
+config:
+  format: toml
+  path: "~/.config/dreo-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  devices:
+    description: "Discover and inspect Dreo devices on your account"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/user-device/device/list"
+        description: "List every Dreo device on your account"
+        no_auth: false
+        response:
+          type: array
+          item: Device
+
+      state:
+        method: GET
+        path: "/api/user-device/device/state"
+        description: "Read the current state snapshot for one device"
+        params:
+          - name: deviceSn
+            type: string
+            required: true
+            description: "Device serial number (from `devices list`)"
+        response:
+          type: object
+          item: DeviceState
+
+  settings:
+    description: "Read and write persistent per-device settings"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/user-device/setting"
+        description: "Get persistent settings for a device"
+        params:
+          - name: deviceSn
+            type: string
+            required: true
+            description: "Device serial number"
+        response:
+          type: object
+          item: DeviceSettings
+
+      update:
+        method: PUT
+        path: "/api/user-device/setting"
+        description: "Update persistent settings for a device"
+        body:
+          - name: deviceSn
+            type: string
+            required: true
+            description: "Device serial number"
+          - name: settings
+            type: object
+            description: "Settings JSON blob to update (model-specific shape)"
+        response:
+          type: object
+          item: DeviceSettings
+
+  firmware:
+    description: "Read firmware metadata and check for updates"
+    endpoints:
+      check:
+        method: POST
+        path: "/api/upgrade/device/check"
+        description: "Check whether a firmware update is available for a device"
+        body:
+          - name: deviceSn
+            type: string
+            required: true
+            description: "Device serial number"
+        response:
+          type: object
+          item: FirmwareCheckResult
+
+extra_commands:
+  - name: set
+    description: "Set state on a device (power, speed, mode, oscillation, timer) over WebSocket"
+    args: "<device>"
+
+  - name: bulk
+    description: "Fan-out a control command across every device matching a filter (--type, --room)"
+
+  - name: watch
+    description: "Tail-f for Dreo device state — every WebSocket update as a JSON line on stdout"
+
+  - name: sensors
+    description: "Whole-house temperature, humidity, and PM2.5 across every sensor-bearing device"
+
+  - name: sensors record
+    description: "Record WebSocket state events to a local sensor_readings table for timeseries history"
+
+  - name: sensors query
+    description: "Query the local sensor_readings table over arbitrary time windows"
+
+  - name: alerts
+    description: "Report devices with low filter life, empty water tank, offline heartbeat, or sensor thresholds"
+
+  - name: scene save
+    description: "Snapshot the current state across selected devices as a named scene"
+    args: "<name>"
+
+  - name: scene apply
+    description: "Replay a saved scene as parallel WebSocket control frames"
+    args: "<name>"
+
+  - name: rooms
+    description: "Per-room aggregates (device count, on-count, avg temperature, avg humidity)"
+
+  - name: auth login
+    description: "Exchange Dreo email and password for an access token; caches token for subsequent calls"
+
+  - name: auth logout
+    description: "Clear cached Dreo access token from local config"
+
+  - name: auth status
+    description: "Show current Dreo auth status (cached token age, region, last login)"

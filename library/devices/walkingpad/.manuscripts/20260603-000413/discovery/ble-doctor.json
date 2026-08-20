@@ -1,0 +1,22 @@
+{
+  "binary": "cli-printing-press device-sniff ble",
+  "goos": "darwin",
+  "goarch": "arm64",
+  "live": {
+    "compiled": true,
+    "backend": "tinygo.org/x/bluetooth",
+    "platform": "darwin/linux/windows"
+  },
+  "replay_supported": true,
+  "smoke_commands": [
+    "cli-printing-press device-sniff ble scan --input testdata/device/fixtures/ble-events.json",
+    "cli-printing-press device-sniff ble inspect --input testdata/device/fixtures/ble-events.json",
+    "cli-printing-press device-sniff ble merge scan.json inspect.json read.json notify.json > evidence.json"
+  ],
+  "hardware_commands": [
+    "cli-printing-press device-sniff ble scan --live --duration-ms 10000",
+    "cli-printing-press device-sniff ble inspect --live --address ADDRESS",
+    "cli-printing-press device-sniff ble read --live --address ADDRESS --service SERVICE_UUID --characteristic CHARACTERISTIC_UUID",
+    "cli-printing-press device-sniff ble subscribe --live --address ADDRESS --service SERVICE_UUID --characteristic CHARACTERISTIC_UUID --duration-ms 10000"
+  ]
+}

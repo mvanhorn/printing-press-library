@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "wait-for-gate-opt-in-retry",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Generation commands carry an opt-in --wait-for-gate/--gate-timeout that backs off and retries only on the adaptive captcha gate; a regen must keep it opt-in and gate-scoped.",
+  "reason": "Suno's generation gate is volume-triggered and reopens after a cooldown (minutes to hours). A single-shot CLI forces manual reruns. Retry is opt-in (off by default) so scripted callers stay single-shot and an unattended loop never sustains the gate. Retry fires only on isCaptchaRequired errors — never on 401, budget cap, or other failures.",
+  "files": [
+    "internal/cli/generate.go",
+    "internal/cli/suno_generate_run.go"
+  ],
+  "validated_outcome": "retryOnGate unit tests cover disabled-single-attempt, succeed-on-second, timeout, non-captcha-no-retry, and context-cancellation with an injected clock."
+}

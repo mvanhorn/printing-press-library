@@ -1,0 +1,793 @@
+name: tesla
+description: 'Tesla mobile API: vehicle data, climate, locks, remote start, charging queue, diagnostics, products, and service
+  appointments'
+version: 0.1.0
+base_url: https://owner-api.teslamotors.com
+spec_source: sniffed
+http_transport: standard
+auth:
+  type: bearer_token
+  header: Authorization
+  format: ''
+  env_vars:
+  - TESLA_AUTH_TOKEN
+  env_var_specs:
+  - name: TESLA_AUTH_TOKEN
+    kind: per_call
+    required: true
+    sensitive: true
+    description: Tesla iOS-app OAuth bearer token (8-hour TTL). Mint via tesla auth login.
+config:
+  format: toml
+  path: ~/.config/tesla-pp-cli/config.toml
+resources:
+  charging:
+    description: Supercharger queue position and charging status
+    endpoints:
+      get_queue:
+        method: GET
+        path: /api/1/charging/queue
+        description: Current Supercharger queue position (which stall, ETA)
+        params:
+        - name: vin
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: queue
+        pagination: null
+        observed_auth:
+        - authorization
+  diagnostics:
+    description: Vehicle diagnostic feature config
+    endpoints:
+      get_diagnostics:
+        method: GET
+        path: /api/1/diagnostics
+        description: Vehicle diagnostic feature flags
+        params: []
+        body: []
+        response:
+          type: object
+          item: diagnostics
+        pagination: null
+        observed_auth:
+        - authorization
+  energy_sites:
+    description: Powerwall and solar energy site config
+    endpoints:
+      get_rate_tariffs:
+        method: GET
+        path: /api/1/energy_sites/rate_tariffs
+        description: Utility rate plans for Powerwall scheduling
+        params:
+        - name: language
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: rate_tariffs
+        pagination: null
+        observed_auth:
+        - authorization
+  logs:
+    description: Client-side telemetry sink
+    endpoints:
+      create_logs:
+        method: POST
+        path: /api/1/logs
+        description: Forward client-side log events (mostly internal use)
+        params: []
+        body:
+        - name: details
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields:
+          - name: app_id
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+            format: uuid
+          - name: app_instance_id
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+            format: uuid
+          - name: app_mode
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: app_state
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: app_version
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: build_number
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: central_state
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: debug
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: duration
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: history
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: last_beacon_signal_seconds_ago
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: launch_time
+            type: integer
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: os_version
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: peripheral
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: pid
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: platform
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: process_uptime
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: seconds_from_GMT
+            type: integer
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: state_machine_state
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: state_restoration
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: system_uptime
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: system_version
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: time_since_launch_ms
+            type: integer
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: timeout
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: type
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: user_agent
+            type: string
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+        response:
+          type: object
+          item: logs
+        pagination: null
+        observed_auth:
+        - authorization
+  notification_preferences:
+    description: Push notification settings
+    endpoints:
+      create_notification_preferences:
+        method: POST
+        path: /api/1/notification_preferences
+        description: Update push notification preferences
+        params: []
+        body:
+        - name: app_version
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: device_token
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: device_type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: locale
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: notification_preferences
+          type: object
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields:
+          - name: alarm
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: autopark_completed_success
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: autopark_forward_started
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: autopark_unavailable_plugged_in
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: charging_complete
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: charging_interrupted
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: charging_started
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: grid_outage
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+          - name: update_available
+            type: boolean
+            required: true
+            positional: false
+            default: null
+            description: ''
+            fields: []
+        - name: platform
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        response:
+          type: object
+          item: notification_preferences
+        pagination: null
+        observed_auth:
+        - authorization
+  products:
+    description: Vehicles, Powerwalls, and solar products owned by the user
+    endpoints:
+      get_products:
+        method: GET
+        path: /api/1/products
+        description: List vehicles, Powerwalls, and solar products owned
+        params:
+        - name: orders
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: products
+        pagination: null
+        observed_auth:
+        - authorization
+  users:
+    description: Account config, feature flags, orders, and key/credential management
+    endpoints:
+      create_keys:
+        method: POST
+        path: /api/1/users/keys
+        description: Add a virtual phone key or BLE key
+        params: []
+        body:
+        - name: battery_level
+          type: integer
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: bluetooth_authorization
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: bluetooth_enabled
+          type: boolean
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: device_token
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: device_type
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: kind
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: locale
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: location_permissions
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: low_power_mode
+          type: boolean
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: model
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: name
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: public_key
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: tag
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        response:
+          type: object
+          item: keys
+        pagination: null
+        observed_auth:
+        - authorization
+      get_app_config:
+        method: GET
+        path: /api/1/users/app_config
+        description: Mobile app feature flags and runtime config
+        params:
+        - name: country
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: page
+          type: integer
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: app_config
+        pagination: null
+        observed_auth:
+        - authorization
+      get_feature_config:
+        method: GET
+        path: /api/1/users/feature_config
+        description: Account-level feature gating
+        params: []
+        body: []
+        response:
+          type: object
+          item: feature_config
+        pagination: null
+        observed_auth:
+        - authorization
+      get_orders:
+        method: GET
+        path: /api/1/users/orders
+        description: Tesla orders (new vehicle deliveries, accessory purchases)
+        params:
+        - name: device_country
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: device_language
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        - name: ttp_locale
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: orders
+        pagination: null
+        observed_auth:
+        - authorization
+  vehicles:
+    description: Per-vehicle data, climate, locks, remote start, and Hermes telemetry token
+    endpoints:
+      create_auto_conditioning_start:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/auto_conditioning_start
+        description: POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_start
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body: []
+        response:
+          type: object
+          item: auto_conditioning_start
+        pagination: null
+        observed_auth:
+        - authorization
+      create_auto_conditioning_stop:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop
+        description: POST /api/1/vehicles/{vehicle_id}/command/auto_conditioning_stop
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body: []
+        response:
+          type: object
+          item: auto_conditioning_stop
+        pagination: null
+        observed_auth:
+        - authorization
+      create_door_lock:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/door_lock
+        description: POST /api/1/vehicles/{vehicle_id}/command/door_lock
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body: []
+        response:
+          type: object
+          item: door_lock
+        pagination: null
+        observed_auth:
+        - authorization
+      create_door_unlock:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/door_unlock
+        description: POST /api/1/vehicles/{vehicle_id}/command/door_unlock
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body: []
+        response:
+          type: object
+          item: door_unlock
+        pagination: null
+        observed_auth:
+        - authorization
+      create_hermes:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/jwt/hermes
+        description: POST /api/1/vehicles/{vehicle_id}/jwt/hermes
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body:
+        - name: uuid
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: ''
+          fields: []
+          format: uuid
+        response:
+          type: object
+          item: hermes
+        pagination: null
+        observed_auth:
+        - authorization
+      create_remote_start_drive:
+        method: POST
+        path: /api/1/vehicles/{vehicle_id}/command/remote_start_drive
+        description: POST /api/1/vehicles/{vehicle_id}/command/remote_start_drive
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        body: []
+        response:
+          type: object
+          item: remote_start_drive
+        pagination: null
+        observed_auth:
+        - authorization
+      get_service_data:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/service_data
+        description: Open service appointments and recent service history for this vehicle
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        - name: version
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: service_data
+        pagination: null
+        observed_auth:
+        - authorization
+      get_vehicle_data:
+        method: GET
+        path: /api/1/vehicles/{vehicle_id}/vehicle_data
+        description: 'Full vehicle state snapshot: charge, climate, drive, GUI, vehicle config, and software'
+        params:
+        - name: vehicle_id
+          type: string
+          required: true
+          positional: true
+          default: null
+          description: Vehicle id from /api/1/products (the integer id field, NOT the VIN)
+          fields: []
+        - name: endpoints
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: ''
+          fields: []
+        body: []
+        response:
+          type: object
+          item: vehicle_data
+        pagination: null
+        observed_auth:
+        - authorization
+types: {}
+cli_description: Every Tesla mobile-API feature, plus offline charging history and a SQLite-backed vehicle log no other Tesla
+  CLI has
+mcp:
+  transport:
+  - stdio
+  - http
+  orchestration: code
+  endpoint_tools: hidden

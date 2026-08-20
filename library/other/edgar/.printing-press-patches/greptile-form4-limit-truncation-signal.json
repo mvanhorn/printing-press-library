@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "greptile-form4-limit-truncation-signal",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Surface explicit truncation when the Form 4 ingest cap clips older filings; expose via --max-form4 flag and form4_truncated + form4_total_in_window JSON fields on insider-summary, insider-followthrough, and primary-sources.",
+  "reason": "The previous hard `LIMIT 200` in ingestForm4ForCIK silently dropped the oldest 200+ Form 4s for high-volume filers (large biotechs, late-stage offerings) and reported form4_skipped_count: 0 — a false clean-bill. The cap stays as a DB/API pressure rail but is now configurable and reports truncation in-band plus a stderr WARN. Added store.CountEdgarFilings + planForm4Ingest helpers so the truncation decision is independently testable.",
+  "files": [
+    "internal/store/edgar_schema.go",
+    "internal/cli/insider_summary.go",
+    "internal/cli/insider_summary_test.go",
+    "internal/cli/insider_followthrough.go",
+    "internal/cli/primary_sources.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "insider_summary_test.go::TestPlanForm4Ingest_TruncatesWhenAboveCap seeds 250 Form 4 filings for a stub CIK and asserts Truncated=true + TotalInWindow=250 under the default --max-form4 200; companion tests cover the clean-bill (50 filings) and cap-disabled (max-form4=0) branches."
+}

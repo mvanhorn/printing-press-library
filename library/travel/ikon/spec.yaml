@@ -1,0 +1,216 @@
+name: ikon
+description: "Ikon Pass CLI — reservation availability, passes, Friends & Family vouchers, and multi-season usage history."
+version: "0.1.0"
+base_url: "https://account.ikonpass.com"
+http_transport: standard
+category: travel
+health_check_path: "/api/v2/resorts"   # public 200; good no-auth doctor probe
+
+# A browser-like UA is what cleared Imperva Incapsula for plain HTTP during discovery.
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "application/json"
+
+# Cookie-session auth (minted via Auth0 SSO). Runtime imports the .ikonpass.com
+# session cookie (auth login --chrome / press-auth companion). The session cookie
+# is JSON-encoded, not a JWT, so no jwt_carrier_cookie / lazy refresh.
+auth:
+  type: cookie
+  cookie_domain: ".ikonpass.com"
+  cookies:
+    - session
+  login_url: "https://account.ikonpass.com/login"
+
+config:
+  format: toml
+  path: "~/.config/ikon-pp-cli/config.toml"
+
+resources:
+  resorts:
+    description: "Browse Ikon destinations (public — no login required)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/resorts"
+        no_auth: true
+        description: "List all Ikon destinations with reservation flags, codes, and regions"
+        response:
+          type: array
+          item: Resort
+        response_path: data
+
+  availability:
+    description: "Reservation availability for reservation-required resorts"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v2/reservation-availability/{resort_id}"
+        description: "Per-pass reservation availability (open/blackout/closed days, remaining slots) for a resort. Reservation-required ids: Deer Valley=12, Jackson Hole=14, Loon=17, Snoqualmie=29."
+        params:
+          - name: resort_id
+            type: int
+            required: true
+            positional: true
+            description: "Resort numeric id (see 'ikon resorts list')"
+        response:
+          type: array
+          item: PassAvailability
+        response_path: data
+
+  passes:
+    description: "Your Ikon passes / products"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/my-products"
+        description: "List the passes and products on your account"
+        response:
+          type: array
+          item: Product
+        response_path: data
+
+  vouchers:
+    description: "Friends & Family shared vouchers"
+    endpoints:
+      summary:
+        method: GET
+        path: "/api/v2/my-products/{product_id}/shared-vouchers-summary"
+        description: "Friends & Family shared-voucher summary (remaining / used) for a pass"
+        params:
+          - name: product_id
+            type: int
+            required: true
+            positional: true
+            description: "Pass/product id (see 'ikon passes list')"
+        response:
+          type: object
+          item: VoucherSummary
+        response_path: data
+
+  benefits:
+    description: "Per-pass benefits"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v2/my-products/{product_id}/benefits"
+        description: "Benefits attached to a specific pass"
+        params:
+          - name: product_id
+            type: int
+            required: true
+            positional: true
+            description: "Pass/product id (see 'ikon passes list')"
+        response:
+          type: array
+          item: Benefit
+        response_path: data
+
+  usage:
+    description: "Pass usage / redemption history"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v2/my-products/{product_id}/pass-usage"
+        description: "Season redemption history for a pass (resort, days used, redemption dates). Each pass = one season."
+        params:
+          - name: product_id
+            type: int
+            required: true
+            positional: true
+            description: "Pass/product id (see 'ikon passes list')"
+        response:
+          type: array
+          item: SeasonUsage
+        response_path: data
+
+  reservations:
+    description: "Your current reservations"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/reservations"
+        description: "List your current/upcoming reservations"
+        response:
+          type: array
+          item: Reservation
+        response_path: data
+
+  account:
+    description: "Your account profile"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v2/me"
+        description: "Your Ikon account profile"
+        response:
+          type: object
+          item: Profile
+        response_path: data
+
+types:
+  Resort:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: code
+        type: string
+      - name: abbreviation
+        type: string
+      - name: region
+        type: string
+      - name: subregion
+        type: string
+      - name: reservations_enabled
+        type: bool
+      - name: owned
+        type: bool
+      - name: active
+        type: bool
+  PassAvailability:
+    fields:
+      - name: id
+        type: int
+      - name: has_access
+        type: bool
+      - name: reservations_available
+        type: int
+      - name: current_resort_upcoming_reservation_count
+        type: int
+      - name: max_reservation_date
+        type: string
+  Product:
+    fields:
+      - name: id
+        type: int
+      - name: display_name
+        type: string
+  VoucherSummary:
+    fields:
+      - name: id
+        type: int
+  Benefit:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  SeasonUsage:
+    fields:
+      - name: display_name
+        type: string
+      - name: used_days
+        type: int
+      - name: max_days
+        type: int
+  Reservation:
+    fields:
+      - name: id
+        type: int
+  Profile:
+    fields:
+      - name: id
+        type: string

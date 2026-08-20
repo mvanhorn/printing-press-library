@@ -1,0 +1,51 @@
+version: 2
+project_name: digitalocean-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: digitalocean-pp-cli
+    main: ./cmd/digitalocean-pp-cli
+    binary: digitalocean-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/digitalocean/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: digitalocean-pp-mcp
+    main: ./cmd/digitalocean-pp-mcp
+    binary: digitalocean-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: digitalocean-pp-cli
+    repository:
+      owner: hiten-shah
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Manage DigitalOcean Droplets, Kubernetes, databases, firewalls, networking, billing, and other cloud resources from the terminal."
+    install: |
+      bin.install "digitalocean-pp-cli"
+      bin.install "digitalocean-pp-mcp"

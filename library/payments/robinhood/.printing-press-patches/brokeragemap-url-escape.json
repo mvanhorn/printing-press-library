@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "brokeragemap-url-escape",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "brokeragemap.BuildPlan percent-encodes path-param values (url.PathEscape) and BuildDirectPlan percent-encodes query keys/values (url.QueryEscape).",
+  "reason": "Repo-wide URL-injection sweep: the crypto commands already escape via replacePathParam (url.PathEscape), but the brokerage route builder substituted user-supplied --param path values and --query values raw, so a value with '/' or '..' could collapse into extra path segments or inject query parameters.",
+  "files": [
+    "internal/brokeragemap/route_map.go",
+    "internal/brokeragemap/direct_plan_test.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; new TestBuildDirectPlanEscapesReservedChars proves '../evil/segment' and 'a&b=c' are percent-encoded; verify-skill passes."
+}

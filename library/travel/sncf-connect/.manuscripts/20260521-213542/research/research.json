@@ -1,0 +1,287 @@
+{
+  "api_name": "sncf-connect",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "mcp-sncf",
+      "url": "https://github.com/Kryzo/mcp-sncf",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "locomotive",
+      "url": "https://github.com/maxmouchet/locomotive",
+      "language": "Python",
+      "install_method": "",
+      "stars": 150,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "juliuste/sncf",
+      "url": "https://github.com/juliuste/sncf",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "navitia_client",
+      "url": "https://github.com/leonardbinet/navitia_client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-sncf",
+      "url": "https://github.com/moul/go-sncf",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T10:20:00Z",
+  "novel_features": [
+    {
+      "name": "Commute tracker",
+      "command": "commute check",
+      "description": "Save your commute route and check it each morning — next trains plus disruption status in one call, exits non-zero on disruption for cron scripting.",
+      "rationale": "Requires cross-endpoint join (/departures + /disruptions) over a saved route stored locally — no single Navitia call returns this.",
+      "example": "sncf-connect-pp-cli commute check --route paris-lyon --json",
+      "why_it_matters": "Use when an agent needs to determine whether a user's regular train is disrupted before suggesting alternatives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Disruption digest",
+      "command": "disruptions digest",
+      "description": "Morning brief of all disruptions across your saved lines, ranked by severity: blocked first, then delayed, then informational.",
+      "rationale": "Fans out /traffic_reports over SQLite-keyed lines and sorts by severity — the API has no aggregated disruption summary endpoint.",
+      "example": "sncf-connect-pp-cli disruptions digest --all --json",
+      "why_it_matters": "Use when an agent needs a structured disruption summary across multiple lines before planning a day's travel.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Isochrone station list",
+      "command": "isochrone stations",
+      "description": "Given a starting point and travel duration, list all train stations reachable within that time.",
+      "rationale": "Combines a live /isochrones GeoJSON boundary with a bounding-box filter on the local SQLite stations table — no single endpoint returns this.",
+      "example": "sncf-connect-pp-cli isochrone stations --from Lyon --duration 90 --json",
+      "why_it_matters": "Use when an agent needs to enumerate candidate destinations within a travel-time budget.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Accessibility report",
+      "command": "journey accessibility",
+      "description": "For a planned journey, show elevator and escalator status at each transfer station so you know before you travel.",
+      "rationale": "Chains /journeys with per-stop /equipment_reports calls — no tool in the ecosystem currently does this join.",
+      "example": "sncf-connect-pp-cli journey accessibility --from Paris --to Bordeaux --date 2026-06-01 --json",
+      "why_it_matters": "Use when an agent is planning travel for someone with mobility needs and needs to flag legs with broken equipment.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Timetable frequency heatmap",
+      "command": "timetable heatmap",
+      "description": "See how many trains run each hour on a line at a stop — ASCII bar chart showing peak and off-peak density.",
+      "rationale": "Aggregates a full-day /stop_schedules response into hourly buckets — Navitia has no frequency endpoint.",
+      "example": "sncf-connect-pp-cli timetable heatmap --line RER-A --stop Chatelet --json",
+      "why_it_matters": "Use when an agent needs to reason about service frequency at a given stop across the day.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Board export",
+      "command": "board export",
+      "description": "Export a full departure board as flat CSV or JSONL for pipeline ingestion — all fields, no formatting.",
+      "rationale": "Calls /departures with high count and emits a pipeline-native flat format distinct from human-formatted board output.",
+      "example": "sncf-connect-pp-cli board export --station Paris-Montparnasse --count 200 --format csv",
+      "why_it_matters": "Use when an agent or ETL pipeline needs structured departure data for downstream processing.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Vehicle journey trace",
+      "command": "vehicle trace",
+      "description": "Get the full ordered stop sequence for a specific train service — train's perspective, not traveler's.",
+      "rationale": "Uses /vehicle_journeys endpoint (unused in all absorb tools) to return the complete itinerary a train will follow.",
+      "example": "sncf-connect-pp-cli vehicle trace --line TGV-9220 --date 2026-06-01 --json",
+      "why_it_matters": "Use when an agent needs to resolve a train's full route or populate a schedule database.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stop cluster",
+      "command": "stops cluster",
+      "description": "Group nearby stops within a radius using Haversine distance — useful for deduplicating station indexes and resolving ambiguous names.",
+      "rationale": "Combines a /places geocode with Haversine computation over the local SQLite stops table — pure local-data intelligence.",
+      "example": "sncf-connect-pp-cli stops cluster --near Paris --radius 500 --json",
+      "why_it_matters": "Use when an agent needs to resolve ambiguous station references or deduplicate stop records.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Commute tracker",
+      "command": "commute check",
+      "description": "Save your commute route and check it each morning — next trains plus disruption status in one call, exits non-zero on disruption for cron scripting.",
+      "rationale": "Requires cross-endpoint join (/departures + /disruptions) over a saved route stored locally — no single Navitia call returns this.",
+      "example": "sncf-connect-pp-cli commute check --route paris-lyon --json",
+      "why_it_matters": "Use when an agent needs to determine whether a user's regular train is disrupted before suggesting alternatives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Disruption digest",
+      "command": "disruptions digest",
+      "description": "Morning brief of all disruptions across your saved lines, ranked by severity: blocked first, then delayed, then informational.",
+      "rationale": "Fans out /traffic_reports over SQLite-keyed lines and sorts by severity — the API has no aggregated disruption summary endpoint.",
+      "example": "sncf-connect-pp-cli disruptions digest --all --json",
+      "why_it_matters": "Use when an agent needs a structured disruption summary across multiple lines before planning a day's travel.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Isochrone station list",
+      "command": "isochrone stations",
+      "description": "Given a starting point and travel duration, list all train stations reachable within that time.",
+      "rationale": "Combines a live /isochrones GeoJSON boundary with a bounding-box filter on the local SQLite stations table — no single endpoint returns this.",
+      "example": "sncf-connect-pp-cli isochrone stations --from Lyon --duration 90 --json",
+      "why_it_matters": "Use when an agent needs to enumerate candidate destinations within a travel-time budget.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Accessibility report",
+      "command": "journey accessibility",
+      "description": "For a planned journey, show elevator and escalator status at each transfer station so you know before you travel.",
+      "rationale": "Chains /journeys with per-stop /equipment_reports calls — no tool in the ecosystem currently does this join.",
+      "example": "sncf-connect-pp-cli journey accessibility --from Paris --to Bordeaux --date 2026-06-01 --json",
+      "why_it_matters": "Use when an agent is planning travel for someone with mobility needs and needs to flag legs with broken equipment.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Timetable frequency heatmap",
+      "command": "timetable heatmap",
+      "description": "See how many trains run each hour on a line at a stop — ASCII bar chart showing peak and off-peak density.",
+      "rationale": "Aggregates a full-day /stop_schedules response into hourly buckets — Navitia has no frequency endpoint.",
+      "example": "sncf-connect-pp-cli timetable heatmap --line RER-A --stop Chatelet --json",
+      "why_it_matters": "Use when an agent needs to reason about service frequency at a given stop across the day.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Board export",
+      "command": "board export",
+      "description": "Export a full departure board as flat CSV or JSONL for pipeline ingestion — all fields, no formatting.",
+      "rationale": "Calls /departures with high count and emits a pipeline-native flat format distinct from human-formatted board output.",
+      "example": "sncf-connect-pp-cli board export --station Paris-Montparnasse --count 200 --format csv",
+      "why_it_matters": "Use when an agent or ETL pipeline needs structured departure data for downstream processing.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Vehicle journey trace",
+      "command": "vehicle trace",
+      "description": "Get the full ordered stop sequence for a specific train service — train's perspective, not traveler's.",
+      "rationale": "Uses /vehicle_journeys endpoint (unused in all absorb tools) to return the complete itinerary a train will follow.",
+      "example": "sncf-connect-pp-cli vehicle trace --line TGV-9220 --date 2026-06-01 --json",
+      "why_it_matters": "Use when an agent needs to resolve a train's full route or populate a schedule database.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stop cluster",
+      "command": "stops cluster",
+      "description": "Group nearby stops within a radius using Haversine distance — useful for deduplicating station indexes and resolving ambiguous names.",
+      "rationale": "Combines a /places geocode with Haversine computation over the local SQLite stops table — pure local-data intelligence.",
+      "example": "sncf-connect-pp-cli stops cluster --near Paris --radius 500 --json",
+      "why_it_matters": "Use when an agent needs to resolve ambiguous station references or deduplicate stop records.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "SNCF Connect",
+    "headline": "Every French train, offline search, and eight commands no other SNCF tool has — the definitive CLI for the Navitia API.",
+    "value_prop": "The only maintained Go CLI for France's national rail network. Syncs stations and lines to a local SQLite store for instant offline search, wraps every key Navitia endpoint with --json and typed exit codes, and adds eight novel commands — commute tracking, disruption digests, isochrone reachability, accessibility reports, frequency heatmaps, and more — that no existing tool exposes.",
+    "auth_narrative": "Requires a free SNCF API key (register at numerique.sncf.com/startup/api/token-developpeur/). Set SNCF_API_KEY in your environment. The API uses HTTP Basic Auth with the key as username and an empty password — handled transparently by the CLI.",
+    "quickstart": [
+      {
+        "command": "sncf-connect-pp-cli doctor",
+        "comment": "Verify auth and connectivity (set SNCF_API_KEY env var first)"
+      },
+      {
+        "command": "sncf-connect-pp-cli sync",
+        "comment": "Sync French rail stations locally for offline search"
+      },
+      {
+        "command": "sncf-connect-pp-cli journeys --from Paris --to Lyon --datetime 20260601T080000",
+        "comment": "Find trains between cities"
+      },
+      {
+        "command": "sncf-connect-pp-cli disruptions digest --all --json",
+        "comment": "Morning disruption brief across all synced lines"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Set SNCF_API_KEY — get a free key at numerique.sncf.com/startup/api/token-developpeur/"
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Free tier is 5,000 req/day. Use --coverage sncf to scope queries, or sync data locally and use offline commands."
+      },
+      {
+        "symptom": "Empty station search results",
+        "fix": "Run `sncf-connect-pp-cli sync stations --coverage sncf` first to populate the local SQLite store."
+      },
+      {
+        "symptom": "Journey search returns no results",
+        "fix": "Try station codes instead of city names: `sncf-connect-pp-cli station search Lyon` to find the exact stop_area ID."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to reason about French train travel: planning journeys, checking real-time departures, monitoring disruptions, or populating a transport database. It is the right tool when you need structured JSON output for downstream agent workflows, or when you need offline station search without a live API call on every query.",
+    "recipes": [
+      {
+        "title": "",
+        "command": "sncf-connect-pp-cli commute check --route paris-lyon --json"
+      },
+      {
+        "title": "",
+        "command": "sncf-connect-pp-cli isochrone stations --from Lyon --duration 120 --json --select name,id,coord"
+      },
+      {
+        "title": "",
+        "command": "sncf-connect-pp-cli journey accessibility --from Paris --to Bordeaux --date 2026-06-01 --json"
+      },
+      {
+        "title": "",
+        "command": "sncf-connect-pp-cli board export --station Paris-Montparnasse --count 200 --format csv"
+      },
+      {
+        "title": "",
+        "command": "sncf-connect-pp-cli timetable heatmap --line RER-A --stop Chatelet --json"
+      }
+    ],
+    "trigger_phrases": [
+      "plan a trip from Paris to Lyon",
+      "find trains to Marseille",
+      "check departures at Gare du Nord",
+      "are there disruptions on the TGV today",
+      "which stations can I reach from Bordeaux in 2 hours",
+      "use sncf-connect",
+      "run sncf-connect"
+    ]
+  }
+}

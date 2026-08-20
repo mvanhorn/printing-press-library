@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "patch_id": "boardgamegeek-collection-202-retry",
+  "base_run_id": "20260618-160601",
+  "title": "Handle BGG HTTP 202 'request queued' on the collection endpoint (Greptile P1)",
+  "rationale": "BGG's XMLAPI2 collection endpoint returns HTTP 202 with a '<message>Your request for this collection has been accepted and will be processed. Please try again later.</message>' body whenever the server queues a large collection lookup. The client's success branch treats any status < 400 as data, so the 202 placeholder body was passed through XMLToJSON and surfaced to the user as if it were valid collection data.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/client/client.go",
+      "summary": "Added an explicit HTTP 202 handler before the success branch in do(): poll with exponential backoff (same pattern as the 429/500 retries) until the queued result is ready, and return a clear APIError after retries are exhausted instead of surfacing the placeholder body as collection data. Matches BGG's documented try-again-later behavior.",
+      "validated_outcome": "go build/vet/test pass; 202 responses retry instead of returning the 'request accepted' message as data."
+    }
+  ]
+}

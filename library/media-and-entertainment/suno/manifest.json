@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "suno-pp-mcp",
+  "display_name": "Suno",
+  "version": "4.14.0",
+  "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/suno-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/suno-pp-mcp",
+      "args": [],
+      "env": {
+        "SUNO_JWT": "${user_config.suno_jwt}",
+        "SUNO_TOKEN": "${user_config.suno_token}"
+      }
+    }
+  },
+  "user_config": {
+    "suno_jwt": {
+      "type": "string",
+      "title": "SUNO_JWT",
+      "description": "Sets SUNO_JWT for the Suno MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "suno_token": {
+      "type": "string",
+      "title": "SUNO_TOKEN",
+      "description": "Sets SUNO_TOKEN for the Suno MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

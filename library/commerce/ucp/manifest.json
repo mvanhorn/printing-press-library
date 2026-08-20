@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ucp-pp-mcp",
+  "display_name": "UCP",
+  "version": "4.13.1",
+  "description": "A Go CLI for Google's Universal Commerce Protocol — talk to UCP merchants over REST or MCP, search across them in parallel, build carts, and prep checkout drafts that an AP2 CLI can authorize.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ucp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ucp-pp-mcp",
+      "args": [],
+      "env": {
+        "API_TOKEN": "${user_config.api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "api_token": {
+      "type": "string",
+      "title": "API_TOKEN",
+      "description": "Sets API_TOKEN for the UCP MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

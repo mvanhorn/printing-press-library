@@ -1,0 +1,61 @@
+{
+    "schema_version": 1,
+    "generated_at": "2026-05-09T15:02:50.449206Z",
+    "printing_press_version": "4.1.0",
+    "api_name": "podscan",
+    "display_name": "Podscan",
+    "cli_name": "podscan-pp-cli",
+    "creator": {
+        "handle": "gregvanhorn",
+        "name": "Greg Van Horn"
+    },
+    "owner": "gregvanhorn",
+    "printer": "gregvanhorn",
+    "printer_name": "Greg Van Horn",
+    "spec_path": "./openapi.yaml",
+    "spec_format": "openapi3",
+    "spec_checksum": "sha256:adcd28a9771b8a9b11f74210879f247144773d15ccbc8d308b4fdec032816ad7",
+    "mcp_binary": "podscan-pp-mcp",
+    "mcp_tool_count": 14,
+    "mcp_ready": "full",
+    "api_version": "1.0",
+    "auth_type": "bearer_token",
+    "auth_env_vars": [
+        "PODSCAN_BEARER_AUTH"
+    ],
+    "run_id": "20260509-110700",
+    "category": "media-and-entertainment",
+    "description": "Search every public podcast conversation. Wraps the Podscan REST/Firehose/Exports APIs with mention monitoring, guest history, topic trend charts, idea sourcing, and sponsor intel \u2014 across 51M+ episodes, 4.4M+ podcasts.",
+    "novel_features": [
+        {
+            "name": "Mention monitoring",
+            "command": "mentions",
+            "description": "Aggregate every podcast that mentioned a brand/term, ranked by audience reach with snippet of surrounding transcript."
+        },
+        {
+            "name": "Guest history",
+            "command": "guest",
+            "description": "Find every podcast appearance of a person across the catalog, with optional quote-count for an include term."
+        },
+        {
+            "name": "Topic trend chart",
+            "command": "topic trend",
+            "description": "Bucket episode mentions by week/month and render an ASCII trend chart for any term."
+        },
+        {
+            "name": "Idea sourcing (asks)",
+            "command": "asks",
+            "description": "Extract question-shaped sentences from transcripts about a topic \u2014 startup-idea radar from public conversations."
+        },
+        {
+            "name": "Sponsor competitor overlap",
+            "command": "sponsor competitors",
+            "description": "Heuristic intersection of shows where a target brand and candidate brands both appear \u2014 competitive media planning."
+        },
+        {
+            "name": "Standing watch",
+            "command": "watch list",
+            "description": "Manage Podscan Firehose alerts as standing brand-mention watches."
+        }
+    ]
+}

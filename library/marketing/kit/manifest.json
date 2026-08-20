@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "kit-pp-mcp",
+  "display_name": "Kit",
+  "version": "4.9.0",
+  "description": "Email marketing for creators (formerly ConvertKit) — subscribers, broadcasts, sequences, tags",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/kit-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/kit-pp-mcp",
+      "args": [],
+      "env": {
+        "KIT_API_KEY": "${user_config.kit_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "kit_api_key": {
+      "type": "string",
+      "title": "KIT_API_KEY",
+      "description": "Sets KIT_API_KEY for the Kit MCP server. Get a v4 API key from https://app.kit.com/account_settings/developer_settings.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

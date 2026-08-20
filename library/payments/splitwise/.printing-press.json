@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T05:37:18.577453Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "splitwise",
+  "display_name": "Splitwise",
+  "cli_name": "splitwise-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
+  "owner": "vinnyp",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_path": "splitwise-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7930d8fa91d6699f47744a44dfeaa32995830e188e57ae697edee9374942bc76",
+  "run_id": "20260528-002755",
+  "category": "payments",
+  "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.",
+  "mcp_binary": "splitwise-pp-mcp",
+  "mcp_tool_count": 27,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SPLITWISE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Net balance overview",
+      "command": "balances",
+      "description": "See everything you owe and are owed across every friend and group in one net-position view."
+    },
+    {
+      "name": "Debt aging",
+      "command": "debts",
+      "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled."
+    },
+    {
+      "name": "Group ledger with running balance",
+      "command": "ledger",
+      "description": "Every expense in a group, in date order, with a cumulative running balance per member."
+    },
+    {
+      "name": "Spend analytics rollups",
+      "command": "spend",
+      "description": "Total shared spend broken down by category, group, or month from your synced history."
+    },
+    {
+      "name": "Offline expense search",
+      "command": "search",
+      "description": "Full-text search across your entire expense history, comments, and group/friend names — offline."
+    },
+    {
+      "name": "Settle-up plan",
+      "command": "settle-up",
+      "description": "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments."
+    },
+    {
+      "name": "Activity diff",
+      "command": "activity",
+      "description": "Show what changed since your last sync — new, edited, and deleted expenses to review."
+    },
+    {
+      "name": "Split calculator",
+      "command": "split",
+      "description": "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it."
+    },
+    {
+      "name": "Recurring-expense detector",
+      "command": "recurring",
+      "description": "Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a month missing an expected entry."
+    }
+  ]
+}

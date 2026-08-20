@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "botsee-pp-mcp",
+  "display_name": "Botsee",
+  "version": "4.11.0",
+  "description": "Have your agents measure and improve your brand's AI Visibility with botsee.io. Run audits across every major LLM, see what's missing, then get specific recommendations and ready-to-publish content to close the gap. API-first, agent-native",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/botsee-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/botsee-pp-mcp",
+      "args": [],
+      "env": {
+        "BOTSEE_API_KEY": "${user_config.botsee_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "botsee_api_key": {
+      "type": "string",
+      "title": "BOTSEE_API_KEY",
+      "description": "Sets BOTSEE_API_KEY for the Botsee MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,1860 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "WHOOP API"
+  },
+  "servers" : [ {
+    "url" : "https://api.prod.whoop.com/developer"
+  } ],
+  "tags" : [ {
+    "name" : "Activity ID Mapping",
+    "description" : "Utility endpoints for activity ID mapping"
+  }, {
+    "name" : "Partner",
+    "description" : "Endpoints for trusted WHOOP partner operations"
+  }, {
+    "name" : "User",
+    "description" : "Endpoints for retrieving user profile and measurement data."
+  } ],
+  "paths" : {
+    "/v1/activity-mapping/{activityV1Id}" : {
+      "get" : {
+        "tags" : [ "Activity ID Mapping" ],
+        "summary" : "Get V2 UUID for V1 Activity ID",
+        "description" : "Lookup the V2 UUID for a given V1 activity ID",
+        "operationId" : "getActivityMapping",
+        "parameters" : [ {
+          "name" : "activityV1Id",
+          "in" : "path",
+          "description" : "V1 Activity ID",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "example" : 12345678
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved mapping",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ActivityIdMappingResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Activity mapping not found"
+          },
+          "500" : {
+            "description" : "Server error"
+          }
+        }
+      }
+    },
+    "/v2/cycle/{cycleId}" : {
+      "get" : {
+        "tags" : [ "Cycle" ],
+        "description" : "Get the cycle for the specified ID",
+        "operationId" : "getCycleById",
+        "parameters" : [ {
+          "name" : "cycleId",
+          "in" : "path",
+          "description" : "ID of the cycle to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Cycle"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "404" : {
+            "description" : "No resource found"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:cycles" ]
+        } ]
+      }
+    },
+    "/v2/cycle" : {
+      "get" : {
+        "tags" : [ "Cycle" ],
+        "description" : "Get all physiological cycles for a user, paginated. Results are sorted by start time in descending order.",
+        "operationId" : "getCycleCollection",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Limit on the number of cycles returned",
+          "schema" : {
+            "maximum" : 25,
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "Return cycles that occurred after or during (inclusive) this time. If not specified, the response will not filter cycles by a minimum time.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "Return cycles that intersect this time or ended before (exclusive) this time. If not specified, `end` will be set to `now`.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "nextToken",
+          "in" : "query",
+          "description" : "Optional next token from the previous response to get the next page. If not provided, the first page in the collection is returned",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginatedCycleResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:cycles" ]
+        } ]
+      }
+    },
+    "/v2/cycle/{cycleId}/sleep" : {
+      "get" : {
+        "tags" : [ "Cycle" ],
+        "description" : "Get the sleep for the specified cycle ID",
+        "operationId" : "getSleepForCycle",
+        "parameters" : [ {
+          "name" : "cycleId",
+          "in" : "path",
+          "description" : "ID of the cycle to retrieve sleep for",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Sleep"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "404" : {
+            "description" : "No resource found"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        }
+      }
+    },
+    "/v2/partner/development/add-test-data" : {
+      "post" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Generate test data for partner development",
+        "description" : "Generates test user and lab requisition data for partner integration testing. This endpoint is only available in non-production environments",
+        "operationId" : "addTestData",
+        "responses" : {
+          "204" : {
+            "description" : "Test data generated successfully"
+          },
+          "404" : {
+            "description" : "Not available in production environments"
+          },
+          "500" : {
+            "description" : "Failed to generate test data"
+          }
+        },
+        "security" : [ {
+          "Trusted Partner" : [ ]
+        } ]
+      }
+    },
+    "/v2/partner/requisition/{id}" : {
+      "get" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Get a lab requisition by ID",
+        "description" : "Retrieves a lab requisition with its associated service requests by its unique identifier. The requesting partner must be an owner of the lab requisition.",
+        "operationId" : "getLabRequisitionById",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Unique identifier of the lab requisition",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lab requisition found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LabRequisition"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Lab requisition not found or partner is not an owner"
+          }
+        },
+        "security" : [ {
+          "Trusted Partner" : [ ]
+        } ]
+      }
+    },
+    "/v2/partner/service-request/{id}" : {
+      "get" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Get a service request by ID",
+        "description" : "Retrieves a service request by its unique identifier. The requesting partner must be an owner of the service request.",
+        "operationId" : "getServiceRequestById",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Unique identifier of the service request",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Service request found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceRequest"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Service request not found or partner is not an owner"
+          }
+        },
+        "security" : [ {
+          "Trusted Partner" : [ ]
+        } ]
+      }
+    },
+    "/v2/partner/token" : {
+      "post" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Request a partner client token",
+        "description" : "Exchanges partner client credentials for an access token.",
+        "operationId" : "requestToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PartnerTokenRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Token issued successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartnerTokenResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid client credentials"
+          }
+        }
+      }
+    },
+    "/v2/partner/service-request/{id}/status" : {
+      "patch" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Update service request status",
+        "description" : "Updates the business status of a service request task. The requesting partner must be an owner of the service request.",
+        "operationId" : "updateServiceRequestStatus",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Unique identifier of the service request",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServiceRequestStatusRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Service request status updated successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServiceRequest"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Service request not found or partner is not an owner"
+          }
+        },
+        "security" : [ {
+          "Trusted Partner" : [ ]
+        } ]
+      }
+    },
+    "/v2/partner/service-request/{id}/results" : {
+      "post" : {
+        "tags" : [ "Partner" ],
+        "summary" : "Create diagnostic report results for a service request",
+        "description" : "Creates a diagnostic report with results for a service request. The requesting partner must be an owner of the service request.",
+        "operationId" : "uploadDiagnosticReportResults",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Unique identifier of the service request",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DiagnosticReportCreateRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Diagnostic report created successfully"
+          },
+          "404" : {
+            "description" : "Service request not found or partner is not an owner"
+          }
+        },
+        "security" : [ {
+          "Trusted Partner" : [ ]
+        } ]
+      }
+    },
+    "/v2/recovery" : {
+      "get" : {
+        "tags" : [ "Recovery" ],
+        "description" : "Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.",
+        "operationId" : "getRecoveryCollection",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Limit on the number of recoveries returned",
+          "schema" : {
+            "maximum" : 25,
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "Return recoveries that occurred after or during (inclusive) this time. If not specified, the response will not filter recoveries by a minimum time.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "Return recoveries that intersect this time or ended before (exclusive) this time. If not specified, `end` will be set to `now`.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "nextToken",
+          "in" : "query",
+          "description" : "Optional next token from the previous response to get the next page. If not provided, the first page in the collection is returned",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RecoveryCollection"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:recovery" ]
+        } ]
+      }
+    },
+    "/v2/cycle/{cycleId}/recovery" : {
+      "get" : {
+        "tags" : [ "Recovery" ],
+        "description" : "Get the recovery for a cycle",
+        "operationId" : "getRecoveryForCycle",
+        "parameters" : [ {
+          "name" : "cycleId",
+          "in" : "path",
+          "description" : "ID of the cycle to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Recovery"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "404" : {
+            "description" : "No resource found"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:recovery" ]
+        } ]
+      }
+    },
+    "/v2/activity/sleep/{sleepId}" : {
+      "get" : {
+        "tags" : [ "Sleep" ],
+        "description" : "Get the sleep for the specified ID",
+        "operationId" : "getSleepById",
+        "parameters" : [ {
+          "name" : "sleepId",
+          "in" : "path",
+          "description" : "ID of the sleep to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Sleep"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "404" : {
+            "description" : "No resource found"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:sleep" ]
+        } ]
+      }
+    },
+    "/v2/activity/sleep" : {
+      "get" : {
+        "tags" : [ "Sleep" ],
+        "description" : "Get all sleeps for a user, paginated. Results are sorted by start time in descending order.",
+        "operationId" : "getSleepCollection",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Limit on the number of sleeps returned",
+          "schema" : {
+            "maximum" : 25,
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "Return sleeps that occurred after or during (inclusive) this time. If not specified, the response will not filter sleeps by a minimum time.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "Return sleeps that intersect this time or ended before (exclusive) this time. If not specified, `end` will be set to `now`.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "nextToken",
+          "in" : "query",
+          "description" : "Optional next token from the previous response to get the next page. If not provided, the first page in the collection is returned",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginatedSleepResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:sleep" ]
+        } ]
+      }
+    },
+    "/v2/user/measurement/body" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "Get User Body Measurements",
+        "description" : "Retrieves the body measurements (height, weight, max heart rate) for the authenticated user.",
+        "operationId" : "getBodyMeasurement",
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved body measurements",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserBodyMeasurement"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "404" : {
+            "description" : "Requested resource not found"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:body_measurement" ]
+        } ]
+      }
+    },
+    "/v2/user/profile/basic" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "Get Basic User Profile",
+        "description" : "Retrieves the basic profile information (name, email) for the authenticated user.",
+        "operationId" : "getProfileBasic",
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved user profile",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserBasicProfile"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "404" : {
+            "description" : "Requested resource not found"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:profile" ]
+        } ]
+      }
+    },
+    "/v2/user/access" : {
+      "delete" : {
+        "tags" : [ "User" ],
+        "description" : "Revoke the access token granted by the user. If the associated OAuth client is configured to receive webhooks, it will no longer receive them for this user.",
+        "operationId" : "revokeUserOAuthAccess",
+        "responses" : {
+          "204" : {
+            "description" : "Successful request; no response body"
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ ]
+        } ]
+      }
+    },
+    "/v2/activity/workout/{workoutId}" : {
+      "get" : {
+        "tags" : [ "Workout" ],
+        "description" : "Get the workout for the specified ID",
+        "operationId" : "getWorkoutById",
+        "parameters" : [ {
+          "name" : "workoutId",
+          "in" : "path",
+          "description" : "ID of the workout to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutV2"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "404" : {
+            "description" : "No resource found"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:workout" ]
+        } ]
+      }
+    },
+    "/v2/activity/workout" : {
+      "get" : {
+        "tags" : [ "Workout" ],
+        "description" : "Get all workouts for a user, paginated. Results are sorted by start time in descending order.",
+        "operationId" : "getWorkoutCollection",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Limit on the number of workouts returned",
+          "schema" : {
+            "maximum" : 25,
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "Return workouts that occurred after or during (inclusive) this time. If not specified, the response will not filter workouts by a minimum time.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "end",
+          "in" : "query",
+          "description" : "Return workouts that intersect this time or ended before (exclusive) this time. If not specified, `end` will be set to `now`.",
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "nextToken",
+          "in" : "query",
+          "description" : "Optional next token from the previous response to get the next page. If not provided, the first page in the collection is returned",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful request",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutCollection"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Client error constructing the request"
+          },
+          "401" : {
+            "description" : "Invalid authorization"
+          },
+          "429" : {
+            "description" : "Request rejected due to rate limiting"
+          },
+          "500" : {
+            "description" : "Server error occurred while making request"
+          }
+        },
+        "security" : [ {
+          "OAuth" : [ "read:workout" ]
+        } ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ActivityIdMappingResponse" : {
+        "required" : [ "v2_activity_id" ],
+        "type" : "object",
+        "properties" : {
+          "v2_activity_id" : {
+            "type" : "string",
+            "description" : "V2 Unique identifier for the activity",
+            "format" : "uuid",
+            "example" : "ecfc6a15-4661-442f-a9a4-f160dd7afae8"
+          }
+        }
+      },
+      "Cycle" : {
+        "required" : [ "created_at", "id", "score_state", "start", "timezone_offset", "updated_at", "user_id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Unique identifier for the physiological cycle",
+            "format" : "int64",
+            "example" : 93845
+          },
+          "user_id" : {
+            "type" : "integer",
+            "description" : "The WHOOP User for the physiological cycle",
+            "format" : "int64",
+            "example" : 10129
+          },
+          "created_at" : {
+            "type" : "string",
+            "description" : "The time the cycle was recorded in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T11:25:44.774Z"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "description" : "The time the cycle was last updated in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T14:25:44.774Z"
+          },
+          "start" : {
+            "type" : "string",
+            "description" : "Start time bound of the cycle",
+            "format" : "date-time",
+            "example" : "2022-04-24T02:25:44.774Z"
+          },
+          "end" : {
+            "type" : "string",
+            "description" : "End time bound of the cycle. If not present, the user is currently in this cycle",
+            "format" : "date-time",
+            "example" : "2022-04-24T10:25:44.774Z"
+          },
+          "timezone_offset" : {
+            "type" : "string",
+            "description" : "The user's timezone offset at the time the cycle was recorded. Follows format for Time Zone Designator (TZD) - '+hh:mm', '-hh:mm', or 'Z'.",
+            "example" : "-05:00",
+            "externalDocs" : {
+              "description" : "Learn more about the Time Zone Designator from the W3C Standard",
+              "url" : "https://www.w3.org/TR/NOTE-datetime"
+            }
+          },
+          "score_state" : {
+            "type" : "string",
+            "description" : "`SCORED` means the cycle was scored and the measurement values will be present. `PENDING_SCORE` means WHOOP is currently evaluating the cycle. `UNSCORABLE` means this activity could not be scored for some reason - commonly because there is not enough user metric data for the time range.",
+            "example" : "SCORED",
+            "enum" : [ "SCORED", "PENDING_SCORE", "UNSCORABLE" ]
+          },
+          "score" : {
+            "$ref" : "#/components/schemas/CycleScore"
+          }
+        },
+        "description" : "The collection of records in this page."
+      },
+      "CycleScore" : {
+        "required" : [ "average_heart_rate", "kilojoule", "max_heart_rate", "strain" ],
+        "type" : "object",
+        "properties" : {
+          "strain" : {
+            "type" : "number",
+            "description" : "WHOOP metric of the cardiovascular load - the level of strain  on the user's cardiovascular system based on the user's heart rate during the cycle. Strain is scored on a scale from 0 to 21.",
+            "format" : "float",
+            "example" : 5.2951527,
+            "externalDocs" : {
+              "description" : "WHOOP Strain",
+              "url" : "https://api.prod.whoop.com/url-mapping-service/v1/STRAIN"
+            }
+          },
+          "kilojoule" : {
+            "type" : "number",
+            "description" : "Kilojoules the user expended during the cycle.",
+            "format" : "float",
+            "example" : 8288.297
+          },
+          "average_heart_rate" : {
+            "type" : "integer",
+            "description" : "The user's average heart rate during the cycle.",
+            "format" : "int32",
+            "example" : 68
+          },
+          "max_heart_rate" : {
+            "type" : "integer",
+            "description" : "The user's max heart rate during the cycle.",
+            "format" : "int32",
+            "example" : 141
+          }
+        },
+        "description" : "WHOOP's measurements and evaluation of the cycle. Only present if the score state is `SCORED`"
+      },
+      "PaginatedCycleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "records" : {
+            "type" : "array",
+            "description" : "The collection of records in this page.",
+            "items" : {
+              "$ref" : "#/components/schemas/Cycle"
+            }
+          },
+          "next_token" : {
+            "type" : "string",
+            "description" : "A token that can be used on the next request to access the next page of records. If the token is not present, there are no more records in the collection.",
+            "example" : "MTIzOjEyMzEyMw"
+          }
+        }
+      },
+      "Sleep" : {
+        "required" : [ "created_at", "cycle_id", "end", "id", "nap", "score_state", "start", "timezone_offset", "updated_at", "user_id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the sleep activity",
+            "format" : "uuid",
+            "example" : "ecfc6a15-4661-442f-a9a4-f160dd7afae8"
+          },
+          "cycle_id" : {
+            "type" : "integer",
+            "description" : "Unique identifier for the cycle this sleep belongs to",
+            "format" : "int64",
+            "example" : 93845
+          },
+          "v1_id" : {
+            "type" : "integer",
+            "description" : "Previous generation identifier for the activity. Will not exist past 09/01/2025",
+            "format" : "int64",
+            "example" : 93845
+          },
+          "user_id" : {
+            "type" : "integer",
+            "description" : "The WHOOP User who performed the sleep activity",
+            "format" : "int64",
+            "example" : 10129
+          },
+          "created_at" : {
+            "type" : "string",
+            "description" : "The time the sleep activity was recorded in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T11:25:44.774Z"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "description" : "The time the sleep activity was last updated in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T14:25:44.774Z"
+          },
+          "start" : {
+            "type" : "string",
+            "description" : "Start time bound of the sleep",
+            "format" : "date-time",
+            "example" : "2022-04-24T02:25:44.774Z"
+          },
+          "end" : {
+            "type" : "string",
+            "description" : "End time bound of the sleep",
+            "format" : "date-time",
+            "example" : "2022-04-24T10:25:44.774Z"
+          },
+          "timezone_offset" : {
+            "type" : "string",
+            "description" : "The user's timezone offset at the time the sleep was recorded. Follows format for Time Zone Designator (TZD) - '+hh:mm', '-hh:mm', or 'Z'.",
+            "example" : "-05:00",
+            "externalDocs" : {
+              "description" : "Learn more about the Time Zone Designator from the W3C Standard",
+              "url" : "https://www.w3.org/TR/NOTE-datetime"
+            }
+          },
+          "nap" : {
+            "type" : "boolean",
+            "description" : "If true, this sleep activity was a nap for the user",
+            "example" : false
+          },
+          "score_state" : {
+            "type" : "string",
+            "description" : "`SCORED` means the sleep activity was scored and the measurement values will be present. `PENDING_SCORE` means WHOOP is currently evaluating the sleep activity. `UNSCORABLE` means this activity could not be scored for some reason - commonly because there is not enough user metric data for the time range.",
+            "example" : "SCORED",
+            "enum" : [ "SCORED", "PENDING_SCORE", "UNSCORABLE" ]
+          },
+          "score" : {
+            "$ref" : "#/components/schemas/SleepScore"
+          }
+        },
+        "description" : "The collection of records in this page."
+      },
+      "SleepNeeded" : {
+        "required" : [ "baseline_milli", "need_from_recent_nap_milli", "need_from_recent_strain_milli", "need_from_sleep_debt_milli" ],
+        "type" : "object",
+        "properties" : {
+          "baseline_milli" : {
+            "type" : "integer",
+            "description" : "The amount of sleep a user needed based on historical trends",
+            "format" : "int64",
+            "example" : 27395716
+          },
+          "need_from_sleep_debt_milli" : {
+            "type" : "integer",
+            "description" : "The difference between the amount of sleep the user's body required and the amount the user actually got",
+            "format" : "int64",
+            "example" : 352230,
+            "externalDocs" : {
+              "description" : "WHOOP Locker - What is Sleep Debt & How Do You Catch Up on Sleep?",
+              "url" : "https://www.whoop.com/thelocker/what-is-sleep-debt-catch-up/"
+            }
+          },
+          "need_from_recent_strain_milli" : {
+            "type" : "integer",
+            "description" : "Additional sleep need accrued based on the user's strain",
+            "format" : "int64",
+            "example" : 208595
+          },
+          "need_from_recent_nap_milli" : {
+            "type" : "integer",
+            "description" : "Reduction in sleep need accrued based on the user's recent nap activity (negative value or zero)",
+            "format" : "int64",
+            "example" : -12312
+          }
+        },
+        "description" : "Breakdown of the amount of sleep a user needed before the sleep activity. Summing all individual components results in the amount of sleep the user needed prior to this sleep activity"
+      },
+      "SleepScore" : {
+        "required" : [ "sleep_needed", "stage_summary" ],
+        "type" : "object",
+        "properties" : {
+          "stage_summary" : {
+            "$ref" : "#/components/schemas/SleepStageSummary"
+          },
+          "sleep_needed" : {
+            "$ref" : "#/components/schemas/SleepNeeded"
+          },
+          "respiratory_rate" : {
+            "type" : "number",
+            "description" : "The user's respiratory rate during the sleep.",
+            "format" : "float",
+            "example" : 16.11328125
+          },
+          "sleep_performance_percentage" : {
+            "type" : "number",
+            "description" : "A percentage (0-100%) of the time a user is asleep over the amount of sleep the user needed. May not be reported if WHOOP does not have enough data about a user yet to calculate Sleep Need.",
+            "format" : "float",
+            "example" : 98.0
+          },
+          "sleep_consistency_percentage" : {
+            "type" : "number",
+            "description" : "Percentage (0-100%) of how similar this sleep and wake times compared to the previous day. May not be reported if WHOOP does not have enough sleep data about a user yet to understand consistency.",
+            "format" : "float",
+            "example" : 90.0,
+            "externalDocs" : {
+              "description" : "WHOOP Locker - What is Sleep Consistency?",
+              "url" : "https://www.whoop.com/thelocker/new-feature-sleep-consistency-why-we-track-it/"
+            }
+          },
+          "sleep_efficiency_percentage" : {
+            "type" : "number",
+            "description" : "A percentage (0-100%) of the time you spend in bed that you are actually asleep.",
+            "format" : "float",
+            "example" : 91.69533848,
+            "externalDocs" : {
+              "description" : "WHOOP Locker - Sleep Efficiency: What is It, How Do You Stack Up & How Can You Improve?",
+              "url" : "https://www.whoop.com/thelocker/app-feature-improve-sleep-efficiency/"
+            }
+          }
+        },
+        "description" : "WHOOP's measurements and evaluation of the sleep activity. Only present if the Sleep State is `SCORED`"
+      },
+      "SleepStageSummary" : {
+        "required" : [ "disturbance_count", "sleep_cycle_count", "total_awake_time_milli", "total_in_bed_time_milli", "total_light_sleep_time_milli", "total_no_data_time_milli", "total_rem_sleep_time_milli", "total_slow_wave_sleep_time_milli" ],
+        "type" : "object",
+        "properties" : {
+          "total_in_bed_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time the user spent in bed, in milliseconds",
+            "format" : "int32",
+            "example" : 30272735
+          },
+          "total_awake_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time the user spent awake, in milliseconds",
+            "format" : "int32",
+            "example" : 1403507
+          },
+          "total_no_data_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time WHOOP did not receive data from the user during the sleep, in milliseconds",
+            "format" : "int32",
+            "example" : 0
+          },
+          "total_light_sleep_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time the user spent in light sleep, in milliseconds",
+            "format" : "int32",
+            "example" : 14905851
+          },
+          "total_slow_wave_sleep_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time the user spent in Slow Wave Sleep (SWS), in milliseconds",
+            "format" : "int32",
+            "example" : 6630370
+          },
+          "total_rem_sleep_time_milli" : {
+            "type" : "integer",
+            "description" : "Total time the user spent in Rapid Eye Movement (REM) sleep, in milliseconds",
+            "format" : "int32",
+            "example" : 5879573
+          },
+          "sleep_cycle_count" : {
+            "type" : "integer",
+            "description" : "Number of sleep cycles during the user's sleep",
+            "format" : "int32",
+            "example" : 3
+          },
+          "disturbance_count" : {
+            "type" : "integer",
+            "description" : "Number of times the user was disturbed during sleep",
+            "format" : "int32",
+            "example" : 12
+          }
+        },
+        "description" : "Summary of the sleep stages",
+        "externalDocs" : {
+          "description" : "Sleep Consistency and Sleep Stages",
+          "url" : "https://support.whoop.com/hc/en-us/articles/360019623493-Sleep-Consistency-and-Sleep-Stages"
+        }
+      },
+      "LabRequisition" : {
+        "required" : [ "created_at", "id", "patient", "service_requests", "updated_at" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the lab requisition",
+            "format" : "uuid"
+          },
+          "created_at" : {
+            "type" : "string",
+            "description" : "Timestamp when the lab requisition was created",
+            "format" : "date-time"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "description" : "Timestamp when the lab requisition was last updated",
+            "format" : "date-time"
+          },
+          "service_requests" : {
+            "type" : "array",
+            "description" : "The service requests associated with this lab requisition",
+            "items" : {
+              "$ref" : "#/components/schemas/ServiceRequest"
+            }
+          },
+          "patient" : {
+            "$ref" : "#/components/schemas/PatientCore"
+          }
+        }
+      },
+      "Patient" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the patient",
+            "format" : "uuid"
+          }
+        }
+      },
+      "PatientCore" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the patient",
+            "format" : "uuid"
+          }
+        },
+        "description" : "Patient information",
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/Patient"
+        }, {
+          "$ref" : "#/components/schemas/UnilabsPatient"
+        } ]
+      },
+      "ServiceRequest" : {
+        "required" : [ "code", "id", "intent", "status" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the service request",
+            "format" : "uuid"
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "FHIR status of the service request"
+          },
+          "intent" : {
+            "type" : "string",
+            "description" : "FHIR intent of the service request"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code identifying the specific service or procedure requested"
+          },
+          "task_business_status" : {
+            "type" : "string",
+            "description" : "Task business status for workflow tracking (e.g., 'Specimen collected', 'Results pending')"
+          },
+          "task_description" : {
+            "type" : "string",
+            "description" : "Task description - free text explanation of what needs to be performed"
+          }
+        }
+      },
+      "UnilabsPatient" : {
+        "required" : [ "birth_date", "first_name", "id", "last_name" ],
+        "type" : "object",
+        "properties" : {
+          "first_name" : {
+            "type" : "string",
+            "description" : "First name of the patient"
+          },
+          "last_name" : {
+            "type" : "string",
+            "description" : "Last name of the patient"
+          },
+          "birth_date" : {
+            "type" : "string",
+            "description" : "Birth date of the patient",
+            "format" : "date"
+          },
+          "gender" : {
+            "type" : "string",
+            "description" : "Gender of the patient"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email address of the patient"
+          },
+          "phone" : {
+            "type" : "string",
+            "description" : "Phone number of the patient"
+          },
+          "nationality" : {
+            "type" : "string",
+            "description" : "Nationality of the patient"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the patient",
+            "format" : "uuid"
+          },
+          "emirates_id" : {
+            "type" : "string",
+            "description" : "Emirates ID of the patient"
+          },
+          "passport_no" : {
+            "type" : "string",
+            "description" : "Passport number of the patient"
+          }
+        }
+      },
+      "PartnerTokenResponse" : {
+        "type" : "object",
+        "properties" : {
+          "access_token" : {
+            "type" : "string"
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "token_type" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PartnerTokenRequest" : {
+        "required" : [ "client_id", "client_secret" ],
+        "type" : "object",
+        "properties" : {
+          "client_id" : {
+            "type" : "string",
+            "description" : "client id for this partner"
+          },
+          "client_secret" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "scope for this token request"
+          },
+          "grant_type" : {
+            "type" : "string",
+            "description" : "grant type for this token request"
+          }
+        }
+      },
+      "ServiceRequestStatusRequest" : {
+        "type" : "object",
+        "properties" : {
+          "task_business_status" : {
+            "type" : "string",
+            "description" : "Task business status for workflow tracking (e.g., 'Specimen collected', 'Results pending')"
+          },
+          "reason" : {
+            "type" : "string",
+            "description" : "Optional reason for the task business status change"
+          }
+        }
+      },
+      "CreateObservationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "value_numeric" : {
+            "type" : "number",
+            "description" : "the decimal value for this observation, if there is one",
+            "format" : "double"
+          },
+          "value_text" : {
+            "type" : "string",
+            "description" : "the text value for this observation, if there is one"
+          },
+          "unit" : {
+            "type" : "string",
+            "description" : "the unit of this observation value, if there is one"
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "the status of this observation"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "the code for this observation"
+          }
+        },
+        "description" : "optional list of observations to attach to the diagnostic report"
+      },
+      "DiagnosticReportCreateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "description" : "the status of the diagnostic report"
+          },
+          "observations" : {
+            "type" : "array",
+            "description" : "optional list of observations to attach to the diagnostic report",
+            "items" : {
+              "$ref" : "#/components/schemas/CreateObservationRequest"
+            }
+          }
+        }
+      },
+      "Recovery" : {
+        "required" : [ "created_at", "cycle_id", "score_state", "sleep_id", "updated_at", "user_id" ],
+        "type" : "object",
+        "properties" : {
+          "cycle_id" : {
+            "type" : "integer",
+            "description" : "The Recovery represents how recovered the user is for this physiological cycle",
+            "format" : "int64",
+            "example" : 93845
+          },
+          "sleep_id" : {
+            "type" : "string",
+            "description" : "ID of the Sleep associated with the Recovery",
+            "format" : "uuid",
+            "example" : "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "user_id" : {
+            "type" : "integer",
+            "description" : "The WHOOP User for the recovery",
+            "format" : "int64",
+            "example" : 10129
+          },
+          "created_at" : {
+            "type" : "string",
+            "description" : "The time the recovery was recorded in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T11:25:44.774Z"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "description" : "The time the recovery was last updated in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T14:25:44.774Z"
+          },
+          "score_state" : {
+            "type" : "string",
+            "description" : "`SCORED` means the recovery was scored and the measurement values will be present. `PENDING_SCORE` means WHOOP is currently evaluating the cycle. `UNSCORABLE` means this activity could not be scored for some reason - commonly because there is not enough user metric data for the time range.",
+            "example" : "SCORED",
+            "enum" : [ "SCORED", "PENDING_SCORE", "UNSCORABLE" ]
+          },
+          "score" : {
+            "$ref" : "#/components/schemas/RecoveryScore"
+          }
+        }
+      },
+      "RecoveryCollection" : {
+        "type" : "object",
+        "properties" : {
+          "records" : {
+            "type" : "array",
+            "description" : "The collection of records in this page.",
+            "items" : {
+              "$ref" : "#/components/schemas/Recovery"
+            }
+          },
+          "next_token" : {
+            "type" : "string",
+            "description" : "A token that can be used on the next request to access the next page of records. If the token is not present, there are no more records in the collection.",
+            "example" : "MTIzOjEyMzEyMw"
+          }
+        },
+        "description" : "Paginated collection of recovery activities with next token for pagination"
+      },
+      "RecoveryScore" : {
+        "required" : [ "hrv_rmssd_milli", "recovery_score", "resting_heart_rate", "user_calibrating" ],
+        "type" : "object",
+        "properties" : {
+          "user_calibrating" : {
+            "type" : "boolean",
+            "description" : "True if the user is still calibrating and not enough data is available in WHOOP to provide an accurate recovery.",
+            "example" : false
+          },
+          "recovery_score" : {
+            "type" : "number",
+            "description" : "Percentage (0-100%) that reflects how well prepared the user's body is to take on Strain. The Recovery score is a measure of the user body's \"return to baseline\" after a stressor.",
+            "format" : "float",
+            "example" : 44.0,
+            "externalDocs" : {
+              "description" : "WHOOP Recovery",
+              "url" : "https://api.prod.whoop.com/url-mapping-service/v1/RECOVERY"
+            }
+          },
+          "resting_heart_rate" : {
+            "type" : "number",
+            "description" : "The user's resting heart rate.",
+            "format" : "float",
+            "example" : 64.0
+          },
+          "hrv_rmssd_milli" : {
+            "type" : "number",
+            "description" : "The user's Heart Rate Variability measured using Root Mean Square of Successive Differences (RMSSD), in milliseconds.",
+            "format" : "float",
+            "example" : 31.813562
+          },
+          "spo2_percentage" : {
+            "type" : "number",
+            "description" : "The percentage of oxygen in the user's blood. Only present if the user is on 4.0 or greater.",
+            "format" : "float",
+            "example" : 95.6875
+          },
+          "skin_temp_celsius" : {
+            "type" : "number",
+            "description" : "The user's skin temperature, in Celsius. Only present if the user is on 4.0 or greater.",
+            "format" : "float",
+            "example" : 33.7
+          }
+        },
+        "description" : "WHOOP's measurements and evaluation of the recovery. Only present if the Recovery State is `SCORED`"
+      },
+      "PaginatedSleepResponse" : {
+        "type" : "object",
+        "properties" : {
+          "records" : {
+            "type" : "array",
+            "description" : "The collection of records in this page.",
+            "items" : {
+              "$ref" : "#/components/schemas/Sleep"
+            }
+          },
+          "next_token" : {
+            "type" : "string",
+            "description" : "A token that can be used on the next request to access the next page of records. If the token is not present, there are no more records in the collection.",
+            "example" : "MTIzOjEyMzEyMw"
+          }
+        }
+      },
+      "UserBodyMeasurement" : {
+        "required" : [ "height_meter", "max_heart_rate", "weight_kilogram" ],
+        "type" : "object",
+        "properties" : {
+          "height_meter" : {
+            "type" : "number",
+            "description" : "User's height in meters",
+            "format" : "float",
+            "example" : 1.8288
+          },
+          "weight_kilogram" : {
+            "type" : "number",
+            "description" : "User's weight in kilograms",
+            "format" : "float",
+            "example" : 90.7185
+          },
+          "max_heart_rate" : {
+            "type" : "integer",
+            "description" : "The max heart rate WHOOP calculated for the user",
+            "format" : "int32",
+            "example" : 200,
+            "externalDocs" : {
+              "description" : "WHOOP Locker: Understanding Max Heart Rate and Why It Matters for Training",
+              "url" : "https://www.whoop.com/thelocker/calculating-max-heart-rate/"
+            }
+          }
+        }
+      },
+      "UserBasicProfile" : {
+        "required" : [ "email", "first_name", "last_name", "user_id" ],
+        "type" : "object",
+        "properties" : {
+          "user_id" : {
+            "type" : "integer",
+            "description" : "The WHOOP User",
+            "format" : "int64",
+            "example" : 10129
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "User's Email",
+            "example" : "jsmith123@whoop.com"
+          },
+          "first_name" : {
+            "type" : "string",
+            "description" : "User's First Name",
+            "example" : "John"
+          },
+          "last_name" : {
+            "type" : "string",
+            "description" : "User's Last Name",
+            "example" : "Smith"
+          }
+        }
+      },
+      "WorkoutScore" : {
+        "required" : [ "average_heart_rate", "kilojoule", "max_heart_rate", "percent_recorded", "strain", "zone_durations" ],
+        "type" : "object",
+        "properties" : {
+          "strain" : {
+            "type" : "number",
+            "description" : "WHOOP metric of the cardiovascular load - the level of strain the workout had on the user's cardiovascular system based on the user's heart rate. Strain is scored on a scale from 0 to 21.",
+            "format" : "float",
+            "example" : 8.2463,
+            "externalDocs" : {
+              "description" : "WHOOP Strain",
+              "url" : "https://api.prod.whoop.com/url-mapping-service/v1/STRAIN"
+            }
+          },
+          "average_heart_rate" : {
+            "type" : "integer",
+            "description" : "The user's average heart rate (beats per minute) during the workout.",
+            "format" : "int32",
+            "example" : 123
+          },
+          "max_heart_rate" : {
+            "type" : "integer",
+            "description" : "The user's max heart rate (beats per minute) during the workout.",
+            "format" : "int32",
+            "example" : 146
+          },
+          "kilojoule" : {
+            "type" : "number",
+            "description" : "Kilojoules the user expended during the workout.",
+            "format" : "float",
+            "example" : 1569.34033203125
+          },
+          "percent_recorded" : {
+            "type" : "number",
+            "description" : "Percentage (0-100%) of heart rate data WHOOP received during the workout.",
+            "format" : "float",
+            "example" : 100.0
+          },
+          "distance_meter" : {
+            "type" : "number",
+            "description" : "The distance the user travelled during the workout. Only present if distance data sent to WHOOP",
+            "format" : "float",
+            "example" : 1772.77035916
+          },
+          "altitude_gain_meter" : {
+            "type" : "number",
+            "description" : "The altitude gained during the workout. This measurement does not account for downward travel - it is strictly a measure of altitude climbed. If a member climbed up and down a 1,000 meter mountain, ending at the same altitude, this measurement would be 1,000 meters. Only present if altitude data is included as part of the workout",
+            "format" : "float",
+            "example" : 46.64384460449
+          },
+          "altitude_change_meter" : {
+            "type" : "number",
+            "description" : "The altitude difference between the start and end points of the workout. If a member climbed up and down a mountain, ending at the same altitude, this measurement would be 0. Only present if altitude data is included as part of the workout",
+            "format" : "float",
+            "example" : -0.781372010707855
+          },
+          "zone_durations" : {
+            "$ref" : "#/components/schemas/ZoneDurations"
+          }
+        },
+        "description" : "WHOOP's measurements and evaluation of the workout activity. Only present if the Workout State is `SCORED`"
+      },
+      "WorkoutV2" : {
+        "required" : [ "created_at", "end", "id", "score_state", "sport_name", "start", "timezone_offset", "updated_at", "user_id" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier for the workout activity",
+            "format" : "uuid",
+            "example" : "ecfc6a15-4661-442f-a9a4-f160dd7afae8"
+          },
+          "v1_id" : {
+            "type" : "integer",
+            "description" : "Previous generation identifier for the activity. Will not exist past 09/01/2025",
+            "format" : "int64",
+            "example" : 1043
+          },
+          "user_id" : {
+            "type" : "integer",
+            "description" : "The WHOOP User who performed the workout",
+            "format" : "int64",
+            "example" : 9012
+          },
+          "created_at" : {
+            "type" : "string",
+            "description" : "The time the workout activity was recorded in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T11:25:44.774Z"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "description" : "The time the workout activity was last updated in WHOOP",
+            "format" : "date-time",
+            "example" : "2022-04-24T14:25:44.774Z"
+          },
+          "start" : {
+            "type" : "string",
+            "description" : "Start time bound of the workout",
+            "format" : "date-time",
+            "example" : "2022-04-24T02:25:44.774Z"
+          },
+          "end" : {
+            "type" : "string",
+            "description" : "End time bound of the workout",
+            "format" : "date-time",
+            "example" : "2022-04-24T10:25:44.774Z"
+          },
+          "timezone_offset" : {
+            "type" : "string",
+            "description" : "The user's timezone offset at the time the workout was recorded. Follows format for Time Zone Designator (TZD) - '+hh:mm', '-hh:mm', or 'Z'.",
+            "example" : "-05:00",
+            "externalDocs" : {
+              "description" : "Learn more about the Time Zone Designator from the W3C Standard",
+              "url" : "https://www.w3.org/TR/NOTE-datetime"
+            }
+          },
+          "sport_name" : {
+            "type" : "string",
+            "description" : "Name of the WHOOP Sport performed during the workout",
+            "example" : "running"
+          },
+          "score_state" : {
+            "type" : "string",
+            "description" : "`SCORED` means the workout activity was scored and the measurement values will be present. `PENDING_SCORE` means WHOOP is currently evaluating the workout activity. `UNSCORABLE` means this activity could not be scored for some reason - commonly because there is not enough user metric data for the time range.",
+            "example" : "SCORED",
+            "enum" : [ "SCORED", "PENDING_SCORE", "UNSCORABLE" ]
+          },
+          "score" : {
+            "$ref" : "#/components/schemas/WorkoutScore"
+          },
+          "sport_id" : {
+            "type" : "integer",
+            "description" : "ID of the WHOOP Sport performed during the workout. Will not exist past 09/01/2025",
+            "format" : "int32",
+            "example" : 1
+          }
+        },
+        "description" : "A WHOOP workout activity with full details and scoring information"
+      },
+      "ZoneDurations" : {
+        "required" : [ "zone_five_milli", "zone_four_milli", "zone_one_milli", "zone_three_milli", "zone_two_milli", "zone_zero_milli" ],
+        "type" : "object",
+        "properties" : {
+          "zone_zero_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 0 (very light activity)",
+            "format" : "int64",
+            "example" : 300000
+          },
+          "zone_one_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 1 (light activity)",
+            "format" : "int64",
+            "example" : 600000
+          },
+          "zone_two_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 2 (moderate activity)",
+            "format" : "int64",
+            "example" : 900000
+          },
+          "zone_three_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 3 (hard activity)",
+            "format" : "int64",
+            "example" : 900000
+          },
+          "zone_four_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 4 (very hard activity)",
+            "format" : "int64",
+            "example" : 600000
+          },
+          "zone_five_milli" : {
+            "type" : "integer",
+            "description" : "Duration in milliseconds spent in Zone 5 (maximum effort)",
+            "format" : "int64",
+            "example" : 300000
+          }
+        },
+        "description" : "Breakdown of time spent in each heart rate zone during the workout.",
+        "externalDocs" : {
+          "description" : "WHOOP Locker - Training with Heart Rate Zones",
+          "url" : "https://www.whoop.com/thelocker/max-heart-rate-training-zones/"
+        }
+      },
+      "WorkoutCollection" : {
+        "type" : "object",
+        "properties" : {
+          "records" : {
+            "type" : "array",
+            "description" : "The collection of records in this page.",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkoutV2"
+            }
+          },
+          "next_token" : {
+            "type" : "string",
+            "description" : "A token that can be used on the next request to access the next page of records. If the token is not present, there are no more records in the collection.",
+            "example" : "MTIzOjEyMzEyMw"
+          }
+        },
+        "description" : "Paginated collection of workout activities with next token for pagination"
+      }
+    },
+    "securitySchemes" : {
+      "OAuth" : {
+        "type" : "oauth2",
+        "flows" : {
+          "authorizationCode" : {
+            "authorizationUrl" : "https://api.prod.whoop.com/oauth/oauth2/auth",
+            "tokenUrl" : "https://api.prod.whoop.com/oauth/oauth2/token",
+            "scopes" : {
+              "read:recovery" : "Read Recovery data, including score, heart rate variability, and resting heart rate.",
+              "read:cycles" : "Read cycles data, including day Strain and average heart rate during a physiological cycle.",
+              "read:workout" : "Read workout data, including activity Strain and average heart rate.",
+              "read:sleep" : "Read sleep data, including performance % and duration per sleep stage.",
+              "read:profile" : "Read profile data, including name and email.",
+              "read:body_measurement" : "Read body measurements data, including height, weight, and max heart rate."
+            }
+          }
+        }
+      },
+      "Trusted Partner" : {
+        "type" : "oauth2",
+        "flows" : {
+          "clientCredentials" : {
+            "tokenUrl" : "https://api.prod.whoop.com/developer/v2/partner/token",
+            "scopes" : {
+              "whoop-partner/token" : "Read service requests and upload results."
+            }
+          }
+        }
+      }
+    }
+  }
+}

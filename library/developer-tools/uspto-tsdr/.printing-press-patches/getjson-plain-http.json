@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "getjson-plain-http",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Use GetJSON (plain HTTP) instead of surf's browser-emulating client for API calls requiring Accept: application/json.",
+  "reason": "Surf's browser-emulating client overrides the Accept header, breaking TSDR API JSON responses. GetJSON uses a plain net/http client with explicit Accept: application/json.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/trademark_batch.go",
+    "internal/cli/trademark_deadlines.go",
+    "internal/cli/trademark_timeline.go",
+    "internal/cli/trademark_status.go",
+    "internal/cli/trademark_watch.go"
+  ],
+  "validated_outcome": "API calls return valid JSON; previously returned HTML/XML when surf set Accept: text/html."
+}

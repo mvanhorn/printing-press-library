@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "d6-read-only-applies-to-all-desktop-token-sources",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/workos.go",
+    "internal/granola/workos_test.go"
+  ],
+  "summary": "Two coupled invariants for the desktop token store. (1) When the encrypted store is unreadable SPECIFICALLY because the Keychain is blocked (not for other errors), fall back to the plaintext token so headless runs don't report a false 'no token / transcript unavailable'. (2) Treat that fallback token as desktop-owned and never refresh/rotate it. This extends the D6 read-only rule from the existing workos-encrypted-supabase-and-d6 patch to the plaintext-fallback source - a reprint must apply D6 to EVERY desktop-owned token source, not just the encrypted one.",
+  "reason": "Without the fallback, Keychain-blocked headless runs look unauthenticated even when a usable token exists. But the fallback must stay read-only: Granola refresh tokens are single-use, so rotating one the desktop still holds signs the user out of the desktop next time it refreshes."
+}

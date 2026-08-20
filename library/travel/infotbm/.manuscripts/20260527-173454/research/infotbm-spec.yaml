@@ -1,0 +1,302 @@
+name: infotbm
+display_name: TBM Bordeaux
+version: "1.0"
+category: travel
+base_url: https://bdx.mecatran.com/utw/ws
+description: "CLI for TBM Bordeaux public transit — schedules, real-time arrivals, journey planning, and disruption monitoring for Bordeaux Métropole"
+
+auth:
+  type: api_key
+  in: query
+  header: apiKey
+  env_vars:
+    - INFOTBM_API_KEY
+  default_value: "opendata-bordeaux-metropole-flux-gtfs-rt"
+
+resources:
+  server-info:
+    endpoints:
+      get:
+        method: GET
+        path: /server-info
+        description: "API version and build information"
+        no_auth: true
+
+  feed-info:
+    endpoints:
+      get:
+        method: GET
+        path: /gtfs/feed-info/bordeaux
+        description: "GTFS feed metadata including validity dates and timestamps"
+
+  agencies:
+    endpoints:
+      list:
+        method: GET
+        path: /gtfs/agencies/bordeaux
+        description: "Transit agencies in the Bordeaux network"
+        params:
+          - name: includeRoutes
+            in: query
+            type: boolean
+            description: "Include routes served by each agency"
+
+  routes:
+    endpoints:
+      list:
+        method: GET
+        path: /gtfs/routes/bordeaux
+        description: "All transit routes/lines in the TBM network"
+        params:
+          - name: codeQuery
+            in: query
+            type: string
+            flag_name: code
+            description: "Filter by route short code (e.g., A, B, 1, 15)"
+          - name: nameQuery
+            in: query
+            type: string
+            flag_name: name
+            description: "Filter by route name substring"
+          - name: latitude
+            in: query
+            type: number
+            flag_name: lat
+            description: "Filter routes near this latitude"
+          - name: longitude
+            in: query
+            type: number
+            flag_name: lon
+            description: "Filter routes near this longitude"
+          - name: radiusMeters
+            in: query
+            type: integer
+            flag_name: radius
+            description: "Search radius in meters (use with lat/lon)"
+          - name: includePatterns
+            in: query
+            type: boolean
+            description: "Include route patterns (stop sequences)"
+
+  stops:
+    endpoints:
+      list:
+        method: GET
+        path: /gtfs/stops/bordeaux
+        description: "All transit stops in the TBM network"
+        params:
+          - name: codeQuery
+            in: query
+            type: string
+            flag_name: code
+            description: "Filter by stop code"
+          - name: nameQuery
+            in: query
+            type: string
+            flag_name: name
+            description: "Filter by stop name substring"
+          - name: latitude
+            in: query
+            type: number
+            flag_name: lat
+            description: "Filter stops near this latitude"
+          - name: longitude
+            in: query
+            type: number
+            flag_name: lon
+            description: "Filter stops near this longitude"
+          - name: radiusMeters
+            in: query
+            type: integer
+            flag_name: radius
+            description: "Search radius in meters (use with lat/lon)"
+          - name: includeStops
+            in: query
+            type: boolean
+            description: "Include child stops within stop areas"
+          - name: includeStations
+            in: query
+            type: boolean
+            description: "Include station-level stops"
+          - name: includeRoutes
+            in: query
+            type: boolean
+            description: "Include routes serving each stop"
+
+  fares:
+    endpoints:
+      list:
+        method: GET
+        path: /gtfs/fares/bordeaux
+        description: "Fare structure including pricing and transfer rules"
+
+  realtime:
+    endpoints:
+      stop:
+        method: GET
+        path: /realtime/stop/bordeaux/{stopId}
+        description: "Real-time departure information at a specific stop"
+        params:
+          - name: stopId
+            in: path
+            type: string
+            required: true
+            description: "Stop identifier (e.g., BEQUI for Quinconces)"
+          - name: lookAheadSec
+            in: query
+            type: integer
+            flag_name: lookahead
+            description: "How far ahead to look in seconds (default 3600)"
+          - name: includeAlerts
+            in: query
+            type: boolean
+            description: "Include alerts affecting this stop"
+          - name: preferredLang
+            in: query
+            type: string
+            flag_name: lang
+            description: "Preferred language for text (default fr)"
+
+      vehicles:
+        method: GET
+        path: /realtime/vehicles/bordeaux
+        description: "Real-time vehicle positions across the network"
+        params:
+          - name: routeId
+            in: query
+            type: string
+            flag_name: route
+            description: "Filter vehicles by route ID"
+
+  alerts:
+    endpoints:
+      list:
+        method: GET
+        path: /alerts/active/bordeaux
+        description: "Active service disruption alerts"
+        params:
+          - name: preferredLang
+            in: query
+            type: string
+            flag_name: lang
+            description: "Preferred language for alert text (default fr)"
+          - name: channel
+            in: query
+            type: string
+            description: "Alert channel filter"
+
+  siri:
+    endpoints:
+      check-status:
+        method: GET
+        path: /siri/2.0/bordeaux/check-status.json
+        description: "SIRI service health check"
+        no_auth: true
+        response_format: json
+
+      lines-discovery:
+        method: GET
+        path: /siri/2.0/bordeaux/lines-discovery.json
+        description: "Discover all lines with destinations and transport modes"
+        params:
+          - name: AccountKey
+            in: query
+            type: string
+            description: "SIRI account key"
+
+      stoppoints-discovery:
+        method: GET
+        path: /siri/2.0/bordeaux/stoppoints-discovery.json
+        description: "Discover all stop points with coordinates and serving lines"
+        params:
+          - name: AccountKey
+            in: query
+            type: string
+            description: "SIRI account key"
+          - name: MaximumStops
+            in: query
+            type: integer
+            flag_name: max-stops
+            description: "Maximum number of stops to return"
+          - name: LineRef
+            in: query
+            type: string
+            flag_name: line
+            description: "Filter stops by line reference"
+
+      stop-monitoring:
+        method: GET
+        path: /siri/2.0/bordeaux/stop-monitoring.json
+        description: "Real-time arrival/departure monitoring at a stop"
+        params:
+          - name: AccountKey
+            in: query
+            type: string
+            description: "SIRI account key"
+          - name: MonitoringRef
+            in: query
+            type: string
+            required: true
+            flag_name: stop
+            description: "Stop point reference to monitor"
+          - name: MaximumStopVisits
+            in: query
+            type: integer
+            flag_name: max-visits
+            description: "Maximum number of upcoming visits to return"
+          - name: LineRef
+            in: query
+            type: string
+            flag_name: line
+            description: "Filter by line reference"
+
+      estimated-timetable:
+        method: GET
+        path: /siri/2.0/bordeaux/estimated-timetable.json
+        description: "Estimated real-time timetable for a line"
+        params:
+          - name: AccountKey
+            in: query
+            type: string
+            description: "SIRI account key"
+          - name: LineRef
+            in: query
+            type: string
+            required: true
+            flag_name: line
+            description: "Line reference for timetable"
+
+      general-message:
+        method: GET
+        path: /siri/2.0/bordeaux/general-message.json
+        description: "General service messages and disruption information"
+        params:
+          - name: AccountKey
+            in: query
+            type: string
+            description: "SIRI account key"
+
+  kml:
+    endpoints:
+      export:
+        method: GET
+        path: /layer/kml/feed/bordeaux
+        description: "KML geographic data export with route geometry and stop locations"
+        params:
+          - name: includeStops
+            in: query
+            type: boolean
+            description: "Include stop markers in KML"
+          - name: routeId
+            in: query
+            type: string
+            flag_name: route
+            description: "Export only a specific route"
+
+extra_commands:
+  - name: arrivals
+    description: "Real-time next arrivals at a stop (alias for realtime stop)"
+  - name: schedule
+    description: "Offline schedule lookups from local GTFS data"
+  - name: trips
+    description: "Journey planning commands (plan, last-departure, reroute)"

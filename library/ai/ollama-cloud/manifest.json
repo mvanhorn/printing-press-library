@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ollama-cloud-pp-mcp",
+  "display_name": "Ollama Cloud",
+  "version": "4.19.0",
+  "description": "Ollama Cloud is Ollama's hosted inference API.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ollama-cloud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ollama-cloud-pp-mcp",
+      "args": [],
+      "env": {
+        "OLLAMA_CLOUD_API_KEY": "${user_config.ollama_cloud_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "ollama_cloud_api_key": {
+      "type": "string",
+      "title": "OLLAMA_CLOUD_API_KEY",
+      "description": "Sets OLLAMA_CLOUD_API_KEY for the Ollama Cloud MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

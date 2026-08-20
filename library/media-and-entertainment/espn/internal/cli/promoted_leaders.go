@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written promoted command. Spec-driven shape declared in spec.yaml.
 
 package cli
@@ -16,9 +16,9 @@ func newLeadersPromotedCmd(flags *rootFlags) *cobra.Command {
 	var category string
 
 	cmd := &cobra.Command{
-		Use:   "leaders <sport> <league>",
+		Use:         "leaders <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Statistical leaders across categories",
+		Short:       "Statistical leaders across categories",
 		Example: `  espn-pp-cli leaders football nfl
   espn-pp-cli leaders basketball nba --category points
   espn-pp-cli leaders baseball mlb --agent`,

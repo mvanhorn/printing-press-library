@@ -1,0 +1,17 @@
+{
+  "dir": "/Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/working/pushover-pp-cli",
+  "dead_functions_found": [
+    "RootCmd",
+    "extractSearchResults",
+    "resolvePaginatedRead"
+  ],
+  "removed": [],
+  "build_verified": false,
+  "build_error": "# pushover-pp-cli/internal/mcp\ninternal/mcp/tools.go:372:31: undefined: cli.RootCmd",
+  "restored": [
+    "RootCmd",
+    "extractSearchResults",
+    "resolvePaginatedRead"
+  ],
+  "dry_run": false
+}

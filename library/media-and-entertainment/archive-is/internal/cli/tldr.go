@@ -24,9 +24,9 @@ func newTldrCmd(flags *rootFlags) *cobra.Command {
 	var showRaw bool
 
 	cmd := &cobra.Command{
-		Use:   "tldr <url>",
+		Use:         "tldr <url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Fetch an archived article and summarize it with an LLM",
+		Short:       "Fetch an archived article and summarize it with an LLM",
 		Long: "Runs the full paywall-bypass pipeline: find or create an archive.today\n" +
 			"snapshot, fetch the body, extract clean text, and summarize via a locally\n" +
 			"installed LLM. Output is a 1-line headline plus 3 bullet points.\n\n" +

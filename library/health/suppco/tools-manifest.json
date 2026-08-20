@@ -1,0 +1,60 @@
+{
+  "api_name": "suppco",
+  "base_url": "https://api.supp.co",
+  "description": "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {SUPPCO_ACCESS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "SUPPCO_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUPPCO_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "schedule_show",
+      "description": "Read the upstream schedule object, then publicly emit {data: ProviderSchedule, provenance: Observation} for one ISO calendar date. Required: date. Returns the ProviderSchedule.",
+      "method": "GET",
+      "path": "/api/schedules/{date}",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "ISO calendar date in YYYY-MM-DD format.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stack_nutrients",
+      "description": "Read upstream products[].ingredients, then publicly emit {data: StackNutrient[], provenance: Observation} with product-bound components and immediate parent/component relationships. This is not an exposure total. Returns array of StackNutrient.",
+      "method": "GET",
+      "path": "/api/users/me_compact/",
+      "params": []
+    },
+    {
+      "name": "stack_products",
+      "description": "Read the upstream products array, then publicly emit {data: StackProduct[], provenance: Observation} with only the minimum product identity and label fields. Returns array of StackProduct.",
+      "method": "GET",
+      "path": "/api/users/me_compact/",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-12T14:43:25.813858Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "ynab",
+  "display_name": "YNAB",
+  "cli_name": "ynab-pp-cli",
+  "creator": {
+    "handle": "mikesnowbie",
+    "name": "Mike Snow"
+  },
+  "owner": "mikesnowbie",
+  "printer": "mikesnowbie",
+  "printer_name": "Mike Snow",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:993f04732326ce81036c2492e68bbe486cec0f4e1d8605be980698bd219e0adb",
+  "run_id": "20260812-093755-e1ecbcb1",
+  "category": "other",
+  "description": "Every YNAB feature, plus a local mirror that makes reconciliation, payee trend analysis, and a ready-made ProjectionLab export instant instead of manual.",
+  "mcp_binary": "ynab-pp-mcp",
+  "mcp_tool_count": 44,
+  "mcp_ready": "full",
+  "api_version": "1.86.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearer",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://api.ynab.com",
+  "novel_features": [
+    {
+      "name": "Export balances (ProjectionLab-shaped)",
+      "command": "export balances",
+      "description": "One-shot export of current account balances reshaped into ProjectionLab's expected schema, ready to sync into a net-worth projection tool."
+    },
+    {
+      "name": "Reconciliation helper",
+      "command": "accounts reconcile",
+      "description": "Diff the local cleared-transaction total against a bank statement balance and surface the transaction(s) most likely responsible for the gap."
+    },
+    {
+      "name": "Payee spend profile",
+      "command": "payees profile",
+      "description": "Aggregated monthly spend stats, average transaction size, and typical categories for a single payee."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Export balances (ProjectionLab-shaped)",
+      "command": "export balances",
+      "description": "One-shot export of current account balances reshaped into ProjectionLab's expected schema, ready to sync into a net-worth projection tool."
+    },
+    {
+      "name": "Reconciliation helper",
+      "command": "accounts reconcile",
+      "description": "Diff the local cleared-transaction total against a bank statement balance and surface the transaction(s) most likely responsible for the gap."
+    },
+    {
+      "name": "Payee spend profile",
+      "command": "payees profile",
+      "description": "Aggregated monthly spend stats, average transaction size, and typical categories for a single payee."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 98.73417721518987,
+    "passed": 78,
+    "total": 79,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 88,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 88
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

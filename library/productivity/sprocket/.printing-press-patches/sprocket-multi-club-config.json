@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sprocket-multi-club-config",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260617-211906-50f83ca4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added SPROCKET_CLUB=<subdomain> env shorthand (validated as a bare hostname label) that targets https://<subdomain>.sprocketsports.com; SPROCKET_BASE_URL still wins.",
+  "reason": "Sprocket is multi-tenant; the CLI defaults to jfcsoccer but must work for any club. SPROCKET_BASE_URL alone required a full URL; the shorthand is friendlier.",
+  "files": ["internal/config/config.go"],
+  "validated_outcome": "doctor --json shows the base URL retargeting to the chosen club; default stays jfcsoccer."
+}

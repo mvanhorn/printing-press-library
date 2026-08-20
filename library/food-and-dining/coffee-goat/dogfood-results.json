@@ -1,0 +1,89 @@
+{
+  "dir": "/Users/justinfu/printing-press/library/coffee-goat",
+  "spec_path": "/Users/justinfu/printing-press/manuscripts/coffee-goat/20260520-110818/research/coffee-goat-spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "synthetic spec: path validity not applicable"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 55,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 75,
+      "registered": 75
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 25,
+    "found": 25
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 25,
+    "exempted_via_store": 21,
+    "exempted_via_annotation": 4
+  },
+  "source_client_check": {
+    "checked": 6
+  },
+  "print_json_filtered_check": {
+    "checked": 42
+  },
+  "test_presence": {
+    "checked": 3,
+    "thin_tests": [
+      "extract (2 test funcs)",
+      "refdata (2 test funcs)"
+    ]
+  },
+  "naming_check": {
+    "checked": 42
+  },
+  "issues": null
+}

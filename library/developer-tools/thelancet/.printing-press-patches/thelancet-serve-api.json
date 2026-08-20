@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-serve-api",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The CLI ships a 'serve' command exposing the lancet analytics engine (rank-authors, affiliation-growth) as a local read-only JSON API with the same parameter semantics and JSON shapes as the CLI commands; a regen must preserve this HTTP surface.",
+  "reason": "The Lancet web portal queries these analytics over HTTP instead of shelling out to the CLI. The server is stdlib-only, loopback-bound by default (--listen), never mutates data, hides raw engine errors from response bodies, and is marked mcp:hidden because a blocking server mirrored as an MCP tool would hang.",
+  "files": [
+    "internal/cli/serve.go",
+    "internal/cli/serve_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "httptest coverage over both endpoints (success shapes, 400 validation, 405/404) plus a live curl against a running server returned the same JSON field names the CLI's --json output emits."
+}

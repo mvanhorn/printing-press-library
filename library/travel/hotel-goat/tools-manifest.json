@@ -1,0 +1,73 @@
+{
+  "api_name": "hotel-goat",
+  "base_url": "https://www.google.com",
+  "description": "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters, and date-flex windowing no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "hotels_search",
+      "description": "Search hotels by location and date range. Returns ~30-40 properties per query with full OTA price breakdown and booking deep-links. Required: location, checkin, checkout. Optional: locale (default: en), currency.",
+      "method": "GET",
+      "path": "/travel/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "location",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Location: city, neighborhood, address, or 'hotels in \u003cX\u003e'",
+          "required": true
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "wire_name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Locale (en, de, fr, ...)"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 4217 currency code"
+        }
+      ]
+    },
+    {
+      "name": "properties_detail",
+      "description": "Full property detail by Google's property_token. Required: property_token.",
+      "method": "GET",
+      "path": "/travel/hotels/entity/{property_token}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "property_token",
+          "type": "string",
+          "location": "path",
+          "description": "Google property_token from search results",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

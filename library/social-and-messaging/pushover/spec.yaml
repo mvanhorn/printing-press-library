@@ -1,0 +1,912 @@
+name: pushover
+display_name: Pushover
+description: "Pushover Message, Receipts, Groups, Glances, Subscriptions, Teams, Licensing, and Open Client APIs."
+version: "0.1.0"
+base_url: "https://api.pushover.net"
+health_check_path: "/1/sounds.json"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/pushover-pp-cli/config.toml"
+
+resources:
+  messages:
+    description: "Send application notifications and download Open Client messages"
+    endpoints:
+      send:
+        method: POST
+        path: "/1/messages.json"
+        description: "Send a Pushover notification"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token; may be read from PUSHOVER_APP_TOKEN"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "Recipient user, group, or subscribed user key; may be read from PUSHOVER_USER_KEY"
+          - name: message
+            type: string
+            required: true
+            description: "Notification body text"
+          - name: title
+            type: string
+            description: "Notification title; defaults to the application name when omitted"
+          - name: device
+            type: string
+            description: "Device name or comma-separated device names for single-user sends"
+          - name: html
+            type: bool
+            description: "Enable supported HTML formatting"
+          - name: monospace
+            type: bool
+            description: "Display message in monospace formatting"
+          - name: priority
+            type: int
+            default: 0
+            description: "Message priority: -2 lowest, -1 low, 0 normal, 1 high, 2 emergency"
+          - name: sound
+            type: string
+            description: "Notification sound name"
+          - name: timestamp
+            type: int
+            description: "Unix timestamp to display as the message time"
+          - name: ttl
+            type: int
+            description: "Seconds before the message is automatically deleted from devices"
+          - name: url
+            type: string
+            description: "Supplementary URL shown with the message"
+          - name: url_title
+            flag_name: url-title
+            type: string
+            description: "Title for the supplementary URL"
+          - name: attachment_base64
+            flag_name: attachment-base64
+            type: string
+            description: "Base64-encoded image attachment"
+          - name: attachment_type
+            flag_name: attachment-type
+            type: string
+            description: "MIME type for attachment-base64"
+          - name: encrypted
+            type: bool
+            description: "Set when encrypted message fields are supplied"
+          - name: retry
+            type: int
+            description: "Emergency priority retry interval in seconds; minimum 30"
+          - name: expire
+            type: int
+            description: "Emergency priority retry duration in seconds; maximum 10800"
+          - name: callback
+            type: string
+            description: "Public callback URL for emergency acknowledgement callbacks"
+          - name: tags
+            type: string
+            description: "Comma-separated tags for emergency receipt cancellation"
+        response:
+          type: object
+          item: MessageSendResponse
+
+      download:
+        method: GET
+        path: "/1/messages.json"
+        description: "Download pending messages for an Open Client device"
+        params:
+          - name: secret
+            flag_name: client-secret
+            aliases: [secret]
+            type: string
+            required: true
+            description: "Open Client session secret"
+          - name: device_id
+            flag_name: device-id
+            type: string
+            required: true
+            description: "Open Client device id"
+        response:
+          type: object
+          item: ClientMessagesResponse
+
+  sounds:
+    description: "Discover notification sounds"
+    endpoints:
+      list:
+        method: GET
+        path: "/1/sounds.json"
+        description: "List built-in and account custom notification sounds"
+        params:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: SoundsResponse
+
+  apps:
+    description: "Inspect application-level message quotas"
+    endpoints:
+      limits:
+        method: GET
+        path: "/1/apps/limits.json"
+        description: "Check monthly message limit, remaining sends, and reset time"
+        params:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: AppLimitsResponse
+
+  users:
+    description: "Validate users and log in for Open Client sessions"
+    endpoints:
+      validate:
+        method: POST
+        path: "/1/users/validate.json"
+        description: "Validate a user or group key and optional device"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "User or group key to validate"
+          - name: device
+            type: string
+            description: "Optional device name to validate for this user"
+        response:
+          type: object
+          item: UserValidationResponse
+
+      login:
+        method: POST
+        path: "/1/users/login.json"
+        description: "Log in a user for Open Client and return a user key plus session secret"
+        body:
+          - name: email
+            type: string
+            required: true
+            description: "Pushover account email address"
+          - name: password
+            type: string
+            required: true
+            description: "Pushover account password"
+          - name: twofa
+            type: string
+            description: "Two-factor authentication code when the first login returns HTTP 412"
+        response:
+          type: object
+          item: ClientLoginResponse
+
+  devices:
+    description: "Manage Open Client devices"
+    endpoints:
+      create:
+        method: POST
+        path: "/1/devices.json"
+        description: "Register a new Open Client desktop device"
+        body:
+          - name: secret
+            flag_name: client-secret
+            aliases: [secret]
+            type: string
+            required: true
+            description: "Open Client session secret"
+          - name: name
+            type: string
+            required: true
+            description: "Short device name; alphanumeric, underscore, or dash"
+          - name: os
+            type: string
+            default: "O"
+            description: "Open Client operating system marker; use capital O"
+        response:
+          type: object
+          item: DeviceCreateResponse
+
+      delete-through:
+        method: POST
+        path: "/1/devices/{device_id}/update_highest_message.json"
+        description: "Delete downloaded Open Client messages up to a highest message id"
+        params:
+          - name: device_id
+            flag_name: device-id
+            type: string
+            required: true
+            positional: true
+            description: "Open Client device id"
+        body:
+          - name: secret
+            flag_name: client-secret
+            aliases: [secret]
+            type: string
+            required: true
+            description: "Open Client session secret"
+          - name: message
+            flag_name: message-id
+            aliases: [message]
+            type: string
+            required: true
+            description: "Highest downloaded message id to delete through"
+        response:
+          type: object
+          item: StatusResponse
+
+  receipts:
+    description: "Inspect and cancel emergency-priority message receipts"
+    endpoints:
+      get:
+        method: GET
+        path: "/1/receipts/{receipt}.json"
+        description: "Get emergency-priority receipt status"
+        params:
+          - name: receipt
+            type: string
+            required: true
+            positional: true
+            description: "Emergency receipt id"
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: ReceiptStatusResponse
+
+      cancel:
+        method: POST
+        path: "/1/receipts/{receipt}/cancel.json"
+        description: "Cancel retries for one emergency-priority receipt"
+        params:
+          - name: receipt
+            type: string
+            required: true
+            positional: true
+            description: "Emergency receipt id"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: StatusResponse
+
+      cancel-by-tag:
+        method: POST
+        path: "/1/receipts/cancel_by_tag/{tag}.json"
+        description: "Cancel active emergency-priority retries matching a tag"
+        params:
+          - name: tag
+            type: string
+            required: true
+            positional: true
+            description: "Emergency receipt tag"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: StatusResponse
+
+  groups:
+    description: "Create, inspect, and manage Pushover delivery groups"
+    endpoints:
+      create:
+        method: POST
+        path: "/1/groups.json"
+        description: "Create a delivery group"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: name
+            type: string
+            required: true
+            description: "Group name"
+        response:
+          type: object
+          item: GroupCreateResponse
+
+      list:
+        method: GET
+        path: "/1/groups.json"
+        description: "List delivery groups owned by the account"
+        params:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: GroupsListResponse
+
+      get:
+        method: GET
+        path: "/1/groups/{group_key}.json"
+        description: "Get a delivery group's name and users"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: GroupInfoResponse
+
+      add-user:
+        method: POST
+        path: "/1/groups/{group_key}/add_user.json"
+        description: "Add a user to a delivery group"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "User key to add"
+          - name: device
+            type: string
+            description: "Optional device restriction"
+          - name: memo
+            type: string
+            description: "Free-text memo for the group member"
+        response:
+          type: object
+          item: StatusResponse
+
+      remove-user:
+        method: POST
+        path: "/1/groups/{group_key}/remove_user.json"
+        description: "Remove a user from a delivery group"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "User key to remove"
+          - name: device
+            type: string
+            description: "Optional device restriction"
+        response:
+          type: object
+          item: StatusResponse
+
+      disable-user:
+        method: POST
+        path: "/1/groups/{group_key}/disable_user.json"
+        description: "Temporarily disable a group user"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "User key to disable"
+          - name: device
+            type: string
+            description: "Optional device restriction"
+        response:
+          type: object
+          item: StatusResponse
+
+      enable-user:
+        method: POST
+        path: "/1/groups/{group_key}/enable_user.json"
+        description: "Re-enable a disabled group user"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "User key to enable"
+          - name: device
+            type: string
+            description: "Optional device restriction"
+        response:
+          type: object
+          item: StatusResponse
+
+      rename:
+        method: POST
+        path: "/1/groups/{group_key}/rename.json"
+        description: "Rename a delivery group"
+        params:
+          - name: group_key
+            flag_name: group-key
+            type: string
+            required: true
+            positional: true
+            description: "Delivery group key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: name
+            type: string
+            required: true
+            description: "New group name"
+        response:
+          type: object
+          item: StatusResponse
+
+  glances:
+    description: "Update Pushover Glances widgets"
+    endpoints:
+      update:
+        method: POST
+        path: "/1/glances.json"
+        description: "Update Glances widget fields"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "Recipient user key"
+          - name: device
+            type: string
+            description: "Optional device/widget restriction"
+          - name: title
+            type: string
+            description: "Short field label, up to 100 characters"
+          - name: text
+            type: string
+            description: "Main text field, up to 100 characters"
+          - name: subtext
+            type: string
+            description: "Secondary text field, up to 100 characters"
+          - name: count
+            type: int
+            description: "Integer count value"
+          - name: percent
+            type: int
+            description: "Integer progress value from 0 to 100"
+        response:
+          type: object
+          item: StatusResponse
+
+  subscriptions:
+    description: "Manage Pushover subscription migrations"
+    endpoints:
+      migrate:
+        method: POST
+        path: "/1/subscriptions/migrate.json"
+        description: "Migrate an existing user key into a subscription user key"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+          - name: subscription
+            type: string
+            required: true
+            description: "Subscription code"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            required: true
+            description: "Existing user key to migrate"
+          - name: device_name
+            flag_name: device-name
+            type: string
+            description: "Optional device name limit for the subscription"
+          - name: sound
+            type: string
+            description: "Preferred default sound"
+        response:
+          type: object
+          item: SubscriptionMigrateResponse
+
+  teams:
+    description: "Manage Pushover for Teams membership"
+    endpoints:
+      info:
+        method: GET
+        path: "/1/teams.json"
+        description: "Show team information and users"
+        params:
+          - name: token
+            flag_name: team-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Team API token, not an application token"
+        response:
+          type: object
+          item: TeamInfoResponse
+
+      add-user:
+        method: POST
+        path: "/1/teams/add_user.json"
+        description: "Add a user to a team"
+        body:
+          - name: token
+            flag_name: team-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Team API token, not an application token"
+          - name: email
+            type: string
+            required: true
+            description: "User email address"
+          - name: name
+            type: string
+            description: "User full name"
+          - name: password
+            type: string
+            description: "Optional initial password"
+          - name: instant
+            type: string
+            description: "Set to true to include an Instant Login link"
+          - name: admin
+            type: string
+            description: "Set to true to add the user as a team administrator"
+          - name: group
+            type: string
+            description: "Delivery group name to add this user to"
+        response:
+          type: object
+          item: StatusResponse
+
+      remove-user:
+        method: POST
+        path: "/1/teams/remove_user.json"
+        description: "Remove a user from a team"
+        body:
+          - name: token
+            flag_name: team-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Team API token, not an application token"
+          - name: email
+            type: string
+            required: true
+            description: "User email address"
+        response:
+          type: object
+          item: StatusResponse
+
+  licenses:
+    description: "Assign and inspect Pushover license credits"
+    endpoints:
+      assign:
+        method: POST
+        path: "/1/licenses/assign.json"
+        description: "Assign a pre-paid license credit to a user or email"
+        body:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token with purchased license credits"
+          - name: user
+            flag_name: user-key
+            aliases: [user]
+            type: string
+            description: "Pushover user key; required unless email is supplied"
+          - name: email
+            type: string
+            description: "Email address; required unless user-key is supplied"
+          - name: os
+            type: string
+            description: "Optional platform: Android, iOS, or Desktop"
+        response:
+          type: object
+          item: LicenseResponse
+
+      credits:
+        method: GET
+        path: "/1/licenses.json"
+        description: "Check remaining license credits"
+        params:
+          - name: token
+            flag_name: app-token
+            aliases: [token]
+            type: string
+            required: true
+            description: "Application API token"
+        response:
+          type: object
+          item: LicenseResponse
+
+types:
+  StatusResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: errors
+        type: object
+
+  MessageSendResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: receipt
+        type: string
+      - name: errors
+        type: object
+
+  SoundsResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: sounds
+        type: object
+      - name: errors
+        type: object
+
+  AppLimitsResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: limit
+        type: int
+      - name: remaining
+        type: int
+      - name: reset
+        type: int
+      - name: errors
+        type: object
+
+  UserValidationResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: devices
+        type: array
+      - name: licenses
+        type: array
+      - name: errors
+        type: object
+
+  ReceiptStatusResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: acknowledged
+        type: int
+      - name: acknowledged_at
+        type: int
+      - name: acknowledged_by
+        type: string
+      - name: acknowledged_by_device
+        type: string
+      - name: last_delivered_at
+        type: int
+      - name: expired
+        type: int
+      - name: expires_at
+        type: int
+      - name: called_back
+        type: int
+      - name: called_back_at
+        type: int
+      - name: errors
+        type: object
+
+  GroupCreateResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: group
+        type: string
+      - name: errors
+        type: object
+
+  GroupsListResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: groups
+        type: array
+      - name: errors
+        type: object
+
+  GroupInfoResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: name
+        type: string
+      - name: users
+        type: array
+      - name: errors
+        type: object
+
+  SubscriptionMigrateResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: subscribed_user_key
+        type: string
+      - name: errors
+        type: object
+
+  TeamInfoResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: name
+        type: string
+      - name: users
+        type: array
+      - name: errors
+        type: object
+
+  LicenseResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: credits
+        type: int
+      - name: errors
+        type: object
+
+  ClientLoginResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: id
+        type: string
+      - name: secret
+        type: string
+      - name: errors
+        type: object
+
+  DeviceCreateResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: id
+        type: string
+      - name: errors
+        type: object
+
+  ClientMessagesResponse:
+    fields:
+      - name: status
+        type: int
+      - name: request
+        type: string
+      - name: messages
+        type: array
+      - name: errors
+        type: object

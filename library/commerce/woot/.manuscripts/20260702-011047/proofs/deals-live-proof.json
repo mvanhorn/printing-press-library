@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "woot",
+  "run_id": "20260702-011047",
+  "generated_at": "2026-07-02T02:58:36Z",
+  "status": "pass",
+  "command": "woot-pp-cli deals rayon --limit 10000 --agent",
+  "assertions": {
+    "source": "live",
+    "result_count": 9,
+    "contains_target_url": true,
+    "target_title": "8Pk Asst Mens S/S Rayon Tees",
+    "target_price": null,
+    "target_url": "https://www.woot.com/offers/8pk-asst-mens-s-s-rayon-tees-1"
+  }
+}

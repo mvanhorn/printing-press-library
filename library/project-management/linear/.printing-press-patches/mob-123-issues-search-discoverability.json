@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "mob-123-issues-search-discoverability",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Expose issue duplicate search through the intuitive `issues search` command path and make that path coordinate local-cache freshness before mutation-sensitive duplicate checks.",
+  "reason": "Agents repeatedly guessed unsupported search flags, then either trusted stale local FTS data or escaped to raw API workarounds during search-before-create. The supported path must refresh stale issue search data or fail visibly.",
+  "files": [
+    "internal/cli/similar.go",
+    "internal/cli/issues.go",
+    "internal/cli/which.go",
+    "internal/cli/root.go",
+    "internal/cli/linear_agent_test.go",
+    "internal/cli/which_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Regression coverage confirms `issues search` uses the same team-scoped FTS search engine as `similar`, accepts unquoted multi-word queries, returns agent JSON with `--select`, emits a JSON usage envelope for missing queries, ranks `issues search` first for issue-search discovery queries, preserves the corrected usage-code contract for empty `similar` queries, skips network refresh for fresh local issue data, refreshes stale/empty issue search data behind a cross-process lock, reclaims stale refresh locks, refreshes all issue/label pages for duplicate-search freshness, refuses stale results when refresh fails, distinguishes explicit stale-local mode from `--max-age 0`, marks empty local stores as unsynced, attributes self/peer/external refreshes, and documents the `issues search` provenance envelope versus the legacy `similar` raw array."
+}

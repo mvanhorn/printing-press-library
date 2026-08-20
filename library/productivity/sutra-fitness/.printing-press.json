@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T08:45:15.301173Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "sutra-fitness",
+  "display_name": "Sutra",
+  "cli_name": "sutra-fitness-pp-cli",
+  "creator": {
+    "handle": "adam-birddog",
+    "name": "adam-birddog"
+  },
+  "owner": "adam-birddog",
+  "printer": "adam-birddog",
+  "printer_name": "adam-birddog",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d5927d8d8814aaf0101d3523b179f94a913eaab1bfe001d7d72d9559b80d9811",
+  "run_id": "20260615-020029-7f8843b9",
+  "category": "productivity",
+  "description": "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query.",
+  "mcp_binary": "sutra-fitness-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SUTRA_API_KEY"
+  ],
+  "auth_key_url": "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`",
+  "novel_features": [
+    {
+      "name": "Instructor scorecard",
+      "command": "scorecard",
+      "description": "Rank instructors by class fill rate, no-show rate, and check-in rate across your synced schedule."
+    },
+    {
+      "name": "No-show rate",
+      "command": "no-shows",
+      "description": "Surface no-show rates grouped by instructor, class, or client from synced reservations."
+    },
+    {
+      "name": "Capacity utilization",
+      "command": "utilization",
+      "description": "Compute fill ratio (booked vs capacity) per class, instructor, time-slot, or location over a date window."
+    },
+    {
+      "name": "Expiring / low-balance watchlist",
+      "command": "expiring",
+      "description": "List active memberships and class-packs expiring within a window or running low on credits, with client contact info."
+    },
+    {
+      "name": "Churn / at-risk clients",
+      "command": "churn",
+      "description": "Flag non-removed clients with no recent check-in and/or an expired plan using a mechanical recency threshold."
+    },
+    {
+      "name": "Revenue with prior-period comparison",
+      "command": "revenue",
+      "description": "Sum purchase revenue by membership type for a window and show the delta versus the prior equal window."
+    },
+    {
+      "name": "Referral funnel conversion",
+      "command": "referral-funnel",
+      "description": "Trace referrals to whether the referred client signed up, purchased, and attended, and rank top referrers."
+    },
+    {
+      "name": "Client lifetime value",
+      "command": "ltv",
+      "description": "Rank clients by total purchase spend with tenure since signup."
+    }
+  ]
+}

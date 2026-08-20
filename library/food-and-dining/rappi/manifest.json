@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "rappi-pp-mcp",
+  "display_name": "Rappi",
+  "version": "4.2.1",
+  "description": "Read-only Rappi Mexico catalog: restaurants by city/category, supermarkets and pharmacies by type, store details, plus offline SQLite search across the full crawled catalog.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/rappi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/rappi-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

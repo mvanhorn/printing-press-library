@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "recurring-missing-linked-transaction-boundary",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Prevented recurring missing fallback matching from reusing transactions linked to a different recurring item.",
+  "reason": "When two recurring items share identical payee and amount criteria, a transaction already linked to one item should not satisfy the other through fallback matching.",
+  "files": [
+    "internal/cli/recurring_missing.go",
+    "internal/cli/recurring_missing_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including linked and unlinked recurring transaction matching coverage."
+}

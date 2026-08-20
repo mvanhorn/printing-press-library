@@ -1,0 +1,205 @@
+name: grubhub
+description: "Grubhub food-delivery CLI: search restaurants, compare delivery fees, browse menus, and find deals over Grubhub's web API"
+version: "0.1.0"
+base_url: "https://api-gtm.grubhub.com"
+category: commerce
+health_check_path: "/geocode?address=New+York"
+cli_description: "Search restaurants, compare delivery fees and ETAs, browse full menus, and surface deals across Grubhub — agent-native, with offline menu search no Grubhub tool has."
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  - name: Origin
+    value: "https://www.grubhub.com"
+  - name: Referer
+    value: "https://www.grubhub.com/"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - GRUBHUB_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/grubhub-pp-cli/config.toml"
+
+resources:
+  restaurants:
+    description: "Search restaurants and browse menus on Grubhub"
+    endpoints:
+      search:
+        method: GET
+        path: "/restaurants/search"
+        description: "Search restaurants near a location (raw API surface; use the top-level 'search' command for address-based search)"
+        params:
+          - name: location
+            type: string
+            required: true
+            description: "WKT point as POINT(longitude latitude), e.g. POINT(-73.9857 40.7484)"
+          - name: orderMethod
+            flag_name: order-method
+            type: string
+            default: "delivery"
+            description: "Order method: delivery or pickup"
+          - name: facetSet
+            flag_name: facet-set
+            type: string
+            default: "umamiV6"
+            description: "Grubhub facet set identifier"
+          - name: sortSetId
+            flag_name: sort-set
+            type: string
+            default: "umamiv3"
+            description: "Grubhub sort set identifier"
+          - name: sponsoredSize
+            flag_name: sponsored-size
+            type: int
+            default: 0
+            description: "Number of sponsored results to include"
+          - name: pageNum
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+          - name: includeOffers
+            flag_name: include-offers
+            type: bool
+            default: true
+            description: "Include promotional offers in results"
+          - name: hideHateoasLinks
+            flag_name: hide-hateoas-links
+            type: bool
+            default: true
+            description: "Suppress verbose HATEOAS link blocks"
+        response:
+          type: object
+          item: SearchResponse
+      get:
+        method: GET
+        path: "/restaurants/{restaurant_id}"
+        description: "Get a restaurant's details and full menu by id"
+        params:
+          - name: restaurant_id
+            type: string
+            required: true
+            positional: true
+            description: "Grubhub restaurant id"
+          - name: location
+            type: string
+            description: "WKT point as POINT(longitude latitude) for delivery context"
+          - name: version
+            type: int
+            default: 4
+            description: "Menu API version"
+          - name: orderType
+            flag_name: order-type
+            type: string
+            default: "standard"
+            description: "Order type context"
+          - name: showMenuItemCoupons
+            flag_name: show-coupons
+            type: bool
+            default: true
+            description: "Include item-level coupons"
+          - name: includePromos
+            flag_name: include-promos
+            type: bool
+            default: true
+            description: "Include restaurant promotions"
+          - name: hideUnavailableMenuItems
+            flag_name: hide-unavailable
+            type: bool
+            default: true
+            description: "Hide unavailable menu items"
+        response:
+          type: object
+          item: RestaurantDetail
+      menu-item:
+        method: GET
+        path: "/restaurants/{restaurant_id}/menu_items/{item_id}"
+        description: "Get a menu item's full detail including modifier/choice categories"
+        params:
+          - name: restaurant_id
+            type: string
+            required: true
+            positional: true
+            description: "Grubhub restaurant id"
+          - name: item_id
+            type: string
+            required: true
+            positional: true
+            description: "Grubhub menu item id"
+          - name: orderType
+            flag_name: order-type
+            type: string
+            default: "standard"
+            description: "Order type context"
+          - name: version
+            type: int
+            default: 4
+            description: "Menu API version"
+        response:
+          type: object
+          item: MenuItem
+
+  geo:
+    description: "Resolve addresses to coordinates"
+    endpoints:
+      geocode:
+        method: GET
+        path: "/geocode"
+        description: "Geocode a street address to Grubhub coordinates"
+        params:
+          - name: address
+            type: string
+            required: true
+            positional: true
+            description: "Street address, e.g. '350 5th Ave, New York, NY'"
+        response:
+          type: array
+          item: Geocode
+
+types:
+  SearchResponse:
+    fields:
+      - name: search_id
+        type: string
+      - name: search_result
+        type: string
+  RestaurantDetail:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+  MenuItem:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+  Geocode:
+    fields:
+      - name: latitude
+        type: string
+      - name: longitude
+        type: string
+      - name: address_locality
+        type: string
+      - name: address_region
+        type: string
+      - name: postal_code
+        type: string

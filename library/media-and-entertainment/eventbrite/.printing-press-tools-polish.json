@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-23T19:24:46.099663Z",
+  "cli_dir": "\u003ccli-dir\u003e/eventbrite-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 344,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; framework-skipped in cobratree so it is never exposed as an MCP tool, and 'Print version' is accurate and complete for the human --help reader"
+    }
+  ]
+}

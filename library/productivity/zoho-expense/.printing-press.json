@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T12:12:04.84247Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "zoho-expense",
+  "display_name": "Zoho Expense",
+  "cli_name": "zoho-expense-pp-cli",
+  "creator": {
+    "handle": "amitav13",
+    "name": "Amitav Khandelwal"
+  },
+  "spec_path": "/Users/amitav/printing-press/.runstate/printing-press-25848b33/runs/20260523-163843/research/zoho-expense-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:091ea50c30a30dc0acc4ddc1caa080f7a0264ea71e4da4087f44aa734882f823",
+  "run_id": "20260523-163843",
+  "category": "productivity",
+  "description": "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal",
+  "mcp_binary": "zoho-expense-pp-mcp",
+  "mcp_tool_count": 70,
+  "mcp_ready": "full",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "ZOHO_EXPENSE_CLIENT_ID",
+    "ZOHO_EXPENSE_CLIENT_SECRET",
+    "ZOHO_EXPENSE_REFRESH_TOKEN",
+    "ZOHO_EXPENSE_ORGANIZATION_ID"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ZOHO_EXPENSE_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "OAuth client ID from api-console.zoho.in self-client"
+    },
+    {
+      "name": "ZOHO_EXPENSE_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "OAuth client secret from api-console.zoho.in self-client"
+    },
+    {
+      "name": "ZOHO_EXPENSE_REFRESH_TOKEN",
+      "kind": "harvested",
+      "required": true,
+      "sensitive": true,
+      "description": "Long-lived refresh token issued after exchanging a 10-min authorization code"
+    },
+    {
+      "name": "ZOHO_EXPENSE_ORGANIZATION_ID",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Zoho Expense organization ID (sent as X-com-zoho-expense-organizationid header on every request)"
+    }
+  ],
+  "auth_key_url": "https://api-console.zoho.in/",
+  "novel_features": [
+    {
+      "name": "Invoice batch ingest",
+      "command": "invoice ingest",
+      "description": "Batch upload a folder of invoices to Zoho Expense, SHA256-dedup against the local store, poll autoscan in parallel, and auto-tag from learned merchant memory — the headline workflow for AI agents that ingest invoices from email."
+    },
+    {
+      "name": "Merchant memory",
+      "command": "merchant list",
+      "description": "Build a local merchant→category/project/tag mapping from sync history; pre-fill tags on first sight of a new merchant."
+    },
+    {
+      "name": "Merchant mapping training",
+      "command": "merchant map",
+      "description": "Train the local merchant→category mapping for future auto-tag (one merchant at a time, or bulk from a CSV)."
+    },
+    {
+      "name": "Receipt hash gate",
+      "command": "receipt upload",
+      "description": "SHA256-hash incoming receipts at upload, refuse duplicates (use --force to override)."
+    },
+    {
+      "name": "Monthly close",
+      "command": "close",
+      "description": "Bundle a month's unreported expenses into an expense report in one shot — flags still-processing autoscans, flags untagged items, creates the report, attaches, optionally submits."
+    },
+    {
+      "name": "GST CGST/SGST split",
+      "command": "gst-split",
+      "description": "India-specific: parse an expense's tax_id and line items, compute CGST/SGST (intra-state) or IGST (inter-state) shares, emit the breakdown or update the expense."
+    },
+    {
+      "name": "Untagged expense audit",
+      "command": "expense-untagged",
+      "description": "List expenses missing category_id or project_id; `--auto-fix` applies the merchant→tag memory map and PUTs back to Zoho."
+    }
+  ],
+  "printer": "amitav13",
+  "printer_name": "Amitav Khandelwal"
+}

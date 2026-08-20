@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "2026-05-27-005-U1-lookup",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Add `lookup <email>` command: GET /v2/profile for live contact enrichment (name, bio, location, timezone, avatar, social links, Twitter handle) with optional --photo download from /contact/<email>/photo.",
+  "reason": "2026-05-27 iOS sniff surfaced two contact endpoints reachable with the existing cookie-derived JWT (no iOS-audience token needed). The CLI had no live contact-lookup command (participants is local-cache only; profile is saved flag-sets). Verified live: /v2/profile and /contact/<email>/photo both return 200.",
+  "files": [
+    "internal/cli/lookup.go",
+    "internal/cli/lookup_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "lookup_test.go: happy-path parse, --select filtering, --photo write, 404 no-photo graceful, sparse-body, malformed-email rejection, 500 error. Live: lookup mvanhorn@gmail.com returned full profile + 140x140 JPEG.",
+  "upstream_issue": null
+}

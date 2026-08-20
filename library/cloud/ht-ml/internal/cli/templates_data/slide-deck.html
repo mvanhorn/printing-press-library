@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#0b1020; color:#e6e9f5; overflow:hidden;
+         font:18px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .slide { position:absolute; inset:0; display:none; flex-direction:column;
+           align-items:center; justify-content:center; text-align:center; padding:6vmin; }
+  .slide.active { display:flex; }
+  h1 { font-size:clamp(2rem,7vw,4rem); margin:0 0 1rem; letter-spacing:-0.02em; }
+  h2 { font-size:clamp(1.5rem,5vw,2.5rem); margin:0 0 0.5rem; }
+  p { font-size:clamp(1rem,3vw,1.5rem); color:#aab2d5; max-width:40rem; }
+  .nav { position:fixed; bottom:1rem; right:1.25rem; color:#6b73a0; font-size:0.9rem; }
+</style>
+</head>
+<body>
+<section class="slide active"><h1>{{HEADING}}</h1><p>{{BODY}}</p></section>
+<section class="slide"><h2>Slide two</h2><p>Replace this content. Use arrow keys to navigate.</p></section>
+<section class="slide"><h2>Slide three</h2><p>Add as many &lt;section class="slide"&gt; blocks as you need.</p></section>
+<div class="nav">← → to navigate</div>
+<script>
+  let i = 0;
+  const slides = [...document.querySelectorAll('.slide')];
+  function show(n){ slides[i].classList.remove('active'); i=(n+slides.length)%slides.length; slides[i].classList.add('active'); }
+  addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') show(i+1);
+    if (e.key === 'ArrowLeft') show(i-1);
+  });
+</script>
+</body>
+</html>

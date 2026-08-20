@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forkable-spec-auth-cookies-required",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "spec.yaml's auth block must enumerate at least one real cookie name in auth.cookies for type: cookie; the generated client's own requiredAuthCookies() may stay intentionally empty (whole-domain-jar forwarding) since this field feeds spec validation, not runtime cookie selection.",
+  "reason": "A newer cli-printing-press validator (present by v4.30.1, not enforced at this CLI's base_printing_press_version 4.28.0) hard-fails dogfood/verify/scorecard with 'auth.type is \"cookie\" but auth.cookies is empty; the generated client would never send cookies' whenever auth.cookies is empty for type: cookie, with no exemption for whole-jar-forwarding designs. Confirmed via internal/spec/spec.go's validateAuthConfig: the only exemption path (isHeaderCarriedCookieAuth) is for a distinct header-carried-credential pattern that doesn't apply here. Added the real app session cookie name (_easyorder_session, Rails-style naming, confirmed present via a live Chrome cookie-jar read against forkable.com — name only, no value inspected) rather than a placeholder.",
+  "files": ["spec.yaml"],
+  "validated_outcome": "dogfood/verify/scorecard --spec spec.yaml parse the spec successfully post-fix; auth login --chrome and live API calls (doctor, account --json) continue to work unchanged since the Go client's cookie forwarding is untouched.",
+  "upstream_issue": ""
+}

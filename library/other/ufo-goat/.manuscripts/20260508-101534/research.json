@@ -1,0 +1,262 @@
+{
+  "api_name": "ufo",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "UFO-USA",
+      "url": "https://github.com/DenisSergeevitch/UFO-USA",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "UFOSINT Explorer",
+      "url": "https://github.com/UFOSINT/ufosint-explorer",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nuforc_sightings_data",
+      "url": "https://github.com/timothyrenner/nuforc_sightings_data",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "uap-data-vis-tool",
+      "url": "https://github.com/jamsoft/uap-data-vis-tool",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T10:20:00Z",
+  "novel_features": [
+    {
+      "name": "Release Sync",
+      "command": "sync",
+      "description": "Automatically detect and fetch new file tranches as the government releases them on a rolling basis",
+      "rationale": "Only possible with a local manifest store that can diff against the remote catalog",
+      "example": "ufo-pp-cli sync",
+      "why_it_matters": "Agents monitoring the PURSUE release schedule get notified of new files without manual checking",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What's New",
+      "command": "new",
+      "description": "See exactly which files were added since your last sync — the 'what did I miss' command for rolling releases",
+      "rationale": "Requires tracking sync timestamps and diffing against the local manifest",
+      "example": "ufo-pp-cli new --since 7d",
+      "why_it_matters": "When an agent needs to check for new declassified files without re-scanning the entire archive",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-Agency Timeline",
+      "command": "timeline",
+      "description": "View a chronological incident timeline spanning 1944-2025 across all four agencies",
+      "rationale": "Requires joining incident dates across agency boundaries in the local store",
+      "example": "ufo-pp-cli timeline --after 1960 --before 1970",
+      "why_it_matters": "Researchers need to see the full picture: FBI case from 1947 next to a DoW mission report from 2024",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Paired File Discovery",
+      "command": "pairs",
+      "description": "Find video-PDF pairings so researchers can locate the document that accompanies a video and vice versa",
+      "rationale": "Requires joining video_pairing and pdf_pairing fields across file records",
+      "example": "ufo-pp-cli pairs --agent",
+      "why_it_matters": "41 videos have paired documents — this command surfaces the connections instantly",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Download Manager",
+      "command": "download",
+      "description": "Download files with resume support, verification, and progress tracking for the 2.3 GB archive",
+      "rationale": "Requires tracking download state per file in the local store",
+      "example": "ufo-pp-cli download --agency FBI --resume",
+      "why_it_matters": "The archive is 2.3 GB of PDFs alone — agents need reliable batch downloads with state tracking",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agency Breakdown",
+      "command": "agencies",
+      "description": "See which agency contributed what: file counts, types, date ranges, and coverage analysis",
+      "rationale": "Requires aggregating across the full manifest with group-by queries",
+      "example": "ufo-pp-cli agencies --json --select name,file_count,types",
+      "why_it_matters": "Quick answer to 'what did the FBI release vs NASA vs DoW'",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Location Intelligence",
+      "command": "locations",
+      "description": "Aggregate incidents by geographic location for mapping and spatial analysis",
+      "rationale": "Requires grouping and counting across location fields in the local store",
+      "example": "ufo-pp-cli locations --json",
+      "why_it_matters": "25 incidents in Western US, 12 in Syria, 9 on the Moon — spatial patterns emerge from aggregation",
+      "group": "Cross-agency intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Release Sync",
+      "command": "sync",
+      "description": "Automatically detect and fetch new file tranches as the government releases them on a rolling basis",
+      "rationale": "Only possible with a local manifest store that can diff against the remote catalog",
+      "example": "ufo-pp-cli sync",
+      "why_it_matters": "Agents monitoring the PURSUE release schedule get notified of new files without manual checking",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What's New",
+      "command": "new",
+      "description": "See exactly which files were added since your last sync — the 'what did I miss' command for rolling releases",
+      "rationale": "Requires tracking sync timestamps and diffing against the local manifest",
+      "example": "ufo-pp-cli new --since 7d",
+      "why_it_matters": "When an agent needs to check for new declassified files without re-scanning the entire archive",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-Agency Timeline",
+      "command": "timeline",
+      "description": "View a chronological incident timeline spanning 1944-2025 across all four agencies",
+      "rationale": "Requires joining incident dates across agency boundaries in the local store",
+      "example": "ufo-pp-cli timeline --after 1960 --before 1970",
+      "why_it_matters": "Researchers need to see the full picture: FBI case from 1947 next to a DoW mission report from 2024",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Paired File Discovery",
+      "command": "pairs",
+      "description": "Find video-PDF pairings so researchers can locate the document that accompanies a video and vice versa",
+      "rationale": "Requires joining video_pairing and pdf_pairing fields across file records",
+      "example": "ufo-pp-cli pairs --agent",
+      "why_it_matters": "41 videos have paired documents — this command surfaces the connections instantly",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Download Manager",
+      "command": "download",
+      "description": "Download files with resume support, verification, and progress tracking for the 2.3 GB archive",
+      "rationale": "Requires tracking download state per file in the local store",
+      "example": "ufo-pp-cli download --agency FBI --resume",
+      "why_it_matters": "The archive is 2.3 GB of PDFs alone — agents need reliable batch downloads with state tracking",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agency Breakdown",
+      "command": "agencies",
+      "description": "See which agency contributed what: file counts, types, date ranges, and coverage analysis",
+      "rationale": "Requires aggregating across the full manifest with group-by queries",
+      "example": "ufo-pp-cli agencies --json --select name,file_count,types",
+      "why_it_matters": "Quick answer to 'what did the FBI release vs NASA vs DoW'",
+      "group": "Cross-agency intelligence"
+    },
+    {
+      "name": "Location Intelligence",
+      "command": "locations",
+      "description": "Aggregate incidents by geographic location for mapping and spatial analysis",
+      "rationale": "Requires grouping and counting across location fields in the local store",
+      "example": "ufo-pp-cli locations --json",
+      "why_it_matters": "25 incidents in Western US, 12 in Syria, 9 on the Moon — spatial patterns emerge from aggregation",
+      "group": "Cross-agency intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "War.gov UFO",
+    "headline": "The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative",
+    "value_prop": "The first CLI for the War.gov/UFO declassified files portal. Search across all four agencies (DoW, FBI, NASA, State), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.",
+    "auth_narrative": "No authentication required for browsing and searching the file manifest. File downloads from war.gov may require browser cookies due to Akamai bot protection — use `ufo auth login --chrome` to import cookies from your Chrome session.",
+    "quickstart": [
+      {
+        "command": "ufo-pp-cli sync",
+        "comment": "Fetch the latest file manifest from the PURSUE archive"
+      },
+      {
+        "command": "ufo-pp-cli files",
+        "comment": "Browse all 162+ declassified files"
+      },
+      {
+        "command": "ufo-pp-cli files --agency FBI",
+        "comment": "Filter to FBI contributions only"
+      },
+      {
+        "command": "ufo-pp-cli search \"Apollo\"",
+        "comment": "Search across titles, descriptions, and locations"
+      },
+      {
+        "command": "ufo-pp-cli download --type pdf --agency NASA",
+        "comment": "Download NASA PDF files"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden when downloading files",
+        "fix": "Run `ufo auth login --chrome` to import browser cookies, then retry the download"
+      },
+      {
+        "symptom": "Empty results from sync",
+        "fix": "Check internet connectivity. The manifest is fetched from GitHub. Run `ufo doctor` to verify."
+      },
+      {
+        "symptom": "No new files found",
+        "fix": "New tranches are released every few weeks. Run `ufo sync` to check for updates."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to browse, search, or download declassified UAP files from the War.gov PURSUE archive. Ideal for researchers tracking new releases, journalists investigating specific incidents, or agents that need structured access to government UFO data.",
+    "recipes": [
+      {
+        "title": "Find all Moon incidents",
+        "command": "ufo-pp-cli files --location Moon --json --select title,agency,incident_date",
+        "explanation": "Surfaces Apollo-era lunar UAP observations from NASA files"
+      },
+      {
+        "title": "Download all FBI files",
+        "command": "ufo-pp-cli download --agency FBI --resume",
+        "explanation": "Batch download with resume support for the 56 FBI contributions"
+      },
+      {
+        "title": "Cross-agency timeline for the 1960s",
+        "command": "ufo-pp-cli timeline --after 1960 --before 1970 --agent",
+        "explanation": "See incidents across all agencies during the peak UFO era"
+      },
+      {
+        "title": "Find video-document pairs",
+        "command": "ufo-pp-cli pairs --json --select video_title,pdf_title,agency",
+        "explanation": "Discover which videos have accompanying PDF reports"
+      },
+      {
+        "title": "Track new releases",
+        "command": "ufo-pp-cli sync \u0026\u0026 ufo-pp-cli new",
+        "explanation": "Fetch latest manifest and see what's been added since last check"
+      }
+    ],
+    "trigger_phrases": [
+      "check UFO files",
+      "search declassified UAP",
+      "download PURSUE files",
+      "war.gov UFO",
+      "browse UFO archive",
+      "use ufo"
+    ]
+  }
+}

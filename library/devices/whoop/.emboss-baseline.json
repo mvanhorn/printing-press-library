@@ -1,0 +1,15 @@
+{
+  "dir": "/Users/gvh41/printing-press/.runstate/printing-press-813eda61/runs/20260509-091026/working/whoop",
+  "spec": "",
+  "timestamp": "2026-05-09T09:24:14-04:00",
+  "before": {
+    "scorecard_total": 83,
+    "scorecard_grade": "B",
+    "verify_pass_rate": 96.42857142857143,
+    "verify_passed": 27,
+    "verify_total": 28,
+    "data_pipeline": true,
+    "command_count": 28
+  },
+  "mode": "full"
+}

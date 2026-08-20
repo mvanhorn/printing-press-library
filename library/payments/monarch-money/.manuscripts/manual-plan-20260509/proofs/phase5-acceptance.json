@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "monarch-money",
+  "run_id": "manual-plan-20260509",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "token",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "Local build, unit test, version, and verify-skill gates passed. Live Monarch API verification requires user-owned credentials and is intentionally not embedded in the public artifact."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "rentalcarspain-user-agent-contact",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260713-084638-059f7c9e",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Add a reachable contact pointer to the User-Agent token.",
+  "reason": "Bot etiquette: keep the tool honestly identifiable and reachable to source-site operators while preserving the non-browser token DoYouSpain's WAF requires.",
+  "files": ["internal/carsource/types.go"],
+  "validated_outcome": "Live DoYouSpain fetch still returns 200 (no 406) with the contact-annotated UA."
+}

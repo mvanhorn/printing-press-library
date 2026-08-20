@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-dry-run-mask",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Mask Namecheap ApiKey query parameters in dry-run output.",
+  "reason": "Namecheap credentials are injected into query params, so generic bearer-header masking did not protect --dry-run previews.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/review_regression_test.go"
+  ],
+  "validated_outcome": "TestDryRunMasksNamecheapAPIKeyParam verifies raw API keys are absent and masked values are present."
+}
