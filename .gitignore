@@ -40,3 +40,7 @@ Thumbs.db
 
 # Conductor workspace state
 .conductor/
+
+# Verbose manuscript proof logs — structured proofs (.json/.md/.txt) are the
+# canonical archive; raw .log files are local-only generation/dogfood output.
+library/**/.manuscripts/**/proofs/*.log
