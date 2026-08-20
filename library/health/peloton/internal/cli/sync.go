@@ -1939,14 +1939,24 @@ type dependentSyncPlan struct {
 	capped           bool     // true if --max-parents truncated the pending set
 	parentTableEmpty bool     // true if the parent resource has zero rows at all
 
-	// fullOffsetKey/fullOffsetTarget carry the --full resume-offset write
+	// fullOffsetKey/fullOffsetBase carry the --full resume-offset write
 	// runDependentFanOut must perform AFTER this plan's ids are actually
-	// fetched, not before -- see runDependentFanOut's use of these fields
-	// for why persisting eagerly (the previous behavior) is a bug.
-	// fullOffsetKey is "" whenever --full's offset-tracking doesn't apply
-	// (not a --full run, or --latest-only run-scoping is active).
-	fullOffsetKey    string
-	fullOffsetTarget int
+	// fetched, not before -- persisting eagerly (an earlier version of
+	// this fix) marked every planned id done before any request ran, so a
+	// mid-batch failure still let the offset skip past it. fullOffsetBase
+	// is the offset BEFORE this batch (not a precomputed end target):
+	// runDependentFanOut advances it only by the number of leading ids (in
+	// plan.ids' order) that actually succeeded, so a persistently-failing
+	// id blocks the offset from moving past ITSELF but never blocks ids
+	// ahead of it in the sort order that already succeeded, and never
+	// wedges the whole pass the way "only advance when zero ids in the
+	// batch failed" would (a single chronically-broken id anywhere in a
+	// window would otherwise pin that entire window, and therefore the
+	// rest of the pass behind it, forever). fullOffsetKey is "" whenever
+	// --full's offset-tracking doesn't apply (not a --full run, or
+	// --latest-only run-scoping is active).
+	fullOffsetKey  string
+	fullOffsetBase int
 }
 
 // planDependentSync resolves which parent ids a dependent sync call should
@@ -2124,16 +2134,13 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		plan.ids = candidates
 	}
 
-	// Record the offset THIS plan would advance to, but don't write it yet
-	// -- runDependentFanOut persists it only once plan.ids has actually
-	// been fetched without failure. Saving here (the previous behavior)
-	// marked every planned id "done" before a single request had been
-	// made: a network or store failure partway through the batch still
-	// left the offset advanced past the failed ids, so the next --full
-	// invocation skipped them until the entire pass wrapped back to 0.
+	// Record where this batch starts, but don't write an advanced offset
+	// yet -- runDependentFanOut persists the actual advancement once
+	// plan.ids has actually been fetched, based on how many leading ids
+	// (in this order) succeeded. See dependentSyncPlan.fullOffsetBase.
 	if full && scopeSince == nil && !dryRun {
 		plan.fullOffsetKey = progressKey
-		plan.fullOffsetTarget = fullOffset + len(plan.ids)
+		plan.fullOffsetBase = fullOffset
 	}
 	return plan, nil
 }
@@ -2199,6 +2206,15 @@ func runDependentFanOut(ctx context.Context, c interface {
 	var totalCount, failures int
 	var firstErr error
 	var sawDryRun bool
+	// failedIDs records exactly which ids failed, not just how many --
+	// runDependentFanOut runs plan.ids through a concurrent worker pool,
+	// so completion order doesn't match plan.ids' deterministic sort
+	// order. The --full offset advancement below needs to know WHICH
+	// leading ids (in that sort order) succeeded, not just a failure
+	// count, to avoid both re-skipping a failed id and letting one
+	// persistently-failing id wedge the whole pass -- see
+	// dependentSyncPlan.fullOffsetBase.
+	failedIDs := make(map[string]bool)
 	var wg sync.WaitGroup
 	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
@@ -2210,6 +2226,7 @@ func runDependentFanOut(ctx context.Context, c interface {
 				if err != nil {
 					mu.Lock()
 					failures++
+					failedIDs[workoutID] = true
 					if firstErr == nil {
 						firstErr = err
 					}
@@ -2233,6 +2250,7 @@ func runDependentFanOut(ctx context.Context, c interface {
 				if err := db.UpsertWithFacts(resource, workoutID, data); err != nil {
 					mu.Lock()
 					failures++
+					failedIDs[workoutID] = true
 					if firstErr == nil {
 						firstErr = err
 					}
@@ -2270,14 +2288,32 @@ func runDependentFanOut(ctx context.Context, c interface {
 		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", resource, len(plan.ids), totalCount)
 	}
 	// Persist the --full resume offset only now that plan.ids has actually
-	// been fetched, and only when the whole batch succeeded. A partial
-	// failure leaves the offset where it started, so the next --full call
-	// retries this entire batch (including ids that already succeeded --
-	// redundant refetches, but --full's own contract is "redo," so that
-	// cost is acceptable) rather than permanently skipping the failed ids
-	// until the pass wraps back to 0. See dependentSyncPlan.fullOffsetKey.
-	if plan.fullOffsetKey != "" && failures == 0 {
-		_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetTarget)
+	// been fetched, advancing past only the leading ids (in plan.ids'
+	// deterministic sort order) that succeeded -- not the whole batch
+	// unconditionally, and not by a raw success count either. Advancing
+	// by count alone can skip a scattered failure it never actually
+	// retried (e.g. successes at positions 0,2,4 and a failure at
+	// position 1 would wrongly advance 3 past position 1). Requiring the
+	// WHOLE batch to succeed before advancing at all (an earlier version
+	// of this fix) is also wrong: one persistently-failing id anywhere in
+	// the window would then pin that entire window -- and everything
+	// after it in the pass -- forever. Stopping at the first actual
+	// failure's position keeps both promises: nothing already fetched
+	// ahead of a failure is redone forever, and nothing behind a
+	// persistent failure is blocked forever (ids after it just get
+	// redundantly refetched each retry, which --full's own "redo" cost
+	// already accepts).
+	if plan.fullOffsetKey != "" {
+		consecutiveSuccesses := 0
+		for _, id := range plan.ids {
+			if failedIDs[id] {
+				break
+			}
+			consecutiveSuccesses++
+		}
+		if consecutiveSuccesses > 0 {
+			_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+consecutiveSuccesses)
+		}
 	}
 	// --max-parents truncated the pending set: this call is still a
 	// success (it processed real work), but the caller needs an explicit

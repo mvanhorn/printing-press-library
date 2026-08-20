@@ -124,13 +124,17 @@ func TestPlanDependentSync_FullIgnoresAlreadySyncedParents(t *testing.T) {
 // bug a live PR review caught (a partial-batch failure left the offset
 // advanced past ids that were never actually fetched). Tests that call
 // planDependentSync directly, without going through the real fetch loop,
-// must call this between calls to model "the batch succeeded."
+// must call this between calls to model "the batch succeeded." Advances by
+// the full batch length, i.e. simulates every id in plan.ids succeeding --
+// runDependentFanOut itself advances by however many LEADING ids actually
+// succeeded (see dependentSyncPlan.fullOffsetBase); this helper's "advance
+// by everything" only matches that when nothing failed.
 func commitFullOffset(t *testing.T, db *store.Store, plan dependentSyncPlan) {
 	t.Helper()
 	if plan.fullOffsetKey == "" {
 		return
 	}
-	if err := db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetTarget); err != nil {
+	if err := db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+len(plan.ids)); err != nil {
 		t.Fatalf("commitFullOffset: %v", err)
 	}
 }
@@ -257,6 +261,111 @@ func TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("replan.ids = %v, missing w1 -- the failed id was skipped because the offset advanced despite the failure", replan.ids)
+	}
+}
+
+// TestFullSyncOffsetAdvancesPastLeadingSuccessesEvenWithATrailingFailure is
+// the counterpart to TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure,
+// guarding a second bug an earlier version of this fix introduced (caught by
+// a live PR review, second round): gating advancement on "zero failures in
+// the whole batch" means one id that fails EVERY time (not just once) would
+// permanently pin the offset at the start of its window -- and therefore
+// block every id after it in the full pass -- forever, even though the ids
+// ahead of it keep succeeding on every retry. The offset must advance past
+// whatever leading run of ids (in sort order) actually succeeded, so a
+// chronically-broken id blocks only itself, not the rest of the pass.
+func TestFullSyncOffsetAdvancesPastLeadingSuccessesEvenWithATrailingFailure(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2", "w3")
+
+	// w1, w2 succeed; w3 fails (sorted order: w1 < w2 < w3, so the
+	// failure is the LAST id in the batch, not the first).
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+	}}
+
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	if len(plan.ids) != 3 {
+		t.Fatalf("plan.ids = %v, want all 3", plan.ids)
+	}
+
+	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	}
+	if res.Count != 2 {
+		t.Fatalf("Count = %d, want 2 (w1 and w2 succeeded)", res.Count)
+	}
+
+	// The offset must have advanced past w1/w2 (2 leading successes), so
+	// the next call sees only w3 -- not all three again (which would mean
+	// the offset never moved and the pass is wedged on w3 forever), and
+	// not zero (which would mean w3's chronic failure got silently
+	// dropped instead of remaining eligible for retry).
+	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
+	if err != nil {
+		t.Fatalf("planDependentSync (replan): %v", err)
+	}
+	if len(replan.ids) != 1 || replan.ids[0] != "w3" {
+		t.Fatalf("replan.ids = %v, want exactly [w3] (w1/w2 must not be redundantly re-planned; w3 must remain eligible)", replan.ids)
+	}
+}
+
+// TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount guards the
+// precise semantics: advancing by a raw count of successes (rather than the
+// length of the unbroken leading run) would be unsafe when a failure is
+// scattered in the middle of a batch -- e.g. successes at positions 0 and 2
+// with a failure at position 1 must NOT advance the offset by 2 (which
+// would move past position 1, permanently skipping the failed id).
+func TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2", "w3")
+
+	// w1 and w3 succeed; w2 (the middle id in sort order) fails.
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w3/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+	}}
+
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+
+	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	}
+	if res.Count != 2 {
+		t.Fatalf("Count = %d, want 2 (w1 and w3 succeeded)", res.Count)
+	}
+
+	// A naive "advance by success count" (2) would move the offset to
+	// position 2, i.e. past w2 entirely -- permanently skipping it. The
+	// offset must instead stop at w2's position (1): only w1 counts as a
+	// leading success, so w2 and w3 must both still appear next call.
+	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
+	if err != nil {
+		t.Fatalf("planDependentSync (replan): %v", err)
+	}
+	seen := map[string]bool{}
+	for _, id := range replan.ids {
+		seen[id] = true
+	}
+	if !seen["w2"] {
+		t.Fatalf("replan.ids = %v, missing w2 -- a scattered failure was skipped by advancing on raw success count instead of stopping at the first failure", replan.ids)
 	}
 }
 
