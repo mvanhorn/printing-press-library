@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -18,9 +19,14 @@ import (
 // The flag surface lets one binary serve stdio locally and streamable HTTP
 // when hosted in a container or remote sandbox, matching the Anthropic
 // guidance that production agents need a remote option.
+// HTTP is intentionally loopback-only because this binary does not provide
+// transport authentication: the registered tools read the local SQLite store
+// and run local-write commands under this process's authority. Remote
+// deployments must put an authenticated TLS proxy in front of the loopback
+// listener.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -39,7 +45,7 @@ func main() {
 	mcptools.RegisterTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
-	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	addr := flag.String("addr", defaultHTTPAddr, "loopback bind address for http transport (host:port)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -49,6 +55,10 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		if err := validateHTTPAddr(*addr); err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(2)
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
 		fmt.Fprintf(os.Stderr, "amazon-jobs-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
 		if err := httpSrv.Start(*addr); err != nil {
@@ -59,6 +69,23 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+// validateHTTPAddr refuses any bind address that would expose the unauthenticated
+// tool server beyond this host.
+func validateHTTPAddr(addr string) error {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return fmt.Errorf("HTTP MCP transport requires a loopback host:port address (got %q)", addr)
+	}
+	host = strings.Trim(host, "[]")
+	if host == "localhost" {
+		return nil
+	}
+	if ip := net.ParseIP(host); ip != nil && ip.IsLoopback() {
+		return nil
+	}
+	return fmt.Errorf("refusing unauthenticated HTTP MCP on non-loopback address %q; bind to 127.0.0.1 or place an authenticated TLS proxy in front", addr)
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

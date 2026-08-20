@@ -23,9 +23,14 @@ type newView struct {
 	SavedSearch string `json:"saved_search"`
 	NewCount    int    `json:"new_count"`
 	TotalNow    int    `json:"total_now"`
-	Baseline    bool   `json:"baseline_established"`
-	Note        string `json:"note,omitempty"`
-	Results     []Job  `json:"results"`
+	// TotalHits is what upstream says the saved query matches. TotalNow only
+	// counts what this run actually scanned, so the two diverging is the
+	// signal that the page cap cut the scan short.
+	TotalHits int    `json:"total_hits,omitempty"`
+	Baseline  bool   `json:"baseline_established"`
+	Curtailed bool   `json:"curtailed,omitempty"`
+	Note      string `json:"note,omitempty"`
+	Results   []Job  `json:"results"`
 }
 
 func newNovelNewCmd(flags *rootFlags) *cobra.Command {
@@ -68,8 +73,10 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 			if maxPages < 1 {
 				maxPages = 5
 			}
+			curtailed := false
 			if cliutil.IsDogfoodEnv() && maxPages > 1 {
 				maxPages = 1
+				curtailed = true
 			}
 			dbPath := resolveDBPath(dbFlag)
 
@@ -109,15 +116,18 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 			currentSet := make(map[string]struct{}, 256)
 			newJobs := make([]Job, 0)
 			allRaw := make([]json.RawMessage, 0, 256)
+			var totalHits, scannedPages int
 			for p := 0; p < maxPages; p++ {
 				values := buildSearchValues(saved.Query, saved.Country, saved.State, saved.City, saved.Sort, newScanPageSize, p*newScanPageSize)
-				_, raw, ferr := searchPage(ctx, c, values)
+				hits, raw, ferr := searchPage(ctx, c, values)
 				if ferr != nil {
 					return classifyAPIError(ferr, flags)
 				}
+				totalHits = hits
 				if len(raw) == 0 {
 					break
 				}
+				scannedPages++
 				allRaw = append(allRaw, raw...)
 				for _, r := range raw {
 					id := jobIDFromRaw(r)
@@ -138,6 +148,15 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 				if len(raw) < newScanPageSize {
 					break
 				}
+				// A full final page means the loop stopped at --max-pages, not
+				// at the end of the result set.
+				if p == maxPages-1 {
+					curtailed = true
+				}
+			}
+			// The upstream count is authoritative when the API reports one.
+			if totalHits > len(currentIDs) {
+				curtailed = true
 			}
 
 			// Keep the mirror fresh while we have the records in hand. A failed
@@ -155,7 +174,15 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 			// truncation would report only --limit and silently mark the
 			// remaining new reqs seen — they would never surface again.
 			trueNewCount := len(newJobs)
-			if err := updateSavedSeen(ctx, db, name, currentIDs, nowISO()); err != nil {
+			// A complete scan replaces the cursor, so reqs that dropped out of
+			// the result set stop being tracked. A curtailed scan must not do
+			// that: discarding ids we simply never reached would resurface them
+			// as "new" once they drift back into an earlier page.
+			cursorIDs := currentIDs
+			if curtailed {
+				cursorIDs = unionUnreachedIDs(currentIDs, currentSet, saved.LastSeen)
+			}
+			if err := updateSavedSeen(ctx, db, name, cursorIDs, nowISO()); err != nil {
 				return err
 			}
 
@@ -173,6 +200,8 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 			view := newView{
 				SavedSearch: name,
 				TotalNow:    len(currentIDs),
+				TotalHits:   totalHits,
+				Curtailed:   curtailed,
 				Results:     newJobs,
 			}
 			if !hadBaseline {
@@ -188,6 +217,14 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 					view.Note = fmt.Sprintf("showing first %d of %d new reqs; raise --limit to see the rest", limit, trueNewCount)
 				}
 			}
+			if curtailed {
+				scanned := fmt.Sprintf("scanned only %d req(s) across %d page(s)", len(currentIDs), scannedPages)
+				if totalHits > len(currentIDs) {
+					scanned = fmt.Sprintf("scanned only %d of %d upstream req(s) across %d page(s)", len(currentIDs), totalHits, scannedPages)
+				}
+				view.Note = joinNotes(view.Note,
+					scanned+"; reqs beyond that window are not counted here and stay untracked until --max-pages covers them")
+			}
 
 			return emitLiveResult(cmd, flags, view, func(w io.Writer) {
 				if view.Baseline {
@@ -196,11 +233,11 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 				}
 				if view.NewCount == 0 {
 					fmt.Fprintf(w, "no new reqs for %q since last check (%d tracked)\n", name, view.TotalNow)
-					return
-				}
-				fmt.Fprintf(w, "%d new req(s) for %q since last check:\n\n", view.NewCount, name)
-				for _, j := range view.Results {
-					printJobLine(w, j)
+				} else {
+					fmt.Fprintf(w, "%d new req(s) for %q since last check:\n\n", view.NewCount, name)
+					for _, j := range view.Results {
+						printJobLine(w, j)
+					}
 				}
 				if view.Note != "" {
 					fmt.Fprintf(w, "\n%s\n", view.Note)
@@ -214,4 +251,26 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 	cmd.Flags().StringVar(&dbFlag, "db", "", "Local SQLite store path (default: platform data dir)")
 
 	return cmd
+}
+
+// unionUnreachedIDs returns the scanned ids plus any previously-seen id the
+// scan never reached, so a page-capped run cannot walk the cursor backwards.
+func unionUnreachedIDs(scanned []string, scannedSet map[string]struct{}, prior []string) []string {
+	out := make([]string, 0, len(scanned)+len(prior))
+	out = append(out, scanned...)
+	for _, id := range prior {
+		if _, reached := scannedSet[id]; reached {
+			continue
+		}
+		out = append(out, id)
+	}
+	return out
+}
+
+// joinNotes concatenates two human notes, tolerating an empty first note.
+func joinNotes(existing, added string) string {
+	if existing == "" {
+		return added
+	}
+	return existing + "; " + added
 }

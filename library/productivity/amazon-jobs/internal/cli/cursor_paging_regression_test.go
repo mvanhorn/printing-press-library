@@ -218,3 +218,58 @@ func blockMirrorWrites(t *testing.T, dbPath string) {
 		t.Fatalf("installing mirror write block: %v", err)
 	}
 }
+
+// TestNewReportsAndPreservesACurtailedScan pins the two halves of the
+// page-cap contract. A run stopped by --max-pages must (a) say so instead of
+// presenting its partial count as the whole result set, and (b) keep the ids it
+// never reached in the cursor, so they are not re-reported as new later.
+func TestNewReportsAndPreservesACurtailedScan(t *testing.T) {
+	// 150 records: one full 100-record page plus a short second page.
+	srv := jobCorpusServer(t, 150, nil)
+	t.Setenv("AMAZON_JOBS_BASE_URL", srv.URL)
+	home := t.TempDir()
+	dbPath := filepath.Join(home, "store.db")
+
+	if out, err := runCLI(t, home, "save", "watch", "engineer", "--db", dbPath); err != nil {
+		t.Fatalf("save error = %v\n%s", err, out)
+	}
+	// Baseline over the complete set, so every id is in the cursor.
+	if out, err := runCLI(t, home, "new", "watch", "--db", dbPath, "--max-pages", "5", "--json"); err != nil {
+		t.Fatalf("baseline new error = %v\n%s", err, out)
+	}
+	if before := savedSearchCursor(t, dbPath, "watch"); !strings.Contains(before, "job-149") {
+		t.Fatalf("baseline cursor should span the whole corpus, missing job-149:\n%s", before)
+	}
+
+	// One page only: reaches job-00..99 and never sees the tail.
+	out, err := runCLI(t, home, "new", "watch", "--db", dbPath, "--max-pages", "1", "--json")
+	if err != nil {
+		t.Fatalf("curtailed new error = %v\n%s", err, out)
+	}
+	var got struct {
+		TotalNow  int    `json:"total_now"`
+		TotalHits int    `json:"total_hits"`
+		Curtailed bool   `json:"curtailed"`
+		Note      string `json:"note"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("decoding new output: %v\n%s", err, out)
+	}
+	if !got.Curtailed {
+		t.Fatalf("a page-capped scan must report itself as curtailed:\n%s", out)
+	}
+	if got.TotalHits != 150 || got.TotalNow != 100 {
+		t.Fatalf("partial scan must show 100 scanned of 150 upstream, got %d of %d:\n%s",
+			got.TotalNow, got.TotalHits, out)
+	}
+	if !strings.Contains(got.Note, "max-pages") {
+		t.Fatalf("the note must tell the user how to widen the scan, got %q", got.Note)
+	}
+
+	// The tail was never scanned, so it must remain tracked. Dropping it would
+	// resurface those reqs as "new" the next time they land on an earlier page.
+	after := savedSearchCursor(t, dbPath, "watch")
+	if !strings.Contains(after, "job-149") {
+		t.Fatalf("curtailed scan walked the cursor backwards and dropped unreached ids:\n%s", after)
+	}
+}
