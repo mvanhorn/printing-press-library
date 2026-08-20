@@ -100,6 +100,44 @@ func TestParseDealTime(t *testing.T) {
 	}
 }
 
+// TestParseDealTimeReadsNaiveValuesAsPakistanTime pins the timezone contract.
+// Peekaboo omits the offset on its validity timestamps, so reading them as UTC
+// moved every expiry window five hours and skewed days_left around the cutoff.
+// Values that do carry an offset must keep it.
+func TestParseDealTimeReadsNaiveValuesAsPakistanTime(t *testing.T) {
+	const wantOffset = 5 * 60 * 60 // PKT is UTC+05:00
+
+	for _, in := range []string{"2027-06-16T23:59:00", "2027-06-16"} {
+		got, ok := parseDealTime(in)
+		if !ok {
+			t.Fatalf("parseDealTime(%q) failed", in)
+		}
+		if _, offset := got.Zone(); offset != wantOffset {
+			t.Fatalf("parseDealTime(%q) offset = %ds, want %ds: timezone-less values are Pakistan local, not UTC",
+				in, offset, wantOffset)
+		}
+	}
+
+	// A midnight-PKT deadline is 19:00 UTC the previous day. Read as UTC it
+	// would land five hours late, which is what pulled deals across the cutoff.
+	got, ok := parseDealTime("2027-06-17T00:00:00")
+	if !ok {
+		t.Fatal("parseDealTime failed on a midnight deadline")
+	}
+	if want := time.Date(2027, 6, 16, 19, 0, 0, 0, time.UTC); !got.Equal(want) {
+		t.Fatalf("midnight PKT resolved to %s, want %s", got.UTC(), want)
+	}
+
+	// An explicit offset must survive untouched.
+	got, ok = parseDealTime("2027-06-16T23:59:00Z")
+	if !ok {
+		t.Fatal("parseDealTime failed on an RFC3339 value")
+	}
+	if _, offset := got.Zone(); offset != 0 {
+		t.Fatalf("explicit UTC offset was overridden: got %ds, want 0s", offset)
+	}
+}
+
 func TestSortDealsByDiscountDesc(t *testing.T) {
 	deals := []dealWithMerchant{
 		{pkbDeal: pkbDeal{PercentageValue: 20}},

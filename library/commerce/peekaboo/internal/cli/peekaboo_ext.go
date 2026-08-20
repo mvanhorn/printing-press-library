@@ -578,15 +578,35 @@ func sortDealsByDiscountDesc(deals []dealWithMerchant) {
 	})
 }
 
-// parseDealTime parses Peekaboo's naive datetime strings (e.g.
-// "2027-06-16T23:59:00"). Returns ok=false on empty/unparseable input.
+// pakistanTZ is the zone Peekaboo's timezone-less timestamps are expressed in.
+// The API serves Pakistani cities and omits any offset, so reading those values
+// as UTC shifts every validity window by five hours -- enough to include or
+// exclude a deal a full day early and to skew days_left around the cutoff.
+// LoadLocation keeps historical offsets correct where tzdata is available; the
+// fixed +05:00 fallback covers builds without it.
+var pakistanTZ = func() *time.Location {
+	if loc, err := time.LoadLocation("Asia/Karachi"); err == nil {
+		return loc
+	}
+	return time.FixedZone("PKT", 5*60*60)
+}()
+
+// parseDealTime parses Peekaboo's datetime strings (e.g. "2027-06-16T23:59:00").
+// Values carrying an explicit offset are honored as sent; timezone-less values
+// are read as Pakistan local time rather than UTC. Returns ok=false on
+// empty/unparseable input.
 func parseDealTime(s string) (time.Time, bool) {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return time.Time{}, false
 	}
-	for _, layout := range []string{"2006-01-02T15:04:05", time.RFC3339, "2006-01-02"} {
-		if t, err := time.Parse(layout, s); err == nil {
+	// RFC3339 goes first: it is the only layout here that carries its own
+	// offset, and that offset has to win over any local interpretation.
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, true
+	}
+	for _, layout := range []string{"2006-01-02T15:04:05", "2006-01-02"} {
+		if t, err := time.ParseInLocation(layout, s, pakistanTZ); err == nil {
 			return t, true
 		}
 	}
