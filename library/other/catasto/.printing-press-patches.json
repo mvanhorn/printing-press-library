@@ -24,6 +24,7 @@
       "summary": "Emit a structured warning when --since takes precedence over --latest-only.",
       "reason": "Agent callers previously received no indication that --latest-only had been ignored and could misinterpret the resulting pagination behavior.",
       "files": [
+        "go.mod",
         "internal/cli/sync.go",
         "internal/cli/sync_test.go"
       ],
