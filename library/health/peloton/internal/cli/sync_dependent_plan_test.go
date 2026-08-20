@@ -117,6 +117,24 @@ func TestPlanDependentSync_FullIgnoresAlreadySyncedParents(t *testing.T) {
 	}
 }
 
+// commitFullOffset simulates runDependentFanOut's post-success persistence
+// step: planDependentSync only computes where the --full offset WOULD land
+// (dependentSyncPlan.fullOffsetKey/fullOffsetTarget) -- it no longer saves
+// it itself, since doing so before the corresponding fetch work ran was the
+// bug a live PR review caught (a partial-batch failure left the offset
+// advanced past ids that were never actually fetched). Tests that call
+// planDependentSync directly, without going through the real fetch loop,
+// must call this between calls to model "the batch succeeded."
+func commitFullOffset(t *testing.T, db *store.Store, plan dependentSyncPlan) {
+	t.Helper()
+	if plan.fullOffsetKey == "" {
+		return
+	}
+	if err := db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetTarget); err != nil {
+		t.Fatalf("commitFullOffset: %v", err)
+	}
+}
+
 // TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass
 // guards NEW ISSUE C's core ask: a --full backfill of a large backlog must
 // drain across repeated bounded calls (via a persisted offset) rather than
@@ -143,6 +161,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	if plan1.totalPending != 5 {
 		t.Fatalf("call 1 totalPending=%d, want 5 (full backlog before capping)", plan1.totalPending)
 	}
+	commitFullOffset(t, db, plan1)
 
 	// Second call: should continue from offset 2, not restart from the top.
 	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
@@ -159,6 +178,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 			}
 		}
 	}
+	commitFullOffset(t, db, plan2)
 
 	// Third call: only 1 remains (5 - 2 - 2), not capped.
 	plan3, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
@@ -168,6 +188,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	if len(plan3.ids) != 1 || plan3.capped {
 		t.Fatalf("call 3 ids=%v capped=%v, want exactly 1 id, not capped", plan3.ids, plan3.capped)
 	}
+	commitFullOffset(t, db, plan3)
 
 	// Fourth call: the pass is complete (offset >= len(parentIDs)); a
 	// fresh --full call must wrap around and start over, not return empty
@@ -178,6 +199,64 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	}
 	if len(plan4.ids) != 2 {
 		t.Fatalf("call 4 (fresh pass after completion) ids=%v, want 2 (wrapped back to the start)", plan4.ids)
+	}
+}
+
+// TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure is the true
+// end-to-end regression for the bug a live PR review caught: the previous
+// implementation persisted the --full resume offset inside planDependentSync,
+// before a single request in the batch had actually been made. A failure
+// partway through the batch still left the offset advanced past every
+// planned id, so the failed id was skipped on every subsequent --full call
+// until the entire pass wrapped back to 0 -- on a large backlog, that could
+// be a very long time. Drives the real runDependentFanOut path (not just
+// planDependentSync in isolation, which can't observe fetch failures) with
+// one workout id that fails to fetch, and asserts the next plan still
+// includes it rather than skipping past it.
+func TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2")
+
+	// w1 fails (pathAwareSyncClient errors on any path not in its map);
+	// w2 succeeds.
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+	}}
+
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	if len(plan.ids) != 2 {
+		t.Fatalf("plan.ids = %v, want both w1 and w2", plan.ids)
+	}
+
+	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v (a per-item failure must stay a soft anomaly)", res.Err)
+	}
+	if res.Count != 1 {
+		t.Fatalf("Count = %d, want 1 (only w2 succeeded)", res.Count)
+	}
+
+	// The bug: the next --full call must still see w1 as pending, not
+	// skip past it because the offset advanced regardless of the failure.
+	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync (replan): %v", err)
+	}
+	found := false
+	for _, id := range replan.ids {
+		if id == "w1" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("replan.ids = %v, missing w1 -- the failed id was skipped because the offset advanced despite the failure", replan.ids)
 	}
 }
 

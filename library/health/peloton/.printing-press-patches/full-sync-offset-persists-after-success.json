@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "full-sync-offset-persists-after-success",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "planDependentSync (internal/cli/sync.go) no longer calls db.SaveSyncState itself for --full's resume-offset tracking; it only computes where the offset WOULD land (dependentSyncPlan.fullOffsetKey/fullOffsetTarget) and returns that alongside the plan. runDependentFanOut persists it -- and only when the batch had zero per-item failures -- after the fetch/store loop actually completes. A partial-batch failure now leaves the offset where it started, so the next --full call retries the ENTIRE batch (including ids that already succeeded -- a redundant refetch, but --full's own contract is \"redo everything\", so that cost is acceptable) rather than permanently skipping the failed ids until the whole pass wraps back to 0. Any future dependent that adds --full offset tracking must persist through this same plan-then-commit-on-success shape, not call SaveSyncState during planning.",
+  "reason": "Found by Greptile's automated review on the upstream PR splitting this branch's work (mvanhorn/printing-press-library#1773 and #1774): the previous implementation advanced the durable full-progress offset for every planned parent id before a single network or store operation ran. On a large backlog, a transient failure partway through a bounded batch meant the failed record's dependent data stayed missing or stale until the entire multi-call pass wrapped around -- potentially a very long time, and silently, since the failure was individually logged as a soft anomaly rather than surfaced as blocking the offset.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_dependent_plan_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure drives the real fetch/store path (not planDependentSync in isolation) with one workout id that fails to fetch and one that succeeds, and asserts the failed id is still present in the next call's plan instead of having been silently skipped past. TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass and TestPlanDependentSync_DryRunDoesNotPersistFullOffset updated/confirmed to model the new plan-then-commit-on-success shape via the new commitFullOffset test helper."
+}

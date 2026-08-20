@@ -1938,6 +1938,15 @@ type dependentSyncPlan struct {
 	totalPending     int      // ids pending before --max-parents capped them (0 = fully caught up)
 	capped           bool     // true if --max-parents truncated the pending set
 	parentTableEmpty bool     // true if the parent resource has zero rows at all
+
+	// fullOffsetKey/fullOffsetTarget carry the --full resume-offset write
+	// runDependentFanOut must perform AFTER this plan's ids are actually
+	// fetched, not before -- see runDependentFanOut's use of these fields
+	// for why persisting eagerly (the previous behavior) is a bug.
+	// fullOffsetKey is "" whenever --full's offset-tracking doesn't apply
+	// (not a --full run, or --latest-only run-scoping is active).
+	fullOffsetKey    string
+	fullOffsetTarget int
 }
 
 // planDependentSync resolves which parent ids a dependent sync call should
@@ -2115,8 +2124,16 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		plan.ids = candidates
 	}
 
+	// Record the offset THIS plan would advance to, but don't write it yet
+	// -- runDependentFanOut persists it only once plan.ids has actually
+	// been fetched without failure. Saving here (the previous behavior)
+	// marked every planned id "done" before a single request had been
+	// made: a network or store failure partway through the batch still
+	// left the offset advanced past the failed ids, so the next --full
+	// invocation skipped them until the entire pass wrapped back to 0.
 	if full && scopeSince == nil && !dryRun {
-		_ = db.SaveSyncState(progressKey, "", fullOffset+len(plan.ids))
+		plan.fullOffsetKey = progressKey
+		plan.fullOffsetTarget = fullOffset + len(plan.ids)
 	}
 	return plan, nil
 }
@@ -2251,6 +2268,16 @@ func runDependentFanOut(ctx context.Context, c interface {
 
 	if failures > 0 && !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", resource, len(plan.ids), totalCount)
+	}
+	// Persist the --full resume offset only now that plan.ids has actually
+	// been fetched, and only when the whole batch succeeded. A partial
+	// failure leaves the offset where it started, so the next --full call
+	// retries this entire batch (including ids that already succeeded --
+	// redundant refetches, but --full's own contract is "redo," so that
+	// cost is acceptable) rather than permanently skipping the failed ids
+	// until the pass wraps back to 0. See dependentSyncPlan.fullOffsetKey.
+	if plan.fullOffsetKey != "" && failures == 0 {
+		_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetTarget)
 	}
 	// --max-parents truncated the pending set: this call is still a
 	// success (it processed real work), but the caller needs an explicit
