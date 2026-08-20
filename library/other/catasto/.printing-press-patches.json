@@ -18,6 +18,16 @@
         "internal/ondata/ondata_test.go"
       ],
       "validated_outcome": "go test ./... passes; cli-printing-press publish validate passes; rebuilt ./catasto-pp-cli; which query for Comune Foglio Particella Geolocalizzazione GPS returns cadastral first; missing mapped parcels now explain Catasto Fabbricati/geometry dataset distinction."
+    },
+    {
+      "id": "sync-latest-only-agent-warning",
+      "summary": "Emit a structured warning when --since takes precedence over --latest-only.",
+      "reason": "Agent callers previously received no indication that --latest-only had been ignored and could misinterpret the resulting pagination behavior.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/sync_test.go"
+      ],
+      "validated_outcome": "Machine-readable and human-readable warning paths are covered by tests; go test ./... passes."
     }
   ]
 }

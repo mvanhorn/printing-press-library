@@ -9,6 +9,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/other/catasto/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/catasto/internal/store"
 	"github.com/spf13/cobra"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -27,6 +28,26 @@ import (
 // keys emit sync_warning and are skipped without aborting the run, so
 // sync still completes for resources that DO have resolvable paths.
 var unresolvedPathKeyRE = regexp.MustCompile(`\{[a-zA-Z_][a-zA-Z0-9_]*\}`)
+
+// PATCH: Emit a machine-readable warning when --since suppresses --latest-only.
+func emitLatestOnlySinceWarning(w io.Writer, human bool) {
+	const message = "--latest-only ignored because --since is set; --since takes precedence"
+	if human {
+		fmt.Fprintf(w, "warning: %s\n", message)
+		return
+	}
+
+	payload := struct {
+		Event   string `json:"event"`
+		Reason  string `json:"reason"`
+		Message string `json:"message"`
+	}{
+		Event:   "sync_warning",
+		Reason:  "latest_only_ignored",
+		Message: message,
+	}
+	_ = json.NewEncoder(w).Encode(payload)
+}
 
 // syncResult holds the outcome of syncing a single resource.
 type syncResult struct {
@@ -158,7 +179,9 @@ Resource scoping:
 						}
 					}
 				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
+					emitLatestOnlySinceWarning(os.Stderr, true)
+				} else {
+					emitLatestOnlySinceWarning(os.Stdout, false)
 				}
 			}
 			// effectiveLatestOnly drives the max_pages_cap_hit suppression
