@@ -140,9 +140,14 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 				}
 			}
 
-			// Keep the mirror fresh while we have the records in hand.
+			// Keep the mirror fresh while we have the records in hand. A failed
+			// mirror write must abort before the cursor moves: advancing it would
+			// leave `stats`/`skills` reading an incomplete mirror while these
+			// jobs never surface as new again.
 			if len(allRaw) > 0 {
-				_, _, _ = db.UpsertBatch("postings", allRaw)
+				if _, _, uerr := db.UpsertBatch("postings", allRaw); uerr != nil {
+					return fmt.Errorf("mirroring jobs: %w", uerr)
+				}
 			}
 
 			// Capture the true new count BEFORE truncating for display, then

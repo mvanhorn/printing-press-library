@@ -126,11 +126,19 @@ search.`, "\n"),
 				return err
 			}
 
-			// Without client-side filters, honor --page directly (server paging).
-			// With client-side filters, scan forward up to --max-scan-pages,
-			// filtering locally until we collect --limit matches.
+			// Without client-side filters, --page maps straight onto the server's
+			// offset (server paging). With client-side filters it cannot: the
+			// server knows nothing about those filters, so a raw offset would
+			// skip unfiltered records and drop matches that live in earlier
+			// server pages. Scan from the top instead and discard the first
+			// (page-1)*limit matches, so --page walks the filtered result set.
 			pageSize := limit
 			startOffset := (page - 1) * limit
+			skipMatches := 0
+			if clientSide {
+				startOffset = 0
+				skipMatches = (page - 1) * limit
+			}
 
 			// PATCH(amend-2026-07-25: --dry-run shows the real request) — this
 			// used to print a fixed "would search amazon.jobs live" line before
@@ -145,6 +153,10 @@ search.`, "\n"),
 				if clientSide {
 					fmt.Fprintf(out, "then filter client-side (%s), scanning up to %d page(s) for %d match(es)\n",
 						filters.describe(), maxScanPages, limit)
+					if skipMatches > 0 {
+						fmt.Fprintf(out, "discarding the first %d match(es) to reach --page %d of the filtered set\n",
+							skipMatches, page)
+					}
 				} else {
 					fmt.Fprintf(out, "then return up to %d result(s) from that single page\n", limit)
 				}
@@ -152,7 +164,7 @@ search.`, "\n"),
 			}
 
 			matches := make([]Job, 0, limit)
-			var totalHits, scannedPages, scannedJobs int
+			var totalHits, scannedPages, scannedJobs, skipped int
 			scanCapHit := false
 
 			for p := 0; p < maxScanPages; p++ {
@@ -174,6 +186,10 @@ search.`, "\n"),
 						continue
 					}
 					if clientSide && !filters.matches(j) {
+						continue
+					}
+					if skipped < skipMatches {
+						skipped++
 						continue
 					}
 					matches = append(matches, j)
@@ -209,7 +225,10 @@ search.`, "\n"),
 				ScannedJobs:  scannedJobs,
 				Results:      matches,
 			}
-			if len(matches) == 0 && clientSide && scanCapHit {
+			switch {
+			case len(matches) == 0 && skipMatches > 0 && skipped < skipMatches:
+				view.Note = fmt.Sprintf("the filtered result set holds only %d match(es), which ends before --page %d; lower --page or raise --max-scan-pages", skipped, page)
+			case len(matches) == 0 && clientSide && scanCapHit:
 				view.Note = fmt.Sprintf("scanned %d jobs across %d pages without a match; raise --max-scan-pages to widen the search", scannedJobs, scannedPages)
 			}
 

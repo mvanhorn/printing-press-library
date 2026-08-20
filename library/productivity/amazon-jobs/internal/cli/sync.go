@@ -139,7 +139,7 @@ This is the store populator; run it before 'stats' or 'skills'.`, "\n"),
 					fmt.Fprintf(w, "%d total hits upstream; raise --max-pages to mirror more\n", totalHits)
 				}
 				if savedName != "" {
-					fmt.Fprintf(w, "updated new-since cursor for saved search %q\n", savedName)
+					fmt.Fprintf(w, "mirrored saved search %q; its new-since cursor is unchanged (run `new` to advance it)\n", savedName)
 				}
 			})
 		},
