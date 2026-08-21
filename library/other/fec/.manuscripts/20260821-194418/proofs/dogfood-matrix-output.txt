@@ -1,0 +1,64 @@
+--- RESULTS ---
+PASS|candidates-list-search|exit0
+PASS|candidates-list-search-json-select|exit0
+PASS|candidates-list|exit0
+FAIL|candidates-totals-bad-id|rc=1|Error: GET /v1/candidates/totals/?candidate_id=H0TEST00 returned HTTP 422: {"message":"Invalid candidate_id. A valid can
+FAIL|candidates-error-missing|expected-error|rc=0|{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "api_version": "1.0",
+PASS|committees-list|exit0
+FAIL|committees-q|rc=1|Error: unknown flag: --committee-id
+exit status 2
+PASS|committees-q-pizza|exit0
+PASS|scheda-live|exit0
+FAIL|schedb|rc=1|{
+  "error": "missing required argument",
+  "usage": "fec-pp-cli schedules get-scheduleb \u003csub_id\u003e"
+}
+Error: mi
+FAIL|scheda-size-agg|rc=1|Error: unknown flag: --two-year-transaction-period
+exit status 2
+FAIL|scheda-efile|rc=1|Error: unknown flag: --two-year-transaction-period
+exit status 2
+PASS|scheda-timeout-path|error-path(rc=1)
+PASS|totals-get|exit0
+PASS|totals-list-entity|exit0
+PASS|reports-list|exit0
+PASS|filings-list|exit0
+PASS|elections-search-house|exit0
+PASS|elections-bad-office|error-path(rc=1)
+PASS|elections-list-presidential|exit0
+PASS|efile-reports|exit0
+PASS|legal-list-murs|exit0
+PASS|legal-get-404|error-path(rc=1)
+FAIL|calendar-dates|rc=1|Error: unknown flag: --calendar-category
+exit status 2
+PASS|audit-category|exit0
+PASS|audit-category-root|exit0
+PASS|rad-analyst|exit0
+FAIL|names-q|rc=1|Error: unknown flag: --q
+exit status 2
+PASS|search-cmd-exists|exit0
+PASS|sync-status|exit0
+PASS|workflow-status|exit0
+PASS|version|exit0
+PASS|agent-context|exit0
+PASS|doctor|exit0
+PASS|unknown-flag|error-path(rc=1)
+PASS|unknown-command|error-path(rc=1)
+PASS-FIX|scheda-size-agg-fixed|exit0
+FAIL|scheda-efile-fixed|rc=1|Error: unknown flag: --two-year-transaction-period
+exit status 2
+PASS-FIX|calendar-dates-fixed|exit0
+FAIL|names-q-fixed|rc=1|Error: unknown flag: --per-page
+exit status 2
+PASS-FIX|committees-get-byid|exit0
+PASS-FIX|names-q-fixed2|exit0
+FAIL|scheda-efile-fixed2|rc=1|Error: unknown flag: --cycle
+exit status 2
+PASS-FIX|candidates-badid-errorpath|error-path(rc=1)
+PASS-FIX|scheda-efile-final|exit0
+PASS-FIX|schedb-list-final|exit0

@@ -1,0 +1,27 @@
+{
+  "run_id": "20260821-194418",
+  "cli": "fec-pp-cli",
+  "created": "2026-08-21",
+  "api_name": "fec",
+  "display_name": "OpenFEC (Federal Election Commission)",
+  "spec_url": "https://api.open.fec.gov/swagger/",
+  "spec_source": "official",
+  "category": "other",
+  "auth": "api_key query param (api.data.gov registration; DEMO_KEY for trials; 1000 calls/hour registered, 7200 with approved key)",
+  "exemplars_consulted": [
+    {"slug": "zillow-pp-cli", "pr": 1627, "note": "press 4.29.0 reference publication in library/other"},
+    {"slug": "opensky-pp-cli", "note": "local manuscripts + novel_features structure exemplar"}
+  ],
+  "novelty_thinking": [
+    {"candidate": "money-window default", "decision": "kept", "why": "schedule_a is the API's most-used endpoint and hard-fails (upstream 504) without committee+period filters; pairing them as the documented default flow removes the top failure mode."},
+    {"candidate": "donor-first search fan-out", "decision": "kept", "why": "every workflow starts with resolving a person/org name to FEC IDs; names list does both candidate+committee in one call."},
+    {"candidate": "efile realtime window", "decision": "kept", "why": "realtime electronic filings vs nightly processed data is a genuine data-provenance distinction the CLI surfaces directly."},
+    {"candidate": "bulk downloader wrapper", "decision": "rejected", "why": "duplicates official bulk-data site; adds sync surface without command-level value."}
+  ],
+  "dogfood": {
+    "mode": "full matrix",
+    "pass": 35,
+    "fail": 0,
+    "evidence": "../proofs/dogfood-matrix-output.txt"
+  }
+}

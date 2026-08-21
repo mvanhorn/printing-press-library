@@ -1,0 +1,29 @@
+{
+  "run_id": "20260821-194418",
+  "cli": "fec-pp-cli",
+  "date": "2026-08-21",
+  "mode": "full-matrix",
+  "api_key": "registered (FEC_API_KEY_QUERY_AUTH env, never committed)",
+  "totals": { "pass": 35, "fail": 0 },
+  "families_covered": [
+    "candidates (list-search / list / list-totals)",
+    "committees (list + q search)",
+    "schedules (schedule_a list, schedule_b list, size aggregation, efile feed)",
+    "totals (get per committee+cycle, list by entity)",
+    "reports (list per committee)",
+    "filings (list per committee)",
+    "elections (search house/UT/2024, presidential list, bad-office 422 path)",
+    "efile (reports per committee)",
+    "legal (list murs q=fraud; get unknown doc -> clean 404 error path)",
+    "calendar-dates (calendar_category_id=1)",
+    "audit-category", "rad-analyst", "names (q search)", "search", "workflow status", "sync status surface",
+    "version", "agent-context", "doctor",
+    "error paths: unknown flag, unknown command, invalid candidate id 422, elections office enum 422, legal 404, schedule_a unfiltered 504 timeout retry path"
+  ],
+  "notes": [
+    "schedule_a with committee but no period/filter hits upstream 504 Query timed out; CLI retries 3x then exits 5 with clear message. Documented in README tips.",
+    "--select projection applies to envelope fields (api_version/pagination/results), not inner rows; inner filtering via --fields on row objects.",
+    "Initial harness misfires (wrong flag names for -3/-6 variants, names --per-page) were corrected in-session and re-run: all pass. No product bugs found.",
+    "All happy-path runs returned live JSON from api.open.fec.gov."
+  ]
+}
