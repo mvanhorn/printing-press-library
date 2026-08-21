@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -263,6 +264,86 @@ func TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("replan.ids = %v, missing w1 -- the failed id was skipped because the offset advanced despite the failure", replan.ids)
+	}
+}
+
+// TestFullSyncCheckpointSaveErrorFailsTheCommand guards the leftover
+// Greptile finding on the atomic SaveSyncStates path: fan-out can
+// succeed (or report a soft per-item anomaly) while the continuation
+// transaction fails. The command must return that error instead of
+// sync_complete / a successful count, and the cursor/backlog/turn must
+// stay at their pre-call values so the next invocation retries the same
+// window rather than pretending progress persisted.
+func TestFullSyncCheckpointSaveErrorFailsTheCommand(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2")
+
+	// Fail only the --full continuation rows. Workout seeding and
+	// dependent upserts use other tables / resource_type keys, so
+	// fan-out still completes; this is the existing db.DB() Exec
+	// seam, not a new fake store.
+	const failCheckpoint = `
+CREATE TRIGGER fail_full_sync_checkpoint_insert
+BEFORE INSERT ON sync_state
+WHEN NEW.resource_type IN ('performance:full_progress','performance:full_failed','performance:full_turn')
+BEGIN
+	SELECT RAISE(ABORT, 'injected checkpoint failure');
+END;
+CREATE TRIGGER fail_full_sync_checkpoint_update
+BEFORE UPDATE ON sync_state
+WHEN NEW.resource_type IN ('performance:full_progress','performance:full_failed','performance:full_turn')
+BEGIN
+	SELECT RAISE(ABORT, 'injected checkpoint failure');
+END;`
+	if _, err := db.DB().Exec(failCheckpoint); err != nil {
+		t.Fatalf("install checkpoint-failure triggers: %v", err)
+	}
+
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+	}}
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	if len(plan.ids) != 2 {
+		t.Fatalf("plan.ids = %v, want both w1 and w2", plan.ids)
+	}
+
+	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+	if res.Err == nil {
+		t.Fatal("syncPerformanceDependent Err = nil, want the SaveSyncStates failure surfaced")
+	}
+	if !strings.Contains(res.Err.Error(), "continuation checkpoint") {
+		t.Fatalf("Err = %v, want it to name the continuation checkpoint", res.Err)
+	}
+
+	_, _, progress, err := db.GetSyncState("performance:full_progress")
+	if err != nil {
+		t.Fatalf("GetSyncState(full_progress): %v", err)
+	}
+	if progress != 0 {
+		t.Fatalf("full_progress count = %d, want 0 (checkpoint must stay stale)", progress)
+	}
+	failedCursor, _, failedCount, err := db.GetSyncState("performance:full_failed")
+	if err != nil {
+		t.Fatalf("GetSyncState(full_failed): %v", err)
+	}
+	if failedCursor != "" || failedCount != 0 {
+		t.Fatalf("full_failed = (%q, %d), want empty stale backlog", failedCursor, failedCount)
+	}
+
+	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync (replan): %v", err)
+	}
+	if len(replan.ids) != 2 || replan.ids[0] != plan.ids[0] || replan.ids[1] != plan.ids[1] {
+		t.Fatalf("replan.ids = %v, want the same window %v after a failed checkpoint", replan.ids, plan.ids)
 	}
 }
 

@@ -2502,11 +2502,27 @@ func runDependentFanOut(ctx context.Context, c interface {
 		// backlog silently drops a failure until the pass wraps around;
 		// a backlog committed without its offset just repeats the same
 		// sweep window next call. See SaveSyncStates's doc comment.
-		_ = db.SaveSyncStates(
+		//
+		// A failed transaction leaves the continuation state stale. Do
+		// not emit sync_complete or a cap-hit progress warning after
+		// that: the next call will repeat this window, so reporting
+		// durable progress would be a lie.
+		if err := db.SaveSyncStates(
 			store.SyncStateWrite{ResourceType: plan.fullOffsetKey, Cursor: "", Count: plan.fullOffsetBase + plan.fullSweepCount},
 			store.SyncStateWrite{ResourceType: plan.fullFailedKey, Cursor: strings.Join(newBacklog, ","), Count: len(newBacklog)},
 			store.SyncStateWrite{ResourceType: plan.fullTurnKey, Cursor: "", Count: plan.fullTurnNext},
-		)
+		); err != nil {
+			checkpointErr := fmt.Errorf("saving %s continuation checkpoint: %w", resource, err)
+			if !humanFriendly {
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", checkpointErr))
+			}
+			return syncResult{
+				Resource: resource,
+				Count:    totalCount,
+				Err:      checkpointErr,
+				Duration: time.Since(started),
+			}
+		}
 	}
 	// --max-parents truncated the pending set: this call is still a
 	// success (it processed real work), but the caller needs an explicit

@@ -3,7 +3,7 @@
 Read-only Peloton workout, class, and structural-provider facts in a private local store.
 
 Created by [@itsmefelix-](https://github.com/itsmefelix-) (Felix Banuchi).
-Contributors: [@jrmii](https://github.com/jrmii) (Jim Martin).
+Contributors: [@jrmii](https://github.com/jrmii) (Jim Martin), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
