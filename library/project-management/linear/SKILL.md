@@ -25,7 +25,7 @@ This skill drives the `linear-pp-cli` binary. **Do not invoke a command named `l
 2. Verify: `linear-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
@@ -38,6 +38,8 @@ If `--version` reports "command not found" after install, the runtime cannot see
 - Add `--agent` to commands unless a human-readable table is explicitly needed. It implies JSON, compact output, non-interactive mode, no color, and confirmation-safe scripting.
 - Use `--data-source live` for closeout/state/description checks where current truth matters. Use `issues search` for duplicate checks; it refreshes stale issue search data or fails visibly. Use `--data-source local` or `similar` only when stale/offline local duplicate search is intentional.
 - A missing `description` in compact output does not mean an empty issue body. Request it explicitly: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url`.
+- Fetch several known issues in one call with comma-separated identifiers: `linear-pp-cli issues ENG-123,ENG-124 --agent`. The result array preserves caller order and removes duplicate identifiers; a missing member fails the whole read instead of returning a partial set.
+- Prefer the canonical read and comment forms shown here. Common agent phrasing is accepted without changing behavior: `issues get|view|show ENG-123`, `documents get|view <ref>`, and `comments create` are compatibility aliases for `issues ENG-123`, `documents <ref>`, and `comments add`. The aliases accept the same global flags, comma reads, body files, targets, and media flags as their canonical commands; there is deliberately no `documents show` alias.
 - `--label` is UUID-only; `--label-name` resolves an exact label name at write time (team-owned or workspace-global). Before passing UUIDs to `issues create` or `issues edit`, run `linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key`. The CLI preflights ownership and refuses cross-team labels before mutating.
 - Never pass multiline Markdown, shell snippets, GraphQL, logs, backticks, `$()` expansions, or media-rich content as inline shell arguments. Write the body to a file or stdin and use the `*-file` / `*-stdin` flags below.
 
@@ -208,6 +210,7 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list ENG-123 --agent
   linear-pp-cli comments list --issue ENG-123 --agent --limit 100
   ```
@@ -316,6 +319,14 @@ These capabilities aren't available in any other tool for this API.
 **project-statuses** — Manage project-statuses
 
 - `linear-pp-cli project-statuses <id>` — Get a single projectstatus
+
+**project-updates** — Create and list Linear project updates (status posts on a project)
+
+- `linear-pp-cli project-updates list --project <uuid> --agent` — List project updates for a project
+- `linear-pp-cli project-updates list --project-name "My Project" --limit 10 --agent` — List updates by project name
+- `linear-pp-cli project-updates create --project <uuid> --body-file /tmp/update.md --health onTrack --agent` — Post a project update with markdown body
+- `linear-pp-cli project-updates create --project-name "My Project" --body "Sprint on track." --health onTrack --agent` — Post update by project name
+- `linear-pp-cli project-updates create --project <uuid> --body-stdin --health atRisk --agent < /tmp/update.md` — Post update from stdin
 
 **projects** — Manage projects
 

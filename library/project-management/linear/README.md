@@ -6,7 +6,7 @@ Pulls your workspace into a local SQLite store with FTS5 search and runs compoun
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
-Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@rob-coco](https://github.com/rob-coco) (Rob Coco).
 
 ## Install
 
@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install linear --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
@@ -303,8 +303,13 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list --issue ENG-123 --agent
   ```
+
+  Comma-separated issue reads preserve caller order, de-duplicate identifiers, and fail the whole request when any member cannot be read. A single identifier keeps the existing object-shaped `results`; multiple identifiers return an array.
+
+  Canonical forms remain `issues <ID>`, `documents <ref>`, and `comments add`. For compatibility with common agent phrasing, the CLI also accepts `issues get|view|show <ID>`, `documents get|view <ref>`, and `comments create` with the same flags and behavior. `documents show` is intentionally unsupported.
 
 ## Usage
 
@@ -527,6 +532,9 @@ Agent recipes:
 ```bash
 # Full current issue body; compact output strips descriptions unless selected
 linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+
+# Several current issue bodies in caller order
+linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
 
 # Safe multiline writes; body files preserve shell snippets literally
 linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
