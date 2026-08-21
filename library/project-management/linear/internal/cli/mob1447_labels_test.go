@@ -144,6 +144,14 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 				if err == nil || ExitCode(err) != 5 || !strings.Contains(err.Error(), "MOB-200 (issue-200)") || !strings.Contains(err.Error(), "label-global") || !strings.Contains(err.Error(), "label-kind-bug") {
 					t.Fatalf("label mismatch error = %v (code %d), want created issue and requested/observed IDs; output=%s", err, ExitCode(err), out)
 				}
+				local, localErr := executeRootForTest("issues", "MOB-200", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier,labels.nodes.id")
+				if localErr != nil || !strings.Contains(local, "label-kind-bug") {
+					t.Fatalf("mismatched issue missing from local write-back: err=%v output=%s", localErr, local)
+				}
+				fixtures, fixtureErr := executeRootForTestWithStdout("pp-test", "list", "--session", "mob-1447-test", "--db", dbPath, "--agent")
+				if fixtureErr != nil || !strings.Contains(fixtures, "MOB-200") {
+					t.Fatalf("mismatched issue missing from fixture ledger: err=%v output=%s", fixtureErr, fixtures)
+				}
 				return
 			}
 			if err != nil {
@@ -154,6 +162,33 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 				t.Fatalf("created labels missing from local write-back: err=%v output=%s", err, local)
 			}
 		})
+	}
+}
+
+func TestIssueEditWriteBackRetainsLabels(t *testing.T) {
+	const issueID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req client.GraphQLRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !strings.Contains(req.Query, "issueUpdate") || !strings.Contains(req.Query, "labels { nodes { id name color } }") {
+			t.Fatalf("issueUpdate response omitted labels: %s", req.Query)
+		}
+		fmt.Fprint(w, `{"data":{"issueUpdate":{"success":true,"issue":{"id":"`+issueID+`","identifier":"MOB-300","title":"Updated","team":{"id":"team-mob","key":"MOB"},"state":{"id":"state-1","name":"Todo","type":"unstarted"},"labels":{"nodes":[{"id":"label-bug","name":"kind:bug","color":"#f00"}]}}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "test-token")
+
+	dbPath := filepath.Join(t.TempDir(), "linear.db")
+	if _, err := executeRootForTest("issues", "edit", issueID, "--title", "Updated", "--db", dbPath, "--agent", "--data-source", "live"); err != nil {
+		t.Fatalf("issues edit failed: %v", err)
+	}
+	local, err := executeRootForTest("issues", "MOB-300", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier,labels.nodes.id,labels.nodes.name")
+	if err != nil || !strings.Contains(local, "label-bug") || !strings.Contains(local, "kind:bug") {
+		t.Fatalf("edited labels missing from local write-back: err=%v output=%s", err, local)
 	}
 }
 

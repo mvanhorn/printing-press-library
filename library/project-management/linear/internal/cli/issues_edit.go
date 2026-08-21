@@ -251,6 +251,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 						assignee { id name displayName email }
 						parent { id identifier title }
 						children { nodes { id identifier title } }
+						labels { nodes { id name color } }
 					}
 				}
 			}`

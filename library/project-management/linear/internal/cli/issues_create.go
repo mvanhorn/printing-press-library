@@ -304,13 +304,14 @@ sub-issue under an existing parent.`,
 			if !parsed.IssueCreate.Success {
 				return apiErr(fmt.Errorf("Linear reported issueCreate success=false"))
 			}
+			var labelMismatchErr error
 			if len(labelsFlag) > 0 {
 				observed := make([]string, 0, len(parsed.IssueCreate.Issue.Labels.Nodes))
 				for _, label := range parsed.IssueCreate.Issue.Labels.Nodes {
 					observed = append(observed, label.ID)
 				}
 				if !sameLabelIDs(labelsFlag, observed) {
-					return apiErr(fmt.Errorf("issue %s (%s) created with label mismatch: requested %v, observed %v", parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.ID, mergeLabelIDs(nil, labelsFlag), mergeLabelIDs(nil, observed)))
+					labelMismatchErr = apiErr(fmt.Errorf("issue %s (%s) created with label mismatch: requested %v, observed %v", parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.ID, mergeLabelIDs(nil, labelsFlag), mergeLabelIDs(nil, observed)))
 				}
 			}
 
@@ -380,6 +381,9 @@ sub-issue under an existing parent.`,
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "warning: cannot open ledger at %s: %v\n", dbPath, dbErr)
+			}
+			if labelMismatchErr != nil {
+				return labelMismatchErr
 			}
 
 			if flags.asJSON {
