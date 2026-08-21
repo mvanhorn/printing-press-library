@@ -15,6 +15,9 @@ Uses the public metadata endpoint that powers fonts.google.com.
 - `trending` — trending fonts
 - `categories` — category counts
 - `random` — random font (--category)
+- `agent-context` — emit the machine-readable command tree (JSON, --pretty for humans)
+
+Every command supports `gfonts <cmd> --help` with usage and examples.
 
 ## Auth
 None. All endpoints are public.

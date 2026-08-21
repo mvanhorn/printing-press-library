@@ -665,6 +665,203 @@ func cmdRandom(args []string) {
 	fmt.Printf("   Try: gfonts download %q\n", f.Family)
 }
 
+// --- Agent-context (machine-readable CLI description for agents) ---
+// The live dogfood runner enumerates this command tree, so the command list
+// here must stay in sync with the switch dispatch in main().
+
+type agentContextCommand struct {
+	Name        string                `json:"name"`
+	Use         string                `json:"use,omitempty"`
+	Short       string                `json:"short,omitempty"`
+	Annotations map[string]string     `json:"annotations,omitempty"`
+	Flags       []agentContextFlag    `json:"flags,omitempty"`
+	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
+}
+
+type agentContextFlag struct {
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Usage   string `json:"usage,omitempty"`
+	Default string `json:"default,omitempty"`
+}
+
+func agentContextPaths() map[string]string {
+	home, _ := os.UserHomeDir()
+	return map[string]string{
+		"config_dir": filepath.Join(home, ".config", "gfonts"),
+		"data_dir":   filepath.Join(home, ".local", "share", "gfonts"),
+		"state_dir":  filepath.Join(home, ".local", "state", "gfonts"),
+		"cache_dir":  os.TempDir(),
+	}
+}
+
+func cmdAgentContext(args []string) {
+	pretty := false
+	for _, a := range args {
+		if a == "--pretty" {
+			pretty = true
+		}
+	}
+	ctx := map[string]any{
+		"schema_version": "4",
+		"cli": map[string]string{
+			"name":        "gfonts-pp-cli",
+			"description": "Search, browse, and download fonts from Google Fonts. No API key required.",
+			"version":     version,
+		},
+		"auth": map[string]any{
+			"mode":     "none",
+			"env_vars": []any{},
+		},
+		"paths": agentContextPaths(),
+		"commands": []agentContextCommand{
+			{Name: "search", Use: "search <query>", Short: "Search fonts by name, category, or designer",
+				Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "<query>=Inter"}},
+			{Name: "list", Use: "list [--category <category>] [--sort <sort>] [--limit <limit>]", Short: "List fonts",
+				Annotations: map[string]string{"mcp:read-only": "true"},
+				Flags: []agentContextFlag{
+					{Name: "category", Type: "string", Usage: "filter by category (serif, sans-serif, display, etc.)"},
+					{Name: "sort", Type: "string", Usage: "sort by: popularity (default), alpha, date, trending", Default: "popularity"},
+					{Name: "limit", Type: "int", Usage: "number of results (default 20)", Default: "20"},
+				}},
+			{Name: "info", Use: "info <font>", Short: "Show detailed font info",
+				Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "<font>=Inter"}},
+			{Name: "download", Use: "download <font> [--variant <variant>] [--output <dir>] [--show]", Short: "Download font files",
+				Annotations: map[string]string{"pp:happy-args": "<font>=Inter;--variant=regular;--output=/tmp/gfonts-dogfood-download"},
+				Flags: []agentContextFlag{
+					{Name: "variant", Type: "string", Usage: "download specific variant (e.g. regular, 700, italic)"},
+					{Name: "output", Type: "string", Usage: "output directory (default: font name)"},
+					{Name: "show", Type: "bool", Usage: "show URLs without downloading"},
+				}},
+			{Name: "trending", Use: "trending", Short: "Show popular/trending fonts",
+				Annotations: map[string]string{"mcp:read-only": "true"}},
+			{Name: "categories", Use: "categories", Short: "List all font categories",
+				Annotations: map[string]string{"mcp:read-only": "true"}},
+			{Name: "random", Use: "random [--category <category>]", Short: "Pick a random font",
+				Annotations: map[string]string{"mcp:read-only": "true"},
+				Flags: []agentContextFlag{
+					{Name: "category", Type: "string", Usage: "only pick from this category"},
+				}},
+		},
+		"available_profiles":           []string{},
+		"feedback_endpoint_configured": false,
+		"learn_protocol":               "",
+	}
+	enc := json.NewEncoder(os.Stdout)
+	if pretty {
+		enc.SetIndent("", "  ")
+	}
+	_ = enc.Encode(ctx)
+}
+
+// commandHelp returns the per-command help text. Each block keeps a
+// "Usage:" line and an "Examples:" section (with example lines starting at
+// the binary name) because the live dogfood runner parses those. Do not
+// mention "--json" here: the runner treats its presence as JSON support and
+// would probe the command for JSON output this CLI does not produce.
+
+func commandHelp(cmd string) string {
+	switch cmd {
+	case "search":
+		return `Usage:
+  gfonts search <query>
+
+Search fonts by name, category, or designer.
+
+Options:
+  (none)
+
+Examples:
+  gfonts search "Inter"
+  gfonts search "Playfair Display"
+  gfonts search "sans-serif"`
+	case "list":
+		return `Usage:
+  gfonts list [--category <category>] [--sort <sort>] [--limit <limit>]
+
+List fonts with optional category filter, sort order, and result limit.
+
+Options:
+  --category, -c    Filter by category (serif, sans-serif, display, etc.)
+  --sort, -s        Sort by: popularity (default), alpha, date, trending
+  --limit, -n       Number of results (default 20)
+
+Examples:
+  gfonts list --category sans-serif --sort trending --limit 10
+  gfonts list --sort alpha --limit 5`
+	case "info":
+		return `Usage:
+  gfonts info <font>
+
+Show detailed metadata for a specific font family.
+
+Options:
+  (none)
+
+Examples:
+  gfonts info "Inter"
+  gfonts info "Playfair Display"`
+	case "download":
+		return `Usage:
+  gfonts download <font> [--variant <variant>] [--output <dir>] [--show]
+
+Download font files to a local directory.
+
+Options:
+  --variant, -v    Download a specific variant (e.g. regular, 700, italic)
+  --output, -o     Output directory (default: the font name)
+  --show, -s       Show download URLs without downloading
+
+Examples:
+  gfonts download "Inter" --variant regular --output ./my-fonts
+  gfonts download "Playfair Display" --show`
+	case "trending":
+		return `Usage:
+  gfonts trending
+
+Show the most trending Google Fonts right now.
+
+Options:
+  (none)
+
+Examples:
+  gfonts trending`
+	case "categories":
+		return `Usage:
+  gfonts categories
+
+List all font categories with font counts.
+
+Options:
+  (none)
+
+Examples:
+  gfonts categories`
+	case "random":
+		return `Usage:
+  gfonts random [--category <category>]
+
+Pick a random font, optionally restricted to a category.
+
+Options:
+  --category, -c    Only pick from this category (serif, sans-serif, display, etc.)
+
+Examples:
+  gfonts random --category display
+  gfonts random`
+	default:
+		return ""
+	}
+}
+
+func printCommandHelp(cmd string) {
+	if text := commandHelp(cmd); text != "" {
+		fmt.Println(text)
+		return
+	}
+	printUsage()
+}
+
 func printUsage() {
 	fmt.Printf(`gfonts — Google Fonts CLI (v%s)
 
@@ -717,6 +914,16 @@ func main() {
 		}
 	}
 
+	// Per-command help: gfonts <cmd> --help prints that command's help.
+	if cmd != "help" && cmd != "--help" && cmd != "-h" {
+		for _, a := range args {
+			if a == "--help" || a == "-h" {
+				printCommandHelp(cmd)
+				os.Exit(0)
+			}
+		}
+	}
+
 	switch cmd {
 	case "search":
 		cmdSearch(args)
@@ -732,6 +939,8 @@ func main() {
 		cmdCategories(args)
 	case "random", "rand":
 		cmdRandom(args)
+	case "agent-context":
+		cmdAgentContext(args)
 	case "version":
 		fmt.Printf("gfonts %s\n", version)
 	case "help", "--help", "-h":

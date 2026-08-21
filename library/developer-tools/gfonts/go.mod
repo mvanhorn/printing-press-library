@@ -1,3 +1,3 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/gfonts
 
-go 1.26.5
+go 1.26.6
