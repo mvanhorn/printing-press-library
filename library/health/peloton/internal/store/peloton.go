@@ -329,12 +329,31 @@ func (s *Store) mergeClassesListItemsWithStoredDetail(items []json.RawMessage) [
 	return out
 }
 
+// classFactHasRideObject reports whether a decoded class fact's "ride"
+// field is a real, non-null JSON object -- the same detail-shape signal
+// internal/cli/offline.go's classIsListForm uses via a type assertion to
+// map[string]any. A plain comma-ok presence check on the raw
+// map[string]json.RawMessage (an earlier version of this function) isn't
+// enough: it's also true for a hypothetical "ride": null value, which
+// would then be wrongly treated as a real detail object -- either
+// short-circuiting the merge for a still-list-shaped incoming item, or
+// treating a still-list-shaped stored record as having detail fields to
+// preserve when it has none.
+func classFactHasRideObject(obj map[string]json.RawMessage) bool {
+	raw, ok := obj["ride"]
+	if !ok {
+		return false
+	}
+	var ride map[string]any
+	return json.Unmarshal(raw, &ride) == nil && ride != nil
+}
+
 func (s *Store) mergeClassesListItemWithStoredDetail(item json.RawMessage) json.RawMessage {
 	var incoming map[string]json.RawMessage
 	if err := json.Unmarshal(item, &incoming); err != nil {
 		return item
 	}
-	if _, hasRide := incoming["ride"]; hasRide {
+	if classFactHasRideObject(incoming) {
 		return item // already detail-shaped; nothing to preserve
 	}
 	var plain map[string]any
@@ -353,7 +372,7 @@ func (s *Store) mergeClassesListItemWithStoredDetail(item json.RawMessage) json.
 	if err := json.Unmarshal(existing, &existingObj); err != nil {
 		return item
 	}
-	if _, hadRide := existingObj["ride"]; !hadRide {
+	if !classFactHasRideObject(existingObj) {
 		return item // prior record was list-shaped too; nothing to preserve
 	}
 	changed := false

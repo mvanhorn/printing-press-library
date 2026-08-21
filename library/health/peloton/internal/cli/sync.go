@@ -129,9 +129,15 @@ account with tens of thousands of catalog classes synced.
   - --max-parents bounds how many dependent fetches happen per call; a
     cap hit emits a sync_warning event and the run still exits 0 -- just
     re-run sync to continue.
-  - --latest-only additionally scopes a dependent's fan-out to only the
-    workouts THIS run's flat phase actually touched, not the whole local
-    store, so "refresh the top" stays bounded end to end.`,
+  - --latest-only additionally scopes performance/workout_details' fan-out
+    to only the workouts THIS run's flat phase actually touched, not the
+    whole local store, so "refresh the top" stays bounded end to end.
+    classes_detail is the one exception: its own candidate set is already
+    small (bounded by workouts.ride_id, not the full catalog) and content-
+    based (bounded by which taken classes still lack segments), so
+    --latest-only leaves it unscoped rather than mapping newly-touched
+    workout ids to their ride ids -- --max-parents still bounds any single
+    call regardless.`,
 		Example: `  # Sync all resources
   peloton-pp-cli sync
 

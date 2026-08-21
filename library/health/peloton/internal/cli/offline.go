@@ -113,10 +113,9 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout is not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so it has no associated class structure"}, nil
 		}
 		// offlineClass, not a direct offlineFact(cmd, "classes", rideID)
-		// call: falls back through "catalog_classes" and, on a
-		// provider_payloads miss, the generic resources table (see
-		// offlineClass's doc comment / CARRIED 4 in the round-11
-		// verification report).
+		// call: falls back to the generic resources table on a
+		// provider_payloads miss (see offlineClass's doc comment /
+		// CARRIED 4 in the round-11 verification report).
 		class, err := offlineClass(cmd, rideID)
 		if err != nil {
 			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class structure is unavailable"}, nil
@@ -327,14 +326,20 @@ func offlineClass(cmd *cobra.Command, id string) (store.ProviderFact, error) {
 
 // offlineClassFromResources falls back to the generic resources table --
 // which every synced class lands in via the flat classes list sync -- when
-// neither the "classes" nor "catalog_classes" provider_payloads family has
-// a fact for this id. The two stores can diverge for a small number of ids
-// (CARRIED 4 in the round-11 verification report: 97 ids present in
-// resources but absent from provider_payloads on a real account, each
-// erroring "stored catalog_classes fact not found" -- a family name the
-// caller never asked about, since it's whichever fallback happened to run
-// last). Without this, an id genuinely synced locally reads as "not found"
-// purely because the secondary provider_payloads index missed it.
+// the "classes" provider_payloads family has no fact for this id. The two
+// stores can diverge for a small number of ids (CARRIED 4 in the round-11
+// verification report: 97 ids present in resources but absent from
+// provider_payloads on a real account, erroring "stored classes fact not
+// found"). Without this, an id genuinely synced locally reads as "not
+// found" purely because the secondary provider_payloads index missed it.
+//
+// This used to also try a "catalog_classes" provider_payloads family
+// before falling back here, inherited from the original generated code.
+// No write path in this CLI has ever targeted that family name --
+// discriminatorDispatchers (sync.go) is empty, so no discriminated-write
+// resource resolution exists at all -- confirmed dead, and removed rather
+// than kept as a defensive no-op per this repo's "don't validate for
+// scenarios that can't happen" convention.
 func offlineClassFromResources(cmd *cobra.Command, id string) (store.ProviderFact, error) {
 	db, err := openStoreForRead(cmd.Context(), "peloton-pp-cli")
 	if err != nil {
@@ -364,7 +369,15 @@ func offlineClassFromResources(cmd *cobra.Command, id string) (store.ProviderFac
 // genuine case.
 func classSegmentsMissingCaveat(class any) string {
 	if classIsListForm(class) {
-		return "class was synced in catalog list form only (segments/target metrics are only present after a detail fetch); run `classes structure <ride_id>` live, or `sync --resources classes_detail`, to populate them"
+		// `sync --resources classes_detail` derives its parent ride ids
+		// from workouts.ride_id (see planClassDetailSync in sync.go),
+		// not from the classes resource this caveat is about -- if
+		// workouts haven't been synced yet, that command silently no-ops
+		// with a "no synced workouts to derive parent ids from" warning
+		// instead of populating this class, which would look like the
+		// suggested fix simply didn't work. Naming the prerequisite here
+		// avoids that dead end.
+		return "class was synced in catalog list form only (segments/target metrics are only present after a detail fetch); run `classes structure <ride_id>` live, or `sync --resources workouts,classes_detail` (workouts must be synced first; classes_detail's fan-out is scoped to classes referenced by synced workouts), to populate them"
 	}
 	return "stored class has no segment list"
 }
@@ -386,8 +399,9 @@ func classIsListForm(class any) bool {
 }
 
 // offlineClasses returns every locally cached class fact, sorted by id.
-// See offlineClass's doc comment for why this no longer also merges in a
-// "catalog_classes" family.
+// Reads only the "classes" provider_payloads family (see offlineClass's
+// doc comment for why a "catalog_classes" family this used to also merge
+// in was removed as dead code -- no write path has ever targeted it).
 func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
 	facts, err := offlineFacts(cmd, "classes", 0)
 	if err != nil {

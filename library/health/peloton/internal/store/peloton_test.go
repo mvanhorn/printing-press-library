@@ -380,6 +380,51 @@ func TestUpsertBatchWithFacts_ClassesFlatSyncOfNeverDetailFetchedClassIsUnaffect
 	}
 }
 
+// TestUpsertBatchWithFacts_ClassesNullRideFieldTreatedAsListForm guards a
+// code-review finding: classFactHasRideObject (and the merge logic that
+// calls it) must type-check "ride" as a real, non-null object, not just
+// check the key's presence. A hypothetical "ride": null value on either
+// side of the merge -- the incoming item or the previously-stored record
+// -- satisfies a plain comma-ok map lookup but isn't a real detail object.
+func TestUpsertBatchWithFacts_ClassesNullRideFieldTreatedAsListForm(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// A real detail-shaped record already stored...
+	detail := json.RawMessage(`{"id":"ride-c","ride":{"id":"ride-c"},"segments":[{"role":"warmup"}]}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{detail}); err != nil {
+		t.Fatalf("seed detail: %v", err)
+	}
+
+	// ...re-synced by a list-shaped item that happens to carry a literal
+	// "ride": null (not simply absent). Presence-only detection would see
+	// this as "already detail-shaped" and skip merging in segments,
+	// wrongly stripping them.
+	listWithNullRide := json.RawMessage(`{"id":"ride-c","title":"New Title","ride":null}`)
+	if _, _, err := s.UpsertBatchWithFacts("classes", []json.RawMessage{listWithNullRide}); err != nil {
+		t.Fatalf("re-sync with null ride: %v", err)
+	}
+
+	stored, err := s.Get("classes", "ride-c")
+	if err != nil {
+		t.Fatalf("Get(classes, ride-c): %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(stored, &got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got["title"] != "New Title" {
+		t.Errorf("title = %v, want the fresher list-sync value %q", got["title"], "New Title")
+	}
+	if _, ok := got["segments"]; !ok {
+		t.Error("segments was stripped: a literal \"ride\": null on the incoming item was wrongly treated as \"already detail-shaped\"")
+	}
+}
+
 // TestRecordProviderFact_AdvancesFetchedAtEvenWhenContentUnchanged guards
 // NEW ISSUE E's --stale-before mechanism from a fourth live post-fix
 // verification sweep: a live-verify run found that refetching a record
