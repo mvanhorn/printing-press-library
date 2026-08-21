@@ -383,6 +383,19 @@ sub-issue under an existing parent.`,
 				fmt.Fprintf(os.Stderr, "warning: cannot open ledger at %s: %v\n", dbPath, dbErr)
 			}
 			if labelMismatchErr != nil {
+				if flags.asJSON {
+					flags.errorWritten = true
+					_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
+						"error": labelMismatchErr.Error(),
+						"code":  ExitCode(labelMismatchErr),
+						"type":  cliErrorType(ExitCode(labelMismatchErr)),
+						"created_issue": map[string]string{
+							"id":         parsed.IssueCreate.Issue.ID,
+							"identifier": parsed.IssueCreate.Issue.Identifier,
+							"url":        parsed.IssueCreate.Issue.URL,
+						},
+					})
+				}
 				return labelMismatchErr
 			}
 

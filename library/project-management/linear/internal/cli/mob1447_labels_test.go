@@ -105,9 +105,11 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 		name     string
 		observed string
 		wantErr  bool
+		dbFails  bool
 	}{
 		{name: "UUID and exact name in any response order", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"},{"id":"label-global","name":"source:user-report","color":"#00f"}]`},
 		{name: "success response omits requested UUID", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"}]`, wantErr: true},
+		{name: "mismatch exposes identity when persistence fails", observed: `[{"id":"label-kind-bug","name":"kind:bug","color":"#f00"}]`, wantErr: true, dbFails: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -139,10 +141,30 @@ func TestIssueCreateVerifiesReturnedLabels(t *testing.T) {
 			t.Setenv("LINEAR_API_KEY", "test-token")
 
 			dbPath := filepath.Join(t.TempDir(), "linear.db")
-			out, err := executeRootForTest("issues", "create", "--title", "Labels", "--team", teamID, "--label", "label-global", "--label-name", "kind:bug", "--session", "mob-1447-test", "--db", dbPath, "--agent", "--data-source", "live")
+			execute := executeRootForTest
+			if tt.dbFails {
+				dbPath = filepath.Join(t.TempDir(), "missing", "linear.db")
+				execute = executeRootForTestWithRenderedError
+			}
+			out, err := execute("issues", "create", "--title", "Labels", "--team", teamID, "--label", "label-global", "--label-name", "kind:bug", "--session", "mob-1447-test", "--db", dbPath, "--agent", "--data-source", "live")
 			if tt.wantErr {
 				if err == nil || ExitCode(err) != 5 || !strings.Contains(err.Error(), "MOB-200 (issue-200)") || !strings.Contains(err.Error(), "label-global") || !strings.Contains(err.Error(), "label-kind-bug") {
 					t.Fatalf("label mismatch error = %v (code %d), want created issue and requested/observed IDs; output=%s", err, ExitCode(err), out)
+				}
+				if tt.dbFails {
+					var envelope struct {
+						Code         int    `json:"code"`
+						Type         string `json:"type"`
+						CreatedIssue struct {
+							ID         string `json:"id"`
+							Identifier string `json:"identifier"`
+							URL        string `json:"url"`
+						} `json:"created_issue"`
+					}
+					if decodeErr := json.Unmarshal([]byte(out), &envelope); decodeErr != nil || envelope.Code != 5 || envelope.Type != "api" || envelope.CreatedIssue.ID != "issue-200" || envelope.CreatedIssue.Identifier != "MOB-200" || envelope.CreatedIssue.URL != "https://linear.app/issue/MOB-200" {
+						t.Fatalf("mismatch recovery envelope = %+v, decode error = %v, output=%s", envelope, decodeErr, out)
+					}
+					return
 				}
 				local, localErr := executeRootForTest("issues", "MOB-200", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier,labels.nodes.id")
 				if localErr != nil || !strings.Contains(local, "label-kind-bug") {

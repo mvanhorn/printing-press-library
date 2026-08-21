@@ -175,7 +175,7 @@ These capabilities aren't available in any other tool for this API.
   linear-pp-cli issues edit ENG-123 --label-name "area:review-tooling" --agent
   ```
 
-  `--label-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Writes require a normalized exact label-name match. Team-owned labels and workspace-global labels (no team) both resolve; labels owned by another team do not. `--label` and `--label-name` can be combined; resolved IDs are de-duplicated before the mutation. On create, the CLI verifies the mutation's returned label IDs and fails visibly if Linear did not attach the requested set.
+  `--label-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Writes require a normalized exact label-name match. Team-owned labels and workspace-global labels (no team) both resolve; labels owned by another team do not. `--label` and `--label-name` can be combined; resolved IDs are de-duplicated before the mutation. On create, the CLI verifies the mutation's returned label IDs and fails visibly if Linear did not attach the requested set; the exit-5 agent envelope includes `created_issue.id`, `created_issue.identifier`, and `created_issue.url` so the remote issue remains recoverable if local persistence is unavailable.
 - **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
 
   _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
