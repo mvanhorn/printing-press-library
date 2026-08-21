@@ -1939,24 +1939,26 @@ type dependentSyncPlan struct {
 	capped           bool     // true if --max-parents truncated the pending set
 	parentTableEmpty bool     // true if the parent resource has zero rows at all
 
-	// fullOffsetKey/fullOffsetBase carry the --full resume-offset write
-	// runDependentFanOut must perform AFTER this plan's ids are actually
-	// fetched, not before -- persisting eagerly (an earlier version of
-	// this fix) marked every planned id done before any request ran, so a
-	// mid-batch failure still let the offset skip past it. fullOffsetBase
-	// is the offset BEFORE this batch (not a precomputed end target):
-	// runDependentFanOut advances it only by the number of leading ids (in
-	// plan.ids' order) that actually succeeded, so a persistently-failing
-	// id blocks the offset from moving past ITSELF but never blocks ids
-	// ahead of it in the sort order that already succeeded, and never
-	// wedges the whole pass the way "only advance when zero ids in the
-	// batch failed" would (a single chronically-broken id anywhere in a
-	// window would otherwise pin that entire window, and therefore the
-	// rest of the pass behind it, forever). fullOffsetKey is "" whenever
-	// --full's offset-tracking doesn't apply (not a --full run, or
+	// The fields below implement --full's two-tier resumability: a sweep
+	// cursor that ALWAYS advances (guaranteeing no id, however
+	// persistently it fails, can ever block ids behind it) plus a
+	// separately persisted backlog of failed ids that get retry priority
+	// on every subsequent call (guaranteeing a failure isn't stranded
+	// until the whole pass wraps around). Earlier versions of this fix
+	// tried to make the sweep cursor itself failure-aware (skip a failed
+	// id, or require the whole batch to succeed before advancing) and
+	// each variant traded one bug for another -- a live PR review caught
+	// three rounds of this before landing on separating "never blocks
+	// progress" (the cursor) from "never loses a failure" (the backlog)
+	// as two independent, independently-simple guarantees instead of one
+	// mechanism trying to satisfy both. All fields are zero/empty
+	// whenever --full's tracking doesn't apply (not a --full run, or
 	// --latest-only run-scoping is active).
-	fullOffsetKey  string
-	fullOffsetBase int
+	fullOffsetKey  string   // sync_state key for the sweep cursor ("" = not --full-tracked)
+	fullOffsetBase int      // sweep cursor's value BEFORE this batch
+	fullSweepCount int      // how many of plan.ids came from the sweep window (not the backlog) -- the cursor advances by exactly this many, unconditionally
+	fullFailedKey  string   // sync_state key for the failed-id backlog
+	fullBacklogAll []string // the full validated backlog before --max-parents capped plan.ids, needed to know which backlog ids this call didn't even attempt
 }
 
 // planDependentSync resolves which parent ids a dependent sync call should
@@ -2054,14 +2056,56 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 
 	var candidates []string
 	progressKey := dependentResource + ":full_progress"
+	failedKey := dependentResource + ":full_failed"
 	fullOffset := 0
+	var fullBacklog []string // validated, deduped backlog ids -- see below
 	switch {
 	case full && scopeSince == nil:
 		_, _, fullOffset, _ = db.GetSyncState(progressKey)
 		if fullOffset < 0 || fullOffset >= len(parentIDs) {
 			fullOffset = 0 // prior pass completed (or state is stale/out of range): start a fresh pass
 		}
-		candidates = parentIDs[fullOffset:]
+		swept := parentIDs[fullOffset:]
+
+		// The sweep cursor above always advances unconditionally after a
+		// batch is attempted (see runDependentFanOut) -- that guarantees
+		// no single id, however persistently it fails, can ever pin the
+		// sweep and block ids behind it. But that means a failed id isn't
+		// naturally revisited by the sweep again until the whole pass
+		// wraps around. The backlog is what closes that gap: failed ids
+		// (from any position, any call) are remembered here and given
+		// retry priority on every subsequent call, independent of where
+		// the sweep cursor currently is, until they succeed.
+		backlogCursor, _, _, _ := db.GetSyncState(failedKey)
+		parentIDSet := make(map[string]bool, len(parentIDs))
+		for _, id := range parentIDs {
+			parentIDSet[id] = true
+		}
+		seen := make(map[string]bool)
+		if backlogCursor != "" {
+			for _, id := range strings.Split(backlogCursor, ",") {
+				// A backlogged id must still be a real candidate (it
+				// could have vanished from parentIDs between calls) and
+				// deduped defensively against a corrupt/duplicated cursor.
+				if id != "" && parentIDSet[id] && !seen[id] {
+					fullBacklog = append(fullBacklog, id)
+					seen[id] = true
+				}
+			}
+		}
+		candidates = append([]string{}, fullBacklog...)
+		for _, id := range swept {
+			// Normally a backlog id can never reappear in swept (the
+			// sweep cursor only ever moves past ids it has already
+			// attempted, and every backlog id was attempted at some
+			// point) -- except right after a pass wraps, when the
+			// cursor resets to 0 and swept becomes the full id list
+			// again. Dedup defensively so a wrapped pass never queues
+			// the same id twice in one batch.
+			if !seen[id] {
+				candidates = append(candidates, id)
+			}
+		}
 	case full:
 		// --full combined with --latest-only run-scoping: an unusual
 		// combination (force-redo, but only for this run's touched
@@ -2134,13 +2178,23 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		plan.ids = candidates
 	}
 
-	// Record where this batch starts, but don't write an advanced offset
-	// yet -- runDependentFanOut persists the actual advancement once
-	// plan.ids has actually been fetched, based on how many leading ids
-	// (in this order) succeeded. See dependentSyncPlan.fullOffsetBase.
+	// Record the sweep/backlog bookkeeping runDependentFanOut needs to
+	// persist AFTER plan.ids has actually been fetched -- see
+	// dependentSyncPlan's field docs for the two-tier design this feeds.
 	if full && scopeSince == nil && !dryRun {
 		plan.fullOffsetKey = progressKey
 		plan.fullOffsetBase = fullOffset
+		plan.fullFailedKey = failedKey
+		plan.fullBacklogAll = fullBacklog
+		backlogSet := make(map[string]bool, len(fullBacklog))
+		for _, id := range fullBacklog {
+			backlogSet[id] = true
+		}
+		for _, id := range plan.ids {
+			if !backlogSet[id] {
+				plan.fullSweepCount++
+			}
+		}
 	}
 	return plan, nil
 }
@@ -2207,13 +2261,9 @@ func runDependentFanOut(ctx context.Context, c interface {
 	var firstErr error
 	var sawDryRun bool
 	// failedIDs records exactly which ids failed, not just how many --
-	// runDependentFanOut runs plan.ids through a concurrent worker pool,
-	// so completion order doesn't match plan.ids' deterministic sort
-	// order. The --full offset advancement below needs to know WHICH
-	// leading ids (in that sort order) succeeded, not just a failure
-	// count, to avoid both re-skipping a failed id and letting one
-	// persistently-failing id wedge the whole pass -- see
-	// dependentSyncPlan.fullOffsetBase.
+	// the --full backlog persistence below (see dependentSyncPlan's field
+	// docs) needs to know WHICH specific ids failed, not just a count, to
+	// correctly recompute which ids still need a retry.
 	failedIDs := make(map[string]bool)
 	var wg sync.WaitGroup
 	for i := 0; i < concurrency; i++ {
@@ -2287,33 +2337,48 @@ func runDependentFanOut(ctx context.Context, c interface {
 	if failures > 0 && !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", resource, len(plan.ids), totalCount)
 	}
-	// Persist the --full resume offset only now that plan.ids has actually
-	// been fetched, advancing past only the leading ids (in plan.ids'
-	// deterministic sort order) that succeeded -- not the whole batch
-	// unconditionally, and not by a raw success count either. Advancing
-	// by count alone can skip a scattered failure it never actually
-	// retried (e.g. successes at positions 0,2,4 and a failure at
-	// position 1 would wrongly advance 3 past position 1). Requiring the
-	// WHOLE batch to succeed before advancing at all (an earlier version
-	// of this fix) is also wrong: one persistently-failing id anywhere in
-	// the window would then pin that entire window -- and everything
-	// after it in the pass -- forever. Stopping at the first actual
-	// failure's position keeps both promises: nothing already fetched
-	// ahead of a failure is redone forever, and nothing behind a
-	// persistent failure is blocked forever (ids after it just get
-	// redundantly refetched each retry, which --full's own "redo" cost
-	// already accepts).
+	// Persist --full's two-tier resumability state now that plan.ids has
+	// actually been fetched (never before -- see dependentSyncPlan's
+	// field docs for why eager persistence was the original bug).
+	//
+	// 1. The sweep cursor ALWAYS advances by fullSweepCount -- the number
+	//    of plan.ids that came from the fresh sweep window, not the
+	//    backlog -- regardless of whether any of them failed. This is
+	//    unconditional on purpose: it is what guarantees no id, however
+	//    persistently it fails, can ever block the ids behind it. Earlier
+	//    versions of this fix made the cursor's advancement depend on
+	//    success/failure and each variant re-introduced a wedge in some
+	//    position (first id in the window, or the whole window if any id
+	//    failed); decoupling "the sweep always moves forward" from
+	//    "failures are remembered" (step 2) is what closes every version
+	//    of that bug at once.
+	// 2. The failed-id backlog is recomputed as: whatever was in the old
+	//    backlog but wasn't attempted this call (still owed a retry),
+	//    plus every id that failed this call (whether it came from the
+	//    backlog or the sweep). Backlog ids get retry priority on every
+	//    subsequent call (see planDependentSync) independent of where the
+	//    sweep cursor currently is, so a failure is never stranded until
+	//    the whole pass wraps around -- it's retried on the very next
+	//    call, and the one after that, until it succeeds.
 	if plan.fullOffsetKey != "" {
-		consecutiveSuccesses := 0
+		_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+plan.fullSweepCount)
+
+		attempted := make(map[string]bool, len(plan.ids))
+		for _, id := range plan.ids {
+			attempted[id] = true
+		}
+		newBacklog := make([]string, 0, len(plan.fullBacklogAll)+failures)
+		for _, id := range plan.fullBacklogAll {
+			if !attempted[id] {
+				newBacklog = append(newBacklog, id)
+			}
+		}
 		for _, id := range plan.ids {
 			if failedIDs[id] {
-				break
+				newBacklog = append(newBacklog, id)
 			}
-			consecutiveSuccesses++
 		}
-		if consecutiveSuccesses > 0 {
-			_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+consecutiveSuccesses)
-		}
+		_ = db.SaveSyncState(plan.fullFailedKey, strings.Join(newBacklog, ","), len(newBacklog))
 	}
 	// --max-parents truncated the pending set: this call is still a
 	// success (it processed real work), but the caller needs an explicit

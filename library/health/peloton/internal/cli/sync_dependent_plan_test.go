@@ -134,7 +134,7 @@ func commitFullOffset(t *testing.T, db *store.Store, plan dependentSyncPlan) {
 	if plan.fullOffsetKey == "" {
 		return
 	}
-	if err := db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+len(plan.ids)); err != nil {
+	if err := db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+plan.fullSweepCount); err != nil {
 		t.Fatalf("commitFullOffset: %v", err)
 	}
 }
@@ -264,68 +264,109 @@ func TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure(t *testing.T) {
 	}
 }
 
-// TestFullSyncOffsetAdvancesPastLeadingSuccessesEvenWithATrailingFailure is
-// the counterpart to TestFullSyncOffsetDoesNotAdvancePastAPartialBatchFailure,
-// guarding a second bug an earlier version of this fix introduced (caught by
-// a live PR review, second round): gating advancement on "zero failures in
-// the whole batch" means one id that fails EVERY time (not just once) would
-// permanently pin the offset at the start of its window -- and therefore
-// block every id after it in the full pass -- forever, even though the ids
-// ahead of it keep succeeding on every retry. The offset must advance past
-// whatever leading run of ids (in sort order) actually succeeded, so a
-// chronically-broken id blocks only itself, not the rest of the pass.
-func TestFullSyncOffsetAdvancesPastLeadingSuccessesEvenWithATrailingFailure(t *testing.T) {
+// TestFullSyncOffsetSweepNeverWedgesOnAChronicallyFailingFirstID guards a
+// third round of the same live PR review: gating the sweep cursor's
+// advancement on "did the batch succeed" (whole-batch, or even just its
+// leading run) means an id that fails EVERY time it's attempted -- not just
+// once -- can permanently pin the sweep at its own position, blocking every
+// id behind it in the pass forever, specifically when that id sorts FIRST
+// in its window (the leading-run variant of the fix still wedged on this).
+// The sweep cursor must advance unconditionally by however many fresh ids
+// it attempted, regardless of any of their outcomes -- a chronically
+// failing id blocks only itself (via the separate backlog retry mechanism,
+// see TestFullSyncOffsetFailedIDGetsBacklogPriorityAcrossCalls), never the
+// rest of the pass. Uses 5 ids with a --max-parents 2 cap so the sweep
+// can't trivially wrap on the very first call, to actually exercise
+// forward progress rather than accidentally passing via a same-call wrap.
+func TestFullSyncOffsetSweepNeverWedgesOnAChronicallyFailingFirstID(t *testing.T) {
 	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	seedPlanTestWorkouts(t, db, "w1", "w2", "w3")
+	seedPlanTestWorkouts(t, db, "w1", "w2", "w3", "w4", "w5")
 
-	// w1, w2 succeed; w3 fails (sorted order: w1 < w2 < w3, so the
-	// failure is the LAST id in the batch, not the first).
+	// w1 (sorts first) always fails; every other id always succeeds.
 	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
-		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
 		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w3/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w4/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w5/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
 	}}
 
-	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
+	// Call 1: sweep window [w1, w2] (offset 0, cap 2). w1 fails.
+	plan1, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
 	if err != nil {
-		t.Fatalf("planDependentSync: %v", err)
+		t.Fatalf("planDependentSync call 1: %v", err)
 	}
-	if len(plan.ids) != 3 {
-		t.Fatalf("plan.ids = %v, want all 3", plan.ids)
+	if got := plan1.ids; len(got) != 2 || got[0] != "w1" || got[1] != "w2" {
+		t.Fatalf("call 1 plan.ids = %v, want [w1 w2]", got)
+	}
+	res1 := syncPerformanceDependent(context.Background(), client, db, plan1, 1, nil, io.Discard)
+	if res1.Err != nil {
+		t.Fatalf("call 1 syncPerformanceDependent: %v", res1.Err)
 	}
 
-	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
-	if res.Err != nil {
-		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	// The core assertion: call 2's sweep must have moved past w1/w2 to
+	// [w3, w4] despite w1's failure -- not be stuck re-offering [w1, w2].
+	// w1 is still expected to appear too, but via the backlog (priority),
+	// not because the sweep failed to advance.
+	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync call 2: %v", err)
 	}
-	if res.Count != 2 {
-		t.Fatalf("Count = %d, want 2 (w1 and w2 succeeded)", res.Count)
+	sweptForward := false
+	for _, id := range plan2.ids {
+		if id == "w3" || id == "w4" {
+			sweptForward = true
+		}
+	}
+	if !sweptForward {
+		t.Fatalf("call 2 plan.ids = %v, want it to include w3 and/or w4 -- the sweep is wedged on w1's chronic failure", plan2.ids)
 	}
 
-	// The offset must have advanced past w1/w2 (2 leading successes), so
-	// the next call sees only w3 -- not all three again (which would mean
-	// the offset never moved and the pass is wedged on w3 forever), and
-	// not zero (which would mean w3's chronic failure got silently
-	// dropped instead of remaining eligible for retry).
-	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
-	if err != nil {
-		t.Fatalf("planDependentSync (replan): %v", err)
+	res2 := syncPerformanceDependent(context.Background(), client, db, plan2, 1, nil, io.Discard)
+	if res2.Err != nil {
+		t.Fatalf("call 2 syncPerformanceDependent: %v", res2.Err)
 	}
-	if len(replan.ids) != 1 || replan.ids[0] != "w3" {
-		t.Fatalf("replan.ids = %v, want exactly [w3] (w1/w2 must not be redundantly re-planned; w3 must remain eligible)", replan.ids)
+
+	// Calls 3 and 4: confirm the sweep keeps moving rather than wedging on
+	// any later call either. Each call spends one of its two --max-parents
+	// slots retrying the chronically-failing w1 from the backlog, so the
+	// sweep only advances by one fresh id per call here -- w5 (the last
+	// id) is reached by call 4, not necessarily call 3.
+	plan3, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync call 3: %v", err)
+	}
+	res3 := syncPerformanceDependent(context.Background(), client, db, plan3, 1, nil, io.Discard)
+	if res3.Err != nil {
+		t.Fatalf("call 3 syncPerformanceDependent: %v", res3.Err)
+	}
+
+	plan4, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync call 4: %v", err)
+	}
+	reachedW5 := false
+	for _, id := range plan4.ids {
+		if id == "w5" {
+			reachedW5 = true
+		}
+	}
+	if !reachedW5 {
+		t.Fatalf("call 4 plan.ids = %v, want it to include w5 -- the sweep stopped making progress", plan4.ids)
 	}
 }
 
-// TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount guards the
-// precise semantics: advancing by a raw count of successes (rather than the
-// length of the unbroken leading run) would be unsafe when a failure is
-// scattered in the middle of a batch -- e.g. successes at positions 0 and 2
-// with a failure at position 1 must NOT advance the offset by 2 (which
-// would move past position 1, permanently skipping the failed id).
-func TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount(t *testing.T) {
+// TestFullSyncOffsetFailedIDGetsBacklogPriorityAcrossCalls guards the other
+// half of the two-tier design: the sweep cursor advancing unconditionally
+// (previous test) only avoids wedging the pass if a failed id is still
+// remembered and retried somewhere -- otherwise it would just be silently
+// dropped once the sweep passes it. A failed id must reappear, with
+// priority, on every subsequent call until it succeeds, independent of
+// where the sweep cursor has moved on to.
+func TestFullSyncOffsetFailedIDGetsBacklogPriorityAcrossCalls(t *testing.T) {
 	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
 	if err != nil {
 		t.Fatal(err)
@@ -333,7 +374,7 @@ func TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount(t *testing.T) {
 	defer db.Close()
 	seedPlanTestWorkouts(t, db, "w1", "w2", "w3")
 
-	// w1 and w3 succeed; w2 (the middle id in sort order) fails.
+	// w2 (the middle id in sort order) always fails; w1 and w3 succeed.
 	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
 		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
 		"/api/workout/w3/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
@@ -343,7 +384,6 @@ func TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
-
 	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
 	if res.Err != nil {
 		t.Fatalf("syncPerformanceDependent: %v", res.Err)
@@ -352,20 +392,15 @@ func TestFullSyncOffsetStopsAtFirstFailureNotJustSuccessCount(t *testing.T) {
 		t.Fatalf("Count = %d, want 2 (w1 and w3 succeeded)", res.Count)
 	}
 
-	// A naive "advance by success count" (2) would move the offset to
-	// position 2, i.e. past w2 entirely -- permanently skipping it. The
-	// offset must instead stop at w2's position (1): only w1 counts as a
-	// leading success, so w2 and w3 must both still appear next call.
+	// w2 must appear next call (the backlog), and specifically FIRST
+	// (priority retry), regardless of the sweep cursor having wrapped
+	// past its original position.
 	replan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 3, false)
 	if err != nil {
 		t.Fatalf("planDependentSync (replan): %v", err)
 	}
-	seen := map[string]bool{}
-	for _, id := range replan.ids {
-		seen[id] = true
-	}
-	if !seen["w2"] {
-		t.Fatalf("replan.ids = %v, missing w2 -- a scattered failure was skipped by advancing on raw success count instead of stopping at the first failure", replan.ids)
+	if len(replan.ids) == 0 || replan.ids[0] != "w2" {
+		t.Fatalf("replan.ids = %v, want w2 first (backlog priority retry)", replan.ids)
 	}
 }
 
