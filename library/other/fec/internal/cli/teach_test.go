@@ -13,10 +13,10 @@ import (
 	"sync"
 	"testing"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/learn/entities"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 func unmarshalAgentResults(t *testing.T, stdout string, out any) {

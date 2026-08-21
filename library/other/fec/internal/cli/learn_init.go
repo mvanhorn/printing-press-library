@@ -23,8 +23,8 @@ import (
 	"os"
 	"sync"
 
-	"fec-pp-cli/internal/learn/entities"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // newLearnConfig returns the per-CLI entity extractor Config the

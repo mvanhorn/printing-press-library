@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"fec-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

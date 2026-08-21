@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"fec-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/lookups"
 )
 
 // extractWindow caps how many of the most-recently-observed

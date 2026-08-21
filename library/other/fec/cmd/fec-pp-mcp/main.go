@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	mcptools "fec-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/other/fec/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 

@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"fec-pp-cli/internal/client"
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/config"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 	"github.com/spf13/cobra"
 )
 

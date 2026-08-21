@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"fec-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
 )
 
 // The invocation journal records one entry per CLI invocation in dated

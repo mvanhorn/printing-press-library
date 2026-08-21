@@ -1,4 +1,4 @@
-module fec-pp-cli
+module github.com/mvanhorn/printing-press-library/library/other/fec
 
 go 1.26.5
 

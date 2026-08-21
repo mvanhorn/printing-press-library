@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 func openLearnings(t *testing.T) *store.Store {

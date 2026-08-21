@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"fec-pp-cli/internal/cli"
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

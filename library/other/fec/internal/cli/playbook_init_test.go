@@ -18,9 +18,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"fec-pp-cli/internal/cli/playbooks"
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // twoPlaybookFS returns an fstest.MapFS with two minimal playbooks +

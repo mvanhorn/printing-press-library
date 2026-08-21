@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"fec-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {

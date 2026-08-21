@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"fec-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
 )
 
 // Warning is one teach-time validation finding. The shape is the JSON

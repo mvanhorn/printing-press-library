@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"fec-pp-cli/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/mcp/bound"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

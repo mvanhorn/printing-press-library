@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"fec-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

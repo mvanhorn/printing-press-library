@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"fec-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )

@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"fec-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cli"
 )
 
 func main() {

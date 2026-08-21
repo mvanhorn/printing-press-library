@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // writePlaybookFile is a test helper that drops a fixture file at the

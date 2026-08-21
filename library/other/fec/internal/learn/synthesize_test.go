@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // synthesisFamily is the query family every scenario teaches under.

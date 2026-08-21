@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/learn/entities"
-	"fec-pp-cli/internal/learn/lookups"
-	"fec-pp-cli/internal/learn/patterns"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"fec-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 

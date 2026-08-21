@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"fec-pp-cli/internal/learn/entities"
-	"fec-pp-cli/internal/learn/lookups"
-	"fec-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

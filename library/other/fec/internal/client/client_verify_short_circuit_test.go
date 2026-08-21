@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"fec-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

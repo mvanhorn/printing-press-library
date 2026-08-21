@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/mcp/bound"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

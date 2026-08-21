@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"fec-pp-cli/internal/client"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

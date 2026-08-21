@@ -8,8 +8,8 @@ import (
 	"os"
 	"sort"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

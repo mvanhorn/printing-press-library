@@ -12,8 +12,8 @@ import (
 	"sync"
 	"testing"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/config"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {

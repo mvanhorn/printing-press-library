@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"fec-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // TestNewLearnConfig_BuildsConfig pins that the emitted init shim

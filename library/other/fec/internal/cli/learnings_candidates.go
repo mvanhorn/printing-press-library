@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"fec-pp-cli/internal/learn"
-	"fec-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/store"
 )
 
 // registerLearningsCandidateCommands attaches the candidate lifecycle

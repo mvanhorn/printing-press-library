@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"runtime"
 
-	"fec-pp-cli/internal/cliutil"
-	"fec-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/config"
 	"github.com/spf13/cobra"
 )
 

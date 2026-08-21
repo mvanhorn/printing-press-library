@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"fec-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/fec/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a
