@@ -871,16 +871,16 @@ func newTranscriptsUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if title != "" {
-				const q = `mutation UpdateMeetingTitle($id: String!, $title: String!) { updateMeetingTitle(id: $id, title: $title) { success message } }`
-				data, err := client.Query(cmd.Context(), q, map[string]any{"id": args[0], "title": title}, "updateMeetingTitle")
+				const q = `mutation UpdateMeetingTitle($input: UpdateMeetingTitleInput!) { updateMeetingTitle(input: $input) { title } }`
+				data, err := client.Query(cmd.Context(), q, map[string]any{"input": map[string]any{"id": args[0], "title": title}}, "updateMeetingTitle")
 				if err != nil {
 					return fmt.Errorf("updating title: %w", err)
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), data, flags)
 			}
 			if privacy != "" {
-				const q = `mutation UpdateMeetingPrivacy($id: String!, $privacy: String!) { updateMeetingPrivacy(id: $id, privacy: $privacy) { success message } }`
-				data, err := client.Query(cmd.Context(), q, map[string]any{"id": args[0], "privacy": privacy}, "updateMeetingPrivacy")
+				const q = `mutation UpdateMeetingPrivacy($input: UpdateMeetingPrivacyInput!) { updateMeetingPrivacy(input: $input) { id title privacy } }`
+				data, err := client.Query(cmd.Context(), q, map[string]any{"input": map[string]any{"id": args[0], "privacy": privacy}}, "updateMeetingPrivacy")
 				if err != nil {
 					return fmt.Errorf("updating privacy: %w", err)
 				}
