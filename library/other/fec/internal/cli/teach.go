@@ -185,7 +185,7 @@ emits the user-facing response: silent on success, errors only to
 the CLI state directory's teach.log, safe to fire-and-forget.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
-		Example: `  fec-pp-cli teach --query "<question>" --resource-type <type> \
+		Example: `  fec-pp-cli teach --query '<structural question>' --resource-type <type> \
     --resource <id> --resource <id> &`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true

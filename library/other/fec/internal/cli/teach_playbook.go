@@ -60,7 +60,7 @@ At least one of --playbook-json/--playbook-file and --notes/--notes-file
 must be set. --playbook-json takes the playbook body inline so MCP-only
 agents can record playbooks without a file on disk.`,
 		Example: `  fec-pp-cli teach-playbook \
-    --query "<question that anchors the family>" \
+    --query '<question that anchors the family>' \
     --playbook-file ~/playbooks/recipe.json \
     --notes-file ~/playbooks/recipe-notes.md`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -200,7 +200,7 @@ errors to teach.log, safe to background with &.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 		Example: `  fec-pp-cli playbook amend \
-    --query "<exact recall query>" \
+    --query '<exact recall query>' \
     --add-note "summary endpoint envelope: data lives at .results.header, not .header"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true

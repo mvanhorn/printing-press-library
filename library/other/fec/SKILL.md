@@ -462,9 +462,11 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
 
 ```bash
-fec-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+fec-pp-cli teach --query '<structural question, identifiers stripped>' --resource-type <type> --resource <id1> --resource <id2>
 # (append shell `&` to background it)
 ```
+
+Quoting rule: never interpolate the user's question into a double-quoted shell string - command substitutions inside would execute with your local privileges when the shell expands it. Single-quote the whole argument (escape inner single quotes as `'\''`) or pass the question via your harness's argument-array/stdin mechanism instead of a shell string. This applies to every teach-family command that takes user-derived text (`teach`, `teach-playbook`, `playbook amend`).
 
 Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
 
@@ -477,7 +479,7 @@ You do not need to decide whether a session "deserves" a playbook: a teach on a 
 ```bash
 # Common case: record both the resource learning AND the playbook in one call.
 fec-pp-cli teach \
-  --query "<user's question>" \
+  --query '<user question>' \
   --resource <id> \
   --playbook-file ~/playbooks/<shape>.json \
   --playbook-notes-file ~/playbooks/<shape>-notes.md
@@ -485,7 +487,7 @@ fec-pp-cli teach \
 
 # Alternate: playbook-only (no resource to record alongside).
 fec-pp-cli teach-playbook \
-  --query "<user's question>" \
+  --query '<user question>' \
   --playbook-file ~/playbooks/<shape>.json \
   --notes-file ~/playbooks/<shape>-notes.md
 ```
@@ -500,7 +502,7 @@ If your debug-protocol response identifies a concrete correction the notes or pl
 
 ```bash
 fec-pp-cli playbook amend \
-  --query "<exact recall query string>" \
+  --query '<exact recall query string>' \
   --add-note "<your concrete correction>"
 # (append shell `&` to background it)
 ```
