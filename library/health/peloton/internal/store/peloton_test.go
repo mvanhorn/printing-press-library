@@ -8,6 +8,49 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// TestSaveSyncStatePair_WritesBothRowsTogether guards --full's two-tier
+// dependent-sync resumability (internal/cli/sync.go): the sweep cursor and
+// failed-id backlog are two independent sync_state rows that must never be
+// allowed to diverge (a live PR review finding: two separate SaveSyncState
+// calls left a window where a crash between them, or either one alone
+// failing, could commit one checkpoint without the other). Asserts both
+// rows land with the values passed, confirming the pair-write path is
+// wired correctly; the atomicity guarantee itself (both succeed or neither
+// does) comes from wrapping both statements in one SQL transaction, which
+// this test does not attempt to fault-inject -- that guarantee is SQLite's
+// own transactional contract, not custom logic worth re-verifying here.
+func TestSaveSyncStatePair_WritesBothRowsTogether(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.SaveSyncStatePair(
+		"performance:full_progress", "", 7,
+		"performance:full_failed", "w1,w2", 2,
+	); err != nil {
+		t.Fatalf("SaveSyncStatePair: %v", err)
+	}
+
+	cursor1, _, count1, err := s.GetSyncState("performance:full_progress")
+	if err != nil {
+		t.Fatalf("GetSyncState(full_progress): %v", err)
+	}
+	if cursor1 != "" || count1 != 7 {
+		t.Errorf("full_progress = (%q, %d), want (\"\", 7)", cursor1, count1)
+	}
+
+	cursor2, _, count2, err := s.GetSyncState("performance:full_failed")
+	if err != nil {
+		t.Fatalf("GetSyncState(full_failed): %v", err)
+	}
+	if cursor2 != "w1,w2" || count2 != 2 {
+		t.Errorf("full_failed = (%q, %d), want (\"w1,w2\", 2)", cursor2, count2)
+	}
+}
+
 // TestUpsertBatchWithFacts_UnwrapsIDBearingEnvelopeItems guards
 // recordProviderFactsBestEffort against silently dropping items UpsertBatch
 // itself successfully stores. UpsertBatch falls back to

@@ -2058,7 +2058,8 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 	progressKey := dependentResource + ":full_progress"
 	failedKey := dependentResource + ":full_failed"
 	fullOffset := 0
-	var fullBacklog []string // validated, deduped backlog ids -- see below
+	var fullBacklog []string  // validated, deduped backlog ids -- see below
+	var dedupedSwept []string // sweep-window ids minus anything already in fullBacklog
 	switch {
 	case full && scopeSince == nil:
 		_, _, fullOffset, _ = db.GetSyncState(progressKey)
@@ -2093,7 +2094,6 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 				}
 			}
 		}
-		candidates = append([]string{}, fullBacklog...)
 		for _, id := range swept {
 			// Normally a backlog id can never reappear in swept (the
 			// sweep cursor only ever moves past ids it has already
@@ -2103,9 +2103,10 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 			// again. Dedup defensively so a wrapped pass never queues
 			// the same id twice in one batch.
 			if !seen[id] {
-				candidates = append(candidates, id)
+				dedupedSwept = append(dedupedSwept, id)
 			}
 		}
+		candidates = append(append([]string{}, fullBacklog...), dedupedSwept...)
 	case full:
 		// --full combined with --latest-only run-scoping: an unusual
 		// combination (force-redo, but only for this run's touched
@@ -2172,8 +2173,34 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 
 	plan := dependentSyncPlan{totalPending: len(candidates)}
 	if maxParents > 0 && len(candidates) > maxParents {
-		plan.ids = candidates[:maxParents]
 		plan.capped = true
+		if full && scopeSince == nil {
+			// A plain candidates[:maxParents] slice here would put the
+			// backlog first (see the case above) and take it in full
+			// before touching the sweep at all -- fine while the backlog
+			// is small, but a backlog at or above maxParents in size
+			// would then consume the ENTIRE cap every single call,
+			// permanently leaving fullSweepCount at 0 and wedging the
+			// sweep exactly the way this whole two-tier design exists to
+			// prevent (just moved from "one bad id" to "a big enough
+			// backlog"). Reserve at least half the cap (rounding up) for
+			// the sweep unconditionally, so it always makes progress
+			// regardless of how large the backlog grows; the backlog
+			// gets whatever's left, up to its own length, with any
+			// unused backlog budget handed back to the sweep.
+			sweepBudget := (maxParents + 1) / 2
+			backlogBudget := maxParents - sweepBudget
+			if backlogBudget > len(fullBacklog) {
+				sweepBudget += backlogBudget - len(fullBacklog)
+				backlogBudget = len(fullBacklog)
+			}
+			if sweepBudget > len(dedupedSwept) {
+				sweepBudget = len(dedupedSwept) // defensive; see comment above the switch
+			}
+			plan.ids = append(append([]string{}, fullBacklog[:backlogBudget]...), dedupedSwept[:sweepBudget]...)
+		} else {
+			plan.ids = candidates[:maxParents]
+		}
 	} else {
 		plan.ids = candidates
 	}
@@ -2361,8 +2388,6 @@ func runDependentFanOut(ctx context.Context, c interface {
 	//    the whole pass wraps around -- it's retried on the very next
 	//    call, and the one after that, until it succeeds.
 	if plan.fullOffsetKey != "" {
-		_ = db.SaveSyncState(plan.fullOffsetKey, "", plan.fullOffsetBase+plan.fullSweepCount)
-
 		attempted := make(map[string]bool, len(plan.ids))
 		for _, id := range plan.ids {
 			attempted[id] = true
@@ -2378,7 +2403,17 @@ func runDependentFanOut(ctx context.Context, c interface {
 				newBacklog = append(newBacklog, id)
 			}
 		}
-		_ = db.SaveSyncState(plan.fullFailedKey, strings.Join(newBacklog, ","), len(newBacklog))
+		// One transaction, not two independent SaveSyncState calls: a
+		// crash between two separate writes (or either one alone
+		// failing) could leave the sweep cursor and the backlog out of
+		// sync with each other -- an offset committed without its
+		// backlog silently drops a failure until the pass wraps around;
+		// a backlog committed without its offset just repeats the same
+		// sweep window next call. See SaveSyncStatePair's doc comment.
+		_ = db.SaveSyncStatePair(
+			plan.fullOffsetKey, "", plan.fullOffsetBase+plan.fullSweepCount,
+			plan.fullFailedKey, strings.Join(newBacklog, ","), len(newBacklog),
+		)
 	}
 	// --max-parents truncated the pending set: this call is still a
 	// success (it processed real work), but the caller needs an explicit

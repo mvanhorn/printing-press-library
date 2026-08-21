@@ -1562,6 +1562,38 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
+// SaveSyncStatePair atomically persists two sync_state rows in a single
+// transaction. --full's dependent-sync resumability tracks its sweep
+// cursor and failed-id backlog as two independent rows (see
+// dependentSyncPlan's field docs in internal/cli/sync.go); writing them
+// via two separate SaveSyncState calls left a window where a crash between
+// the writes, or either individual write failing, could leave the two
+// permanently out of sync -- an offset committed without its backlog
+// silently drops a failure until the pass wraps around; a backlog
+// committed without its offset just repeats the same sweep window next
+// call. Either both rows are written or neither is.
+func (s *Store) SaveSyncStatePair(resourceType1, cursor1 string, count1 int, resourceType2, cursor2 string, count2 int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	now := time.Now().UTC().Format(time.RFC3339)
+	const upsert = `INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`
+	if _, err := tx.Exec(upsert, resourceType1, cursor1, now, count1); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(upsert, resourceType2, cursor2, now, count2); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {
 	err = s.db.QueryRow(
 		`SELECT last_cursor, last_synced_at, total_count FROM sync_state WHERE resource_type = ?`,

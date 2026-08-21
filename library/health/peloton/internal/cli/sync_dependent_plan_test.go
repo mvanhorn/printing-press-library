@@ -404,6 +404,58 @@ func TestFullSyncOffsetFailedIDGetsBacklogPriorityAcrossCalls(t *testing.T) {
 	}
 }
 
+// TestFullSyncOffsetLargeBacklogDoesNotStarveSweep guards a live PR review
+// finding on the two-tier design itself: with backlog-first candidate
+// ordering, a backlog at or above --max-parents in size would otherwise
+// consume the ENTIRE cap on every single call, permanently leaving the
+// sweep with zero budget (fullSweepCount stuck at 0 forever) -- the exact
+// same "something blocks the sweep forever" class of bug the whole
+// two-tier design exists to prevent, just moved from "one persistently
+// failing id" to "a backlog at least as large as the cap." The sweep must
+// be guaranteed a minimum share of the cap (at least half, rounding up)
+// regardless of how large the backlog grows.
+func TestFullSyncOffsetLargeBacklogDoesNotStarveSweep(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2", "w3", "w4", "w5", "w6")
+
+	// Seed a backlog of 3 ids -- already larger than the --max-parents 2
+	// cap used below -- and a sweep cursor partway through the id space
+	// (offset 3, leaving w4/w5/w6 still to sweep). This models the state
+	// after several prior calls, without needing to actually drive that
+	// many real fetch/store round trips first.
+	if err := db.SaveSyncState("performance:full_failed", "w1,w2,w3", 3); err != nil {
+		t.Fatalf("seed backlog: %v", err)
+	}
+	if err := db.SaveSyncState("performance:full_progress", "", 3); err != nil {
+		t.Fatalf("seed offset: %v", err)
+	}
+
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	if len(plan.ids) != 2 {
+		t.Fatalf("plan.ids = %v, want exactly 2 (the --max-parents cap)", plan.ids)
+	}
+
+	sweptIncluded := false
+	for _, id := range plan.ids {
+		if id == "w4" || id == "w5" || id == "w6" {
+			sweptIncluded = true
+		}
+	}
+	if !sweptIncluded {
+		t.Fatalf("plan.ids = %v, want at least one fresh sweep id (w4/w5/w6) included alongside the backlog -- a backlog >= --max-parents must not consume the entire cap", plan.ids)
+	}
+	if plan.fullSweepCount == 0 {
+		t.Fatalf("fullSweepCount = 0, want > 0 -- the sweep must always get some budget even when the backlog alone exceeds --max-parents")
+	}
+}
+
 // TestPlanDependentSync_DryRunDoesNotPersistFullOffset guards --full's
 // existing "a preview must not mutate sync-state" convention: planning
 // under dryRun=true must not advance the persisted offset, so a --dry-run
