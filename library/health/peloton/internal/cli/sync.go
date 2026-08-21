@@ -528,7 +528,7 @@ account with tens of thousands of catalog classes synced.
 	}
 
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping). \"strength\" is accepted as an alias for \"workout_details\".")
-	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
+	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint). For parent-keyed dependents (performance, workout_details), the sweep runs in fixed id order from offset 0, so a large fraction of a pass's HTTP budget goes to re-fetching records already present -- this is correct for --full's contract (a genuine rebuild), but if you only need to backfill a fix across already-synced records, --stale-before is cheaper and targeted; --full is for when every record genuinely needs re-fetching.")
 	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
