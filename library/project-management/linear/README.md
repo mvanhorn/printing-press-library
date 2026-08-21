@@ -585,10 +585,10 @@ linear-pp-cli bottleneck --team ENG --data-source local
 linear-pp-cli issues list --assignee me --data-source local
 
 # Mutate — write-back keeps the store fresh, no re-sync needed
-linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 
 # Verify from local
-linear-pp-cli issues list --data-source local --pp-session $SESSION
+linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
 # Refresh every ~30 minutes for long sessions
 linear-pp-cli sync
