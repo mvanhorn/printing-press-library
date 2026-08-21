@@ -1,0 +1,97 @@
+{
+  "dir": "/tmp/devonthink-publish.O1bk2F/repo/library/productivity/devonthink",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
+  },
+  "dead_flags": {
+    "total": 20,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 58,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 72,
+      "registered": 72
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 7,
+    "found": 7
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 7,
+    "exempted_via_store": 5
+  },
+  "description_drift_check": {
+    "expected": "Local-first DEVONthink automation with safer shell workflows than raw AppleScript or MCP alone."
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 69
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 69
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-29T17:56:26.526338Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "devonthink",
+  "cli_name": "devonthink-pp-cli",
+  "creator": {
+    "handle": "Rowdy",
+    "name": "Johns"
+  },
+  "contributors": [],
+  "printer": "Rowdy",
+  "printer_name": "Johns",
+  "spec_url": "https://www.devontechnologies.com/blog/20260526-devonthink-mcp-server",
+  "run_id": "20260629T175310Z-b4705e85",
+  "category": "productivity",
+  "description": "Local-first DEVONthink automation with safer shell workflows than raw AppleScript or MCP alone.",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Smart Group scoped search",
+      "command": "records search",
+      "description": "Scope a normal DEVONthink query to a Smart Group by UUID, exact name, or DEVONthink path while preserving normal search output."
+    },
+    {
+      "name": "Context pack",
+      "command": "context pack",
+      "description": "Build a compact evidence packet from records, selections, highlights, links, and related items."
+    },
+    {
+      "name": "Privacy audit",
+      "command": "privacy audit",
+      "description": "Preview database scope, content-size budget, and cloud/MCP exposure before a handoff."
+    },
+    {
+      "name": "Batch planning ledger",
+      "command": "batch plan",
+      "description": "Stage multi-record edits as validated dry-run plans before applying them."
+    },
+    {
+      "name": "Maintenance inventory export",
+      "command": "inventory export",
+      "description": "Export DEVONthink databases, groups, tags, and document metadata for maintenance plugins."
+    },
+    {
+      "name": "Knowledge graph audit",
+      "command": "graph audit",
+      "description": "Detect orphans, broken links, unresolved wiki links, weak hubs, and tag-only clusters."
+    },
+    {
+      "name": "MCP passthrough",
+      "command": "mcp call",
+      "description": "Call DEVONthink's official local MCP tools from scripts when the local MCP server is enabled."
+    }
+  ],
+  "documentation_url": "https://www.devontechnologies.com/blog/20260526-devonthink-mcp-server"
+}

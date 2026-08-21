@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "devonthink-live-dogfood-contracts",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260629T175310Z-b4705e85",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Validate UUID read arguments and tail resources before local live execution, and retain publishable local Phase 5 evidence.",
+  "reason": "Publishing review required a spaced local live gate with counts and actionable validation for malformed identifiers.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/identifier_validation_test.go",
+    "internal/cli/ledger_show.go",
+    "internal/cli/records_content.go",
+    "internal/cli/records_get.go",
+    "internal/cli/records_highlights.go",
+    "internal/cli/records_related.go",
+    "internal/cli/records_versions.go",
+    "internal/cli/promoted_sheets.go",
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "Full local Phase 5 passed: 122 passed, 107 safely skipped, 0 failed."
+}

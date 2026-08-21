@@ -1,0 +1,918 @@
+{
+  "api_name": "devonthink",
+  "base_url": "",
+  "description": "Local-first CLI for DEVONthink automation, search, context packs, and safe batch plans",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ai_ask",
+      "description": "Ask DEVONthink AI about selected local records with explicit cloud-use warnings. Required: prompt. Optional: uuid, selection, dry-run. Returns the new TextResult.",
+      "method": "POST",
+      "path": "/ai/ask",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "path",
+          "description": "Prompt to send",
+          "required": true
+        },
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "body",
+          "description": "Record UUID to attach"
+        },
+        {
+          "name": "selection",
+          "type": "bool",
+          "location": "body",
+          "description": "Attach the current selection"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Preview attachments without sending"
+        }
+      ]
+    },
+    {
+      "name": "ai_summarize",
+      "description": "Summarize records or highlights. Required: uuid. Optional: highlights, dry-run. Returns the new TextResult.",
+      "method": "POST",
+      "path": "/ai/summarize",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "highlights",
+          "type": "bool",
+          "location": "body",
+          "description": "Summarize highlights only"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Preview attachments without sending"
+        }
+      ]
+    },
+    {
+      "name": "batch_apply",
+      "description": "Apply a previously reviewed local JSON plan. Required: plan. Optional: yes. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/batch/apply",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "path",
+          "description": "Plan JSON path",
+          "required": true
+        },
+        {
+          "name": "yes",
+          "type": "bool",
+          "location": "body",
+          "description": "Confirm apply without an interactive prompt"
+        }
+      ]
+    },
+    {
+      "name": "batch_plan",
+      "description": "Stage multi-record changes as a local JSON plan. Optional: query, from, add-tag (plus 3 more). Returns the new BatchPlan.",
+      "method": "POST",
+      "path": "/batch/plan",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query selecting records"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Source selector such as selection or file"
+        },
+        {
+          "name": "add-tag",
+          "wire_name": "add_tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag to add"
+        },
+        {
+          "name": "move-to",
+          "wire_name": "move_to",
+          "type": "string",
+          "location": "body",
+          "description": "Destination group path or UUID"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "location": "body",
+          "description": "Plan output path"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Preview only"
+        }
+      ]
+    },
+    {
+      "name": "context_pack",
+      "description": "Build a compact local context pack from records, selection, or search. Optional: query, uuid, selection (plus 1 more). Returns the ContextPack.",
+      "method": "GET",
+      "path": "/context/pack",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to seed the pack"
+        },
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Record UUID to seed the pack"
+        },
+        {
+          "name": "selection",
+          "type": "bool",
+          "location": "query",
+          "description": "Use current DEVONthink selection"
+        },
+        {
+          "name": "token-budget",
+          "wire_name": "token_budget",
+          "type": "int",
+          "location": "query",
+          "description": "Approximate token budget"
+        }
+      ]
+    },
+    {
+      "name": "databases_list",
+      "description": "List open databases. Returns array of Database.",
+      "method": "GET",
+      "path": "/databases",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "graph_audit",
+      "description": "Detect orphans, unresolved wiki links, weak hubs, and tag-only clusters. Optional: database, limit (default: 50). Returns the GraphAudit.",
+      "method": "GET",
+      "path": "/graph/audit",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum sample records per issue"
+        }
+      ]
+    },
+    {
+      "name": "graph_links",
+      "description": "List item links, wiki links, mentions, and unresolved wiki names. Optional: uuid, database, direction (default: both). Returns the GraphLinks.",
+      "method": "GET",
+      "path": "/graph/links",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Record UUID or item link"
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "incoming, outgoing, or both"
+        }
+      ]
+    },
+    {
+      "name": "groups_tree",
+      "description": "Render a bounded group tree. Optional: database, group, depth (default: 2). Returns the GroupTree.",
+      "method": "GET",
+      "path": "/groups/tree",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Root group UUID or path"
+        },
+        {
+          "name": "depth",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum tree depth"
+        }
+      ]
+    },
+    {
+      "name": "ingest_file",
+      "description": "Import or index a file or folder. Required: path. Optional: destination, mode (default: import). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/ingest/file",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "File or folder path",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination group path or UUID"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "import or index"
+        }
+      ]
+    },
+    {
+      "name": "ingest_url",
+      "description": "Capture a URL as Markdown, HTML, PDF, bookmark, or webarchive. Required: url. Optional: destination, type (default: markdown). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/ingest/url",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "URL to capture",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination group path or UUID"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Capture format"
+        }
+      ]
+    },
+    {
+      "name": "inventory_export",
+      "description": "Export databases, groups, tags, and selected document metadata for downstream tools. Optional: database, format (default: maintenance), include-text (plus 1 more). Returns the InventoryExport.",
+      "method": "GET",
+      "path": "/inventory/export",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Export format: maintenance, llm-wiki, raw"
+        },
+        {
+          "name": "include-text",
+          "wire_name": "include_text",
+          "type": "bool",
+          "location": "query",
+          "description": "Include extracted text where safe"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Output JSON path"
+        }
+      ]
+    },
+    {
+      "name": "ledger_list",
+      "description": "List recent CLI operation ledger entries. Optional: since, limit (default: 50). Returns array of LedgerEntry.",
+      "method": "GET",
+      "path": "/ledger",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Time window such as 7d"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum entries"
+        }
+      ]
+    },
+    {
+      "name": "ledger_show",
+      "description": "Show one ledger entry with target proofs and rollback hints. Required: id. Returns the LedgerEntry.",
+      "method": "GET",
+      "path": "/ledger/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Ledger entry ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mcp_call",
+      "description": "Call a local official DEVONthink MCP tool by name. Required: tool. Optional: args. Returns the new TextResult.",
+      "method": "POST",
+      "path": "/mcp/call",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tool",
+          "type": "string",
+          "location": "path",
+          "description": "Official MCP tool name",
+          "required": true
+        },
+        {
+          "name": "args",
+          "type": "string",
+          "location": "body",
+          "description": "JSON argument object"
+        }
+      ]
+    },
+    {
+      "name": "mcp_schema",
+      "description": "Emit cached MCP tool schemas. Returns the TextResult.",
+      "method": "GET",
+      "path": "/mcp/schema",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mcp_tools",
+      "description": "List official DEVONthink MCP tools when local MCP HTTP is enabled. Returns array of MCPTool.",
+      "method": "GET",
+      "path": "/mcp/tools",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "media_ocr",
+      "description": "OCR an image or scanned PDF. Required: uuid. Optional: format (default: pdf). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/media/{uuid}/ocr",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Output format"
+        }
+      ]
+    },
+    {
+      "name": "media_transcribe",
+      "description": "Transcribe audio, video, image, or PDF content. Required: uuid. Optional: language, timestamps. Returns the new TextResult.",
+      "method": "POST",
+      "path": "/media/{uuid}/transcribe",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "ISO language code"
+        },
+        {
+          "name": "timestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Include timestamps when available"
+        }
+      ]
+    },
+    {
+      "name": "mirror_search",
+      "description": "Search the local mirror with FTS. Required: query. Optional: limit (default: 20). Returns array of Record.",
+      "method": "GET",
+      "path": "/mirror/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "FTS query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows"
+        }
+      ]
+    },
+    {
+      "name": "mirror_sync",
+      "description": "Refresh the local SQLite mirror from open DEVONthink databases. Optional: database, full. Returns the SyncResult.",
+      "method": "GET",
+      "path": "/mirror/sync",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "full",
+          "type": "bool",
+          "location": "query",
+          "description": "Force full sync"
+        }
+      ]
+    },
+    {
+      "name": "privacy_audit",
+      "description": "Preview database scope, content-size budget, and cloud/MCP exposure before handoff. Optional: query, uuid, limit (default: 20). Returns the PrivacyAudit.",
+      "method": "GET",
+      "path": "/privacy/audit",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to audit"
+        },
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Record UUID or item link"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to inspect"
+        }
+      ]
+    },
+    {
+      "name": "records_content",
+      "description": "Extract text content with length and redaction controls. Required: uuid. Optional: max-chars (default: 8000). Returns the RecordContent.",
+      "method": "GET",
+      "path": "/records/{uuid}/content",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "max-chars",
+          "wire_name": "max_chars",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum characters to emit"
+        }
+      ]
+    },
+    {
+      "name": "records_create",
+      "description": "Create a record or group after validating destination. Required: title. Optional: type (default: markdown), destination, content (plus 1 more). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/records/create",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Record title",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Record type"
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination group path or UUID"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Inline text content"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags"
+        }
+      ]
+    },
+    {
+      "name": "records_get",
+      "description": "Get record metadata. Required: uuid. Returns the Record.",
+      "method": "GET",
+      "path": "/records/{uuid}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_highlights",
+      "description": "Extract highlights and annotations. Required: uuid. Returns the TextResult.",
+      "method": "GET",
+      "path": "/records/{uuid}/highlights",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_lookup",
+      "description": "Look up records by exact name, URL, path, filename, location, or comment. Optional: name, url, path (plus 3 more). Returns array of Record.",
+      "method": "GET",
+      "path": "/records/lookup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Exact record name"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Exact record URL"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Exact filesystem path"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Exact DEVONthink location"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "query",
+          "description": "Exact filename"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "query",
+          "description": "Exact comment"
+        }
+      ]
+    },
+    {
+      "name": "records_move",
+      "description": "Move, duplicate, replicate, or trash a record with dry-run proof. Required: uuid. Optional: destination, mode (default: move), dry-run. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/records/{uuid}/move",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination group path or UUID"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Operation mode: move, duplicate, replicate, trash"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Show the planned move without writing"
+        }
+      ]
+    },
+    {
+      "name": "records_related",
+      "description": "Find related records using DEVONthink similarity. Required: uuid. Optional: limit (default: 20). Returns array of Record.",
+      "method": "GET",
+      "path": "/records/{uuid}/related",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum related records"
+        }
+      ]
+    },
+    {
+      "name": "records_search",
+      "description": "Search records using DEVONthink query syntax or local mirror fallback. Required: query. Optional: database, group, limit (default: 20). Returns array of Record.",
+      "method": "GET",
+      "path": "/records/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "DEVONthink search query",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "location": "query",
+          "description": "Group UUID or path"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return"
+        }
+      ]
+    },
+    {
+      "name": "records_update",
+      "description": "Update record text, properties, tags, comment, URL, aliases, or rating. Required: uuid. Optional: title, tags, add-tag (plus 3 more). Returns the updated OperationResult.",
+      "method": "PATCH",
+      "path": "/records/{uuid}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "New title"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Replacement comma-separated tags"
+        },
+        {
+          "name": "add-tag",
+          "wire_name": "add_tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag to add"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "New comment"
+        },
+        {
+          "name": "append",
+          "type": "string",
+          "location": "body",
+          "description": "Text to append"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Show the planned update without writing"
+        }
+      ]
+    },
+    {
+      "name": "records_versions",
+      "description": "List saved record versions. Required: uuid. Returns array of Record.",
+      "method": "GET",
+      "path": "/records/{uuid}/versions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Record UUID or item link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runtime_doctor",
+      "description": "Check DEVONthink app, AppleScript, optional MCP, and local mirror readiness. Returns the RuntimeStatus.",
+      "method": "GET",
+      "path": "/runtime/doctor",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "selection_get",
+      "description": "Return currently selected records. Returns array of Record.",
+      "method": "GET",
+      "path": "/selection",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "selection_snapshot",
+      "description": "Capture the current selection as a reusable workflow seed. Optional: note, output. Returns the SelectionSnapshot.",
+      "method": "GET",
+      "path": "/selection/snapshot",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "note",
+          "type": "string",
+          "location": "query",
+          "description": "Operator note to include in the snapshot"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Optional output JSON file"
+        }
+      ]
+    },
+    {
+      "name": "sheets_get",
+      "description": "Read a sheet as structured rows. Required: uuid. Returns the SheetResult.",
+      "method": "GET",
+      "path": "/sheets/{uuid}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Sheet UUID or item link",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_analyze",
+      "description": "Analyze tags for duplicates, case drift, action tags, and maintenance tags. Optional: database. Returns the TagAnalysis.",
+      "method": "GET",
+      "path": "/tags/analyze",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database name or UUID"
+        }
+      ]
+    }
+  ]
+}
