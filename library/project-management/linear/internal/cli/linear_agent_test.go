@@ -1100,6 +1100,7 @@ func TestIssuesEditLabelNameWithMediaPreservesDescription(t *testing.T) {
 		assetURL            = "https://asset.example/screenshot.png"
 	)
 	var sawMutation bool
+	issueFetchCalls := 0
 	var srv *httptest.Server
 	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPut && r.URL.Path == "/upload" {
@@ -1114,6 +1115,7 @@ func TestIssuesEditLabelNameWithMediaPreservesDescription(t *testing.T) {
 		}
 		switch {
 		case strings.Contains(req.Query, "issues(filter"):
+			issueFetchCalls++
 			fmt.Fprintf(w, `{"data":{"issues":{"nodes":[{"id":"issue-1","identifier":"MOB-340","title":"Existing","description":%q,"priority":0,"estimate":0,"dueDate":null,"url":"https://linear.app/acme/issue/MOB-340","updatedAt":"2026-06-30T00:00:00Z","createdAt":"2026-06-30T00:00:00Z","state":{"id":"state-1","name":"Todo","type":"unstarted"},"team":{"id":"team-mob","key":"MOB","name":"Mobilyze"},"project":null,"assignee":null}]}}}`, existingDescription)
 		case strings.Contains(req.Query, "issueLabels(first"):
 			requirePortfolioNameFilter(t, req, "area:review-tooling")
@@ -1173,6 +1175,9 @@ func TestIssuesEditLabelNameWithMediaPreservesDescription(t *testing.T) {
 	}
 	if !sawMutation {
 		t.Fatalf("issueUpdate mutation was not sent; output=%s", out)
+	}
+	if issueFetchCalls != 1 {
+		t.Fatalf("fetched issue metadata %d times, want 1", issueFetchCalls)
 	}
 }
 

@@ -152,7 +152,8 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					if err != nil {
 						return classifyLiveReadError(err, flags)
 					}
-					if err := parseIssueEditMetadata(args[0], existing, &issueID, &issueTeam, &issueMetaLoaded, &descBody, &descSet, false); err != nil {
+					loadDescription := len(mediaFlag) > 0 && !descSet
+					if err := parseIssueEditMetadata(args[0], existing, &issueID, &issueTeam, &issueMetaLoaded, &descBody, &descSet, loadDescription); err != nil {
 						return err
 					}
 				}
