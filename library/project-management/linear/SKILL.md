@@ -37,7 +37,7 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 - Add `--agent` to commands unless a human-readable table is explicitly needed. It implies JSON, compact output, non-interactive mode, no color, and confirmation-safe scripting.
 - Use `--data-source live` for closeout/state/description checks where current truth matters. Use `issues search` for duplicate checks; it refreshes stale issue search data or fails visibly. Use `--data-source local` or `similar` only when stale/offline local duplicate search is intentional.
-- A missing `description` in compact output does not mean an empty issue body. Request it explicitly: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url`.
+- Fields omitted from compact output are not absent from the issue. Request them explicitly, including nested labels: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,labels.nodes.id,labels.nodes.name,url`.
 - Fetch several known issues in one call with comma-separated identifiers: `linear-pp-cli issues ENG-123,ENG-124 --agent`. The result array preserves caller order and removes duplicate identifiers; a missing member fails the whole read instead of returning a partial set.
 - Prefer the canonical read and comment forms shown here. Common agent phrasing is accepted without changing behavior: `issues get|view|show ENG-123`, `documents get|view <ref>`, and `comments create` are compatibility aliases for `issues ENG-123`, `documents <ref>`, and `comments add`. The aliases accept the same global flags, comma reads, body files, targets, and media flags as their canonical commands; there is deliberately no `documents show` alias.
 - `--label` is UUID-only; `--label-name` resolves an exact label name at write time (team-owned or workspace-global). Before passing UUIDs to `issues create` or `issues edit`, run `linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key`. The CLI preflights ownership and refuses cross-team labels before mutating.
@@ -175,7 +175,7 @@ These capabilities aren't available in any other tool for this API.
   linear-pp-cli issues edit ENG-123 --label-name "area:review-tooling" --agent
   ```
 
-  `--label-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Writes require a normalized exact label-name match. Team-owned labels and workspace-global labels (no team) both resolve; labels owned by another team do not. `--label` and `--label-name` can be combined; resolved IDs are de-duplicated before the mutation.
+  `--label-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Writes require a normalized exact label-name match. Team-owned labels and workspace-global labels (no team) both resolve; labels owned by another team do not. `--label` and `--label-name` can be combined; resolved IDs are de-duplicated before the mutation. On create, the CLI verifies the mutation's returned label IDs and fails visibly if Linear did not attach the requested set.
 - **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
 
   _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
@@ -209,7 +209,7 @@ These capabilities aren't available in any other tool for this API.
 - **Current issue reads and comments** — Read full issue bodies and discussion without falling back to stale local state. `comments list` takes the issue positionally (preferred) or via `--issue`.
 
   ```bash
-  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,url
+  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,labels.nodes.id,labels.nodes.name,url
   linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list ENG-123 --agent
   linear-pp-cli comments list --issue ENG-123 --agent --limit 100

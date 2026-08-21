@@ -19,6 +19,16 @@ import (
 
 var errTeamFilterNotFound = errors.New("team not found")
 
+type issueLabel struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+}
+
+type issueLabels struct {
+	Nodes []issueLabel `json:"nodes"`
+}
+
 // issueRow is the shared projection used by `issues list` and table rendering.
 // It mirrors the shape the sync writes to the `data` JSON column.
 type issueRow struct {
@@ -46,8 +56,9 @@ type issueRow struct {
 		DisplayName string `json:"displayName"`
 		Email       string `json:"email"`
 	} `json:"assignee,omitempty"`
-	UpdatedAt string `json:"updatedAt"`
-	URL       string `json:"url,omitempty"`
+	Labels    *issueLabels `json:"labels,omitempty"`
+	UpdatedAt string       `json:"updatedAt"`
+	URL       string       `json:"url,omitempty"`
 	// ArchivedAt is Issue.archivedAt, null on a live issue. It is the only
 	// thing that distinguishes an archived row once --include-archived is on.
 	ArchivedAt string `json:"archivedAt,omitempty"`
@@ -347,6 +358,7 @@ func fetchIssueLive(c graphqlQueryer, identifier string) (json.RawMessage, error
 				team { id key name }
 				project { id name }
 				assignee { id name displayName email }
+				labels { nodes { id name color } }
 			}
 		}
 	}`
@@ -372,6 +384,7 @@ func fetchIssueByIDLive(c graphqlQueryer, id string) (json.RawMessage, error) {
 			team { id key name }
 			project { id name }
 			assignee { id name displayName email }
+			labels { nodes { id name color } }
 		}
 	}`
 	var resp struct {
@@ -623,6 +636,9 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 	}
 
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+		if flags.selectFields != "" {
+			return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
+		}
 		enc := json.NewEncoder(cmd.OutOrStdout())
 		enc.SetIndent("", "  ")
 		return enc.Encode(rows)

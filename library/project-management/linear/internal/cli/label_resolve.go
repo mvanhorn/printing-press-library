@@ -148,6 +148,23 @@ func mergeLabelIDs(labelIDs, resolvedLabelIDs []string) []string {
 	return merged
 }
 
+func sameLabelIDs(left, right []string) bool {
+	left, right = mergeLabelIDs(nil, left), mergeLabelIDs(nil, right)
+	if len(left) != len(right) {
+		return false
+	}
+	want := make(map[string]bool, len(left))
+	for _, id := range left {
+		want[strings.ToLower(strings.TrimSpace(id))] = true
+	}
+	for _, id := range right {
+		if !want[strings.ToLower(strings.TrimSpace(id))] {
+			return false
+		}
+	}
+	return true
+}
+
 func internalLabelResolveClientErr() error {
 	return fmt.Errorf("internal error: --label-name resolution requires a live Linear client")
 }
