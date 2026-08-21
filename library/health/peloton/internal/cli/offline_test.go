@@ -27,8 +27,6 @@ func seedOfflineFacts(t *testing.T, home string) {
 		{"workout_details", "w3", `{"id":"w3","ride_id":"ride-b"}`},
 		{"performance", "w1", `{"samples":[{"seconds":0,"output":120}],"summary":{"avg_output":120}}`},
 		{"classes", "ride-a", `{"id":"ride-a","title":"Synthetic Ride","instructor":{"name":"Ada"},"duration":1800,"fitness_discipline":"cycling","class_type":"ride","segments":[{"role":"warmup","metric":"cadence","targets":[55,65]},{"role":"effort","metric":"cadence","targets":[65,75]}]}`},
-		{"catalog_classes", "ride-a", `{"id":"ride-a","title":"Duplicate catalog copy","instructor":{"name":"Other"},"duration":900}`},
-		{"catalog_classes", "ride-b", `{"id":"ride-b","title":"Short Walk","instructor":{"name":"Bea"},"duration":900,"fitness_discipline":"walking","class_type":"walk","segments":[{"role":"walk","metric":"pace","targets":[3,4]}]}`},
 		{"classes", "ride-c", `{"id":"ride-c","title":"Partial structure","duration":600}`},
 		{"filters", "v1", `{"instructors":[{"name":"Ada"}],"disciplines":["cycling"]}`},
 	}

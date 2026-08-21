@@ -296,33 +296,28 @@ func offlineFact(cmd *cobra.Command, family, id string) (store.ProviderFact, err
 	}
 	return fact, err
 }
+
+// offlineClass reads a single locally cached class fact. This used to also
+// try a "catalog_classes" provider_payloads family as a fallback,
+// inherited from the original generated code. No write path in this CLI
+// has ever targeted that family name -- discriminatorDispatchers (sync.go)
+// is empty, so no discriminated-write resource resolution exists at all --
+// confirmed dead, and removed rather than kept as a defensive no-op per
+// this repo's "don't validate for scenarios that can't happen" convention.
 func offlineClass(cmd *cobra.Command, id string) (store.ProviderFact, error) {
-	if f, e := offlineFact(cmd, "classes", id); e == nil {
-		return f, nil
-	}
-	return offlineFact(cmd, "catalog_classes", id)
+	return offlineFact(cmd, "classes", id)
 }
+
+// offlineClasses returns every locally cached class fact, sorted by id.
+// See offlineClass's doc comment for why this no longer also merges in a
+// "catalog_classes" family.
 func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
-	detailed, err := offlineFacts(cmd, "classes", 0)
+	facts, err := offlineFacts(cmd, "classes", 0)
 	if err != nil {
 		return nil, err
 	}
-	catalog, err := offlineFacts(cmd, "catalog_classes", 0)
-	if err != nil {
-		return nil, err
-	}
-	seen := map[string]bool{}
-	all := append([]store.ProviderFact{}, detailed...)
-	for _, f := range detailed {
-		seen[f.ProviderID] = true
-	}
-	for _, f := range catalog {
-		if !seen[f.ProviderID] {
-			all = append(all, f)
-		}
-	}
-	sort.SliceStable(all, func(i, j int) bool { return all[i].ProviderID < all[j].ProviderID })
-	return all, nil
+	sort.SliceStable(facts, func(i, j int) bool { return facts[i].ProviderID < facts[j].ProviderID })
+	return facts, nil
 }
 
 // printOffline wraps value in the standard offline {"meta":...,"data":...}

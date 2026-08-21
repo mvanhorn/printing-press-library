@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -164,5 +167,58 @@ func TestDoctorReportsFreshBootstrapEnvVarsBeforeFirstLogin(t *testing.T) {
 	// -- just confirm it's not the "nothing anywhere" sentinel.
 	if credLoc, _ := report["credentials_location"].(string); credLoc == "none" || credLoc == "" {
 		t.Fatalf(`credentials_location = %q, want a non-empty, non-"none" source (bootstrap env vars are set)`, credLoc)
+	}
+}
+
+// TestDoctorSurfacesBundleCheckErrorDistinctFromNoCredentials guards a
+// code-review finding: collectCredentialsLocationReport (doctor.go)
+// collapsed a real pelotonPersistedBundleStatus() error into the same
+// "credentials_location": "none" result as "genuinely no credentials",
+// while the auth-check block earlier in the same file (bundleErr, around
+// line 159) already surfaces the identical error distinctly. A bundle file
+// that exists but fails its own validity check (here: overly-permissive
+// file mode, which loadOAuthBundle rejects) must report an "unknown
+// (checking persisted bundle failed: ...)" value, not silently look
+// identical to "no bundle at all".
+func TestDoctorSurfacesBundleCheckErrorDistinctFromNoCredentials(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+	t.Setenv("PELOTON_OAUTH_USERNAME", "")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "")
+
+	bundlePath, err := oauthBundlePath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(bundlePath), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	// Bypass saveOAuthBundle (which writes with a restrictive mode) and
+	// write directly with a world-readable mode -- loadOAuthBundle
+	// rejects this, producing a real error distinct from "file absent".
+	if err := os.WriteFile(bundlePath, []byte(`{"access_token":"x"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	root := newRootCmd(&rootFlags{})
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetArgs([]string{"doctor", "--home", home, "--json"})
+	_ = root.Execute()
+
+	var report map[string]any
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatalf("invalid JSON %q: %v", out.String(), err)
+	}
+	credLoc, _ := report["credentials_location"].(string)
+	if credLoc == "none" {
+		t.Fatal(`credentials_location = "none", want a distinct error indication -- a real check failure was silently reported identically to "no credentials anywhere"`)
+	}
+	if !strings.Contains(credLoc, "checking persisted bundle failed") {
+		t.Fatalf("credentials_location = %q, want it to name the check failure", credLoc)
 	}
 }

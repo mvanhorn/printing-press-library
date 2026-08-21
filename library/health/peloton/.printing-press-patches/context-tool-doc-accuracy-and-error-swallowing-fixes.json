@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "context-tool-doc-accuracy-and-error-swallowing-fixes",
+  "applied_at": "2026-08-20",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Three of six defects found by an independent code-review pass on the sibling classes_detail PR (mvanhorn/printing-press-library#1774) also apply to this branch's pre-classes_detail tree and are ported here. (1) doctor's credentials_location (internal/cli/doctor.go, collectCredentialsLocationReport) treated a bundle-read error identically to \"no credentials file exists\", reporting \"none\" either way -- masking a real permissions/corruption problem as an auth setup gap. Now a switch distinguishes err != nil (\"unknown (checking persisted bundle failed: ...)\") from a genuine absence (\"none\"). (2) The MCP context tool's field-shape tip (internal/mcp/tools.go) claimed every offline command wraps its result under a \"result\" key; that's only true for offline_workout (detail/history nesting) -- every other offline command's fields, including \"caveats\", sit at the top level. Tip text corrected. (3) offlineClass/offlineClasses (internal/cli/offline.go) carried a dead middle fallback tier reading a \"catalog_classes\" provider_payloads family; grepped across internal/ and confirmed discriminatorDispatchers (sync.go) is empty, so no write path has ever targeted that family name -- removed as genuinely dead code, along with its now-orphaned fixture rows in offline_test.go's seedOfflineFacts. The other three findings from that review (a null-ride merge bug in mergeClassesListItemWithStoredDetail, a --latest-only doc carve-out, and a classSegmentsMissingCaveat wording fix) are classes_detail-exclusive and don't apply to this branch -- see classes-detail-null-ride-and-doc-accuracy-fixes.json on the classes_detail branch for those.",
+  "reason": "Same independent code-review pass that produced classes-detail-null-ride-and-doc-accuracy-fixes.json on the sibling PR; these three findings touch code shared between both PRs' pre-split trees (doctor.go, tools.go's context-tool tip, and the offlineClass dead-code shape all predate the classes_detail feature), so the fix is ported here rather than left only on the other branch.",
+  "files": [
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_test.go",
+    "internal/mcp/tools.go",
+    "internal/cli/offline.go",
+    "internal/cli/offline_test.go"
+  ],
+  "validated_outcome": "go build/vet/test and gofmt all green on this branch after porting. TestDoctorSurfacesBundleCheckErrorDistinctFromNoCredentials (writes an oauth-token.json bundle with an overly-permissive 0o644 mode to trigger loadOAuthBundle's permission-check error path) confirms credentials_location reports the check failure rather than \"none\"."
+}

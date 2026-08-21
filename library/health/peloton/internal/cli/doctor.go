@@ -474,9 +474,21 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 		// before reporting "none" — a user with a valid persisted token and
 		// no other credential source should see where it lives, not a
 		// blanket "no credentials anywhere".
-		if bundleUsable, bundlePath, err := pelotonPersistedBundleStatus(); err == nil && bundleUsable {
+		switch bundleUsable, bundlePath, err := pelotonPersistedBundleStatus(); {
+		case err != nil:
+			// Distinct from "genuinely no bundle" (below): a transient
+			// or permission error checking the bundle must not
+			// collapse into the same "none" a real no-credentials
+			// state reports, or a valid bundle that merely failed its
+			// status check this run reads as "no credentials anywhere"
+			// instead of "couldn't check". The auth-check block earlier
+			// in this file (see bundleErr around line 159) already
+			// surfaces this same error; this report must stay
+			// consistent with it.
+			report["credentials_location"] = fmt.Sprintf("unknown (checking persisted bundle failed: %s)", err)
+		case bundleUsable:
 			report["credentials_location"] = bundlePath
-		} else {
+		default:
 			report["credentials_location"] = "none"
 		}
 	}
