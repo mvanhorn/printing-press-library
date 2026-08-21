@@ -22,6 +22,7 @@ func newIssuesCreateCmd(flags *rootFlags) *cobra.Command {
 	var descStdin bool
 	var priorityFlag int
 	var labelsFlag []string
+	var labelNamesFlag []string
 	var mediaFlag []string
 	var mediaPublic bool
 	var dbPath string
@@ -154,6 +155,21 @@ sub-issue under an existing parent.`,
 			}
 			if stateFlag != "" {
 				input["stateId"] = stateFlag
+			}
+			if len(labelNamesFlag) > 0 {
+				if c == nil {
+					var err error
+					lookupClient, err := newPortfolioLookupClient(flags)
+					if err != nil {
+						return err
+					}
+					c = lookupClient
+				}
+				resolvedLabelIDs, err := resolveLabelNamesForWriteLive(c, labelNamesFlag, teamFlag, flags)
+				if err != nil {
+					return err
+				}
+				labelsFlag = mergeLabelIDs(labelsFlag, resolvedLabelIDs)
 			}
 			if len(labelsFlag) > 0 {
 				input["labelIds"] = labelsFlag
@@ -397,6 +413,7 @@ sub-issue under an existing parent.`,
 	cmd.Flags().StringVar(&stateTypeFlag, "state-type", "", "Workflow state type (triage, backlog, unstarted, started, completed, canceled, duplicate); resolved against --team")
 	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID; creates the issue as a sub-issue")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Label UUIDs (repeatable)")
+	cmd.Flags().StringSliceVar(&labelNamesFlag, "label-name", nil, "Resolve and attach label(s) by exact name (repeatable; team-scoped + team-safe global)")
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (for team-key resolution and pp_created ledger)")
