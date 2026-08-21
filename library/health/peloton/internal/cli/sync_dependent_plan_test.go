@@ -677,6 +677,79 @@ func TestFullSyncOffsetWrapWithOverlappingBacklogAdvancesPastWholeWindow(t *test
 	}
 }
 
+// alwaysSucceedFullClient returns a valid response for any path -- for
+// tests that only care about the sweep/turn bookkeeping across many
+// consecutive successful calls, not per-id response shaping.
+type alwaysSucceedFullClient struct{}
+
+func (alwaysSucceedFullClient) Get(_ context.Context, _ string, _ map[string]string) (json.RawMessage, error) {
+	return json.RawMessage(`{"id":"x","ride":{"id":"ride-a"}}`), nil
+}
+func (alwaysSucceedFullClient) RateLimit() float64 { return 0 }
+
+// TestFullSyncTurnBitFlipsEveryCallAcrossMixedCapSizes is a live-account
+// verification round's own reproduction: round-14 testing against a real
+// account (workout_details, ~3,596 workouts, 7 consecutive --full calls at
+// --max-parents 40 then 2) reported the sweep offset advancing correctly
+// every call but the persisted turn bit (":full_turn") appearing to flip
+// once and then stay flat for several calls, which looked inconsistent
+// with "flips unconditionally every call" (see runDependentFanOut's step-3
+// comment). This test drives the exact same call sequence (7 calls, a
+// 500-id parent set, --max-parents 40 x5 then 2 x2, nothing ever failing)
+// through the real fetch/store path and asserts the turn bit alternates
+// 1,0,1,0,1,0,1 -- confirming the code itself behaves as designed. The
+// live-account discrepancy was not reproduced here, so it's most likely an
+// artifact of how that round's raw-SQL observation tool read the database
+// (see the round-14 report reply) rather than a bug in this bookkeeping;
+// this test exists so any future actual regression here is caught
+// immediately, and as a citable reference for why the turn bit alone isn't
+// the smoking gun.
+func TestFullSyncTurnBitFlipsEveryCallAcrossMixedCapSizes(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	items := make([]json.RawMessage, 0, 500)
+	for i := 0; i < 500; i++ {
+		id := fmt.Sprintf("w%04d", i)
+		items = append(items, json.RawMessage(`{"id":"`+id+`","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`))
+	}
+	if _, _, err := db.UpsertBatchWithFacts("workouts", items); err != nil {
+		t.Fatalf("seeding workouts: %v", err)
+	}
+
+	client := alwaysSucceedFullClient{}
+	maxParentsSeq := []int{40, 40, 40, 40, 40, 2, 2}
+	wantOffsets := []int{40, 80, 120, 160, 200, 202, 204}
+	wantTurns := []int{1, 0, 1, 0, 1, 0, 1}
+	for i, mp := range maxParentsSeq {
+		plan, err := planDependentSync(db, "workouts", "workout_details", true, nil, nil, mp, false)
+		if err != nil {
+			t.Fatalf("call %d planDependentSync: %v", i+1, err)
+		}
+		res := syncWorkoutDetailsDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+		if res.Err != nil {
+			t.Fatalf("call %d syncWorkoutDetailsDependent: %v", i+1, res.Err)
+		}
+		_, _, offset, err := db.GetSyncState("workout_details:full_progress")
+		if err != nil {
+			t.Fatalf("call %d GetSyncState(full_progress): %v", i+1, err)
+		}
+		if offset != wantOffsets[i] {
+			t.Fatalf("call %d offset = %d, want %d", i+1, offset, wantOffsets[i])
+		}
+		_, _, turn, err := db.GetSyncState("workout_details:full_turn")
+		if err != nil {
+			t.Fatalf("call %d GetSyncState(full_turn): %v", i+1, err)
+		}
+		if turn != wantTurns[i] {
+			t.Fatalf("call %d turn = %d, want %d -- turn must flip unconditionally every full-sweep call, regardless of --max-parents", i+1, turn, wantTurns[i])
+		}
+	}
+}
+
 // countingFailAlwaysClient is a fixed-outcome fake sync client: every
 // request fails, but onAttempt is invoked first so a test can observe
 // which paths were actually tried (and how many times), which
