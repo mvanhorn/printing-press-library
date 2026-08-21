@@ -1562,17 +1562,25 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
-// SaveSyncStatePair atomically persists two sync_state rows in a single
-// transaction. --full's dependent-sync resumability tracks its sweep
-// cursor and failed-id backlog as two independent rows (see
-// dependentSyncPlan's field docs in internal/cli/sync.go); writing them
-// via two separate SaveSyncState calls left a window where a crash between
-// the writes, or either individual write failing, could leave the two
-// permanently out of sync -- an offset committed without its backlog
-// silently drops a failure until the pass wraps around; a backlog
-// committed without its offset just repeats the same sweep window next
-// call. Either both rows are written or neither is.
-func (s *Store) SaveSyncStatePair(resourceType1, cursor1 string, count1 int, resourceType2, cursor2 string, count2 int) error {
+// SyncStateWrite is one row for SaveSyncStates.
+type SyncStateWrite struct {
+	ResourceType string
+	Cursor       string
+	Count        int
+}
+
+// SaveSyncStates atomically persists any number of sync_state rows in a
+// single transaction. --full's dependent-sync resumability tracks its
+// sweep cursor, failed-id backlog, and tier-alternation turn bit as three
+// independent rows (see dependentSyncPlan's field docs in
+// internal/cli/sync.go); writing them via separate SaveSyncState calls
+// left a window where a crash between the writes, or any individual write
+// failing, could leave the pieces permanently out of sync with each other
+// -- an offset committed without its backlog silently drops a failure
+// until the pass wraps around; a backlog committed without its offset
+// just repeats the same sweep window next call. Either every row is
+// written or none is.
+func (s *Store) SaveSyncStates(writes ...SyncStateWrite) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
@@ -1585,11 +1593,10 @@ func (s *Store) SaveSyncStatePair(resourceType1, cursor1 string, count1 int, res
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
 		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`
-	if _, err := tx.Exec(upsert, resourceType1, cursor1, now, count1); err != nil {
-		return err
-	}
-	if _, err := tx.Exec(upsert, resourceType2, cursor2, now, count2); err != nil {
-		return err
+	for _, w := range writes {
+		if _, err := tx.Exec(upsert, w.ResourceType, w.Cursor, now, w.Count); err != nil {
+			return err
+		}
 	}
 	return tx.Commit()
 }

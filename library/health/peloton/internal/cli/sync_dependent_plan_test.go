@@ -5,8 +5,10 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -455,6 +457,159 @@ func TestFullSyncOffsetLargeBacklogDoesNotStarveSweep(t *testing.T) {
 		t.Fatalf("fullSweepCount = 0, want > 0 -- the sweep must always get some budget even when the backlog alone exceeds --max-parents")
 	}
 }
+
+// TestFullSyncOffsetMaxParentsOneNeverEmptiesPlanWithPendingWork guards an
+// independent blind code review's most severe finding: at --max-parents 1,
+// once the backlog grows to cover the entire current sweep window (which
+// happens naturally once every id a small account has has failed and
+// wrapped into the backlog at least once), the sweep budget's ceiling
+// split gives the sweep the cap's only slot while the sweep itself has no
+// fresh id left to offer (everything in its window is already a backlog
+// dup) -- producing a completely empty plan.ids despite real pending
+// work. runDependentFanOut's len(plan.ids)==0 short-circuit then reports
+// "already_up_to_date", silently masking a permanent deadlock. Drives 12
+// consecutive real --full calls (well past the point where this triggers)
+// and asserts plan.ids is never empty while totalPending is nonzero.
+func TestFullSyncOffsetMaxParentsOneNeverEmptiesPlanWithPendingWork(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2")
+
+	// Both ids fail on every attempt -- pathAwareSyncClient errors on any
+	// path not in its (empty) map.
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{}}
+
+	for call := 1; call <= 12; call++ {
+		plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 1, false)
+		if err != nil {
+			t.Fatalf("call %d planDependentSync: %v", call, err)
+		}
+		if plan.totalPending > 0 && len(plan.ids) == 0 {
+			t.Fatalf("call %d: plan.ids is empty but totalPending=%d -- this is the silent deadlock a blind review found (runDependentFanOut would report \"already_up_to_date\" while 2 ids are permanently stuck)", call, plan.totalPending)
+		}
+		res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+		if res.Err != nil {
+			t.Fatalf("call %d syncPerformanceDependent: %v", call, res.Err)
+		}
+	}
+}
+
+// TestFullSyncOffsetMaxParentsOneAlternatesBothIDsGetRetried guards the
+// same review finding's companion bug: without alternation, the ceiling
+// split's "sweep always wins the only slot at cap 1" rule would let one
+// id monopolize every call forever while the other -- once it lands in
+// the backlog -- never gets attempted again. Over enough consecutive
+// --full --max-parents 1 calls, both ids must actually get fetched
+// (observed via the fake client's call count per path), not just one.
+func TestFullSyncOffsetMaxParentsOneAlternatesBothIDsGetRetried(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2")
+
+	attempts := map[string]int{}
+	var mu sync.Mutex
+	client := &countingFailAlwaysClient{onAttempt: func(path string) {
+		mu.Lock()
+		attempts[path]++
+		mu.Unlock()
+	}}
+
+	for call := 1; call <= 12; call++ {
+		plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 1, false)
+		if err != nil {
+			t.Fatalf("call %d planDependentSync: %v", call, err)
+		}
+		res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+		if res.Err != nil {
+			t.Fatalf("call %d syncPerformanceDependent: %v", call, res.Err)
+		}
+	}
+
+	if attempts["/api/workout/w1/performance_graph"] == 0 || attempts["/api/workout/w2/performance_graph"] == 0 {
+		t.Fatalf("attempts = %v, want both w1 and w2 attempted at least once across 12 calls -- one id was permanently starved at --max-parents 1", attempts)
+	}
+}
+
+// TestFullSyncOffsetWrapWithOverlappingBacklogAdvancesPastWholeWindow
+// guards a bug found independently by two different reviewers: a live PR
+// review and a separate code-review pass both flagged that fullSweepCount
+// was computed by counting how many ids were actually SELECTED as sweep
+// work, not how many raw positions of the sweep window were consumed.
+// Right after a --full pass wraps (offset resets to 0), the entire id
+// space can simultaneously be "swept" and "in the backlog" if every id
+// failed on the prior pass -- when that happens, the deduped-count
+// formula would report 0 progress even though every position was
+// examined, causing the cursor to stall at 0 and repeatedly re-examine
+// the same window on every subsequent call instead of ever moving on.
+// This test drives a wrap where the ENTIRE window overlaps the backlog
+// and asserts the cursor still advances (does not stall at its
+// pre-call value).
+func TestFullSyncOffsetWrapWithOverlappingBacklogAdvancesPastWholeWindow(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w1", "w2")
+
+	// Seed a wrapped-pass state directly: offset at the end of the id
+	// space (so the next call wraps to 0) and a backlog that already
+	// contains BOTH ids -- i.e. the entire post-wrap sweep window is
+	// backlog-shadowed, the exact condition that trips the position-vs-
+	// count mismatch.
+	if err := db.SaveSyncState("performance:full_progress", "", 2); err != nil {
+		t.Fatalf("seed offset: %v", err)
+	}
+	if err := db.SaveSyncState("performance:full_failed", "w1,w2", 2); err != nil {
+		t.Fatalf("seed backlog: %v", err)
+	}
+
+	// Use a cap large enough that both backlog ids fit in one call (no
+	// --max-parents starvation logic involved here -- isolating the
+	// position-counting bug specifically).
+	client := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w1/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0],"metrics":[]}`),
+	}}
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 10, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	res := syncPerformanceDependent(context.Background(), client, db, plan, 1, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	}
+
+	cursor, _, count, err := db.GetSyncState("performance:full_progress")
+	if err != nil {
+		t.Fatalf("GetSyncState(full_progress): %v", err)
+	}
+	_ = cursor
+	if count == 0 {
+		t.Fatalf("full_progress count = 0, want > 0 -- the cursor must advance past a fully backlog-shadowed sweep window (both w1 and w2 succeeded this call), not stall at its pre-call value")
+	}
+}
+
+// countingFailAlwaysClient is a fixed-outcome fake sync client: every
+// request fails, but onAttempt is invoked first so a test can observe
+// which paths were actually tried (and how many times), which
+// pathAwareSyncClient alone can't report.
+type countingFailAlwaysClient struct {
+	onAttempt func(path string)
+}
+
+func (c *countingFailAlwaysClient) Get(_ context.Context, path string, _ map[string]string) (json.RawMessage, error) {
+	c.onAttempt(path)
+	return nil, fmt.Errorf("simulated permanent failure for %s", path)
+}
+
+func (c *countingFailAlwaysClient) RateLimit() float64 { return 0 }
 
 // TestPlanDependentSync_DryRunDoesNotPersistFullOffset guards --full's
 // existing "a preview must not mutate sync-state" convention: planning

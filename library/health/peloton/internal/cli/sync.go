@@ -1954,11 +1954,38 @@ type dependentSyncPlan struct {
 	// mechanism trying to satisfy both. All fields are zero/empty
 	// whenever --full's tracking doesn't apply (not a --full run, or
 	// --latest-only run-scoping is active).
+	//
+	// fullSweepCount is deliberately a count of RAW POSITIONS consumed
+	// from the sweep window this call, not a count of ids actually
+	// selected as sweep work -- a position whose id is already in the
+	// backlog is still "passed" by the sweep even though it isn't
+	// separately fetched here, and the cursor must advance past it or it
+	// silently re-examines the same positions forever after a wrap (an
+	// independent review round found this: counting selected ids instead
+	// of positions made the cursor systematically under-advance whenever
+	// a backlog id sat inside the current window).
 	fullOffsetKey  string   // sync_state key for the sweep cursor ("" = not --full-tracked)
 	fullOffsetBase int      // sweep cursor's value BEFORE this batch
-	fullSweepCount int      // how many of plan.ids came from the sweep window (not the backlog) -- the cursor advances by exactly this many, unconditionally
+	fullSweepCount int      // raw positions of the sweep window consumed this call -- the cursor advances by exactly this many, unconditionally
 	fullFailedKey  string   // sync_state key for the failed-id backlog
 	fullBacklogAll []string // the full validated backlog before --max-parents capped plan.ids, needed to know which backlog ids this call didn't even attempt
+	// fullTurnKey/fullTurnNext implement alternation between the backlog
+	// and sweep tiers specifically at --max-parents 1, the one cap value
+	// where "reserve at least half for the sweep, rounding up" leaves
+	// the backlog with zero slots on every call -- an independent review
+	// found this stranded a chronically-failing id at cap 1 forever,
+	// and in the degenerate case where the backlog also covers the
+	// entire current sweep window (common right after a wrap), left
+	// plan.ids completely empty despite real pending work, which
+	// runDependentFanOut then silently reported as "already up to
+	// date". A persisted bit flips every call: the tier that gave way
+	// this call gets priority next call, so over any two consecutive
+	// calls both tiers get a turn whenever both have pending work. At
+	// --max-parents >= 2 the ceiling split alone already guarantees
+	// both tiers a slot, so the turn bit is written every call (kept
+	// simple and unconditional) but only ever changes behavior at cap 1.
+	fullTurnKey  string // sync_state key for the turn bit ("" = not --full-tracked)
+	fullTurnNext int    // the value to persist after this call (0 or 1)
 }
 
 // planDependentSync resolves which parent ids a dependent sync call should
@@ -2057,16 +2084,20 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 	var candidates []string
 	progressKey := dependentResource + ":full_progress"
 	failedKey := dependentResource + ":full_failed"
+	turnKey := dependentResource + ":full_turn"
 	fullOffset := 0
-	var fullBacklog []string  // validated, deduped backlog ids -- see below
-	var dedupedSwept []string // sweep-window ids minus anything already in fullBacklog
+	turn := 0
+	var fullBacklog []string // validated, deduped backlog ids -- see below
+	var swept []string       // this call's sweep window, parentIDs[fullOffset:] -- positional, NOT deduped
+	var seen map[string]bool // backlog membership, keyed by id -- also used to dedup swept at capping time
 	switch {
 	case full && scopeSince == nil:
 		_, _, fullOffset, _ = db.GetSyncState(progressKey)
 		if fullOffset < 0 || fullOffset >= len(parentIDs) {
 			fullOffset = 0 // prior pass completed (or state is stale/out of range): start a fresh pass
 		}
-		swept := parentIDs[fullOffset:]
+		swept = parentIDs[fullOffset:]
+		_, _, turn, _ = db.GetSyncState(turnKey) // defaults to 0 (int zero value) when absent
 
 		// The sweep cursor above always advances unconditionally after a
 		// batch is attempted (see runDependentFanOut) -- that guarantees
@@ -2082,7 +2113,7 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		for _, id := range parentIDs {
 			parentIDSet[id] = true
 		}
-		seen := make(map[string]bool)
+		seen = make(map[string]bool)
 		if backlogCursor != "" {
 			for _, id := range strings.Split(backlogCursor, ",") {
 				// A backlogged id must still be a real candidate (it
@@ -2094,6 +2125,7 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 				}
 			}
 		}
+		candidates = append([]string{}, fullBacklog...)
 		for _, id := range swept {
 			// Normally a backlog id can never reappear in swept (the
 			// sweep cursor only ever moves past ids it has already
@@ -2101,12 +2133,13 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 			// point) -- except right after a pass wraps, when the
 			// cursor resets to 0 and swept becomes the full id list
 			// again. Dedup defensively so a wrapped pass never queues
-			// the same id twice in one batch.
+			// the same id twice in one batch. (This is for the
+			// candidates/totalPending listing only; capping below
+			// re-walks the real, undeduped swept positionally.)
 			if !seen[id] {
-				dedupedSwept = append(dedupedSwept, id)
+				candidates = append(candidates, id)
 			}
 		}
-		candidates = append(append([]string{}, fullBacklog...), dedupedSwept...)
 	case full:
 		// --full combined with --latest-only run-scoping: an unusual
 		// combination (force-redo, but only for this run's touched
@@ -2172,56 +2205,106 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 	}
 
 	plan := dependentSyncPlan{totalPending: len(candidates)}
-	if maxParents > 0 && len(candidates) > maxParents {
+	isFullSweep := full && scopeSince == nil
+	nextTurn := 1 - turn // flipped unconditionally every call; see fullTurnNext's doc comment
+	switch {
+	case maxParents > 0 && len(candidates) > maxParents && isFullSweep:
 		plan.capped = true
-		if full && scopeSince == nil {
-			// A plain candidates[:maxParents] slice here would put the
-			// backlog first (see the case above) and take it in full
-			// before touching the sweep at all -- fine while the backlog
-			// is small, but a backlog at or above maxParents in size
-			// would then consume the ENTIRE cap every single call,
-			// permanently leaving fullSweepCount at 0 and wedging the
-			// sweep exactly the way this whole two-tier design exists to
-			// prevent (just moved from "one bad id" to "a big enough
-			// backlog"). Reserve at least half the cap (rounding up) for
-			// the sweep unconditionally, so it always makes progress
-			// regardless of how large the backlog grows; the backlog
-			// gets whatever's left, up to its own length, with any
-			// unused backlog budget handed back to the sweep.
-			sweepBudget := (maxParents + 1) / 2
-			backlogBudget := maxParents - sweepBudget
-			if backlogBudget > len(fullBacklog) {
-				sweepBudget += backlogBudget - len(fullBacklog)
-				backlogBudget = len(fullBacklog)
-			}
-			if sweepBudget > len(dedupedSwept) {
-				sweepBudget = len(dedupedSwept) // defensive; see comment above the switch
-			}
-			plan.ids = append(append([]string{}, fullBacklog[:backlogBudget]...), dedupedSwept[:sweepBudget]...)
-		} else {
-			plan.ids = candidates[:maxParents]
+		// A plain candidates[:maxParents] slice here would put the
+		// backlog first (see the case above) and take it in full before
+		// touching the sweep at all -- fine while the backlog is small,
+		// but a backlog at or above maxParents in size would then
+		// consume the ENTIRE cap every single call, permanently leaving
+		// the sweep with zero budget and wedging it exactly the way
+		// this whole two-tier design exists to prevent (just moved from
+		// "one bad id" to "a big enough backlog"). Reserve at least
+		// half the cap (rounding up) for the sweep unconditionally.
+		sweepBudget := (maxParents + 1) / 2
+		backlogBudget := maxParents - sweepBudget
+
+		// At maxParents==1 the reservation above gives the sweep the
+		// only slot and the backlog zero, on EVERY call -- a
+		// chronically-failing backlog id would then never run again.
+		// Alternate exclusive priority by the persisted turn bit
+		// instead, so over any two consecutive calls both tiers get a
+		// turn whenever both have pending work. At maxParents>=2 the
+		// reservation above already guarantees both tiers a slot, so
+		// this never fires there.
+		if maxParents == 1 && len(fullBacklog) > 0 && turn == 0 {
+			backlogBudget = 1
+			sweepBudget = 0
 		}
-	} else {
+
+		// Hand unused backlog budget to the sweep when the backlog is
+		// smaller than its reservation (or empty).
+		if backlogBudget > len(fullBacklog) {
+			sweepBudget += backlogBudget - len(fullBacklog)
+			backlogBudget = len(fullBacklog)
+		}
+
+		// Walk the sweep window POSITIONALLY (not by selecting from a
+		// pre-deduped list) so positionsConsumed -- what the cursor
+		// advances by -- always equals the number of raw parentIDs
+		// slots actually passed, INCLUDING positions skipped because
+		// their id is already in the backlog. A count of ids selected
+		// undercounts whenever a backlog id sits inside the current
+		// window (always true right after a pass wraps), which
+		// previously made the cursor advance by fewer positions than it
+		// consumed and re-examine the same tail of the id space
+		// repeatedly.
+		var sweptSelection []string
+		positionsConsumed := 0
+		for _, id := range swept {
+			if len(sweptSelection) >= sweepBudget {
+				break
+			}
+			positionsConsumed++
+			if seen[id] {
+				continue // backlog dup: position consumed, not separately selected
+			}
+			sweptSelection = append(sweptSelection, id)
+		}
+
+		// Symmetrically, hand unused SWEEP budget back to the backlog:
+		// if the sweep ran out of fresh ids before filling its
+		// reservation (e.g. every remaining position is a backlog dup,
+		// or the window is simply short), let the backlog use the
+		// leftover cap instead of wasting it -- this is also what
+		// guarantees plan.ids is never empty while candidates is not,
+		// even in the degenerate case where the whole sweep window is
+		// backlog-shadowed.
+		if len(sweptSelection) < sweepBudget {
+			extra := sweepBudget - len(sweptSelection)
+			if backlogBudget+extra > len(fullBacklog) {
+				extra = len(fullBacklog) - backlogBudget
+			}
+			if extra > 0 {
+				backlogBudget += extra
+			}
+		}
+
+		plan.ids = append(append([]string{}, fullBacklog[:backlogBudget]...), sweptSelection...)
+		plan.fullSweepCount = positionsConsumed
+	case maxParents > 0 && len(candidates) > maxParents:
+		plan.capped = true
+		plan.ids = candidates[:maxParents]
+	default:
 		plan.ids = candidates
+		if isFullSweep {
+			plan.fullSweepCount = len(swept) // uncapped: every position of the window is consumed
+		}
 	}
 
-	// Record the sweep/backlog bookkeeping runDependentFanOut needs to
-	// persist AFTER plan.ids has actually been fetched -- see
+	// Record the sweep/backlog/turn bookkeeping runDependentFanOut needs
+	// to persist AFTER plan.ids has actually been fetched -- see
 	// dependentSyncPlan's field docs for the two-tier design this feeds.
-	if full && scopeSince == nil && !dryRun {
+	if isFullSweep && !dryRun {
 		plan.fullOffsetKey = progressKey
 		plan.fullOffsetBase = fullOffset
 		plan.fullFailedKey = failedKey
 		plan.fullBacklogAll = fullBacklog
-		backlogSet := make(map[string]bool, len(fullBacklog))
-		for _, id := range fullBacklog {
-			backlogSet[id] = true
-		}
-		for _, id := range plan.ids {
-			if !backlogSet[id] {
-				plan.fullSweepCount++
-			}
-		}
+		plan.fullTurnKey = turnKey
+		plan.fullTurnNext = nextTurn
 	}
 	return plan, nil
 }
@@ -2382,11 +2465,20 @@ func runDependentFanOut(ctx context.Context, c interface {
 	// 2. The failed-id backlog is recomputed as: whatever was in the old
 	//    backlog but wasn't attempted this call (still owed a retry),
 	//    plus every id that failed this call (whether it came from the
-	//    backlog or the sweep). Backlog ids get retry priority on every
-	//    subsequent call (see planDependentSync) independent of where the
-	//    sweep cursor currently is, so a failure is never stranded until
-	//    the whole pass wraps around -- it's retried on the very next
-	//    call, and the one after that, until it succeeds.
+	//    backlog or the sweep). Backlog ids get retry priority on
+	//    subsequent calls (see planDependentSync) independent of where
+	//    the sweep cursor currently is, so a failure is never stranded
+	//    until the whole pass wraps around. At --max-parents >= 2 that
+	//    priority applies every call; at exactly --max-parents 1 it
+	//    alternates with the sweep via the turn bit (step 3) instead of
+	//    running every call, since only one slot exists to give either
+	//    tier -- still bounded (at most every other call), never
+	//    stranded indefinitely.
+	// 3. The turn bit flips unconditionally every call. It only ever
+	//    changes behavior at --max-parents 1, where it decides which
+	//    tier gets that call's single slot; at any other cap the
+	//    reservation in step 1 already guarantees both tiers a slot, so
+	//    the flip is inert there.
 	if plan.fullOffsetKey != "" {
 		attempted := make(map[string]bool, len(plan.ids))
 		for _, id := range plan.ids {
@@ -2403,16 +2495,17 @@ func runDependentFanOut(ctx context.Context, c interface {
 				newBacklog = append(newBacklog, id)
 			}
 		}
-		// One transaction, not two independent SaveSyncState calls: a
-		// crash between two separate writes (or either one alone
-		// failing) could leave the sweep cursor and the backlog out of
+		// One transaction, not three independent SaveSyncState calls: a
+		// crash between separate writes (or any one alone failing)
+		// could leave the sweep cursor, backlog, and turn bit out of
 		// sync with each other -- an offset committed without its
 		// backlog silently drops a failure until the pass wraps around;
 		// a backlog committed without its offset just repeats the same
-		// sweep window next call. See SaveSyncStatePair's doc comment.
-		_ = db.SaveSyncStatePair(
-			plan.fullOffsetKey, "", plan.fullOffsetBase+plan.fullSweepCount,
-			plan.fullFailedKey, strings.Join(newBacklog, ","), len(newBacklog),
+		// sweep window next call. See SaveSyncStates's doc comment.
+		_ = db.SaveSyncStates(
+			store.SyncStateWrite{ResourceType: plan.fullOffsetKey, Cursor: "", Count: plan.fullOffsetBase + plan.fullSweepCount},
+			store.SyncStateWrite{ResourceType: plan.fullFailedKey, Cursor: strings.Join(newBacklog, ","), Count: len(newBacklog)},
+			store.SyncStateWrite{ResourceType: plan.fullTurnKey, Cursor: "", Count: plan.fullTurnNext},
 		)
 	}
 	// --max-parents truncated the pending set: this call is still a
