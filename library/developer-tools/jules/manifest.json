@@ -15,15 +15,16 @@
       "command": "${__dirname}/bin/jules-pp-mcp",
       "args": [],
       "env": {
-        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+        "JULES_API_KEY": "${user_config.jules_api_key}"
       }
     }
   },
   "user_config": {
-    "printing_press_client_profile": {
+    "jules_api_key": {
       "type": "string",
-      "title": "Client profile",
-      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "title": "Jules API key",
+      "description": "Sets JULES_API_KEY for the Jules MCP server.",
+      "sensitive": true,
       "required": true
     }
   },

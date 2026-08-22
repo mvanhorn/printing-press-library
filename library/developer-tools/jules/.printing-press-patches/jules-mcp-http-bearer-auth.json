@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "jules-mcp-http-bearer-auth",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260820-141824-efdff954",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Require a bearer token (JULES_MCP_HTTP_TOKEN) for the MCP server's --transport http listener; refuse to start it if the token env var is unset.",
+  "reason": "Greptile's publish review (mvanhorn/printing-press-library PR #1794) found that the generated cmd/jules-pp-mcp/main.go dispatches MCP tool calls -- including destructive ones like sessions_delete -- using the server process's own JULES_API_KEY with no caller authentication on the HTTP transport. Any network caller able to reach the listener could invoke account-backed destructive tools. This is likely a systemic gap in every generated CLI's MCP HTTP transport template, not unique to jules; flagging via retro as well.",
+  "files": ["cmd/jules-pp-mcp/main.go"],
+  "validated_outcome": "go build succeeded; manually verified the HTTP transport refuses to start without JULES_MCP_HTTP_TOKEN set, and that requests without/with a wrong Authorization header receive 401 while the correct bearer token is accepted.",
+  "upstream_issue": null
+}

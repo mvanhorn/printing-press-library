@@ -5,9 +5,11 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/jules/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/jules/internal/config"
@@ -147,15 +149,44 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the credentials file",
-		Example: "  jules-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+	var useStdin bool
+	cmd := &cobra.Command{
+		Use:   "set-token [token]",
+		Short: "Save an API token to the credentials file",
+		Long: `Save an API token to the credentials file.
+
+Prefer --stdin over the positional argument: a token passed as a command-line
+argument is visible to other local users via the process list (ps) and is
+recorded in shell history.`,
+		Example: `  # Preferred: pipe the token in, keeps it out of argv and shell history
+  echo "$JULES_API_KEY" | jules-pp-cli auth set-token --stdin
+
+  # Positional form (visible in shell history and process listings)
+  jules-pp-cli auth set-token YOUR_TOKEN_HERE`,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if useStdin {
+				return cobra.MaximumNArgs(0)(cmd, args)
+			}
+			return cobra.ExactArgs(1)(cmd, args)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
+			}
+
+			token := ""
+			if useStdin {
+				data, err := io.ReadAll(cmd.InOrStdin())
+				if err != nil {
+					return fmt.Errorf("reading token from stdin: %w", err)
+				}
+				token = strings.TrimSpace(string(data))
+				if token == "" {
+					return fmt.Errorf("no token read from stdin")
+				}
+			} else {
+				token = args[0]
 			}
 
 			// Clear any legacy auth_header so AuthHeader() falls through to
@@ -169,7 +200,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// AccessToken. Writing the token to AccessToken via SaveTokens
 			// would persist the bytes but leave doctor reporting "not
 			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveCredential(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -189,6 +220,10 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolVar(&useStdin, "stdin", false, "Read the token from stdin instead of a positional argument")
+
+	return cmd
 }
 
 func credentialSavePath(cfg *config.Config) string {

@@ -4,8 +4,10 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -51,9 +53,22 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		// The HTTP transport dispatches tools using this process's own
+		// JULES_API_KEY -- it does not re-authenticate the caller per
+		// request. Any reachable listener (not just non-loopback binds;
+		// other local users can also reach 127.0.0.1) would let an
+		// unauthenticated caller invoke destructive tools like
+		// sessions_delete against the operator's account. Require a
+		// bearer token unconditionally rather than trying to special-case
+		// "safe" bind addresses.
+		token := os.Getenv("JULES_MCP_HTTP_TOKEN")
+		if token == "" {
+			fmt.Fprintln(os.Stderr, "JULES_MCP_HTTP_TOKEN is required for --transport http (generate one with e.g. `openssl rand -hex 32`); refusing to start an unauthenticated remote listener")
+			os.Exit(1)
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "jules-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		fmt.Fprintf(os.Stderr, "jules-pp-mcp serving MCP over streamable HTTP at %s (bearer token required)\n", *addr)
+		if err := http.ListenAndServe(*addr, requireBearerToken(token, httpSrv)); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -61,6 +76,22 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+// requireBearerToken rejects any request whose Authorization header does not
+// present the configured token, using a constant-time comparison so response
+// timing doesn't leak how much of the token matched.
+func requireBearerToken(token string, next http.Handler) http.Handler {
+	expected := "Bearer " + token
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got := r.Header.Get("Authorization")
+		if subtle.ConstantTimeCompare([]byte(got), []byte(expected)) != 1 {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back
