@@ -21,9 +21,9 @@ func TestRegisterToolsDoesNotExposeRawGraphQLDocuments(t *testing.T) {
 		if _, ok := props["operationName"]; ok {
 			t.Errorf("tool %q exposes the raw GraphQL transport", name)
 		}
-		for _, pathFlag := range []string{"audit-dir", "receipt-file"} {
-			if _, ok := props[pathFlag]; ok {
-				t.Errorf("tool %q exposes caller-selected host path %q", name, pathFlag)
+		for _, controlFlag := range []string{"audit-dir", "client-profile", "rate-limit", "receipt", "receipt-file"} {
+			if _, ok := props[controlFlag]; ok {
+				t.Errorf("tool %q exposes MCP-blocked root control %q", name, controlFlag)
 			}
 		}
 	}

@@ -196,16 +196,19 @@ var reservedStructuredArgs = map[string]bool{
 // malicious config file, or change the delivery target, all of which sit
 // outside the per-command surface the agent is supposed to be calling.
 var blockedRootFlags = map[string]bool{
-	"audit-dir":    true,
-	"base-url":     true,
-	"client":       true,
-	"config":       true,
-	"deliver":      true,
-	"home":         true,
-	"insecure":     true,
-	"profile":      true,
-	"receipt-file": true,
-	"token":        true,
+	"audit-dir":      true,
+	"base-url":       true,
+	"client":         true,
+	"client-profile": true,
+	"config":         true,
+	"deliver":        true,
+	"home":           true,
+	"insecure":       true,
+	"profile":        true,
+	"rate-limit":     true,
+	"receipt":        true,
+	"receipt-file":   true,
+	"token":          true,
 }
 
 func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
