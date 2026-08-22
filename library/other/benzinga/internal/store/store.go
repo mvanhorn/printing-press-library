@@ -1418,15 +1418,41 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
+// SaveSyncResume stores a pagination cursor and count without touching
+// last_synced_at. Incomplete syncs (page caps, stuck cursors) must keep
+// the previous incremental watermark so the next run resumes the same
+// result set instead of combining an old page cursor with a new since=.
+func (s *Store) SaveSyncResume(resourceType, cursor string, count int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, NULL, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 total_count = excluded.total_count`,
+		resourceType, cursor, count,
+	)
+	return err
+}
+
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {
+	var lastSyncedRaw sql.NullString
 	err = s.db.QueryRow(
 		`SELECT last_cursor, last_synced_at, total_count FROM sync_state WHERE resource_type = ?`,
 		resourceType,
-	).Scan(&cursor, &lastSynced, &count)
+	).Scan(&cursor, &lastSyncedRaw, &count)
 	if err == sql.ErrNoRows {
 		return "", time.Time{}, 0, nil
 	}
-	return
+	if err != nil {
+		return "", time.Time{}, 0, err
+	}
+	if lastSyncedRaw.Valid && lastSyncedRaw.String != "" {
+		if ts, parseErr := time.Parse(time.RFC3339, lastSyncedRaw.String); parseErr == nil {
+			lastSynced = ts
+		}
+	}
+	return cursor, lastSynced, count, nil
 }
 
 // SaveSyncCursor stores the pagination cursor for a resource type.

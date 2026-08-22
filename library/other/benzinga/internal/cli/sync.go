@@ -530,11 +530,11 @@ func syncResource(ctx context.Context, c interface {
 		// Guard on cursorType, not cursorParam name, so all canonical
 		// spellings (page / page_number / pageNumber / page[number]) work.
 		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
-			currentPage, _ := strconv.Atoi(cursor)
-			if currentPage < 1 {
-				currentPage = 1
-			}
-			nextCursor = strconv.Itoa(currentPage + 1)
+			// Benzinga page params are 0-indexed (CLI --page defaults to 0).
+			// An empty cursor means we just fetched the default first page
+			// (page 0, often omitted from the query string). Treating that as
+			// page 1 would jump to page 2 and drop every record on page 1.
+			nextCursor = nextPageIntCursor(cursor)
 			hasMore = true
 		}
 		if pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
@@ -738,8 +738,11 @@ func syncResource(ctx context.Context, c interface {
 			}
 		}
 
-		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+		// Save the page cursor for resumability without advancing
+		// last_synced_at. Bumping the watermark here would make the next
+		// run resume this cursor under a newly narrowed updatedSince and
+		// permanently skip older unfetched rows.
+		if err := db.SaveSyncResume(resource, nextCursor, totalCount); err != nil {
 			// Non-fatal: log and continue
 			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
@@ -775,13 +778,15 @@ func syncResource(ctx context.Context, c interface {
 		}
 	}
 
-	// Final sync state: clear cursor on natural completion, but preserve the
-	// resume cursor when an operator intentionally capped the page budget.
-	finalCursor := ""
-	if capExitHit {
-		finalCursor = capExitCursor
+	// Final sync state: bump last_synced_at only on a proven-complete
+	// enumeration. A capped or otherwise incomplete run keeps the resume
+	// cursor and the previous watermark so the next call continues the
+	// same result set.
+	if outcome.complete {
+		_ = db.SaveSyncState(resource, "", totalCount)
+	} else if capExitHit {
+		_ = db.SaveSyncResume(resource, capExitCursor, totalCount)
 	}
-	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
@@ -812,6 +817,17 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
+// nextPageIntCursor advances a 0-indexed page cursor. Empty or unparsable
+// input is page 0 (Benzinga's default first page), so the next request is
+// page 1 — not page 2.
+func nextPageIntCursor(cursor string) string {
+	currentPage, err := strconv.Atoi(strings.TrimSpace(cursor))
+	if err != nil || currentPage < 0 {
+		currentPage = 0
+	}
+	return strconv.Itoa(currentPage + 1)
 }
 
 // paginationDefaults holds the resolved pagination parameter names and page size.
