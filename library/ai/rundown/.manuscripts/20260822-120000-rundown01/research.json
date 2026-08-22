@@ -1,0 +1,211 @@
+{
+  "api_name": "rundown",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-22T12:00:00Z",
+  "novel_features": [
+    {
+      "name": "Time-windowed top workflows",
+      "command": "top",
+      "description": "Rank the highest-upvoted workflows inside a time window like 7d or 30d.",
+      "rationale": "The community API exposes sort=top but has no date filter at all, so 'best rated this week' is impossible against the live endpoint; it only works by mirroring posts locally and windowing on createdAt.",
+      "example": "rundown-pp-cli top --since 7d --limit 5 --agent",
+      "why_it_matters": "This is the answer to 'bring me the best workflows this week' in one call instead of paging the feed and eyeballing dates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Use-case finder",
+      "command": "use-cases",
+      "description": "Answer 'are there any workflows for X' by blending the server's semantic search with local full-text search, then ranking by upvotes.",
+      "rationale": "Neither search alone is enough: the server's q= is semantic but returns unranked slices, and local FTS is exact but misses conceptual matches. Merging and de-duplicating the two requires a local mirror.",
+      "example": "rundown-pp-cli use-cases \"cold email outreach\" --limit 5 --agent",
+      "why_it_matters": "Reach for this whenever someone asks whether the community has already solved a problem, before designing a workflow from scratch.",
+      "group": "Search that actually finds things"
+    },
+    {
+      "name": "Full workflow reader",
+      "command": "show",
+      "description": "Print one workflow in full - body, tools, industries, author and comments - in a single call.",
+      "rationale": "The API has no single-post endpoint; fetching one workflow with its discussion means combining a filtered list call with a separate comments call and reassembling them.",
+      "example": "rundown-pp-cli show 89da5324-f822-4a4b-a30e-b33cfac60a95",
+      "why_it_matters": "Use this after search to actually read a workflow instead of returning a truncated feed card.",
+      "group": "Search that actually finds things"
+    },
+    {
+      "name": "Community digest",
+      "command": "digest",
+      "description": "Summarise a time window: how many workflows landed, the top posts, the most-used tools and the busiest authors.",
+      "rationale": "Requires aggregating every post in the window across four dimensions at once; the feed endpoint returns one page of raw cards with no rollups.",
+      "example": "rundown-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this for a standing 'what happened in the community' check rather than scrolling the feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tool adoption ranking",
+      "command": "tools rank",
+      "description": "Rank AI tools by how often they appear in workflows and by the upvotes those workflows earned.",
+      "rationale": "The tools endpoint returns a flat catalogue with no usage data whatsoever; adoption counts only exist by joining every mirrored post against its tool tags locally.",
+      "example": "rundown-pp-cli tools rank --since 30d --limit 15",
+      "why_it_matters": "Use this to see which tools the community actually builds with, as opposed to which ones merely exist in the dropdown.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tool co-occurrence stacks",
+      "command": "stack",
+      "description": "Show which other tools appear alongside a given tool, so you can see the stacks people really run.",
+      "rationale": "A self-join across the mirrored post-to-tool mapping. There is no API surface for tool relationships of any kind.",
+      "example": "rundown-pp-cli stack claude-code --limit 10",
+      "why_it_matters": "Use this when picking complementary tooling, or to answer 'what do people pair with X'.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Time-windowed top workflows",
+      "command": "top",
+      "description": "Rank the highest-upvoted workflows inside a time window like 7d or 30d.",
+      "rationale": "The community API exposes sort=top but has no date filter at all, so 'best rated this week' is impossible against the live endpoint; it only works by mirroring posts locally and windowing on createdAt.",
+      "example": "rundown-pp-cli top --since 7d --limit 5 --agent",
+      "why_it_matters": "This is the answer to 'bring me the best workflows this week' in one call instead of paging the feed and eyeballing dates.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Use-case finder",
+      "command": "use-cases",
+      "description": "Answer 'are there any workflows for X' by blending the server's semantic search with local full-text search, then ranking by upvotes.",
+      "rationale": "Neither search alone is enough: the server's q= is semantic but returns unranked slices, and local FTS is exact but misses conceptual matches. Merging and de-duplicating the two requires a local mirror.",
+      "example": "rundown-pp-cli use-cases \"cold email outreach\" --limit 5 --agent",
+      "why_it_matters": "Reach for this whenever someone asks whether the community has already solved a problem, before designing a workflow from scratch.",
+      "group": "Search that actually finds things"
+    },
+    {
+      "name": "Full workflow reader",
+      "command": "show",
+      "description": "Print one workflow in full - body, tools, industries, author and comments - in a single call.",
+      "rationale": "The API has no single-post endpoint; fetching one workflow with its discussion means combining a filtered list call with a separate comments call and reassembling them.",
+      "example": "rundown-pp-cli show 89da5324-f822-4a4b-a30e-b33cfac60a95",
+      "why_it_matters": "Use this after search to actually read a workflow instead of returning a truncated feed card.",
+      "group": "Search that actually finds things"
+    },
+    {
+      "name": "Community digest",
+      "command": "digest",
+      "description": "Summarise a time window: how many workflows landed, the top posts, the most-used tools and the busiest authors.",
+      "rationale": "Requires aggregating every post in the window across four dimensions at once; the feed endpoint returns one page of raw cards with no rollups.",
+      "example": "rundown-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this for a standing 'what happened in the community' check rather than scrolling the feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tool adoption ranking",
+      "command": "tools rank",
+      "description": "Rank AI tools by how often they appear in workflows and by the upvotes those workflows earned.",
+      "rationale": "The tools endpoint returns a flat catalogue with no usage data whatsoever; adoption counts only exist by joining every mirrored post against its tool tags locally.",
+      "example": "rundown-pp-cli tools rank --since 30d --limit 15",
+      "why_it_matters": "Use this to see which tools the community actually builds with, as opposed to which ones merely exist in the dropdown.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tool co-occurrence stacks",
+      "command": "stack",
+      "description": "Show which other tools appear alongside a given tool, so you can see the stacks people really run.",
+      "rationale": "A self-join across the mirrored post-to-tool mapping. There is no API surface for tool relationships of any kind.",
+      "example": "rundown-pp-cli stack claude-code --limit 10",
+      "why_it_matters": "Use this when picking complementary tooling, or to answer 'what do people pair with X'.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "The Rundown University",
+    "headline": "Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.",
+    "value_prop": "The Rundown's community feed has no date filter and no single-post endpoint, so questions like 'best rated this week' or 'read me that whole workflow' need a local mirror. This CLI syncs every workflow into SQLite, then answers them instantly with `top --since`, `use-cases`, `show`, `digest`, `tools rank` and `stack`. No account or API key is needed - every read endpoint is public.",
+    "auth_narrative": "No authentication required. Every read endpoint used by this CLI (`/posts`, `/posts/{id}/comments`, `/tools`, `/leaderboard`) is served publicly without a session. Upvoting, bookmarking, commenting and posting do require a signed-in Clerk session and are deliberately not implemented here.",
+    "quickstart": [
+      {
+        "command": "rundown-pp-cli doctor",
+        "comment": "Confirm the community API is reachable - no key or login needed"
+      },
+      {
+        "command": "rundown-pp-cli sync",
+        "comment": "Mirror every workflow into local SQLite; everything below is then offline and instant"
+      },
+      {
+        "command": "rundown-pp-cli top --since 7d --limit 5",
+        "comment": "The best-rated workflows from the last week"
+      },
+      {
+        "command": "rundown-pp-cli use-cases \"cold email outreach\"",
+        "comment": "Ask whether the community has already solved a problem"
+      },
+      {
+        "command": "rundown-pp-cli digest --since 7d",
+        "comment": "A rollup of what landed this week and which tools drove it"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "top / digest / stack return nothing",
+        "fix": "Run `rundown-pp-cli sync` first - these commands read the local mirror, not the live API."
+      },
+      {
+        "symptom": "`--limit` above 50 silently returns only 50 rows",
+        "fix": "The server caps page size at 50. Use `sync` plus the local commands when you need the whole corpus."
+      },
+      {
+        "symptom": "`--tool` or `--industry` returns a 400 'not recognized' error",
+        "fix": "Pass the slug, not the display name. Run `rundown-pp-cli tools` for valid tool slugs."
+      },
+      {
+        "symptom": "`leaderboard --period month` still returns weekly data",
+        "fix": "Known upstream behaviour - the API ignores the period parameter and always returns the weekly window."
+      }
+    ],
+    "when_to_use": "Use this CLI whenever a question is about AI workflows the Rundown community has shared: whether a use case already exists, what the highest-rated recent posts are, which tools people actually build with, or what a specific workflow says end to end. It is the fast path for all of those - the whole corpus is mirrored locally, so answers come back without browsing the site.",
+    "anti_triggers": [
+      "Do not use this CLI to upvote, bookmark, comment on, or publish posts - those need a signed-in session and are not implemented.",
+      "Do not use it for The Rundown's newsletter archive or news articles; it only covers the community workflow hub.",
+      "Do not use it as a general AI-tool directory - `tools` reflects only what this community has tagged."
+    ],
+    "recipes": [
+      {
+        "title": "Best workflows this week",
+        "command": "rundown-pp-cli top --since 7d --limit 5",
+        "explanation": "Windows the local mirror by createdAt and ranks by upvotes - the query the live API cannot express."
+      },
+      {
+        "title": "Does a use case exist for this?",
+        "command": "rundown-pp-cli use-cases \"invoice reconciliation\" --limit 5",
+        "explanation": "Runs the server's semantic search and local FTS together, de-duplicates, and ranks what comes back by upvotes."
+      },
+      {
+        "title": "Narrow to one tool and read the winners",
+        "command": "rundown-pp-cli posts --tool claude-code --sort top --limit 5 --agent --select id,title,upvoteCount",
+        "explanation": "Server-side tool filtering with a trimmed agent payload - only three fields come back instead of full post bodies."
+      },
+      {
+        "title": "What do people pair with n8n?",
+        "command": "rundown-pp-cli stack n8n --limit 10",
+        "explanation": "Self-joins the mirrored post-to-tool mapping to surface the stacks that co-occur in real workflows."
+      },
+      {
+        "title": "Read one workflow end to end",
+        "command": "rundown-pp-cli show 89da5324-f822-4a4b-a30e-b33cfac60a95",
+        "explanation": "Reassembles the post and its comment thread into a single readable document, body included in full."
+      }
+    ],
+    "trigger_phrases": [
+      "are there any use cases for",
+      "best rated workflows this week",
+      "what AI workflows exist for",
+      "top rundown workflows",
+      "which tools does the community use",
+      "what do people pair with",
+      "use rundown",
+      "run rundown"
+    ]
+  }
+}
