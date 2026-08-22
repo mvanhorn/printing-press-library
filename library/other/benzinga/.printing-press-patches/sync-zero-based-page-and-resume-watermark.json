@@ -5,7 +5,7 @@
   "base_run_id": "20260627-034058-2c1f9c5c",
   "base_printing_press_version": "4.27.0",
   "summary": "Page-int sync fallback is 0-indexed, and incomplete syncs must not advance last_synced_at.",
-  "reason": "Benzinga page params start at 0. Treating an omitted first-page cursor as page 1 jumped the next request to page 2 and dropped page 1. SaveSyncState also stamped last_synced_at after every page and on --max-pages exits, so a resume reused the old page cursor under a newly narrowed updatedSince and skipped older unfetched rows. A regen must keep 0-based page math and a resume save that does not move the incremental watermark.",
+  "reason": "Benzinga page params start at 0, so treating an omitted first-page cursor as page 1 jumped to page 2 and dropped page 1. A regen must keep 0-based page math and preserve the incremental watermark when saving an incomplete sync's resume cursor.",
   "files": [
     "internal/cli/sync.go",
     "internal/cli/sync_page_cursor_test.go",
