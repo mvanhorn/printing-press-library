@@ -1,0 +1,13 @@
+{
+  "url": "https://api.scryfall.com",
+  "checked_at": "2026-08-21T19:40:00Z",
+  "tool": "cli-printing-press probe-reachability",
+  "mode": "standard_http",
+  "confidence": 0.95,
+  "probes": [
+    {"transport": "stdlib", "status": 200, "content_type": "application/json; charset=utf-8"},
+    {"transport": "surf-chrome", "status": 200, "content_type": "application/json; charset=utf-8"}
+  ],
+  "auth": "none required",
+  "notes": "All read endpoints keyless. Polite-use rate limit (~10 req/s). No bot protection on api.scryfall.com."
+}
