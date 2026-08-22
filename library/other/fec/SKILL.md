@@ -274,7 +274,7 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 When you know what you want to do but not which command does it, ask the CLI directly:
 
 ```bash
-fec-pp-cli which "<capability in your own words>"
+fec-pp-cli which '<capability in your own words>'
 ```
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
@@ -354,7 +354,7 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 Before list/search/drill commands on a new user question, run:
 
 ```bash
-fec-pp-cli recall "<user's question>" --agent
+fec-pp-cli recall '<user question>' --agent
 ```
 
 The response envelope:
@@ -503,7 +503,7 @@ If your debug-protocol response identifies a concrete correction the notes or pl
 ```bash
 fec-pp-cli playbook amend \
   --query '<exact recall query string>' \
-  --add-note "<your concrete correction>"
+  --add-note '<your concrete correction>'
 # (append shell `&` to background it)
 ```
 
