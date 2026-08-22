@@ -47,7 +47,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export JULES_API_KEY=\"your-token-here\"")
-			fmt.Fprintln(w, "  jules-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "  echo \"$JULES_API_KEY\" | jules-pp-cli auth set-token")
 			if !launch {
 				return nil
 			}
@@ -136,7 +136,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export JULES_API_KEY=\"your-token-here\"")
-				fmt.Fprintf(w, "  jules-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "  echo \"$JULES_API_KEY\" | jules-pp-cli auth set-token")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -149,44 +149,30 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	var useStdin bool
 	cmd := &cobra.Command{
-		Use:   "set-token [token]",
-		Short: "Save an API token to the credentials file",
-		Long: `Save an API token to the credentials file.
+		Use:   "set-token",
+		Short: "Save an API token to the credentials file (reads from stdin)",
+		Long: `Save an API token to the credentials file, read from stdin.
 
-Prefer --stdin over the positional argument: a token passed as a command-line
-argument is visible to other local users via the process list (ps) and is
-recorded in shell history.`,
-		Example: `  # Preferred: pipe the token in, keeps it out of argv and shell history
-  echo "$JULES_API_KEY" | jules-pp-cli auth set-token --stdin
-
-  # Positional form (visible in shell history and process listings)
-  jules-pp-cli auth set-token YOUR_TOKEN_HERE`,
-		Args: func(cmd *cobra.Command, args []string) error {
-			if useStdin {
-				return cobra.MaximumNArgs(0)(cmd, args)
-			}
-			return cobra.ExactArgs(1)(cmd, args)
-		},
+A token is never accepted as a command-line argument: arguments are visible
+to other local users via the process list (ps) and get recorded in shell
+history, so there is no positional form of this command.`,
+		Example: `  echo "$JULES_API_KEY" | jules-pp-cli auth set-token
+  jules-pp-cli auth set-token < token.txt`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
 
-			token := ""
-			if useStdin {
-				data, err := io.ReadAll(cmd.InOrStdin())
-				if err != nil {
-					return fmt.Errorf("reading token from stdin: %w", err)
-				}
-				token = strings.TrimSpace(string(data))
-				if token == "" {
-					return fmt.Errorf("no token read from stdin")
-				}
-			} else {
-				token = args[0]
+			data, err := io.ReadAll(cmd.InOrStdin())
+			if err != nil {
+				return fmt.Errorf("reading token from stdin: %w", err)
+			}
+			token := strings.TrimSpace(string(data))
+			if token == "" {
+				return fmt.Errorf("no token read from stdin")
 			}
 
 			// Clear any legacy auth_header so AuthHeader() falls through to
@@ -220,8 +206,6 @@ recorded in shell history.`,
 			return nil
 		},
 	}
-
-	cmd.Flags().BoolVar(&useStdin, "stdin", false, "Read the token from stdin instead of a positional argument")
 
 	return cmd
 }

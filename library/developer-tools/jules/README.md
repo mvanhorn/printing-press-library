@@ -133,7 +133,7 @@ Get your API key from your API provider's developer portal. The key typically lo
 ```bash
 export JULES_API_KEY="<paste-your-key>"
 ```
-To persist credentials, use `jules-pp-cli auth set-token YOUR_TOKEN_HERE`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
+To persist credentials, pipe the token in: `echo "$JULES_API_KEY" | jules-pp-cli auth set-token` (there is no positional form, so the key never lands in shell history or `ps` output). Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
 
 ### 3. Verify Setup
 

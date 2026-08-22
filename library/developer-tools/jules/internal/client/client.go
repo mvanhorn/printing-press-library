@@ -1231,7 +1231,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export JULES_API_KEY=<your-token-here> or jules-pp-cli auth set-token YOUR_TOKEN_HERE")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export JULES_API_KEY=<your-token-here> or echo \"$JULES_API_KEY\" | jules-pp-cli auth set-token")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

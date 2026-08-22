@@ -88,7 +88,7 @@ Run `jules-pp-cli auth setup` to print the URL and steps for getting a key (add 
 ```bash
 export JULES_API_KEY="<your-key>"
 ```
-To persist credentials, use `jules-pp-cli auth set-token YOUR_TOKEN_HERE`. Stored secrets live in `credentials.toml` under the data dir, not in `config.toml`.
+To persist credentials, pipe the token in: `echo "$JULES_API_KEY" | jules-pp-cli auth set-token` (there is no positional form, so the key never lands in shell history or `ps` output). Stored secrets live in `credentials.toml` under the data dir, not in `config.toml`.
 
 Run `jules-pp-cli doctor` to verify setup.
 

@@ -7,6 +7,7 @@ import (
 	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -44,6 +45,8 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file (required for --transport http on a non-loopback --addr)")
+	tlsKey := flag.String("tls-key", "", "TLS private key file (required for --transport http on a non-loopback --addr)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -66,16 +69,54 @@ func main() {
 			fmt.Fprintln(os.Stderr, "JULES_MCP_HTTP_TOKEN is required for --transport http (generate one with e.g. `openssl rand -hex 32`); refusing to start an unauthenticated remote listener")
 			os.Exit(1)
 		}
-		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "jules-pp-mcp serving MCP over streamable HTTP at %s (bearer token required)\n", *addr)
-		if err := http.ListenAndServe(*addr, requireBearerToken(token, httpSrv)); err != nil {
-			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+		useTLS := *tlsCert != "" && *tlsKey != ""
+		// A bearer token sent over plaintext HTTP can be intercepted and
+		// replayed by anything on the network path. Loopback-only binds
+		// keep that path inside the local machine, so plaintext is
+		// tolerated there; any address that could accept a connection from
+		// another host requires TLS.
+		if !useTLS && !isLoopbackAddr(*addr) {
+			fmt.Fprintln(os.Stderr, "--tls-cert and --tls-key are required for --transport http on a non-loopback --addr; the bearer token would otherwise cross the network in plaintext")
 			os.Exit(1)
+		}
+		httpSrv := server.NewStreamableHTTPServer(s)
+		handler := requireBearerToken(token, httpSrv)
+		if useTLS {
+			fmt.Fprintf(os.Stderr, "jules-pp-mcp serving MCP over streamable HTTPS at %s (bearer token required)\n", *addr)
+			if err := http.ListenAndServeTLS(*addr, *tlsCert, *tlsKey, handler); err != nil {
+				fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "jules-pp-mcp serving MCP over streamable HTTP at %s (bearer token required)\n", *addr)
+			if err := http.ListenAndServe(*addr, handler); err != nil {
+				fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+				os.Exit(1)
+			}
 		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+// isLoopbackAddr reports whether addr (host:port, possibly with an empty
+// host) binds only to the local machine. An empty host (e.g. ":7777") binds
+// every interface, which is reachable from other hosts and is therefore not
+// loopback.
+func isLoopbackAddr(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		host = addr
+	}
+	if host == "" {
+		return false
+	}
+	if host == "localhost" {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // requireBearerToken rejects any request whose Authorization header does not
