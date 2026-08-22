@@ -260,6 +260,9 @@ func TestCosmosExportRequiresExplicitOverwrite(t *testing.T) {
 	}
 
 	flags := &rootFlags{}
+	if export := newCosmosExportCmd(flags); export.Annotations["mcp:hidden"] != "true" {
+		t.Fatal("export command with caller-selected output paths is exposed to MCP")
+	}
 	for _, command := range []*cobra.Command{newCosmosExportCollectionCmd(flags), newCosmosExportGalleryCmd(flags)} {
 		if command.Annotations["mcp:local-write"] == "true" {
 			t.Fatalf("%s is incorrectly advertised as a non-destructive local write", command.Name())

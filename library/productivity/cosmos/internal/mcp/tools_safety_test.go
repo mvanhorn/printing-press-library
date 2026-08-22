@@ -36,6 +36,11 @@ func TestRegisterToolsDoesNotExposeRawGraphQLDocuments(t *testing.T) {
 			t.Fatalf("agent surface exposes operator-only profile mutation %q", name)
 		}
 	}
+	for _, name := range []string{"export_collection", "export_gallery"} {
+		if _, ok := tools[name]; ok {
+			t.Fatalf("agent surface exposes caller-selected host filesystem write %q", name)
+		}
+	}
 	syncTool, ok := tools["sync"]
 	if !ok {
 		t.Fatal("agent surface does not expose sync")

@@ -1036,7 +1036,10 @@ func newCosmosImportStatusCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newCosmosExportCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{Use: "export", Short: "Export Cosmos collections", RunE: parentNoSubcommandRunE(flags)}
+	// Export accepts caller-selected host filesystem paths. Keep it available to
+	// an interactive CLI user, but do not mirror it into the remotely callable
+	// MCP surface.
+	cmd := &cobra.Command{Use: "export", Short: "Export Cosmos collections", Annotations: map[string]string{"mcp:hidden": "true"}, RunE: parentNoSubcommandRunE(flags)}
 	cmd.AddCommand(newCosmosExportCollectionCmd(flags), newCosmosExportGalleryCmd(flags))
 	return cmd
 }
