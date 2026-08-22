@@ -189,6 +189,16 @@ var reservedStructuredArgs = map[string]bool{
 	"args": true,
 }
 
+// blockedLocalFilesystemFlags are command-local escape hatches intended for
+// interactive CLI users. MCP tools use application-owned storage and inline
+// payloads instead of accepting caller-selected database or input-file paths.
+var blockedLocalFilesystemFlags = map[string]bool{
+	"db":                  true,
+	"notes-file":          true,
+	"playbook-file":       true,
+	"playbook-notes-file": true,
+}
+
 // blockedRootFlags are root-level CLI flags that an MCP client must not be
 // able to override via structured tool parameters. Allowing them lets a
 // caller swap auth credentials, redirect the API base URL, select a different

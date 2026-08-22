@@ -28,7 +28,7 @@ func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positional
 		if flag == nil || flag.Hidden || flag.Deprecated != "" {
 			return
 		}
-		if reservedStructuredArgs[flag.Name] {
+		if reservedStructuredArgs[flag.Name] || blocked[flag.Name] {
 			return
 		}
 		if seen[flag.Name] {
@@ -38,12 +38,7 @@ func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positional
 		opts = append(opts, toolOptionForFlag(flag))
 	}
 	cmd.NonInheritedFlags().VisitAll(addFlag)
-	cmd.InheritedFlags().VisitAll(func(flag *pflag.Flag) {
-		if blocked[flag.Name] {
-			return
-		}
-		addFlag(flag)
-	})
+	cmd.InheritedFlags().VisitAll(addFlag)
 	for _, positional := range positionals {
 		if seen[positional.InputName] {
 			continue
@@ -188,6 +183,9 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 func blockedStructuredArgsForCommand(cmd *cobra.Command) map[string]bool {
 	blocked := map[string]bool{}
 	for name := range reservedStructuredArgs {
+		blocked[name] = true
+	}
+	for name := range blockedLocalFilesystemFlags {
 		blocked[name] = true
 	}
 	if cmd == nil {

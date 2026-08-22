@@ -134,6 +134,25 @@ func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
 	}
 }
 
+func TestBlockedStructuredArgsRejectLocalFilesystemOverrides(t *testing.T) {
+	root := &cobra.Command{Use: "root"}
+	cmd := &cobra.Command{Use: "teach"}
+	cmd.Flags().String("db", "", "database path")
+	cmd.Flags().String("playbook-file", "", "playbook path")
+	cmd.Flags().String("playbook-json", "", "inline playbook")
+	root.AddCommand(cmd)
+
+	blocked := blockedStructuredArgsForCommand(cmd)
+	for _, name := range []string{"db", "playbook-file"} {
+		if !blocked[name] {
+			t.Errorf("local filesystem override %q is available to MCP", name)
+		}
+	}
+	if blocked["playbook-json"] {
+		t.Fatal("safe inline playbook input was blocked")
+	}
+}
+
 func TestValidateMCPArgumentNamesRejectsArgsWhenNoParamsAllowed(t *testing.T) {
 	err := validateMCPArgumentNames(map[string]any{"query": "alpha"}, nil)
 	if err == nil {
