@@ -1,0 +1,51 @@
+version: 2
+project_name: cosmos-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cosmos-pp-cli
+    main: ./cmd/cosmos-pp-cli
+    binary: cosmos-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/cosmos/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cosmos-pp-mcp
+    main: ./cmd/cosmos-pp-mcp
+    binary: cosmos-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cosmos-pp-cli
+    repository:
+      owner: elliottrjacobs
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search, organize, export, and audit your Cosmos inspiration library from the terminal."
+    install: |
+      bin.install "cosmos-pp-cli"
+      bin.install "cosmos-pp-mcp"
