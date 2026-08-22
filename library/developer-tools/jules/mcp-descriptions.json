@@ -1,0 +1,10 @@
+{
+  "descriptions": {
+    "sessions_get": "Get the full details of one Jules coding session by its sessionId, including its current state (e.g. planning, in-progress, awaiting plan approval, completed). Required: sessionId (path). Use sessions_list first if you don't already have the sessionId; call this once you do, or to poll a specific session's progress.",
+    "sessions_delete": "Permanently delete a Jules session by its sessionId. Destructive: the session and its history are removed from the Jules service and cannot be recovered. Required: sessionId (path). Confirm the sessionId with sessions_get or sessions_list before calling this.",
+    "sessions_activities_get-activity": "Get the full details of a single activity (a plan step, message, or artifact such as a code diff) within a session. Required: sessionId and activityId (both path parameters). Use sessions_activities_list first to discover activityId values for a session, then call this to inspect one activity's full content.",
+    "sessions_send-message": "Send a follow-up message to an already-running Jules session, adding new instructions or feedback while it works. Required: sessionId (path) and prompt (request body, the message text). Use this to steer a session after it has started; use sessions_create to start a new session instead.",
+    "sessions_approve-plan": "Approve the pending plan for a session created with requirePlanApproval, letting Jules proceed with the work it planned. Required: sessionId (path). Only sessions awaiting plan approval accept this call; check sessions_get first if you're unsure of the session's current state.",
+    "sources_get": "Get the full details of one connected repository (source) by its sourceId, such as its name and connection status. Required: sourceId (path). Use sources_list first if you don't already have the sourceId."
+  }
+}
