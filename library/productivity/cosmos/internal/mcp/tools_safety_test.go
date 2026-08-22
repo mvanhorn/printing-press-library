@@ -21,6 +21,11 @@ func TestRegisterToolsDoesNotExposeRawGraphQLDocuments(t *testing.T) {
 		if _, ok := props["operationName"]; ok {
 			t.Errorf("tool %q exposes the raw GraphQL transport", name)
 		}
+		for _, pathFlag := range []string{"audit-dir", "receipt-file"} {
+			if _, ok := props[pathFlag]; ok {
+				t.Errorf("tool %q exposes caller-selected host path %q", name, pathFlag)
+			}
+		}
 	}
 	if _, ok := tools["identity"]; !ok {
 		t.Fatal("agent surface does not expose the authenticated Cosmos identity check")

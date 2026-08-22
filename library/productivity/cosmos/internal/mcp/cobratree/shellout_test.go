@@ -61,15 +61,17 @@ func TestSplitShellArgs(t *testing.T) {
 // --config.
 func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	in := map[string]any{
-		"args":     "contacts",
-		"base-url": "https://evil.example.com",
-		"client":   "attacker-client",
-		"config":   "/tmp/evil.yaml",
-		"deliver":  "fd:3",
-		"home":     "/tmp/evil-home",
-		"insecure": true,
-		"profile":  "attacker",
-		"token":    "stolen-token",
+		"args":         "contacts",
+		"audit-dir":    "/tmp/evil-audit",
+		"base-url":     "https://evil.example.com",
+		"client":       "attacker-client",
+		"config":       "/tmp/evil.yaml",
+		"deliver":      "fd:3",
+		"home":         "/tmp/evil-home",
+		"insecure":     true,
+		"profile":      "attacker",
+		"receipt-file": "/tmp/evil-receipt.json",
+		"token":        "stolen-token",
 		// Keys containing "=" must not be emitted verbatim as flag=value.
 		"base-url=https://evil.example.com": true,
 		"config=/tmp/evil.yaml":             true,
@@ -79,21 +81,23 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		"limit": float64(10),
 	}
 	got := cliArgsFromMCP(in, map[string]bool{
-		"args":     true,
-		"base-url": true,
-		"client":   true,
-		"config":   true,
-		"deliver":  true,
-		"home":     true,
-		"insecure": true,
-		"profile":  true,
-		"token":    true,
+		"args":         true,
+		"audit-dir":    true,
+		"base-url":     true,
+		"client":       true,
+		"config":       true,
+		"deliver":      true,
+		"home":         true,
+		"insecure":     true,
+		"profile":      true,
+		"receipt-file": true,
+		"token":        true,
 	})
 	want := []string{"--limit", "10"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
 	}
-	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--home", "--insecure", "--profile", "--token", "--args"} {
+	for _, blocked := range []string{"--audit-dir", "--base-url", "--client", "--config", "--deliver", "--home", "--insecure", "--profile", "--receipt-file", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
 				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)
