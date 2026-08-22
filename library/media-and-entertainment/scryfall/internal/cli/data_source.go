@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"scryfall-pp-cli/internal/client"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

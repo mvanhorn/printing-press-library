@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 func openLearnings(t *testing.T) *store.Store {

@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"scryfall-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
 )
 
 func newExportCmd(flags *rootFlags) *cobra.Command {

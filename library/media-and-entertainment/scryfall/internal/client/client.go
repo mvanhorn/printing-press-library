@@ -24,8 +24,8 @@ import (
 	"strings"
 	"time"
 
-	"scryfall-pp-cli/internal/cliutil"
-	"scryfall-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

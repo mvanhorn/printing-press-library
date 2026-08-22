@@ -12,7 +12,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"scryfall-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
 )
 
 // stubResolver is a test-only EntityResolver backed by an in-memory

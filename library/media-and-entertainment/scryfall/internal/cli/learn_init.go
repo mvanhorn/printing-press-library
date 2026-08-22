@@ -23,8 +23,8 @@ import (
 	"os"
 	"sync"
 
-	"scryfall-pp-cli/internal/learn/entities"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // newLearnConfig returns the per-CLI entity extractor Config the

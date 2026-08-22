@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // TestNewLearnConfig_BuildsConfig pins that the emitted init shim

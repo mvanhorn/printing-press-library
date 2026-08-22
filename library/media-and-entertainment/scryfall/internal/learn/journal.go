@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"scryfall-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
 )
 
 // The invocation journal records one entry per CLI invocation in dated

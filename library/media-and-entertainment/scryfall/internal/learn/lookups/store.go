@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	"scryfall-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
 )
 
 // LookupRow is the canonical seed-row shape used by both the seeds

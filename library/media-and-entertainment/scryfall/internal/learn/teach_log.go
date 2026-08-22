@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"scryfall-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
 )
 
 // teachLogStateDirName is the per-user state directory name.

@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"scryfall-pp-cli/internal/cli"
-	"scryfall-pp-cli/internal/cliutil"
-	"scryfall-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

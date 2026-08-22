@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // runLearningsStatsJSON executes `learnings stats --json` against the

@@ -6,11 +6,11 @@
   "display_name": "Scryfall",
   "cli_name": "scryfall-pp-cli",
   "creator": {
-    "handle": "mvanhorn",
+    "handle": "veltri-23",
     "name": "Hunter Veltri"
   },
-  "owner": "mvanhorn",
-  "printer": "mvanhorn",
+  "owner": "veltri-23",
+  "printer": "veltri-23",
   "printer_name": "Hunter Veltri",
   "spec_url": "https://github.com/smgoller/scryfall-openapi",
   "spec_path": ".manuscripts/20260821-194838/proofs/scryfall-spec.yaml",
@@ -29,17 +29,31 @@
     {
       "name": "Batch collection valuation",
       "command": "cards post-collection --identifiers '[{\"name\":\"Lightning Bolt\"},{\"name\":\"Sol Ring\"}]'",
-      "why": "Price up to 75 cards in one call; the binder/deck-list workflow the API is most used for and the endpoint the community spec was missing."
+      "description": "Price up to 75 cards in one call; the binder/deck-list workflow the API is most used for and the endpoint the community spec was missing."
     },
     {
       "name": "Marketplace ID lookup",
       "command": "cards get-by-tcgplayer-id <id> / cards get-by-cardmarket-id <id>",
-      "why": "Collectors and store owners work in marketplace IDs, not Scryfall UUIDs."
+      "description": "Collectors and store owners work in marketplace IDs, not Scryfall UUIDs."
     },
     {
       "name": "Compact price-first output",
       "command": "cards get-named --exact 'Sol Ring' --compact",
-      "why": "Name + USD + EUR is the answer; full card JSON on demand."
+      "description": "Name + USD + EUR is the answer; full card JSON on demand."
     }
-  ]
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 31,
+    "total": 31,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
 }

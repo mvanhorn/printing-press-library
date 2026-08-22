@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/learn/entities"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // newTeachPlaybookCmd builds the standalone command for recording a

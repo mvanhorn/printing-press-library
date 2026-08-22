@@ -18,9 +18,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"scryfall-pp-cli/internal/cli/playbooks"
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // twoPlaybookFS returns an fstest.MapFS with two minimal playbooks +

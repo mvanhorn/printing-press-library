@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"scryfall-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
 )
 
 // Warning is one teach-time validation finding. The shape is the JSON

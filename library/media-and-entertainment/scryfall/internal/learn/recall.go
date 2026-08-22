@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"scryfall-pp-cli/internal/learn/entities"
-	"scryfall-pp-cli/internal/learn/lookups"
-	"scryfall-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

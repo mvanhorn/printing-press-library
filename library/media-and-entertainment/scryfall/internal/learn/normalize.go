@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"scryfall-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a

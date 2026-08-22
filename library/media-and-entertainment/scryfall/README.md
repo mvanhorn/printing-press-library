@@ -2,7 +2,7 @@
 
 
 
-Created by [@mvanhorn](https://github.com/mvanhorn) (Hunter Veltri).
+Created by [@veltri-23](https://github.com/veltri-23) (Hunter Veltri).
 
 ## Install
 

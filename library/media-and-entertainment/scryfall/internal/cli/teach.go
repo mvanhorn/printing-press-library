@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"scryfall-pp-cli/internal/cliutil"
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/learn/entities"
-	"scryfall-pp-cli/internal/learn/lookups"
-	"scryfall-pp-cli/internal/learn/patterns"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

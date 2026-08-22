@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"scryfall-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side

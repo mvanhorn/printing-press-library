@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // registerLearningsCandidateCommands attaches the candidate lifecycle

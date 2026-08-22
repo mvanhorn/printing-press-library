@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"scryfall-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

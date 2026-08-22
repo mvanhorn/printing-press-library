@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 // synthesisFamily is the query family every scenario teaches under.

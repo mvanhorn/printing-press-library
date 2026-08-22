@@ -17,14 +17,14 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"scryfall-pp-cli/internal/cli"
-	"scryfall-pp-cli/internal/client"
-	"scryfall-pp-cli/internal/cliutil"
-	"scryfall-pp-cli/internal/config"
-	"scryfall-pp-cli/internal/learn"
-	"scryfall-pp-cli/internal/mcp/bound"
-	"scryfall-pp-cli/internal/mcp/cobratree"
-	"scryfall-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/store"
 )
 
 const (

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"scryfall-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/scryfall/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )
