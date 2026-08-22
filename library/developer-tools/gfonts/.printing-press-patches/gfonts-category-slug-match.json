@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "gfonts-category-slug-match",
+  "applied_at": "2026-08-22",
+  "base_run_id": "20260719-182127",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Treat --category slugs as equivalent after lowercasing and collapsing '-', '_', and spaces so help text like sans-serif matches stored names like Sans Serif.",
+  "reason": "Google Fonts metadata stores display names with spaces (Sans Serif). list and random compared the raw lowercased string, so the documented hyphen slug returned 0 fonts while categories still reported hundreds.",
+  "files": [
+    "cmd/gfonts-pp-cli/main.go",
+    "cmd/gfonts-pp-cli/main_test.go"
+  ],
+  "validated_outcome": "go test in the gfonts module passes: hyphen slug, stored display name, and space form match Sans Serif; unrelated, empty, and unknown slugs return no fonts."
+}

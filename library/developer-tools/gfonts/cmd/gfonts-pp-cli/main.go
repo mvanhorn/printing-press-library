@@ -182,11 +182,40 @@ func searchFonts(meta *FontMetadata, query string) []Font {
 	return results
 }
 
+// categoryKey lowercases a category and collapses '-', '_', and spaces so
+// help slugs like "sans-serif" match stored names like "Sans Serif".
+func categoryKey(s string) string {
+	s = strings.ToLower(strings.TrimSpace(s))
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		if r == '-' || r == '_' || r == ' ' {
+			continue
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
+}
+
+func categoriesMatch(stored, query string) bool {
+	if stored == query {
+		return true
+	}
+	storedKey := categoryKey(stored)
+	queryKey := categoryKey(query)
+	if queryKey == "" {
+		return false
+	}
+	return storedKey == queryKey
+}
+
 func filterByCategory(meta *FontMetadata, category string) []Font {
-	cat := strings.ToLower(strings.TrimSpace(category))
+	if categoryKey(category) == "" {
+		return nil
+	}
 	var results []Font
 	for _, f := range meta.FamilyMetadataList {
-		if strings.ToLower(f.Category) == cat {
+		if categoriesMatch(f.Category, category) {
 			results = append(results, f)
 		}
 	}
