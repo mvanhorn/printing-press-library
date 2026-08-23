@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "wanderlog",
+  "run_id": "20260619-000132-cc275322",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 185,
+  "tests_passed": 185,
+  "tests_skipped": 212,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

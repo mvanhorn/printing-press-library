@@ -1,0 +1,222 @@
+{
+  "endpoint": "GET /api/tripPlans/uzyvvtuwtc/comments",
+  "method": "GET",
+  "raw_url": "https://wanderlog.com/api/tripPlans/uzyvvtuwtc/comments",
+  "status": 200,
+  "request_headers": {
+    "accept": "application/json,text/plain,*/*",
+    "referer": "https://wanderlog.com/",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "connection": "keep-alive",
+    "content-encoding": "gzip",
+    "content-language": "en",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 19 Jun 2026 01:58:16 GMT",
+    "etag": "W/\"b33-hoeEQPhXeRYf31OhcD4OlaqNhdM\"",
+    "server": "nginx/1.24.0 (Ubuntu)",
+    "transfer-encoding": "chunked",
+    "x-powered-by": "Express"
+  },
+  "response_body": {
+    "data": [
+      {
+        "author": {
+          "id": 125163,
+          "name": "Kevin Loh",
+          "profilePictureKey": null,
+          "username": "kevinboss"
+        },
+        "createdAt": "2021-10-17T04:59:02Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 228,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Great trip!\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 125163,
+          "name": "Kevin Loh",
+          "profilePictureKey": null,
+          "username": "kevinboss"
+        },
+        "createdAt": "2021-10-17T04:59:33Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 229,
+        "parentId": 228,
+        "text": {
+          "ops": [
+            {
+              "insert": "Can you create itineraries for trips that you are planning to go?\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 290301,
+          "name": "Danh Danh",
+          "profilePictureKey": null,
+          "username": "danh"
+        },
+        "createdAt": "2021-12-30T14:26:28Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": "2022-01-02T11:32:56Z",
+        "id": 241,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Thank for share\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 668983,
+          "name": "Christyl Potgieter",
+          "profilePictureKey": "dglBsYpORSO1qzXn",
+          "username": "christyl"
+        },
+        "createdAt": "2022-05-17T12:53:03Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 320,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "This looks amazing, thanks for all the tips :)\n"
+            }
+          ]
+        },
+        "upvotes": 1,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 3268378,
+          "name": "Chiragi Shah",
+          "profilePictureKey": "oJxXlUZYwFkMe885",
+          "username": "chiragi"
+        },
+        "createdAt": "2023-10-21T14:30:09Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 691,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Cool !\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 4380999,
+          "name": "Saschelle Blake",
+          "profilePictureKey": "Lj9jadQfJTJxh2xq",
+          "username": "Saschelleb"
+        },
+        "createdAt": "2024-05-19T13:14:14Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 967,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Thank you for sharing, greatly appreciated! \n"
+            }
+          ]
+        },
+        "upvotes": 1,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 3383755,
+          "name": "Moha - Moroccan Travel Guide",
+          "profilePictureKey": "9tojApGz8i9hKuOj",
+          "username": "mohatabi"
+        },
+        "createdAt": "2024-06-05T16:48:19Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 1361,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Great article, loved it! Feel free to check mine too if you're planning to visit Morocco someday: "
+            },
+            {
+              "attributes": {
+                "link": "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide"
+              },
+              "insert": "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide"
+            },
+            {
+              "insert": "\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      },
+      {
+        "author": {
+          "id": 1704876,
+          "name": "Elizabeth Ford",
+          "profilePictureKey": null,
+          "username": "zippy2023"
+        },
+        "createdAt": "2024-09-19T00:58:37Z",
+        "deletedAt": null,
+        "downvotes": 0,
+        "editedAt": null,
+        "id": 1501,
+        "parentId": null,
+        "text": {
+          "ops": [
+            {
+              "insert": "Thank you for sharing these, much appreciated. One problem though: the link for Le Cinq unfortunately goes to a porn site....  :(\n"
+            }
+          ]
+        },
+        "upvotes": 0,
+        "voteDirection": null
+      }
+    ],
+    "success": true
+  },
+  "response_body_known": true
+}
