@@ -5,7 +5,7 @@
 Preserve dogfood `--live` help Examples and happy_path identifiers across reprints:
 
 - Every leaf `plan *` command has an `Example:` that prints an `Examples:` help section.
-- Read examples use `--plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent`.
+- Read examples use `--plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent`.
 - Write examples use that URL plus `--dry-run --agent`. Never `--apply`.
 - Do not use fake `--target-key abcdefgh` / `abcdefghijklmnop` in Examples; those 404.
 

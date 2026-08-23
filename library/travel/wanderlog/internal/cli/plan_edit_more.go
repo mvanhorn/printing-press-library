@@ -2,6 +2,7 @@
 package cli
 
 // pp:data-source live
+// pp:client-call
 
 import (
 	"encoding/json"
@@ -36,7 +37,7 @@ func newNovelPlanSectionAddDayCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add-day",
 		Short:   "Insert a new day section into an editable Wanderlog plan",
-		Example: "  wanderlog-pp-cli plan section add-day --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --date 2026-09-07 --position 11 --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan section add-day --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --date 2026-09-07 --position 11 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(date) == "" {
 				return usageErr(errors.New("--date is required"))
@@ -84,8 +85,8 @@ func newNovelPlanSectionSetFieldCmd(flags *rootFlags) *cobra.Command {
 	var remove bool
 	cmd := &cobra.Command{
 		Use:     "set-field",
-		Short:   "Set or remove a field on a Wanderlog section",
-		Example: "  wanderlog-pp-cli plan section set-field --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --field heading --value 'Arrival day' --dry-run --agent",
+		Short:   "Set (--field/--value or --json-value) or remove (--remove) a section field such as heading or rich text; previews unless --apply",
+		Example: "  wanderlog-pp-cli plan section set-field --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --field heading --value 'Arrival day' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, newValue, err := parseFieldMutation(field, value, jsonValue, remove)
 			if err != nil {
@@ -129,7 +130,7 @@ func newNovelPlanSectionDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete",
 		Short:   "Delete an empty Wanderlog section",
-		Example: "  wanderlog-pp-cli plan section delete --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 8 --force --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan section delete --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 8 --force --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPlanEdit(cmd, flags, opts, "plan section delete", func(target map[string]any) (planEditBuildResult, error) {
 				sec, err := resolveSection(target, opts.day, opts.sectionIndex, opts.sectionID)
@@ -177,8 +178,8 @@ func newNovelPlanBlockEditTextCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit-text",
 		Short: "Replace block note as plain text unless --markdown",
-		Example: "  wanderlog-pp-cli plan block edit-text --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --text 'Updated note' --dry-run --agent\n" +
-			"  wanderlog-pp-cli plan block edit-text --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --markdown --text $'# Stop\\n- item' --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan block edit-text --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --text 'Updated note' --dry-run --agent\n" +
+			"  wanderlog-pp-cli plan block edit-text --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --markdown --text $'# Stop\\n- item' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("text") {
 				return usageErr(errors.New("--text is required; pass an empty string deliberately to clear text"))
@@ -224,7 +225,7 @@ func newNovelPlanBlockRenameCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "rename",
 		Short:   "Rename a place or lodging block display name",
-		Example: "  wanderlog-pp-cli plan block rename --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 1 --name 'Property' --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan block rename --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 1 --name 'Property' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
 				return usageErr(errors.New("--name is required"))
@@ -282,8 +283,8 @@ func newNovelPlanBlockSetFieldCmd(flags *rootFlags) *cobra.Command {
 	var remove bool
 	cmd := &cobra.Command{
 		Use:     "set-field",
-		Short:   "Set or remove a field on a Wanderlog block",
-		Example: "  wanderlog-pp-cli plan block set-field --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --field startTime --value 09:30 --dry-run --agent",
+		Short:   "Set (--field/--value or --json-value) or remove (--remove) any non-protected field on a block; previews unless --apply",
+		Example: "  wanderlog-pp-cli plan block set-field --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --field startTime --value 09:30 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, newValue, err := parseFieldMutation(field, value, jsonValue, remove)
 			if err != nil {
@@ -345,10 +346,24 @@ func newNovelPlanRawOpCmd(flags *rootFlags) *cobra.Command {
 	var opsFile string
 	cmd := &cobra.Command{
 		Use:   "op",
-		Short: "Apply an explicit ShareDB JSON0 operation array",
-		Example: "  wanderlog-pp-cli plan raw op --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --op '[{\"p\":[\"title\"],\"od\":\"Old\",\"oi\":\"New\"}]' --dry-run --agent\n" +
-			"  wanderlog-pp-cli plan raw op --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --ops-file ./ops.json --dry-run --agent",
+		Short: "Preview or apply an explicit ShareDB JSON0 operation array from --op or --ops-file; escape hatch for fields no named command covers",
+		Example: "  wanderlog-pp-cli plan raw op --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --op '[{\"p\":[\"title\"],\"od\":\"Old\",\"oi\":\"New\"}]' --dry-run --agent\n" +
+			"  wanderlog-pp-cli plan raw op --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --ops-file ./ops.json --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Dry-run guard first, unconditionally: --ops-file must never be
+			// read from disk before the short-circuit. Preview mode is the
+			// default for real invocations -- omit --apply -- so --dry-run
+			// being a pure no-op here costs no capability.
+			if dryRunOK(flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"command":         "plan raw op",
+					"dry_run":         true,
+					"applied":         false,
+					"apply_requested": false,
+					"ops":             0,
+					"warnings":        []string{"global --dry-run set: --op/--ops-file was not read and no operations were applied"},
+				}, flags)
+			}
 			// PATCH(amend-2026-08-23: --ops-file is an alternative to --op)
 			ops, err := loadJSON0Ops(opJSON, opsFile)
 			if err != nil {

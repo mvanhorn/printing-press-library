@@ -34,7 +34,7 @@ func newNovelPlanBudgetCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanBudgetSummaryCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
-	cmd := &cobra.Command{Use: "summary", Short: "Summarize a Wanderlog trip budget", Example: "  wanderlog-pp-cli plan budget summary --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "summary", Short: "Summarize a Wanderlog trip budget", Example: "  wanderlog-pp-cli plan budget summary --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -59,7 +59,7 @@ func newNovelPlanBudgetSummaryCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanBudgetCSVCommand(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
-	cmd := &cobra.Command{Use: "csv", Short: "Export Wanderlog budget expenses as CSV", Example: "  wanderlog-pp-cli plan budget csv --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "csv", Short: "Export Wanderlog budget expenses as CSV", Example: "  wanderlog-pp-cli plan budget csv --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -89,7 +89,7 @@ func newNovelPlanBudgetSetCmd(flags *rootFlags) *cobra.Command {
 	var amount float64
 	var currency string
 	var simplifyDebt bool
-	cmd := &cobra.Command{Use: "set", Short: "Set budget total, currency, or debt simplification", Example: "  wanderlog-pp-cli plan budget set --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --amount 500 --currency USD --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "set", Short: "Set budget total, currency, or debt simplification", Example: "  wanderlog-pp-cli plan budget set --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --amount 500 --currency USD --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if !cmd.Flags().Changed("amount") && !cmd.Flags().Changed("currency") && !cmd.Flags().Changed("simplify-debt") {
 			return usageErr(errors.New("set at least one of --amount, --currency, or --simplify-debt"))
 		}
@@ -143,7 +143,7 @@ func newNovelPlanBudgetExpenseCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanBudgetExpenseListCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
-	cmd := &cobra.Command{Use: "list", Short: "List Wanderlog budget expenses", Example: "  wanderlog-pp-cli plan budget expense list --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "list", Short: "List Wanderlog budget expenses", Example: "  wanderlog-pp-cli plan budget expense list --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -169,7 +169,7 @@ func newNovelPlanBudgetExpenseListCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanBudgetExpenseAddCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, applyRetries: 2}
 	var in budgetExpenseFlags
-	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --description Lunch --amount 12 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --description Lunch --amount 12 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if strings.TrimSpace(in.JSON) == "" && (strings.TrimSpace(in.Description) == "" || !cmd.Flags().Changed("amount")) {
 			return usageErr(errors.New("--description and --amount are required unless --json-value is supplied"))
 		}
@@ -197,7 +197,7 @@ func newNovelPlanBudgetExpenseAddCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanBudgetExpenseEditCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, applyRetries: 2}
 	var in budgetExpenseFlags
-	cmd := &cobra.Command{Use: "edit", Short: "Edit a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense edit --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --expense-index 0 --description Snack --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "edit", Short: "Edit a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense edit --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --expense-index 0 --description Snack --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if in.ID == 0 && in.Index < 0 {
 			return usageErr(errors.New("--expense-id or --expense-index is required"))
 		}
@@ -242,7 +242,7 @@ func newNovelPlanBudgetExpenseRemoveCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, applyRetries: 2}
 	var id int
 	var idxFlag int
-	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --expense-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog budget expense", Example: "  wanderlog-pp-cli plan budget expense remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --expense-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if id == 0 && idxFlag < 0 {
 			return usageErr(errors.New("--expense-id or --expense-index is required"))
 		}
@@ -279,7 +279,7 @@ func newNovelPlanBudgetPaymentCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanBudgetPaymentListCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
-	cmd := &cobra.Command{Use: "list", Short: "List Wanderlog budget payments", Example: "  wanderlog-pp-cli plan budget payment list --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "list", Short: "List Wanderlog budget payments", Example: "  wanderlog-pp-cli plan budget payment list --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -310,7 +310,7 @@ func newNovelPlanBudgetPaymentAddCmd(flags *rootFlags) *cobra.Command {
 	var currency string
 	var paidAt string
 	var jsonValue string
-	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog budget settlement payment", Example: "  wanderlog-pp-cli plan budget payment add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --from-user-id 1 --to-user-id 2 --amount 10 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog budget settlement payment", Example: "  wanderlog-pp-cli plan budget payment add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --from-user-id 1 --to-user-id 2 --amount 10 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if strings.TrimSpace(jsonValue) == "" && (fromUserID == 0 || toUserID == 0 || !cmd.Flags().Changed("amount")) {
 			return usageErr(errors.New("--from-user-id, --to-user-id, and --amount are required unless --json-value is supplied"))
 		}
@@ -345,7 +345,7 @@ func newNovelPlanBudgetPaymentRemoveCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, applyRetries: 2}
 	var id int
 	var idxFlag int
-	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog budget payment", Example: "  wanderlog-pp-cli plan budget payment remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --payment-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog budget payment", Example: "  wanderlog-pp-cli plan budget payment remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --payment-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if id == 0 && idxFlag < 0 {
 			return usageErr(errors.New("--payment-id or --payment-index is required"))
 		}

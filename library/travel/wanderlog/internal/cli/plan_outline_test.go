@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func testOutlineTrip() map[string]any {
@@ -494,5 +496,110 @@ func TestOutlinePlaceUpvotedByCount(t *testing.T) {
 	placeBlock := got.Sections[0].Blocks[2]
 	if placeBlock.UpvotedByCount != 2 {
 		t.Fatalf("upvoted_by_count = %d want 2 (%#v)", placeBlock.UpvotedByCount, placeBlock)
+	}
+}
+
+// planOutlineJSON runs printPlanOutline into a buffer the way the command does.
+func planOutlineJSON(t *testing.T, report planOutlineReport, withSections bool) ([]byte, map[string]any) {
+	t.Helper()
+	var buf bytes.Buffer
+	cmd := &cobra.Command{Use: "inspect"}
+	cmd.SetOut(&buf)
+	if err := printPlanOutline(cmd, &rootFlags{asJSON: true}, report, withSections); err != nil {
+		t.Fatalf("printPlanOutline: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+		t.Fatalf("unmarshal %q: %v", buf.String(), err)
+	}
+	return buf.Bytes(), got
+}
+
+func TestPrintPlanInspectCheckOmitsSections(t *testing.T) {
+	trip := testOutlineTrip()
+	report, err := buildPlanOutline(trip, "abcdefghijklmnop", 0, "counts", false)
+	if err != nil {
+		t.Fatalf("buildPlanOutline: %v", err)
+	}
+	raw, got := planOutlineJSON(t, report, false)
+	if _, ok := got["sections"]; ok {
+		t.Fatalf("--check output should omit sections: %s", raw)
+	}
+	if _, ok := got["checks"]; !ok {
+		t.Fatalf("--check output should carry checks: %s", raw)
+	}
+	for _, key := range []string{"target_key", "title", "start_date", "end_date", "section_count", "block_count"} {
+		if _, ok := got[key]; !ok {
+			t.Fatalf("--check output should keep %q: %s", key, raw)
+		}
+	}
+	if got["target_key"] != "abcdefghijklmnop" || got["title"] != "Tiny outline trip" {
+		t.Fatalf("scalars = %#v", got)
+	}
+
+	withRaw, withGot := planOutlineJSON(t, report, true)
+	if _, ok := withGot["sections"]; !ok {
+		t.Fatalf("--with-sections should keep sections: %s", withRaw)
+	}
+	if _, ok := withGot["checks"]; !ok {
+		t.Fatalf("--with-sections should keep checks: %s", withRaw)
+	}
+	if len(raw) >= len(withRaw) {
+		t.Fatalf("checks-only payload %d bytes is not smaller than %d", len(raw), len(withRaw))
+	}
+}
+
+// The no-check path is plan inspect's other, legitimate use: it must stay
+// byte-identical to plan outline, sections and all.
+func TestPrintPlanInspectWithoutCheckKeepsSections(t *testing.T) {
+	trip := testOutlineTrip()
+	report, err := buildPlanOutline(trip, "abcdefghijklmnop", 0, "", false)
+	if err != nil {
+		t.Fatalf("buildPlanOutline: %v", err)
+	}
+	inspect, got := planOutlineJSON(t, report, false)
+	if _, ok := got["sections"]; !ok {
+		t.Fatalf("inspect without --check must keep sections: %s", inspect)
+	}
+	outline, _ := planOutlineJSON(t, report, true)
+	if !bytes.Equal(inspect, outline) {
+		t.Fatalf("inspect without --check differs from outline:\n%s\n%s", inspect, outline)
+	}
+}
+
+func TestPlanInspectHasWithSectionsFlag(t *testing.T) {
+	cmd := newNovelPlanInspectCmd(&rootFlags{})
+	f := cmd.Flags().Lookup("with-sections")
+	if f == nil {
+		t.Fatal("plan inspect missing --with-sections")
+	}
+	if f.DefValue != "false" {
+		t.Fatalf("--with-sections default = %q want false", f.DefValue)
+	}
+	if newNovelPlanOutlineCmd(&rootFlags{}).Flags().Lookup("with-sections") != nil {
+		t.Fatal("plan outline should not carry --with-sections: it has no --check")
+	}
+	if check := cmd.Flags().Lookup("check"); check == nil || !strings.Contains(check.Usage, "--with-sections") {
+		t.Fatal("--check help should point at --with-sections")
+	}
+}
+
+func TestPrintPlanInspectAllChecksOmitSections(t *testing.T) {
+	trip := testOutlineTrip()
+	for _, name := range append(strings.Split(allPlanInspectChecks, ","), allPlanInspectChecks) {
+		t.Run(name, func(t *testing.T) {
+			report, err := buildPlanOutline(trip, "abcdefghijklmnop", 0, name, false)
+			if err != nil {
+				t.Fatalf("buildPlanOutline: %v", err)
+			}
+			raw, got := planOutlineJSON(t, report, false)
+			if _, ok := got["sections"]; ok {
+				t.Fatalf("--check %s should omit sections: %s", name, raw)
+			}
+			checks, _ := got["checks"].(map[string]any)
+			if len(checks) == 0 {
+				t.Fatalf("--check %s produced no checks: %s", name, raw)
+			}
+		})
 	}
 }

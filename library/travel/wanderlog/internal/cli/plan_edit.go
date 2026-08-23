@@ -2,6 +2,7 @@
 package cli
 
 // pp:data-source live
+// pp:client-call
 
 import (
 	"context"
@@ -101,7 +102,7 @@ func newNovelPlanSectionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "sections",
 		Short:   "List editable sections and day indexes for a Wanderlog plan",
-		Example: "  wanderlog-pp-cli plan sections --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+		Example: "  wanderlog-pp-cli plan sections --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},
@@ -148,7 +149,7 @@ func newNovelPlanNoteAddCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a note block to a day or section",
-		Example: "  wanderlog-pp-cli plan note add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --text 'Book ferry tickets' --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan note add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --text 'Book ferry tickets' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(opts.text) == "" {
 				return usageErr(errors.New("--text is required"))
@@ -199,7 +200,7 @@ func newNovelPlanPlaceAddCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a place block to a day or section",
-		Example: "  wanderlog-pp-cli plan place add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --text 'Sunset photos' --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan place add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --text 'Sunset photos' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateClosedPlacePolicy(closedPlacePolicy); err != nil {
 				return usageErr(err)
@@ -273,7 +274,7 @@ func newNovelPlanPlaceAddCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanBlockCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "block",
-		Short: "Move or delete blocks in an editable Wanderlog plan",
+		Short: "Move, delete, rename, retime, re-text, attach files to, or batch-apply JSON0 ops against blocks in an editable Wanderlog plan",
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newNovelPlanBlockDeleteCmd(flags))
@@ -293,7 +294,7 @@ func newNovelPlanBlockDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete",
 		Short:   "Delete one block from a Wanderlog day or section",
-		Example: "  wanderlog-pp-cli plan block delete --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan block delete --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPlanEdit(cmd, flags, opts, "plan block delete", func(target map[string]any) (planEditBuildResult, error) {
 				sec, block, idx, err := resolveBlock(target, opts.day, opts.sectionIndex, opts.sectionID, opts.blockID, opts.blockIndex)
@@ -324,8 +325,8 @@ func newNovelPlanBlockMoveCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1, blockIndex: -1, toSectionIndex: -1, toPosition: -1}
 	cmd := &cobra.Command{
 		Use:     "move",
-		Short:   "Move one block between Wanderlog days or positions",
-		Example: "  wanderlog-pp-cli plan block move --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --to-day 2 --to-position 0 --dry-run --agent",
+		Short:   "Move one block to another day or position with --to-day and --to-position; previews unless --apply",
+		Example: "  wanderlog-pp-cli plan block move --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --to-day 2 --to-position 0 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if opts.toDay == 0 && opts.toSectionIndex < 0 && opts.toSectionID == 0 {
 				return usageErr(errors.New("one of --to-day, --to-section-index, or --to-section-id is required"))

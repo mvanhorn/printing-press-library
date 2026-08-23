@@ -4,22 +4,22 @@
 
 The primary workflow is filling a new Wanderlog plan from a shared/public plan URL such as:
 
-`https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared`
+`https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared`
 
 This must supersede lower-value local-analysis features if scope has to be trimmed.
 
 ## Verified Source Read Shape
 
-`GET /api/tripPlans/omxsrbpstldoniqa?clientSchemaVersion=2` returns `success:true` and a full `tripPlan` payload. The Okinawa sample has:
+`GET /api/tripPlans/naertjcoixqrgrfc?clientSchemaVersion=2` returns `success:true` and a full `tripPlan` payload. The Morocco sample has:
 
-- title: `Trip to Okinawa Prefecture`
-- key: `omxsrbpstldoniqa`
-- itinerary sections: 11
-- day dates: `2026-08-30` through `2026-09-06`
-- total blocks in this sample: 0
+- title: `Morocco Travel Guide`
+- key: `naertjcoixqrgrfc`
+- itinerary sections: 8
+- day dates: none (this plan carries no start or end date)
+- total blocks in this sample: 9
 - resources include `geo`, `geos`, `placeMetadata`, `distancesBetweenPlaces`, `currencyRatesUSD`, `hotelDeals`, `sectionRecommendations`, and related travel resources.
 
-Even when blocks are empty, this proves the plan-template copy surface: title, dates, section layout, section modes, headings, colors/icons, notes, budget, and journal skeleton.
+Even with this sparse block list, this proves the plan-template copy surface: title, dates, section layout, section modes, headings, colors/icons, notes, budget, and journal skeleton.
 
 ## Commands
 

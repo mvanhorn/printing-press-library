@@ -41,7 +41,7 @@ type planEditJournalRecord struct {
 
 func newNovelPlanHistoryCmd(flags *rootFlags) *cobra.Command {
 	opts := planHistoryOptions{planEditOptions: planEditOptions{clientSchemaVersion: 2}, limit: 20}
-	cmd := &cobra.Command{Use: "history", Short: "List local undo/redo journal entries for a Wanderlog plan", Example: "  wanderlog-pp-cli plan history --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "history", Short: "List local undo/redo journal entries for a Wanderlog plan", Example: "  wanderlog-pp-cli plan history --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := planLiveClient(flags)
 		if err != nil {
 			return err
@@ -69,7 +69,7 @@ func newNovelPlanHistoryCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanUndoCmd(flags *rootFlags) *cobra.Command {
 	opts := planHistoryOptions{planEditOptions: planEditOptions{clientSchemaVersion: 2, applyRetries: 2}}
-	cmd := &cobra.Command{Use: "undo", Short: "Undo the latest applied ShareDB edit from the local journal", Example: "  wanderlog-pp-cli plan undo --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "undo", Short: "Undo the latest applied ShareDB edit from the local journal", Example: "  wanderlog-pp-cli plan undo --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		return runPlanHistoryMutation(cmd, flags, opts, "undo")
 	}}
 	addPlanTargetFlags(cmd, &opts.planEditOptions)
@@ -81,7 +81,7 @@ func newNovelPlanUndoCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanRedoCmd(flags *rootFlags) *cobra.Command {
 	opts := planHistoryOptions{planEditOptions: planEditOptions{clientSchemaVersion: 2, applyRetries: 2}}
-	cmd := &cobra.Command{Use: "redo", Short: "Redo the latest undone ShareDB edit from the local journal", Example: "  wanderlog-pp-cli plan redo --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "redo", Short: "Redo the latest undone ShareDB edit from the local journal", Example: "  wanderlog-pp-cli plan redo --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		return runPlanHistoryMutation(cmd, flags, opts, "redo")
 	}}
 	addPlanTargetFlags(cmd, &opts.planEditOptions)
@@ -212,6 +212,9 @@ func readPlanEditJournal(c *client.Client) ([]planEditJournalRecord, string, err
 	if err != nil {
 		return nil, "", err
 	}
+	// #nosec G304 -- path is not user input: planEditJournalPath derives it
+	// from the CLI's own config directory (or $HOME/.config/wanderlog-pp-cli)
+	// and appends a fixed basename.
 	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, path, nil

@@ -17,7 +17,7 @@ func newGuidesGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <view_key>",
 		Short:       "Get a public guide or shared trip by view key",
-		Example:     "  wanderlog-pp-cli guides get omxsrbpstldoniqa --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata",
+		Example:     "  wanderlog-pp-cli guides get naertjcoixqrgrfc --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata",
 		Annotations: map[string]string{"pp:endpoint": "guides.get", "pp:method": "GET", "pp:path": "/api/tripPlans/{view_key}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

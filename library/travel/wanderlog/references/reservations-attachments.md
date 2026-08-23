@@ -32,7 +32,7 @@ Resolve with `--place-id`, or `--query NAME --lat LAT --lng LNG`, or `--lodging-
 
 **Multi-night stays.** `--span-nights` defaults true when `end-date` > `start-date`. That copies the lodging place+hotel onto each dated day in `[checkIn, checkOut)` with new ids in one ops array. Do not JSON0-`li` extra night copies. Dry-run/apply report `{day,date,block_id,name}` per night.
 
-**Rename.** `plan block rename --name "Property"` — not `set-field place.name`, not a raw op.
+**Rename.** `plan block rename --name "Property"` — never a raw op.
 
 Link costs with `plan budget expense add --category lodging --block-id BLOCK_ID`.
 

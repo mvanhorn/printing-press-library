@@ -199,7 +199,7 @@ func TestResolvePlanKey_NumericID(t *testing.T) {
 	if !strings.Contains(err.Error(), "tripPlan.id") {
 		t.Fatalf("error = %v, want tripPlan.id", err)
 	}
-	if !strings.Contains(err.Error(), "omxsrbpstldoniqa") {
+	if !strings.Contains(err.Error(), "naertjcoixqrgrfc") {
 		t.Fatalf("error = %v, want example key", err)
 	}
 }
@@ -245,19 +245,19 @@ func TestPlanTargetFlagAliases(t *testing.T) {
 }
 
 func TestResolveCommentsListPlanKey(t *testing.T) {
-	got, err := resolveCommentsListPlanKey(planEditOptions{}, []string{"omxsrbpstldoniqa"})
+	got, err := resolveCommentsListPlanKey(planEditOptions{}, []string{"naertjcoixqrgrfc"})
 	if err != nil {
 		t.Fatalf("positional key: %v", err)
 	}
-	if got != "omxsrbpstldoniqa" {
+	if got != "naertjcoixqrgrfc" {
 		t.Fatalf("got %q", got)
 	}
 	_, err = resolveCommentsListPlanKey(planEditOptions{}, []string{"1234567890123456"})
 	if err == nil || !strings.Contains(err.Error(), "tripPlan.id") {
 		t.Fatalf("numeric positional: %v", err)
 	}
-	got, err = resolveCommentsListPlanKey(planEditOptions{targetKey: "omxsrbpstldoniqa"}, nil)
-	if err != nil || got != "omxsrbpstldoniqa" {
+	got, err = resolveCommentsListPlanKey(planEditOptions{targetKey: "naertjcoixqrgrfc"}, nil)
+	if err != nil || got != "naertjcoixqrgrfc" {
 		t.Fatalf("flag key: got %q err %v", got, err)
 	}
 	_, err = resolveCommentsListPlanKey(planEditOptions{}, nil)

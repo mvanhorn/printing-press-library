@@ -8,10 +8,11 @@ Start by asking the generated CLI for current runtime truth:
 
 ```bash
 wanderlog-pp-cli doctor --json
-wanderlog-pp-cli agent-context --pretty
 ```
 
-Use runtime discovery instead of relying on a copied command list:
+Use runtime discovery instead of relying on a copied command list, and instead of
+`agent-context`, which returns 88,306 bytes (182 KB with `--pretty`) and adds nothing
+over the two calls below:
 
 ```bash
 wanderlog-pp-cli which "<capability>" --json

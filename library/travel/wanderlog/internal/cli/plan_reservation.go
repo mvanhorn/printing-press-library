@@ -83,7 +83,7 @@ func newNovelPlanReservationListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List reservation and standalone attachment blocks in a Wanderlog plan",
-		Example:     "  wanderlog-pp-cli plan reservation list --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --kind flight --agent",
+		Example:     "  wanderlog-pp-cli plan reservation list --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --kind flight --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -126,7 +126,7 @@ func newNovelPlanReservationAddCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a flight, lodging, rental car, restaurant, transit, cruise, or standalone attachment block",
-		Example: "  wanderlog-pp-cli plan reservation add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --kind flight --airline NH --flight-number 463 --start-date 2026-09-01 --departure-airport HND --arrival-airport OKA --dry-run --agent\n  wanderlog-pp-cli plan reservation add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --kind lodging --query 'Hotel Moon Beach' --lat 26.32 --lng 127.76 --start-date 2026-09-01 --end-date 2026-09-03 --display-name 'Hotel Moon Beach' --expect-name-substring Moon --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan reservation add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --kind flight --airline NH --flight-number 463 --start-date 2026-09-01 --departure-airport HND --arrival-airport OKA --dry-run --agent\n  wanderlog-pp-cli plan reservation add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --kind lodging --query 'Hotel Moon Beach' --lat 26.32 --lng 127.76 --start-date 2026-09-01 --end-date 2026-09-03 --display-name 'Hotel Moon Beach' --expect-name-substring Moon --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			kind, err := normalizeReservationKind(opts.kind)
 			if err != nil {
@@ -181,8 +181,8 @@ func newNovelPlanReservationEditCmd(flags *rootFlags) *cobra.Command {
 	opts := planReservationOptions{planEditOptions: planEditOptions{clientSchemaVersion: 2, sectionIndex: -1, blockIndex: -1, applyRetries: 2}}
 	cmd := &cobra.Command{
 		Use:     "edit",
-		Short:   "Set or remove a field on a reservation or standalone attachment block",
-		Example: "  wanderlog-pp-cli plan reservation edit --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --section-index 1 --block-index 0 --field confirmationNumber --value ABC123 --dry-run --agent",
+		Short:   "Set (--field/--value or --json-value) or remove (--remove) a field on a reservation or attachment block; --kind selects the block shape",
+		Example: "  wanderlog-pp-cli plan reservation edit --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --section-index 1 --block-index 0 --field confirmationNumber --value ABC123 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, value, err := parseFieldMutation(opts.field, opts.value, opts.jsonValue, opts.remove)
 			if err != nil {
@@ -237,7 +237,7 @@ func newNovelPlanReservationRemoveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove",
 		Short:   "Remove a reservation or standalone attachment block",
-		Example: "  wanderlog-pp-cli plan reservation remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --section-index 1 --block-index 0 --kind flight --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan reservation remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --section-index 1 --block-index 0 --kind flight --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			kind, err := normalizeReservationKind(opts.kind)
 			if err != nil {

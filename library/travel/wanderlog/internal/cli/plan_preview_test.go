@@ -13,9 +13,9 @@ func TestPlanPreviewReportCountsSharedPlanShape(t *testing.T) {
 		"tips": json.RawMessage(`[]`),
 	}
 
-	report := buildPlanReport("plan preview", planCopyOptions{sourceURL: "https://wanderlog.com/plan/omxsrbpstldoniqa/trip/shared"}, source, "omxsrbpstldoniqa", nil)
+	report := buildPlanReport("plan preview", planCopyOptions{sourceURL: "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared"}, source, "naertjcoixqrgrfc", nil)
 
-	if report.SourceKey != "omxsrbpstldoniqa" {
+	if report.SourceKey != "naertjcoixqrgrfc" {
 		t.Fatalf("SourceKey = %q", report.SourceKey)
 	}
 	if report.SourceTitle != "Okinawa template" || report.Title != "Okinawa template (copy)" {

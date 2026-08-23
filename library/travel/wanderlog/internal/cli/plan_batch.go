@@ -2,6 +2,7 @@
 package cli
 
 // pp:data-source live
+// pp:client-call
 
 import (
 	"context"
@@ -9,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/wanderlog/internal/client"
@@ -34,7 +36,7 @@ func newNovelPlanFillDayCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fill-day",
 		Short:   "Insert a batch of place stops into one Wanderlog day",
-		Example: "  wanderlog-pp-cli plan fill-day --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --stops-json '[{\"place_id\":\"ChIJxekpmbdp5TQRSqyFdGKMUJc\",\"start\":\"09:00\",\"note\":\"Cafe\"}]' --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan fill-day --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --stops-json '[{\"place_id\":\"ChIJxekpmbdp5TQRSqyFdGKMUJc\",\"start\":\"09:00\",\"note\":\"Cafe\"}]' --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateClosedPlacePolicy(closedPlacePolicy); err != nil {
 				return usageErr(err)
@@ -75,7 +77,7 @@ func newNovelPlanSectionSwapDaysCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "swap-days",
 		Short:   "Swap the blocks arrays of two day sections in one JSON0 batch",
-		Example: "  wanderlog-pp-cli plan section swap-days --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --with-day 2 --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan section swap-days --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --with-day 2 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if opts.day <= 0 || withDay <= 0 {
 				return usageErr(errors.New("--day and --with-day are required"))
@@ -102,7 +104,7 @@ func newNovelPlanPlaceReplaceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "replace",
 		Short:   "Replace only the nested place on an existing itinerary block",
-		Example: "  wanderlog-pp-cli plan place replace --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 1 --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan place replace --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 1 --place-id ChIJLU7jZClu5kcR4PcOOO6p3I0 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateClosedPlacePolicy(closedPlacePolicy); err != nil {
 				return usageErr(err)
@@ -141,10 +143,28 @@ func newNovelPlanBlockApplyCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
 	var opsFile string
 	cmd := &cobra.Command{
-		Use:     "apply",
-		Short:   "Preview or apply a JSON0 operation array from a file",
-		Example: "  wanderlog-pp-cli plan block apply --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --ops-file ./ops.json --dry-run --agent",
+		Use:   "apply",
+		Short: "Preview or apply a JSON0 operation array from a file",
+		Example: "  wanderlog-pp-cli plan block apply --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --ops-file ./ops.json --agent           # preview\n" +
+			"  wanderlog-pp-cli plan block apply --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --ops-file ./ops.json --apply --agent   # write\n" +
+			"  # global --dry-run returns immediately, before --ops-file is read",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Dry-run guard first, unconditionally: --dry-run must return
+			// before any filesystem read. --ops-file is validated inside RunE
+			// (not via MarkFlagRequired, which cobra enforces before RunE ever
+			// runs and so makes a --dry-run probe unreachable). Preview mode is
+			// the default for real invocations -- omit --apply -- so nothing is
+			// lost by making --dry-run a pure no-op here.
+			if dryRunOK(flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"command":         "plan block apply",
+					"dry_run":         true,
+					"applied":         false,
+					"apply_requested": false,
+					"ops":             0,
+					"warnings":        []string{"global --dry-run set: --ops-file was not read and no operations were applied"},
+				}, flags)
+			}
 			ops, err := loadJSON0Ops("", opsFile)
 			if err != nil {
 				return usageErr(err)
@@ -153,8 +173,7 @@ func newNovelPlanBlockApplyCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	addPlanTargetFlags(cmd, &opts)
-	cmd.Flags().StringVar(&opsFile, "ops-file", "", "Path to a JSON0 operation array")
-	_ = cmd.MarkFlagRequired("ops-file")
+	cmd.Flags().StringVar(&opsFile, "ops-file", "", "Path to a JSON0 operation array (required; global --dry-run returns before the file is read)")
 	cmd.Flags().BoolVar(&opts.apply, "apply", false, "Apply the ops through Wanderlog ShareDB; default is preview only")
 	cmd.Flags().IntVar(&opts.clientSchemaVersion, "client-schema-version", 2, "Wanderlog client schema version")
 	return cmd
@@ -407,6 +426,10 @@ func loadJSON0Ops(opJSON string, opsFile string) ([]map[string]any, error) {
 }
 
 func readJSON0OpsFile(path string) ([]map[string]any, error) {
+	path = filepath.Clean(path)
+	// #nosec G304 -- path comes from the operator's own --ops-file flag on
+	// their own machine; there is no privilege boundary to cross and no
+	// server-side caller that could supply it.
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read --ops-file: %w", err)

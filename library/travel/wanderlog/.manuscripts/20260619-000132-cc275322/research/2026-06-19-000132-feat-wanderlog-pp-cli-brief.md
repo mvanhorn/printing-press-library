@@ -78,8 +78,8 @@ Core entities: geos, guide summaries, trip plans, sections/days, blocks/stops, p
 
 ## Clone/Fill Priority Addendum
 
-The user clarified on 2026-06-21 that the most important workflow is filling a new Wanderlog plan from an existing shared/public plan. Example source URL: `https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared`.
+The user clarified on 2026-06-21 that the most important workflow is filling a new Wanderlog plan from an existing shared/public plan. Example source URL: `https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared`.
 
-Live verification against the example shows that `GET /api/tripPlans/omxsrbpstldoniqa?clientSchemaVersion=2` returns structured `tripPlan.itinerary` data, including title, sections, date-bearing dayPlan sections, budget, journal, and resources. This confirms the read/template side.
+Live verification against the example shows that `GET /api/tripPlans/naertjcoixqrgrfc?clientSchemaVersion=2` returns structured `tripPlan.itinerary` data, including title, sections, date-bearing dayPlan sections, budget, journal, and resources. This confirms the read/template side.
 
 The write/fill side is not a REST endpoint. It requires cookie-backed trip creation plus ShareDB websocket JSON0 operations. Therefore, `plan preview`, `plan clone`, and `plan fill` are now the primary hand-written shipping scope. Lower-priority local-analysis commands may be trimmed before these are dropped.

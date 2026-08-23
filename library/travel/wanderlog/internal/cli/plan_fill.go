@@ -14,7 +14,7 @@ func newNovelPlanFillCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "fill",
 		Short:       "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.",
-		Example:     "  wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --target-key exampletarget --dry-run --agent",
+		Example:     "  wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key YOUR_TRIP_KEY --dry-run --agent",
 		Long:        "Use this command to fill an existing Wanderlog target trip from a shared/public source. Do NOT use it to create a new target trip; use 'plan clone' instead.",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {

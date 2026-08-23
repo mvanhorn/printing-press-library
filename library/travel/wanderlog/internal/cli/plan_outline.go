@@ -2,6 +2,7 @@
 package cli
 
 // pp:data-source live
+// pp:client-call
 
 import (
 	"fmt"
@@ -25,6 +26,35 @@ type planOutlineReport struct {
 	BlockCount   int                  `json:"block_count"`
 	Sections     []planOutlineSection `json:"sections"`
 	Checks       map[string]any       `json:"checks,omitempty"`
+}
+
+// PATCH(amend-2026-08-23: --check answers a question about the plan, not a
+// request for the plan) planChecksReport is the projection printed when
+// `plan inspect --check` runs without --with-sections. It keeps every cheap
+// scalar field of planOutlineReport — they cost a few dozen bytes and are
+// needed to read a check result — and drops the `sections` outline payload,
+// which the caller did not ask for and which costs more than `plan outline`
+// itself. Field order mirrors planOutlineReport so the two shapes read alike.
+type planChecksReport struct {
+	TargetKey    string         `json:"target_key"`
+	Title        string         `json:"title,omitempty"`
+	StartDate    string         `json:"start_date,omitempty"`
+	EndDate      string         `json:"end_date,omitempty"`
+	SectionCount int            `json:"section_count"`
+	BlockCount   int            `json:"block_count"`
+	Checks       map[string]any `json:"checks,omitempty"`
+}
+
+func checksOnlyReport(report planOutlineReport) planChecksReport {
+	return planChecksReport{
+		TargetKey:    report.TargetKey,
+		Title:        report.Title,
+		StartDate:    report.StartDate,
+		EndDate:      report.EndDate,
+		SectionCount: report.SectionCount,
+		BlockCount:   report.BlockCount,
+		Checks:       report.Checks,
+	}
 }
 
 type planOutlineSection struct {
@@ -59,14 +89,15 @@ func newNovelPlanOutlineCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
 	var allSections bool
 	cmd := &cobra.Command{
-		Use:     "outline",
-		Short:   "Show a slim itinerary outline: days, section headings, and stop names",
-		Example: "  wanderlog-pp-cli plan outline --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+		Use:   "outline",
+		Short: "Show a slim itinerary outline: days, section headings, and stop names",
+		Example: "  wanderlog-pp-cli plan outline --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent\n" +
+			"  wanderlog-pp-cli plan outline --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 2 --dry-run --agent   # --dry-run is accepted and is a no-op: this command only reads",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runPlanOutline(cmd, flags, opts, "", allSections)
+			return runPlanOutline(cmd, flags, opts, "", allSections, true)
 		},
 	}
 	addPlanTargetFlags(cmd, &opts)
@@ -80,10 +111,19 @@ func newNovelPlanInspectCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
 	var check string
 	var allSections bool
+	var withSections bool
 	cmd := &cobra.Command{
-		Use:     "inspect",
-		Short:   "Inspect a slim itinerary outline; pass --check for counts, formatting, lodging, closures, and schedule mismatches",
-		Example: "  wanderlog-pp-cli plan inspect --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --check counts,unformatted,lodging-coverage --agent",
+		Use:   "inspect",
+		Short: "Inspect a slim itinerary outline; pass --check for counts, formatting, lodging, closures, and schedule mismatches",
+		Example: "  wanderlog-pp-cli plan inspect --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --check=counts,unformatted,lodging-coverage --agent   # --check prints checks plus plan scalars; the sections outline is omitted. Use --check=NAMES: the space form runs every check\n" +
+			"  wanderlog-pp-cli plan inspect --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --check=closed-places,text-vs-schedule --dry-run --agent   # --dry-run is accepted and is a no-op: this command only reads\n" +
+			"  wanderlog-pp-cli plan inspect --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --check=counts --with-sections --agent   # keep the sections outline next to the checks\n" +
+			"  wanderlog-pp-cli plan inspect --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent   # no --check: the full outline, same as plan outline",
+		// PATCH(amend-2026-08-23: --check has NoOptDefVal, so `--check counts` parses
+		// as a valueless --check plus an ignored positional and silently runs every
+		// check. NoArgs turns that into a loud usage error instead of a different
+		// answer than the caller asked for.)
+		Args: cobra.NoArgs,
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},
@@ -91,21 +131,22 @@ func newNovelPlanInspectCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("check") {
 				check = ""
 			}
-			return runPlanOutline(cmd, flags, opts, check, allSections)
+			return runPlanOutline(cmd, flags, opts, check, allSections, withSections)
 		},
 	}
 	addPlanTargetFlags(cmd, &opts)
 	cmd.Flags().IntVar(&opts.day, "day", 0, "1-based day number among day sections; omit for the full plan")
 	cmd.Flags().BoolVar(&allSections, "all-sections", false, "Include block lists for undated and non-day sections")
-	cmd.Flags().StringVar(&check, "check", "", "Comma-separated checks: counts,unformatted,lodging-coverage,closed-places,text-vs-schedule")
+	cmd.Flags().StringVar(&check, "check", "", "Comma-separated checks: counts,unformatted,lodging-coverage,closed-places,text-vs-schedule. Prints the checks plus the plan scalars and omits the sections outline; add --with-sections to keep it")
 	if f := cmd.Flags().Lookup("check"); f != nil {
 		f.NoOptDefVal = allPlanInspectChecks
 	}
+	cmd.Flags().BoolVar(&withSections, "with-sections", false, "With --check, also print the sections outline. No effect without --check: that already prints the full outline")
 	cmd.Flags().IntVar(&opts.clientSchemaVersion, "client-schema-version", 2, "Wanderlog client schema version")
 	return cmd
 }
 
-func runPlanOutline(cmd *cobra.Command, flags *rootFlags, opts planEditOptions, check string, allSections bool) error {
+func runPlanOutline(cmd *cobra.Command, flags *rootFlags, opts planEditOptions, check string, allSections, withSections bool) error {
 	ctx, cancel := boundCtx(cmd.Context(), flags)
 	defer cancel()
 	c, err := planLiveClient(flags)
@@ -124,12 +165,16 @@ func runPlanOutline(cmd *cobra.Command, flags *rootFlags, opts planEditOptions, 
 	if err != nil {
 		return usageErr(err)
 	}
-	return printPlanOutline(cmd, flags, report)
+	return printPlanOutline(cmd, flags, report, withSections)
 }
 
-func printPlanOutline(cmd *cobra.Command, flags *rootFlags, report planOutlineReport) error {
+func printPlanOutline(cmd *cobra.Command, flags *rootFlags, report planOutlineReport, withSections bool) error {
 	if flags != nil && flags.plain {
 		return printPlanOutlinePlain(cmd.OutOrStdout(), report)
+	}
+	// PATCH(amend-2026-08-23: --check drops the sections payload it never asked for)
+	if report.Checks != nil && !withSections {
+		return printJSONFiltered(cmd.OutOrStdout(), checksOnlyReport(report), flags)
 	}
 	return printJSONFiltered(cmd.OutOrStdout(), report, flags)
 }
@@ -389,9 +434,7 @@ func parsePlanInspectChecks(raw string) ([]string, error) {
 		}
 	}
 	if len(out) == 0 {
-		for _, part := range strings.Split(allPlanInspectChecks, ",") {
-			out = append(out, part)
-		}
+		out = append(out, strings.Split(allPlanInspectChecks, ",")...)
 	}
 	return out, nil
 }

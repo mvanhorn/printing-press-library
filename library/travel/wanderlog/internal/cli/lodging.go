@@ -1,6 +1,9 @@
 // Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
 package cli
 
+// pp:data-source live
+// pp:client-call
+
 import (
 	"encoding/json"
 	"errors"

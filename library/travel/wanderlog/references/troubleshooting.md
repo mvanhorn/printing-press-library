@@ -9,12 +9,6 @@ Command failures, live API surprises, validation blocks, and verification quirks
 - If `doctor` says API unreachable in a sandbox, retry with network before concluding Wanderlog is down.
 - Shared-view URL may be readable while the editable key still needs account access.
 
-## Identifiers And Payloads
-
-- All-digit values are `tripPlan.id`, not keys. Use the 16-char `key` from `trips home`.
-- Fat `trips get --agent` without `--select`/`--full` stubs (~1–2 KB) and exits 2. Use `plan outline`.
-- `--select` that matches no fields errors (exit 2) instead of a list of empty `{}`.
-
 ## ShareDB Subscribe Failures
 
 `ShareDB subscribe did not return target snapshot` means the WebSocket subscribed but did not return usable `data.data`. Check for an upstream error frame if debugging the CLI.

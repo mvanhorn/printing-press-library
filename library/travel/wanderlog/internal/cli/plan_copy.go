@@ -5,10 +5,11 @@ package cli
 
 import (
 	"context"
+	crand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -164,6 +165,11 @@ func runPlanFill(cmd *cobra.Command, flags *rootFlags, opts planCopyOptions) err
 		}
 	}
 	if !opts.apply || flags.dryRun {
+		if flags.dryRun {
+			// Match `plan clone`: replace-sections is the more destructive of
+			// the two, so the report must say plainly that nothing was written.
+			report.Warnings = append(report.Warnings, "global --dry-run set: no sections will be replaced on the target trip")
+		}
 		return printPlanReport(cmd, flags, report)
 	}
 	if err := requireCookie(c); err != nil {
@@ -249,7 +255,7 @@ func resolvePlanKey(sourceKey, sourceURL string) (string, error) {
 func validateResolvedPlanKey(key string) (string, error) {
 	key = strings.TrimSpace(key)
 	if isAllDigits(key) {
-		return "", fmt.Errorf("%s is tripPlan.id, not a key. Use the 16-char key from trips home (field: key). Example: --target-key omxsrbpstldoniqa", key)
+		return "", fmt.Errorf("%s is tripPlan.id, not a key. Use the 16-char key from trips home (field: key). Example: --target-key naertjcoixqrgrfc", key)
 	}
 	if !planKeyRe.MatchString(key) {
 		return "", fmt.Errorf("invalid --source-key %q", key)
@@ -502,8 +508,19 @@ func sanitizeItinerary(it map[string]any) {
 	}
 }
 
+// randomWanderlogID mints a 9-digit Wanderlog block/section id. These ids
+// address rows inside a shared ShareDB document, so they must not collide
+// across concurrent clients; a time-seeded math/rand generator produced
+// identical ids for calls made inside the same nanosecond tick. Draw from
+// crypto/rand instead and fall back to the process clock only if the
+// system entropy source fails.
 func randomWanderlogID() int {
-	return rand.New(rand.NewSource(time.Now().UnixNano())).Intn(900000000) + 100000000
+	const span = 900000000
+	n, err := crand.Int(crand.Reader, big.NewInt(span))
+	if err != nil {
+		return int(time.Now().UnixNano()%span) + 100000000
+	}
+	return int(n.Int64()) + 100000000
 }
 
 func cloneJSONMap(in map[string]any) map[string]any {

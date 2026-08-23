@@ -10,7 +10,7 @@ Turn trip assumptions, flight anchors, transport, costs, restaurants, and candid
 4. Build the candidate pool before filling days. Food: `places autocomplete` with location bias; inspect before add. Booked restaurants: `--kind restaurant`.
 5. Decide transport before placing days. Let the destination's geography drive walk vs transit vs rental — do not reuse a previous trip's mode mix.
 6. Apply in small batches: reservation anchors, headings, day notes, candidate/food places, then day-specific places. Dry-run each batch.
-7. Verify with `plan outline`, `plan reservation list`, and `plan inspect --check`. Undo immediately if a batch lands in the wrong section.
+7. Verify with `plan outline`, `plan reservation list`, and `plan inspect --check=unformatted,lodging-coverage` (always the `=` form). Undo immediately if a batch lands in the wrong section.
 
 ## Day Notes
 

@@ -7,7 +7,7 @@ Days, sections, blocks, notes, places, schedules, attachments, and checklists. I
 1. `plan outline --target-key KEY [--day N] --agent`.
 2. Dry-run the named command (default).
 3. `--apply` after target approval.
-4. `plan inspect --target-key KEY --check counts,unformatted,lodging-coverage,closed-places,text-vs-schedule --agent`.
+4. `plan inspect --target-key KEY --check=unformatted,lodging-coverage --agent`.
 5. `plan undo --apply` if wrong.
 
 Prefer `--day`. Use `--section-index` or section id only after outline. Indexes shift after add/delete. Closed-place hits: move, replace, or mark optional — `ignore` only for intentional backups.
@@ -21,8 +21,8 @@ Prefer `--day`. Use `--section-index` or section id only after outline. Indexes 
 ## Block Rework
 
 - `plan block move` / `plan block delete` — prefer `--block-id`.
-- `plan block edit-text --markdown` — **format notes here.** Compiles `**bold**`, `- `/`* ` bullets, and `# ` heading lines to a bold label plus newline (Wanderlog strips header attributes). Without `--markdown` the note is one plain insert. If the text contains `**` or a line-start `- `/`# `, the CLI errors until you pass `--markdown`.
-- `plan block rename --name "Property"` — sets `place.name` (lodging cards, geocoder street names). Do not `set-field place.name`.
+- `plan block edit-text --markdown` — **format notes here.** What it compiles, and what it refuses: Gotchas in `SKILL.md`.
+- `plan block rename --name "Property"` — sets `place.name` on lodging cards and geocoder street names.
 - `plan block set-field` — non-protected fields; `--json-value` for non-strings. `place` is protected.
 - `plan block schedule` — start/end/duration/timezone.
 - `plan block attachment list/add/remove` — files/links on an existing block. Standalone Attachment item: `plan reservation add --kind attachment`.
@@ -38,6 +38,6 @@ Note shape: bold label line only when the note mixes several kinds of info; one 
 
 ## Batches
 
-Write inspectable TSV/JSON first. Order: headings, day notes, place blocks, schedules. Avoid nested quoting in place-lookup loops. After each batch, outline or `plan inspect --check`.
+Write inspectable TSV/JSON first. Order: headings, day notes, place blocks, schedules. Avoid nested quoting in place-lookup loops. After each batch, outline or `plan inspect --target-key KEY --check=unformatted,lodging-coverage --agent`. Always write `--check=NAMES`: the space form `--check NAMES` silently runs all five checks and discards the argument.
 
 Undo journal: `sharedb-json0.md`.

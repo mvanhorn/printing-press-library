@@ -26,7 +26,7 @@ func newNovelPlanVotesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "votes",
 		Short:   "List place and hotel block upvote counts for a Wanderlog plan",
-		Example: "  wanderlog-pp-cli plan votes --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+		Example: "  wanderlog-pp-cli plan votes --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},

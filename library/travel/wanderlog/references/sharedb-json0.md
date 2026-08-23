@@ -16,8 +16,6 @@ wanderlog-pp-cli plan undo --target-key KEY --record-id RECORD --apply --agent
 wanderlog-pp-cli plan redo --target-key KEY --record-id RECORD --apply --agent
 ```
 
-Undo/redo is local-journal only. It cannot discover Wanderlog UI edits or work from another machine. REST comments/collaboration may sit outside the journal.
-
 ## When To Use `plan raw op`
 
 Only when no named command covers the field. Always dry-run first. Re-fetch with `plan outline` (or `trips get KEY --full --no-cache` if you must see a blob) before computing paths. `od` must match the current value exactly. Array indices shift on `li`/`ld`; a batch of in-place `od`/`oi` replaces from one fetch stays valid, a batch with inserts/deletes does not — re-fetch between them.

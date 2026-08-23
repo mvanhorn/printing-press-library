@@ -4,7 +4,7 @@
   "applied_at": "2026-08-23",
   "base_run_id": "20260619-000132-cc275322",
   "base_printing_press_version": "4.24.0",
-  "summary": "Add plan leaf Examples and point them at the shared Okinawa --plan-url with --dry-run on writes.",
+  "summary": "Add plan leaf Examples and point them at the shared Morocco --plan-url with --dry-run on writes.",
   "reason": "Dogfood help required an Examples section, and fake 16-char --target-key values 404 on live happy_path.",
   "files": [
     "internal/cli/plan_budget.go",
@@ -17,5 +17,5 @@
     "internal/cli/plan_batch.go",
     "internal/cli/plan_reservation.go"
   ],
-  "validated_outcome": "go test ./internal/cli passed; Examples use the shared Okinawa plan-url and keep --dry-run on writes."
+  "validated_outcome": "go test ./internal/cli passed; Examples use the shared Morocco plan-url and keep --dry-run on writes."
 }

@@ -11,8 +11,8 @@ func TestPlanCloneResolvesPlanKeys(t *testing.T) {
 		want      string
 		wantErr   bool
 	}{
-		{name: "source key", sourceKey: "omxsrbpstldoniqa", want: "omxsrbpstldoniqa"},
-		{name: "plan url", sourceURL: "https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared", want: "omxsrbpstldoniqa"},
+		{name: "source key", sourceKey: "naertjcoixqrgrfc", want: "naertjcoixqrgrfc"},
+		{name: "plan url", sourceURL: "https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared", want: "naertjcoixqrgrfc"},
 		{name: "view url", sourceURL: "https://wanderlog.com/view/uzyvvtuwtc/shared", want: "uzyvvtuwtc"},
 		{name: "invalid source key", sourceKey: "bad key", wantErr: true},
 		{name: "missing", wantErr: true},

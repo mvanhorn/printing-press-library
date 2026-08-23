@@ -11,9 +11,10 @@ func newNovelPlanPreviewCmd(flags *rootFlags) *cobra.Command {
 	opts.clientSchemaVersion = 2
 
 	cmd := &cobra.Command{
-		Use:         "preview",
-		Short:       "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
-		Example:     "  wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+		Use:   "preview",
+		Short: "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
+		Example: "  wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent\n" +
+			"  wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent   # --dry-run is accepted and is a no-op: this command only reads",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPlanPreview(cmd, flags, opts)

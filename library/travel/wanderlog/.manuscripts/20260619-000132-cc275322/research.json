@@ -55,7 +55,7 @@
       "command": "plan clone",
       "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.",
       "rationale": "Requires combining the public tripPlan read endpoint, cookie-backed trip creation, and ShareDB JSON0 fill operations.",
-      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent",
+      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
       "why_it_matters": "Use this when the user wants to turn an existing shared Wanderlog plan into their own new editable trip.",
       "group": "Plan cloning and fill"
     },
@@ -64,7 +64,7 @@
       "command": "plan fill",
       "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.",
       "rationale": "Requires reading both source and target plans and applying sanitized ShareDB section/block operations to the target.",
-      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --target-key exampletarget --dry-run --agent",
+      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
       "why_it_matters": "Use this when the user already created a target trip and wants to populate it from a shared template.",
       "group": "Plan cloning and fill"
     },
@@ -73,7 +73,7 @@
       "command": "plan preview",
       "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
       "rationale": "Requires normalizing the shared URL/key and extracting source tripPlan/resource structure into a mutation-safe report.",
-      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
       "why_it_matters": "Use this before clone/fill to confirm what will be copied and whether credentials are needed.",
       "group": "Plan cloning and fill"
     }
@@ -84,7 +84,7 @@
       "command": "plan clone",
       "description": "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.",
       "rationale": "Requires combining the public tripPlan read endpoint, cookie-backed trip creation, and ShareDB JSON0 fill operations.",
-      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent",
+      "example": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
       "why_it_matters": "Use this when the user wants to turn an existing shared Wanderlog plan into their own new editable trip.",
       "group": "Plan cloning and fill"
     },
@@ -93,7 +93,7 @@
       "command": "plan fill",
       "description": "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.",
       "rationale": "Requires reading both source and target plans and applying sanitized ShareDB section/block operations to the target.",
-      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --target-key exampletarget --dry-run --agent",
+      "example": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
       "why_it_matters": "Use this when the user already created a target trip and wants to populate it from a shared template.",
       "group": "Plan cloning and fill"
     },
@@ -102,7 +102,7 @@
       "command": "plan preview",
       "description": "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.",
       "rationale": "Requires normalizing the shared URL/key and extracting source tripPlan/resource structure into a mutation-safe report.",
-      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+      "example": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
       "why_it_matters": "Use this before clone/fill to confirm what will be copied and whether credentials are needed.",
       "group": "Plan cloning and fill"
     }
@@ -121,11 +121,11 @@
         "comment": "Verify the generated CLI and config path before making live requests."
       },
       {
-        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
         "comment": "Inspect the source plan shape before copying anything."
       },
       {
-        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent",
+        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
         "comment": "Preview the new-trip clone operation without writing to Wanderlog."
       },
       {
@@ -155,23 +155,23 @@
     ],
     "recipes": [
       {
-        "title": "Preview a shared Okinawa plan",
-        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+        "title": "Preview a shared Morocco plan",
+        "command": "wanderlog-pp-cli plan preview --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
         "explanation": "Check dates, sections, blocks, and copy warnings without credentials."
       },
       {
         "title": "Dry-run a new-trip clone",
-        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent",
+        "command": "wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
         "explanation": "Show the new trip that would be created and filled before writing to Wanderlog."
       },
       {
         "title": "Dry-run filling an existing trip",
-        "command": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --target-key exampletarget --dry-run --agent",
+        "command": "wanderlog-pp-cli plan fill --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --target-key exampletarget --dry-run --agent",
         "explanation": "Compare source and target copy actions before applying to an existing trip."
       },
       {
         "title": "Extract a public guide for agent planning",
-        "command": "wanderlog-pp-cli guides get omxsrbpstldoniqa --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata",
+        "command": "wanderlog-pp-cli guides get naertjcoixqrgrfc --client-schema-version 2 --agent --select tripPlan.title,tripPlan.itinerary.sections,resources.placeMetadata",
         "explanation": "Pull only the guide/plan structure and place metadata an agent needs."
       }
     ],

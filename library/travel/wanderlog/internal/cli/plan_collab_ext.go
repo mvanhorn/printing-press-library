@@ -2,6 +2,7 @@
 package cli
 
 // pp:data-source live
+// pp:client-call
 
 import (
 	"context"
@@ -24,8 +25,8 @@ func newNovelPlanBlockScheduleCmd(flags *rootFlags) *cobra.Command {
 	var clear bool
 	cmd := &cobra.Command{
 		Use:     "schedule",
-		Short:   "Set or clear schedule fields on a Wanderlog block",
-		Example: "  wanderlog-pp-cli plan block schedule --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 2 --block-index 0 --start 09:30 --duration-minutes 90 --dry-run --agent",
+		Short:   "Set --start, --end, --duration-minutes, and --timezone on a block, or --clear them; previews unless --apply",
+		Example: "  wanderlog-pp-cli plan block schedule --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 2 --block-index 0 --start 09:30 --duration-minutes 90 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if clear {
 				if cmd.Flags().Changed("start") || cmd.Flags().Changed("end") || cmd.Flags().Changed("duration-minutes") || cmd.Flags().Changed("timezone") {
@@ -120,7 +121,7 @@ func newNovelPlanBlockAttachmentListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List attachments on a Wanderlog block",
-		Example:     "  wanderlog-pp-cli plan block attachment list --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --agent",
+		Example:     "  wanderlog-pp-cli plan block attachment list --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -161,7 +162,7 @@ func newNovelPlanBlockAttachmentAddCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add an attachment metadata object to a Wanderlog block",
-		Example: "  wanderlog-pp-cli plan block attachment add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --title Tickets --url https://example.com/tickets.pdf --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan block attachment add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --title Tickets --url https://example.com/tickets.pdf --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if jsonValue == "" && strings.TrimSpace(url) == "" {
 				return usageErr(errors.New("--url or --json-value is required"))
@@ -235,7 +236,7 @@ func newNovelPlanBlockAttachmentRemoveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove",
 		Short:   "Remove an attachment from a Wanderlog block",
-		Example: "  wanderlog-pp-cli plan block attachment remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --attachment-index 0 --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan block attachment remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --attachment-index 0 --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if attachmentID == 0 && index < 0 {
 				return usageErr(errors.New("--attachment-id or --attachment-index is required"))
@@ -289,7 +290,7 @@ func newNovelPlanChecklistAddCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a checklist block to a day or section",
-		Example: "  wanderlog-pp-cli plan checklist add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --title Packing --item Passport --item Sunscreen --dry-run --agent",
+		Example: "  wanderlog-pp-cli plan checklist add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --title Packing --item Passport --item Sunscreen --dry-run --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(title) == "" && len(items) == 0 {
 				return usageErr(errors.New("--title or at least one --item is required"))
@@ -334,7 +335,7 @@ func newNovelPlanChecklistItemCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanChecklistItemAddCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1, blockIndex: -1, position: -1, applyRetries: 2}
 	var text string
-	cmd := &cobra.Command{Use: "add", Short: "Add an item to a checklist block", Example: "  wanderlog-pp-cli plan checklist item add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --text Passport --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "add", Short: "Add an item to a checklist block", Example: "  wanderlog-pp-cli plan checklist item add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --text Passport --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if strings.TrimSpace(text) == "" {
 			return usageErr(errors.New("--text is required"))
 		}
@@ -359,7 +360,7 @@ func newNovelPlanChecklistItemCheckCmd(flags *rootFlags) *cobra.Command {
 	var itemID int
 	var itemIndex int = -1
 	var checked bool
-	cmd := &cobra.Command{Use: "check", Short: "Set checked state on a checklist item", Example: "  wanderlog-pp-cli plan checklist item check --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --item-index 0 --checked --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "check", Short: "Set checked state on a checklist item", Example: "  wanderlog-pp-cli plan checklist item check --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --item-index 0 --checked --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if itemID == 0 && itemIndex < 0 {
 			return usageErr(errors.New("--item-id or --item-index is required"))
 		}
@@ -390,7 +391,7 @@ func newNovelPlanChecklistItemRemoveCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1, blockIndex: -1, applyRetries: 2}
 	var itemID int
 	var itemIndex int = -1
-	cmd := &cobra.Command{Use: "remove", Short: "Remove an item from a checklist block", Example: "  wanderlog-pp-cli plan checklist item remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --block-index 0 --item-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "remove", Short: "Remove an item from a checklist block", Example: "  wanderlog-pp-cli plan checklist item remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --block-index 0 --item-index 0 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if itemID == 0 && itemIndex < 0 {
 			return usageErr(errors.New("--item-id or --item-index is required"))
 		}
@@ -470,7 +471,7 @@ func newNovelPlanCommentsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list [key]",
 		Short:       "List comments for a Wanderlog plan",
-		Example:     "  wanderlog-pp-cli plan comments list --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent",
+		Example:     "  wanderlog-pp-cli plan comments list --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent",
 		Args:        cobra.MaximumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -505,7 +506,7 @@ func resolveCommentsListPlanKey(opts planEditOptions, args []string) (string, er
 		pos := strings.TrimSpace(args[0])
 		if pos != "" {
 			if isAllDigits(pos) {
-				return "", fmt.Errorf("%s is tripPlan.id, not a key. Use the 16-char key from trips home (field: key). Example: --target-key omxsrbpstldoniqa", pos)
+				return "", fmt.Errorf("%s is tripPlan.id, not a key. Use the 16-char key from trips home (field: key). Example: --target-key naertjcoixqrgrfc", pos)
 			}
 			if opts.targetKey == "" && opts.planURL == "" {
 				opts.targetKey = pos
@@ -519,7 +520,7 @@ func newNovelPlanCommentsAddCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var text string
 	var parentID int
-	cmd := &cobra.Command{Use: "add", Short: "Add a comment to a Wanderlog plan", Example: "  wanderlog-pp-cli plan comments add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --text 'Nice itinerary' --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "add", Short: "Add a comment to a Wanderlog plan", Example: "  wanderlog-pp-cli plan comments add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --text 'Nice itinerary' --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if strings.TrimSpace(text) == "" {
 			return usageErr(errors.New("--text is required"))
 		}
@@ -543,7 +544,7 @@ func newNovelPlanCommentsEditCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var text string
 	var commentID int
-	cmd := &cobra.Command{Use: "edit", Short: "Edit a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments edit --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --comment-id 1 --text Updated --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "edit", Short: "Edit a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments edit --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --comment-id 1 --text Updated --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if commentID == 0 {
 			return usageErr(errors.New("--comment-id is required"))
 		}
@@ -564,7 +565,7 @@ func newNovelPlanCommentsEditCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanCommentsDeleteCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var commentID int
-	cmd := &cobra.Command{Use: "delete", Short: "Delete a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments delete --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --comment-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "delete", Short: "Delete a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments delete --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --comment-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if commentID == 0 {
 			return usageErr(errors.New("--comment-id is required"))
 		}
@@ -581,7 +582,7 @@ func newNovelPlanCommentsVoteCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var commentID int
 	var direction string
-	cmd := &cobra.Command{Use: "vote", Short: "Vote on a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments vote --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --comment-id 1 --direction up --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "vote", Short: "Vote on a Wanderlog comment", Example: "  wanderlog-pp-cli plan comments vote --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --comment-id 1 --direction up --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if commentID == 0 {
 			return usageErr(errors.New("--comment-id is required"))
 		}
@@ -625,7 +626,7 @@ func runPlanCommentWrite(cmd *cobra.Command, flags *rootFlags, opts planEditOpti
 
 func newNovelPlanCollaboratorsCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2}
-	cmd := &cobra.Command{Use: "collaborators", Short: "Inspect and edit Wanderlog collaborator/share metadata", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "collaborators", Short: "Inspect collaborator, permission, and share-key metadata on a Wanderlog plan (read-only; the add/remove/invite/share-key subcommands do the writing)", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -664,7 +665,7 @@ func newNovelPlanCollaboratorsCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanCollaboratorsInvitesCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
-	cmd := &cobra.Command{Use: "invites", Short: "List pending Wanderlog trip invites", Example: "  wanderlog-pp-cli plan collaborators invites --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "invites", Short: "List pending Wanderlog trip invites", Example: "  wanderlog-pp-cli plan collaborators invites --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -691,7 +692,7 @@ func newNovelPlanCollaboratorsInviteCmd(flags *rootFlags) *cobra.Command {
 	var userIDs []int
 	var message string
 	var inviteesJSON string
-	cmd := &cobra.Command{Use: "invite", Short: "Send Wanderlog trip invites by email or user id", Example: "  wanderlog-pp-cli plan collaborators invite --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --email example@example.com --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "invite", Short: "Send Wanderlog trip invites by email or user id", Example: "  wanderlog-pp-cli plan collaborators invite --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --email example@example.com --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		invitees, err := collaboratorInvitees(emails, userIDs, inviteesJSON)
 		if err != nil {
 			return usageErr(err)
@@ -712,7 +713,7 @@ func newNovelPlanCollaboratorsInviteCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanCollaboratorsAddCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var userID int
-	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog collaborator by user id", Example: "  wanderlog-pp-cli plan collaborators add --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --user-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "add", Short: "Add a Wanderlog collaborator by user id", Example: "  wanderlog-pp-cli plan collaborators add --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --user-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if userID == 0 {
 			return usageErr(errors.New("--user-id is required"))
 		}
@@ -729,7 +730,7 @@ func newNovelPlanCollaboratorsAddCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanCollaboratorsRemoveCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var userID int
-	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog collaborator by user id", Example: "  wanderlog-pp-cli plan collaborators remove --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --user-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "remove", Short: "Remove a Wanderlog collaborator by user id", Example: "  wanderlog-pp-cli plan collaborators remove --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --user-id 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		if userID == 0 {
 			return usageErr(errors.New("--user-id is required"))
 		}
@@ -747,7 +748,7 @@ func newNovelPlanCollaboratorsShareKeyCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{}
 	var permissions string
 	var permissionsJSON string
-	cmd := &cobra.Command{Use: "share-key", Short: "Create or refresh a Wanderlog share key with permissions", Example: "  wanderlog-pp-cli plan collaborators share-key --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --permissions view --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "share-key", Short: "Create or refresh a Wanderlog share key with permissions", Example: "  wanderlog-pp-cli plan collaborators share-key --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --permissions view --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		value, err := collaboratorPermissions(permissions, permissionsJSON)
 		if err != nil {
 			return usageErr(err)
@@ -843,7 +844,7 @@ func newNovelPlanRouteCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanRouteDayBodyCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1}
 	var mode string
-	cmd := &cobra.Command{Use: "day-body", Short: "Build a route optimization JSON body from one itinerary day", Example: "  wanderlog-pp-cli plan route day-body --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "day-body", Short: "Build a route optimization JSON body from one itinerary day", Example: "  wanderlog-pp-cli plan route day-body --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --agent", Annotations: map[string]string{"mcp:read-only": "true"}, RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)
@@ -875,7 +876,7 @@ func newNovelPlanRouteDayBodyCmd(flags *rootFlags) *cobra.Command {
 func newNovelPlanRouteOptimizeCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1}
 	var mode, bodyJSON string
-	cmd := &cobra.Command{Use: "optimize", Short: "Call Wanderlog route optimization", Example: "  wanderlog-pp-cli plan route optimize --plan-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --day 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{Use: "optimize", Short: "Call Wanderlog route optimization", Example: "  wanderlog-pp-cli plan route optimize --plan-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --day 1 --dry-run --agent", RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		c, err := planLiveClient(flags)

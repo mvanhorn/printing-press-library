@@ -155,6 +155,19 @@ Highlights (not in the official API docs):
   • plan clone   Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.
   • plan fill   Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.
   • plan preview   Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.
+  • trips home   List the authenticated account's home trips together with their 16-character plan 'key's. Also: list my trips, own itineraries.
+  • plan outline   Show a slim itinerary outline: days, section headings, and stop names, optionally for a single day. Also: show days in my plan, slim day list.
+  • plan inspect   Inspect a slim itinerary outline and, with '--check', report counts, unformatted notes, lodging coverage, closed places, and text-vs-schedule mismatches. Also: verify an itinerary after edits.
+  • plan votes   List place and hotel block upvote counts for a Wanderlog plan. Also: who upvoted places, upvotedBy counts.
+  • lodging search   Search Wanderlog's lodging aggregator across Airbnb, Expedia, Google, and Kayak for a geo and date range, and return compact candidates carrying price, rating, coordinates, and booking URL. Also: sea…
+  • plan sections   List editable section indexes, day numbers, section ids, dates, and block counts for a plan.
+  • plan note add   Add a note block to a selected day or section through ShareDB.
+  • plan place add   Add a real place block to a selected day or section from a Google/Wanderlog place id, or from a query with location bias. Also: geocode a place by query, verify an address.
+  • plan place replace   Replace only the nested place on an existing itinerary block, keeping its times and notes.
+  • plan fill-day   Insert a batch of place stops into one Wanderlog day from a JSON array of stops with optional times and notes.
+  • plan block move   Move a note or place block within or across days.
+  • plan block delete   Delete a note or place block from a selected day or section.
+  …and 19 more — see README.md for the full list
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'wanderlog-pp-cli doctor' to verify auth and connectivity.

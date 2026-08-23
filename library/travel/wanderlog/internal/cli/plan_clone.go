@@ -14,7 +14,7 @@ func newNovelPlanCloneCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "clone",
 		Short:       "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.",
-		Example:     "  wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/omxsrbpstldoniqa/trip-to-okinawa-prefecture/shared --dry-run --agent",
+		Example:     "  wanderlog-pp-cli plan clone --source-url https://wanderlog.com/plan/naertjcoixqrgrfc/morocco-travel-travel-guide/shared --dry-run --agent",
 		Long:        "Use this command to create a new Wanderlog trip from a shared/public source plan. Do NOT use it to modify an existing trip; use 'plan fill' instead.",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
