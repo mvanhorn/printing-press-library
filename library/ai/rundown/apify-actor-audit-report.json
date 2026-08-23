@@ -1,9 +1,0 @@
-{
-  "dir": "\u003ccli-dir\u003e\\rundown-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e\\20260822-120000-rundown01",
-  "verdict": "pass",
-  "actors": null,
-  "issues": [
-    "no Apify actor references found, skipping"
-  ]
-}
