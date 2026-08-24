@@ -1,4 +1,4 @@
-module synology-pp-cli
+module github.com/mvanhorn/printing-press-library/library/devices/synology
 
 go 1.26.6
 
