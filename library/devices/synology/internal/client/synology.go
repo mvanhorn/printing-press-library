@@ -25,6 +25,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/config"
 )
 
 // DSM carries the account password in the login request's query string, so any
@@ -199,13 +201,24 @@ type dsmCredentials struct {
 // A run that was never given credentials cannot self-heal an expired session;
 // EnsureToken turns that into a "run session login" message rather than a
 // silent retry loop.
+// envOrDotenv prefers the real environment and falls back to the shared
+// printing-press .env file. Hand-added, and resolved per field on purpose: an
+// account exported in the shell still combines with a password that only lives
+// in the file.
+func envOrDotenv(key string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return config.DotenvLookup(key)
+}
+
 func dsmCredentialsFromEnv() dsmCredentials {
 	return dsmCredentials{
-		Account:    os.Getenv("SYNOLOGY_ACCOUNT"),
-		Password:   os.Getenv("SYNOLOGY_PASSWORD"),
-		OTPCode:    os.Getenv("SYNOLOGY_OTP_CODE"),
-		DeviceID:   os.Getenv("SYNOLOGY_DEVICE_ID"),
-		DeviceName: os.Getenv("SYNOLOGY_DEVICE_NAME"),
+		Account:    envOrDotenv("SYNOLOGY_ACCOUNT"),
+		Password:   envOrDotenv("SYNOLOGY_PASSWORD"),
+		OTPCode:    envOrDotenv("SYNOLOGY_OTP_CODE"),
+		DeviceID:   envOrDotenv("SYNOLOGY_DEVICE_ID"),
+		DeviceName: envOrDotenv("SYNOLOGY_DEVICE_NAME"),
 	}
 }
 

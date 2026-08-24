@@ -110,6 +110,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 DSM authenticates with an account and password, not an API key. 'session login --account <user> --passwd <password>' exchanges them for a session id and a SynoToken, both of which are persisted locally; the password never is. Two-factor accounts pass '--otp-code' on the first login and reuse the returned device id afterwards. Set SYNOLOGY_ACCOUNT and SYNOLOGY_PASSWORD so an expired session renews itself mid-run. Point the CLI at your NAS with SYNOLOGY_BASE_URL, and add '--insecure' if it still uses DSM's own self-signed certificate on port 5001.
 
+Rather than exporting those into a shell profile, where every child process inherits the password, put them in `~/.claude/printing-press/.env` (override the path with `SYNOLOGY_ENV_FILE`):
+
+```
+SYNOLOGY_BASE_URL=https://nas.example.lan:5001
+SYNOLOGY_ACCOUNT=nas-user
+SYNOLOGY_PASSWORD=your-password
+SYNOLOGY_INSECURE_TLS=1
+```
+
+The CLI reads the file directly and never re-exports it. Precedence, weakest first: the credentials file, then this `.env`, then real environment variables. The password is never copied into the config file and is never written back to disk. Keep the file owner-only readable; the CLI warns when it is not, but leaves the permissions alone because the file is shared with the other printing-press CLIs.
+
 ## Quick Start
 
 ```bash

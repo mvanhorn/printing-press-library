@@ -6,12 +6,17 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cliutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cliutil"
 	"time"
 )
+
+// defaultBaseURL is the placeholder a config with no base URL of its own
+// carries. applyDotenv treats it as "still empty" so the shared .env file can
+// supply the real NAS address.
+const defaultBaseURL = "https://nas.example.com:5001"
 
 type Config struct {
 	BaseURL string `json:"base_url"`
@@ -45,7 +50,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://nas.example.com:5001",
+		BaseURL: defaultBaseURL,
 	}
 
 	// Resolve config path
@@ -126,6 +131,11 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	cfg.snapshotFileConfig()
+
+	// Hand-added: the shared printing-press .env file sits between the config
+	// file and the real environment. It runs after the snapshot, so nothing it
+	// supplies is ever written back to disk by save().
+	applyDotenv(cfg)
 
 	// Env var overrides
 	// Label config-file-derived credentials so doctor can distinguish

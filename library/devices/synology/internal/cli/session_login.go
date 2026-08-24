@@ -9,6 +9,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/config"
 )
 
 func newSessionLoginCmd(flags *rootFlags) *cobra.Command {
@@ -24,13 +26,37 @@ func newSessionLoginCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  synology-pp-cli session login --account admin --passwd '<password>'",
 		Annotations: map[string]string{"pp:endpoint": "session.login", "pp:method": "GET", "pp:path": "/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Hand-added: fall back to the shared printing-press .env so the
+			// password never has to be typed on a command line, where it lands
+			// in the shell history and in the process table. Flags still win;
+			// each field is resolved on its own, so an account passed as a flag
+			// combines with a password that only lives in the file.
+			for _, f := range []struct {
+				target *string
+				key    string
+			}{
+				{&flagAccount, "SYNOLOGY_ACCOUNT"},
+				{&flagPasswd, "SYNOLOGY_PASSWORD"},
+				{&flagOtpCode, "SYNOLOGY_OTP_CODE"},
+				{&flagDeviceId, "SYNOLOGY_DEVICE_ID"},
+				{&flagDeviceName, "SYNOLOGY_DEVICE_NAME"},
+			} {
+				if *f.target == "" {
+					if v := os.Getenv(f.key); v != "" {
+						*f.target = v
+					} else {
+						*f.target = config.DotenvLookup(f.key)
+					}
+				}
+			}
+
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
 			// Machine callers (--json/--agent, which sets asJSON) get a usage
 			// error + exit 2 instead of silent exit-0 help, so an incomplete
 			// invocation is never mistaken for success.
-			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+			if !hasChangedLocalFlags(cmd) && flagAccount == "" && len(args) == 0 && !flags.dryRun {
 				if flags.asJSON {
 					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"error": "requires input",
@@ -42,10 +68,10 @@ func newSessionLoginCmd(flags *rootFlags) *cobra.Command {
 				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("account") && !flags.dryRun {
+			if flagAccount == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "account")
 			}
-			if !cmd.Flags().Changed("passwd") && !flags.dryRun {
+			if flagPasswd == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "passwd")
 			}
 			path := "/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes"
