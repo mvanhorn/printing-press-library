@@ -255,8 +255,14 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 Before list/search/drill commands on a new user question, run:
 
 ```bash
-synology-pp-cli recall "<user's question>" --agent
+# Put the question in a single-quoted variable first, then pass "$QUERY".
+# A question can contain backticks, $(...) or a double quote; interpolating it
+# straight into the command line would let that text run as shell syntax.
+QUERY='<user question, verbatim, single-quoted>'
+synology-pp-cli recall "$QUERY" --agent
 ```
+
+Every `recall`, `teach`, `teach-playbook` and `playbook amend` example below reuses that `$QUERY` variable for the same reason. If the question itself contains a single quote, read it from a quoted heredoc into the variable instead of inlining it.
 
 The response envelope:
 
@@ -363,7 +369,7 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
 
 ```bash
-synology-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+synology-pp-cli teach --query "$QUERY" --resource-type <type> --resource <id1> --resource <id2>
 # (append shell `&` to background it)
 ```
 
@@ -378,7 +384,7 @@ You do not need to decide whether a session "deserves" a playbook: a teach on a 
 ```bash
 # Common case: record both the resource learning AND the playbook in one call.
 synology-pp-cli teach \
-  --query "<user's question>" \
+  --query "$QUERY" \
   --resource <id> \
   --playbook-file ~/playbooks/<shape>.json \
   --playbook-notes-file ~/playbooks/<shape>-notes.md
@@ -386,7 +392,7 @@ synology-pp-cli teach \
 
 # Alternate: playbook-only (no resource to record alongside).
 synology-pp-cli teach-playbook \
-  --query "<user's question>" \
+  --query "$QUERY" \
   --playbook-file ~/playbooks/<shape>.json \
   --notes-file ~/playbooks/<shape>-notes.md
 ```
@@ -400,9 +406,10 @@ When you DO find a playbook on a future recall, treat it as ground truth: replay
 If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
 
 ```bash
+NOTE='<your concrete correction, verbatim, single-quoted>'
 synology-pp-cli playbook amend \
-  --query "<exact recall query string>" \
-  --add-note "<your concrete correction>"
+  --query "$QUERY" \
+  --add-note "$NOTE"
 # (append shell `&` to background it)
 ```
 
