@@ -123,6 +123,14 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
+**harvest** — Build the local corpus (run this first)
+
+- `qsys-pp-cli harvest` — walk both vendor sitemaps (roughly 750 help pages and 270 product pages, rate limited) and build the local corpus every other command reads
+- `qsys-pp-cli harvest --only pages|products|compat` — harvest one source instead of all three
+- `qsys-pp-cli harvest --only products --limit 25 --with-pdfs` — narrow the walk, and also download and text-extract spec-sheet PDFs (slower; needs `pdftotext`)
+
+**Do not confuse `harvest` with `sync`.** Top-level `sync` walks the generated endpoint resources and refreshes entity lookups; it does not build the corpus. The Q-SYS corpus is two scraped websites plus a PDF layer that must be joined locally, and only `harvest` builds it. Run `qsys-pp-cli coverage` afterwards to confirm the harvest landed.
+
 **compat** — Hardware and software compatibility matrices
 
 - `qsys-pp-cli compat by-product` — List the Q-SYS Designer versions and compatibility notes for a hardware product, per the compatibility matrix
@@ -157,6 +165,15 @@ qsys-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
+
+### First run: build the corpus
+
+```bash
+qsys-pp-cli harvest
+qsys-pp-cli coverage
+```
+
+`harvest` walks both vendor sitemaps into the local corpus; every other command reads it. `coverage` then reports how many products resolved a spec sheet and how many pages parsed, so an incomplete harvest is visible instead of silent. Narrow a first pass with `--only products --limit 25`, and add `--with-pdfs` when spec-sheet text is needed.
 
 ### Check a whole BOM against a Designer version
 
@@ -368,7 +385,7 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 - `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
 - `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
 - `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
-- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `qsys-pp-cli sync` to refresh entity lookups.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `qsys-pp-cli sync` to refresh entity lookups. Note that top-level `sync` only walks the generated endpoint resources and refreshes lookups — it does not build the corpus. If local reads are also coming back empty, run `qsys-pp-cli harvest` first; that is the corpus builder.
 - Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
 
 ### Step 4: `teach &` after finalizing your response - always

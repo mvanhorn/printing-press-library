@@ -105,6 +105,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
+**sync** — Build the local mirror (run this first)
+
+- `crestron-pp-cli sync` — crawl Crestron.com into a local SQLite mirror: catalog categories, products, and firmware releases with their covered-model lists expanded
+- `crestron-pp-cli sync --resources categories,products` — build just the catalog half
+- `crestron-pp-cli sync --resources releases --notes --max-notes 50` — also pull release notes and change logs so `search` can full-text them (needs a signed-in session; without one the version and date are still recorded)
+- `crestron-pp-cli sync --max-duration 1h --concurrency 3` — bound the whole crawl and the number of parallel category walks
+
+Crestron publishes no API and no product sitemap, so the catalog is walked the way the website itself does. Nothing local — `search`, `specs`, `fleet`, `lifecycle`, `submittal` — has data until this runs. The root `--timeout` applies per request, not to the whole sync; use `--max-duration` (default 30m) for the overall budget.
+
 **account** — Crestron.com sign-in state
 
 - `crestron-pp-cli account` — Check whether the stored Crestron.com session is still signed in
@@ -148,6 +157,15 @@ crestron-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
+
+### First run: build the local mirror
+
+```bash
+crestron-pp-cli sync
+crestron-pp-cli product get DM-NVX-360
+```
+
+`sync` crawls Crestron.com into the local mirror; `search`, `specs`, `fleet`, `lifecycle`, and `submittal` all read it and return nothing until it has run. Add `--notes` with a signed-in session to make release notes and change logs full-text searchable. Bound a long crawl with `--max-duration` — the root `--timeout` applies per request, not to the whole sync.
 
 ### Audit a whole fleet for firmware currency
 

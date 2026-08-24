@@ -209,6 +209,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
+### First run: build the corpus
+
+```bash
+qsys-pp-cli harvest
+qsys-pp-cli coverage
+```
+
+`harvest` walks both vendor sitemaps into the local corpus; every other command reads it. `coverage` then reports how many products resolved a spec sheet and how many pages parsed, so an incomplete harvest is visible instead of silent. Narrow a first pass with `--only products --limit 25`, and add `--with-pdfs` when spec-sheet text is needed.
+
 ### Check a whole BOM against a Designer version
 
 ```bash
@@ -303,6 +312,17 @@ Relocation is one-way. Unsetting `QSYS_HOME` does not move files back to platfor
 Existing installs keep working because the platform-default rung matches the legacy layout. Run `qsys-pp-cli doctor --fail-on warn` to check path warnings in automation.
 
 ## Commands
+
+### harvest — build the local corpus (run this first)
+
+Walks both vendor sitemaps and builds the local corpus that every other command reads. The full harvest fetches roughly 750 help pages and 270 product pages, rate limited to be polite to the vendor servers.
+
+- **`qsys-pp-cli harvest`** - Build the whole corpus from help.qsys.com and qsys.com
+- **`qsys-pp-cli harvest --only pages|products|compat`** - Harvest one source instead of all three
+- **`qsys-pp-cli harvest --limit 25`** - Cap items per source
+- **`qsys-pp-cli harvest --with-pdfs`** - Also download and text-extract spec-sheet PDFs (slower; needs `pdftotext`)
+
+> `harvest` is not the same command as the top-level `sync`. Top-level `sync` walks the generated endpoint resources and refreshes entity lookups; it does not build the corpus. Run `qsys-pp-cli coverage` after a harvest to confirm how much of each site actually parsed.
 
 ### compat
 

@@ -225,6 +225,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
+### First run: build the local mirror
+
+```bash
+crestron-pp-cli sync
+crestron-pp-cli product get DM-NVX-360
+```
+
+`sync` crawls Crestron.com into the local mirror; `search`, `specs`, `fleet`, `lifecycle`, and `submittal` all read it and return nothing until it has run. Add `--notes` with a signed-in session to make release notes and change logs full-text searchable. Bound a long crawl with `--max-duration` — the root `--timeout` applies per request, not to the whole sync.
+
 ### Audit a whole fleet for firmware currency
 
 ```bash
@@ -319,6 +328,17 @@ Relocation is one-way. Unsetting `CRESTRON_HOME` does not move files back to pla
 Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `crestron-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
+
+### sync — build the local mirror (run this first)
+
+Crawl Crestron.com into a local SQLite mirror so products, categories, and firmware releases can be queried offline. Crestron publishes no API and no product sitemap, so the catalog is walked the way the website itself does. Nothing local — `search`, `specs`, `fleet`, `lifecycle`, `submittal` — has data until this runs.
+
+- **`crestron-pp-cli sync`** - Build the whole mirror: categories, products, and firmware releases
+- **`crestron-pp-cli sync --resources categories,products`** - Build just the catalog half
+- **`crestron-pp-cli sync --resources releases --notes --max-notes 50`** - Also pull release notes and change logs so `search` can full-text them (requires a signed-in session; without one the version and date are still recorded)
+- **`crestron-pp-cli sync --max-duration 1h --concurrency 3`** - Bound the whole crawl and the number of parallel category walks
+
+> The root `--timeout` applies per request, not to the whole sync. Use `--max-duration` (default 30m) for the overall crawl budget.
 
 ### account
 
