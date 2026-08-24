@@ -9,7 +9,8 @@ package learn
 // (handleContext in internal/mcp) and the CLI agent-context command
 // (internal/cli), so the two surfaces reference one constant instead of
 // carrying parallel prose that could drift.
-const RecallFirstProtocol = `1. Recall first: before answering a domain query, run recall "<question>" --agent and apply any verified learnings, playbook steps, and notes it returns.
+const RecallFirstProtocol = `0. Never paste a user-controlled string into a shell command line. Read the question into a variable through a heredoc with a quoted delimiter first (QUERY=$(cat <<'PP_Q' ... PP_Q)), where the shell performs no expansion and no quote parsing, then pass "$QUERY" as the argument. The same applies to any other user-controlled argument, such as an --add-note correction or a learnings forget query.
+1. Recall first: before answering a domain query, run recall "$QUERY" --agent and apply any verified learnings, playbook steps, and notes it returns.
 2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
 3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.
 4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes.

@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"synology-pp-cli/internal/cliutil"
-	"synology-pp-cli/internal/learn"
-	"synology-pp-cli/internal/learn/entities"
-	"synology-pp-cli/internal/learn/lookups"
-	"synology-pp-cli/internal/learn/patterns"
-	"synology-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

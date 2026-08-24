@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"synology-pp-cli/internal/learn"
-	"synology-pp-cli/internal/learn/entities"
-	"synology-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/store"
 )
 
 // newTeachPlaybookCmd builds the standalone command for recording a
