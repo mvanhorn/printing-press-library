@@ -17,7 +17,7 @@ func newSavedlistsListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "All saved shopping lists with product and free-text counts",
 		Example:     "  woolworths-pp-cli savedlists list",
-		Annotations: map[string]string{"pp:endpoint": "savedlists.list", "pp:method": "GET", "pp:path": "/api/v3/ui/savedlists", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:typed-exit-codes": "0,4", "pp:endpoint": "savedlists.list", "pp:method": "GET", "pp:path": "/api/v3/ui/savedlists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "/api/v3/ui/savedlists"
 			c, err := flags.newClient()

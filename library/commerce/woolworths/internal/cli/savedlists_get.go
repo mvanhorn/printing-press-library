@@ -17,7 +17,7 @@ func newSavedlistsGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get <listId>",
 		Short:       "One saved list including its products and free-text lines",
 		Example:     "  woolworths-pp-cli savedlists get 77341560",
-		Annotations: map[string]string{"pp:endpoint": "savedlists.get", "pp:method": "GET", "pp:path": "/api/v3/ui/savedlists/{listId}", "mcp:read-only": "true", "pp:happy-args": "listId=77341560"},
+		Annotations: map[string]string{"pp:typed-exit-codes": "0,4", "pp:endpoint": "savedlists.get", "pp:method": "GET", "pp:path": "/api/v3/ui/savedlists/{listId}", "mcp:read-only": "true", "pp:happy-args": "listId=77341560"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// A missing required positional is a usage error in every output

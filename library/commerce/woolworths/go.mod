@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/commerce/woolworths
 
-go 1.26.7
+go 1.26.6
 
 require (
 	github.com/enetx/http v1.0.28
