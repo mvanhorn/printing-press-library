@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -224,4 +225,233 @@ func TestCatalogSyncRunsWithoutFlags(t *testing.T) {
 	if strings.Contains(out.String(), "Usage:") {
 		t.Errorf("catalog sync with no flags printed help:\n%s", out.String())
 	}
+}
+
+// docRow renders one literature table row for the fixture pages.
+func docRow(id string) string {
+	return fmt.Sprintf(
+		`<tr><td><a id="ctl00_1_idFileUrl" href="/download/files/brochure/%s.pdf" target="download">%s Brochure</a></td>`+
+			`<td><nobr>A</nobr></td><td><nobr>Jan. 2, 2024</nobr></td><td><nobr>10 KB</nobr></td><td><nobr>PDF</nobr></td></tr>`,
+		id, id)
+}
+
+// paginatedPage renders a literature page holding the given docs, optionally
+// followed by the per-category "Next" link that drives --full pagination.
+func paginatedPage(heading string, ids []string, hasNext bool) string {
+	var b strings.Builder
+	b.WriteString("<html><body>")
+	if heading != "" {
+		b.WriteString("<h2>" + heading + "</h2>")
+	}
+	b.WriteString("<table>")
+	for _, id := range ids {
+		b.WriteString(docRow(id))
+	}
+	b.WriteString("</table>")
+	if hasNext {
+		b.WriteString(`<a class="link-next" href="/technology/literature.aspx?filetype=1&amp;tabid=5&amp;page=2">Next</a>`)
+	}
+	b.WriteString("</body></html>")
+	return b.String()
+}
+
+// TestCatalogSyncCountsDocsCommittedAcrossRetries is the regression guard for
+// the retry-accounting defect: upserts commit as they go, so when one attempt
+// stores documents and then fails partway through pagination, a later attempt's
+// documents add to the store rather than replacing them. Counting the largest
+// single attempt loses whatever only an earlier attempt reached, which makes
+// the summary, the sync-state count, and doctor underreport the rows on disk.
+//
+// The fixture makes the two attempts commit overlapping-but-different sets:
+//
+//	attempt 1: index a1, then category page 2 -> b1,b2, then page 3 fails  (3 docs)
+//	attempt 2: index a1, then category page 2 -> c1,c2, then page 3 -> c3  (4 docs)
+//
+// Six distinct documents reach the store. Taking the largest attempt reports 4.
+func TestCatalogSyncCountsDocsCommittedAcrossRetries(t *testing.T) {
+	const wantDocs = 6 // a1, b1, b2, c1, c2, c3
+
+	var mu sync.Mutex
+	indexHits := 0
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		w.Header().Set("Content-Type", "text/html")
+
+		// The index page carries no filetype; category pages always do.
+		if q.Get("filetype") == "" {
+			mu.Lock()
+			indexHits++
+			mu.Unlock()
+			_, _ = w.Write([]byte(paginatedPage("Brochure (A - 1 files)", []string{"a1"}, true)))
+			return
+		}
+
+		mu.Lock()
+		attempt := indexHits
+		mu.Unlock()
+
+		switch {
+		case attempt == 1 && q.Get("page") == "2":
+			_, _ = w.Write([]byte(paginatedPage("", []string{"b1", "b2"}, true)))
+		case attempt == 1: // page 3 — the failure that ends attempt 1
+			w.WriteHeader(http.StatusInternalServerError)
+		case q.Get("page") == "2":
+			_, _ = w.Write([]byte(paginatedPage("", []string{"c1", "c2"}, true)))
+		default: // page 3 — last page, no Next link
+			_, _ = w.Write([]byte(paginatedPage("", []string{"c3"}, false)))
+		}
+	}))
+	t.Cleanup(srv.Close)
+	useCatalogTestServer(t, srv)
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	summary, _, err := runCatalogSync(t, dbPath, "--letters", "A", "--full", "--retries", "1")
+	if err != nil {
+		t.Fatalf("catalog sync returned error, want nil: %v", err)
+	}
+
+	db, err := store.OpenWithContext(t.Context(), dbPath)
+	if err != nil {
+		t.Fatalf("opening store: %v", err)
+	}
+	defer db.Close()
+
+	rows, err := db.Count(catalogResource)
+	if err != nil {
+		t.Fatalf("counting catalog rows: %v", err)
+	}
+	if rows != wantDocs {
+		t.Fatalf("catalog rows = %d, want %d — fixture did not commit the expected documents", rows, wantDocs)
+	}
+
+	if got := summary["docs"]; got != float64(wantDocs) {
+		t.Errorf("summary docs = %v, want %d (rows actually committed across both attempts)", got, wantDocs)
+	}
+	perLetter, ok := summary["per_letter"].(map[string]any)
+	if !ok {
+		t.Fatalf("per_letter = %v, want an object", summary["per_letter"])
+	}
+	if got := perLetter["A"]; got != float64(wantDocs) {
+		t.Errorf("per_letter.A = %v, want %d", got, wantDocs)
+	}
+
+	_, _, count, err := db.GetSyncState(catalogResource)
+	if err != nil {
+		t.Fatalf("reading sync state: %v", err)
+	}
+	if count != wantDocs {
+		t.Errorf("sync state count = %d, want %d — doctor and the sync hint read this value", count, wantDocs)
+	}
+}
+
+// TestCatalogSyncCountsRepeatedDocOnce is the other half of the accounting
+// contract: a retry that re-commits the same documents must not inflate the
+// count, which is what summing per-attempt totals would do.
+func TestCatalogSyncCountsRepeatedDocOnce(t *testing.T) {
+	var mu sync.Mutex
+	indexHits := 0
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		w.Header().Set("Content-Type", "text/html")
+		if q.Get("filetype") == "" {
+			mu.Lock()
+			indexHits++
+			mu.Unlock()
+			_, _ = w.Write([]byte(paginatedPage("Brochure (A - 2 files)", []string{"a1", "a2"}, true)))
+			return
+		}
+		mu.Lock()
+		attempt := indexHits
+		mu.Unlock()
+		if attempt == 1 {
+			// Attempt 1 fails at the first category page, after the index
+			// documents have already been committed.
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		// Attempt 2 re-serves the same two documents and finishes.
+		_, _ = w.Write([]byte(paginatedPage("", []string{"a1", "a2"}, false)))
+	}))
+	t.Cleanup(srv.Close)
+	useCatalogTestServer(t, srv)
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	summary, _, err := runCatalogSync(t, dbPath, "--letters", "A", "--full", "--retries", "1")
+	if err != nil {
+		t.Fatalf("catalog sync returned error, want nil: %v", err)
+	}
+	if got := summary["docs"]; got != float64(2) {
+		t.Errorf("summary docs = %v, want 2 (the same document committed twice counts once)", got)
+	}
+}
+
+// TestCatalogSyncBareStoresOnlyFirstPage pins the behavior the first-run
+// documentation now describes: bare `catalog sync` stores only the first index
+// page per letter bucket, so a category with more pages is truncated, and
+// --full is what produces the complete catalog. Live numbers behind the docs:
+// bare sync yields ~1,200 documents with buckets capped at the page-1 ceiling,
+// while --full yields ~3,600 and up.
+//
+// If the default ever changes to paginate, this test fails and the "not the
+// complete catalog" wording in SKILL.md and README.md has to change with it.
+func TestCatalogSyncBareStoresOnlyFirstPage(t *testing.T) {
+	// Page 1 carries two documents and a Next link; page 2 carries two more.
+	newServer := func() *httptest.Server {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			if r.URL.Query().Get("filetype") == "" {
+				_, _ = w.Write([]byte(paginatedPage("Brochure (A - 2 files)", []string{"p1a", "p1b"}, true)))
+				return
+			}
+			_, _ = w.Write([]byte(paginatedPage("", []string{"p2a", "p2b"}, false)))
+		}))
+		t.Cleanup(srv.Close)
+		return srv
+	}
+
+	countRows := func(t *testing.T, dbPath string) int {
+		t.Helper()
+		db, err := store.OpenWithContext(t.Context(), dbPath)
+		if err != nil {
+			t.Fatalf("opening store: %v", err)
+		}
+		defer db.Close()
+		n, err := db.Count(catalogResource)
+		if err != nil {
+			t.Fatalf("counting catalog rows: %v", err)
+		}
+		return n
+	}
+
+	t.Run("bare sync truncates at page 1", func(t *testing.T) {
+		useCatalogTestServer(t, newServer())
+		dbPath := filepath.Join(t.TempDir(), "data.db")
+		summary, _, err := runCatalogSync(t, dbPath, "--letters", "A")
+		if err != nil {
+			t.Fatalf("catalog sync returned error: %v", err)
+		}
+		if got := summary["docs"]; got != float64(2) {
+			t.Errorf("bare sync docs = %v, want 2 (page 1 only)", got)
+		}
+		if rows := countRows(t, dbPath); rows != 2 {
+			t.Errorf("bare sync stored %d rows, want 2 — page 2 must not be fetched without --full", rows)
+		}
+	})
+
+	t.Run("--full follows pagination", func(t *testing.T) {
+		useCatalogTestServer(t, newServer())
+		dbPath := filepath.Join(t.TempDir(), "data.db")
+		summary, _, err := runCatalogSync(t, dbPath, "--letters", "A", "--full")
+		if err != nil {
+			t.Fatalf("catalog sync --full returned error: %v", err)
+		}
+		if got := summary["docs"]; got != float64(4) {
+			t.Errorf("--full docs = %v, want 4 (both pages)", got)
+		}
+		if rows := countRows(t, dbPath); rows != 4 {
+			t.Errorf("--full stored %d rows, want 4", rows)
+		}
+	})
 }

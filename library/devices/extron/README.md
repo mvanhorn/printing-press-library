@@ -121,6 +121,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 extron-pp-cli doctor --dry-run
 
 # Fetch the Extron literature catalog into the local store — everything else reads it.
+# This baseline pass takes the first index page per letter bucket; add --full for the
+# complete catalog (see "catalog sync" under Commands).
 extron-pp-cli catalog sync
 
 # Browse the Manual category for M products (Matrix, MAV) straight from the official index.
@@ -139,7 +141,7 @@ extron-pp-cli search "DTP2" --type literature
 These capabilities aren't available in any other tool for this API.
 
 ### Local catalog that compounds
-- **`catalog sync`** — Build the whole Extron literature catalog into a local store in one pass, walking the alphabetical index the site only exposes a letter at a time. A failed letter bucket is retried and skipped rather than aborting the crawl, so a 36-bucket `--full` walk survives a flaky bucket.
+- **`catalog sync`** — Build the local Extron literature catalog, walking the alphabetical index the site only exposes a letter at a time. Bare `catalog sync` fetches the first index page per letter bucket — a fast baseline of roughly 1,200 documents, with large categories truncated at the page-1 ceiling. `--full` follows each category's pagination and is what produces the complete catalog (roughly 3,600 documents and up). A failed letter bucket is retried and skipped rather than aborting the crawl, so a 36-bucket `--full` walk survives a flaky bucket.
 
   _Run this first — every local read depends on it, and it is not the same command as top-level `sync`._
 
@@ -192,6 +194,27 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
+### First run: build the catalog
+
+Everything local — `search`, `literature list`, `catalog completeness`, `catalog verify` — reads the catalog this builds, so run it before trusting any local result. There are two passes, and the difference matters:
+
+```bash
+# Fast baseline: first index page per letter bucket, ~1,200 docs.
+# Large categories are truncated here — this is NOT the complete catalog.
+extron-pp-cli catalog sync
+
+# Complete catalog: follows every category's pagination, ~3,600 docs and up.
+extron-pp-cli catalog sync --full --timeout 15m --max-duration 4h --json
+```
+
+Run the `--full` pass before any answer that depends on completeness — a rack doc binder, a completeness report, a bid compliance check. If you only ran the baseline, a document that exists at Extron can be missing from local search with no error to tell you.
+
+`--timeout` bounds each letter bucket, `--max-duration` bounds the whole crawl. Failed buckets are retried and then skipped; check `letters_failed` and `errors` in the summary, then re-run just those buckets:
+
+```bash
+extron-pp-cli catalog sync --letters A,Q --full --timeout 15m
+```
 
 ### What did Extron release this month
 
@@ -292,10 +315,12 @@ Existing installs keep working because the platform-default rung matches the leg
 
 Fetch the Extron literature catalog into the local store. Every local read — `search`, `literature list`, `catalog completeness`, `catalog verify`, `literature recent`, `literature updates` — depends on it.
 
-- **`extron-pp-cli catalog sync`** - Walk the alphabetical literature index (0-9, A-Z) and store the parsed catalog locally
-- **`extron-pp-cli catalog sync --full`** - Also follow each category's pagination for the complete catalog
+- **`extron-pp-cli catalog sync`** - Fetch the **first index page per letter bucket** (0-9, A-Z). A fast baseline of roughly 1,200 documents, **not the complete catalog**: any category with more than one page of results is truncated at the page-1 ceiling.
+- **`extron-pp-cli catalog sync --full`** - Also follow each category's pagination. **This is what produces the complete catalog** (roughly 3,600 documents and up).
 - **`extron-pp-cli catalog sync --letters A,B,C`** - Narrow to specific letter buckets
 - **`extron-pp-cli catalog sync --full --max-duration 4h --retries 3`** - Long crawl with a bigger overall budget and more per-letter retries
+
+Use the baseline to get something searchable quickly; run `--full` before any answer that depends on the catalog being complete, such as a rack doc binder or a bid compliance check. `--max-pages` caps pagination per category and truncates in the same way, so leave it unset for a genuinely complete crawl.
 
 A letter bucket that fails is retried (`--retries`, default 2) and then skipped, so one bad bucket does not discard the rest of the crawl. Skipped buckets appear in the summary's `errors` array and in `letters_failed`; the run exits non-zero only when every bucket failed, or when `--strict` is passed. The root `--timeout` bounds each letter bucket; `--max-duration` (default 30m) bounds the whole crawl.
 

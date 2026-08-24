@@ -45,8 +45,12 @@ func newNovelCatalogSyncCmd(flags *rootFlags) *cobra.Command {
 		Long: `Fetch the Extron literature catalog into the local store. Run this before
 relying on local search or catalog commands — it is what builds the catalog.
 
-By default it fetches the first alphabetical index page per letter bucket
-(0-9, A-Z); --full follows each category's pagination for a complete catalog.
+By default it fetches only the first index page per letter bucket (0-9, A-Z).
+That is a fast baseline (roughly 1,200 documents) but NOT the complete catalog:
+any category with more than one page of results is truncated at the page-1
+ceiling. --full follows each category's pagination and is what produces the
+complete catalog (roughly 3,600 documents and up). --max-pages caps pagination
+per category and truncates the same way, so leave it unset for a full crawl.
 
 This is not the same command as top-level 'sync'. Top-level 'sync' walks the
 generated literature endpoint and refreshes entity lookups; only 'catalog sync'
@@ -159,7 +163,7 @@ letter was skipped.`,
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().StringVar(&lettersCSV, "letters", "", "letter buckets to fetch as a CSV list (default: 0-9,A-Z)")
-	cmd.Flags().BoolVar(&full, "full", false, "follow per-category pagination for a complete catalog")
+	cmd.Flags().BoolVar(&full, "full", false, "follow per-category pagination; required for the complete catalog (bare sync stores only page 1 per letter bucket)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "maximum category pages per letter in --full mode (0 = unlimited)")
 	cmd.Flags().DurationVar(&maxDuration, "max-duration", 30*time.Minute, "overall crawl budget; the root --timeout applies per letter bucket, not to the whole sync (0 = unlimited)")
 	cmd.Flags().IntVar(&retries, "retries", 2, "retry attempts per letter bucket before skipping it")
@@ -177,11 +181,16 @@ func syncLetter(parent context.Context, flags *rootFlags, client *extron.Client,
 	if retries < 0 {
 		retries = 0
 	}
-	stored := 0
+	// Upserts commit as they go and are keyed by document URL, so a retry adds
+	// to what earlier attempts already stored rather than replacing it. Counting
+	// distinct URLs across every attempt is the only figure that matches the
+	// rows actually in the store: the largest single attempt misses documents a
+	// different attempt committed, and the sum double-counts re-upserts.
+	seen := make(map[string]struct{})
 	var lastErr error
 	for attempt := 0; attempt <= retries; attempt++ {
 		if parent.Err() != nil {
-			return stored, parent.Err()
+			return len(seen), parent.Err()
 		}
 		if attempt > 0 {
 			backoff := time.Duration(attempt) * 2 * time.Second
@@ -189,49 +198,42 @@ func syncLetter(parent context.Context, flags *rootFlags, client *extron.Client,
 			select {
 			case <-time.After(backoff):
 			case <-parent.Done():
-				return stored, parent.Err()
+				return len(seen), parent.Err()
 			}
 		}
 
 		// Each attempt gets its own root --timeout budget.
 		ctx, cancel := boundCtx(parent, flags)
-		n, err := fetchLetter(ctx, client, db, letter, full, maxPages)
+		err := fetchLetter(ctx, client, db, letter, full, maxPages, seen)
 		cancel()
-		if n > stored {
-			// Upserts are keyed by document URL, so the best attempt's count is
-			// the accurate figure for what this bucket contributed.
-			stored = n
-		}
 		if err == nil {
-			return stored, nil
+			return len(seen), nil
 		}
 		lastErr = err
 		// The overall crawl budget is spent — no later attempt can succeed.
 		if parent.Err() != nil {
-			return stored, err
+			return len(seen), err
 		}
 	}
-	return stored, lastErr
+	return len(seen), lastErr
 }
 
-// fetchLetter performs one attempt at a letter bucket.
-func fetchLetter(ctx context.Context, client *extron.Client, db *store.Store, letter string, full bool, maxPages int) (int, error) {
+// fetchLetter performs one attempt at a letter bucket, recording every document
+// URL it commits in seen. seen is owned by the caller and spans retries.
+func fetchLetter(ctx context.Context, client *extron.Client, db *store.Store, letter string, full bool, maxPages int, seen map[string]struct{}) error {
 	docs, refs, err := client.FetchIndex(ctx, letter)
 	if err != nil {
-		return 0, fmt.Errorf("letter %s: %w", letter, err)
+		return fmt.Errorf("letter %s: %w", letter, err)
 	}
-	stored, err := upsertDocs(db, docs)
-	if err != nil {
-		return stored, fmt.Errorf("letter %s: %w", letter, err)
+	if err := upsertDocs(db, docs, seen); err != nil {
+		return fmt.Errorf("letter %s: %w", letter, err)
 	}
 	if full && len(refs) > 0 {
-		paged, err := syncCategoryPages(ctx, client, db, letter, refs, maxPages)
-		stored += paged
-		if err != nil {
-			return stored, fmt.Errorf("letter %s (full): %w", letter, err)
+		if err := syncCategoryPages(ctx, client, db, letter, refs, maxPages, seen); err != nil {
+			return fmt.Errorf("letter %s (full): %w", letter, err)
 		}
 	}
-	return stored, nil
+	return nil
 }
 
 func failedLetters(failures []letterFailure) []string {
@@ -264,24 +266,27 @@ func parseLettersCSV(csv string) []string {
 	return out
 }
 
-func upsertDocs(db *store.Store, docs []extron.Doc) (int, error) {
-	n := 0
+// upsertDocs stores each doc and records its URL in seen. Recording the URL
+// rather than incrementing a counter is what keeps the per-bucket total honest
+// when a bucket is retried: the same document committed twice counts once, and
+// a document only one attempt reached still counts.
+func upsertDocs(db *store.Store, docs []extron.Doc, seen map[string]struct{}) error {
 	for _, d := range docs {
 		data, err := json.Marshal(d)
 		if err != nil {
-			return n, err
+			return err
 		}
 		if err := db.Upsert(catalogResource, d.URL, data); err != nil {
-			return n, fmt.Errorf("storing %s: %w", d.Title, err)
+			return fmt.Errorf("storing %s: %w", d.Title, err)
 		}
-		n++
+		seen[d.URL] = struct{}{}
 	}
-	return n, nil
+	return nil
 }
 
-// syncCategoryPages follows each category's pagination for one letter.
-func syncCategoryPages(ctx context.Context, client *extron.Client, db *store.Store, letter string, refs map[string]extron.PageRef, maxPages int) (int, error) {
-	total := 0
+// syncCategoryPages follows each category's pagination for one letter,
+// recording every committed document URL in seen.
+func syncCategoryPages(ctx context.Context, client *extron.Client, db *store.Store, letter string, refs map[string]extron.PageRef, maxPages int, seen map[string]struct{}) error {
 	for _, ref := range refs {
 		page := ref.Page
 		pagesSeen := 0
@@ -294,13 +299,11 @@ func syncCategoryPages(ctx context.Context, client *extron.Client, db *store.Sto
 				if strings.Contains(err.Error(), "no literature rows") {
 					break
 				}
-				return total, err
+				return err
 			}
-			n, err := upsertDocs(db, docs)
-			if err != nil {
-				return total, err
+			if err := upsertDocs(db, docs, seen); err != nil {
+				return err
 			}
-			total += n
 			pagesSeen++
 			if !hasNext {
 				break
@@ -309,5 +312,5 @@ func syncCategoryPages(ctx context.Context, client *extron.Client, db *store.Sto
 			page = ref.Page
 		}
 	}
-	return total, nil
+	return nil
 }
