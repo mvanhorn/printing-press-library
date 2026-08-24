@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-23T22:28:04.8621306Z",
+  "cli_dir": "\u003ccli-dir\u003e\\woolworths-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but complete: 'platform client list' is cobra.NoArgs with no flags and returns the profile-name array, so no parameter or result-shape choice is left for a longer Short to disambiguate. Already carries mcp:read-only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Under-names its real filters (--query, --warnings, --resource, --action, --min-confidence, --limit), but teach.go is a DO-NOT-EDIT generated learn-loop file shared by every printed CLI, so a hand-edit here is wiped on the next generation. Retro candidate: the learn-loop template should emit a filter-aware Short."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-23T22:16:10.4157331Z"
+  }
+}

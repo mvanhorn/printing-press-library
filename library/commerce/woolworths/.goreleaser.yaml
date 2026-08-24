@@ -1,0 +1,51 @@
+version: 2
+project_name: woolworths-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: woolworths-pp-cli
+    main: ./cmd/woolworths-pp-cli
+    binary: woolworths-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/woolworths/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: woolworths-pp-mcp
+    main: ./cmd/woolworths-pp-mcp
+    binary: woolworths-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: woolworths-pp-cli
+    repository:
+      owner: therichardgill
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Woolworths catalogue, specials, store and trolley surface, plus a local price history that can tell a genuine half-price from an inflated was-price."
+    install: |
+      bin.install "woolworths-pp-cli"
+      bin.install "woolworths-pp-mcp"
