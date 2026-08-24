@@ -13,10 +13,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cliutil"
 )
 
-// Shared credential file for the printing-press CLIs. DSM has no API key: a
-// login is an account plus a password, so keeping them in one dotfile is what
-// lets an expired session renew itself unattended without the password ever
-// reaching a shell profile or a command line.
+// Credential file for this CLI, at ~/.claude/printing-press/<cli-name>/.env,
+// one directory per printing-press CLI. DSM has no API key: a login is an
+// account plus a password, so keeping them in a dotfile is what lets an expired
+// session renew itself unattended without the password ever reaching a shell
+// profile or a command line.
 //
 // Precedence, weakest first: config/credentials file, this .env file, real
 // environment variables. applyDotenv runs after the config file is read and
@@ -35,6 +36,14 @@ import (
 
 const dotenvPathEnv = "SYNOLOGY_ENV_FILE"
 
+// dotenvCLIDir is this CLI's own directory under ~/.claude/printing-press. One
+// directory per CLI keeps every printing-press CLI's credentials collected in
+// one place without any two of them sharing a file: the names each CLI reads
+// are its own, so a single flat file would collide as soon as two CLIs wanted
+// the same key. Spelled out rather than derived from the module path, which a
+// regeneration can rewrite.
+const dotenvCLIDir = "synology-pp-cli"
+
 func dotenvPath() string {
 	if p := strings.TrimSpace(os.Getenv(dotenvPathEnv)); p != "" {
 		return p
@@ -43,7 +52,7 @@ func dotenvPath() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".claude", "printing-press", ".env")
+	return filepath.Join(home, ".claude", "printing-press", dotenvCLIDir, ".env")
 }
 
 // parseDotenv reads KEY=VALUE lines. Comments, blank lines, an optional
@@ -94,7 +103,7 @@ func dotenvValues() (map[string]string, string) {
 
 // DotenvLookup returns the first non-empty value for the given keys, which are
 // matched case-insensitively. It is the seam dsmCredentialsFromEnv uses so a
-// DSM account and password can live in the shared file without becoming Config
+// DSM account and password can live in the .env file without becoming Config
 // fields. Lookup is per key, so an account from the real environment and a
 // password from the file still combine into one usable credential pair.
 func DotenvLookup(keys ...string) string {
@@ -112,9 +121,9 @@ func DotenvLookup(keys ...string) string {
 }
 
 // warnDotenvPerms reports loose permissions on a file that holds a DSM
-// password. It reports rather than tightens: the file is shared with whatever
-// else reads it, so silently changing its mode behind the owner's back would be
-// the wrong call. A DSM password is not a scoped, revocable API token - it is
+// password. It reports rather than tightens: the file belongs to the operator,
+// not to this CLI, so silently changing its mode behind their back would be the
+// wrong call. A DSM password is not a scoped, revocable API token - it is
 // usually the same login that administers the whole NAS - so the wording says
 // password rather than credential.
 func warnDotenvPerms(path string, values map[string]string) {
@@ -126,7 +135,7 @@ func warnDotenvPerms(path string, values map[string]string) {
 	}
 }
 
-// applyDotenv fills the Config fields the shared file can supply. Credentials
+// applyDotenv fills the Config fields the .env file can supply. Credentials
 // are not among them by design; see the package comment above.
 func applyDotenv(cfg *Config) {
 	values, _ := dotenvValues()

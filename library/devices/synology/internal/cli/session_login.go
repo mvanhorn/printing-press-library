@@ -26,7 +26,7 @@ func newSessionLoginCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  synology-pp-cli session login --account admin --passwd '<password>'",
 		Annotations: map[string]string{"pp:endpoint": "session.login", "pp:method": "GET", "pp:path": "/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Hand-added: fall back to the shared printing-press .env so the
+			// Hand-added: fall back to this CLI's printing-press .env so the
 			// password never has to be typed on a command line, where it lands
 			// in the shell history and in the process table. Flags still win;
 			// each field is resolved on its own, so an account passed as a flag

@@ -201,7 +201,7 @@ type dsmCredentials struct {
 // A run that was never given credentials cannot self-heal an expired session;
 // EnsureToken turns that into a "run session login" message rather than a
 // silent retry loop.
-// envOrDotenv prefers the real environment and falls back to the shared
+// envOrDotenv prefers the real environment and falls back to this CLI's
 // printing-press .env file. Hand-added, and resolved per field on purpose: an
 // account exported in the shell still combines with a password that only lives
 // in the file.

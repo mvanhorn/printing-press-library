@@ -14,7 +14,7 @@ import (
 )
 
 // defaultBaseURL is the placeholder a config with no base URL of its own
-// carries. applyDotenv treats it as "still empty" so the shared .env file can
+// carries. applyDotenv treats it as "still empty" so the CLI's .env file can
 // supply the real NAS address.
 const defaultBaseURL = "https://nas.example.com:5001"
 
@@ -132,7 +132,7 @@ func Load(configPath string) (*Config, error) {
 
 	cfg.snapshotFileConfig()
 
-	// Hand-added: the shared printing-press .env file sits between the config
+	// Hand-added: this CLI's printing-press .env file sits between the config
 	// file and the real environment. It runs after the snapshot, so nothing it
 	// supplies is ever written back to disk by save().
 	applyDotenv(cfg)
