@@ -4,11 +4,14 @@
   "applied_at": "2026-08-24",
   "base_run_id": "20260824-135140",
   "base_printing_press_version": "4.29.0",
-  "summary": "Pass the user's question through a single-quoted shell variable in every `recall`, `teach`, `teach-playbook` and `playbook amend` example in `SKILL.md`.",
-  "reason": "The generated learning-loop examples interpolate `\"<user's question>\"` directly into a Bash command line. An agent following the template literally with a question that contains backticks, `$(...)` or a double quote would execute that text as shell syntax on the operator's machine. The examples now assign the question to `QUERY` in single quotes once and pass `\"$QUERY\"` everywhere, with a note on the heredoc fallback for a question that itself contains a single quote. `playbook amend` gets the same treatment for `--add-note`.",
+  "summary": "Read every user-controlled string into a variable through a quoted heredoc before passing it to `recall`, `teach`, `teach-playbook`, `playbook amend` or `learnings forget`, in `SKILL.md`, `AGENTS.md` and the generated command help.",
+  "reason": "The generated learning-loop templates interpolate the user's question straight into a Bash command line. An agent following them literally with a question containing backticks, `$(...)` or a quote would execute that text as shell syntax on the operator's machine. A single-quoted variable assignment is not enough either: a single quote inside the question terminates it. A heredoc with a quoted delimiter is, because the shell performs no expansion and no quote parsing inside the body, and only a line equal to the delimiter ends it. The same treatment applies to `--add-note` and to the `learnings forget` query.",
   "files": [
-    "SKILL.md"
+    "SKILL.md",
+    "AGENTS.md",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go"
   ],
-  "coverage_impact": "Documentation only; no command surface, flag or runtime behaviour changed.",
-  "validated_outcome": "Both binaries build clean; the SKILL.md validation job in the library CI passes."
+  "coverage_impact": "Documentation and help text only; no command surface, flag or runtime behaviour changed. The `teach`, `recall`, `learnings forget`, `teach-playbook` and `playbook amend` help examples now reference `$QUERY` and `$NOTE` rather than inline placeholders, so they are read as templates rather than executed verbatim.",
+  "validated_outcome": "Both binaries build clean and `go vet ./internal/cli` is silent."
 }

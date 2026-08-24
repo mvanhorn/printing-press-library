@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/entities"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/lookups"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/patterns"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/store"
+	"synology-pp-cli/internal/cliutil"
+	"synology-pp-cli/internal/learn"
+	"synology-pp-cli/internal/learn/entities"
+	"synology-pp-cli/internal/learn/lookups"
+	"synology-pp-cli/internal/learn/patterns"
+	"synology-pp-cli/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning
@@ -185,7 +185,9 @@ emits the user-facing response: silent on success, errors only to
 the CLI state directory's teach.log, safe to fire-and-forget.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
-		Example: `  synology-pp-cli teach --query "<question>" --resource-type <type> \
+		Example: `  # QUERY holds the user's question, read in through a quoted heredoc so no
+  # shell syntax inside it is ever evaluated (SKILL.md carries the assignment).
+  synology-pp-cli teach --query "$QUERY" --resource-type <type> \
     --resource <id> --resource <id> &`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -467,8 +469,10 @@ is an information query, not a not-found error.
 
 Disabling: ` + noLearnEnvVar + `=true returns the empty shape even
 when learnings exist.`,
-		Example: `  synology-pp-cli recall "<question>" --agent
-  synology-pp-cli recall "<question>" --agent --min-confidence 2`,
+		Example: `  # QUERY holds the user's question, read in through a quoted heredoc so no
+  # shell syntax inside it is ever evaluated (SKILL.md carries the assignment).
+  synology-pp-cli recall "$QUERY" --agent
+  synology-pp-cli recall "$QUERY" --agent --min-confidence 2`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -800,8 +804,10 @@ func newLearningsForgetCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.C
 undone without dropping the whole DB.
 
 Requires at least one of --resource, --action, or --all.`,
-		Example: `  synology-pp-cli learnings forget "<question>" --resource <id>
-  synology-pp-cli learnings forget "<question>" --all`,
+		Example: `  # QUERY holds the taught question, read in through a quoted heredoc so no
+  # shell syntax inside it is ever evaluated (SKILL.md carries the assignment).
+  synology-pp-cli learnings forget "$QUERY" --resource <id>
+  synology-pp-cli learnings forget "$QUERY" --all`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

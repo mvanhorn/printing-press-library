@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/learn/entities"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/store"
+	"synology-pp-cli/internal/learn"
+	"synology-pp-cli/internal/learn/entities"
+	"synology-pp-cli/internal/store"
 )
 
 // newTeachPlaybookCmd builds the standalone command for recording a
@@ -59,8 +59,10 @@ notes verbatim.
 At least one of --playbook-json/--playbook-file and --notes/--notes-file
 must be set. --playbook-json takes the playbook body inline so MCP-only
 agents can record playbooks without a file on disk.`,
-		Example: `  synology-pp-cli teach-playbook \
-    --query "<question that anchors the family>" \
+		Example: `  # QUERY holds the question that anchors the family, read in through a quoted
+  # heredoc so no shell syntax inside it is ever evaluated (see SKILL.md).
+  synology-pp-cli teach-playbook \
+    --query "$QUERY" \
     --playbook-file ~/playbooks/recipe.json \
     --notes-file ~/playbooks/recipe-notes.md`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -199,9 +201,11 @@ drift). Same fire-and-forget posture as teach: silent on success,
 errors to teach.log, safe to background with &.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
-		Example: `  synology-pp-cli playbook amend \
-    --query "<exact recall query>" \
-    --add-note "summary endpoint envelope: data lives at .results.header, not .header"`,
+		Example: `  # QUERY and NOTE are read in through quoted heredocs so no shell syntax
+  # inside either is ever evaluated (SKILL.md carries the assignments).
+  synology-pp-cli playbook amend \
+    --query "$QUERY" \
+    --add-note "$NOTE"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true

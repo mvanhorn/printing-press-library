@@ -255,14 +255,19 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 Before list/search/drill commands on a new user question, run:
 
 ```bash
-# Put the question in a single-quoted variable first, then pass "$QUERY".
-# A question can contain backticks, $(...) or a double quote; interpolating it
-# straight into the command line would let that text run as shell syntax.
-QUERY='<user question, verbatim, single-quoted>'
+# Never interpolate the question into a command line. Read it into a variable
+# through a quoted heredoc first: with the delimiter quoted ('PP_Q'), the shell
+# performs no expansion and no quote parsing inside the body, so backticks,
+# $(...), double quotes and single quotes in the question are all inert. Only a
+# line consisting of exactly PP_Q ends the body.
+QUERY=$(cat <<'PP_Q'
+<the user's question, verbatim, on its own line>
+PP_Q
+)
 synology-pp-cli recall "$QUERY" --agent
 ```
 
-Every `recall`, `teach`, `teach-playbook` and `playbook amend` example below reuses that `$QUERY` variable for the same reason. If the question itself contains a single quote, read it from a quoted heredoc into the variable instead of inlining it.
+Every `recall`, `teach`, `teach-playbook` and `playbook amend` example below reuses that `$QUERY` variable, and any other user-controlled string (a `--add-note` correction, a `learnings forget` query) is assigned the same way. If the question could itself contain a line reading exactly `PP_Q`, pick a longer delimiter.
 
 The response envelope:
 
@@ -406,7 +411,10 @@ When you DO find a playbook on a future recall, treat it as ground truth: replay
 If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
 
 ```bash
-NOTE='<your concrete correction, verbatim, single-quoted>'
+NOTE=$(cat <<'PP_N'
+<your concrete correction, verbatim, on its own line>
+PP_N
+)
 synology-pp-cli playbook amend \
   --query "$QUERY" \
   --add-note "$NOTE"
