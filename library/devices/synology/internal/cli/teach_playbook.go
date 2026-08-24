@@ -59,8 +59,9 @@ notes verbatim.
 At least one of --playbook-json/--playbook-file and --notes/--notes-file
 must be set. --playbook-json takes the playbook body inline so MCP-only
 agents can record playbooks without a file on disk.`,
-		Example: `  # QUERY holds the question that anchors the family, read in through a quoted
-  # heredoc so no shell syntax inside it is ever evaluated (see SKILL.md).
+		Example: `  # QUERY holds the question that anchors the family, read in from a file so it
+  # never appears in the command text and no shell syntax inside it can be
+  # evaluated (see SKILL.md).
   synology-pp-cli teach-playbook \
     --query "$QUERY" \
     --playbook-file ~/playbooks/recipe.json \
@@ -201,8 +202,9 @@ drift). Same fire-and-forget posture as teach: silent on success,
 errors to teach.log, safe to background with &.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
-		Example: `  # QUERY and NOTE are read in through quoted heredocs so no shell syntax
-  # inside either is ever evaluated (SKILL.md carries the assignments).
+		Example: `  # QUERY and NOTE are read in from files so neither appears in the command
+  # text and no shell syntax inside either can be evaluated (SKILL.md carries
+  # the assignments).
   synology-pp-cli playbook amend \
     --query "$QUERY" \
     --add-note "$NOTE"`,

@@ -255,19 +255,17 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 Before list/search/drill commands on a new user question, run:
 
 ```bash
-# Never interpolate the question into a command line. Read it into a variable
-# through a quoted heredoc first: with the delimiter quoted ('PP_Q'), the shell
-# performs no expansion and no quote parsing inside the body, so backticks,
-# $(...), double quotes and single quotes in the question are all inert. Only a
-# line consisting of exactly PP_Q ends the body.
-QUERY=$(cat <<'PP_Q'
-<the user's question, verbatim, on its own line>
-PP_Q
-)
+# Never interpolate the question into a command line, and never embed it in the
+# command text at all - not in quotes and not in a heredoc, whose delimiter the
+# question can itself contain. Write the question verbatim to a file with your
+# file-writing tool (no shell involved), then read that file into a variable.
+# Command substitution on a file only ever yields data: the shell never parses
+# the file's bytes as syntax, so there is no boundary for the question to escape.
+QUERY=$(cat /path/to/question.txt)
 synology-pp-cli recall "$QUERY" --agent
 ```
 
-Every `recall`, `teach`, `teach-playbook` and `playbook amend` example below reuses that `$QUERY` variable, and any other user-controlled string (a `--add-note` correction, a `learnings forget` query) is assigned the same way. If the question could itself contain a line reading exactly `PP_Q`, pick a longer delimiter.
+Every `recall`, `teach`, `teach-playbook` and `playbook amend` example below reuses that `$QUERY` variable, and any other user-controlled string (a `--add-note` correction, a `learnings forget` query) is written to its own file and read in the same way.
 
 The response envelope:
 
@@ -411,10 +409,8 @@ When you DO find a playbook on a future recall, treat it as ground truth: replay
 If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
 
 ```bash
-NOTE=$(cat <<'PP_N'
-<your concrete correction, verbatim, on its own line>
-PP_N
-)
+# Write the correction verbatim to a file with your file-writing tool, then:
+NOTE=$(cat /path/to/note.txt)
 synology-pp-cli playbook amend \
   --query "$QUERY" \
   --add-note "$NOTE"

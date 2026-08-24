@@ -37,13 +37,10 @@ Use `--yes --no-input` only after the target, arguments, and side effects are cl
 
 This CLI ships a self-capturing teach/recall loop backed by the local SQLite store. The CLI journals every invocation, derives `flag_alias` candidates from failed-flag + corrected-retry pairs, and synthesizes a playbook candidate when a family is taught without one - no manual failure bookkeeping. The agent's role is judgment:
 
-0. Never paste a user-controlled string into a shell command line. Read the question into a variable through a quoted heredoc first, then pass `"$QUERY"` to every command below. With the delimiter quoted, the shell expands nothing and parses no quotes inside the body, so backticks, `$(...)`, double quotes and single quotes in the question cannot execute on the agent host:
+0. Never paste a user-controlled string into a shell command line, and never embed it in the command text at all - not in quotes and not in a heredoc, whose delimiter the question can itself contain. Write the question verbatim to a file with your file-writing tool (no shell involved), read that file into a variable, then pass `"$QUERY"` to every command below. Command substitution on a file only ever yields data: the shell never parses the file's bytes as syntax, so there is no boundary for the question to escape:
 
 ```bash
-QUERY=$(cat <<'PP_Q'
-<the user's question, verbatim, on its own line>
-PP_Q
-)
+QUERY=$(cat /path/to/question.txt)
 ```
 
 The same applies to any other user-controlled argument: a `--add-note` correction, a `learnings forget` query.
