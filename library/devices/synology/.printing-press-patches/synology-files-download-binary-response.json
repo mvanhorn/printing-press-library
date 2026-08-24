@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "synology-files-download-binary-response",
+  "applied_at": "2026-08-24",
+  "base_run_id": "20260824-135140",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Declare `files download` as a binary-response endpoint.",
+  "reason": "The endpoint streams the file itself rather than a JSON envelope. The generated command tried to parse the body as JSON, failed, and - because a parse failure looks like a lost session - reported an expired session instead of the download. Declaring it binary makes the transport wrap the body in a self-describing base64 envelope.",
+  "files": [
+    "spec.yaml"
+  ],
+  "validated_outcome": "`files download --path <file>` returns a base64 envelope with the file bytes instead of a spurious session error."
+}
