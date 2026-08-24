@@ -455,3 +455,102 @@ func TestCatalogSyncBareStoresOnlyFirstPage(t *testing.T) {
 		}
 	})
 }
+
+// readSyncState returns the catalog cursor and recorded total from a store.
+func readSyncState(t *testing.T, dbPath string) (string, int, int) {
+	t.Helper()
+	db, err := store.OpenWithContext(t.Context(), dbPath)
+	if err != nil {
+		t.Fatalf("opening store: %v", err)
+	}
+	defer db.Close()
+	cursor, _, count, err := db.GetSyncState(catalogResource)
+	if err != nil {
+		t.Fatalf("reading sync state: %v", err)
+	}
+	rows, err := db.Count(catalogResource)
+	if err != nil {
+		t.Fatalf("counting catalog rows: %v", err)
+	}
+	return cursor, count, rows
+}
+
+// TestCatalogSyncNarrowRerunKeepsStoreWideState is the regression guard for
+// narrowed runs overwriting store-wide state. sync_state describes the whole
+// catalog, but `catalog sync --letters A,Q` only knows the buckets it fetched.
+// Writing that run's own tally made doctor read a handful of documents against
+// a store holding thousands — observed live as total_count=31 against 4,968
+// actual rows, with doctor still reporting the cache fresh.
+//
+// This matters because retry-then-skip makes "rerun just the failed buckets
+// with --letters" the documented recovery path, so the guidance leads users
+// straight into it.
+func TestCatalogSyncNarrowRerunKeepsStoreWideState(t *testing.T) {
+	t.Run("narrow rerun keeps the store-wide total", func(t *testing.T) {
+		srv, _ := catalogTestServer(t)
+		useCatalogTestServer(t, srv)
+		dbPath := filepath.Join(t.TempDir(), "data.db")
+
+		// Broad pass: three buckets, one document each.
+		if _, _, err := runCatalogSync(t, dbPath, "--letters", "A,B,C"); err != nil {
+			t.Fatalf("broad sync returned error: %v", err)
+		}
+		if _, count, rows := readSyncState(t, dbPath); count != 3 || rows != 3 {
+			t.Fatalf("after broad sync: sync_state=%d rows=%d, want 3 and 3", count, rows)
+		}
+
+		// Narrow rerun of a single bucket — the documented recovery path.
+		if _, _, err := runCatalogSync(t, dbPath, "--letters", "A"); err != nil {
+			t.Fatalf("narrow rerun returned error: %v", err)
+		}
+		_, count, rows := readSyncState(t, dbPath)
+		if rows != 3 {
+			t.Fatalf("catalog rows = %d, want 3 — the rerun must not drop other buckets' rows", rows)
+		}
+		if count != rows {
+			t.Errorf("sync_state total = %d, want %d (the store's actual row count) — doctor reads this value", count, rows)
+		}
+	})
+
+	t.Run("narrow rerun does not downgrade a complete catalog", func(t *testing.T) {
+		srv, _ := catalogTestServer(t)
+		useCatalogTestServer(t, srv)
+		dbPath := filepath.Join(t.TempDir(), "data.db")
+
+		if _, _, err := runCatalogSync(t, dbPath, "--letters", "A,B,C"); err != nil {
+			t.Fatalf("seed sync returned error: %v", err)
+		}
+		// Stand in for a prior complete crawl.
+		func() {
+			db, err := store.OpenWithContext(t.Context(), dbPath)
+			if err != nil {
+				t.Fatalf("opening store: %v", err)
+			}
+			defer db.Close()
+			if err := db.SaveSyncState(catalogResource, "full", 3); err != nil {
+				t.Fatalf("seeding full cursor: %v", err)
+			}
+		}()
+
+		if _, _, err := runCatalogSync(t, dbPath, "--letters", "A"); err != nil {
+			t.Fatalf("narrow rerun returned error: %v", err)
+		}
+		if cursor, _, _ := readSyncState(t, dbPath); cursor != "full" {
+			t.Errorf("cursor = %q after a narrow rerun, want %q — a --letters run knows nothing about the buckets it skipped, so it must not downgrade the catalog", cursor, "full")
+		}
+	})
+
+	t.Run("narrow run never claims the catalog is complete", func(t *testing.T) {
+		srv, _ := catalogTestServer(t)
+		useCatalogTestServer(t, srv)
+		dbPath := filepath.Join(t.TempDir(), "data.db")
+
+		// --full on a fresh store, but only one bucket: cannot be "full".
+		if _, _, err := runCatalogSync(t, dbPath, "--letters", "A", "--full"); err != nil {
+			t.Fatalf("narrow --full returned error: %v", err)
+		}
+		if cursor, _, _ := readSyncState(t, dbPath); cursor == "full" {
+			t.Errorf("cursor = %q, want %q — one bucket is not the whole catalog, and \"full\" silences the partial-catalog hint", cursor, "partial")
+		}
+	})
+}

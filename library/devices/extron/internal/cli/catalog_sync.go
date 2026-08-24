@@ -113,12 +113,34 @@ letter was skipped.`,
 
 			// Record what actually landed even when some buckets were skipped, so a
 			// partial catalog is not reported as never-synced.
+			//
+			// PATCH(amend-2026-08-24: never let one run's scope overwrite
+			// store-wide state) — sync_state describes the whole catalog, but a
+			// --letters run only knows about the buckets it fetched. Writing its
+			// own tally made `catalog sync --letters A,Q` — the recovery path this
+			// command's retry-then-skip behavior recommends — report a handful of
+			// documents against a store holding thousands, which doctor reads.
+			narrowed := len(letters) < len(extron.DefaultLetters)
 			cursor := "partial"
-			if full && maxPages <= 0 && len(failures) == 0 {
+			switch {
+			case narrowed:
+				// A narrowed run has no evidence about the buckets it skipped, so
+				// it neither claims completeness nor downgrades a catalog that was
+				// already complete.
+				if existing, _, _, err := db.GetSyncState(catalogResource); err == nil && existing != "" {
+					cursor = existing
+				}
+			case full && maxPages <= 0 && len(failures) == 0:
 				cursor = "full"
 			}
 			if succeeded > 0 {
-				if err := db.SaveSyncState(catalogResource, cursor, total); err != nil {
+				// Count the store rather than this run's documents: upserts are
+				// keyed by URL, so rows from earlier runs are still present.
+				storedTotal, err := db.Count(catalogResource)
+				if err != nil {
+					return fmt.Errorf("counting catalog rows: %w", err)
+				}
+				if err := db.SaveSyncState(catalogResource, cursor, storedTotal); err != nil {
 					return fmt.Errorf("recording sync state: %w", err)
 				}
 			}
